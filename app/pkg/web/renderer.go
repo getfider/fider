@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/getfider/fider/app/models/dto"
+	"rogchap.com/v8go"
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -158,6 +159,12 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		}
 	}
 
+	useSSR := false
+	if env.Config.EnhancedSEO && name == "index.html" {
+		useSSR = true
+		name = "ssr.html"
+	}
+
 	tmpl, ok := r.templates[name]
 	if !ok || env.IsDevelopment() {
 		tmpl = r.add(name)
@@ -244,6 +251,32 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 			"isAdministrator": u.IsAdministrator(),
 			"isCollaborator":  u.IsCollaborator(),
 		}
+	}
+
+	if useSSR {
+		bytes, err := os.ReadFile("ssr.js")
+		if err != nil {
+			panic(err)
+		}
+		v8ctx, _ := v8go.NewContext()                       // creates a new V8 context with a new Isolate aka VM
+		_, err = v8ctx.RunScript(string(bytes), "index.js") // executes a script on the global context
+		if err != nil {
+			panic(err)
+		}
+		jsonArg, err := json.Marshal(public)
+		if err != nil {
+			panic(err)
+		}
+		_, err = v8ctx.RunScript(`const result = doWork("`+ctx.Request.URL.Path+`", `+string(jsonArg)+`)`, "index.js") // any functions previously added to the context can be called
+		if err != nil {
+			panic(err)
+		}
+		val, err := v8ctx.RunScript("result", "index.js") // return a value in JavaScript back to Go
+		if err != nil {
+			panic(err)
+		}
+
+		props.Data["html"] = template.HTML(val.String())
 	}
 
 	err = tmpl.Execute(w, Map{

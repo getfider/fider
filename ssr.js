@@ -1379,6 +1379,263 @@
     }
   });
 
+  // node_modules/react-icons/lib/cjs/iconsManifest.js
+  var require_iconsManifest = __commonJS((exports, module) => {
+    module.exports.IconsManifest = [
+      {
+        id: "fa",
+        name: "Font Awesome",
+        projectUrl: "https://fontawesome.com/",
+        license: "CC BY 4.0 License",
+        licenseUrl: "https://creativecommons.org/licenses/by/4.0/"
+      },
+      {
+        id: "io",
+        name: "Ionicons 4",
+        projectUrl: "https://ionicons.com/",
+        license: "MIT",
+        licenseUrl: "https://github.com/ionic-team/ionicons/blob/master/LICENSE"
+      },
+      {
+        id: "io5",
+        name: "Ionicons 5",
+        projectUrl: "https://ionicons.com/",
+        license: "MIT",
+        licenseUrl: "https://github.com/ionic-team/ionicons/blob/master/LICENSE"
+      },
+      {
+        id: "md",
+        name: "Material Design icons",
+        projectUrl: "http://google.github.io/material-design-icons/",
+        license: "Apache License Version 2.0",
+        licenseUrl: "https://github.com/google/material-design-icons/blob/master/LICENSE"
+      },
+      {
+        id: "ti",
+        name: "Typicons",
+        projectUrl: "http://s-ings.com/typicons/",
+        license: "CC BY-SA 3.0",
+        licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        id: "go",
+        name: "Github Octicons icons",
+        projectUrl: "https://octicons.github.com/",
+        license: "MIT",
+        licenseUrl: "https://github.com/primer/octicons/blob/master/LICENSE"
+      },
+      {
+        id: "fi",
+        name: "Feather",
+        projectUrl: "https://feathericons.com/",
+        license: "MIT",
+        licenseUrl: "https://github.com/feathericons/feather/blob/master/LICENSE"
+      },
+      {
+        id: "gi",
+        name: "Game Icons",
+        projectUrl: "https://game-icons.net/",
+        license: "CC BY 3.0",
+        licenseUrl: "https://creativecommons.org/licenses/by/3.0/"
+      },
+      {
+        id: "wi",
+        name: "Weather Icons",
+        projectUrl: "https://erikflowers.github.io/weather-icons/",
+        license: "SIL OFL 1.1",
+        licenseUrl: "http://scripts.sil.org/OFL"
+      },
+      {
+        id: "di",
+        name: "Devicons",
+        projectUrl: "https://vorillaz.github.io/devicons/",
+        license: "MIT",
+        licenseUrl: "https://opensource.org/licenses/MIT"
+      },
+      {
+        id: "ai",
+        name: "Ant Design Icons",
+        projectUrl: "https://github.com/ant-design/ant-design-icons",
+        license: "MIT",
+        licenseUrl: "https://opensource.org/licenses/MIT"
+      },
+      {
+        id: "bs",
+        name: "Bootstrap Icons",
+        projectUrl: "https://github.com/twbs/icons",
+        license: "MIT",
+        licenseUrl: "https://opensource.org/licenses/MIT"
+      },
+      {
+        id: "ri",
+        name: "Remix Icon",
+        projectUrl: "https://github.com/Remix-Design/RemixIcon",
+        license: "Apache License Version 2.0",
+        licenseUrl: "http://www.apache.org/licenses/"
+      },
+      {
+        id: "fc",
+        name: "Flat Color Icons",
+        projectUrl: "https://github.com/icons8/flat-color-icons",
+        license: "MIT",
+        licenseUrl: "https://opensource.org/licenses/MIT"
+      },
+      {
+        id: "gr",
+        name: "Grommet-Icons",
+        projectUrl: "https://github.com/grommet/grommet-icons",
+        license: "Apache License Version 2.0",
+        licenseUrl: "http://www.apache.org/licenses/"
+      },
+      {
+        id: "hi",
+        name: "Heroicons",
+        projectUrl: "https://github.com/tailwindlabs/heroicons",
+        license: "MIT",
+        licenseUrl: "https://opensource.org/licenses/MIT"
+      },
+      {
+        id: "si",
+        name: "Simple Icons",
+        projectUrl: "https://simpleicons.org/",
+        license: "CC0 1.0 Universal",
+        licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      {
+        id: "im",
+        name: "IcoMoon Free",
+        projectUrl: "https://github.com/Keyamoon/IcoMoon-Free",
+        license: "CC BY 4.0 License"
+      },
+      {
+        id: "bi",
+        name: "BoxIcons",
+        projectUrl: "https://github.com/atisawd/boxicons",
+        license: "CC BY 4.0 License"
+      },
+      {
+        id: "cg",
+        name: "css.gg",
+        projectUrl: "https://github.com/astrit/css.gg",
+        license: "MIT",
+        licenseUrl: "https://opensource.org/licenses/MIT"
+      },
+      {
+        id: "vsc",
+        name: "VS Code Icons",
+        projectUrl: "https://github.com/microsoft/vscode-codicons",
+        license: "CC BY 4.0",
+        licenseUrl: "https://creativecommons.org/licenses/by/4.0/"
+      }
+    ];
+  });
+
+  // node_modules/react-icons/lib/cjs/iconContext.js
+  var require_iconContext = __commonJS((exports) => {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", {value: true});
+    exports.IconContext = exports.DefaultContext = void 0;
+    var React83 = require_react();
+    exports.DefaultContext = {
+      color: void 0,
+      size: void 0,
+      className: void 0,
+      style: void 0,
+      attr: void 0
+    };
+    exports.IconContext = React83.createContext && React83.createContext(exports.DefaultContext);
+  });
+
+  // node_modules/react-icons/lib/cjs/iconBase.js
+  var require_iconBase = __commonJS((exports) => {
+    "use strict";
+    var __assign = exports && exports.__assign || function() {
+      __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+          s = arguments[i];
+          for (var p in s)
+            if (Object.prototype.hasOwnProperty.call(s, p))
+              t[p] = s[p];
+        }
+        return t;
+      };
+      return __assign.apply(this, arguments);
+    };
+    var __rest = exports && exports.__rest || function(s, e) {
+      var t = {};
+      for (var p in s)
+        if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+          t[p] = s[p];
+      if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+          if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+            t[p[i]] = s[p[i]];
+        }
+      return t;
+    };
+    Object.defineProperty(exports, "__esModule", {value: true});
+    exports.IconBase = exports.GenIcon = void 0;
+    var React83 = require_react();
+    var iconContext_1 = require_iconContext();
+    function Tree2Element(tree) {
+      return tree && tree.map(function(node, i) {
+        return React83.createElement(node.tag, __assign({key: i}, node.attr), Tree2Element(node.child));
+      });
+    }
+    function GenIcon2(data) {
+      return function(props) {
+        return React83.createElement(IconBase, __assign({attr: __assign({}, data.attr)}, props), Tree2Element(data.child));
+      };
+    }
+    exports.GenIcon = GenIcon2;
+    function IconBase(props) {
+      var elem = function(conf) {
+        var attr = props.attr, size = props.size, title = props.title, svgProps = __rest(props, ["attr", "size", "title"]);
+        var computedSize = size || conf.size || "1em";
+        var className;
+        if (conf.className)
+          className = conf.className;
+        if (props.className)
+          className = (className ? className + " " : "") + props.className;
+        return React83.createElement("svg", __assign({stroke: "currentColor", fill: "currentColor", strokeWidth: "0"}, conf.attr, attr, svgProps, {className, style: __assign(__assign({color: props.color || conf.color}, conf.style), props.style), height: computedSize, width: computedSize, xmlns: "http://www.w3.org/2000/svg"}), title && React83.createElement("title", null, title), props.children);
+      };
+      return iconContext_1.IconContext !== void 0 ? React83.createElement(iconContext_1.IconContext.Consumer, null, function(conf) {
+        return elem(conf);
+      }) : elem(iconContext_1.DefaultContext);
+    }
+    exports.IconBase = IconBase;
+  });
+
+  // node_modules/react-icons/lib/cjs/index.js
+  var require_cjs = __commonJS((exports) => {
+    "use strict";
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      Object.defineProperty(o, k2, {enumerable: true, get: function() {
+        return m[k];
+      }});
+    } : function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      o[k2] = m[k];
+    });
+    var __exportStar2 = exports && exports.__exportStar || function(m, exports2) {
+      for (var p in m)
+        if (p !== "default" && !exports2.hasOwnProperty(p))
+          __createBinding(exports2, m, p);
+    };
+    Object.defineProperty(exports, "__esModule", {value: true});
+    __exportStar2(require_iconsManifest(), exports);
+    __exportStar2(require_iconBase(), exports);
+    __exportStar2(require_iconContext(), exports);
+  });
+
+  // node_modules/react-icons/index.js
+  var require_react_icons = __commonJS((exports, module) => {
+    module.exports = require_cjs();
+  });
+
   // node_modules/marked/lib/marked.js
   var require_marked = __commonJS((exports, module) => {
     (function(global2, factory) {
@@ -9787,7 +10044,7 @@
         a.retryLane = c !== 0 && c < b ? c : b;
       }
     }
-    function ok(a, b) {
+    function ok2(a, b) {
       nk(a, b);
       (a = a.alternate) && nk(a, b);
     }
@@ -9863,21 +10120,21 @@
       if (a.tag === 13) {
         var b = Hg();
         Jg(a, 4, b);
-        ok(a, 4);
+        ok2(a, 4);
       }
     };
     fc = function(a) {
       if (a.tag === 13) {
         var b = Hg();
         Jg(a, 67108864, b);
-        ok(a, 67108864);
+        ok2(a, 67108864);
       }
     };
     gc = function(a) {
       if (a.tag === 13) {
         var b = Hg(), c = Ig(a);
         Jg(a, c, b);
-        ok(a, c);
+        ok2(a, c);
       }
     };
     hc = function(a, b) {
@@ -10045,16 +10302,16 @@
   var require_toastify = __commonJS((exports) => {
     __markAsModule(exports);
     __export(exports, {
-      error: () => error2,
+      error: () => error3,
       success: () => success2
     });
-    var import_react56 = __toModule(require_react());
+    var import_react91 = __toModule(require_react());
     var import_react_dom3 = __toModule(require_react_dom());
     var hasContainer = false;
     var setup = () => {
       if (!hasContainer) {
         hasContainer = true;
-        import_react_dom3.default.render(/* @__PURE__ */ import_react56.default.createElement(ToastContainer, {
+        import_react_dom3.default.render(/* @__PURE__ */ import_react91.default.createElement(ToastContainer, {
           position: toast.POSITION.TOP_RIGHT,
           toastClassName: "c-toast"
         }), document.getElementById("root-toastify"));
@@ -10064,267 +10321,10 @@
       setup();
       toast.success(content, options);
     };
-    var error2 = (content, options) => {
+    var error3 = (content, options) => {
       setup();
       toast.error(content, options);
     };
-  });
-
-  // node_modules/react-icons/lib/cjs/iconsManifest.js
-  var require_iconsManifest = __commonJS((exports, module) => {
-    module.exports.IconsManifest = [
-      {
-        id: "fa",
-        name: "Font Awesome",
-        projectUrl: "https://fontawesome.com/",
-        license: "CC BY 4.0 License",
-        licenseUrl: "https://creativecommons.org/licenses/by/4.0/"
-      },
-      {
-        id: "io",
-        name: "Ionicons 4",
-        projectUrl: "https://ionicons.com/",
-        license: "MIT",
-        licenseUrl: "https://github.com/ionic-team/ionicons/blob/master/LICENSE"
-      },
-      {
-        id: "io5",
-        name: "Ionicons 5",
-        projectUrl: "https://ionicons.com/",
-        license: "MIT",
-        licenseUrl: "https://github.com/ionic-team/ionicons/blob/master/LICENSE"
-      },
-      {
-        id: "md",
-        name: "Material Design icons",
-        projectUrl: "http://google.github.io/material-design-icons/",
-        license: "Apache License Version 2.0",
-        licenseUrl: "https://github.com/google/material-design-icons/blob/master/LICENSE"
-      },
-      {
-        id: "ti",
-        name: "Typicons",
-        projectUrl: "http://s-ings.com/typicons/",
-        license: "CC BY-SA 3.0",
-        licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/"
-      },
-      {
-        id: "go",
-        name: "Github Octicons icons",
-        projectUrl: "https://octicons.github.com/",
-        license: "MIT",
-        licenseUrl: "https://github.com/primer/octicons/blob/master/LICENSE"
-      },
-      {
-        id: "fi",
-        name: "Feather",
-        projectUrl: "https://feathericons.com/",
-        license: "MIT",
-        licenseUrl: "https://github.com/feathericons/feather/blob/master/LICENSE"
-      },
-      {
-        id: "gi",
-        name: "Game Icons",
-        projectUrl: "https://game-icons.net/",
-        license: "CC BY 3.0",
-        licenseUrl: "https://creativecommons.org/licenses/by/3.0/"
-      },
-      {
-        id: "wi",
-        name: "Weather Icons",
-        projectUrl: "https://erikflowers.github.io/weather-icons/",
-        license: "SIL OFL 1.1",
-        licenseUrl: "http://scripts.sil.org/OFL"
-      },
-      {
-        id: "di",
-        name: "Devicons",
-        projectUrl: "https://vorillaz.github.io/devicons/",
-        license: "MIT",
-        licenseUrl: "https://opensource.org/licenses/MIT"
-      },
-      {
-        id: "ai",
-        name: "Ant Design Icons",
-        projectUrl: "https://github.com/ant-design/ant-design-icons",
-        license: "MIT",
-        licenseUrl: "https://opensource.org/licenses/MIT"
-      },
-      {
-        id: "bs",
-        name: "Bootstrap Icons",
-        projectUrl: "https://github.com/twbs/icons",
-        license: "MIT",
-        licenseUrl: "https://opensource.org/licenses/MIT"
-      },
-      {
-        id: "ri",
-        name: "Remix Icon",
-        projectUrl: "https://github.com/Remix-Design/RemixIcon",
-        license: "Apache License Version 2.0",
-        licenseUrl: "http://www.apache.org/licenses/"
-      },
-      {
-        id: "fc",
-        name: "Flat Color Icons",
-        projectUrl: "https://github.com/icons8/flat-color-icons",
-        license: "MIT",
-        licenseUrl: "https://opensource.org/licenses/MIT"
-      },
-      {
-        id: "gr",
-        name: "Grommet-Icons",
-        projectUrl: "https://github.com/grommet/grommet-icons",
-        license: "Apache License Version 2.0",
-        licenseUrl: "http://www.apache.org/licenses/"
-      },
-      {
-        id: "hi",
-        name: "Heroicons",
-        projectUrl: "https://github.com/tailwindlabs/heroicons",
-        license: "MIT",
-        licenseUrl: "https://opensource.org/licenses/MIT"
-      },
-      {
-        id: "si",
-        name: "Simple Icons",
-        projectUrl: "https://simpleicons.org/",
-        license: "CC0 1.0 Universal",
-        licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/"
-      },
-      {
-        id: "im",
-        name: "IcoMoon Free",
-        projectUrl: "https://github.com/Keyamoon/IcoMoon-Free",
-        license: "CC BY 4.0 License"
-      },
-      {
-        id: "bi",
-        name: "BoxIcons",
-        projectUrl: "https://github.com/atisawd/boxicons",
-        license: "CC BY 4.0 License"
-      },
-      {
-        id: "cg",
-        name: "css.gg",
-        projectUrl: "https://github.com/astrit/css.gg",
-        license: "MIT",
-        licenseUrl: "https://opensource.org/licenses/MIT"
-      },
-      {
-        id: "vsc",
-        name: "VS Code Icons",
-        projectUrl: "https://github.com/microsoft/vscode-codicons",
-        license: "CC BY 4.0",
-        licenseUrl: "https://creativecommons.org/licenses/by/4.0/"
-      }
-    ];
-  });
-
-  // node_modules/react-icons/lib/cjs/iconContext.js
-  var require_iconContext = __commonJS((exports) => {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", {value: true});
-    exports.IconContext = exports.DefaultContext = void 0;
-    var React48 = require_react();
-    exports.DefaultContext = {
-      color: void 0,
-      size: void 0,
-      className: void 0,
-      style: void 0,
-      attr: void 0
-    };
-    exports.IconContext = React48.createContext && React48.createContext(exports.DefaultContext);
-  });
-
-  // node_modules/react-icons/lib/cjs/iconBase.js
-  var require_iconBase = __commonJS((exports) => {
-    "use strict";
-    var __assign = exports && exports.__assign || function() {
-      __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-          s = arguments[i];
-          for (var p in s)
-            if (Object.prototype.hasOwnProperty.call(s, p))
-              t[p] = s[p];
-        }
-        return t;
-      };
-      return __assign.apply(this, arguments);
-    };
-    var __rest = exports && exports.__rest || function(s, e) {
-      var t = {};
-      for (var p in s)
-        if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-          t[p] = s[p];
-      if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-          if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-            t[p[i]] = s[p[i]];
-        }
-      return t;
-    };
-    Object.defineProperty(exports, "__esModule", {value: true});
-    exports.IconBase = exports.GenIcon = void 0;
-    var React48 = require_react();
-    var iconContext_1 = require_iconContext();
-    function Tree2Element(tree) {
-      return tree && tree.map(function(node, i) {
-        return React48.createElement(node.tag, __assign({key: i}, node.attr), Tree2Element(node.child));
-      });
-    }
-    function GenIcon2(data) {
-      return function(props) {
-        return React48.createElement(IconBase, __assign({attr: __assign({}, data.attr)}, props), Tree2Element(data.child));
-      };
-    }
-    exports.GenIcon = GenIcon2;
-    function IconBase(props) {
-      var elem = function(conf) {
-        var attr = props.attr, size = props.size, title = props.title, svgProps = __rest(props, ["attr", "size", "title"]);
-        var computedSize = size || conf.size || "1em";
-        var className;
-        if (conf.className)
-          className = conf.className;
-        if (props.className)
-          className = (className ? className + " " : "") + props.className;
-        return React48.createElement("svg", __assign({stroke: "currentColor", fill: "currentColor", strokeWidth: "0"}, conf.attr, attr, svgProps, {className, style: __assign(__assign({color: props.color || conf.color}, conf.style), props.style), height: computedSize, width: computedSize, xmlns: "http://www.w3.org/2000/svg"}), title && React48.createElement("title", null, title), props.children);
-      };
-      return iconContext_1.IconContext !== void 0 ? React48.createElement(iconContext_1.IconContext.Consumer, null, function(conf) {
-        return elem(conf);
-      }) : elem(iconContext_1.DefaultContext);
-    }
-    exports.IconBase = IconBase;
-  });
-
-  // node_modules/react-icons/lib/cjs/index.js
-  var require_cjs = __commonJS((exports) => {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      Object.defineProperty(o, k2, {enumerable: true, get: function() {
-        return m[k];
-      }});
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      o[k2] = m[k];
-    });
-    var __exportStar2 = exports && exports.__exportStar || function(m, exports2) {
-      for (var p in m)
-        if (p !== "default" && !exports2.hasOwnProperty(p))
-          __createBinding(exports2, m, p);
-    };
-    Object.defineProperty(exports, "__esModule", {value: true});
-    __exportStar2(require_iconsManifest(), exports);
-    __exportStar2(require_iconBase(), exports);
-    __exportStar2(require_iconContext(), exports);
-  });
-
-  // node_modules/react-icons/index.js
-  var require_react_icons = __commonJS((exports, module) => {
-    module.exports = require_cjs();
   });
 
   // global-shim.js
@@ -10341,68 +10341,68 @@
   global.document.documentElement = global;
 
   // public/ssr.tsx
-  var import_react55 = __toModule(require_react());
+  var import_react90 = __toModule(require_react());
   var import_server = __toModule(require_server_browser());
 
-  // public/pages/Home/Home.page.tsx
-  var import_react54 = __toModule(require_react());
-
-  // public/models/post.ts
-  var _PostStatus = class {
-    constructor(title, value, show, closed, filterable) {
-      this.title = title;
-      this.value = value;
-      this.show = show;
-      this.closed = closed;
-      this.filterable = filterable;
+  // public/services/fider.ts
+  var import_react = __toModule(require_react());
+  var FiderSession = class {
+    constructor(data) {
+      this.pProps = {};
+      this.pContextID = data.contextID;
+      this.pProps = data.props;
+      this.pUser = data.user;
+      this.pTenant = data.tenant;
     }
-    static Get(value) {
-      for (const status of _PostStatus.All) {
-        if (status.value === value) {
-          return status;
+    get contextID() {
+      return this.pContextID;
+    }
+    get user() {
+      return this.pUser;
+    }
+    get tenant() {
+      return this.pTenant;
+    }
+    get props() {
+      return this.pProps;
+    }
+    get isAuthenticated() {
+      return !!this.pUser;
+    }
+  };
+  var FiderImpl = class {
+    constructor() {
+      this.initialize = (d) => {
+        if (d) {
+          this.pSettings = d.settings;
+          this.pSession = new FiderSession(d);
+          return this;
         }
-      }
-      throw new Error(`PostStatus not found for value ${value}.`);
+        const el = document.getElementById("server-data");
+        const data = el ? JSON.parse(el.textContent || el.innerText) : {};
+        this.pSettings = data.settings;
+        this.pSession = new FiderSession(data);
+        return this;
+      };
+    }
+    get session() {
+      return this.pSession;
+    }
+    get settings() {
+      return this.pSettings;
+    }
+    isProduction() {
+      return this.pSettings.environment === "production";
+    }
+    isSingleHostMode() {
+      return this.pSettings.mode === "single";
     }
   };
-  var PostStatus = _PostStatus;
-  PostStatus.Open = new _PostStatus("Open", "open", false, false, false);
-  PostStatus.Planned = new _PostStatus("Planned", "planned", true, false, true);
-  PostStatus.Started = new _PostStatus("Started", "started", true, false, true);
-  PostStatus.Completed = new _PostStatus("Completed", "completed", true, true, true);
-  PostStatus.Declined = new _PostStatus("Declined", "declined", true, true, true);
-  PostStatus.Duplicate = new _PostStatus("Duplicate", "duplicate", true, true, false);
-  PostStatus.Deleted = new _PostStatus("Deleted", "deleted", false, true, false);
-  PostStatus.All = [_PostStatus.Open, _PostStatus.Planned, _PostStatus.Started, _PostStatus.Completed, _PostStatus.Duplicate, _PostStatus.Declined];
+  var Fider = new FiderImpl();
+  var FiderContext = (0, import_react.createContext)(Fider);
 
-  // public/models/identity.ts
-  var TenantStatus;
-  (function(TenantStatus2) {
-    TenantStatus2[TenantStatus2["Active"] = 1] = "Active";
-    TenantStatus2[TenantStatus2["Pending"] = 2] = "Pending";
-    TenantStatus2[TenantStatus2["Locked"] = 3] = "Locked";
-  })(TenantStatus || (TenantStatus = {}));
-  var UserAvatarType;
-  (function(UserAvatarType2) {
-    UserAvatarType2["Letter"] = "letter";
-    UserAvatarType2["Gravatar"] = "gravatar";
-    UserAvatarType2["Custom"] = "custom";
-  })(UserAvatarType || (UserAvatarType = {}));
-  var UserStatus;
-  (function(UserStatus2) {
-    UserStatus2["Active"] = "active";
-    UserStatus2["Deleted"] = "deleted";
-    UserStatus2["Blocked"] = "blocked";
-  })(UserStatus || (UserStatus = {}));
-  var UserRole;
-  (function(UserRole4) {
-    UserRole4["Visitor"] = "visitor";
-    UserRole4["Collaborator"] = "collaborator";
-    UserRole4["Administrator"] = "administrator";
-  })(UserRole || (UserRole = {}));
-  var isCollaborator = (role) => {
-    return role === UserRole.Collaborator || role === UserRole.Administrator;
-  };
+  // public/ssr.tsx
+  var import_react_icons = __toModule(require_react_icons());
 
   // public/components/ErrorBoundary.tsx
   var import_react6 = __toModule(require_react());
@@ -10411,13 +10411,13 @@
   var import_react5 = __toModule(require_react());
 
   // public/hooks/use-timeout.ts
-  var import_react = __toModule(require_react());
+  var import_react2 = __toModule(require_react());
   function useTimeout(callback, delay) {
-    const savedCallback = (0, import_react.useRef)();
-    (0, import_react.useEffect)(() => {
+    const savedCallback = (0, import_react2.useRef)();
+    (0, import_react2.useEffect)(() => {
       savedCallback.current = callback;
     });
-    (0, import_react.useEffect)(() => {
+    (0, import_react2.useEffect)(() => {
       function tick() {
         if (savedCallback.current) {
           savedCallback.current();
@@ -10570,62 +10570,19 @@
     }
   };
 
-  // public/services/fider.ts
-  var import_react2 = __toModule(require_react());
-  var FiderSession = class {
-    constructor(data) {
-      this.pProps = {};
-      this.pContextID = data.contextID;
-      this.pProps = data.props;
-      this.pUser = data.user;
-      this.pTenant = data.tenant;
-    }
-    get contextID() {
-      return this.pContextID;
-    }
-    get user() {
-      return this.pUser;
-    }
-    get tenant() {
-      return this.pTenant;
-    }
-    get props() {
-      return this.pProps;
-    }
-    get isAuthenticated() {
-      return !!this.pUser;
-    }
-  };
-  var FiderImpl = class {
-    constructor() {
-      this.initialize = (d) => {
-        if (d) {
-          this.pSettings = d.settings;
-          this.pSession = new FiderSession(d);
-          return this;
+  // public/services/jwt.ts
+  var jwt = {
+    decode: (token) => {
+      if (token) {
+        const segments = token.split(".");
+        try {
+          return JSON.parse(window.atob(segments[1]));
+        } catch {
+          return void 0;
         }
-        const el = document.getElementById("server-data");
-        const data = el ? JSON.parse(el.textContent || el.innerText) : {};
-        this.pSettings = data.settings;
-        this.pSession = new FiderSession(data);
-        return this;
-      };
-    }
-    get session() {
-      return this.pSession;
-    }
-    get settings() {
-      return this.pSettings;
-    }
-    isProduction() {
-      return this.pSettings.environment === "production";
-    }
-    isSingleHostMode() {
-      return this.pSettings.mode === "single";
+      }
     }
   };
-  var Fider = new FiderImpl();
-  var FiderContext = (0, import_react2.createContext)(Fider);
 
   // public/services/utils.ts
   var classSet = (input) => {
@@ -10639,6 +10596,46 @@
       return classes.trim();
     }
     return "";
+  };
+  var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var twoDigits = (value) => {
+    return value <= 9 ? `0${value}` : value.toString();
+  };
+  var formatDate = (input, format = "full") => {
+    const date = input instanceof Date ? input : new Date(input);
+    const monthIndex = date.getMonth();
+    const year = date.getFullYear();
+    if (format === "short") {
+      return `${monthNames[monthIndex].substring(0, 3)} ${year}`;
+    }
+    const day = date.getDate();
+    const hours = twoDigits(date.getHours());
+    const minutes = twoDigits(date.getMinutes());
+    return `${monthNames[monthIndex]} ${day}, ${year} \xB7 ${hours}:${minutes}`;
+  };
+  var templates = {
+    seconds: "less than a minute",
+    minute: "about a minute",
+    minutes: "%d minutes",
+    hour: "about an hour",
+    hours: "about %d hours",
+    day: "a day",
+    days: "%d days",
+    month: "about a month",
+    months: "%d months",
+    year: "about a year",
+    years: "%d years"
+  };
+  var template = (t, n) => {
+    return templates[t] && templates[t].replace(/%d/i, Math.abs(Math.round(n)).toString());
+  };
+  var timeSince = (now, date) => {
+    const seconds = (now.getTime() - date.getTime()) / 1e3;
+    const minutes = seconds / 60;
+    const hours = minutes / 60;
+    const days = hours / 24;
+    const years = days / 365;
+    return (seconds < 45 && template("seconds", seconds) || seconds < 90 && template("minute", 1) || minutes < 45 && template("minutes", minutes) || minutes < 90 && template("hour", 1) || hours < 24 && template("hours", hours) || hours < 42 && template("day", 1) || days < 30 && template("days", days) || days < 45 && template("month", 1) || days < 365 && template("months", days / 30) || years < 1.5 && template("year", 1) || template("years", years)) + " ago";
   };
   var fileToBase64 = async (file) => {
     return new Promise((resolve, reject) => {
@@ -11976,21 +11973,21 @@
         errorInfo: void 0
       };
     }
-    componentDidCatch(error2, errorInfo) {
+    componentDidCatch(error3, errorInfo) {
       const onError = this.props.onError;
       if (onError) {
-        onError(error2);
+        onError(error3);
       }
       this.setState({
-        error: error2,
+        error: error3,
         errorInfo
       });
     }
     render() {
-      const {error: error2, errorInfo} = this.state;
-      if (error2 && errorInfo) {
+      const {error: error3, errorInfo} = this.state;
+      if (error3 && errorInfo) {
         return /* @__PURE__ */ import_react6.default.createElement(FiderContext.Consumer, null, (fider) => /* @__PURE__ */ import_react6.default.createElement(ErrorPage, {
-          error: error2,
+          error: error3,
           errorInfo,
           showDetails: !fider.isProduction()
         }));
@@ -12002,6 +11999,69 @@
 
   // public/components/ShowPostResponse.tsx
   var import_react44 = __toModule(require_react());
+
+  // public/models/post.ts
+  var _PostStatus = class {
+    constructor(title, value, show, closed, filterable) {
+      this.title = title;
+      this.value = value;
+      this.show = show;
+      this.closed = closed;
+      this.filterable = filterable;
+    }
+    static Get(value) {
+      for (const status of _PostStatus.All) {
+        if (status.value === value) {
+          return status;
+        }
+      }
+      throw new Error(`PostStatus not found for value ${value}.`);
+    }
+  };
+  var PostStatus = _PostStatus;
+  PostStatus.Open = new _PostStatus("Open", "open", false, false, false);
+  PostStatus.Planned = new _PostStatus("Planned", "planned", true, false, true);
+  PostStatus.Started = new _PostStatus("Started", "started", true, false, true);
+  PostStatus.Completed = new _PostStatus("Completed", "completed", true, true, true);
+  PostStatus.Declined = new _PostStatus("Declined", "declined", true, true, true);
+  PostStatus.Duplicate = new _PostStatus("Duplicate", "duplicate", true, true, false);
+  PostStatus.Deleted = new _PostStatus("Deleted", "deleted", false, true, false);
+  PostStatus.All = [_PostStatus.Open, _PostStatus.Planned, _PostStatus.Started, _PostStatus.Completed, _PostStatus.Duplicate, _PostStatus.Declined];
+
+  // public/models/identity.ts
+  var TenantStatus;
+  (function(TenantStatus2) {
+    TenantStatus2[TenantStatus2["Active"] = 1] = "Active";
+    TenantStatus2[TenantStatus2["Pending"] = 2] = "Pending";
+    TenantStatus2[TenantStatus2["Locked"] = 3] = "Locked";
+  })(TenantStatus || (TenantStatus = {}));
+  var UserAvatarType;
+  (function(UserAvatarType2) {
+    UserAvatarType2["Letter"] = "letter";
+    UserAvatarType2["Gravatar"] = "gravatar";
+    UserAvatarType2["Custom"] = "custom";
+  })(UserAvatarType || (UserAvatarType = {}));
+  var UserStatus;
+  (function(UserStatus2) {
+    UserStatus2["Active"] = "active";
+    UserStatus2["Deleted"] = "deleted";
+    UserStatus2["Blocked"] = "blocked";
+  })(UserStatus || (UserStatus = {}));
+  var UserRole;
+  (function(UserRole4) {
+    UserRole4["Visitor"] = "visitor";
+    UserRole4["Collaborator"] = "collaborator";
+    UserRole4["Administrator"] = "administrator";
+  })(UserRole || (UserRole = {}));
+  var isCollaborator = (role) => {
+    return role === UserRole.Collaborator || role === UserRole.Administrator;
+  };
+
+  // public/models/settings.ts
+  var OAuthConfigStatus = {
+    Disabled: 1,
+    Enabled: 2
+  };
 
   // public/components/common/Button.tsx
   var import_react7 = __toModule(require_react());
@@ -12110,9 +12170,9 @@
       key: m
     }, m));
   };
-  var hasError = (field, error2) => {
-    if (field && error2 && error2.errors) {
-      for (const err of error2.errors) {
+  var hasError = (field, error3) => {
+    if (field && error3 && error3.errors) {
+      for (const err of error3.errors) {
         if (err.field === field) {
           return true;
         }
@@ -12198,29 +12258,95 @@
   function FaBan(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"}}]})(props);
   }
+  function FaBell(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 448 512"}, child: [{tag: "path", attr: {d: "M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z"}}]})(props);
+  }
+  function FaBullhorn(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 576 512"}, child: [{tag: "path", attr: {d: "M576 240c0-23.63-12.95-44.04-32-55.12V32.01C544 23.26 537.02 0 512 0c-7.12 0-14.19 2.38-19.98 7.02l-85.03 68.03C364.28 109.19 310.66 128 256 128H64c-35.35 0-64 28.65-64 64v96c0 35.35 28.65 64 64 64h33.7c-1.39 10.48-2.18 21.14-2.18 32 0 39.77 9.26 77.35 25.56 110.94 5.19 10.69 16.52 17.06 28.4 17.06h74.28c26.05 0 41.69-29.84 25.9-50.56-16.4-21.52-26.15-48.36-26.15-77.44 0-11.11 1.62-21.79 4.41-32H256c54.66 0 108.28 18.81 150.98 52.95l85.03 68.03a32.023 32.023 0 0 0 19.98 7.02c24.92 0 32-22.78 32-32V295.13C563.05 284.04 576 263.63 576 240zm-96 141.42l-33.05-26.44C392.95 311.78 325.12 288 256 288v-96c69.12 0 136.95-23.78 190.95-66.98L480 98.58v282.84z"}}]})(props);
+  }
+  function FaCaretDown(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 320 512"}, child: [{tag: "path", attr: {d: "M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"}}]})(props);
+  }
   function FaCaretUp(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 320 512"}, child: [{tag: "path", attr: {d: "M288.662 352H31.338c-17.818 0-26.741-21.543-14.142-34.142l128.662-128.662c7.81-7.81 20.474-7.81 28.284 0l128.662 128.662c12.6 12.599 3.676 34.142-14.142 34.142z"}}]})(props);
+  }
+  function FaCheckCircle(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"}}]})(props);
   }
   function FaCheck(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"}}]})(props);
   }
+  function FaCog(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M487.4 315.7l-42.6-24.6c4.3-23.2 4.3-47 0-70.2l42.6-24.6c4.9-2.8 7.1-8.6 5.5-14-11.1-35.6-30-67.8-54.7-94.6-3.8-4.1-10-5.1-14.8-2.3L380.8 110c-17.9-15.4-38.5-27.3-60.8-35.1V25.8c0-5.6-3.9-10.5-9.4-11.7-36.7-8.2-74.3-7.8-109.2 0-5.5 1.2-9.4 6.1-9.4 11.7V75c-22.2 7.9-42.8 19.8-60.8 35.1L88.7 85.5c-4.9-2.8-11-1.9-14.8 2.3-24.7 26.7-43.6 58.9-54.7 94.6-1.7 5.4.6 11.2 5.5 14L67.3 221c-4.3 23.2-4.3 47 0 70.2l-42.6 24.6c-4.9 2.8-7.1 8.6-5.5 14 11.1 35.6 30 67.8 54.7 94.6 3.8 4.1 10 5.1 14.8 2.3l42.6-24.6c17.9 15.4 38.5 27.3 60.8 35.1v49.2c0 5.6 3.9 10.5 9.4 11.7 36.7 8.2 74.3 7.8 109.2 0 5.5-1.2 9.4-6.1 9.4-11.7v-49.2c22.2-7.9 42.8-19.8 60.8-35.1l42.6 24.6c4.9 2.8 11 1.9 14.8-2.3 24.7-26.7 43.6-58.9 54.7-94.6 1.5-5.5-.7-11.3-5.6-14.1zM256 336c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z"}}]})(props);
+  }
+  function FaCogs(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 640 512"}, child: [{tag: "path", attr: {d: "M512.1 191l-8.2 14.3c-3 5.3-9.4 7.5-15.1 5.4-11.8-4.4-22.6-10.7-32.1-18.6-4.6-3.8-5.8-10.5-2.8-15.7l8.2-14.3c-6.9-8-12.3-17.3-15.9-27.4h-16.5c-6 0-11.2-4.3-12.2-10.3-2-12-2.1-24.6 0-37.1 1-6 6.2-10.4 12.2-10.4h16.5c3.6-10.1 9-19.4 15.9-27.4l-8.2-14.3c-3-5.2-1.9-11.9 2.8-15.7 9.5-7.9 20.4-14.2 32.1-18.6 5.7-2.1 12.1.1 15.1 5.4l8.2 14.3c10.5-1.9 21.2-1.9 31.7 0L552 6.3c3-5.3 9.4-7.5 15.1-5.4 11.8 4.4 22.6 10.7 32.1 18.6 4.6 3.8 5.8 10.5 2.8 15.7l-8.2 14.3c6.9 8 12.3 17.3 15.9 27.4h16.5c6 0 11.2 4.3 12.2 10.3 2 12 2.1 24.6 0 37.1-1 6-6.2 10.4-12.2 10.4h-16.5c-3.6 10.1-9 19.4-15.9 27.4l8.2 14.3c3 5.2 1.9 11.9-2.8 15.7-9.5 7.9-20.4 14.2-32.1 18.6-5.7 2.1-12.1-.1-15.1-5.4l-8.2-14.3c-10.4 1.9-21.2 1.9-31.7 0zm-10.5-58.8c38.5 29.6 82.4-14.3 52.8-52.8-38.5-29.7-82.4 14.3-52.8 52.8zM386.3 286.1l33.7 16.8c10.1 5.8 14.5 18.1 10.5 29.1-8.9 24.2-26.4 46.4-42.6 65.8-7.4 8.9-20.2 11.1-30.3 5.3l-29.1-16.8c-16 13.7-34.6 24.6-54.9 31.7v33.6c0 11.6-8.3 21.6-19.7 23.6-24.6 4.2-50.4 4.4-75.9 0-11.5-2-20-11.9-20-23.6V418c-20.3-7.2-38.9-18-54.9-31.7L74 403c-10 5.8-22.9 3.6-30.3-5.3-16.2-19.4-33.3-41.6-42.2-65.7-4-10.9.4-23.2 10.5-29.1l33.3-16.8c-3.9-20.9-3.9-42.4 0-63.4L12 205.8c-10.1-5.8-14.6-18.1-10.5-29 8.9-24.2 26-46.4 42.2-65.8 7.4-8.9 20.2-11.1 30.3-5.3l29.1 16.8c16-13.7 34.6-24.6 54.9-31.7V57.1c0-11.5 8.2-21.5 19.6-23.5 24.6-4.2 50.5-4.4 76-.1 11.5 2 20 11.9 20 23.6v33.6c20.3 7.2 38.9 18 54.9 31.7l29.1-16.8c10-5.8 22.9-3.6 30.3 5.3 16.2 19.4 33.2 41.6 42.1 65.8 4 10.9.1 23.2-10 29.1l-33.7 16.8c3.9 21 3.9 42.5 0 63.5zm-117.6 21.1c59.2-77-28.7-164.9-105.7-105.7-59.2 77 28.7 164.9 105.7 105.7zm243.4 182.7l-8.2 14.3c-3 5.3-9.4 7.5-15.1 5.4-11.8-4.4-22.6-10.7-32.1-18.6-4.6-3.8-5.8-10.5-2.8-15.7l8.2-14.3c-6.9-8-12.3-17.3-15.9-27.4h-16.5c-6 0-11.2-4.3-12.2-10.3-2-12-2.1-24.6 0-37.1 1-6 6.2-10.4 12.2-10.4h16.5c3.6-10.1 9-19.4 15.9-27.4l-8.2-14.3c-3-5.2-1.9-11.9 2.8-15.7 9.5-7.9 20.4-14.2 32.1-18.6 5.7-2.1 12.1.1 15.1 5.4l8.2 14.3c10.5-1.9 21.2-1.9 31.7 0l8.2-14.3c3-5.3 9.4-7.5 15.1-5.4 11.8 4.4 22.6 10.7 32.1 18.6 4.6 3.8 5.8 10.5 2.8 15.7l-8.2 14.3c6.9 8 12.3 17.3 15.9 27.4h16.5c6 0 11.2 4.3 12.2 10.3 2 12 2.1 24.6 0 37.1-1 6-6.2 10.4-12.2 10.4h-16.5c-3.6 10.1-9 19.4-15.9 27.4l8.2 14.3c3 5.2 1.9 11.9-2.8 15.7-9.5 7.9-20.4 14.2-32.1 18.6-5.7 2.1-12.1-.1-15.1-5.4l-8.2-14.3c-10.4 1.9-21.2 1.9-31.7 0zM501.6 431c38.5 29.6 82.4-14.3 52.8-52.8-38.5-29.6-82.4 14.3-52.8 52.8z"}}]})(props);
+  }
+  function FaEdit(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 576 512"}, child: [{tag: "path", attr: {d: "M402.6 83.2l90.2 90.2c3.8 3.8 3.8 10 0 13.8L274.4 405.6l-92.8 10.3c-12.4 1.4-22.9-9.1-21.5-21.5l10.3-92.8L388.8 83.2c3.8-3.8 10-3.8 13.8 0zm162-22.9l-48.8-48.8c-15.2-15.2-39.9-15.2-55.2 0l-35.4 35.4c-3.8 3.8-3.8 10 0 13.8l90.2 90.2c3.8 3.8 10 3.8 13.8 0l35.4-35.4c15.2-15.3 15.2-40 0-55.2zM384 346.2V448H64V128h229.8c3.2 0 6.2-1.3 8.5-3.5l40-40c7.6-7.6 2.2-20.5-8.5-20.5H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V306.2c0-10.7-12.9-16-20.5-8.5l-40 40c-2.2 2.3-3.5 5.3-3.5 8.5z"}}]})(props);
+  }
+  function FaEllipsisH(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8 0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"}}]})(props);
+  }
+  function FaEnvelope(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"}}]})(props);
+  }
   function FaExclamationTriangle(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 576 512"}, child: [{tag: "path", attr: {d: "M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"}}]})(props);
+  }
+  function FaKey(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M512 176.001C512 273.203 433.202 352 336 352c-11.22 0-22.19-1.062-32.827-3.069l-24.012 27.014A23.999 23.999 0 0 1 261.223 384H224v40c0 13.255-10.745 24-24 24h-40v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24v-78.059c0-6.365 2.529-12.47 7.029-16.971l161.802-161.802C163.108 213.814 160 195.271 160 176 160 78.798 238.797.001 335.999 0 433.488-.001 512 78.511 512 176.001zM336 128c0 26.51 21.49 48 48 48s48-21.49 48-48-21.49-48-48-48-48 21.49-48 48z"}}]})(props);
   }
   function FaLock(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 448 512"}, child: [{tag: "path", attr: {d: "M400 224h-24v-72C376 68.2 307.8 0 224 0S72 68.2 72 152v72H48c-26.5 0-48 21.5-48 48v192c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V272c0-26.5-21.5-48-48-48zm-104 0H152v-72c0-39.7 32.3-72 72-72s72 32.3 72 72v72z"}}]})(props);
   }
+  function FaPlay(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 448 512"}, child: [{tag: "path", attr: {d: "M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"}}]})(props);
+  }
+  function FaSave(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 448 512"}, child: [{tag: "path", attr: {d: "M433.941 129.941l-83.882-83.882A48 48 0 0 0 316.118 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V163.882a48 48 0 0 0-14.059-33.941zM224 416c-35.346 0-64-28.654-64-64 0-35.346 28.654-64 64-64s64 28.654 64 64c0 35.346-28.654 64-64 64zm96-304.52V212c0 6.627-5.373 12-12 12H76c-6.627 0-12-5.373-12-12V108c0-6.627 5.373-12 12-12h228.52c3.183 0 6.235 1.264 8.485 3.515l3.48 3.48A11.996 11.996 0 0 1 320 111.48z"}}]})(props);
+  }
   function FaSearch(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"}}]})(props);
   }
+  function FaSignInAlt(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M416 448h-84c-6.6 0-12-5.4-12-12v-40c0-6.6 5.4-12 12-12h84c17.7 0 32-14.3 32-32V160c0-17.7-14.3-32-32-32h-84c-6.6 0-12-5.4-12-12V76c0-6.6 5.4-12 12-12h84c53 0 96 43 96 96v192c0 53-43 96-96 96zm-47-201L201 79c-15-15-41-4.5-41 17v96H24c-13.3 0-24 10.7-24 24v96c0 13.3 10.7 24 24 24h136v96c0 21.5 26 32 41 17l168-168c9.3-9.4 9.3-24.6 0-34z"}}]})(props);
+  }
+  function FaStar(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 576 512"}, child: [{tag: "path", attr: {d: "M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"}}]})(props);
+  }
+  function FaTags(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 640 512"}, child: [{tag: "path", attr: {d: "M497.941 225.941L286.059 14.059A48 48 0 0 0 252.118 0H48C21.49 0 0 21.49 0 48v204.118a48 48 0 0 0 14.059 33.941l211.882 211.882c18.744 18.745 49.136 18.746 67.882 0l204.118-204.118c18.745-18.745 18.745-49.137 0-67.882zM112 160c-26.51 0-48-21.49-48-48s21.49-48 48-48 48 21.49 48 48-21.49 48-48 48zm513.941 133.823L421.823 497.941c-18.745 18.745-49.137 18.745-67.882 0l-.36-.36L527.64 323.522c16.999-16.999 26.36-39.6 26.36-63.64s-9.362-46.641-26.36-63.64L331.397 0h48.721a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882z"}}]})(props);
+  }
+  function FaTimesCircle(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"}}]})(props);
+  }
   function FaTimes(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 352 512"}, child: [{tag: "path", attr: {d: "M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"}}]})(props);
+  }
+  function FaUser(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 448 512"}, child: [{tag: "path", attr: {d: "M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"}}]})(props);
+  }
+  function FaUsers(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 640 512"}, child: [{tag: "path", attr: {d: "M96 224c35.3 0 64-28.7 64-64s-28.7-64-64-64-64 28.7-64 64 28.7 64 64 64zm448 0c35.3 0 64-28.7 64-64s-28.7-64-64-64-64 28.7-64 64 28.7 64 64 64zm32 32h-64c-17.6 0-33.5 7.1-45.1 18.6 40.3 22.1 68.9 62 75.1 109.4h66c17.7 0 32-14.3 32-32v-32c0-35.3-28.7-64-64-64zm-256 0c61.9 0 112-50.1 112-112S381.9 32 320 32 208 82.1 208 144s50.1 112 112 112zm76.8 32h-8.3c-20.8 10-43.9 16-68.5 16s-47.6-6-68.5-16h-8.3C179.6 288 128 339.6 128 403.2V432c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48v-28.8c0-63.6-51.6-115.2-115.2-115.2zm-223.7-13.4C161.5 263.1 145.6 256 128 256H64c-35.3 0-64 28.7-64 64v32c0 17.7 14.3 32 32 32h65.9c6.3-47.4 34.9-87.3 75.2-109.4z"}}]})(props);
+  }
+  function FaVolumeMute(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zM461.64 256l45.64-45.64c6.3-6.3 6.3-16.52 0-22.82l-22.82-22.82c-6.3-6.3-16.52-6.3-22.82 0L416 210.36l-45.64-45.64c-6.3-6.3-16.52-6.3-22.82 0l-22.82 22.82c-6.3 6.3-6.3 16.52 0 22.82L370.36 256l-45.63 45.63c-6.3 6.3-6.3 16.52 0 22.82l22.82 22.82c6.3 6.3 16.52 6.3 22.82 0L416 301.64l45.64 45.64c6.3 6.3 16.52 6.3 22.82 0l22.82-22.82c6.3-6.3 6.3-16.52 0-22.82L461.64 256z"}}]})(props);
+  }
+  function FaVolumeUp(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 576 512"}, child: [{tag: "path", attr: {d: "M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zm233.32-51.08c-11.17-7.33-26.18-4.24-33.51 6.95-7.34 11.17-4.22 26.18 6.95 33.51 66.27 43.49 105.82 116.6 105.82 195.58 0 78.98-39.55 152.09-105.82 195.58-11.17 7.32-14.29 22.34-6.95 33.5 7.04 10.71 21.93 14.56 33.51 6.95C528.27 439.58 576 351.33 576 256S528.27 72.43 448.35 19.97zM480 256c0-63.53-32.06-121.94-85.77-156.24-11.19-7.14-26.03-3.82-33.12 7.46s-3.78 26.21 7.41 33.36C408.27 165.97 432 209.11 432 256s-23.73 90.03-63.48 115.42c-11.19 7.14-14.5 22.07-7.41 33.36 6.51 10.36 21.12 15.14 33.12 7.46C447.94 377.94 480 319.54 480 256zm-141.77-76.87c-11.58-6.33-26.19-2.16-32.61 9.45-6.39 11.61-2.16 26.2 9.45 32.61C327.98 228.28 336 241.63 336 256c0 14.38-8.02 27.72-20.92 34.81-11.61 6.41-15.84 21-9.45 32.61 6.43 11.66 21.05 15.8 32.61 9.45 28.23-15.55 45.77-45 45.77-76.88s-17.54-61.32-45.78-76.86z"}}]})(props);
+  }
+  function FaRegAddressCard(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 576 512"}, child: [{tag: "path", attr: {d: "M528 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h480c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm0 400H48V80h480v352zM208 256c35.3 0 64-28.7 64-64s-28.7-64-64-64-64 28.7-64 64 28.7 64 64 64zm-89.6 128h179.2c12.4 0 22.4-8.6 22.4-19.2v-19.2c0-31.8-30.1-57.6-67.2-57.6-10.8 0-18.7 8-44.8 8-26.9 0-33.4-8-44.8-8-37.1 0-67.2 25.8-67.2 57.6v19.2c0 10.6 10 19.2 22.4 19.2zM360 320h112c4.4 0 8-3.6 8-8v-16c0-4.4-3.6-8-8-8H360c-4.4 0-8 3.6-8 8v16c0 4.4 3.6 8 8 8zm0-64h112c4.4 0 8-3.6 8-8v-16c0-4.4-3.6-8-8-8H360c-4.4 0-8 3.6-8 8v16c0 4.4 3.6 8 8 8zm0-64h112c4.4 0 8-3.6 8-8v-16c0-4.4-3.6-8-8-8H360c-4.4 0-8 3.6-8 8v16c0 4.4 3.6 8 8 8z"}}]})(props);
   }
   function FaRegCheckCircle(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 48c110.532 0 200 89.451 200 200 0 110.532-89.451 200-200 200-110.532 0-200-89.451-200-200 0-110.532 89.451-200 200-200m140.204 130.267l-22.536-22.718c-4.667-4.705-12.265-4.736-16.97-.068L215.346 303.697l-59.792-60.277c-4.667-4.705-12.265-4.736-16.97-.069l-22.719 22.536c-4.705 4.667-4.736 12.265-.068 16.971l90.781 91.516c4.667 4.705 12.265 4.736 16.97.068l172.589-171.204c4.704-4.668 4.734-12.266.067-16.971z"}}]})(props);
   }
   function FaRegComments(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 576 512"}, child: [{tag: "path", attr: {d: "M532 386.2c27.5-27.1 44-61.1 44-98.2 0-80-76.5-146.1-176.2-157.9C368.3 72.5 294.3 32 208 32 93.1 32 0 103.6 0 192c0 37 16.5 71 44 98.2-15.3 30.7-37.3 54.5-37.7 54.9-6.3 6.7-8.1 16.5-4.4 25 3.6 8.5 12 14 21.2 14 53.5 0 96.7-20.2 125.2-38.8 9.2 2.1 18.7 3.7 28.4 4.9C208.1 407.6 281.8 448 368 448c20.8 0 40.8-2.4 59.8-6.8C456.3 459.7 499.4 480 553 480c9.2 0 17.5-5.5 21.2-14 3.6-8.5 1.9-18.3-4.4-25-.4-.3-22.5-24.1-37.8-54.8zm-392.8-92.3L122.1 305c-14.1 9.1-28.5 16.3-43.1 21.4 2.7-4.7 5.4-9.7 8-14.8l15.5-31.1L77.7 256C64.2 242.6 48 220.7 48 192c0-60.7 73.3-112 160-112s160 51.3 160 112-73.3 112-160 112c-16.5 0-33-1.9-49-5.6l-19.8-4.5zM498.3 352l-24.7 24.4 15.5 31.1c2.6 5.1 5.3 10.1 8 14.8-14.6-5.1-29-12.3-43.1-21.4l-17.1-11.1-19.9 4.6c-16 3.7-32.5 5.6-49 5.6-54 0-102.2-20.1-131.3-49.7C338 339.5 416 272.9 416 192c0-3.4-.4-6.7-.7-10C479.7 196.5 528 238.8 528 288c0 28.7-16.2 50.6-29.7 64z"}}]})(props);
+  }
+  function FaRegFileExcel(props) {
+    return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 384 512"}, child: [{tag: "path", attr: {d: "M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48zm212-240h-28.8c-4.4 0-8.4 2.4-10.5 6.3-18 33.1-22.2 42.4-28.6 57.7-13.9-29.1-6.9-17.3-28.6-57.7-2.1-3.9-6.2-6.3-10.6-6.3H124c-9.3 0-15 10-10.4 18l46.3 78-46.3 78c-4.7 8 1.1 18 10.4 18h28.9c4.4 0 8.4-2.4 10.5-6.3 21.7-40 23-45 28.6-57.7 14.9 30.2 5.9 15.9 28.6 57.7 2.1 3.9 6.2 6.3 10.6 6.3H260c9.3 0 15-10 10.4-18L224 320c.7-1.1 30.3-50.5 46.3-78 4.7-8-1.1-18-10.3-18z"}}]})(props);
   }
   function FaRegImage(props) {
     return (0, import_lib.GenIcon)({tag: "svg", attr: {viewBox: "0 0 512 512"}, child: [{tag: "path", attr: {d: "M464 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm-6 336H54a6 6 0 0 1-6-6V118a6 6 0 0 1 6-6h404a6 6 0 0 1 6 6v276a6 6 0 0 1-6 6zM128 152c-22.091 0-40 17.909-40 40s17.909 40 40 40 40-17.909 40-40-17.909-40-40-40zM96 352h320v-80l-87.515-87.515c-4.686-4.686-12.284-4.686-16.971 0L192 304l-39.515-39.515c-4.686-4.686-12.284-4.686-16.971 0L96 304v48z"}}]})(props);
@@ -12826,6 +12952,30 @@
 
   // public/components/common/form/Checkbox.tsx
   var import_react21 = __toModule(require_react());
+  var Checkbox = (props) => {
+    const [checked, setChecked] = (0, import_react21.useState)(props.checked || false);
+    const onChange = (e) => {
+      const isChecked = e.currentTarget.checked;
+      setChecked(isChecked);
+      props.onChange(isChecked);
+    };
+    return /* @__PURE__ */ import_react21.default.createElement(ValidationContext.Consumer, null, (ctx) => /* @__PURE__ */ import_react21.default.createElement("div", {
+      className: classSet({
+        "c-form-field m-checkbox": true,
+        "m-error": hasError(props.field, ctx.error)
+      })
+    }, /* @__PURE__ */ import_react21.default.createElement("label", {
+      htmlFor: `input-${props.field}`
+    }, /* @__PURE__ */ import_react21.default.createElement("input", {
+      id: `input-${props.field}`,
+      type: "checkbox",
+      checked,
+      onChange
+    }), props.children), /* @__PURE__ */ import_react21.default.createElement(DisplayError, {
+      fields: [props.field],
+      error: ctx.error
+    })));
+  };
 
   // public/components/common/form/ImageViewer.tsx
   var import_react22 = __toModule(require_react());
@@ -12894,6 +13044,15 @@
 
   // public/components/common/EnvironmentInfo.tsx
   var import_react24 = __toModule(require_react());
+  var EnvironmentInfo = () => {
+    const fider = useFider();
+    if (fider.isProduction()) {
+      return null;
+    }
+    return /* @__PURE__ */ import_react24.default.createElement("div", {
+      className: "c-env-info"
+    }, "Env: ", fider.settings.environment, " | Compiler: ", fider.settings.compiler, " | Version: ", fider.settings.version, " | BuildTime: ", fider.settings.buildTime || "N/A", " |", !fider.isSingleHostMode() && `TenantID: ${fider.session.tenant.id}`, " | ", fider.session.isAuthenticated && `UserID: ${fider.session.user.id}`);
+  };
 
   // public/components/common/Avatar.tsx
   var import_react25 = __toModule(require_react());
@@ -12948,13 +13107,105 @@
 
   // public/components/common/Footer.tsx
   var import_react28 = __toModule(require_react());
+  var Footer = () => {
+    const fider = useFider();
+    return /* @__PURE__ */ import_react28.default.createElement("div", {
+      id: "c-footer"
+    }, /* @__PURE__ */ import_react28.default.createElement("div", {
+      className: "container"
+    }, fider.settings.hasLegal && /* @__PURE__ */ import_react28.default.createElement("div", {
+      className: "l-links"
+    }, /* @__PURE__ */ import_react28.default.createElement(PrivacyPolicy, null), "\xB7", /* @__PURE__ */ import_react28.default.createElement(TermsOfService, null)), /* @__PURE__ */ import_react28.default.createElement("a", {
+      className: "l-powered",
+      target: "_blank",
+      href: "https://getfider.com/"
+    }, /* @__PURE__ */ import_react28.default.createElement("img", {
+      src: "https://getfider.com/images/logo-100x100.png",
+      alt: "Fider"
+    }), /* @__PURE__ */ import_react28.default.createElement("span", null, "Powered by Fider"))));
+  };
 
   // public/components/common/Header.tsx
   var import_react29 = __toModule(require_react());
+  var Header = () => {
+    const fider = useFider();
+    const [isSignInModalOpen, setIsSignInModalOpen] = (0, import_react29.useState)(false);
+    const [unreadNotifications, setUnreadNotifications] = (0, import_react29.useState)(0);
+    (0, import_react29.useEffect)(() => {
+      if (fider.session.isAuthenticated) {
+        actions_exports.getTotalUnreadNotifications().then((result) => {
+          if (result.ok && result.data > 0) {
+            setUnreadNotifications(result.data);
+          }
+        });
+      }
+    }, [fider.session.isAuthenticated]);
+    const showModal = () => {
+      if (!fider.session.isAuthenticated) {
+        setIsSignInModalOpen(true);
+      }
+    };
+    const hideModal = () => setIsSignInModalOpen(false);
+    const items = fider.session.isAuthenticated && /* @__PURE__ */ import_react29.default.createElement("div", {
+      className: "c-menu-user"
+    }, /* @__PURE__ */ import_react29.default.createElement("div", {
+      className: "c-menu-user-heading"
+    }, /* @__PURE__ */ import_react29.default.createElement(FaUser, null), " ", /* @__PURE__ */ import_react29.default.createElement("span", null, fider.session.user.name)), /* @__PURE__ */ import_react29.default.createElement("a", {
+      href: "/settings",
+      className: "c-menu-user-item"
+    }, "Settings"), /* @__PURE__ */ import_react29.default.createElement("a", {
+      href: "/notifications",
+      className: "c-menu-user-item"
+    }, "Notifications", unreadNotifications > 0 && /* @__PURE__ */ import_react29.default.createElement("div", {
+      className: "c-unread-count"
+    }, unreadNotifications)), /* @__PURE__ */ import_react29.default.createElement("div", {
+      className: "c-menu-user-divider"
+    }), fider.session.user.isCollaborator && [
+      /* @__PURE__ */ import_react29.default.createElement("div", {
+        key: 1,
+        className: "c-menu-user-heading"
+      }, /* @__PURE__ */ import_react29.default.createElement(FaCog, null), " ", /* @__PURE__ */ import_react29.default.createElement("span", null, "Administration")),
+      /* @__PURE__ */ import_react29.default.createElement("a", {
+        key: 2,
+        href: "/admin",
+        className: "c-menu-user-item"
+      }, "Site Settings"),
+      /* @__PURE__ */ import_react29.default.createElement("div", {
+        key: 5,
+        className: "c-menu-user-divider"
+      })
+    ], /* @__PURE__ */ import_react29.default.createElement("a", {
+      href: "/signout?redirect=/",
+      className: "c-menu-user-item signout"
+    }, "Sign out"));
+    const showRightMenu = fider.session.isAuthenticated || !fider.session.tenant.isPrivate;
+    return /* @__PURE__ */ import_react29.default.createElement("div", {
+      id: "c-header"
+    }, /* @__PURE__ */ import_react29.default.createElement(EnvironmentInfo, null), /* @__PURE__ */ import_react29.default.createElement(SignInModal, {
+      isOpen: isSignInModalOpen,
+      onClose: hideModal
+    }), /* @__PURE__ */ import_react29.default.createElement("div", {
+      className: "c-menu"
+    }, /* @__PURE__ */ import_react29.default.createElement("div", {
+      className: "container"
+    }, /* @__PURE__ */ import_react29.default.createElement("a", {
+      href: "/",
+      className: "c-menu-item-title"
+    }, /* @__PURE__ */ import_react29.default.createElement(TenantLogo, {
+      size: 100
+    }), /* @__PURE__ */ import_react29.default.createElement("span", null, fider.session.tenant.name)), showRightMenu && /* @__PURE__ */ import_react29.default.createElement("div", {
+      onClick: showModal,
+      className: "c-menu-item-signin"
+    }, fider.session.isAuthenticated && /* @__PURE__ */ import_react29.default.createElement(Avatar, {
+      user: fider.session.user
+    }), unreadNotifications > 0 && /* @__PURE__ */ import_react29.default.createElement("div", {
+      className: "c-unread-dot"
+    }), !fider.session.isAuthenticated && /* @__PURE__ */ import_react29.default.createElement("span", null, "Sign in"), fider.session.isAuthenticated && /* @__PURE__ */ import_react29.default.createElement(FaCaretDown, null), items))));
+  };
 
   // public/components/common/Heading.tsx
   var import_react30 = __toModule(require_react());
-  var Header = (props) => import_react30.default.createElement(`h${props.level}`, {className: props.className}, props.children);
+  var Header2 = (props) => import_react30.default.createElement(`h${props.level}`, {className: props.className}, props.children);
   var Heading = (props) => {
     const size = props.size || "normal";
     const level = size === "normal" ? 2 : 3;
@@ -12971,7 +13222,7 @@
     const icon = props.icon && /* @__PURE__ */ import_react30.default.createElement("div", {
       className: iconClassName
     }, import_react30.default.createElement(props.icon));
-    return /* @__PURE__ */ import_react30.default.createElement(Header, {
+    return /* @__PURE__ */ import_react30.default.createElement(Header2, {
       level,
       className
     }, icon, /* @__PURE__ */ import_react30.default.createElement("div", {
@@ -13021,6 +13272,16 @@
     }
     return null;
   };
+  var LegalAgreement = (props) => {
+    const fider = useFider();
+    if (fider.settings.hasLegal) {
+      return /* @__PURE__ */ import_react31.default.createElement(Checkbox, {
+        field: "legalAgreement",
+        onChange: props.onChange
+      }, "I have read and agree to the ", /* @__PURE__ */ import_react31.default.createElement(PrivacyPolicy, null), " and ", /* @__PURE__ */ import_react31.default.createElement(TermsOfService, null), ".");
+    }
+    return null;
+  };
 
   // public/components/common/SocialSignInButton.tsx
   var import_react32 = __toModule(require_react());
@@ -13048,7 +13309,7 @@
   var SignInControl = (props) => {
     const fider = useFider();
     const [email, setEmail] = (0, import_react33.useState)("");
-    const [error2, setError] = (0, import_react33.useState)(void 0);
+    const [error3, setError] = (0, import_react33.useState)(void 0);
     const signIn2 = async () => {
       const result = await actions_exports.signIn(email);
       if (result.ok) {
@@ -13089,7 +13350,7 @@
     }, "OR"), props.useEmail && /* @__PURE__ */ import_react33.default.createElement("div", {
       className: "l-signin-email"
     }, /* @__PURE__ */ import_react33.default.createElement("p", null, "Enter your email address to sign in"), /* @__PURE__ */ import_react33.default.createElement(Form, {
-      error: error2
+      error: error3
     }, /* @__PURE__ */ import_react33.default.createElement(Input, {
       field: "email",
       value: email,
@@ -13107,6 +13368,11 @@
 
   // public/components/common/Segment.tsx
   var import_react34 = __toModule(require_react());
+  var Segments = (props) => {
+    return /* @__PURE__ */ import_react34.default.createElement("div", {
+      className: `c-segments ${props.className || ""}`
+    }, props.children);
+  };
   var Segment = (props) => {
     return /* @__PURE__ */ import_react34.default.createElement("div", {
       className: `c-segment ${props.className || ""}`
@@ -13145,6 +13411,21 @@
 
   // public/components/common/Moment.tsx
   var import_react36 = __toModule(require_react());
+  var Moment = (props) => {
+    if (!props.date) {
+      return /* @__PURE__ */ import_react36.default.createElement("span", null);
+    }
+    const format = props.format || "full";
+    const useRelative = typeof props.useRelative !== "undefined" ? props.useRelative : true;
+    const now = new Date();
+    const date = props.date instanceof Date ? props.date : new Date(props.date);
+    const diff = (now.getTime() - date.getTime()) / (60 * 60 * 24 * 1e3);
+    const display = !useRelative || diff >= 365 ? formatDate(props.date, format) : timeSince(now, date);
+    return /* @__PURE__ */ import_react36.default.createElement("span", {
+      className: "date",
+      title: formatDate(props.date, "full")
+    }, display);
+  };
 
   // public/components/common/Modal.tsx
   var import_react37 = __toModule(require_react());
@@ -13302,9 +13583,47 @@
 
   // public/components/common/Toggle.tsx
   var import_react41 = __toModule(require_react());
+  var Toggle = (props) => {
+    const [active, setActive] = (0, import_react41.useState)(props.active);
+    const toggle = () => {
+      if (props.disabled) {
+        return;
+      }
+      const newActive = !active;
+      setActive(newActive);
+      if (props.onToggle) {
+        props.onToggle(newActive);
+      }
+    };
+    const className = classSet({
+      "c-toggle": true,
+      "m-disabled": !!props.disabled
+    });
+    return /* @__PURE__ */ import_react41.default.createElement("span", {
+      className,
+      onClick: toggle
+    }, /* @__PURE__ */ import_react41.default.createElement("input", {
+      type: "checkbox",
+      checked: active,
+      readOnly: true
+    }), /* @__PURE__ */ import_react41.default.createElement("label", null, /* @__PURE__ */ import_react41.default.createElement("span", {
+      className: "switch"
+    })), /* @__PURE__ */ import_react41.default.createElement("span", {
+      className: "text"
+    }, !!props.label && props.label));
+  };
 
   // public/components/common/FiderVersion.tsx
   var import_react42 = __toModule(require_react());
+  var FiderVersion = () => {
+    const fider = useFider();
+    return /* @__PURE__ */ import_react42.default.createElement("p", {
+      className: "info center hidden-sm hidden-md"
+    }, "Support our", " ", /* @__PURE__ */ import_react42.default.createElement("a", {
+      target: "_blank",
+      href: "http://opencollective.com/fider"
+    }, "OpenCollective"), /* @__PURE__ */ import_react42.default.createElement("br", null), "Fider v", fider.settings.version);
+  };
 
   // public/components/common/DropDown.tsx
   var import_react43 = __toModule(require_react());
@@ -13595,6 +13914,9 @@
     }, status.closed ? disabled : vote));
   };
 
+  // public/pages/Home/Home.page.tsx
+  var import_react54 = __toModule(require_react());
+
   // public/pages/Home/components/SimilarPosts.tsx
   var import_react49 = __toModule(require_react());
 
@@ -13710,7 +14032,7 @@
     const [description, setDescription] = (0, import_react50.useState)(getCachedValue(CACHE_DESCRIPTION_KEY));
     const [isSignInModalOpen, setIsSignInModalOpen] = (0, import_react50.useState)(false);
     const [attachments, setAttachments] = (0, import_react50.useState)([]);
-    const [error2, setError] = (0, import_react50.useState)(void 0);
+    const [error3, setError] = (0, import_react50.useState)(void 0);
     (0, import_react50.useEffect)(() => {
       props.onTitleChanged(title);
     }, [title]);
@@ -13764,7 +14086,7 @@
       isOpen: isSignInModalOpen,
       onClose: hideModal
     }), /* @__PURE__ */ import_react50.default.createElement(Form, {
-      error: error2
+      error: error3
     }, /* @__PURE__ */ import_react50.default.createElement(Input, {
       field: "title",
       noTabFocus: !fider.session.isAuthenticated,
@@ -14021,17 +14343,3125 @@ What can we do better? This is the place for you to vote, discuss and share idea
   };
   var Home_page_default = HomePage;
 
+  // public/pages/Administration/pages/AdvancedSettings.page.tsx
+  var import_react57 = __toModule(require_react());
+
+  // public/pages/Administration/components/AdminBasePage.tsx
+  var import_react56 = __toModule(require_react());
+
+  // public/pages/Administration/components/SideMenu.tsx
+  var import_react55 = __toModule(require_react());
+  var SideMenuItem = (props) => {
+    const className = classSet({
+      "c-side-menu-item": true,
+      "m-active": props.isActive
+    });
+    if (props.isActive) {
+      return /* @__PURE__ */ import_react55.default.createElement("span", {
+        key: props.name,
+        className
+      }, props.title);
+    }
+    return /* @__PURE__ */ import_react55.default.createElement("a", {
+      key: props.name,
+      className,
+      href: props.href
+    }, props.title);
+  };
+  var SideMenu = (props) => {
+    const fider = useFider();
+    const activeItem = props.activeItem || "general";
+    const style = {display: props.visible ? "" : "none"};
+    return /* @__PURE__ */ import_react55.default.createElement("div", {
+      className: props.className
+    }, /* @__PURE__ */ import_react55.default.createElement("div", {
+      className: "c-side-menu",
+      style
+    }, /* @__PURE__ */ import_react55.default.createElement(SideMenuItem, {
+      name: "general",
+      title: "General",
+      href: "/admin",
+      isActive: activeItem === "general"
+    }), /* @__PURE__ */ import_react55.default.createElement(SideMenuItem, {
+      name: "privacy",
+      title: "Privacy",
+      href: "/admin/privacy",
+      isActive: activeItem === "privacy"
+    }), /* @__PURE__ */ import_react55.default.createElement(SideMenuItem, {
+      name: "members",
+      title: "Members",
+      href: "/admin/members",
+      isActive: activeItem === "members"
+    }), /* @__PURE__ */ import_react55.default.createElement(SideMenuItem, {
+      name: "tags",
+      title: "Tags",
+      href: "/admin/tags",
+      isActive: activeItem === "tags"
+    }), /* @__PURE__ */ import_react55.default.createElement(SideMenuItem, {
+      name: "invitations",
+      title: "Invitations",
+      href: "/admin/invitations",
+      isActive: activeItem === "invitations"
+    }), /* @__PURE__ */ import_react55.default.createElement(SideMenuItem, {
+      name: "authentication",
+      title: "Authentication",
+      href: "/admin/authentication",
+      isActive: activeItem === "authentication"
+    }), /* @__PURE__ */ import_react55.default.createElement(SideMenuItem, {
+      name: "advanced",
+      title: "Advanced",
+      href: "/admin/advanced",
+      isActive: activeItem === "advanced"
+    }), fider.session.user.isAdministrator && /* @__PURE__ */ import_react55.default.createElement(import_react55.default.Fragment, null, /* @__PURE__ */ import_react55.default.createElement(SideMenuItem, {
+      name: "export",
+      title: "Export",
+      href: "/admin/export",
+      isActive: activeItem === "export"
+    }))), /* @__PURE__ */ import_react55.default.createElement(FiderVersion, null));
+  };
+  var SideMenuToggler = class extends import_react55.default.Component {
+    constructor(props) {
+      super(props);
+      this.toggle = () => {
+        this.setState((state) => ({active: !state.active}), () => {
+          this.props.onToggle(this.state.active);
+        });
+      };
+      this.state = {
+        active: false
+      };
+    }
+    render() {
+      const className = classSet({
+        "c-side-menu-toggler": true,
+        active: this.state.active
+      });
+      return /* @__PURE__ */ import_react55.default.createElement("div", {
+        className,
+        onClick: this.toggle
+      }, /* @__PURE__ */ import_react55.default.createElement("div", {
+        className: "bar1"
+      }), /* @__PURE__ */ import_react55.default.createElement("div", {
+        className: "bar2"
+      }), /* @__PURE__ */ import_react55.default.createElement("div", {
+        className: "bar3"
+      }));
+    }
+  };
+
+  // public/pages/Administration/components/AdminBasePage.tsx
+  var AdminBasePage = class extends import_react56.default.Component {
+    constructor() {
+      super(...arguments);
+      this.toggleSideMenu = (active) => {
+        const el = document.querySelector(".hidden-lg .c-side-menu");
+        if (el) {
+          el.style.display = active ? "" : "none";
+        }
+      };
+    }
+    render() {
+      return /* @__PURE__ */ import_react56.default.createElement("div", {
+        id: this.id,
+        className: "page container"
+      }, /* @__PURE__ */ import_react56.default.createElement(Heading, {
+        title: this.title,
+        icon: this.icon,
+        subtitle: this.subtitle,
+        className: "l-admin-heading"
+      }), /* @__PURE__ */ import_react56.default.createElement(SideMenuToggler, {
+        onToggle: this.toggleSideMenu
+      }), /* @__PURE__ */ import_react56.default.createElement("div", {
+        className: "row"
+      }, /* @__PURE__ */ import_react56.default.createElement("div", {
+        className: "col-lg-2 hidden-sm hidden-md"
+      }, /* @__PURE__ */ import_react56.default.createElement(SideMenu, {
+        visible: true,
+        activeItem: this.name
+      })), /* @__PURE__ */ import_react56.default.createElement("div", {
+        className: "col-lg-10 col-md-12"
+      }, /* @__PURE__ */ import_react56.default.createElement(SideMenu, {
+        className: "hidden-lg hidden-xl",
+        visible: false,
+        activeItem: this.name
+      }), this.content())));
+    }
+  };
+
+  // public/pages/Administration/pages/AdvancedSettings.page.tsx
+  var AdvancedSettingsPage = class extends AdminBasePage {
+    constructor(props) {
+      super(props);
+      this.id = "p-admin-advanced";
+      this.name = "advanced";
+      this.icon = FaStar;
+      this.title = "Advanced";
+      this.subtitle = "Manage your site settings";
+      this.setCustomCSS = (customCSS) => {
+        this.setState({customCSS});
+      };
+      this.handleSave = async (e) => {
+        const result = await actions_exports.updateTenantAdvancedSettings(this.state.customCSS);
+        if (result.ok) {
+          location.reload();
+        } else {
+          this.setState({error: result.error});
+        }
+      };
+      this.state = {
+        customCSS: this.props.customCSS
+      };
+    }
+    content() {
+      return /* @__PURE__ */ import_react57.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react57.default.createElement(TextArea, {
+        field: "customCSS",
+        label: "Custom CSS",
+        disabled: !Fider.session.user.isAdministrator,
+        minRows: 10,
+        value: this.state.customCSS,
+        onChange: this.setCustomCSS
+      }, /* @__PURE__ */ import_react57.default.createElement("p", {
+        className: "info"
+      }, "Custom CSS allows you to change the look and feel of Fider so that you can apply your own branding.", /* @__PURE__ */ import_react57.default.createElement("br", null), "This is a powerful and flexible feature, but requires basic understanding of ", /* @__PURE__ */ import_react57.default.createElement("a", {
+        href: "https://developer.mozilla.org/en-US/docs/Learn/CSS"
+      }, "CSS"), "."), /* @__PURE__ */ import_react57.default.createElement("p", {
+        className: "info"
+      }, "Custom CSS might break the design of your site as Fider evolves. By doing this, you're taking this risk, and you will need to fix issues if they arise. ", /* @__PURE__ */ import_react57.default.createElement("br", null), " You can minimize some issues by following these recommendations:"), /* @__PURE__ */ import_react57.default.createElement("ul", {
+        className: "info"
+      }, /* @__PURE__ */ import_react57.default.createElement("li", null, /* @__PURE__ */ import_react57.default.createElement("strong", null, "Avoid nested selectors"), ": Fider might change the structure of the HTML at any time, and it's likely that such changes would invalidate some rules."), /* @__PURE__ */ import_react57.default.createElement("li", null, /* @__PURE__ */ import_react57.default.createElement("strong", null, "Keep it short"), ": Customize only the essential. Avoid changing the style or structure of the entire site."))), Fider.session.user.isAdministrator && /* @__PURE__ */ import_react57.default.createElement("div", {
+        className: "field"
+      }, /* @__PURE__ */ import_react57.default.createElement(Button, {
+        color: "positive",
+        onClick: this.handleSave
+      }, "Save")));
+    }
+  };
+  var AdvancedSettings_page_default = AdvancedSettingsPage;
+
+  // public/pages/Administration/pages/Export.page.tsx
+  var import_react58 = __toModule(require_react());
+  var ExportPage = class extends AdminBasePage {
+    constructor() {
+      super(...arguments);
+      this.id = "p-admin-export";
+      this.name = "export";
+      this.icon = FaRegFileExcel;
+      this.title = "Export";
+      this.subtitle = "Download your data";
+    }
+    content() {
+      return /* @__PURE__ */ import_react58.default.createElement(Form, null, /* @__PURE__ */ import_react58.default.createElement(Segment, null, /* @__PURE__ */ import_react58.default.createElement(Field, {
+        label: "Export Posts"
+      }, /* @__PURE__ */ import_react58.default.createElement("p", {
+        className: "info"
+      }, "Use this button to download a CSV file with all posts in this site. This can be useful to analyse the data with an external tool or simply to back it up.")), /* @__PURE__ */ import_react58.default.createElement(Field, null, /* @__PURE__ */ import_react58.default.createElement(Button, {
+        color: "positive",
+        href: "/admin/export/posts.csv"
+      }, "posts.csv"))), /* @__PURE__ */ import_react58.default.createElement(Segment, null, /* @__PURE__ */ import_react58.default.createElement(Field, {
+        label: "Backup your data"
+      }, /* @__PURE__ */ import_react58.default.createElement("p", {
+        className: "info"
+      }, "Use this button to download a ZIP file with your data in JSON format. This is a full backup and contains all of your data.")), /* @__PURE__ */ import_react58.default.createElement(Field, null, /* @__PURE__ */ import_react58.default.createElement(Button, {
+        color: "positive",
+        href: "/admin/export/backup.zip"
+      }, "backup.zip"))));
+    }
+  };
+  var Export_page_default = ExportPage;
+
+  // public/pages/Administration/pages/GeneralSettings.page.tsx
+  var import_react59 = __toModule(require_react());
+  var GeneralSettingsPage = class extends AdminBasePage {
+    constructor(props) {
+      super(props);
+      this.id = "p-admin-general";
+      this.name = "general";
+      this.icon = FaCogs;
+      this.title = "General";
+      this.subtitle = "Manage your site settings";
+      this.handleSave = async (e) => {
+        const result = await actions_exports.updateTenantSettings(this.state);
+        if (result.ok) {
+          e.preventEnable();
+          location.href = `/`;
+        } else if (result.error) {
+          this.setState({error: result.error});
+        }
+      };
+      this.setTitle = (title) => {
+        this.setState({title});
+      };
+      this.setWelcomeMessage = (welcomeMessage) => {
+        this.setState({welcomeMessage});
+      };
+      this.setInvitation = (invitation) => {
+        this.setState({invitation});
+      };
+      this.setLogo = (logo) => {
+        this.setState({logo});
+      };
+      this.setCNAME = (cname) => {
+        this.setState({cname});
+      };
+      this.state = {
+        title: Fider.session.tenant.name,
+        cname: Fider.session.tenant.cname,
+        welcomeMessage: Fider.session.tenant.welcomeMessage,
+        invitation: Fider.session.tenant.invitation
+      };
+    }
+    dnsInstructions() {
+      const isApex = this.state.cname.split(".").length <= 2;
+      const recordType = isApex ? "ALIAS" : "CNAME";
+      return /* @__PURE__ */ import_react59.default.createElement(import_react59.default.Fragment, null, /* @__PURE__ */ import_react59.default.createElement("strong", null, this.state.cname), " ", recordType, " ", /* @__PURE__ */ import_react59.default.createElement("strong", null, Fider.session.tenant.subdomain, Fider.settings.domain));
+    }
+    content() {
+      return /* @__PURE__ */ import_react59.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react59.default.createElement(Input, {
+        field: "title",
+        label: "Title",
+        maxLength: 60,
+        value: this.state.title,
+        disabled: !Fider.session.user.isAdministrator,
+        onChange: this.setTitle
+      }, /* @__PURE__ */ import_react59.default.createElement("p", {
+        className: "info"
+      }, "The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The product/service name is usually the best choice.")), /* @__PURE__ */ import_react59.default.createElement(TextArea, {
+        field: "welcomeMessage",
+        label: "Welcome Message",
+        value: this.state.welcomeMessage,
+        disabled: !Fider.session.user.isAdministrator,
+        onChange: this.setWelcomeMessage
+      }, /* @__PURE__ */ import_react59.default.createElement("p", {
+        className: "info"
+      }, "The message is shown on this site's home page. Use it to help visitors understad what this space is about and the importance of their feedback. Leave it empty for a default message.")), /* @__PURE__ */ import_react59.default.createElement(Input, {
+        field: "invitation",
+        label: "Invitation",
+        maxLength: 60,
+        value: this.state.invitation,
+        disabled: !Fider.session.user.isAdministrator,
+        placeholder: "Enter your suggestion here...",
+        onChange: this.setInvitation
+      }, /* @__PURE__ */ import_react59.default.createElement("p", {
+        className: "info"
+      }, "This text is used as a placeholder for the suggestion's text box. Use it to invite your visitors into sharing their suggestions and feedback. Leave it empty for a default message.")), /* @__PURE__ */ import_react59.default.createElement(ImageUploader, {
+        label: "Logo",
+        field: "logo",
+        bkey: Fider.session.tenant.logoBlobKey,
+        previewMaxWidth: 200,
+        disabled: !Fider.session.user.isAdministrator,
+        onChange: this.setLogo
+      }, /* @__PURE__ */ import_react59.default.createElement("p", {
+        className: "info"
+      }, "We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 200x200 pixels.")), !Fider.isSingleHostMode() && /* @__PURE__ */ import_react59.default.createElement(Input, {
+        field: "cname",
+        label: "Custom Domain",
+        maxLength: 100,
+        placeholder: "feedback.yourcompany.com",
+        value: this.state.cname,
+        disabled: !Fider.session.user.isAdministrator,
+        onChange: this.setCNAME
+      }, /* @__PURE__ */ import_react59.default.createElement("div", {
+        className: "info"
+      }, this.state.cname ? [
+        /* @__PURE__ */ import_react59.default.createElement("p", {
+          key: 0
+        }, "Enter the following record into your DNS zone records:"),
+        /* @__PURE__ */ import_react59.default.createElement("p", {
+          key: 1
+        }, this.dnsInstructions()),
+        /* @__PURE__ */ import_react59.default.createElement("p", {
+          key: 2
+        }, "Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS propagation.")
+      ] : /* @__PURE__ */ import_react59.default.createElement("p", null, "Custom domains allow you to access your app via your own domain name (for example, ", /* @__PURE__ */ import_react59.default.createElement("code", null, "feedback.yourcompany.com"), ")."))), /* @__PURE__ */ import_react59.default.createElement("div", {
+        className: "field"
+      }, /* @__PURE__ */ import_react59.default.createElement(Button, {
+        disabled: !Fider.session.user.isAdministrator,
+        color: "positive",
+        onClick: this.handleSave
+      }, "Save")));
+    }
+  };
+  var GeneralSettings_page_default = GeneralSettingsPage;
+
+  // public/pages/Administration/pages/Invitations.page.tsx
+  var import_react60 = __toModule(require_react());
+  var InvitationsPage = class extends AdminBasePage {
+    constructor(props) {
+      super(props);
+      this.id = "p-admin-invitations";
+      this.name = "invitations";
+      this.icon = FaEnvelope;
+      this.title = "Invitations";
+      this.subtitle = "Invite people to share their feedback";
+      this.setRecipients = (rawRecipients) => {
+        const recipients = rawRecipients.split(/\n|;|,|\s/gm).filter((x) => !!x);
+        this.setState({rawRecipients, recipients, numOfRecipients: recipients.length});
+      };
+      this.sendSample = async (e) => {
+        const result = await actions_exports.sendSampleInvite(this.state.subject, this.state.message);
+        if (result.ok) {
+          notify_exports.success(/* @__PURE__ */ import_react60.default.createElement("span", null, "An email message was sent to ", /* @__PURE__ */ import_react60.default.createElement("strong", null, Fider.session.user.email)));
+        }
+        this.setState({error: result.error});
+      };
+      this.sendInvites = async (e) => {
+        const result = await actions_exports.sendInvites(this.state.subject, this.state.message, this.state.recipients);
+        if (result.ok) {
+          notify_exports.success("Your invites have been sent.");
+          this.setState({rawRecipients: "", numOfRecipients: 0, recipients: [], error: void 0});
+        } else {
+          this.setState({error: result.error});
+        }
+      };
+      this.setSubject = (subject) => {
+        this.setState({subject});
+      };
+      this.setMessage = (message) => {
+        this.setState({message});
+      };
+      this.state = {
+        subject: `Share your ideas and thoughts about ${Fider.session.tenant.name}`,
+        message: `Hi,
+
+At **${Fider.session.tenant.name}** we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
+
+We'd like to extend an invite for you to join this community and raise awareness on topics you care about!
+
+To join, click on the link below.
+
+%invite%
+
+Regards,
+${Fider.session.user.name} (${Fider.session.tenant.name})`,
+        recipients: [],
+        numOfRecipients: 0,
+        rawRecipients: ""
+      };
+    }
+    content() {
+      return /* @__PURE__ */ import_react60.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react60.default.createElement(TextArea, {
+        field: "recipients",
+        label: "Send invitations to",
+        placeholder: "james@example.com; carol@example.com",
+        minRows: 1,
+        value: this.state.rawRecipients,
+        onChange: this.setRecipients
+      }, /* @__PURE__ */ import_react60.default.createElement("div", {
+        className: "info"
+      }, /* @__PURE__ */ import_react60.default.createElement("p", null, "Input the list of all email addresses you wish to invite. Separate each address with either ", /* @__PURE__ */ import_react60.default.createElement("strong", null, "semicolon"), ", ", /* @__PURE__ */ import_react60.default.createElement("strong", null, "comma"), ", ", /* @__PURE__ */ import_react60.default.createElement("strong", null, "whitespace"), " or", " ", /* @__PURE__ */ import_react60.default.createElement("strong", null, "line break"), "."), /* @__PURE__ */ import_react60.default.createElement("p", null, "You can send this invite to a maximum of 30 recipients each time."))), /* @__PURE__ */ import_react60.default.createElement(Input, {
+        field: "subject",
+        label: "Subject",
+        value: this.state.subject,
+        maxLength: 70,
+        onChange: this.setSubject
+      }, /* @__PURE__ */ import_react60.default.createElement("p", {
+        className: "info"
+      }, "This is the subject that will be used on the invitation email. Keep it short and sweet.")), /* @__PURE__ */ import_react60.default.createElement(TextArea, {
+        field: "message",
+        label: "Message",
+        minRows: 8,
+        value: this.state.message,
+        onChange: this.setMessage
+      }, /* @__PURE__ */ import_react60.default.createElement("div", {
+        className: "info"
+      }, /* @__PURE__ */ import_react60.default.createElement("p", null, "This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a high change people will ignore your message."), /* @__PURE__ */ import_react60.default.createElement("p", null, "You're allowed to write whatever you want as long as you include the invitation link placeholder named ", /* @__PURE__ */ import_react60.default.createElement("strong", null, "%invite%"), "."))), /* @__PURE__ */ import_react60.default.createElement(Field, {
+        label: "Sample Invite"
+      }, /* @__PURE__ */ import_react60.default.createElement("p", {
+        className: "info"
+      }, "We highly recommend to send yourself a sample email for you to verify if everything is correct before inviting your list of contacts."), Fider.session.user.email ? /* @__PURE__ */ import_react60.default.createElement(Button, {
+        onClick: this.sendSample
+      }, "Send a sample email to ", Fider.session.user.email) : /* @__PURE__ */ import_react60.default.createElement(Button, {
+        disabled: true
+      }, "Your profile doesn't have an email")), /* @__PURE__ */ import_react60.default.createElement(Field, {
+        label: "Confirmation"
+      }, /* @__PURE__ */ import_react60.default.createElement("p", {
+        className: "info"
+      }, "Whenever you're ready, click the following button to send out these invites."), /* @__PURE__ */ import_react60.default.createElement(Button, {
+        onClick: this.sendInvites,
+        color: "positive",
+        disabled: this.state.numOfRecipients === 0
+      }, "Send ", this.state.numOfRecipients, " ", this.state.numOfRecipients === 1 ? "invite" : "invites")));
+    }
+  };
+  var Invitations_page_default = InvitationsPage;
+
+  // public/pages/Administration/pages/ManageAuthentication.page.tsx
+  var import_react62 = __toModule(require_react());
+
+  // public/pages/Administration/components/OAuthForm.tsx
+  var import_react61 = __toModule(require_react());
+  var OAuthForm = (props) => {
+    const fider = useFider();
+    const [provider] = (0, import_react61.useState)(props.config && props.config.provider || "");
+    const [displayName, setDisplayName] = (0, import_react61.useState)(props.config && props.config.displayName || "");
+    const [enabled, setEnabled] = (0, import_react61.useState)(props.config && props.config.status === OAuthConfigStatus.Enabled || false);
+    const [clientID, setClientID] = (0, import_react61.useState)(props.config && props.config.clientID || "");
+    const [clientSecret, setClientSecret] = (0, import_react61.useState)(props.config && props.config.clientSecret || "");
+    const [clientSecretEnabled, setClientSecretEnabled] = (0, import_react61.useState)(!props.config);
+    const [authorizeURL, setAuthorizeURL] = (0, import_react61.useState)(props.config && props.config.authorizeURL || "");
+    const [tokenURL, setTokenURL] = (0, import_react61.useState)(props.config && props.config.tokenURL || "");
+    const [profileURL, setProfileURL] = (0, import_react61.useState)(props.config && props.config.profileURL || "");
+    const [scope, setScope] = (0, import_react61.useState)(props.config && props.config.scope || "");
+    const [jsonUserIDPath, setJSONUserIDPath] = (0, import_react61.useState)(props.config && props.config.jsonUserIDPath || "");
+    const [jsonUserNamePath, setJSONUserNamePath] = (0, import_react61.useState)(props.config && props.config.jsonUserNamePath || "");
+    const [jsonUserEmailPath, setJSONUserEmailPath] = (0, import_react61.useState)(props.config && props.config.jsonUserEmailPath || "");
+    const [logo, setLogo] = (0, import_react61.useState)();
+    const [logoURL, setLogoURL] = (0, import_react61.useState)();
+    const [logoBlobKey, setLogoBlobKey] = (0, import_react61.useState)(props.config && props.config.logoBlobKey || "");
+    const [error3, setError] = (0, import_react61.useState)();
+    const handleSave = async () => {
+      const result = await actions_exports.saveOAuthConfig({
+        provider,
+        status: enabled ? OAuthConfigStatus.Enabled : OAuthConfigStatus.Disabled,
+        displayName,
+        clientID,
+        clientSecret: clientSecretEnabled ? clientSecret : "",
+        authorizeURL,
+        tokenURL,
+        profileURL,
+        scope,
+        jsonUserIDPath,
+        jsonUserNamePath,
+        jsonUserEmailPath,
+        logo
+      });
+      if (result.ok) {
+        location.reload();
+      } else {
+        setError(result.error);
+      }
+    };
+    const handleLogoChange = (newLogo, instanceID, previewURL) => {
+      setLogo(newLogo);
+      setLogoURL(previewURL);
+      setLogoBlobKey("");
+    };
+    const handleCancel = async () => {
+      props.onCancel();
+    };
+    const enableClientSecret = () => {
+      setClientSecret("");
+      setClientSecretEnabled(true);
+    };
+    const title = props.config ? `OAuth Provider: ${props.config.displayName}` : "New OAuth Provider";
+    return /* @__PURE__ */ import_react61.default.createElement(import_react61.default.Fragment, null, /* @__PURE__ */ import_react61.default.createElement(Heading, {
+      title,
+      size: "small"
+    }), /* @__PURE__ */ import_react61.default.createElement(Form, {
+      error: error3
+    }, /* @__PURE__ */ import_react61.default.createElement("div", {
+      className: "row"
+    }, /* @__PURE__ */ import_react61.default.createElement("div", {
+      className: "col-sm-9"
+    }, /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "displayName",
+      label: "Display Name",
+      maxLength: 50,
+      value: displayName,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setDisplayName
+    }), /* @__PURE__ */ import_react61.default.createElement(ImageUploader, {
+      label: "Logo",
+      field: "logo",
+      bkey: logoBlobKey,
+      previewMaxWidth: 80,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: handleLogoChange
+    }, /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "We accept JPG, GIF and PNG images, smaller than 50KB and with an aspect ratio of 1:1 with minimum dimensions of 24x24 pixels."))), /* @__PURE__ */ import_react61.default.createElement("div", {
+      className: "col-sm-3"
+    }, /* @__PURE__ */ import_react61.default.createElement(Field, {
+      label: "Button Preview"
+    }, /* @__PURE__ */ import_react61.default.createElement(SocialSignInButton, {
+      option: {displayName, provider, logoBlobKey, logoURL}
+    })))), /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "clientID",
+      label: "Client ID",
+      maxLength: 100,
+      value: clientID,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setClientID
+    }), /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "clientSecret",
+      label: "Client Secret",
+      maxLength: 500,
+      value: clientSecret,
+      disabled: !clientSecretEnabled,
+      onChange: setClientSecret,
+      afterLabel: !clientSecretEnabled ? /* @__PURE__ */ import_react61.default.createElement(import_react61.default.Fragment, null, /* @__PURE__ */ import_react61.default.createElement("span", {
+        className: "info"
+      }, "omitted for security reasons."), /* @__PURE__ */ import_react61.default.createElement("span", {
+        className: "info clickable",
+        onClick: enableClientSecret
+      }, "change")) : void 0
+    }), /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "authorizeURL",
+      label: "Authorize URL",
+      maxLength: 300,
+      value: authorizeURL,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setAuthorizeURL
+    }), /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "tokenURL",
+      label: "Token URL",
+      maxLength: 300,
+      value: tokenURL,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setTokenURL
+    }), /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "scope",
+      label: "Scope",
+      maxLength: 100,
+      value: scope,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setScope
+    }, /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "It is recommended to only request the minimum scopes we need to fetch the user ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "id"), ", ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "name"), " and ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "email"), ". Multiple scopes must be separated by space.")), /* @__PURE__ */ import_react61.default.createElement("h3", null, "User Profile"), /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "This section is used to configure how Fider will fetch user after the authentication process."), /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "profileURL",
+      label: "Profile API URL",
+      maxLength: 300,
+      value: profileURL,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setProfileURL
+    }, /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the Access Token.")), /* @__PURE__ */ import_react61.default.createElement("h4", null, "JSON Path"), /* @__PURE__ */ import_react61.default.createElement("div", {
+      className: "row"
+    }, /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "jsonUserIDPath",
+      label: "ID",
+      className: "col-sm-4",
+      maxLength: 100,
+      value: jsonUserIDPath,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setJSONUserIDPath
+    }, /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "Path to extract User ID from the JSON. This ID ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "must"), " be unique within the provider or unexpected side effects might happen. For example below, the path would be", " ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "id"), ".")), /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "jsonUserNamePath",
+      label: "Name",
+      className: "col-sm-4",
+      maxLength: 100,
+      value: jsonUserNamePath,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setJSONUserNamePath
+    }, /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "Path to extract user Display Name from the JSON. This is optional, but ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "highly"), " recommended. For the example below, the path would be ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "profile.name"), ".")), /* @__PURE__ */ import_react61.default.createElement(Input, {
+      field: "jsonUserEmailPath",
+      label: "Email",
+      className: "col-sm-4",
+      maxLength: 100,
+      value: jsonUserEmailPath,
+      disabled: !fider.session.user.isAdministrator,
+      onChange: setJSONUserEmailPath
+    }, /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "Path to extract user Email from the JSON. This is optional, but ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "highly"), " recommended. For the example below, the path would be ", /* @__PURE__ */ import_react61.default.createElement("strong", null, "profile.emails[0]"), "."))), /* @__PURE__ */ import_react61.default.createElement("pre", null, /* @__PURE__ */ import_react61.default.createElement("h5", null, "Example Response"), `
+  { 
+  id: "35235"
+  title: "Sr. Account Manager",
+  profile: {
+    dob: "01/05/2018",
+    name: "John Doe"
+    emails: [
+      "john.doe@company.com"
+    ]
+  }
+}
+          `), /* @__PURE__ */ import_react61.default.createElement("div", {
+      className: "row"
+    }, /* @__PURE__ */ import_react61.default.createElement("div", {
+      className: "col-sm-4"
+    }, /* @__PURE__ */ import_react61.default.createElement(Field, {
+      label: "Status"
+    }, /* @__PURE__ */ import_react61.default.createElement(Toggle, {
+      active: enabled,
+      onToggle: setEnabled
+    }), /* @__PURE__ */ import_react61.default.createElement("span", null, enabled ? "Enabled" : "Disabled"), enabled && /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "This provider will be available for everyone to use during the sign in process. It is recommended that you keep it disable and test it before enabling it. The Test button is available after saving this configuration."), !enabled && /* @__PURE__ */ import_react61.default.createElement("p", {
+      className: "info"
+    }, "Users won't be able to sign in with this Provider.")))), /* @__PURE__ */ import_react61.default.createElement("div", {
+      className: "c-form-field"
+    }, /* @__PURE__ */ import_react61.default.createElement(Button, {
+      color: "positive",
+      onClick: handleSave
+    }, "Save"), /* @__PURE__ */ import_react61.default.createElement(Button, {
+      color: "cancel",
+      onClick: handleCancel
+    }, "Cancel"))));
+  };
+
+  // public/pages/Administration/pages/ManageAuthentication.page.tsx
+  var ManageAuthenticationPage = class extends AdminBasePage {
+    constructor(props) {
+      super(props);
+      this.id = "p-admin-authentication";
+      this.name = "authentication";
+      this.icon = FaSignInAlt;
+      this.title = "Authentication";
+      this.subtitle = "Manage your site authentication";
+      this.addNew = async () => {
+        this.setState({isAdding: true, editing: void 0});
+      };
+      this.edit = async (provider) => {
+        const result = await actions_exports.getOAuthConfig(provider);
+        if (result.ok) {
+          this.setState({editing: result.data, isAdding: false});
+        } else {
+          notify_exports.error("Failed to retrieve OAuth configuration. Try again later");
+        }
+      };
+      this.startTest = async (provider) => {
+        const redirect = `${Fider.settings.baseURL}/oauth/${provider}/echo`;
+        window.open(`/oauth/${provider}?redirect=${redirect}`, "oauth-test", "width=1100,height=600,status=no,menubar=no");
+      };
+      this.cancel = async () => {
+        this.setState({isAdding: false, editing: void 0});
+      };
+      this.state = {
+        isAdding: false
+      };
+    }
+    content() {
+      if (this.state.isAdding) {
+        return /* @__PURE__ */ import_react62.default.createElement(OAuthForm, {
+          onCancel: this.cancel
+        });
+      }
+      if (this.state.editing) {
+        return /* @__PURE__ */ import_react62.default.createElement(OAuthForm, {
+          config: this.state.editing,
+          onCancel: this.cancel
+        });
+      }
+      const enabled = /* @__PURE__ */ import_react62.default.createElement("p", {
+        className: "m-enabled"
+      }, "Enabled");
+      const disabled = /* @__PURE__ */ import_react62.default.createElement("p", {
+        className: "m-disabled"
+      }, "Disabled");
+      return /* @__PURE__ */ import_react62.default.createElement(import_react62.default.Fragment, null, /* @__PURE__ */ import_react62.default.createElement(Heading, {
+        title: "OAuth Providers",
+        subtitle: "You can use these section to add any authentication provider thats supports the OAuth2 protocol.",
+        size: "small"
+      }), /* @__PURE__ */ import_react62.default.createElement("p", {
+        className: "info"
+      }, "Additional information is available in our", " ", /* @__PURE__ */ import_react62.default.createElement("a", {
+        target: "_blank",
+        href: "https://getfider.com/docs/configuring-oauth/"
+      }, "OAuth Documentation"), "."), /* @__PURE__ */ import_react62.default.createElement(Segment, null, /* @__PURE__ */ import_react62.default.createElement(List, {
+        divided: true
+      }, this.props.providers.map((o) => /* @__PURE__ */ import_react62.default.createElement(ListItem, {
+        key: o.provider
+      }, o.isCustomProvider && /* @__PURE__ */ import_react62.default.createElement(import_react62.default.Fragment, null, Fider.session.user.isAdministrator && /* @__PURE__ */ import_react62.default.createElement(Button, {
+        onClick: this.edit.bind(this, o.provider),
+        size: "mini",
+        className: "right"
+      }, /* @__PURE__ */ import_react62.default.createElement(FaEdit, null), "Edit"), /* @__PURE__ */ import_react62.default.createElement(Button, {
+        onClick: this.startTest.bind(this, o.provider),
+        size: "mini",
+        className: "right"
+      }, /* @__PURE__ */ import_react62.default.createElement(FaPlay, null), "Test")), /* @__PURE__ */ import_react62.default.createElement("div", {
+        className: "l-provider"
+      }, /* @__PURE__ */ import_react62.default.createElement(OAuthProviderLogo, {
+        option: o
+      }), /* @__PURE__ */ import_react62.default.createElement("strong", null, o.displayName), o.isEnabled ? enabled : disabled), o.isCustomProvider && /* @__PURE__ */ import_react62.default.createElement("span", {
+        className: "info"
+      }, /* @__PURE__ */ import_react62.default.createElement("strong", null, "Client ID:"), " ", o.clientID, " ", /* @__PURE__ */ import_react62.default.createElement("br", null), /* @__PURE__ */ import_react62.default.createElement("strong", null, "Callback URL:"), " ", o.callbackURL))))), Fider.session.user.isAdministrator && /* @__PURE__ */ import_react62.default.createElement(Button, {
+        color: "positive",
+        onClick: this.addNew
+      }, "Add new"));
+    }
+  };
+  var ManageAuthentication_page_default = ManageAuthenticationPage;
+
+  // public/pages/Administration/pages/ManageMembers.page.tsx
+  var import_react63 = __toModule(require_react());
+  var UserListItem = (props) => {
+    const admin = props.user.role === UserRole.Administrator && /* @__PURE__ */ import_react63.default.createElement("span", {
+      className: "staff"
+    }, "administrator");
+    const collaborator = props.user.role === UserRole.Collaborator && /* @__PURE__ */ import_react63.default.createElement("span", {
+      className: "staff"
+    }, "collaborator");
+    const blocked = props.user.status === UserStatus.Blocked && /* @__PURE__ */ import_react63.default.createElement("span", {
+      className: "blocked"
+    }, "blocked");
+    const isVisitor = props.user.role === UserRole.Visitor;
+    const renderEllipsis = () => {
+      return /* @__PURE__ */ import_react63.default.createElement(FaEllipsisH, null);
+    };
+    const actionSelected = (item) => {
+      props.onAction(item.value, props.user);
+    };
+    return /* @__PURE__ */ import_react63.default.createElement(ListItem, null, /* @__PURE__ */ import_react63.default.createElement(Avatar, {
+      user: props.user
+    }), /* @__PURE__ */ import_react63.default.createElement("div", {
+      className: "l-user-details"
+    }, /* @__PURE__ */ import_react63.default.createElement(UserName, {
+      user: props.user
+    }), /* @__PURE__ */ import_react63.default.createElement("span", null, admin, " ", collaborator, " ", blocked)), Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && /* @__PURE__ */ import_react63.default.createElement(DropDown, {
+      className: "l-user-actions",
+      inline: true,
+      highlightSelected: false,
+      style: "simple",
+      items: [
+        !blocked && (!!collaborator || isVisitor) && {label: "Promote to Administrator", value: "to-administrator"},
+        !blocked && (!!admin || isVisitor) && {label: "Promote to Collaborator", value: "to-collaborator"},
+        !blocked && (!!collaborator || !!admin) && {label: "Demote to Visitor", value: "to-visitor"},
+        isVisitor && !blocked && {label: "Block User", value: "block"},
+        isVisitor && !!blocked && {label: "Unblock User", value: "unblock"}
+      ],
+      renderControl: renderEllipsis,
+      onChange: actionSelected
+    }));
+  };
+  var ManageMembersPage = class extends AdminBasePage {
+    constructor(props) {
+      super(props);
+      this.id = "p-admin-members";
+      this.name = "members";
+      this.icon = FaUsers;
+      this.title = "Members";
+      this.subtitle = "Manage your site administrators and collaborators";
+      this.showMore = (event) => {
+        event.preventDefault();
+        this.setState({
+          visibleUsers: this.state.users.slice(0, this.state.visibleUsers.length + 10)
+        });
+      };
+      this.clearSearch = () => {
+        this.handleSearchFilterChanged("");
+      };
+      this.handleSearchFilterChanged = (query) => {
+        const users = this.props.users.filter((x) => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0).sort(this.sortByStaff);
+        this.setState({query, users, visibleUsers: users.slice(0, 10)});
+      };
+      this.handleAction = async (actionName, user) => {
+        const changeRole = async (role) => {
+          const result = await actions_exports.changeUserRole(user.id, role);
+          if (result.ok) {
+            user.role = role;
+          }
+          this.handleSearchFilterChanged(this.state.query);
+        };
+        const changeStatus = async (status) => {
+          const action = status === UserStatus.Blocked ? actions_exports.blockUser : actions_exports.unblockUser;
+          const result = await action(user.id);
+          if (result.ok) {
+            user.status = status;
+          }
+          this.forceUpdate();
+        };
+        if (actionName === "to-collaborator") {
+          await changeRole(UserRole.Collaborator);
+        } else if (actionName === "to-visitor") {
+          await changeRole(UserRole.Visitor);
+        } else if (actionName === "to-administrator") {
+          await changeRole(UserRole.Administrator);
+        } else if (actionName === "block") {
+          await changeStatus(UserStatus.Blocked);
+        } else if (actionName === "unblock") {
+          await changeStatus(UserStatus.Active);
+        }
+      };
+      this.sortByStaff = (left, right) => {
+        if (right.role === left.role) {
+          if (left.name < right.name) {
+            return -1;
+          } else if (left.name > right.name) {
+            return 1;
+          }
+          return 0;
+        }
+        if (right.role !== UserRole.Visitor) {
+          return 1;
+        }
+        return -1;
+      };
+      const users = this.props.users.sort(this.sortByStaff);
+      this.state = {
+        query: "",
+        users,
+        visibleUsers: users.slice(0, 10)
+      };
+    }
+    content() {
+      return /* @__PURE__ */ import_react63.default.createElement(import_react63.default.Fragment, null, /* @__PURE__ */ import_react63.default.createElement(Input, {
+        field: "query",
+        icon: this.state.query ? FaTimes : FaSearch,
+        onIconClick: this.state.query ? this.clearSearch : void 0,
+        placeholder: "Search for users by name...",
+        value: this.state.query,
+        onChange: this.handleSearchFilterChanged
+      }), /* @__PURE__ */ import_react63.default.createElement(Segment, null, this.state.visibleUsers.length === 0 && /* @__PURE__ */ import_react63.default.createElement("span", null, "No users found."), /* @__PURE__ */ import_react63.default.createElement(List, {
+        divided: true
+      }, this.state.visibleUsers.map((user) => /* @__PURE__ */ import_react63.default.createElement(UserListItem, {
+        key: user.id,
+        user,
+        onAction: this.handleAction
+      })))), /* @__PURE__ */ import_react63.default.createElement("p", {
+        className: "info"
+      }, !this.state.query && /* @__PURE__ */ import_react63.default.createElement(import_react63.default.Fragment, null, "Showing ", this.state.visibleUsers.length, " of ", this.state.users.length, " registered users"), this.state.query && /* @__PURE__ */ import_react63.default.createElement(import_react63.default.Fragment, null, "Showing ", this.state.visibleUsers.length, " of ", this.state.users.length, " users matching '", this.state.query, "'"), this.state.visibleUsers.length < this.state.users.length && /* @__PURE__ */ import_react63.default.createElement("a", {
+        className: "l-show-more",
+        onTouchEnd: this.showMore,
+        onClick: this.showMore
+      }, "view more")), /* @__PURE__ */ import_react63.default.createElement("ul", {
+        className: "l-legend info"
+      }, /* @__PURE__ */ import_react63.default.createElement("li", null, /* @__PURE__ */ import_react63.default.createElement("strong", null, "\xB7 Administrators"), "have full access to edit and manage content, permissions and all site settings."), /* @__PURE__ */ import_react63.default.createElement("li", null, /* @__PURE__ */ import_react63.default.createElement("strong", null, "\xB7 Collaborators"), " can edit and manage content, but not permissions and settings."), /* @__PURE__ */ import_react63.default.createElement("li", null, /* @__PURE__ */ import_react63.default.createElement("strong", null, "\xB7 Blocked"), " users are unable to log into this site.")));
+    }
+  };
+  var ManageMembers_page_default = ManageMembersPage;
+
+  // public/pages/Administration/pages/ManageTags.page.tsx
+  var import_react66 = __toModule(require_react());
+
+  // public/pages/Administration/components/TagForm.tsx
+  var import_react64 = __toModule(require_react());
+  var TagForm = class extends import_react64.default.Component {
+    constructor(props) {
+      super(props);
+      this.visibilityPublic = {label: "Public", value: "public"};
+      this.visibilityPrivate = {label: "Private", value: "private"};
+      this.handleSave = async () => {
+        const error3 = await this.props.onSave(this.state);
+        if (error3) {
+          this.setState({error: error3});
+        }
+      };
+      this.handleCancel = async () => {
+        this.props.onCancel();
+      };
+      this.setName = (name) => {
+        this.setState({name});
+      };
+      this.setColor = (color) => {
+        this.setState({color});
+      };
+      this.setVisibility = (option) => {
+        this.setState({isPublic: option === this.visibilityPublic});
+      };
+      this.randomize = () => {
+        this.setColor(this.getRandomColor());
+      };
+      this.state = {
+        color: props.color || this.getRandomColor(),
+        name: props.name || "",
+        isPublic: props.isPublic || false
+      };
+    }
+    getRandomColor() {
+      const letters = "0123456789ABCDEF";
+      let color = "";
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+    render() {
+      const randomizer = /* @__PURE__ */ import_react64.default.createElement("span", {
+        className: "info clickable",
+        onClick: this.randomize
+      }, "randomize");
+      return /* @__PURE__ */ import_react64.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react64.default.createElement("div", {
+        className: "row"
+      }, /* @__PURE__ */ import_react64.default.createElement("div", {
+        className: "col-lg-3"
+      }, /* @__PURE__ */ import_react64.default.createElement(Input, {
+        field: "name",
+        label: "Name",
+        value: this.state.name,
+        onChange: this.setName
+      })), /* @__PURE__ */ import_react64.default.createElement("div", {
+        className: "col-lg-2"
+      }, /* @__PURE__ */ import_react64.default.createElement(Input, {
+        field: "color",
+        label: "Color",
+        afterLabel: randomizer,
+        value: this.state.color,
+        onChange: this.setColor
+      })), /* @__PURE__ */ import_react64.default.createElement("div", {
+        className: "col-lg-2"
+      }, /* @__PURE__ */ import_react64.default.createElement(RadioButton, {
+        label: "Visibility",
+        field: "visibility",
+        defaultOption: this.state.isPublic ? this.visibilityPublic : this.visibilityPrivate,
+        options: [this.visibilityPublic, this.visibilityPrivate],
+        onSelect: this.setVisibility
+      })), /* @__PURE__ */ import_react64.default.createElement("div", {
+        className: "col-lg-5"
+      }, /* @__PURE__ */ import_react64.default.createElement(Field, {
+        label: "Preview"
+      }, /* @__PURE__ */ import_react64.default.createElement(ShowTag, {
+        tag: {
+          id: 0,
+          slug: "",
+          name: this.state.name,
+          color: this.state.color,
+          isPublic: this.state.isPublic
+        }
+      })))), /* @__PURE__ */ import_react64.default.createElement(Button, {
+        color: "positive",
+        onClick: this.handleSave
+      }, "Save"), /* @__PURE__ */ import_react64.default.createElement(Button, {
+        onClick: this.handleCancel,
+        color: "cancel"
+      }, "Cancel"));
+    }
+  };
+
+  // public/pages/Administration/components/TagListItem.tsx
+  var import_react65 = __toModule(require_react());
+  var TagListItem = (props) => {
+    const fider = useFider();
+    const [tag] = (0, import_react65.useState)(props.tag);
+    const [state, setState] = (0, import_react65.useState)("view");
+    const startDelete = async () => setState("delete");
+    const startEdit = async () => setState("edit");
+    const resetState = async () => setState("view");
+    const deleteTag2 = async () => {
+      const result = await actions_exports.deleteTag(tag.slug);
+      if (result.ok) {
+        resetState();
+        props.onTagDeleted(tag);
+      }
+    };
+    const updateTag2 = async (data) => {
+      const result = await actions_exports.updateTag(tag.slug, data.name, data.color, data.isPublic);
+      if (result.ok) {
+        tag.name = result.data.name;
+        tag.slug = result.data.slug;
+        tag.color = result.data.color;
+        tag.isPublic = result.data.isPublic;
+        resetState();
+        props.onTagEdited(tag);
+      } else {
+        return result.error;
+      }
+    };
+    const renderDeleteMode = () => {
+      return /* @__PURE__ */ import_react65.default.createElement(import_react65.default.Fragment, null, /* @__PURE__ */ import_react65.default.createElement("div", {
+        className: "content"
+      }, /* @__PURE__ */ import_react65.default.createElement("b", null, "Are you sure?"), " ", /* @__PURE__ */ import_react65.default.createElement("span", null, "The tag ", /* @__PURE__ */ import_react65.default.createElement(ShowTag, {
+        tag
+      }), " will be removed from all posts.")), /* @__PURE__ */ import_react65.default.createElement(Button, {
+        className: "right",
+        onClick: resetState,
+        color: "cancel"
+      }, "Cancel"), /* @__PURE__ */ import_react65.default.createElement(Button, {
+        color: "danger",
+        className: "right",
+        onClick: deleteTag2
+      }, "Delete tag"));
+    };
+    const renderViewMode = () => {
+      const buttons = fider.session.user.isAdministrator && [
+        /* @__PURE__ */ import_react65.default.createElement(Button, {
+          size: "mini",
+          key: 0,
+          onClick: startDelete,
+          className: "right"
+        }, /* @__PURE__ */ import_react65.default.createElement(FaTimes, null), "Delete"),
+        /* @__PURE__ */ import_react65.default.createElement(Button, {
+          size: "mini",
+          key: 1,
+          onClick: startEdit,
+          className: "right"
+        }, /* @__PURE__ */ import_react65.default.createElement(FaEdit, null), "Edit")
+      ];
+      return /* @__PURE__ */ import_react65.default.createElement(import_react65.default.Fragment, null, /* @__PURE__ */ import_react65.default.createElement(ShowTag, {
+        tag
+      }), buttons);
+    };
+    const renderEditMode = () => {
+      return /* @__PURE__ */ import_react65.default.createElement(TagForm, {
+        name: props.tag.name,
+        color: props.tag.color,
+        isPublic: props.tag.isPublic,
+        onSave: updateTag2,
+        onCancel: resetState
+      });
+    };
+    const view = state === "delete" ? renderDeleteMode() : state === "edit" ? renderEditMode() : renderViewMode();
+    return /* @__PURE__ */ import_react65.default.createElement(ListItem, null, view);
+  };
+
+  // public/pages/Administration/pages/ManageTags.page.tsx
+  var tagSorter = (t1, t2) => {
+    if (t1.name < t2.name) {
+      return -1;
+    } else if (t1.name > t2.name) {
+      return 1;
+    }
+    return 0;
+  };
+  var ManageTagsPage = class extends AdminBasePage {
+    constructor(props) {
+      super(props);
+      this.id = "p-admin-tags";
+      this.name = "tags";
+      this.icon = FaTags;
+      this.title = "Tags";
+      this.subtitle = "Manage your site tags";
+      this.addNew = async () => {
+        this.setState({
+          isAdding: true,
+          deleting: void 0,
+          editing: void 0
+        });
+      };
+      this.cancelAdd = () => {
+        this.setState({isAdding: false});
+      };
+      this.saveNewTag = async (data) => {
+        const result = await actions_exports.createTag(data.name, data.color, data.isPublic);
+        if (result.ok) {
+          this.setState({
+            isAdding: false,
+            allTags: this.state.allTags.concat(result.data).sort(tagSorter)
+          });
+        } else {
+          return result.error;
+        }
+      };
+      this.handleTagDeleted = (tag) => {
+        const idx = this.state.allTags.indexOf(tag);
+        this.setState({
+          allTags: this.state.allTags.splice(idx, 1) && this.state.allTags
+        });
+      };
+      this.handleTagEdited = (tag) => {
+        this.setState({
+          allTags: this.state.allTags.sort(tagSorter)
+        });
+      };
+      this.state = {
+        isAdding: false,
+        allTags: this.props.tags
+      };
+    }
+    getTagList(filter) {
+      return this.state.allTags.filter(filter).map((t) => {
+        return /* @__PURE__ */ import_react66.default.createElement(TagListItem, {
+          key: t.id,
+          tag: t,
+          onTagDeleted: this.handleTagDeleted,
+          onTagEdited: this.handleTagEdited
+        });
+      });
+    }
+    content() {
+      const publicTaglist = this.getTagList((t) => t.isPublic);
+      const privateTagList = this.getTagList((t) => !t.isPublic);
+      const form = Fider.session.user.isAdministrator && (this.state.isAdding ? /* @__PURE__ */ import_react66.default.createElement(Segment, null, /* @__PURE__ */ import_react66.default.createElement(TagForm, {
+        onSave: this.saveNewTag,
+        onCancel: this.cancelAdd
+      })) : /* @__PURE__ */ import_react66.default.createElement(Button, {
+        color: "positive",
+        onClick: this.addNew
+      }, "Add new"));
+      return /* @__PURE__ */ import_react66.default.createElement(import_react66.default.Fragment, null, /* @__PURE__ */ import_react66.default.createElement(Segment, null, /* @__PURE__ */ import_react66.default.createElement(List, {
+        divided: true
+      }, /* @__PURE__ */ import_react66.default.createElement(ListItem, null, /* @__PURE__ */ import_react66.default.createElement(Heading, {
+        size: "small",
+        title: "Public Tags",
+        subtitle: "These tags are visible to all visitors."
+      })), publicTaglist.length === 0 ? /* @__PURE__ */ import_react66.default.createElement(ListItem, null, "There aren\u2019t any public tags yet.") : publicTaglist)), /* @__PURE__ */ import_react66.default.createElement(Segment, null, /* @__PURE__ */ import_react66.default.createElement(List, {
+        divided: true
+      }, /* @__PURE__ */ import_react66.default.createElement(ListItem, null, /* @__PURE__ */ import_react66.default.createElement(Heading, {
+        size: "small",
+        title: "Private Tags",
+        subtitle: "These tags are only visible for members of this site."
+      })), privateTagList.length === 0 ? /* @__PURE__ */ import_react66.default.createElement(ListItem, null, "There aren\u2019t any private tags yet.") : privateTagList)), form);
+    }
+  };
+  var ManageTags_page_default = ManageTagsPage;
+
+  // public/pages/Administration/pages/PrivacySettings.page.tsx
+  var import_react67 = __toModule(require_react());
+  var PrivacySettingsPage = class extends AdminBasePage {
+    constructor(props) {
+      super(props);
+      this.id = "p-admin-privacy";
+      this.name = "privacy";
+      this.icon = FaKey;
+      this.title = "Privacy";
+      this.subtitle = "Manage your site privacy";
+      this.toggle = async (active) => {
+        this.setState((state) => ({
+          isPrivate: active
+        }), async () => {
+          const response = await actions_exports.updateTenantPrivacy(this.state.isPrivate);
+          if (response.ok) {
+            notify_exports.success("Your privacy settings have been saved.");
+          }
+        });
+      };
+      this.state = {
+        isPrivate: Fider.session.tenant.isPrivate
+      };
+    }
+    content() {
+      return /* @__PURE__ */ import_react67.default.createElement(Form, null, /* @__PURE__ */ import_react67.default.createElement("div", {
+        className: "c-form-field"
+      }, /* @__PURE__ */ import_react67.default.createElement("label", {
+        htmlFor: "private"
+      }, "Private site"), /* @__PURE__ */ import_react67.default.createElement(Toggle, {
+        disabled: !Fider.session.user.isAdministrator,
+        active: this.state.isPrivate,
+        onToggle: this.toggle
+      }), /* @__PURE__ */ import_react67.default.createElement("p", {
+        className: "info"
+      }, "A private site prevents unauthenticated users from viewing or interacting with its content. ", /* @__PURE__ */ import_react67.default.createElement("br", null), " If enabled, only already registered and invited users will be able to sign in to this site.")));
+    }
+  };
+  var PrivacySettings_page_default = PrivacySettingsPage;
+
+  // public/pages/CompleteSignInProfile/CompleteSignInProfile.page.tsx
+  var import_react69 = __toModule(require_react());
+
+  // public/pages/SignIn/SignIn.page.tsx
+  var import_react68 = __toModule(require_react());
+  var messages = {
+    locked: () => /* @__PURE__ */ import_react68.default.createElement(import_react68.default.Fragment, null, /* @__PURE__ */ import_react68.default.createElement("p", {
+      className: "welcome"
+    }, /* @__PURE__ */ import_react68.default.createElement("strong", null, Fider.session.tenant.name), " is currently locked."), /* @__PURE__ */ import_react68.default.createElement("p", null, "To reactivate this site, sign in with an administrator account and update the required settings.")),
+    private: () => /* @__PURE__ */ import_react68.default.createElement(import_react68.default.Fragment, null, /* @__PURE__ */ import_react68.default.createElement("p", {
+      className: "welcome"
+    }, /* @__PURE__ */ import_react68.default.createElement("strong", null, Fider.session.tenant.name), " is a private space and requires an invitation to join it."), /* @__PURE__ */ import_react68.default.createElement("p", null, "If you have an account or an invitation, you may use following options to sign in."))
+  };
+  var SignInPage = class extends import_react68.default.Component {
+    constructor() {
+      super(...arguments);
+      this.onEmailSent = (email) => {
+        notify_exports.success(/* @__PURE__ */ import_react68.default.createElement("span", null, "We have just sent a confirmation link to ", /* @__PURE__ */ import_react68.default.createElement("b", null, email), ". Click the link and you\u2019ll be signed in."));
+      };
+    }
+    render() {
+      return /* @__PURE__ */ import_react68.default.createElement("div", {
+        id: "p-signin",
+        className: "page container"
+      }, /* @__PURE__ */ import_react68.default.createElement("div", {
+        className: "message"
+      }, /* @__PURE__ */ import_react68.default.createElement(TenantLogo, {
+        size: 100
+      }), Fider.session.tenant.isPrivate ? messages.private() : messages.locked()), /* @__PURE__ */ import_react68.default.createElement(SignInControl, {
+        onEmailSent: this.onEmailSent,
+        useEmail: true,
+        redirectTo: Fider.settings.baseURL
+      }), /* @__PURE__ */ import_react68.default.createElement(LegalNotice, null));
+    }
+  };
+  var SignIn_page_default = SignInPage;
+
+  // public/pages/CompleteSignInProfile/CompleteSignInProfile.page.tsx
+  var CompleteSignInProfilePage = class extends import_react69.default.Component {
+    constructor(props) {
+      super(props);
+      this.submit = async () => {
+        const result = await actions_exports.completeProfile(this.key, this.state.name);
+        if (result.ok) {
+          location.href = "/";
+        } else if (result.error) {
+          this.setState({error: result.error});
+        }
+      };
+      this.setName = (name) => {
+        this.setState({name});
+      };
+      this.noop = () => {
+      };
+      this.key = querystring_exports.get("k");
+      this.state = {
+        name: ""
+      };
+    }
+    render() {
+      return /* @__PURE__ */ import_react69.default.createElement(import_react69.default.Fragment, null, /* @__PURE__ */ import_react69.default.createElement(Modal.Window, {
+        canClose: false,
+        isOpen: true,
+        onClose: this.noop
+      }, /* @__PURE__ */ import_react69.default.createElement(Modal.Header, null, "Complete your profile"), /* @__PURE__ */ import_react69.default.createElement(Modal.Content, null, /* @__PURE__ */ import_react69.default.createElement("p", null, "Because this is your first sign in, please enter your name."), /* @__PURE__ */ import_react69.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react69.default.createElement(Input, {
+        field: "name",
+        onChange: this.setName,
+        maxLength: 100,
+        placeholder: "Name",
+        suffix: /* @__PURE__ */ import_react69.default.createElement(Button, {
+          type: "submit",
+          onClick: this.submit,
+          color: "positive",
+          disabled: this.state.name === ""
+        }, "Submit")
+      }))), /* @__PURE__ */ import_react69.default.createElement(LegalFooter, null)), Fider.session.tenant.isPrivate ? import_react69.default.createElement(SignIn_page_default, this.props) : import_react69.default.createElement(Home_page_default, this.props));
+    }
+  };
+  var CompleteSignInProfile_page_default = CompleteSignInProfilePage;
+
+  // public/pages/MyNotifications/MyNotifications.page.tsx
+  var import_react70 = __toModule(require_react());
+  var MyNotificationsPage = class extends import_react70.default.Component {
+    constructor(props) {
+      super(props);
+      this.markAllAsRead = async () => {
+        const response = await actions_exports.markAllAsRead();
+        if (response.ok) {
+          location.reload();
+        }
+      };
+      const [unread, recent] = (this.props.notifications || []).reduce((result, item) => {
+        result[item.read ? 1 : 0].push(item);
+        return result;
+      }, [[], []]);
+      this.state = {
+        unread,
+        recent
+      };
+    }
+    items(notifications) {
+      return notifications.map((n) => {
+        return /* @__PURE__ */ import_react70.default.createElement(ListItem, {
+          key: n.id
+        }, /* @__PURE__ */ import_react70.default.createElement("a", {
+          href: `/notifications/${n.id}`
+        }, /* @__PURE__ */ import_react70.default.createElement(MultiLineText, {
+          text: n.title,
+          style: "simple"
+        }), /* @__PURE__ */ import_react70.default.createElement("span", {
+          className: "info"
+        }, /* @__PURE__ */ import_react70.default.createElement(Moment, {
+          date: n.createdAt
+        }))));
+      });
+    }
+    render() {
+      return /* @__PURE__ */ import_react70.default.createElement("div", {
+        id: "p-my-notifications",
+        className: "page container"
+      }, /* @__PURE__ */ import_react70.default.createElement(Heading, {
+        title: "Notifications",
+        subtitle: "Stay up to date with what's happening",
+        icon: FaBell
+      }), /* @__PURE__ */ import_react70.default.createElement("h4", null, "Unread", this.state.unread.length > 0 && /* @__PURE__ */ import_react70.default.createElement("span", {
+        className: "mark-as-read",
+        onClick: this.markAllAsRead
+      }, "Mark All as Read")), /* @__PURE__ */ import_react70.default.createElement(List, null, this.state.unread.length > 0 && this.items(this.state.unread), this.state.unread.length === 0 && /* @__PURE__ */ import_react70.default.createElement("span", {
+        className: "info"
+      }, "No unread notifications.")), this.state.recent.length > 0 && /* @__PURE__ */ import_react70.default.createElement(import_react70.default.Fragment, null, /* @__PURE__ */ import_react70.default.createElement("h4", null, "Read on last 30 days"), /* @__PURE__ */ import_react70.default.createElement(List, null, /* @__PURE__ */ import_react70.default.createElement(ListItem, null, this.items(this.state.recent)))));
+    }
+  };
+  var MyNotifications_page_default = MyNotificationsPage;
+
+  // public/pages/MySettings/MySettings.page.tsx
+  var import_react74 = __toModule(require_react());
+
+  // public/pages/MySettings/components/NotificationSettings.tsx
+  var import_react71 = __toModule(require_react());
+  var WebChannel = 1;
+  var EmailChannel = 2;
+  var NotificationSettings = (props) => {
+    const fider = useFider();
+    const [userSettings, setUserSettings] = (0, import_react71.useState)(props.userSettings);
+    const isEnabled = (settingsKey, channel) => {
+      if (settingsKey in userSettings) {
+        return (parseInt(userSettings[settingsKey], 10) & channel) > 0;
+      }
+      return false;
+    };
+    const toggle = async (settingsKey, channel) => {
+      const nextSettings = {
+        ...userSettings,
+        [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString()
+      };
+      setUserSettings(nextSettings);
+      props.settingsChanged(nextSettings);
+    };
+    const icon = (settingsKey, channel) => {
+      const active = isEnabled(settingsKey, channel);
+      const label = channel === WebChannel ? "Web" : "Email";
+      const onToggle = () => toggle(settingsKey, channel);
+      return /* @__PURE__ */ import_react71.default.createElement(Toggle, {
+        key: `${settingsKey}_${channel}`,
+        active,
+        label,
+        onToggle
+      });
+    };
+    const info = (settingsKey, aboutForVisitors, aboutForCollaborators) => {
+      const about = fider.session.user.isCollaborator ? aboutForCollaborators : aboutForVisitors;
+      const webEnabled = isEnabled(settingsKey, WebChannel);
+      const emailEnabled = isEnabled(settingsKey, EmailChannel);
+      if (!webEnabled && !emailEnabled) {
+        return /* @__PURE__ */ import_react71.default.createElement("p", {
+          className: "info"
+        }, "You'll ", /* @__PURE__ */ import_react71.default.createElement("strong", null, "NOT"), " receive any notification about this event.");
+      } else if (webEnabled && !emailEnabled) {
+        return /* @__PURE__ */ import_react71.default.createElement("p", {
+          className: "info"
+        }, "You'll receive ", /* @__PURE__ */ import_react71.default.createElement("strong", null, "web"), " notifications about ", about, ".");
+      } else if (!webEnabled && emailEnabled) {
+        return /* @__PURE__ */ import_react71.default.createElement("p", {
+          className: "info"
+        }, "You'll receive ", /* @__PURE__ */ import_react71.default.createElement("strong", null, "email"), " notifications about ", about, ".");
+      } else if (webEnabled && emailEnabled) {
+        return /* @__PURE__ */ import_react71.default.createElement("p", {
+          className: "info"
+        }, "You'll receive ", /* @__PURE__ */ import_react71.default.createElement("strong", null, "web"), " and ", /* @__PURE__ */ import_react71.default.createElement("strong", null, "email"), " notifications about ", about, ".");
+      }
+      return null;
+    };
+    return /* @__PURE__ */ import_react71.default.createElement(import_react71.default.Fragment, null, /* @__PURE__ */ import_react71.default.createElement(Field, {
+      label: "Notifications"
+    }, /* @__PURE__ */ import_react71.default.createElement("p", {
+      className: "info"
+    }, "Use following panel to choose which events you'd like to receive notification")), /* @__PURE__ */ import_react71.default.createElement("div", {
+      className: "notifications-settings"
+    }, /* @__PURE__ */ import_react71.default.createElement(Segments, null, /* @__PURE__ */ import_react71.default.createElement(Segment, null, /* @__PURE__ */ import_react71.default.createElement("span", {
+      className: "event-title"
+    }, "New Post"), info("event_notification_new_post", "new posts on this site", "new posts on this site"), /* @__PURE__ */ import_react71.default.createElement("p", null, icon("event_notification_new_post", WebChannel), icon("event_notification_new_post", EmailChannel))), /* @__PURE__ */ import_react71.default.createElement(Segment, null, /* @__PURE__ */ import_react71.default.createElement("span", {
+      className: "event-title"
+    }, "Discussion"), info("event_notification_new_comment", "comments on posts you've subscribed to", "comments on all posts unless individually unsubscribed"), /* @__PURE__ */ import_react71.default.createElement("p", null, icon("event_notification_new_comment", WebChannel), icon("event_notification_new_comment", EmailChannel))), /* @__PURE__ */ import_react71.default.createElement(Segment, null, /* @__PURE__ */ import_react71.default.createElement("span", {
+      className: "event-title"
+    }, "Status Changed"), info("event_notification_change_status", "status change on posts you've subscribed to", "status change on all posts unless individually unsubscribed"), /* @__PURE__ */ import_react71.default.createElement("p", null, icon("event_notification_change_status", WebChannel), icon("event_notification_change_status", EmailChannel))))));
+  };
+
+  // public/pages/MySettings/components/APIKeyForm.tsx
+  var import_react72 = __toModule(require_react());
+  var APIKeyForm = class extends import_react72.default.Component {
+    constructor(props) {
+      super(props);
+      this.regenerate = async () => {
+        const result = await actions_exports.regenerateAPIKey();
+        if (result.ok) {
+          this.setState({apiKey: result.data.apiKey});
+        }
+      };
+      this.state = {};
+    }
+    showAPIKey() {
+      return /* @__PURE__ */ import_react72.default.createElement(import_react72.default.Fragment, null, /* @__PURE__ */ import_react72.default.createElement("p", {
+        className: "info"
+      }, "Your new API Key is: ", /* @__PURE__ */ import_react72.default.createElement("code", null, this.state.apiKey)), /* @__PURE__ */ import_react72.default.createElement("p", {
+        className: "info"
+      }, "Stored it securely on your servers and never store it in the client side of your app."));
+    }
+    render() {
+      return /* @__PURE__ */ import_react72.default.createElement("div", {
+        className: "l-api-key"
+      }, /* @__PURE__ */ import_react72.default.createElement("h4", null, "API Key"), /* @__PURE__ */ import_react72.default.createElement("p", {
+        className: "info"
+      }, "The API Key is only shown whenever generated. If your Key is lost or has been compromised, generated a new one and take note of it."), /* @__PURE__ */ import_react72.default.createElement("p", {
+        className: "info"
+      }, "To learn how to use the API, read the", " ", /* @__PURE__ */ import_react72.default.createElement("a", {
+        href: "https://getfider.com/docs/api",
+        target: "_blank"
+      }, "official documentation"), "."), /* @__PURE__ */ import_react72.default.createElement("p", null, /* @__PURE__ */ import_react72.default.createElement(Button, {
+        size: "tiny",
+        onClick: this.regenerate
+      }, "Regenerate API Key")), this.state.apiKey && this.showAPIKey());
+    }
+  };
+
+  // public/pages/MySettings/components/DangerZone.tsx
+  var import_react73 = __toModule(require_react());
+  var DangerZone = class extends import_react73.default.Component {
+    constructor(props) {
+      super(props);
+      this.onClickDelete = async () => {
+        this.setState({clicked: true});
+      };
+      this.onCancel = async () => {
+        this.setState({clicked: false});
+      };
+      this.onConfirm = async (e) => {
+        const response = await actions_exports.deleteCurrentAccount();
+        if (response.ok) {
+          e.preventEnable();
+          navigator_default.goHome();
+        } else {
+          notify_exports.error("Failed to delete your account. Try again later");
+        }
+      };
+      this.state = {
+        clicked: false
+      };
+    }
+    render() {
+      return /* @__PURE__ */ import_react73.default.createElement("div", {
+        className: "l-danger-zone"
+      }, /* @__PURE__ */ import_react73.default.createElement(Modal.Window, {
+        isOpen: this.state.clicked,
+        center: false,
+        onClose: this.onCancel
+      }, /* @__PURE__ */ import_react73.default.createElement(Modal.Header, null, "Delete account"), /* @__PURE__ */ import_react73.default.createElement(Modal.Content, null, /* @__PURE__ */ import_react73.default.createElement("p", null, "When you choose to delete your account, we will erase all your personal information forever. The content you have published will remain, but it will be anonymised."), /* @__PURE__ */ import_react73.default.createElement("p", null, "This process is irreversible. ", /* @__PURE__ */ import_react73.default.createElement("strong", null, "Are you sure?"))), /* @__PURE__ */ import_react73.default.createElement(Modal.Footer, null, /* @__PURE__ */ import_react73.default.createElement(Button, {
+        color: "danger",
+        size: "tiny",
+        onClick: this.onConfirm
+      }, "Confirm"), /* @__PURE__ */ import_react73.default.createElement(Button, {
+        color: "cancel",
+        size: "tiny",
+        onClick: this.onCancel
+      }, "Cancel"))), /* @__PURE__ */ import_react73.default.createElement("h4", null, "Delete account"), /* @__PURE__ */ import_react73.default.createElement("p", {
+        className: "info"
+      }, "When you choose to delete your account, we will erase all your personal information forever. The content you have published will remain, but it will be anonymised."), /* @__PURE__ */ import_react73.default.createElement("p", {
+        className: "info"
+      }, "This process is irreversible. Please be certain."), /* @__PURE__ */ import_react73.default.createElement(Button, {
+        color: "danger",
+        size: "tiny",
+        onClick: this.onClickDelete
+      }, "Delete My Account"));
+    }
+  };
+
+  // public/pages/MySettings/MySettings.page.tsx
+  var MySettingsPage = class extends import_react74.default.Component {
+    constructor(props) {
+      super(props);
+      this.confirm = async () => {
+        const result = await actions_exports.updateUserSettings({
+          name: this.state.name,
+          avatarType: this.state.avatarType,
+          avatar: this.state.avatar,
+          settings: this.state.userSettings
+        });
+        if (result.ok) {
+          location.reload();
+        } else if (result.error) {
+          this.setState({error: result.error});
+        }
+      };
+      this.submitNewEmail = async () => {
+        const result = await actions_exports.changeUserEmail(this.state.newEmail);
+        if (result.ok) {
+          this.setState({
+            error: void 0,
+            changingEmail: false,
+            showModal: true
+          });
+        } else if (result.error) {
+          this.setState({error: result.error});
+        }
+      };
+      this.startChangeEmail = () => {
+        this.setState({changingEmail: true});
+      };
+      this.cancelChangeEmail = async () => {
+        this.setState({
+          changingEmail: false,
+          newEmail: "",
+          error: void 0
+        });
+      };
+      this.avatarTypeChanged = (opt) => {
+        if (opt) {
+          this.setState({avatarType: opt.value});
+        }
+      };
+      this.setName = (name) => {
+        this.setState({name});
+      };
+      this.setNotificationSettings = (userSettings) => {
+        this.setState({userSettings});
+      };
+      this.closeModal = () => {
+        this.setState({showModal: false});
+      };
+      this.setNewEmail = (newEmail) => {
+        this.setState({newEmail});
+      };
+      this.setAvatar = (avatar) => {
+        this.setState({avatar});
+      };
+      this.state = {
+        showModal: false,
+        changingEmail: false,
+        avatarType: Fider.session.user.avatarType,
+        newEmail: "",
+        name: Fider.session.user.name,
+        userSettings: this.props.userSettings
+      };
+    }
+    render() {
+      const changeEmail = /* @__PURE__ */ import_react74.default.createElement("span", {
+        className: "ui info clickable",
+        onClick: this.startChangeEmail
+      }, "change");
+      return /* @__PURE__ */ import_react74.default.createElement("div", {
+        id: "p-my-settings",
+        className: "page container"
+      }, /* @__PURE__ */ import_react74.default.createElement(Modal.Window, {
+        isOpen: this.state.showModal,
+        onClose: this.closeModal
+      }, /* @__PURE__ */ import_react74.default.createElement(Modal.Header, null, "Confirm your new email"), /* @__PURE__ */ import_react74.default.createElement(Modal.Content, null, /* @__PURE__ */ import_react74.default.createElement("div", null, /* @__PURE__ */ import_react74.default.createElement("p", null, "We have just sent a confirmation link to ", /* @__PURE__ */ import_react74.default.createElement("b", null, this.state.newEmail), ". ", /* @__PURE__ */ import_react74.default.createElement("br", null), " Click the link to update your email."), /* @__PURE__ */ import_react74.default.createElement("p", null, /* @__PURE__ */ import_react74.default.createElement("a", {
+        href: "#",
+        onClick: this.closeModal
+      }, "OK"))))), /* @__PURE__ */ import_react74.default.createElement(Heading, {
+        title: "Settings",
+        subtitle: "Manage your profile settings",
+        icon: FaRegAddressCard
+      }), /* @__PURE__ */ import_react74.default.createElement("div", {
+        className: "row"
+      }, /* @__PURE__ */ import_react74.default.createElement("div", {
+        className: "col-lg-7"
+      }, /* @__PURE__ */ import_react74.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react74.default.createElement(Input, {
+        label: "Email",
+        field: "email",
+        value: this.state.changingEmail ? this.state.newEmail : Fider.session.user.email,
+        maxLength: 200,
+        disabled: !this.state.changingEmail,
+        afterLabel: this.state.changingEmail ? void 0 : changeEmail,
+        onChange: this.setNewEmail
+      }, /* @__PURE__ */ import_react74.default.createElement("p", {
+        className: "info"
+      }, Fider.session.user.email || this.state.changingEmail ? "Your email is private and will never be publicly displayed." : "Your account doesn't have an email."), this.state.changingEmail && /* @__PURE__ */ import_react74.default.createElement(import_react74.default.Fragment, null, /* @__PURE__ */ import_react74.default.createElement(Button, {
+        color: "positive",
+        size: "mini",
+        onClick: this.submitNewEmail
+      }, "Confirm"), /* @__PURE__ */ import_react74.default.createElement(Button, {
+        color: "cancel",
+        size: "mini",
+        onClick: this.cancelChangeEmail
+      }, "Cancel"))), /* @__PURE__ */ import_react74.default.createElement(Input, {
+        label: "Name",
+        field: "name",
+        value: this.state.name,
+        maxLength: 100,
+        onChange: this.setName
+      }), /* @__PURE__ */ import_react74.default.createElement(Select, {
+        label: "Avatar",
+        field: "avatarType",
+        defaultValue: this.state.avatarType,
+        options: [
+          {label: "Letter", value: UserAvatarType.Letter},
+          {label: "Gravatar", value: UserAvatarType.Gravatar},
+          {label: "Custom", value: UserAvatarType.Custom}
+        ],
+        onChange: this.avatarTypeChanged
+      }, this.state.avatarType === UserAvatarType.Gravatar && /* @__PURE__ */ import_react74.default.createElement("p", {
+        className: "info"
+      }, "A", " ", /* @__PURE__ */ import_react74.default.createElement("a", {
+        href: "https://en.gravatar.com",
+        target: "_blank"
+      }, "Gravatar"), " ", "will be used based on your email. If you don't have a Gravatar, a letter avatar based on your initials is generated for you."), this.state.avatarType === UserAvatarType.Letter && /* @__PURE__ */ import_react74.default.createElement("p", {
+        className: "info"
+      }, "A letter avatar based on your initials is generated for you."), this.state.avatarType === UserAvatarType.Custom && /* @__PURE__ */ import_react74.default.createElement(ImageUploader, {
+        field: "avatar",
+        previewMaxWidth: 80,
+        onChange: this.setAvatar,
+        bkey: Fider.session.user.avatarBlobKey
+      }, /* @__PURE__ */ import_react74.default.createElement("p", {
+        className: "info"
+      }, "We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels."))), /* @__PURE__ */ import_react74.default.createElement(NotificationSettings, {
+        userSettings: this.props.userSettings,
+        settingsChanged: this.setNotificationSettings
+      }), /* @__PURE__ */ import_react74.default.createElement(Button, {
+        color: "positive",
+        onClick: this.confirm
+      }, "Save")))), Fider.session.user.isCollaborator && /* @__PURE__ */ import_react74.default.createElement("div", {
+        className: "row"
+      }, /* @__PURE__ */ import_react74.default.createElement("div", {
+        className: "col-lg-7"
+      }, /* @__PURE__ */ import_react74.default.createElement(APIKeyForm, null))), /* @__PURE__ */ import_react74.default.createElement("div", {
+        className: "row"
+      }, /* @__PURE__ */ import_react74.default.createElement("div", {
+        className: "col-lg-7"
+      }, /* @__PURE__ */ import_react74.default.createElement(DangerZone, null))));
+    }
+  };
+  var MySettings_page_default = MySettingsPage;
+
+  // public/pages/OAuthEcho/OAuthEcho.page.tsx
+  var import_react75 = __toModule(require_react());
+  var ok = /* @__PURE__ */ import_react75.default.createElement(FaCheckCircle, {
+    className: "check"
+  });
+  var error2 = /* @__PURE__ */ import_react75.default.createElement(FaTimesCircle, {
+    className: "error"
+  });
+  var warn = /* @__PURE__ */ import_react75.default.createElement(FaExclamationTriangle, {
+    className: "warn"
+  });
+  var OAuthEchoPage = class extends import_react75.default.Component {
+    componentDidMount() {
+      navigator_default.replaceState("/");
+    }
+    renderError() {
+      return /* @__PURE__ */ import_react75.default.createElement(import_react75.default.Fragment, null, /* @__PURE__ */ import_react75.default.createElement("h5", null, "Error"), /* @__PURE__ */ import_react75.default.createElement("pre", null, this.props.err));
+    }
+    renderParseResult() {
+      const idOk = this.props.profile && this.props.profile.id !== "";
+      const nameOk = this.props.profile && this.props.profile.name !== "Anonymous";
+      const emailOk = this.props.profile && this.props.profile.email !== "";
+      let responseBody = "";
+      try {
+        responseBody = JSON.stringify(JSON.parse(this.props.body), null, "  ");
+      } catch {
+        responseBody = this.props.body;
+      }
+      return /* @__PURE__ */ import_react75.default.createElement(import_react75.default.Fragment, null, /* @__PURE__ */ import_react75.default.createElement("h5", null, "Raw Body"), /* @__PURE__ */ import_react75.default.createElement("pre", null, responseBody), /* @__PURE__ */ import_react75.default.createElement("h5", null, "Parsed Profile"), /* @__PURE__ */ import_react75.default.createElement(Segments, null, /* @__PURE__ */ import_react75.default.createElement(Segment, null, /* @__PURE__ */ import_react75.default.createElement("p", null, idOk ? ok : error2, /* @__PURE__ */ import_react75.default.createElement("strong", null, "ID:"), " ", this.props.profile && this.props.profile.id, !idOk && /* @__PURE__ */ import_react75.default.createElement("p", {
+        className: "info"
+      }, "ID is required. If not found, users will see an error during sign in process."))), /* @__PURE__ */ import_react75.default.createElement(Segment, null, /* @__PURE__ */ import_react75.default.createElement("p", null, nameOk ? ok : warn, /* @__PURE__ */ import_react75.default.createElement("strong", null, "Name:"), " ", this.props.profile && this.props.profile.name, !nameOk && /* @__PURE__ */ import_react75.default.createElement("p", {
+        className: "info"
+      }, "Name is required, if not found we'll use ", /* @__PURE__ */ import_react75.default.createElement("strong", null, "Anonymous"), " as the name of every new user."))), /* @__PURE__ */ import_react75.default.createElement(Segment, null, /* @__PURE__ */ import_react75.default.createElement("p", null, emailOk ? ok : warn, /* @__PURE__ */ import_react75.default.createElement("strong", null, "Email:"), " ", this.props.profile && this.props.profile.email, !emailOk && /* @__PURE__ */ import_react75.default.createElement("p", {
+        className: "info"
+      }, "Email is not required, but highly recommended. If invalid or not found, new users won't be able to receive notifications.")))));
+    }
+    render() {
+      return /* @__PURE__ */ import_react75.default.createElement("div", {
+        id: "p-oauth-echo",
+        className: "page container"
+      }, this.props.err ? this.renderError() : this.renderParseResult());
+    }
+  };
+  var OAuthEcho_page_default = OAuthEchoPage;
+
+  // public/pages/ShowPost/ShowPost.page.tsx
+  var import_react87 = __toModule(require_react());
+
+  // public/pages/ShowPost/components/ResponseForm.tsx
+  var import_react77 = __toModule(require_react());
+
+  // public/pages/ShowPost/components/PostSearch.tsx
+  var import_react76 = __toModule(require_react());
+  var PostSearch = class extends import_react76.default.Component {
+    constructor(props) {
+      super(props);
+      this.onSearchChange = (e) => {
+        this.search(e.currentTarget.value);
+      };
+      this.onChange = (item) => {
+        this.props.onChanged(item.value);
+      };
+      this.search = (searchQuery) => {
+        window.clearTimeout(this.timer);
+        this.timer = window.setTimeout(() => {
+          actions_exports.searchPosts({query: searchQuery}).then((res) => {
+            if (res.ok) {
+              const posts = this.props.exclude && this.props.exclude.length > 0 ? res.data.filter((i) => this.props.exclude.indexOf(i.number) === -1) : res.data;
+              this.setState({posts});
+            }
+          });
+        }, 500);
+      };
+      this.state = {
+        posts: []
+      };
+    }
+    componentDidMount() {
+      this.search("");
+    }
+    render() {
+      const items = this.state.posts.map((p) => {
+        const status = PostStatus.Get(p.status);
+        return {
+          label: p.title,
+          value: p.number,
+          render: /* @__PURE__ */ import_react76.default.createElement(import_react76.default.Fragment, null, /* @__PURE__ */ import_react76.default.createElement("span", {
+            className: "votes"
+          }, /* @__PURE__ */ import_react76.default.createElement(FaCaretUp, null), p.votesCount), /* @__PURE__ */ import_react76.default.createElement("span", {
+            className: `status-label status-${status.value}`
+          }, status.title), p.title)
+        };
+      });
+      return /* @__PURE__ */ import_react76.default.createElement(DropDown, {
+        className: "c-post-search",
+        searchable: true,
+        items,
+        placeholder: "Search original post",
+        onChange: this.onChange,
+        onSearchChange: this.onSearchChange
+      });
+    }
+  };
+
+  // public/pages/ShowPost/components/ResponseForm.tsx
+  var ResponseForm = class extends import_react77.default.Component {
+    constructor(props) {
+      super(props);
+      this.submit = async () => {
+        const result = await actions_exports.respond(this.props.post.number, this.state);
+        if (result.ok) {
+          location.reload();
+        } else {
+          this.setState({
+            error: result.error
+          });
+        }
+      };
+      this.showModal = async () => {
+        this.setState({showModal: true});
+      };
+      this.closeModal = async () => {
+        this.setState({showModal: false});
+      };
+      this.setStatus = (opt) => {
+        if (opt) {
+          this.setState({status: opt.value});
+        }
+      };
+      this.setOriginalNumber = (originalNumber) => {
+        this.setState({originalNumber});
+      };
+      this.setText = (text) => {
+        this.setState({text});
+      };
+      this.state = {
+        showModal: false,
+        status: this.props.post.status,
+        originalNumber: 0,
+        text: this.props.post.response ? this.props.post.response.text : ""
+      };
+    }
+    render() {
+      const button = /* @__PURE__ */ import_react77.default.createElement(Button, {
+        className: "respond",
+        fluid: true,
+        onClick: this.showModal
+      }, /* @__PURE__ */ import_react77.default.createElement(FaBullhorn, null), " Respond");
+      const options = PostStatus.All.map((s) => ({
+        value: s.value.toString(),
+        label: s.title
+      }));
+      const modal = /* @__PURE__ */ import_react77.default.createElement(Modal.Window, {
+        isOpen: this.state.showModal,
+        onClose: this.closeModal,
+        center: false,
+        size: "large"
+      }, /* @__PURE__ */ import_react77.default.createElement(Modal.Content, null, /* @__PURE__ */ import_react77.default.createElement(Form, {
+        error: this.state.error,
+        className: "c-response-form"
+      }, /* @__PURE__ */ import_react77.default.createElement(Select, {
+        field: "status",
+        label: "Status",
+        defaultValue: this.state.status,
+        options,
+        onChange: this.setStatus
+      }), this.state.status === PostStatus.Duplicate.value ? /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, /* @__PURE__ */ import_react77.default.createElement(Field, null, /* @__PURE__ */ import_react77.default.createElement(PostSearch, {
+        exclude: [this.props.post.number],
+        onChanged: this.setOriginalNumber
+      })), /* @__PURE__ */ import_react77.default.createElement(DisplayError, {
+        fields: ["originalNumber"],
+        error: this.state.error
+      }), /* @__PURE__ */ import_react77.default.createElement("span", {
+        className: "info"
+      }, "Votes from this post will be merged into original post.")) : /* @__PURE__ */ import_react77.default.createElement(TextArea, {
+        field: "text",
+        onChange: this.setText,
+        value: this.state.text,
+        minRows: 5,
+        placeholder: "What's going on with this post? Let your users know what are your plans..."
+      }))), /* @__PURE__ */ import_react77.default.createElement(Modal.Footer, null, /* @__PURE__ */ import_react77.default.createElement(Button, {
+        color: "positive",
+        onClick: this.submit
+      }, "Submit"), /* @__PURE__ */ import_react77.default.createElement(Button, {
+        color: "cancel",
+        onClick: this.closeModal
+      }, "Cancel")));
+      return /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, button, modal);
+    }
+  };
+
+  // public/pages/ShowPost/components/TagsPanel.tsx
+  var import_react79 = __toModule(require_react());
+
+  // public/pages/ShowPost/components/TagListItem.tsx
+  var import_react78 = __toModule(require_react());
+  var TagListItem2 = (props) => {
+    const onClick = () => {
+      props.onClick(props.tag);
+    };
+    return /* @__PURE__ */ import_react78.default.createElement(ListItem, {
+      onClick
+    }, props.assigned ? /* @__PURE__ */ import_react78.default.createElement(FaCheck, null) : /* @__PURE__ */ import_react78.default.createElement("svg", {
+      className: "icon"
+    }), /* @__PURE__ */ import_react78.default.createElement(ShowTag, {
+      tag: props.tag,
+      size: "mini",
+      circular: true
+    }), /* @__PURE__ */ import_react78.default.createElement("span", null, props.tag.name));
+  };
+
+  // public/pages/ShowPost/components/TagsPanel.tsx
+  var TagsPanel = (props) => {
+    const fider = useFider();
+    const canEdit = fider.session.isAuthenticated && fider.session.user.isCollaborator && props.tags.length > 0;
+    const [isEditing, setIsEditing] = (0, import_react79.useState)(false);
+    const [assignedTags, setAssignedTags] = (0, import_react79.useState)(props.tags.filter((t) => props.post.tags.indexOf(t.slug) >= 0));
+    const assignOrUnassignTag = async (tag) => {
+      const idx = assignedTags.indexOf(tag);
+      let nextAssignedTags = [];
+      if (idx >= 0) {
+        const response = await actions_exports.unassignTag(tag.slug, props.post.number);
+        if (response.ok) {
+          nextAssignedTags = [...assignedTags];
+          nextAssignedTags.splice(idx, 1);
+        }
+      } else {
+        const response = await actions_exports.assignTag(tag.slug, props.post.number);
+        if (response.ok) {
+          nextAssignedTags = [...assignedTags, tag];
+        }
+      }
+      setAssignedTags(nextAssignedTags);
+    };
+    const onSubtitleClick = () => {
+      if (canEdit) {
+        setIsEditing(!isEditing);
+      }
+    };
+    if (!canEdit && assignedTags.length === 0) {
+      return null;
+    }
+    const tagsList = assignedTags.length > 0 ? /* @__PURE__ */ import_react79.default.createElement(List, {
+      className: "c-tag-list"
+    }, assignedTags.map((tag) => /* @__PURE__ */ import_react79.default.createElement(ListItem, {
+      key: tag.id
+    }, /* @__PURE__ */ import_react79.default.createElement(ShowTag, {
+      tag
+    })))) : /* @__PURE__ */ import_react79.default.createElement("span", {
+      className: "info"
+    }, "None yet");
+    const editTagsList = props.tags.length > 0 && /* @__PURE__ */ import_react79.default.createElement(List, {
+      className: "c-tag-list"
+    }, props.tags.map((tag) => /* @__PURE__ */ import_react79.default.createElement(TagListItem2, {
+      key: tag.id,
+      tag,
+      assigned: assignedTags.indexOf(tag) >= 0,
+      onClick: assignOrUnassignTag
+    })));
+    const subtitleClasses = `subtitle ${canEdit && "active"}`;
+    const icon = canEdit && (isEditing ? /* @__PURE__ */ import_react79.default.createElement(FaCheckCircle, null) : /* @__PURE__ */ import_react79.default.createElement(FaCog, null));
+    return /* @__PURE__ */ import_react79.default.createElement(import_react79.default.Fragment, null, /* @__PURE__ */ import_react79.default.createElement("span", {
+      className: subtitleClasses,
+      onClick: onSubtitleClick
+    }, "Tags ", icon), !isEditing && tagsList, isEditing && editTagsList);
+  };
+
+  // public/pages/ShowPost/components/NotificationsPanel.tsx
+  var import_react80 = __toModule(require_react());
+  var NotificationsPanel = (props) => {
+    const fider = useFider();
+    const [subscribed, setSubscribed] = (0, import_react80.useState)(props.subscribed);
+    const subscribeOrUnsubscribe = async () => {
+      const action = subscribed ? actions_exports.unsubscribe : actions_exports.subscribe;
+      const response = await action(props.post.number);
+      if (response.ok) {
+        setSubscribed(!subscribed);
+      }
+    };
+    if (!fider.session.isAuthenticated) {
+      return null;
+    }
+    const button = subscribed ? /* @__PURE__ */ import_react80.default.createElement(Button, {
+      fluid: true,
+      onClick: subscribeOrUnsubscribe
+    }, /* @__PURE__ */ import_react80.default.createElement(FaVolumeMute, null), " Unsubscribe") : /* @__PURE__ */ import_react80.default.createElement(Button, {
+      fluid: true,
+      onClick: subscribeOrUnsubscribe
+    }, /* @__PURE__ */ import_react80.default.createElement(FaVolumeUp, null), " Subscribe");
+    const text = subscribed ? /* @__PURE__ */ import_react80.default.createElement("span", {
+      className: "info"
+    }, "You\u2019re receiving notifications about activity on this post.") : /* @__PURE__ */ import_react80.default.createElement("span", {
+      className: "info"
+    }, "You'll not receive any notification about this post.");
+    return /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("span", {
+      className: "subtitle"
+    }, "Notifications"), /* @__PURE__ */ import_react80.default.createElement(List, null, /* @__PURE__ */ import_react80.default.createElement(ListItem, null, button, text)));
+  };
+
+  // public/pages/ShowPost/components/ModerationPanel.tsx
+  var import_react81 = __toModule(require_react());
+  var ModerationPanel = (props) => {
+    const fider = useFider();
+    const [showConfirmation, setShowConfirmation] = (0, import_react81.useState)(false);
+    const [text, setText] = (0, import_react81.useState)("");
+    const [error3, setError] = (0, import_react81.useState)();
+    const hideModal = async () => setShowConfirmation(false);
+    const showModal = async () => setShowConfirmation(true);
+    const handleDelete = async () => {
+      const response = await actions_exports.deletePost(props.post.number, text);
+      if (response.ok) {
+        hideModal();
+        navigator_default.goHome();
+      } else if (response.error) {
+        setError(response.error);
+      }
+    };
+    const status = PostStatus.Get(props.post.status);
+    if (!fider.session.isAuthenticated || !fider.session.user.isAdministrator || status.closed) {
+      return null;
+    }
+    const modal = /* @__PURE__ */ import_react81.default.createElement(Modal.Window, {
+      isOpen: showConfirmation,
+      onClose: hideModal,
+      center: false,
+      size: "large"
+    }, /* @__PURE__ */ import_react81.default.createElement(Modal.Content, null, /* @__PURE__ */ import_react81.default.createElement(Form, {
+      error: error3
+    }, /* @__PURE__ */ import_react81.default.createElement(TextArea, {
+      field: "text",
+      onChange: setText,
+      value: text,
+      placeholder: "Why are you deleting this post? (optional)"
+    }, /* @__PURE__ */ import_react81.default.createElement("span", {
+      className: "info"
+    }, "This operation ", /* @__PURE__ */ import_react81.default.createElement("strong", null, "cannot"), " be undone.")))), /* @__PURE__ */ import_react81.default.createElement(Modal.Footer, null, /* @__PURE__ */ import_react81.default.createElement(Button, {
+      color: "danger",
+      onClick: handleDelete
+    }, "Delete"), /* @__PURE__ */ import_react81.default.createElement(Button, {
+      color: "cancel",
+      onClick: hideModal
+    }, "Cancel")));
+    return /* @__PURE__ */ import_react81.default.createElement(import_react81.default.Fragment, null, modal, /* @__PURE__ */ import_react81.default.createElement("span", {
+      className: "subtitle"
+    }, "Moderation"), /* @__PURE__ */ import_react81.default.createElement(List, null, /* @__PURE__ */ import_react81.default.createElement(ListItem, null, /* @__PURE__ */ import_react81.default.createElement(Button, {
+      color: "danger",
+      size: "tiny",
+      fluid: true,
+      onClick: showModal
+    }, "Delete"))));
+  };
+
+  // public/pages/ShowPost/components/DiscussionPanel.tsx
+  var import_react84 = __toModule(require_react());
+
+  // public/pages/ShowPost/components/ShowComment.tsx
+  var import_react82 = __toModule(require_react());
+  var ShowComment = (props) => {
+    const fider = useFider();
+    const [isEditing, setIsEditing] = (0, import_react82.useState)(false);
+    const [newContent, setNewContent] = (0, import_react82.useState)("");
+    const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = (0, import_react82.useState)(false);
+    const [attachments, setAttachments] = (0, import_react82.useState)([]);
+    const [error3, setError] = (0, import_react82.useState)();
+    const canEditComment = () => {
+      if (fider.session.isAuthenticated) {
+        return fider.session.user.isCollaborator || props.comment.user.id === fider.session.user.id;
+      }
+      return false;
+    };
+    const clearError = () => setError(void 0);
+    const cancelEdit = async () => {
+      setIsEditing(false);
+      setNewContent("");
+      clearError();
+    };
+    const saveEdit = async () => {
+      const response = await actions_exports.updateComment(props.post.number, props.comment.id, newContent, attachments);
+      if (response.ok) {
+        location.reload();
+      } else {
+        setError(response.error);
+      }
+    };
+    const renderEllipsis = () => {
+      return /* @__PURE__ */ import_react82.default.createElement(FaEllipsisH, null);
+    };
+    const closeModal = async () => {
+      setIsDeleteConfirmationModalOpen(false);
+    };
+    const deleteComment2 = async () => {
+      const response = await actions_exports.deleteComment(props.post.number, props.comment.id);
+      if (response.ok) {
+        location.reload();
+      }
+    };
+    const onActionSelected = (item) => {
+      if (item.value === "edit") {
+        setIsEditing(true);
+        setNewContent(props.comment.content);
+        clearError();
+      } else if (item.value === "delete") {
+        setIsDeleteConfirmationModalOpen(true);
+      }
+    };
+    const modal = () => {
+      return /* @__PURE__ */ import_react82.default.createElement(Modal.Window, {
+        isOpen: isDeleteConfirmationModalOpen,
+        onClose: closeModal,
+        center: false,
+        size: "small"
+      }, /* @__PURE__ */ import_react82.default.createElement(Modal.Header, null, "Delete Comment"), /* @__PURE__ */ import_react82.default.createElement(Modal.Content, null, /* @__PURE__ */ import_react82.default.createElement("p", null, "This process is irreversible. ", /* @__PURE__ */ import_react82.default.createElement("strong", null, "Are you sure?"))), /* @__PURE__ */ import_react82.default.createElement(Modal.Footer, null, /* @__PURE__ */ import_react82.default.createElement(Button, {
+        color: "danger",
+        onClick: deleteComment2
+      }, "Delete"), /* @__PURE__ */ import_react82.default.createElement(Button, {
+        color: "cancel",
+        onClick: closeModal
+      }, "Cancel")));
+    };
+    const comment = props.comment;
+    const editedMetadata = !!comment.editedAt && !!comment.editedBy && /* @__PURE__ */ import_react82.default.createElement("div", {
+      className: "c-comment-metadata"
+    }, /* @__PURE__ */ import_react82.default.createElement("span", {
+      title: `This comment has been edited by ${comment.editedBy.name} on ${formatDate(comment.editedAt)}`
+    }, "\xB7 edited"));
+    return /* @__PURE__ */ import_react82.default.createElement("div", {
+      className: "c-comment"
+    }, modal(), /* @__PURE__ */ import_react82.default.createElement(Avatar, {
+      user: comment.user
+    }), /* @__PURE__ */ import_react82.default.createElement("div", {
+      className: "c-comment-content"
+    }, /* @__PURE__ */ import_react82.default.createElement(UserName, {
+      user: comment.user
+    }), /* @__PURE__ */ import_react82.default.createElement("div", {
+      className: "c-comment-metadata"
+    }, "\xB7 ", /* @__PURE__ */ import_react82.default.createElement(Moment, {
+      date: comment.createdAt
+    })), editedMetadata, !isEditing && canEditComment() && /* @__PURE__ */ import_react82.default.createElement(DropDown, {
+      className: "l-more-actions",
+      direction: "left",
+      inline: true,
+      style: "simple",
+      highlightSelected: false,
+      items: [
+        {label: "Edit", value: "edit"},
+        {label: "Delete", value: "delete", render: /* @__PURE__ */ import_react82.default.createElement("span", {
+          style: {color: "red"}
+        }, "Delete")}
+      ],
+      onChange: onActionSelected,
+      renderControl: renderEllipsis
+    }), /* @__PURE__ */ import_react82.default.createElement("div", {
+      className: "c-comment-text"
+    }, isEditing ? /* @__PURE__ */ import_react82.default.createElement(Form, {
+      error: error3
+    }, /* @__PURE__ */ import_react82.default.createElement(TextArea, {
+      field: "content",
+      minRows: 1,
+      value: newContent,
+      placeholder: comment.content,
+      onChange: setNewContent
+    }), /* @__PURE__ */ import_react82.default.createElement(MultiImageUploader, {
+      field: "attachments",
+      bkeys: comment.attachments,
+      maxUploads: 2,
+      previewMaxWidth: 100,
+      onChange: setAttachments
+    }), /* @__PURE__ */ import_react82.default.createElement(Button, {
+      size: "tiny",
+      onClick: saveEdit,
+      color: "positive"
+    }, "Save"), /* @__PURE__ */ import_react82.default.createElement(Button, {
+      color: "cancel",
+      size: "tiny",
+      onClick: cancelEdit
+    }, "Cancel")) : /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement(MultiLineText, {
+      text: comment.content,
+      style: "simple"
+    }), comment.attachments && comment.attachments.map((x) => /* @__PURE__ */ import_react82.default.createElement(ImageViewer, {
+      key: x,
+      bkey: x
+    }))))));
+  };
+
+  // public/pages/ShowPost/components/CommentInput.tsx
+  var import_react83 = __toModule(require_react());
+  var CACHE_TITLE_KEY2 = "CommentInput-Comment-";
+  var CommentInput = (props) => {
+    const getCacheKey = () => `${CACHE_TITLE_KEY2}${props.post.id}`;
+    const fider = useFider();
+    const inputRef = (0, import_react83.useRef)();
+    const [content, setContent] = (0, import_react83.useState)(fider.session.isAuthenticated && cache.session.get(getCacheKey()) || "");
+    const [isSignInModalOpen, setIsSignInModalOpen] = (0, import_react83.useState)(false);
+    const [attachments, setAttachments] = (0, import_react83.useState)([]);
+    const [error3, setError] = (0, import_react83.useState)(void 0);
+    const commentChanged = (newContent) => {
+      cache.session.set(getCacheKey(), newContent);
+      setContent(newContent);
+    };
+    const hideModal = () => setIsSignInModalOpen(false);
+    const clearError = () => setError(void 0);
+    const submit = async () => {
+      clearError();
+      const result = await actions_exports.createComment(props.post.number, content, attachments);
+      if (result.ok) {
+        cache.session.remove(getCacheKey());
+        location.reload();
+      } else {
+        setError(result.error);
+      }
+    };
+    const handleOnFocus = () => {
+      if (!fider.session.isAuthenticated && inputRef.current) {
+        inputRef.current.blur();
+        setIsSignInModalOpen(true);
+      }
+    };
+    return /* @__PURE__ */ import_react83.default.createElement(import_react83.default.Fragment, null, /* @__PURE__ */ import_react83.default.createElement(SignInModal, {
+      isOpen: isSignInModalOpen,
+      onClose: hideModal
+    }), /* @__PURE__ */ import_react83.default.createElement("div", {
+      className: `c-comment-input ${Fider.session.isAuthenticated && "m-authenticated"}`
+    }, Fider.session.isAuthenticated && /* @__PURE__ */ import_react83.default.createElement(Avatar, {
+      user: Fider.session.user
+    }), /* @__PURE__ */ import_react83.default.createElement(Form, {
+      error: error3
+    }, Fider.session.isAuthenticated && /* @__PURE__ */ import_react83.default.createElement(UserName, {
+      user: Fider.session.user
+    }), /* @__PURE__ */ import_react83.default.createElement(TextArea, {
+      placeholder: "Write a comment...",
+      field: "content",
+      value: content,
+      minRows: 1,
+      onChange: commentChanged,
+      onFocus: handleOnFocus,
+      inputRef
+    }), content && /* @__PURE__ */ import_react83.default.createElement(import_react83.default.Fragment, null, /* @__PURE__ */ import_react83.default.createElement(MultiImageUploader, {
+      field: "attachments",
+      maxUploads: 2,
+      previewMaxWidth: 100,
+      onChange: setAttachments
+    }), /* @__PURE__ */ import_react83.default.createElement(Button, {
+      color: "positive",
+      onClick: submit
+    }, "Submit")))));
+  };
+
+  // public/pages/ShowPost/components/DiscussionPanel.tsx
+  var DiscussionPanel = (props) => {
+    return /* @__PURE__ */ import_react84.default.createElement("div", {
+      className: "comments-col"
+    }, /* @__PURE__ */ import_react84.default.createElement("div", {
+      className: "c-comment-list"
+    }, /* @__PURE__ */ import_react84.default.createElement("span", {
+      className: "subtitle"
+    }, "Discussion"), props.comments.map((c) => /* @__PURE__ */ import_react84.default.createElement(ShowComment, {
+      key: c.id,
+      post: props.post,
+      comment: c
+    })), /* @__PURE__ */ import_react84.default.createElement(CommentInput, {
+      post: props.post
+    })));
+  };
+
+  // public/pages/ShowPost/components/VotesPanel.tsx
+  var import_react86 = __toModule(require_react());
+
+  // public/pages/ShowPost/components/VotesModal.tsx
+  var import_react85 = __toModule(require_react());
+  var VotesModal = class extends import_react85.default.Component {
+    constructor(props) {
+      super(props);
+      this.closeModal = async () => {
+        if (this.props.onClose) {
+          this.props.onClose();
+        }
+      };
+      this.clearSearch = () => {
+        this.handleSearchFilterChanged("");
+      };
+      this.handleSearchFilterChanged = (query) => {
+        const votes = this.state.allVotes.filter((x) => x.user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0);
+        this.setState({query, filteredVotes: votes});
+      };
+      this.state = {
+        searchText: "",
+        query: "",
+        allVotes: [],
+        filteredVotes: [],
+        isLoading: true
+      };
+    }
+    componentDidUpdate(prevProps) {
+      if (this.props.isOpen && !prevProps.isOpen) {
+        actions_exports.listVotes(this.props.post.number).then((response) => {
+          if (response.ok) {
+            this.setState({
+              allVotes: response.data,
+              filteredVotes: response.data,
+              isLoading: false
+            });
+          }
+        });
+      }
+    }
+    render() {
+      return /* @__PURE__ */ import_react85.default.createElement(Modal.Window, {
+        className: "c-votes-modal",
+        isOpen: this.props.isOpen,
+        center: false,
+        onClose: this.closeModal
+      }, /* @__PURE__ */ import_react85.default.createElement(Modal.Content, null, this.state.isLoading && /* @__PURE__ */ import_react85.default.createElement(Loader, null), !this.state.isLoading && /* @__PURE__ */ import_react85.default.createElement(import_react85.default.Fragment, null, /* @__PURE__ */ import_react85.default.createElement(Input, {
+        field: "query",
+        icon: this.state.query ? FaTimes : FaSearch,
+        onIconClick: this.state.query ? this.clearSearch : void 0,
+        placeholder: "Search for users by name...",
+        value: this.state.query,
+        onChange: this.handleSearchFilterChanged
+      }), /* @__PURE__ */ import_react85.default.createElement(List, {
+        hover: true
+      }, this.state.filteredVotes.map((x) => /* @__PURE__ */ import_react85.default.createElement(ListItem, {
+        key: x.user.id
+      }, /* @__PURE__ */ import_react85.default.createElement(Avatar, {
+        user: x.user
+      }), /* @__PURE__ */ import_react85.default.createElement("span", {
+        className: "l-user"
+      }, /* @__PURE__ */ import_react85.default.createElement(UserName, {
+        user: x.user
+      }), /* @__PURE__ */ import_react85.default.createElement("span", {
+        className: "info"
+      }, x.user.email)), /* @__PURE__ */ import_react85.default.createElement("span", {
+        className: "l-date info"
+      }, /* @__PURE__ */ import_react85.default.createElement(Moment, {
+        date: x.createdAt,
+        useRelative: false,
+        format: "short"
+      }))))))), /* @__PURE__ */ import_react85.default.createElement(Modal.Footer, null, /* @__PURE__ */ import_react85.default.createElement(Button, {
+        color: "cancel",
+        onClick: this.closeModal
+      }, "Close")));
+    }
+  };
+
+  // public/pages/ShowPost/components/VotesPanel.tsx
+  var VotesPanel = (props) => {
+    const fider = useFider();
+    const [isVotesModalOpen, setIsVotesModalOpen] = (0, import_react86.useState)(false);
+    const openModal = () => {
+      if (canShowAll()) {
+        setIsVotesModalOpen(true);
+      }
+    };
+    const closeModal = () => setIsVotesModalOpen(false);
+    const canShowAll = () => fider.session.isAuthenticated && Fider.session.user.isCollaborator;
+    const extraVotesCount = props.post.votesCount - props.votes.length;
+    const moreVotesClassName = classSet({
+      "l-votes-more": true,
+      clickable: canShowAll()
+    });
+    return /* @__PURE__ */ import_react86.default.createElement(import_react86.default.Fragment, null, /* @__PURE__ */ import_react86.default.createElement(VotesModal, {
+      post: props.post,
+      isOpen: isVotesModalOpen,
+      onClose: closeModal
+    }), /* @__PURE__ */ import_react86.default.createElement("span", {
+      className: "subtitle"
+    }, "Voters"), /* @__PURE__ */ import_react86.default.createElement("div", {
+      className: "l-votes-list"
+    }, props.votes.map((x) => /* @__PURE__ */ import_react86.default.createElement(Avatar, {
+      key: x.user.id,
+      user: x.user
+    })), extraVotesCount > 0 && /* @__PURE__ */ import_react86.default.createElement("span", {
+      onClick: openModal,
+      className: moreVotesClassName
+    }, "+", extraVotesCount, " more"), props.votes.length > 0 && extraVotesCount === 0 && canShowAll() && /* @__PURE__ */ import_react86.default.createElement("span", {
+      onClick: openModal,
+      className: moreVotesClassName
+    }, "see details"), props.votes.length === 0 && /* @__PURE__ */ import_react86.default.createElement("span", {
+      className: "info"
+    }, "None yet")));
+  };
+
+  // public/pages/ShowPost/ShowPost.page.tsx
+  var ShowPostPage = class extends import_react87.default.Component {
+    constructor(props) {
+      super(props);
+      this.saveChanges = async () => {
+        const result = await actions_exports.updatePost(this.props.post.number, this.state.newTitle, this.state.newDescription, this.state.attachments);
+        if (result.ok) {
+          location.reload();
+        } else {
+          this.setState({
+            error: result.error
+          });
+        }
+      };
+      this.setNewTitle = (newTitle) => {
+        this.setState({newTitle});
+      };
+      this.setNewDescription = (newDescription) => {
+        this.setState({newDescription});
+      };
+      this.setAttachments = (attachments) => {
+        this.setState({attachments});
+      };
+      this.cancelEdit = async () => {
+        this.setState({error: void 0, editMode: false});
+      };
+      this.startEdit = async () => {
+        this.setState({editMode: true});
+      };
+      this.state = {
+        editMode: false,
+        newTitle: this.props.post.title,
+        newDescription: this.props.post.description,
+        attachments: []
+      };
+    }
+    render() {
+      return /* @__PURE__ */ import_react87.default.createElement("div", {
+        id: "p-show-post",
+        className: "page container"
+      }, /* @__PURE__ */ import_react87.default.createElement("div", {
+        className: "header-col"
+      }, /* @__PURE__ */ import_react87.default.createElement(List, null, /* @__PURE__ */ import_react87.default.createElement(ListItem, null, /* @__PURE__ */ import_react87.default.createElement(VoteCounter, {
+        post: this.props.post
+      }), /* @__PURE__ */ import_react87.default.createElement("div", {
+        className: "post-header"
+      }, this.state.editMode ? /* @__PURE__ */ import_react87.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react87.default.createElement(Input, {
+        field: "title",
+        maxLength: 100,
+        value: this.state.newTitle,
+        onChange: this.setNewTitle
+      })) : /* @__PURE__ */ import_react87.default.createElement("h1", null, this.props.post.title), /* @__PURE__ */ import_react87.default.createElement("span", {
+        className: "info"
+      }, /* @__PURE__ */ import_react87.default.createElement(Moment, {
+        date: this.props.post.createdAt
+      }), " \xB7 ", /* @__PURE__ */ import_react87.default.createElement(Avatar, {
+        user: this.props.post.user
+      }), " ", /* @__PURE__ */ import_react87.default.createElement(UserName, {
+        user: this.props.post.user
+      }))))), /* @__PURE__ */ import_react87.default.createElement("span", {
+        className: "subtitle"
+      }, "Description"), this.state.editMode ? /* @__PURE__ */ import_react87.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react87.default.createElement(TextArea, {
+        field: "description",
+        value: this.state.newDescription,
+        onChange: this.setNewDescription
+      }), /* @__PURE__ */ import_react87.default.createElement(MultiImageUploader, {
+        field: "attachments",
+        bkeys: this.props.attachments,
+        maxUploads: 3,
+        previewMaxWidth: 100,
+        onChange: this.setAttachments
+      })) : /* @__PURE__ */ import_react87.default.createElement(import_react87.default.Fragment, null, /* @__PURE__ */ import_react87.default.createElement(MultiLineText, {
+        className: "description",
+        text: this.props.post.description,
+        style: "simple"
+      }), this.props.attachments.map((x) => /* @__PURE__ */ import_react87.default.createElement(ImageViewer, {
+        key: x,
+        bkey: x
+      }))), /* @__PURE__ */ import_react87.default.createElement(ShowPostResponse, {
+        showUser: true,
+        status: this.props.post.status,
+        response: this.props.post.response
+      })), /* @__PURE__ */ import_react87.default.createElement("div", {
+        className: "action-col"
+      }, /* @__PURE__ */ import_react87.default.createElement(VotesPanel, {
+        post: this.props.post,
+        votes: this.props.votes
+      }), Fider.session.isAuthenticated && Fider.session.user.isCollaborator && [
+        /* @__PURE__ */ import_react87.default.createElement("span", {
+          key: 0,
+          className: "subtitle"
+        }, "Actions"),
+        this.state.editMode ? /* @__PURE__ */ import_react87.default.createElement(List, {
+          key: 1
+        }, /* @__PURE__ */ import_react87.default.createElement(ListItem, null, /* @__PURE__ */ import_react87.default.createElement(Button, {
+          className: "save",
+          color: "positive",
+          fluid: true,
+          onClick: this.saveChanges
+        }, /* @__PURE__ */ import_react87.default.createElement(FaSave, null), " Save")), /* @__PURE__ */ import_react87.default.createElement(ListItem, null, /* @__PURE__ */ import_react87.default.createElement(Button, {
+          className: "cancel",
+          fluid: true,
+          onClick: this.cancelEdit
+        }, /* @__PURE__ */ import_react87.default.createElement(FaTimes, null), " Cancel"))) : /* @__PURE__ */ import_react87.default.createElement(List, {
+          key: 1
+        }, /* @__PURE__ */ import_react87.default.createElement(ListItem, null, /* @__PURE__ */ import_react87.default.createElement(Button, {
+          className: "edit",
+          fluid: true,
+          onClick: this.startEdit
+        }, /* @__PURE__ */ import_react87.default.createElement(FaEdit, null), " Edit")), /* @__PURE__ */ import_react87.default.createElement(ListItem, null, /* @__PURE__ */ import_react87.default.createElement(ResponseForm, {
+          post: this.props.post
+        })))
+      ], /* @__PURE__ */ import_react87.default.createElement(TagsPanel, {
+        post: this.props.post,
+        tags: this.props.tags
+      }), /* @__PURE__ */ import_react87.default.createElement(NotificationsPanel, {
+        post: this.props.post,
+        subscribed: this.props.subscribed
+      }), /* @__PURE__ */ import_react87.default.createElement(ModerationPanel, {
+        post: this.props.post
+      })), /* @__PURE__ */ import_react87.default.createElement(DiscussionPanel, {
+        post: this.props.post,
+        comments: this.props.comments
+      }));
+    }
+  };
+  var ShowPost_page_default = ShowPostPage;
+
+  // public/pages/SignUp/SignUp.page.tsx
+  var import_react88 = __toModule(require_react());
+  var SignUpPage = class extends import_react88.default.Component {
+    constructor(props) {
+      super(props);
+      this.confirm = async () => {
+        const result = await actions_exports.createTenant({
+          token: this.user && this.user.token,
+          legalAgreement: this.state.legalAgreement,
+          tenantName: this.state.tenantName,
+          subdomain: this.state.subdomain.value,
+          name: this.state.name,
+          email: this.state.email
+        });
+        if (result.ok) {
+          if (this.user) {
+            if (Fider.isSingleHostMode()) {
+              location.reload();
+            } else {
+              let baseURL = `${location.protocol}//${this.state.subdomain.value}${Fider.settings.domain}`;
+              if (location.port) {
+                baseURL = `${baseURL}:${location.port}`;
+              }
+              location.href = baseURL;
+            }
+          } else {
+            this.setState({submitted: true});
+          }
+        } else if (result.error) {
+          this.setState({error: result.error, submitted: false});
+        }
+      };
+      this.checkAvailability = (subdomain) => {
+        window.clearTimeout(this.timer);
+        this.timer = window.setTimeout(() => {
+          actions_exports.checkAvailability(subdomain).then((result) => {
+            this.setState({
+              subdomain: {
+                value: subdomain,
+                available: !result.data.message,
+                message: result.data.message
+              }
+            });
+          });
+        }, 500);
+      };
+      this.setSubdomain = async (subdomain) => {
+        this.setState({
+          subdomain: {
+            value: subdomain,
+            available: false
+          }
+        }, this.checkAvailability.bind(this, subdomain));
+      };
+      this.onAgree = (agreed) => {
+        this.setState({legalAgreement: agreed});
+      };
+      this.setName = (name) => {
+        this.setState({name});
+      };
+      this.setEmail = (email) => {
+        this.setState({email});
+      };
+      this.setTenantName = (tenantName) => {
+        this.setState({tenantName});
+      };
+      this.noop = () => {
+      };
+      this.state = {
+        submitted: false,
+        legalAgreement: false,
+        tenantName: "",
+        subdomain: {available: false}
+      };
+      const token = querystring_exports.get("token");
+      if (token) {
+        const data = jwt.decode(token);
+        if (data) {
+          this.user = {
+            token,
+            name: data["oauth/name"],
+            email: data["oauth/email"]
+          };
+        }
+      }
+    }
+    render() {
+      const modal = /* @__PURE__ */ import_react88.default.createElement(Modal.Window, {
+        canClose: false,
+        isOpen: this.state.submitted,
+        onClose: this.noop
+      }, /* @__PURE__ */ import_react88.default.createElement(Modal.Header, null, "Thank you for registering!"), /* @__PURE__ */ import_react88.default.createElement(Modal.Content, null, /* @__PURE__ */ import_react88.default.createElement("p", null, "We have just sent a confirmation link to ", /* @__PURE__ */ import_react88.default.createElement("b", null, this.state.email), ". ", /* @__PURE__ */ import_react88.default.createElement("br", null), " Click the link to finish your registration.")));
+      return /* @__PURE__ */ import_react88.default.createElement("div", {
+        id: "p-signup",
+        className: "page container"
+      }, modal, /* @__PURE__ */ import_react88.default.createElement("img", {
+        className: "logo",
+        src: "https://getfider.com/images/logo-100x100.png"
+      }), /* @__PURE__ */ import_react88.default.createElement("h3", null, "1. Who are you?"), /* @__PURE__ */ import_react88.default.createElement(DisplayError, {
+        fields: ["token"],
+        error: this.state.error
+      }), this.user ? /* @__PURE__ */ import_react88.default.createElement("p", null, "Hello, ", /* @__PURE__ */ import_react88.default.createElement("b", null, this.user.name), " ", this.user.email && `(${this.user.email})`) : /* @__PURE__ */ import_react88.default.createElement(import_react88.default.Fragment, null, /* @__PURE__ */ import_react88.default.createElement("p", null, "We need to identify you to setup your new Fider account."), /* @__PURE__ */ import_react88.default.createElement(SignInControl, {
+        useEmail: false
+      }), /* @__PURE__ */ import_react88.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react88.default.createElement(Input, {
+        field: "name",
+        maxLength: 100,
+        onChange: this.setName,
+        placeholder: "Name"
+      }), /* @__PURE__ */ import_react88.default.createElement(Input, {
+        field: "email",
+        maxLength: 200,
+        onChange: this.setEmail,
+        placeholder: "Email"
+      }))), /* @__PURE__ */ import_react88.default.createElement("h3", null, "2. What is this Feedback Forum for?"), /* @__PURE__ */ import_react88.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react88.default.createElement(Input, {
+        field: "tenantName",
+        maxLength: 60,
+        onChange: this.setTenantName,
+        placeholder: "your company or product name"
+      }), !Fider.isSingleHostMode() && /* @__PURE__ */ import_react88.default.createElement(Input, {
+        field: "subdomain",
+        maxLength: 40,
+        onChange: this.setSubdomain,
+        placeholder: "subdomain",
+        suffix: Fider.settings.domain
+      }, this.state.subdomain.available && /* @__PURE__ */ import_react88.default.createElement(Message, {
+        type: "success",
+        showIcon: true
+      }, "This subdomain is available!"), this.state.subdomain.message && /* @__PURE__ */ import_react88.default.createElement(Message, {
+        type: "error",
+        showIcon: true
+      }, this.state.subdomain.message))), /* @__PURE__ */ import_react88.default.createElement("h3", null, "3. Review"), /* @__PURE__ */ import_react88.default.createElement("p", null, "Make sure information provided above is correct."), /* @__PURE__ */ import_react88.default.createElement(Form, {
+        error: this.state.error
+      }, /* @__PURE__ */ import_react88.default.createElement(LegalAgreement, {
+        onChange: this.onAgree
+      })), /* @__PURE__ */ import_react88.default.createElement(Button, {
+        color: "positive",
+        size: "large",
+        onClick: this.confirm
+      }, "Confirm"));
+    }
+  };
+  var SignUp_page_default = SignUpPage;
+
+  // public/pages/UI/UIToolkit.page.tsx
+  var import_react89 = __toModule(require_react());
+  var jonSnow = {
+    id: 0,
+    name: "Jon Snow",
+    role: UserRole.Administrator,
+    status: UserStatus.Active,
+    avatarURL: "/avatars/letter/0/Jon%20Snow"
+  };
+  var aryaStark = {
+    id: 0,
+    name: "Arya Snow",
+    role: UserRole.Visitor,
+    status: UserStatus.Active,
+    avatarURL: "/avatars/letter/0/Arya%20Snow"
+  };
+  var easyTag = {id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true};
+  var hardTag = {id: 3, slug: "hard", name: "hard", color: "fbca04", isPublic: false};
+  var visibilityPublic = {label: "Public", value: "public"};
+  var visibilityPrivate = {label: "Private", value: "private"};
+  var UIToolkitPage = () => {
+    const [error3, setError] = (0, import_react89.useState)(void 0);
+    const notifyError = async () => {
+      notify_exports.error("Something went wrong...");
+    };
+    const notifySuccess = async () => {
+      notify_exports.success("Congratulations! It worked!");
+    };
+    const notifyStatusChange = (opt) => {
+      if (opt) {
+        notify_exports.success(opt.value);
+      }
+    };
+    const showLoading = async (e) => {
+      return e.preventEnable();
+    };
+    const forceError = async () => {
+      setError({
+        errors: [
+          {field: "title", message: "Title is mandatory"},
+          {field: "description", message: "Error #1"},
+          {field: "description", message: "Error #2"},
+          {field: "status", message: "Status is mandatory"}
+        ]
+      });
+    };
+    const renderText = (item) => {
+      if (item) {
+        return `${item.label} (value: ${item.value})`;
+      }
+      return /* @__PURE__ */ import_react89.default.createElement("span", null, "No country is selected");
+    };
+    const renderControl = (item) => {
+      if (item) {
+        return item.render;
+      }
+      return /* @__PURE__ */ import_react89.default.createElement("span", null, "...");
+    };
+    return /* @__PURE__ */ import_react89.default.createElement("div", {
+      id: "p-ui-toolkit",
+      className: "page container"
+    }, /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color-scale"
+    }, /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color gray-darkest"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color gray-darker"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color gray-dark"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color gray-default"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color gray-light"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color gray-lighter"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color gray-lightest"
+    })), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color-scale"
+    }, /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color green-darkest"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color green-darker"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color green-dark"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color green-default"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color green-light"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color green-lighter"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color green-lightest"
+    })), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color-scale"
+    }, /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color red-darkest"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color red-darker"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color red-dark"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color red-default"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color red-light"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color red-lighter"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color red-lightest"
+    })), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color-scale"
+    }, /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color blue-darkest"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color blue-darker"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color blue-dark"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color blue-default"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color blue-light"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color blue-lighter"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color blue-lightest"
+    })), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color-scale"
+    }, /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color yellow-darkest"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color yellow-darker"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color yellow-dark"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color yellow-default"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color yellow-light"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color yellow-lighter"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "color yellow-lightest"
+    })), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Heading 1"), /* @__PURE__ */ import_react89.default.createElement("h2", null, "Heading 2"), /* @__PURE__ */ import_react89.default.createElement("h3", null, "Heading 3"), /* @__PURE__ */ import_react89.default.createElement("h4", null, "Heading 4"), /* @__PURE__ */ import_react89.default.createElement("h5", null, "Heading 5"), /* @__PURE__ */ import_react89.default.createElement("h6", null, "Heading 6"), /* @__PURE__ */ import_react89.default.createElement("p", null, "General Text Paragraph"), /* @__PURE__ */ import_react89.default.createElement("p", {
+      className: "info"
+    }, "Info Text"), /* @__PURE__ */ import_react89.default.createElement(Segment, null, /* @__PURE__ */ import_react89.default.createElement("h2", null, "The title"), /* @__PURE__ */ import_react89.default.createElement("p", null, "The content goes here")), /* @__PURE__ */ import_react89.default.createElement(Segments, null, /* @__PURE__ */ import_react89.default.createElement(Segment, null, /* @__PURE__ */ import_react89.default.createElement("p", null, "First Segment")), /* @__PURE__ */ import_react89.default.createElement(Segment, null, /* @__PURE__ */ import_react89.default.createElement("p", null, "Second Segment")), /* @__PURE__ */ import_react89.default.createElement(Segment, null, /* @__PURE__ */ import_react89.default.createElement("p", null, "Third Segment"))), /* @__PURE__ */ import_react89.default.createElement(List, null, /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Avatar, {
+      user: jonSnow
+    }), " ", /* @__PURE__ */ import_react89.default.createElement(UserName, {
+      user: jonSnow
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Avatar, {
+      user: aryaStark
+    }), " ", /* @__PURE__ */ import_react89.default.createElement(UserName, {
+      user: aryaStark
+    }))), /* @__PURE__ */ import_react89.default.createElement(Heading, {
+      title: "Page Heading",
+      icon: FaCogs,
+      subtitle: "This is a page heading"
+    }), /* @__PURE__ */ import_react89.default.createElement(Heading, {
+      title: "Section Heading",
+      icon: FaRegLightbulb,
+      subtitle: "This is a page heading",
+      size: "small",
+      dividing: true
+    }), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Buttons"), /* @__PURE__ */ import_react89.default.createElement(List, null, /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "large"
+    }, /* @__PURE__ */ import_react89.default.createElement(FaRegLightbulb, null), " Large Icon"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "large"
+    }, "Large Default"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "positive",
+      size: "large"
+    }, "Large Positive"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "danger",
+      size: "large"
+    }, "Large Danger"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "cancel",
+      size: "large"
+    }, "Large Cancel")), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "normal"
+    }, /* @__PURE__ */ import_react89.default.createElement(FaRegLightbulb, null), " Normal Icon"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "normal"
+    }, "Normal Default"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "positive",
+      size: "normal"
+    }, "Normal Positive"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "danger",
+      size: "normal"
+    }, "Normal Danger"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "cancel",
+      size: "normal"
+    }, "Normal Cancel")), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "small"
+    }, /* @__PURE__ */ import_react89.default.createElement(FaRegLightbulb, null), " Small Icon"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "small"
+    }, "Small Default"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "positive",
+      size: "small"
+    }, "Small Positive"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "danger",
+      size: "small"
+    }, "Small Danger"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "cancel",
+      size: "small"
+    }, "Small Cancel")), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "tiny"
+    }, /* @__PURE__ */ import_react89.default.createElement(FaRegLightbulb, null), " Tiny Icon"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "tiny"
+    }, "Tiny Default"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "positive",
+      size: "tiny"
+    }, "Tiny Positive"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "danger",
+      size: "tiny"
+    }, "Tiny Danger"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "cancel",
+      size: "tiny"
+    }, "Tiny Cancel")), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "mini"
+    }, /* @__PURE__ */ import_react89.default.createElement(FaRegLightbulb, null), " Mini Icon"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      size: "mini"
+    }, "Mini Default"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "positive",
+      size: "mini"
+    }, "Mini Positive"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "danger",
+      size: "mini"
+    }, "Mini Danger"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "cancel",
+      size: "mini"
+    }, "Mini Cancel")), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      href: "#"
+    }, /* @__PURE__ */ import_react89.default.createElement(FaRegLightbulb, null), " Link"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      href: "#"
+    }, "Link"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      href: "#",
+      color: "positive"
+    }, "Link"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      href: "#",
+      color: "danger"
+    }, "Link")), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      disabled: true
+    }, /* @__PURE__ */ import_react89.default.createElement(FaRegLightbulb, null), " Default"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      disabled: true
+    }, "Default"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      disabled: true,
+      color: "positive"
+    }, "Positive"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      disabled: true,
+      color: "danger"
+    }, "Danger")), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      onClick: showLoading
+    }, /* @__PURE__ */ import_react89.default.createElement(FaRegLightbulb, null), " Loading"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      onClick: showLoading
+    }, "Loading"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "positive",
+      onClick: showLoading
+    }, "Loading"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      color: "danger",
+      onClick: showLoading
+    }, "Loading"))), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Toggle"), /* @__PURE__ */ import_react89.default.createElement(List, null, /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Toggle, {
+      active: true,
+      label: "Active"
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Toggle, {
+      active: false,
+      label: "Inactive"
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Toggle, {
+      active: true,
+      disabled: true,
+      label: "Disabled"
+    }))), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Statuses"), /* @__PURE__ */ import_react89.default.createElement(List, null, /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowPostStatus, {
+      status: PostStatus.Open
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowPostStatus, {
+      status: PostStatus.Planned
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowPostStatus, {
+      status: PostStatus.Started
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowPostStatus, {
+      status: PostStatus.Duplicate
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowPostStatus, {
+      status: PostStatus.Completed
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowPostStatus, {
+      status: PostStatus.Declined
+    }))), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Tags"), /* @__PURE__ */ import_react89.default.createElement(List, null, /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: easyTag,
+      size: "normal"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: hardTag,
+      size: "normal"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: easyTag,
+      circular: true,
+      size: "normal"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: hardTag,
+      circular: true,
+      size: "normal"
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: easyTag,
+      size: "small"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: hardTag,
+      size: "small"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: easyTag,
+      circular: true,
+      size: "small"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: hardTag,
+      circular: true,
+      size: "small"
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: easyTag,
+      size: "tiny"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: hardTag,
+      size: "tiny"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: easyTag,
+      circular: true,
+      size: "tiny"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: hardTag,
+      circular: true,
+      size: "tiny"
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: easyTag,
+      size: "mini"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: hardTag,
+      size: "mini"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: easyTag,
+      circular: true,
+      size: "mini"
+    }), /* @__PURE__ */ import_react89.default.createElement(ShowTag, {
+      tag: hardTag,
+      circular: true,
+      size: "mini"
+    }))), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Notification"), /* @__PURE__ */ import_react89.default.createElement(List, null, /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Button, {
+      onClick: notifySuccess
+    }, "Success"), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      onClick: notifyError
+    }, "Error"))), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Moment"), /* @__PURE__ */ import_react89.default.createElement(List, null, /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Moment, {
+      date: "2017-06-03T16:55:06.815042Z"
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Moment, {
+      date: new Date(2014, 10, 3, 12, 53, 12, 0)
+    })), /* @__PURE__ */ import_react89.default.createElement(ListItem, null, /* @__PURE__ */ import_react89.default.createElement(Moment, {
+      date: new Date()
+    }))), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Loader"), /* @__PURE__ */ import_react89.default.createElement(Loader, null), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Message Box"), /* @__PURE__ */ import_react89.default.createElement(Message, {
+      showIcon: true,
+      type: "error"
+    }, "Something went wrong."), /* @__PURE__ */ import_react89.default.createElement(Message, {
+      showIcon: true,
+      type: "success"
+    }, "Your order has been confirmed."), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Hints"), /* @__PURE__ */ import_react89.default.createElement(Hint, {
+      permanentCloseKey: "ui-toolkip-example"
+    }, "Did you know that you can close this permanently?"), /* @__PURE__ */ import_react89.default.createElement(Hint, null, "You can't close this one :)"), /* @__PURE__ */ import_react89.default.createElement("h1", null, "Form"), /* @__PURE__ */ import_react89.default.createElement(Form, {
+      error: error3
+    }, /* @__PURE__ */ import_react89.default.createElement(Input, {
+      label: "Title",
+      field: "title"
+    }, /* @__PURE__ */ import_react89.default.createElement("p", {
+      className: "info"
+    }, "This is the explanation for the field above.")), /* @__PURE__ */ import_react89.default.createElement(Input, {
+      label: "Disabled!",
+      field: "unamed",
+      disabled: true,
+      value: "you can't change this!"
+    }), /* @__PURE__ */ import_react89.default.createElement(Input, {
+      label: "Name",
+      field: "name",
+      placeholder: "Your name goes here..."
+    }), /* @__PURE__ */ import_react89.default.createElement(Input, {
+      label: "Subdomain",
+      field: "subdomain",
+      suffix: "fider.io"
+    }), /* @__PURE__ */ import_react89.default.createElement(Input, {
+      label: "Email",
+      field: "email",
+      suffix: /* @__PURE__ */ import_react89.default.createElement(Button, {
+        color: "positive"
+      }, "Sign in")
+    }), /* @__PURE__ */ import_react89.default.createElement(TextArea, {
+      label: "Description",
+      field: "description",
+      minRows: 5
+    }, /* @__PURE__ */ import_react89.default.createElement("p", {
+      className: "info"
+    }, "This textarea resizes as you type.")), /* @__PURE__ */ import_react89.default.createElement(Input, {
+      field: "age",
+      placeholder: "This field doesn't have a label"
+    }), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "row"
+    }, /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "col-md-3"
+    }, /* @__PURE__ */ import_react89.default.createElement(Input, {
+      label: "Title1",
+      field: "title1"
+    })), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "col-md-3"
+    }, /* @__PURE__ */ import_react89.default.createElement(Input, {
+      label: "Title2",
+      field: "title2"
+    })), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "col-md-3"
+    }, /* @__PURE__ */ import_react89.default.createElement(Input, {
+      label: "Title3",
+      field: "title3"
+    })), /* @__PURE__ */ import_react89.default.createElement("div", {
+      className: "col-md-3"
+    }, /* @__PURE__ */ import_react89.default.createElement(RadioButton, {
+      label: "Visibility",
+      field: "visibility",
+      defaultOption: visibilityPublic,
+      options: [visibilityPrivate, visibilityPublic]
+    }))), /* @__PURE__ */ import_react89.default.createElement(Select, {
+      label: "Status",
+      field: "status",
+      options: [
+        {value: "open", label: "Open"},
+        {value: "started", label: "Started"},
+        {value: "planned", label: "Planned"}
+      ],
+      onChange: notifyStatusChange
+    }), /* @__PURE__ */ import_react89.default.createElement(Field, {
+      label: "Number"
+    }, /* @__PURE__ */ import_react89.default.createElement(DropDown, {
+      items: [
+        {label: "One", value: "1"},
+        {label: "Two", value: "2"},
+        {label: "Three", value: "3"}
+      ],
+      defaultValue: "1",
+      placeholder: "Select a number"
+    })), /* @__PURE__ */ import_react89.default.createElement(Field, {
+      label: "Country (custom render text)"
+    }, /* @__PURE__ */ import_react89.default.createElement(DropDown, {
+      items: [
+        {label: "Brazil", value: "br"},
+        {label: "United States", value: "us"},
+        {label: "Ireland", value: "ie"}
+      ],
+      defaultValue: "1",
+      renderText,
+      placeholder: "Select a number"
+    })), /* @__PURE__ */ import_react89.default.createElement(Field, {
+      label: "Color (custom render control)"
+    }, /* @__PURE__ */ import_react89.default.createElement(DropDown, {
+      items: [
+        {label: "Green", value: "green", render: /* @__PURE__ */ import_react89.default.createElement("span", {
+          style: {color: "green"}
+        }, "Green")},
+        {label: "Red", value: "red", render: /* @__PURE__ */ import_react89.default.createElement("span", {
+          style: {color: "red"}
+        }, "Red")},
+        {label: "Blue", value: "blue", render: /* @__PURE__ */ import_react89.default.createElement("span", {
+          style: {color: "blue"}
+        }, "Blue")}
+      ],
+      placeholder: "Select a color",
+      inline: true,
+      style: "simple",
+      header: "What color do you like the most?",
+      renderControl
+    })), /* @__PURE__ */ import_react89.default.createElement(Button, {
+      onClick: forceError
+    }, "Save")), /* @__PURE__ */ import_react89.default.createElement(Segment, null, /* @__PURE__ */ import_react89.default.createElement("h1", null, "Search"), /* @__PURE__ */ import_react89.default.createElement(Input, {
+      field: "search",
+      placeholder: "Search...",
+      icon: FaSearch
+    })));
+  };
+  var UIToolkit_page_default = UIToolkitPage;
+
   // public/ssr.tsx
-  var import_react_icons = __toModule(require_react_icons());
-  function doWork(f, props) {
-    let fider = Fider.initialize({...f});
-    return (0, import_server.renderToStaticMarkup)(/* @__PURE__ */ import_react55.default.createElement(FiderContext.Provider, {
+  var route = (path, component, showHeader = true) => {
+    path = path.replace("/", "/").replace(":number", "\\d+").replace(":string", ".+").replace("*", "/?.*");
+    const regex = new RegExp(`^${path}$`);
+    return {regex, component, showHeader};
+  };
+  var pathRegex = [
+    route("", Home_page_default),
+    route("/posts/:number*", ShowPost_page_default),
+    route("/admin/members", ManageMembers_page_default),
+    route("/admin/tags", ManageTags_page_default),
+    route("/admin/privacy", PrivacySettings_page_default),
+    route("/admin/export", Export_page_default),
+    route("/admin/invitations", Invitations_page_default),
+    route("/admin/authentication", ManageAuthentication_page_default),
+    route("/admin/advanced", AdvancedSettings_page_default),
+    route("/admin", GeneralSettings_page_default),
+    route("/signin", SignIn_page_default, false),
+    route("/signup", SignUp_page_default, false),
+    route("/signin/verify", CompleteSignInProfile_page_default),
+    route("/invite/verify", CompleteSignInProfile_page_default),
+    route("/notifications", MyNotifications_page_default),
+    route("/settings", MySettings_page_default),
+    route("/oauth/:string/echo", OAuthEcho_page_default, false),
+    route("/-/ui", UIToolkit_page_default)
+  ];
+  var resolveRootComponent = (path) => {
+    if (path.length > 0 && path.charAt(path.length - 1) === "/") {
+      path = path.substring(0, path.length - 1);
+    }
+    for (const entry of pathRegex) {
+      if (entry && entry.regex.test(path)) {
+        return entry;
+      }
+    }
+    throw new Error(`Component not found for route ${path}.`);
+  };
+  function doWork(pathname, args) {
+    let fider = Fider.initialize({...args});
+    const config = resolveRootComponent(pathname);
+    return (0, import_server.renderToStaticMarkup)(/* @__PURE__ */ import_react90.default.createElement(FiderContext.Provider, {
       value: fider
-    }, /* @__PURE__ */ import_react55.default.createElement(import_react_icons.IconContext.Provider, {
+    }, /* @__PURE__ */ import_react90.default.createElement(import_react_icons.IconContext.Provider, {
       value: {className: "icon"}
-    }, /* @__PURE__ */ import_react55.default.createElement(Home_page_default, {
-      ...props
-    }))));
+    }, config.showHeader && /* @__PURE__ */ import_react90.default.createElement(Header, null), import_react90.default.createElement(config.component, args.props), config.showHeader && /* @__PURE__ */ import_react90.default.createElement(Footer, null))));
   }
   globalThis.doWork = doWork;
 })();
