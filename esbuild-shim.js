@@ -6,7 +6,8 @@ global.self = global;
 
 const window = {}
 const document = {
-  documentElement: {}
+  documentElement: {},
+  getElementById: () => undefined
 }
 const navigator = {}
 
