@@ -39,15 +39,9 @@ func (r *ReactRenderer) Render(urlPath string, props Map) (string, error) {
 		return "", errors.Wrap(err, "unable to masrhal props")
 	}
 
-	//TODO: return directly?
-	_, err = v8ctx.RunScript(`const result = ssrRender("`+urlPath+`", `+string(jsonArg)+`)`, "ssr.js")
+	val, err = v8ctx.RunScript(`ssrRender("`+urlPath+`", `+string(jsonArg)+`)`, "ssr.js")
 	if err != nil {
 		return "", errors.Wrap(err, "failed to execute ssrRender")
-	}
-
-	val, err := v8ctx.RunScript("result", "ssr.js")
-	if err != nil {
-		return "", errors.Wrap(err, "failed to read result variable")
 	}
 
 	return val.String(), nil
