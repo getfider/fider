@@ -68,7 +68,7 @@ export const resolveRootComponent = (path: string): PageConfiguration => {
   throw new Error(`Component not found for route ${path}.`);
 };
 
-function doWork(pathname: string, args: any) {
+function ssrRender(pathname: string, args: any) {
   let fider = Fider.initialize({...args });
   const config = resolveRootComponent(pathname);
 
@@ -83,4 +83,4 @@ function doWork(pathname: string, args: any) {
   )
 }
 
-(globalThis as any).doWork = doWork
+(globalThis as any).ssrRender = ssrRender

@@ -10,10 +10,10 @@ import (
 	"sync"
 
 	"github.com/getfider/fider/app/models/dto"
-	"rogchap.com/v8go"
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/log"
 
 	"io/ioutil"
 
@@ -61,14 +61,16 @@ type Renderer struct {
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
 	mutex         sync.RWMutex
+	reactRenderer *ReactRenderer
 }
 
 // NewRenderer creates a new Renderer
 func NewRenderer(settings *models.SystemSettings) *Renderer {
 	return &Renderer{
-		templates: make(map[string]*template.Template),
-		settings:  settings,
-		mutex:     sync.RWMutex{},
+		templates:     make(map[string]*template.Template),
+		settings:      settings,
+		mutex:         sync.RWMutex{},
+		reactRenderer: NewReactRenderer(),
 	}
 }
 
@@ -253,30 +255,15 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		}
 	}
 
-	if useSSR {
-		bytes, err := os.ReadFile("ssr.js")
+	if useSSR && r.reactRenderer.IsEnabled() {
+		html, err := r.reactRenderer.Render(ctx.Request.URL.Path, public)
 		if err != nil {
-			panic(err)
-		}
-		v8ctx, _ := v8go.NewContext()                       // creates a new V8 context with a new Isolate aka VM
-		_, err = v8ctx.RunScript(string(bytes), "index.js") // executes a script on the global context
-		if err != nil {
-			panic(err)
-		}
-		jsonArg, err := json.Marshal(public)
-		if err != nil {
-			panic(err)
-		}
-		_, err = v8ctx.RunScript(`const result = doWork("`+ctx.Request.URL.Path+`", `+string(jsonArg)+`)`, "index.js") // any functions previously added to the context can be called
-		if err != nil {
-			panic(err)
-		}
-		val, err := v8ctx.RunScript("result", "index.js") // return a value in JavaScript back to Go
-		if err != nil {
-			panic(err)
+			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{
+				"Error": err.Error(),
+			})
 		}
 
-		props.Data["html"] = template.HTML(val.String())
+		props.Data["html"] = template.HTML(html)
 	}
 
 	err = tmpl.Execute(w, Map{
