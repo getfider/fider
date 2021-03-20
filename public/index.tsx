@@ -44,10 +44,12 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   __webpack_public_path__ = `${fider.settings.globalAssetsURL}/assets/`;
 
   const config = resolveRootComponent(location.pathname);
-  document.body.className = classSet({
-    "is-authenticated": fider.session.isAuthenticated,
-    "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
-  });
+  if (document) {
+    document.body.className = classSet({
+      "is-authenticated": fider.session.isAuthenticated,
+      "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
+    });
+  }
   ReactDOM.render(
     <React.StrictMode>
       <ErrorBoundary onError={logProductionError}>

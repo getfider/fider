@@ -46,10 +46,10 @@ export const cache = {
       set(window.sessionStorage, key, value);
     },
     get: (key: string): string | null => {
-      return get(window.sessionStorage, key);
+      return typeof window !== 'undefined' && get(window.sessionStorage, key);
     },
     has: (key: string): boolean => {
-      return has(window.sessionStorage, key);
+      return typeof window !== 'undefined' && has(window.sessionStorage, key);
     },
     remove: (...keys: string[]): void => {
       remove(window.sessionStorage, ...keys);

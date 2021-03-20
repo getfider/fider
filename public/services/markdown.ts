@@ -32,12 +32,12 @@ const entities: { [key: string]: string } = {
 };
 
 const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag);
-const sanitize = (input: string) => DOMPurify.sanitize(input);
+// const sanitize = (input: string) => DOMPurify.sanitize(input);
 
 export const full = (input: string): string => {
-  return sanitize(marked(encodeHTML(input), { renderer: fullRenderer }).trim());
+  return marked(encodeHTML(input), { renderer: fullRenderer }).trim();
 };
 
 export const simple = (input: string): string => {
-  return sanitize(marked(encodeHTML(input), { renderer: simpleRenderer }).trim());
+  return marked(encodeHTML(input), { renderer: simpleRenderer }).trim();
 };

@@ -19,15 +19,17 @@ interface ModalFooterProps {
 }
 
 const ModalWindow: React.StatelessComponent<ModalWindowProps> = (props) => {
-  const root = useRef<HTMLElement>(document.getElementById("root-modal"));
+  const root = useRef<HTMLElement>();
 
   useEffect(() => {
-    if (props.isOpen) {
-      document.body.style.overflow = "hidden";
-      document.addEventListener("keydown", keyDown, false);
-    } else {
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", keyDown, false);
+    if (typeof document !== 'undefined') {
+      if (props.isOpen) {
+        document.body.style.overflow = "hidden";
+        document.addEventListener("keydown", keyDown, false);
+      } else {
+        document.body.style.overflow = "";
+        document.removeEventListener("keydown", keyDown, false);
+      }
     }
   }, [props.isOpen]);
 
