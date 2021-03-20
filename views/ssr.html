@@ -1,3 +1,14 @@
+{{define "head"}}
+  {{ if .private.chunkAssets }}
+  {{range .private.chunkAssets.CSS}}
+    <link rel="stylesheet" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" />
+  {{end}}
+  {{end}}
+{{end}}
 {{define "server-data"}}{{end}}
-{{define "content"}}{{ .public.props.html }}{{end}}
+
+{{define "content"}}
+<div id="root">{{ .public.props.html }}</div>
+{{end}}
+
 {{define "end-of-body"}}{{end}}
