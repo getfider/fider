@@ -163,6 +163,9 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 
 	public := make(Map)
 	private := make(Map)
+	if props.Data == nil {
+		props.Data = make(Map)
+	}
 
 	tenant := ctx.Tenant()
 	tenantName := "Fider"
@@ -246,7 +249,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 
 	// Only index.html template uses React, other templates are already SSR
 	if env.Config.Experimental_SSR_SEO && !ctx.Request.IsCrawler() && templateName == "index.html" {
-		html, err := r.reactRenderer.Render(ctx.Request.URL.Path, public)
+		html, err := r.reactRenderer.Render(ctx.Request.URL, public)
 		if err != nil {
 			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{
 				"Error": err.Error(),

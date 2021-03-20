@@ -2,6 +2,8 @@ package web
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/getfider/fider/app/pkg/errors"
@@ -24,7 +26,7 @@ func NewReactRenderer(scriptPath string) *ReactRenderer {
 	return &ReactRenderer{isolate: isolate, scriptPath: scriptPath, scriptContent: bytes}
 }
 
-func (r *ReactRenderer) Render(urlPath string, props Map) (string, error) {
+func (r *ReactRenderer) Render(u *url.URL, props Map) (string, error) {
 	if len(r.scriptContent) == 0 {
 		return "", nil
 	}
@@ -40,8 +42,11 @@ func (r *ReactRenderer) Render(urlPath string, props Map) (string, error) {
 		return "", errors.Wrap(err, "failed to marshal props")
 	}
 
-	val, err := v8ctx.RunScript(`ssrRender("`+urlPath+`", `+string(jsonArg)+`)`, r.scriptPath)
+	val, err := v8ctx.RunScript(`ssrRender("`+u.String()+`", "`+u.Path+`", `+string(jsonArg)+`)`, r.scriptPath)
 	if err != nil {
+		if jsErr, ok := err.(*v8go.JSError); ok {
+			err = fmt.Errorf("%v", jsErr.StackTrace)
+		}
 		return "", errors.Wrap(err, "failed to execute ssrRender")
 	}
 
