@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"rogchap.com/v8go"
 )
@@ -17,7 +18,7 @@ type ReactRenderer struct {
 }
 
 func NewReactRenderer(scriptPath string) *ReactRenderer {
-	bytes, _ := os.ReadFile(scriptPath)
+	bytes, _ := os.ReadFile(env.Path(scriptPath))
 	isolate, err := v8go.NewIsolate()
 	if err != nil {
 		return &ReactRenderer{scriptPath: scriptPath}

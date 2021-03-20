@@ -119,7 +119,7 @@ func (Test) Coverage() error {
 }
 
 func (Test) Server() error {
-	mg.Deps(Build.Server)
+	mg.Deps(Build.Server, Build.SSR)
 	sh.Run("godotenv", "-f", ".test.env", "./"+exeName, "migrate")
 	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-race")
 }

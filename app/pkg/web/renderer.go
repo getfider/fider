@@ -255,7 +255,6 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 				"Error": err.Error(),
 			})
 		}
-
 		if html != "" {
 			templateName = "ssr.html"
 			props.Data["html"] = template.HTML(html)

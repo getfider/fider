@@ -23,8 +23,8 @@ const testCases = [
   },
   {
     input: `[Uh oh...]("onerror="alert('XSS'))`,
-    expectedFull: "<p><a target=\"_blank\" rel=\"noopener\" href=\"\">Uh oh...</a></p>",
-    expectedSimple: "<p><a target=\"_blank\" rel=\"noopener\" href=\"\">Uh oh...</a></p>",
+    expectedFull: '<p><a target="_blank" rel="noopener" href="">Uh oh...</a></p>',
+    expectedSimple: '<p><a target="_blank" rel="noopener" href="">Uh oh...</a></p>',
   },
   {
     input: "~~Option 3~~",
