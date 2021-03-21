@@ -35,7 +35,7 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   }
 });
 
-const routes = [
+export const routes = [
   route("", Pages.AsyncHomePage),
   route("/posts/:number*", Pages.AsyncShowPostPage),
   route("/admin/members", Pages.AsyncManageMembersPage),

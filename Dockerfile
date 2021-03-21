@@ -8,7 +8,7 @@ COPY . .
 RUN npm ci
 RUN node -v 
 RUN npm -v 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 mage build
+RUN GOOS=linux GOARCH=amd64 mage build
 
 # Runtime Step
 FROM alpine:3.10
@@ -23,6 +23,7 @@ COPY --from=builder /app/views /app/views
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /app/LICENSE /app
 COPY --from=builder /app/robots.txt /app
+COPY --from=builder /app/ssr.js /app
 COPY --from=builder /app/fider /app
 
 EXPOSE 3000
