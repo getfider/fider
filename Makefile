@@ -26,7 +26,8 @@ build-ui: ## Build all UI assets
 	NODE_ENV=production npx webpack-cli
 
 build-ssr: ## Build SSR script
-	NODE_ENV=production node esbuild.config.js
+	@cd scripts/buildssr; \
+	NODE_ENV=production go run buildssr.go
 
 
 
