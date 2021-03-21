@@ -55,6 +55,7 @@ jobs:
           node-version: 14.x
       - run: npm ci # required for esbuild
       - run: go install github.com/golangci/golangci-lint/cmd/golangci-lint
+      - run: go install github.com/joho/godotenv/cmd/godotenv
       - run: make lint-server
       - name: make test-server
         run: |
