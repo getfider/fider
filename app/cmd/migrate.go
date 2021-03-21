@@ -23,6 +23,7 @@ func RunMigrate() int {
 
 	err := dbx.Migrate(ctx, "/migrations")
 	if err != nil {
+		println(err.Error())
 		log.Error(ctx, err)
 		return 1
 	}
