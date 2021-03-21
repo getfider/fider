@@ -12,12 +12,12 @@ jobs:
   test-ui:
     name: test-ui
     runs-on: ubuntu-latest
-    container:
-      image: getfider/githubci:0.0.5
-
     steps:
-      - name: checkout code
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
       - run: npm ci
       - run: make lint-ui
       - run: make test-ui
