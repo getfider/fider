@@ -49,6 +49,7 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
+      - run: npm ci # required for esbuild
       - run: mage lint:server
       - name: mage test:server
         run: |

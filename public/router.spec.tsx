@@ -1,6 +1,6 @@
 import { resolveRootComponent } from "./router";
 import * as Pages from "@fider/AsyncPages";
-import { routes }from "@fider/index";
+import { routes } from "@fider/index";
 
 [
   { path: "", expected: Pages.AsyncHomePage },
