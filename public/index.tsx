@@ -1,11 +1,10 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
-import { resolveRootComponent, route } from "@fider/router";
+import { resolveRootComponent } from "@fider/router";
 import { Header, Footer, Loader } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
 import { classSet, Fider, FiderContext, actions } from "@fider/services";
 import { IconContext } from "react-icons";
-import * as Pages from "@fider/AsyncPages";
 import "@fider/assets/styles/index.scss";
 
 const Loading = () => (
@@ -35,27 +34,6 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   }
 });
 
-export const routes = [
-  route("", Pages.AsyncHomePage),
-  route("/posts/:number*", Pages.AsyncShowPostPage),
-  route("/admin/members", Pages.AsyncManageMembersPage),
-  route("/admin/tags", Pages.AsyncManageTagsPage),
-  route("/admin/privacy", Pages.AsyncPrivacySettingsPage),
-  route("/admin/export", Pages.AsyncExportPage),
-  route("/admin/invitations", Pages.AsyncInvitationsPage),
-  route("/admin/authentication", Pages.AsyncManageAuthenticationPage),
-  route("/admin/advanced", Pages.AsyncAdvancedSettingsPage),
-  route("/admin", Pages.AsyncGeneralSettingsPage),
-  route("/signin", Pages.AsyncSignInPage, false),
-  route("/signup", Pages.AsyncSignUpPage, false),
-  route("/signin/verify", Pages.AsyncCompleteSignInProfilePage),
-  route("/invite/verify", Pages.AsyncCompleteSignInProfilePage),
-  route("/notifications", Pages.AsyncMyNotificationsPage),
-  route("/settings", Pages.AsyncMySettingsPage),
-  route("/oauth/:string/echo", Pages.AsyncOAuthEchoPage, false),
-  route("/-/ui", Pages.AsyncUIToolkitPage),
-];
-
 (() => {
   let fider;
 
@@ -64,7 +42,7 @@ export const routes = [
   __webpack_nonce__ = fider.session.contextID;
   __webpack_public_path__ = `${fider.settings.globalAssetsURL}/assets/`;
 
-  const config = resolveRootComponent(location.pathname, routes);
+  const config = resolveRootComponent(location.pathname);
   document.body.className = classSet({
     "is-authenticated": fider.session.isAuthenticated,
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,

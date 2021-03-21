@@ -1,6 +1,5 @@
 import { resolveRootComponent } from "./router";
 import * as Pages from "@fider/AsyncPages";
-import { routes } from "@fider/index";
 
 [
   { path: "", expected: Pages.AsyncHomePage },
@@ -13,10 +12,10 @@ import { routes } from "@fider/index";
 ].forEach((x) => {
   test(`Router should resolve correct component for path '${x.path}'`, () => {
     if (x.expected) {
-      const page = resolveRootComponent(x.path, routes);
+      const page = resolveRootComponent(x.path);
       expect(page.component).toEqual(x.expected);
     } else {
-      expect(() => resolveRootComponent(x.path, routes)).toThrowError();
+      expect(() => resolveRootComponent(x.path)).toThrowError();
     }
   });
 });
