@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY . .
 RUN npm ci
-RUN GOOS=linux GOARCH=amd64 mage build
+RUN GOOS=linux GOARCH=amd64 make build
 
 # Runtime Step
 FROM debian:buster-slim
