@@ -18,7 +18,7 @@ interface ModalFooterProps {
   children?: React.ReactNode;
 }
 
-const ModalWindow: React.StatelessComponent<ModalWindowProps> = (props) => {
+const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
   const root = useRef<HTMLElement>(document.getElementById("root-modal"));
 
   useEffect(() => {

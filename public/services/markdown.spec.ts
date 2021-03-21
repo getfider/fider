@@ -22,6 +22,11 @@ const testCases = [
     expectedSimple: "<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>",
   },
   {
+    input: `[Uh oh...]("onerror="alert('XSS'))`,
+    expectedFull: '<p><a target="_blank" rel="noopener" href="">Uh oh...</a></p>',
+    expectedSimple: '<p><a target="_blank" rel="noopener" href="">Uh oh...</a></p>',
+  },
+  {
     input: "~~Option 3~~",
     expectedFull: "<p><del>Option 3</del></p>",
     expectedSimple: "<p><del>Option 3</del></p>",

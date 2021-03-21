@@ -13,6 +13,7 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/log"
 
 	"io/ioutil"
 
@@ -60,14 +61,16 @@ type Renderer struct {
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
 	mutex         sync.RWMutex
+	reactRenderer *ReactRenderer
 }
 
 // NewRenderer creates a new Renderer
 func NewRenderer(settings *models.SystemSettings) *Renderer {
 	return &Renderer{
-		templates: make(map[string]*template.Template),
-		settings:  settings,
-		mutex:     sync.RWMutex{},
+		templates:     make(map[string]*template.Template),
+		settings:      settings,
+		mutex:         sync.RWMutex{},
+		reactRenderer: NewReactRenderer("ssr.js"),
 	}
 }
 
@@ -149,7 +152,7 @@ func getClientAssets(assets []distAsset) *clientAssets {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props, ctx *Context) {
+func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
@@ -158,13 +161,11 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		}
 	}
 
-	tmpl, ok := r.templates[name]
-	if !ok || env.IsDevelopment() {
-		tmpl = r.add(name)
-	}
-
 	public := make(Map)
 	private := make(Map)
+	if props.Data == nil {
+		props.Data = make(Map)
+	}
 
 	tenant := ctx.Tenant()
 	tenantName := "Fider"
@@ -246,11 +247,30 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		}
 	}
 
+	// Only index.html template uses React, other templates are already SSR
+	if env.Config.Experimental_SSR_SEO && ctx.Request.IsCrawler() && templateName == "index.html" {
+		html, err := r.reactRenderer.Render(ctx.Request.URL, public)
+		if err != nil {
+			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{
+				"Error": err.Error(),
+			})
+		}
+		if html != "" {
+			templateName = "ssr.html"
+			props.Data["html"] = template.HTML(html)
+		}
+	}
+
+	tmpl, ok := r.templates[templateName]
+	if !ok || env.IsDevelopment() {
+		tmpl = r.add(templateName)
+	}
+
 	err = tmpl.Execute(w, Map{
 		"public":  public,
 		"private": private,
 	})
 	if err != nil {
-		panic(errors.Wrap(err, "failed to execute template %s", name))
+		panic(errors.Wrap(err, "failed to execute template %s", templateName))
 	}
 }

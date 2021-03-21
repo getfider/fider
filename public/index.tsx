@@ -5,14 +5,13 @@ import { Header, Footer, Loader } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
 import { classSet, Fider, FiderContext, actions } from "@fider/services";
 import { IconContext } from "react-icons";
+import "@fider/assets/styles/index.scss";
 
 const Loading = () => (
   <div className="page">
     <Loader />
   </div>
 );
-
-import "@fider/assets/styles/index.scss";
 
 const logProductionError = (err: Error) => {
   if (Fider.isProduction()) {

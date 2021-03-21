@@ -39,7 +39,13 @@ export class FiderImpl {
   private pSettings!: SystemSettings;
   private pSession!: FiderSession;
 
-  public initialize = (): FiderImpl => {
+  public initialize = (initData?: any): FiderImpl => {
+    if (initData) {
+      this.pSettings = initData.settings;
+      this.pSession = new FiderSession(initData);
+      return this;
+    }
+
     const el = document.getElementById("server-data");
     const data = el ? JSON.parse(el.textContent || el.innerText) : {};
     this.pSettings = data.settings;

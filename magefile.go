@@ -83,7 +83,12 @@ func (Watch) Server() error {
 type Build mg.Namespace
 
 func (Build) All() {
-	mg.Deps(Build.Server, Build.UI)
+	mg.Deps(Build.Server, Build.UI, Build.SSR)
+}
+
+func (Build) SSR() error {
+	env := map[string]string{"NODE_ENV": "production"}
+	return sh.RunWith(env, "node", "esbuild.config.js")
 }
 
 func (Build) Server() error {
@@ -114,7 +119,7 @@ func (Test) Coverage() error {
 }
 
 func (Test) Server() error {
-	mg.Deps(Build.Server)
+	mg.Deps(Build.Server, Build.SSR)
 	sh.Run("godotenv", "-f", ".test.env", "./"+exeName, "migrate")
 	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-race")
 }

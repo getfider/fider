@@ -14,7 +14,7 @@ interface SocialSignInButtonProps {
 }
 
 export const SocialSignInButton = (props: SocialSignInButtonProps) => {
-  const redirectTo = props.redirectTo || location.href;
+  const redirectTo = props.redirectTo || window.location.href;
   const href = props.option.url ? `${props.option.url}?redirect=${redirectTo}` : undefined;
   const className = classSet({
     "m-social": true,

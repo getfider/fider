@@ -88,6 +88,11 @@ module.exports = {
           name: "common",
           test: /[\\/]public[\\/](components|services|models)[\\/]/,
         },
+        markdown: {
+          chunks: 'all',
+          name: 'markdown',
+          test: /dompurify|marked/
+        },
         vendor: {
           chunks: 'all',
           name: 'vendor',

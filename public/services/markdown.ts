@@ -9,9 +9,14 @@ marked.setOptions({
   breaks: true,
 });
 
-DOMPurify.setConfig({
-  ADD_ATTR: ["target"],
-});
+if (DOMPurify.isSupported) {
+  DOMPurify.setConfig({
+    USE_PROFILES: {
+      html: true,
+    },
+    ADD_ATTR: ["target"],
+  });
+}
 
 const link = (href: string, title: string, text: string) => {
   const titleAttr = title ? ` title=${title}` : "";
@@ -32,7 +37,7 @@ const entities: { [key: string]: string } = {
 };
 
 const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag);
-const sanitize = (input: string) => DOMPurify.sanitize(input);
+const sanitize = (input: string) => (DOMPurify.isSupported ? DOMPurify.sanitize(input) : input);
 
 export const full = (input: string): string => {
   return sanitize(marked(encodeHTML(input), { renderer: fullRenderer }).trim());

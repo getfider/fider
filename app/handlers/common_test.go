@@ -71,6 +71,7 @@ Disallow: /admin/
 Disallow: /oauth/
 Disallow: /terms
 Disallow: /privacy
+Disallow: /-/ui
 Sitemap: https://demo.test.fider.io/sitemap.xml`)
 }
 
