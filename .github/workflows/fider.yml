@@ -12,22 +12,19 @@ jobs:
   test-ui:
     name: test-ui
     runs-on: ubuntu-latest
-    container:
-      image: getfider/githubci:0.0.5
-
     steps:
-      - name: checkout code
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
       - run: npm ci
-      - run: mage lint:ui
-      - run: mage test:ui
+      - run: make lint-ui
+      - run: make test-ui
 
   test-server:
     name: test-server
     runs-on: ubuntu-latest
-    container:
-      image: getfider/githubci:0.0.5
-
     services:
       minio:
         image: getfider/minio:0.0.2
@@ -47,25 +44,33 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - name: checkout code
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+      - name: Use Go 1.16.2
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16.2
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
       - run: npm ci # required for esbuild
-      - run: mage lint:server
-      - name: mage test:server
+      - name: install golangci-lint
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.38.0
+      - name: install godotenv
+        run: go install github.com/joho/godotenv/cmd/godotenv
+      - run: make lint-server
+      - name: make test-server
         run: |
           mkdir ./dist
-          mage test:server
+          make test-server
         env:
-          BLOB_STORAGE_S3_ENDPOINT_URL: http://minio:9000
-          DATABASE_URL: postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable
+          BLOB_STORAGE_S3_ENDPOINT_URL: http://localhost:9000
+          DATABASE_URL: postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable
 
   build:
     name: build
     runs-on: ubuntu-latest
     needs: [test-server, test-ui]
-    container:
-      image: getfider/githubci:0.0.5
-
     steps:
       - name: checkout code
         uses: actions/checkout@v1
