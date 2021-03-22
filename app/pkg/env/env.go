@@ -54,8 +54,8 @@ type config struct {
 	}
 	Email struct {
 		NoReply   string `env:"EMAIL_NOREPLY,required"`
-		Whitelist string `env:"EMAIL_WHITELIST"`
-		Blacklist string `env:"EMAIL_BLACKLIST"`
+		Allowlist string `env:"EMAIL_ALLOWLIST"`
+		Blocklist string `env:"EMAIL_BLOCKLIST"`
 		Mailgun   struct {
 			APIKey string `env:"EMAIL_MAILGUN_API"`
 			Domain string `env:"EMAIL_MAILGUN_DOMAIN"`
