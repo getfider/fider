@@ -34,7 +34,7 @@ jobs:
           MINIO_ACCESS_KEY: s3user
           MINIO_SECRET_KEY: s3user-s3cr3t
       postgres:
-        image: postgres:9.6.8
+        image: postgres:12
         env:
           POSTGRES_USER: fider_ci
           POSTGRES_PASSWORD: fider_ci_pw
