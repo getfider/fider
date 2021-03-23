@@ -29,7 +29,7 @@ var ctx context.Context
 
 var requests = make([]request, 0)
 
-func mockSend(localname, servername string, auth gosmtp.Auth, from string, to []string, body []byte) error {
+func mockSend(localname, servername string, enableStartTLS bool, auth gosmtp.Auth, from string, to []string, body []byte) error {
 	requests = append(requests, request{servername, auth, from, to, body})
 	return nil
 }
