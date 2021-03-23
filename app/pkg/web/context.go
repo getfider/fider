@@ -336,7 +336,7 @@ func (c *Context) prerender(code int, html io.Reader) error {
 
 //TryAgainLater returns a service unavailable response with Retry-After header
 func (c *Context) TryAgainLater(d time.Duration) error {
-	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	c.Response.Header().Set("Retry-After", fmt.Sprintf("%.0f", d.Seconds()))
 	return c.NoContent(http.StatusServiceUnavailable)
 }
@@ -489,7 +489,7 @@ func (c *Context) NoContent(code int) error {
 
 // Redirect the request to a provided URL
 func (c *Context) Redirect(url string) error {
-	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	c.Response.Header().Set("Location", url)
 	c.ResponseStatusCode = http.StatusTemporaryRedirect
 	c.Response.WriteHeader(http.StatusTemporaryRedirect)
@@ -498,7 +498,7 @@ func (c *Context) Redirect(url string) error {
 
 // PermanentRedirect the request to a provided URL
 func (c *Context) PermanentRedirect(url string) error {
-	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	c.Response.Header().Set("Location", url)
 	c.ResponseStatusCode = http.StatusMovedPermanently
 	c.Response.WriteHeader(http.StatusMovedPermanently)

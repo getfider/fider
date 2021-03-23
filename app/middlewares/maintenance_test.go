@@ -44,6 +44,6 @@ func TestMaintenance_Enabled(t *testing.T) {
 	status, response := server.Execute(handler)
 
 	Expect(status).Equals(http.StatusServiceUnavailable)
-	Expect(response.Header().Get("Cache-Control")).Equals("no-cache, no-store, must-revalidate")
+	Expect(response.Header().Get("Cache-Control")).Equals("no-cache, no-store")
 	Expect(response.Header().Get("Retry-After")).Equals("3600")
 }

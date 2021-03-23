@@ -2,10 +2,6 @@
              Site
 *******************************/
 
-@-ms-viewport {
-  width: device-width;
-}
-
 html,
 body {
   height: 100%;
@@ -177,8 +173,8 @@ a:hover {
 [type="submit"],
 button,
 html [type="button"] {
-  appearance: button;
   -webkit-appearance: button;
+  appearance: button;
 }
 
 .page {

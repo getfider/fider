@@ -17,8 +17,8 @@
     padding: 2px;
     border-radius: 0px;
     font-size: 10px;
-    color: $red;
-    border-bottom: 1px solid $red;
+    color: $red-darkest;
+    border-bottom: 1px solid $red-darkest;
     background-color: rgba($red, 0.05);
   }
 
@@ -57,7 +57,7 @@
           margin-right: 5px;
         }
       }
-      span {
+      h1 {
         font-size: $font-size-big;
         margin: 0 0 0 0;
         font-weight: 600;
@@ -78,7 +78,7 @@
       > span {
         font-weight: 600;
         text-transform: uppercase;
-        color: #999;
+        color: $gray-darker;
       }
 
       &:hover {

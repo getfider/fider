@@ -22,5 +22,5 @@ export const Avatar = (props: AvatarProps) => {
     "m-staff": props.user.role && isCollaborator(props.user.role),
   });
 
-  return <img className={className} title={props.user.name} src={`${props.user.avatarURL}?size=50`} />;
+  return <img className={className} title={props.user.name} src={`${props.user.avatarURL}?size=52`} />;
 };
