@@ -1,11 +1,11 @@
-import puppeteer from "puppeteer";
-import { BrowserTab } from ".";
+import puppeteer from "puppeteer"
+import { BrowserTab } from "."
 
 export class Browser {
-  private browser: puppeteer.Browser;
+  private browser: puppeteer.Browser
 
   public constructor(browser: puppeteer.Browser) {
-    this.browser = browser;
+    this.browser = browser
   }
 
   public static async launch(): Promise<Browser> {
@@ -13,16 +13,16 @@ export class Browser {
       headless: true,
       devtools: false,
       ignoreHTTPSErrors: true,
-    });
-    return new Browser(browser);
+    })
+    return new Browser(browser)
   }
 
   public async newTab(baseURL: string): Promise<BrowserTab> {
-    const page = await this.browser.newPage();
-    return new BrowserTab(page, baseURL);
+    const page = await this.browser.newPage()
+    return new BrowserTab(page, baseURL)
   }
 
   public async close(): Promise<void> {
-    await this.browser.close();
+    await this.browser.close()
   }
 }

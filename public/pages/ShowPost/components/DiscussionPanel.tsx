@@ -1,14 +1,14 @@
-import "./Comments.scss";
+import "./Comments.scss"
 
-import React from "react";
-import { CurrentUser, Comment, Post } from "@fider/models";
-import { ShowComment } from "./ShowComment";
-import { CommentInput } from "./CommentInput";
+import React from "react"
+import { CurrentUser, Comment, Post } from "@fider/models"
+import { ShowComment } from "./ShowComment"
+import { CommentInput } from "./CommentInput"
 
 interface DiscussionPanelProps {
-  user?: CurrentUser;
-  post: Post;
-  comments: Comment[];
+  user?: CurrentUser
+  post: Post
+  comments: Comment[]
 }
 
 export const DiscussionPanel = (props: DiscussionPanelProps) => {
@@ -22,5 +22,5 @@ export const DiscussionPanel = (props: DiscussionPanelProps) => {
         <CommentInput post={props.post} />
       </div>
     </div>
-  );
-};
+  )
+}

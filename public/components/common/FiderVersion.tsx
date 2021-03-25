@@ -1,8 +1,8 @@
-import React from "react";
-import { useFider } from "@fider/hooks";
+import React from "react"
+import { useFider } from "@fider/hooks"
 
 export const FiderVersion = () => {
-  const fider = useFider();
+  const fider = useFider()
 
   return (
     <p className="info center hidden-sm hidden-md">
@@ -13,5 +13,5 @@ export const FiderVersion = () => {
       <br />
       Fider v{fider.settings.version}
     </p>
-  );
-};
+  )
+}

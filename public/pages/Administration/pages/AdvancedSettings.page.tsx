@@ -1,48 +1,48 @@
-import "./AdvancedSettings.page.scss";
+import "./AdvancedSettings.page.scss"
 
-import React from "react";
+import React from "react"
 
-import { TextArea, Form, Button } from "@fider/components";
-import { Failure, actions, Fider } from "@fider/services";
-import { FaStar } from "react-icons/fa";
-import { AdminBasePage } from "../components/AdminBasePage";
+import { TextArea, Form, Button } from "@fider/components"
+import { Failure, actions, Fider } from "@fider/services"
+import { FaStar } from "react-icons/fa"
+import { AdminBasePage } from "../components/AdminBasePage"
 
 interface AdvancedSettingsPageProps {
-  customCSS: string;
+  customCSS: string
 }
 
 interface AdvancedSettingsPageState {
-  customCSS: string;
-  error?: Failure;
+  customCSS: string
+  error?: Failure
 }
 
 export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProps, AdvancedSettingsPageState> {
-  public id = "p-admin-advanced";
-  public name = "advanced";
-  public icon = FaStar;
-  public title = "Advanced";
-  public subtitle = "Manage your site settings";
+  public id = "p-admin-advanced"
+  public name = "advanced"
+  public icon = FaStar
+  public title = "Advanced"
+  public subtitle = "Manage your site settings"
 
   constructor(props: AdvancedSettingsPageProps) {
-    super(props);
+    super(props)
 
     this.state = {
       customCSS: this.props.customCSS,
-    };
+    }
   }
 
   private setCustomCSS = (customCSS: string): void => {
-    this.setState({ customCSS });
-  };
+    this.setState({ customCSS })
+  }
 
   private handleSave = async (): Promise<void> => {
-    const result = await actions.updateTenantAdvancedSettings(this.state.customCSS);
+    const result = await actions.updateTenantAdvancedSettings(this.state.customCSS)
     if (result.ok) {
-      location.reload();
+      location.reload()
     } else {
-      this.setState({ error: result.error });
+      this.setState({ error: result.error })
     }
-  };
+  }
 
   public content() {
     return (
@@ -83,6 +83,6 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
           </div>
         )}
       </Form>
-    );
+    )
   }
 }

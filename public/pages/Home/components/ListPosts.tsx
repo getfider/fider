@@ -1,14 +1,14 @@
-import "./ListPosts.scss";
+import "./ListPosts.scss"
 
-import React from "react";
-import { Post, Tag, CurrentUser } from "@fider/models";
-import { ShowTag, ShowPostResponse, VoteCounter, MultiLineText, ListItem, List } from "@fider/components";
-import { FaRegComments } from "react-icons/fa";
+import React from "react"
+import { Post, Tag, CurrentUser } from "@fider/models"
+import { ShowTag, ShowPostResponse, VoteCounter, MultiLineText, ListItem, List } from "@fider/components"
+import { FaRegComments } from "react-icons/fa"
 
 interface ListPostsProps {
-  posts?: Post[];
-  tags: Tag[];
-  emptyText: string;
+  posts?: Post[]
+  tags: Tag[]
+  emptyText: string
 }
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
@@ -31,16 +31,16 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         ))}
       </div>
     </ListItem>
-  );
-};
+  )
+}
 
 export const ListPosts = (props: ListPostsProps) => {
   if (!props.posts) {
-    return null;
+    return null
   }
 
   if (props.posts.length === 0) {
-    return <p className="center">{props.emptyText}</p>;
+    return <p className="center">{props.emptyText}</p>
   }
 
   return (
@@ -49,5 +49,5 @@ export const ListPosts = (props: ListPostsProps) => {
         <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
       ))}
     </List>
-  );
-};
+  )
+}

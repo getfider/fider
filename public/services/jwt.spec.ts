@@ -1,6 +1,5 @@
-import { jwt } from "./jwt";
-
-[
+import { jwt } from "./jwt"
+;[
   {
     expected: {
       sub: "1234567890",
@@ -17,7 +16,7 @@ import { jwt } from "./jwt";
   },
 ].forEach((x) => {
   test(`decode('${x.token}') should be ${x.expected}`, () => {
-    const result = jwt.decode(x.token);
-    expect(result).toEqual(x.expected);
-  });
-});
+    const result = jwt.decode(x.token)
+    expect(result).toEqual(x.expected)
+  })
+})

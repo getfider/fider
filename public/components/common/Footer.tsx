@@ -1,11 +1,11 @@
-import "./Footer.scss";
+import "./Footer.scss"
 
-import React from "react";
-import { PrivacyPolicy, TermsOfService } from "@fider/components";
-import { useFider } from "@fider/hooks";
+import React from "react"
+import { PrivacyPolicy, TermsOfService } from "@fider/components"
+import { useFider } from "@fider/hooks"
 
 export const Footer = () => {
-  const fider = useFider();
+  const fider = useFider()
 
   return (
     <div id="c-footer">
@@ -23,5 +23,5 @@ export const Footer = () => {
         </a>
       </div>
     </div>
-  );
-};
+  )
+}

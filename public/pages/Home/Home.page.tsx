@@ -1,26 +1,26 @@
-import "./Home.page.scss";
+import "./Home.page.scss"
 
-import React, { useState } from "react";
-import { Post, Tag, PostStatus } from "@fider/models";
-import { MultiLineText, Hint } from "@fider/components";
-import { SimilarPosts } from "./components/SimilarPosts";
-import { FaRegLightbulb } from "react-icons/fa";
-import { PostInput } from "./components/PostInput";
-import { PostsContainer } from "./components/PostsContainer";
-import { useFider } from "@fider/hooks";
+import React, { useState } from "react"
+import { Post, Tag, PostStatus } from "@fider/models"
+import { MultiLineText, Hint } from "@fider/components"
+import { SimilarPosts } from "./components/SimilarPosts"
+import { FaRegLightbulb } from "react-icons/fa"
+import { PostInput } from "./components/PostInput"
+import { PostsContainer } from "./components/PostsContainer"
+import { useFider } from "@fider/hooks"
 
 export interface HomePageProps {
-  posts: Post[];
-  tags: Tag[];
-  countPerStatus: { [key: string]: number };
+  posts: Post[]
+  tags: Tag[]
+  countPerStatus: { [key: string]: number }
 }
 
 export interface HomePageState {
-  title: string;
+  title: string
 }
 
 const Lonely = () => {
-  const fider = useFider();
+  const fider = useFider()
 
   return (
     <div className="l-lonely center">
@@ -33,29 +33,29 @@ const Lonely = () => {
       </p>
       <p>It&apos;s lonely out here. Start by sharing a suggestion!</p>
     </div>
-  );
-};
+  )
+}
 
 const defaultWelcomeMessage = `We'd love to hear what you're thinking about. 
 
-What can we do better? This is the place for you to vote, discuss and share ideas.`;
+What can we do better? This is the place for you to vote, discuss and share ideas.`
 
 const HomePage = (props: HomePageProps) => {
-  const fider = useFider();
-  const [title, setTitle] = useState("");
+  const fider = useFider()
+  const [title, setTitle] = useState("")
 
   const isLonely = () => {
-    const len = Object.keys(props.countPerStatus).length;
+    const len = Object.keys(props.countPerStatus).length
     if (len === 0) {
-      return true;
+      return true
     }
 
     if (len === 1 && PostStatus.Deleted.value in props.countPerStatus) {
-      return true;
+      return true
     }
 
-    return false;
-  };
+    return false
+  }
 
   return (
     <div id="p-home" className="page container">
@@ -75,7 +75,7 @@ const HomePage = (props: HomePageProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomePage;
+export default HomePage

@@ -1,37 +1,37 @@
-import React from "react";
+import React from "react"
 
-import { Button, Modal, ButtonClickEvent } from "@fider/components";
-import { actions, notify, navigator } from "@fider/services";
+import { Button, Modal, ButtonClickEvent } from "@fider/components"
+import { actions, notify, navigator } from "@fider/services"
 
 interface DangerZoneState {
-  clicked: boolean;
+  clicked: boolean
 }
 
 export class DangerZone extends React.Component<any, DangerZoneState> {
   constructor(props: any) {
-    super(props);
+    super(props)
     this.state = {
       clicked: false,
-    };
+    }
   }
 
   public onClickDelete = async () => {
-    this.setState({ clicked: true });
-  };
+    this.setState({ clicked: true })
+  }
 
   public onCancel = async () => {
-    this.setState({ clicked: false });
-  };
+    this.setState({ clicked: false })
+  }
 
   public onConfirm = async (e: ButtonClickEvent) => {
-    const response = await actions.deleteCurrentAccount();
+    const response = await actions.deleteCurrentAccount()
     if (response.ok) {
-      e.preventEnable();
-      navigator.goHome();
+      e.preventEnable()
+      navigator.goHome()
     } else {
-      notify.error("Failed to delete your account. Try again later");
+      notify.error("Failed to delete your account. Try again later")
     }
-  };
+  }
 
   public render() {
     return (
@@ -67,6 +67,6 @@ export class DangerZone extends React.Component<any, DangerZoneState> {
           Delete My Account
         </Button>
       </div>
-    );
+    )
   }
 }

@@ -3,9 +3,9 @@
 let emptyCSS = {
   name: "empty-css-imports",
   setup(build) {
-    build.onLoad({ filter: /\.(css|scss)$/ }, () => ({ contents: "" }));
+    build.onLoad({ filter: /\.(css|scss)$/ }, () => ({ contents: "" }))
   },
-};
+}
 
 require("esbuild")
   .build({
@@ -18,4 +18,4 @@ require("esbuild")
     outfile: "ssr.js",
     plugins: [emptyCSS],
   })
-  .catch(() => process.exit(1));
+  .catch(() => process.exit(1))

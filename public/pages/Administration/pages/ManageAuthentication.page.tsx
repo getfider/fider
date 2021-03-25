@@ -1,70 +1,70 @@
-import React from "react";
+import React from "react"
 
-import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fider/components";
-import { OAuthConfig, OAuthProviderOption } from "@fider/models";
-import { OAuthForm } from "../components/OAuthForm";
-import { actions, notify, Fider } from "@fider/services";
-import { FaEdit, FaPlay, FaSignInAlt } from "react-icons/fa";
-import { AdminBasePage } from "../components/AdminBasePage";
+import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fider/components"
+import { OAuthConfig, OAuthProviderOption } from "@fider/models"
+import { OAuthForm } from "../components/OAuthForm"
+import { actions, notify, Fider } from "@fider/services"
+import { FaEdit, FaPlay, FaSignInAlt } from "react-icons/fa"
+import { AdminBasePage } from "../components/AdminBasePage"
 
-import "./ManageAuthentication.page.scss";
+import "./ManageAuthentication.page.scss"
 
 interface ManageAuthenticationPageProps {
-  providers: OAuthProviderOption[];
+  providers: OAuthProviderOption[]
 }
 
 interface ManageAuthenticationPageState {
-  isAdding: boolean;
-  editing?: OAuthConfig;
+  isAdding: boolean
+  editing?: OAuthConfig
 }
 
 export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthenticationPageProps, ManageAuthenticationPageState> {
-  public id = "p-admin-authentication";
-  public name = "authentication";
-  public icon = FaSignInAlt;
-  public title = "Authentication";
-  public subtitle = "Manage your site authentication";
+  public id = "p-admin-authentication"
+  public name = "authentication"
+  public icon = FaSignInAlt
+  public title = "Authentication"
+  public subtitle = "Manage your site authentication"
 
   constructor(props: ManageAuthenticationPageProps) {
-    super(props);
+    super(props)
     this.state = {
       isAdding: false,
-    };
+    }
   }
 
   private addNew = async () => {
-    this.setState({ isAdding: true, editing: undefined });
-  };
+    this.setState({ isAdding: true, editing: undefined })
+  }
 
   private edit = async (provider: string) => {
-    const result = await actions.getOAuthConfig(provider);
+    const result = await actions.getOAuthConfig(provider)
     if (result.ok) {
-      this.setState({ editing: result.data, isAdding: false });
+      this.setState({ editing: result.data, isAdding: false })
     } else {
-      notify.error("Failed to retrieve OAuth configuration. Try again later");
+      notify.error("Failed to retrieve OAuth configuration. Try again later")
     }
-  };
+  }
 
   private startTest = async (provider: string) => {
-    const redirect = `${Fider.settings.baseURL}/oauth/${provider}/echo`;
-    window.open(`/oauth/${provider}?redirect=${redirect}`, "oauth-test", "width=1100,height=600,status=no,menubar=no");
-  };
+    const redirect = `${Fider.settings.baseURL}/oauth/${provider}/echo`
+    window.open(`/oauth/${provider}?redirect=${redirect}`, "oauth-test", "width=1100,height=600,status=no,menubar=no")
+  }
 
   private cancel = async () => {
-    this.setState({ isAdding: false, editing: undefined });
-  };
+    this.setState({ isAdding: false, editing: undefined })
+  }
 
   public content() {
     if (this.state.isAdding) {
-      return <OAuthForm onCancel={this.cancel} />;
+      return <OAuthForm onCancel={this.cancel} />
     }
 
     if (this.state.editing) {
-      return <OAuthForm config={this.state.editing} onCancel={this.cancel} />;
+      return <OAuthForm config={this.state.editing} onCancel={this.cancel} />
     }
 
-    const enabled = <p className="m-enabled">Enabled</p>;
-    const disabled = <p className="m-disabled">Disabled</p>;
+    const enabled = <p className="m-enabled">Enabled</p>
+    const disabled = <p className="m-disabled">Disabled</p>
 
     return (
       <>
@@ -119,6 +119,6 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
           </Button>
         )}
       </>
-    );
+    )
   }
 }

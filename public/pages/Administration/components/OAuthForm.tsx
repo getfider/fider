@@ -1,33 +1,33 @@
-import React, { useState } from "react";
-import { OAuthConfig, OAuthConfigStatus, ImageUpload } from "@fider/models";
-import { Failure, actions } from "@fider/services";
-import { Form, Button, Input, Heading, SocialSignInButton, Field, ImageUploader, Toggle } from "@fider/components";
-import { useFider } from "@fider/hooks";
+import React, { useState } from "react"
+import { OAuthConfig, OAuthConfigStatus, ImageUpload } from "@fider/models"
+import { Failure, actions } from "@fider/services"
+import { Form, Button, Input, Heading, SocialSignInButton, Field, ImageUploader, Toggle } from "@fider/components"
+import { useFider } from "@fider/hooks"
 
 interface OAuthFormProps {
-  config?: OAuthConfig;
-  onCancel: () => void;
+  config?: OAuthConfig
+  onCancel: () => void
 }
 
 export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
-  const fider = useFider();
-  const [provider] = useState((props.config && props.config.provider) || "");
-  const [displayName, setDisplayName] = useState((props.config && props.config.displayName) || "");
-  const [enabled, setEnabled] = useState((props.config && props.config.status === OAuthConfigStatus.Enabled) || false);
-  const [clientID, setClientID] = useState((props.config && props.config.clientID) || "");
-  const [clientSecret, setClientSecret] = useState((props.config && props.config.clientSecret) || "");
-  const [clientSecretEnabled, setClientSecretEnabled] = useState(!props.config);
-  const [authorizeURL, setAuthorizeURL] = useState((props.config && props.config.authorizeURL) || "");
-  const [tokenURL, setTokenURL] = useState((props.config && props.config.tokenURL) || "");
-  const [profileURL, setProfileURL] = useState((props.config && props.config.profileURL) || "");
-  const [scope, setScope] = useState((props.config && props.config.scope) || "");
-  const [jsonUserIDPath, setJSONUserIDPath] = useState((props.config && props.config.jsonUserIDPath) || "");
-  const [jsonUserNamePath, setJSONUserNamePath] = useState((props.config && props.config.jsonUserNamePath) || "");
-  const [jsonUserEmailPath, setJSONUserEmailPath] = useState((props.config && props.config.jsonUserEmailPath) || "");
-  const [logo, setLogo] = useState<ImageUpload | undefined>();
-  const [logoURL, setLogoURL] = useState<string | undefined>();
-  const [logoBlobKey, setLogoBlobKey] = useState((props.config && props.config.logoBlobKey) || "");
-  const [error, setError] = useState<Failure | undefined>();
+  const fider = useFider()
+  const [provider] = useState((props.config && props.config.provider) || "")
+  const [displayName, setDisplayName] = useState((props.config && props.config.displayName) || "")
+  const [enabled, setEnabled] = useState((props.config && props.config.status === OAuthConfigStatus.Enabled) || false)
+  const [clientID, setClientID] = useState((props.config && props.config.clientID) || "")
+  const [clientSecret, setClientSecret] = useState((props.config && props.config.clientSecret) || "")
+  const [clientSecretEnabled, setClientSecretEnabled] = useState(!props.config)
+  const [authorizeURL, setAuthorizeURL] = useState((props.config && props.config.authorizeURL) || "")
+  const [tokenURL, setTokenURL] = useState((props.config && props.config.tokenURL) || "")
+  const [profileURL, setProfileURL] = useState((props.config && props.config.profileURL) || "")
+  const [scope, setScope] = useState((props.config && props.config.scope) || "")
+  const [jsonUserIDPath, setJSONUserIDPath] = useState((props.config && props.config.jsonUserIDPath) || "")
+  const [jsonUserNamePath, setJSONUserNamePath] = useState((props.config && props.config.jsonUserNamePath) || "")
+  const [jsonUserEmailPath, setJSONUserEmailPath] = useState((props.config && props.config.jsonUserEmailPath) || "")
+  const [logo, setLogo] = useState<ImageUpload | undefined>()
+  const [logoURL, setLogoURL] = useState<string | undefined>()
+  const [logoBlobKey, setLogoBlobKey] = useState((props.config && props.config.logoBlobKey) || "")
+  const [error, setError] = useState<Failure | undefined>()
 
   const handleSave = async () => {
     const result = await actions.saveOAuthConfig({
@@ -44,30 +44,30 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
       jsonUserNamePath,
       jsonUserEmailPath,
       logo,
-    });
+    })
     if (result.ok) {
-      location.reload();
+      location.reload()
     } else {
-      setError(result.error);
+      setError(result.error)
     }
-  };
+  }
 
   const handleLogoChange = (newLogo: ImageUpload, instanceID: string, previewURL: string) => {
-    setLogo(newLogo);
-    setLogoURL(previewURL);
-    setLogoBlobKey("");
-  };
+    setLogo(newLogo)
+    setLogoURL(previewURL)
+    setLogoBlobKey("")
+  }
 
   const handleCancel = async () => {
-    props.onCancel();
-  };
+    props.onCancel()
+  }
 
   const enableClientSecret = () => {
-    setClientSecret("");
-    setClientSecretEnabled(true);
-  };
+    setClientSecret("")
+    setClientSecretEnabled(true)
+  }
 
-  const title = props.config ? `OAuth Provider: ${props.config.displayName}` : "New OAuth Provider";
+  const title = props.config ? `OAuth Provider: ${props.config.displayName}` : "New OAuth Provider"
   return (
     <>
       <Heading title={title} size="small" />
@@ -243,5 +243,5 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
         </div>
       </Form>
     </>
-  );
-};
+  )
+}

@@ -1,52 +1,52 @@
-import "./ImageUploader.scss";
+import "./ImageUploader.scss"
 
-import React from "react";
-import { ValidationContext } from "./Form";
-import { DisplayError, hasError } from "./DisplayError";
-import { classSet, fileToBase64, uploadedImageURL } from "@fider/services";
-import { Button, Modal } from "@fider/components";
-import { FaRegImage } from "react-icons/fa";
-import { ImageUpload } from "@fider/models";
+import React from "react"
+import { ValidationContext } from "./Form"
+import { DisplayError, hasError } from "./DisplayError"
+import { classSet, fileToBase64, uploadedImageURL } from "@fider/services"
+import { Button, Modal } from "@fider/components"
+import { FaRegImage } from "react-icons/fa"
+import { ImageUpload } from "@fider/models"
 
-const hardFileSizeLimit = 5 * 1024 * 1024;
+const hardFileSizeLimit = 5 * 1024 * 1024
 
 interface ImageUploaderProps {
-  instanceID?: string;
-  field: string;
-  label?: string;
-  bkey?: string;
-  disabled?: boolean;
-  previewMaxWidth: number;
-  onChange(state: ImageUpload, instanceID?: string, previewURL?: string): void;
+  instanceID?: string
+  field: string
+  label?: string
+  bkey?: string
+  disabled?: boolean
+  previewMaxWidth: number
+  onChange(state: ImageUpload, instanceID?: string, previewURL?: string): void
 }
 
 interface ImageUploaderState extends ImageUpload {
-  previewURL?: string;
-  showModal: boolean;
+  previewURL?: string
+  showModal: boolean
 }
 
 export class ImageUploader extends React.Component<ImageUploaderProps, ImageUploaderState> {
-  private fileSelector?: HTMLInputElement | null;
+  private fileSelector?: HTMLInputElement | null
 
   constructor(props: ImageUploaderProps) {
-    super(props);
+    super(props)
     this.state = {
       upload: undefined,
       remove: false,
       showModal: false,
       previewURL: uploadedImageURL(this.props.bkey, this.props.previewMaxWidth),
-    };
+    }
   }
 
   public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+      const file = e.target.files[0]
       if (file.size > hardFileSizeLimit) {
-        alert("The image size must be smaller than 5MB.");
-        return;
+        alert("The image size must be smaller than 5MB.")
+        return
       }
 
-      const base64 = await fileToBase64(file);
+      const base64 = await fileToBase64(file)
       this.setState(
         {
           bkey: this.props.bkey,
@@ -59,15 +59,15 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
           previewURL: `data:${file.type};base64,${base64}`,
         },
         () => {
-          this.props.onChange(this.state, this.props.instanceID, this.state.previewURL);
+          this.props.onChange(this.state, this.props.instanceID, this.state.previewURL)
         }
-      );
+      )
     }
-  };
+  }
 
   public removeFile = async () => {
     if (this.fileSelector) {
-      this.fileSelector.value = "";
+      this.fileSelector.value = ""
     }
 
     this.setState(
@@ -86,24 +86,24 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
           },
           this.props.instanceID,
           this.state.previewURL
-        );
+        )
       }
-    );
-  };
+    )
+  }
 
   public selectFile = async () => {
     if (this.fileSelector) {
-      this.fileSelector.click();
+      this.fileSelector.click()
     }
-  };
+  }
 
   private openModal = () => {
-    this.setState({ showModal: true });
-  };
+    this.setState({ showModal: true })
+  }
 
   private closeModal = async () => {
-    this.setState({ showModal: false });
-  };
+    this.setState({ showModal: false })
+  }
 
   private modal() {
     return (
@@ -116,16 +116,16 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
           </Button>
         </Modal.Footer>
       </Modal.Window>
-    );
+    )
   }
 
   public render() {
-    const isUploading = !!this.state.upload;
-    const hasFile = (!this.state.remove && this.props.bkey) || isUploading;
+    const isUploading = !!this.state.upload
+    const hasFile = (!this.state.remove && this.props.bkey) || isUploading
 
     const imgStyles: React.CSSProperties = {
       maxWidth: `${this.props.previewMaxWidth}px`,
-    };
+    }
 
     return (
       <ValidationContext.Consumer>
@@ -164,6 +164,6 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
           </div>
         )}
       </ValidationContext.Consumer>
-    );
+    )
   }
 }

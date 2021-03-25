@@ -1,15 +1,15 @@
-import React from "react";
+import React from "react"
 
-import { Button, Form, Field, Segment } from "@fider/components";
-import { FaRegFileExcel } from "react-icons/fa";
-import { AdminBasePage } from "../components/AdminBasePage";
+import { Button, Form, Field, Segment } from "@fider/components"
+import { FaRegFileExcel } from "react-icons/fa"
+import { AdminBasePage } from "../components/AdminBasePage"
 
 export default class ExportPage extends AdminBasePage<any, any> {
-  public id = "p-admin-export";
-  public name = "export";
-  public icon = FaRegFileExcel;
-  public title = "Export";
-  public subtitle = "Download your data";
+  public id = "p-admin-export"
+  public name = "export"
+  public icon = FaRegFileExcel
+  public title = "Export"
+  public subtitle = "Download your data"
 
   public content() {
     return (
@@ -38,6 +38,6 @@ export default class ExportPage extends AdminBasePage<any, any> {
           </Field>
         </Segment>
       </Form>
-    );
+    )
   }
 }

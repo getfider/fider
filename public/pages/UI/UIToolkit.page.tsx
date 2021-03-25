@@ -1,7 +1,7 @@
-import "./UIToolkit.page.scss";
+import "./UIToolkit.page.scss"
 
-import React, { useState } from "react";
-import { PostStatus, UserStatus } from "@fider/models";
+import React, { useState } from "react"
+import { PostStatus, UserStatus } from "@fider/models"
 import {
   Heading,
   Button,
@@ -26,11 +26,11 @@ import {
   ButtonClickEvent,
   Message,
   Hint,
-} from "@fider/components";
-import { User, UserRole, Tag } from "@fider/models";
-import { notify, Failure } from "@fider/services";
-import { DropDown, DropDownItem } from "@fider/components";
-import { FaSearch, FaRegLightbulb, FaCogs } from "react-icons/fa";
+} from "@fider/components"
+import { User, UserRole, Tag } from "@fider/models"
+import { notify, Failure } from "@fider/services"
+import { DropDown, DropDownItem } from "@fider/components"
+import { FaSearch, FaRegLightbulb, FaCogs } from "react-icons/fa"
 
 const jonSnow: User = {
   id: 0,
@@ -38,7 +38,7 @@ const jonSnow: User = {
   role: UserRole.Administrator,
   status: UserStatus.Active,
   avatarURL: "/avatars/letter/0/Jon%20Snow",
-};
+}
 
 const aryaStark: User = {
   id: 0,
@@ -46,34 +46,34 @@ const aryaStark: User = {
   role: UserRole.Visitor,
   status: UserStatus.Active,
   avatarURL: "/avatars/letter/0/Arya%20Snow",
-};
+}
 
-const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };
-const hardTag: Tag = { id: 3, slug: "hard", name: "hard", color: "fbca04", isPublic: false };
+const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true }
+const hardTag: Tag = { id: 3, slug: "hard", name: "hard", color: "fbca04", isPublic: false }
 
-const visibilityPublic = { label: "Public", value: "public" };
-const visibilityPrivate = { label: "Private", value: "private" };
+const visibilityPublic = { label: "Public", value: "public" }
+const visibilityPrivate = { label: "Private", value: "private" }
 
 const UIToolkitPage = () => {
-  const [error, setError] = useState<Failure | undefined>(undefined);
+  const [error, setError] = useState<Failure | undefined>(undefined)
 
   const notifyError = async () => {
-    notify.error("Something went wrong...");
-  };
+    notify.error("Something went wrong...")
+  }
 
   const notifySuccess = async () => {
-    notify.success("Congratulations! It worked!");
-  };
+    notify.success("Congratulations! It worked!")
+  }
 
   const notifyStatusChange = (opt?: SelectOption) => {
     if (opt) {
-      notify.success(opt.value);
+      notify.success(opt.value)
     }
-  };
+  }
 
   const showLoading = async (e: ButtonClickEvent) => {
-    return e.preventEnable();
-  };
+    return e.preventEnable()
+  }
 
   const forceError = async () => {
     setError({
@@ -83,22 +83,22 @@ const UIToolkitPage = () => {
         { field: "description", message: "Error #2" },
         { field: "status", message: "Status is mandatory" },
       ],
-    });
-  };
+    })
+  }
 
   const renderText = (item?: DropDownItem) => {
     if (item) {
-      return `${item.label} (value: ${item.value})`;
+      return `${item.label} (value: ${item.value})`
     }
-    return <span>No country is selected</span>;
-  };
+    return <span>No country is selected</span>
+  }
 
   const renderControl = (item?: DropDownItem) => {
     if (item) {
-      return item.render;
+      return item.render
     }
-    return <span>...</span>;
-  };
+    return <span>...</span>
+  }
 
   return (
     <div id="p-ui-toolkit" className="page container">
@@ -496,7 +496,7 @@ const UIToolkitPage = () => {
         <Input field="search" placeholder="Search..." icon={FaSearch} />
       </Segment>
     </div>
-  );
-};
+  )
+}
 
-export default UIToolkitPage;
+export default UIToolkitPage

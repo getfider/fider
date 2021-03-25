@@ -1,77 +1,77 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 
-import { UserSettings } from "@fider/models";
-import { Toggle, Segment, Segments, Field } from "@fider/components";
-import { useFider } from "@fider/hooks";
+import { UserSettings } from "@fider/models"
+import { Toggle, Segment, Segments, Field } from "@fider/components"
+import { useFider } from "@fider/hooks"
 
 interface NotificationSettingsProps {
-  userSettings: UserSettings;
-  settingsChanged: (settings: UserSettings) => void;
+  userSettings: UserSettings
+  settingsChanged: (settings: UserSettings) => void
 }
 
-type Channel = number;
-const WebChannel: Channel = 1;
-const EmailChannel: Channel = 2;
+type Channel = number
+const WebChannel: Channel = 1
+const EmailChannel: Channel = 2
 
 export const NotificationSettings = (props: NotificationSettingsProps) => {
-  const fider = useFider();
-  const [userSettings, setUserSettings] = useState(props.userSettings);
+  const fider = useFider()
+  const [userSettings, setUserSettings] = useState(props.userSettings)
 
   const isEnabled = (settingsKey: string, channel: Channel): boolean => {
     if (settingsKey in userSettings) {
-      return (parseInt(userSettings[settingsKey], 10) & channel) > 0;
+      return (parseInt(userSettings[settingsKey], 10) & channel) > 0
     }
-    return false;
-  };
+    return false
+  }
 
   const toggle = async (settingsKey: string, channel: Channel) => {
     const nextSettings = {
       ...userSettings,
       [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString(),
-    };
-    setUserSettings(nextSettings);
-    props.settingsChanged(nextSettings);
-  };
+    }
+    setUserSettings(nextSettings)
+    props.settingsChanged(nextSettings)
+  }
 
   const icon = (settingsKey: string, channel: Channel) => {
-    const active = isEnabled(settingsKey, channel);
-    const label = channel === WebChannel ? "Web" : "Email";
-    const onToggle = () => toggle(settingsKey, channel);
-    return <Toggle key={`${settingsKey}_${channel}`} active={active} label={label} onToggle={onToggle} />;
-  };
+    const active = isEnabled(settingsKey, channel)
+    const label = channel === WebChannel ? "Web" : "Email"
+    const onToggle = () => toggle(settingsKey, channel)
+    return <Toggle key={`${settingsKey}_${channel}`} active={active} label={label} onToggle={onToggle} />
+  }
 
   const info = (settingsKey: string, aboutForVisitors: string, aboutForCollaborators: string) => {
-    const about = fider.session.user.isCollaborator ? aboutForCollaborators : aboutForVisitors;
-    const webEnabled = isEnabled(settingsKey, WebChannel);
-    const emailEnabled = isEnabled(settingsKey, EmailChannel);
+    const about = fider.session.user.isCollaborator ? aboutForCollaborators : aboutForVisitors
+    const webEnabled = isEnabled(settingsKey, WebChannel)
+    const emailEnabled = isEnabled(settingsKey, EmailChannel)
 
     if (!webEnabled && !emailEnabled) {
       return (
         <p className="info">
           You&apos;ll <strong>NOT</strong> receive any notification about this event.
         </p>
-      );
+      )
     } else if (webEnabled && !emailEnabled) {
       return (
         <p className="info">
           You&apos;ll receive <strong>web</strong> notifications about {about}.
         </p>
-      );
+      )
     } else if (!webEnabled && emailEnabled) {
       return (
         <p className="info">
           You&apos;ll receive <strong>email</strong> notifications about {about}.
         </p>
-      );
+      )
     } else if (webEnabled && emailEnabled) {
       return (
         <p className="info">
           You&apos;ll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.
         </p>
-      );
+      )
     }
-    return null;
-  };
+    return null
+  }
 
   return (
     <>
@@ -112,5 +112,5 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
         </Segments>
       </div>
     </>
-  );
-};
+  )
+}

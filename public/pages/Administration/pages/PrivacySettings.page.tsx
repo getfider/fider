@@ -1,28 +1,28 @@
-import "./PrivacySettings.page.scss";
+import "./PrivacySettings.page.scss"
 
-import React from "react";
-import { Toggle, Form } from "@fider/components/common";
-import { actions, notify, Fider } from "@fider/services";
-import { AdminBasePage } from "@fider/pages/Administration/components/AdminBasePage";
-import { FaKey } from "react-icons/fa";
+import React from "react"
+import { Toggle, Form } from "@fider/components/common"
+import { actions, notify, Fider } from "@fider/services"
+import { AdminBasePage } from "@fider/pages/Administration/components/AdminBasePage"
+import { FaKey } from "react-icons/fa"
 
 interface PrivacySettingsPageState {
-  isPrivate: boolean;
+  isPrivate: boolean
 }
 
 export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySettingsPageState> {
-  public id = "p-admin-privacy";
-  public name = "privacy";
-  public icon = FaKey;
-  public title = "Privacy";
-  public subtitle = "Manage your site privacy";
+  public id = "p-admin-privacy"
+  public name = "privacy"
+  public icon = FaKey
+  public title = "Privacy"
+  public subtitle = "Manage your site privacy"
 
   constructor(props: any) {
-    super(props);
+    super(props)
 
     this.state = {
       isPrivate: Fider.session.tenant.isPrivate,
-    };
+    }
   }
 
   private toggle = async (active: boolean) => {
@@ -31,13 +31,13 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
         isPrivate: active,
       }),
       async () => {
-        const response = await actions.updateTenantPrivacy(this.state.isPrivate);
+        const response = await actions.updateTenantPrivacy(this.state.isPrivate)
         if (response.ok) {
-          notify.success("Your privacy settings have been saved.");
+          notify.success("Your privacy settings have been saved.")
         }
       }
-    );
-  };
+    )
+  }
 
   public content() {
     return (
@@ -51,6 +51,6 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
           </p>
         </div>
       </Form>
-    );
+    )
   }
 }

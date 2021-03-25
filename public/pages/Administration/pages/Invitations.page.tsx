@@ -1,28 +1,28 @@
-import React from "react";
+import React from "react"
 
-import { Button, TextArea, Form, Input, Field } from "@fider/components";
-import { actions, notify, Failure, Fider } from "@fider/services";
-import { AdminBasePage } from "../components/AdminBasePage";
-import { FaEnvelope } from "react-icons/fa";
+import { Button, TextArea, Form, Input, Field } from "@fider/components"
+import { actions, notify, Failure, Fider } from "@fider/services"
+import { AdminBasePage } from "../components/AdminBasePage"
+import { FaEnvelope } from "react-icons/fa"
 
 interface InvitationsPageState {
-  subject: string;
-  message: string;
-  recipients: string[];
-  numOfRecipients: number;
-  rawRecipients: string;
-  error?: Failure;
+  subject: string
+  message: string
+  recipients: string[]
+  numOfRecipients: number
+  rawRecipients: string
+  error?: Failure
 }
 
 export default class InvitationsPage extends AdminBasePage<any, InvitationsPageState> {
-  public id = "p-admin-invitations";
-  public name = "invitations";
-  public icon = FaEnvelope;
-  public title = "Invitations";
-  public subtitle = "Invite people to share their feedback";
+  public id = "p-admin-invitations"
+  public name = "invitations"
+  public icon = FaEnvelope
+  public title = "Invitations"
+  public subtitle = "Invite people to share their feedback"
 
   constructor(props: any) {
-    super(props);
+    super(props)
 
     this.state = {
       subject: `Share your ideas and thoughts about ${Fider.session.tenant.name}`,
@@ -41,43 +41,43 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
       recipients: [],
       numOfRecipients: 0,
       rawRecipients: "",
-    };
+    }
   }
 
   private setRecipients = (rawRecipients: string) => {
-    const recipients = rawRecipients.split(/\n|;|,|\s/gm).filter((x) => !!x);
-    this.setState({ rawRecipients, recipients, numOfRecipients: recipients.length });
-  };
+    const recipients = rawRecipients.split(/\n|;|,|\s/gm).filter((x) => !!x)
+    this.setState({ rawRecipients, recipients, numOfRecipients: recipients.length })
+  }
 
   private sendSample = async () => {
-    const result = await actions.sendSampleInvite(this.state.subject, this.state.message);
+    const result = await actions.sendSampleInvite(this.state.subject, this.state.message)
     if (result.ok) {
       notify.success(
         <span>
           An email message was sent to <strong>{Fider.session.user.email}</strong>
         </span>
-      );
+      )
     }
-    this.setState({ error: result.error });
-  };
+    this.setState({ error: result.error })
+  }
 
   private sendInvites = async () => {
-    const result = await actions.sendInvites(this.state.subject, this.state.message, this.state.recipients);
+    const result = await actions.sendInvites(this.state.subject, this.state.message, this.state.recipients)
     if (result.ok) {
-      notify.success("Your invites have been sent.");
-      this.setState({ rawRecipients: "", numOfRecipients: 0, recipients: [], error: undefined });
+      notify.success("Your invites have been sent.")
+      this.setState({ rawRecipients: "", numOfRecipients: 0, recipients: [], error: undefined })
     } else {
-      this.setState({ error: result.error });
+      this.setState({ error: result.error })
     }
-  };
+  }
 
   private setSubject = (subject: string): void => {
-    this.setState({ subject });
-  };
+    this.setState({ subject })
+  }
 
   private setMessage = (message: string): void => {
-    this.setState({ message });
-  };
+    this.setState({ message })
+  }
 
   public content() {
     return (
@@ -133,6 +133,6 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
           </Button>
         </Field>
       </Form>
-    );
+    )
   }
 }

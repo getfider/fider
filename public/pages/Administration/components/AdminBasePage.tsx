@@ -1,24 +1,24 @@
-import "./AdminBasePage.scss";
+import "./AdminBasePage.scss"
 
-import React from "react";
-import { Heading } from "@fider/components";
-import { SideMenu, SideMenuToggler } from "./SideMenu";
-import { IconType } from "react-icons";
+import React from "react"
+import { Heading } from "@fider/components"
+import { SideMenu, SideMenuToggler } from "./SideMenu"
+import { IconType } from "react-icons"
 
 export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
-  public abstract id: string;
-  public abstract name: string;
-  public abstract icon: IconType;
-  public abstract title: string;
-  public abstract subtitle: string;
-  public abstract content(): JSX.Element;
+  public abstract id: string
+  public abstract name: string
+  public abstract icon: IconType
+  public abstract title: string
+  public abstract subtitle: string
+  public abstract content(): JSX.Element
 
   private toggleSideMenu = (active: boolean) => {
-    const el = document.querySelector(".hidden-lg .c-side-menu") as HTMLElement;
+    const el = document.querySelector(".hidden-lg .c-side-menu") as HTMLElement
     if (el) {
-      el.style.display = active ? "" : "none";
+      el.style.display = active ? "" : "none"
     }
-  };
+  }
 
   public render() {
     return (
@@ -36,6 +36,6 @@ export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
           </div>
         </div>
       </div>
-    );
+    )
   }
 }

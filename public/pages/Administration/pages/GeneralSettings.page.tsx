@@ -1,53 +1,53 @@
-import "./GeneralSettings.page.scss";
+import "./GeneralSettings.page.scss"
 
-import React from "react";
+import React from "react"
 
-import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components/common";
-import { actions, Failure, Fider } from "@fider/services";
-import { FaCogs } from "react-icons/fa";
-import { AdminBasePage } from "../components/AdminBasePage";
-import { ImageUpload } from "@fider/models";
+import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components/common"
+import { actions, Failure, Fider } from "@fider/services"
+import { FaCogs } from "react-icons/fa"
+import { AdminBasePage } from "../components/AdminBasePage"
+import { ImageUpload } from "@fider/models"
 
 interface GeneralSettingsPageState {
-  logo?: ImageUpload;
-  title: string;
-  invitation: string;
-  welcomeMessage: string;
-  cname: string;
-  error?: Failure;
+  logo?: ImageUpload
+  title: string
+  invitation: string
+  welcomeMessage: string
+  cname: string
+  error?: Failure
 }
 
 export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSettingsPageState> {
-  public id = "p-admin-general";
-  public name = "general";
-  public icon = FaCogs;
-  public title = "General";
-  public subtitle = "Manage your site settings";
+  public id = "p-admin-general"
+  public name = "general"
+  public icon = FaCogs
+  public title = "General"
+  public subtitle = "Manage your site settings"
 
   constructor(props: any) {
-    super(props);
+    super(props)
 
     this.state = {
       title: Fider.session.tenant.name,
       cname: Fider.session.tenant.cname,
       welcomeMessage: Fider.session.tenant.welcomeMessage,
       invitation: Fider.session.tenant.invitation,
-    };
+    }
   }
 
   private handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings(this.state);
+    const result = await actions.updateTenantSettings(this.state)
     if (result.ok) {
-      e.preventEnable();
-      location.href = `/`;
+      e.preventEnable()
+      location.href = `/`
     } else if (result.error) {
-      this.setState({ error: result.error });
+      this.setState({ error: result.error })
     }
-  };
+  }
 
   public dnsInstructions(): JSX.Element {
-    const isApex = this.state.cname.split(".").length <= 2;
-    const recordType = isApex ? "ALIAS" : "CNAME";
+    const isApex = this.state.cname.split(".").length <= 2
+    const recordType = isApex ? "ALIAS" : "CNAME"
     return (
       <>
         <strong>{this.state.cname}</strong> {recordType}{" "}
@@ -56,28 +56,28 @@ export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSetti
           {Fider.settings.domain}
         </strong>
       </>
-    );
+    )
   }
 
   private setTitle = (title: string): void => {
-    this.setState({ title });
-  };
+    this.setState({ title })
+  }
 
   private setWelcomeMessage = (welcomeMessage: string): void => {
-    this.setState({ welcomeMessage });
-  };
+    this.setState({ welcomeMessage })
+  }
 
   private setInvitation = (invitation: string): void => {
-    this.setState({ invitation });
-  };
+    this.setState({ invitation })
+  }
 
   private setLogo = (logo: ImageUpload): void => {
-    this.setState({ logo });
-  };
+    this.setState({ logo })
+  }
 
   private setCNAME = (cname: string): void => {
-    this.setState({ cname });
-  };
+    this.setState({ cname })
+  }
 
   public content() {
     return (
@@ -163,6 +163,6 @@ export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSetti
           </Button>
         </div>
       </Form>
-    );
+    )
   }
 }

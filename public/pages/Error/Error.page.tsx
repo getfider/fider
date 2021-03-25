@@ -1,17 +1,17 @@
-import "./Error.page.scss";
+import "./Error.page.scss"
 
-import React from "react";
-import { TenantLogo } from "@fider/components";
-import { useFider } from "@fider/hooks";
+import React from "react"
+import { TenantLogo } from "@fider/components"
+import { useFider } from "@fider/hooks"
 
 interface ErrorPageProps {
-  error: Error;
-  errorInfo: React.ErrorInfo;
-  showDetails?: boolean;
+  error: Error
+  errorInfo: React.ErrorInfo
+  showDetails?: boolean
 }
 
 export const ErrorPage = (props: ErrorPageProps) => {
-  const fider = useFider();
+  const fider = useFider()
 
   return (
     <div id="p-error" className="container failure-page">
@@ -30,5 +30,5 @@ export const ErrorPage = (props: ErrorPageProps) => {
         </pre>
       )}
     </div>
-  );
-};
+  )
+}
