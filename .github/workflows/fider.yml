@@ -74,7 +74,7 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
-      - run: docker build --build-arg buildnumber=${GITHUB_RUN_ID} -t getfider/fider .
+      - run: docker build --build-arg buildnumber=${GITHUB_SHA::7} -t getfider/fider .
 
       - name: extract branch name
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
