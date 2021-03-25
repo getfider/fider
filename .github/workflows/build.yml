@@ -1,4 +1,4 @@
-name: fider
+name: build
 
 on:
   push:
@@ -81,17 +81,27 @@ jobs:
         id: vars
 
       - run: docker build --build-arg buildnumber=${{ steps.vars.outputs.sha7 }} -t getfider/fider .
-
-      - uses: azure/docker-login@v1
-        if: steps.vars.outputs.branch == 'master'
+      - run: mkdir -p ./out
+      - run: docker save getfider/fider > ./out/fider.tar
+      - run: echo PR_${{ github.event.number }} > ./out/name
+        if: steps.vars.outputs.branch != 'master'
+      - run: echo SHA_${{ steps.vars.outputs.sha7 }} > ./out/name
+        if: steps.vars.outputs.branch != 'master'
+      - uses: actions/upload-artifact@v2
         with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASS }}
+          name: out
+          path: out/
 
-      - name: push docker image
-        if: steps.vars.outputs.branch == 'master'
-        run: |
-          docker tag getfider/fider getfider/fider:${{ steps.vars.outputs.sha7 }}
-          docker push getfider/fider:${{ steps.vars.outputs.sha7 }}
-          docker tag getfider/fider getfider/fider:master
-          docker push getfider/fider:master
+      # - uses: azure/docker-login@v1
+      #   if: steps.vars.outputs.branch == 'master'
+      #   with:
+      #     username: ${{ secrets.DOCKER_USER }}
+      #     password: ${{ secrets.DOCKER_PASS }}
+
+      # - name: push docker image
+      #   if: steps.vars.outputs.branch == 'master'
+      #   run: |
+      #     docker tag getfider/fider getfider/fider:${{ steps.vars.outputs.sha7 }}
+      #     docker push getfider/fider:${{ steps.vars.outputs.sha7 }}
+      #     docker tag getfider/fider getfider/fider:master
+      #     docker push getfider/fider:master
