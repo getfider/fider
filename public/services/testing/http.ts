@@ -1,4 +1,4 @@
-import { http } from "@fider/services";
+import { http } from "@fider/services"
 
 export const httpMock = {
   alwaysOk: () => {
@@ -6,12 +6,12 @@ export const httpMock = {
       return Promise.resolve({
         ok: true,
         data: null as any,
-      });
-    });
-    http.get = fn;
-    http.post = fn;
-    http.put = fn;
-    http.delete = fn;
-    return http;
+      })
+    })
+    http.get = fn
+    http.post = fn
+    http.put = fn
+    http.delete = fn
+    return http
   },
-};
+}

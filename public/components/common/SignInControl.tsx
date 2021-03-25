@@ -1,35 +1,35 @@
-import "./SignInControl.scss";
+import "./SignInControl.scss"
 
-import React, { useState } from "react";
-import { SocialSignInButton, Form, Button, Input, Message } from "@fider/components";
-import { device, actions, Failure, isCookieEnabled } from "@fider/services";
-import { useFider } from "@fider/hooks";
+import React, { useState } from "react"
+import { SocialSignInButton, Form, Button, Input, Message } from "@fider/components"
+import { device, actions, Failure, isCookieEnabled } from "@fider/services"
+import { useFider } from "@fider/hooks"
 
 interface SignInControlProps {
-  useEmail: boolean;
-  redirectTo?: string;
-  onEmailSent?: (email: string) => void;
+  useEmail: boolean
+  redirectTo?: string
+  onEmailSent?: (email: string) => void
 }
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
-  const fider = useFider();
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<Failure | undefined>(undefined);
+  const fider = useFider()
+  const [email, setEmail] = useState("")
+  const [error, setError] = useState<Failure | undefined>(undefined)
 
   const signIn = async () => {
-    const result = await actions.signIn(email);
+    const result = await actions.signIn(email)
     if (result.ok) {
-      setEmail("");
-      setError(undefined);
+      setEmail("")
+      setError(undefined)
       if (props.onEmailSent) {
-        props.onEmailSent(email);
+        props.onEmailSent(email)
       }
     } else if (result.error) {
-      setError(result.error);
+      setError(result.error)
     }
-  };
+  }
 
-  const providersLen = fider.settings.oauth.length;
+  const providersLen = fider.settings.oauth.length
 
   if (!isCookieEnabled()) {
     return (
@@ -37,7 +37,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         <h3>Cookies Required</h3>
         <p>Cookies are not enabled on your browser. Please enable cookies in your browser preferences to continue.</p>
       </Message>
-    );
+    )
   }
 
   return (
@@ -80,5 +80,5 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         </div>
       )}
     </div>
-  );
-};
+  )
+}

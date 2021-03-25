@@ -1,1 +1,1 @@
-export * from "./CompleteSignInProfile.page";
+export * from "./CompleteSignInProfile.page"

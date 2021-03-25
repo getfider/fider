@@ -1,37 +1,37 @@
-import "./MyNotifications.page.scss";
+import "./MyNotifications.page.scss"
 
-import React from "react";
+import React from "react"
 
-import { Notification } from "@fider/models";
-import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components";
-import { actions } from "@fider/services";
-import { FaBell } from "react-icons/fa";
+import { Notification } from "@fider/models"
+import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components"
+import { actions } from "@fider/services"
+import { FaBell } from "react-icons/fa"
 
 interface MyNotificationsPageProps {
-  notifications: Notification[];
+  notifications: Notification[]
 }
 
 interface MyNotificationsPageState {
-  unread: Notification[];
-  recent: Notification[];
+  unread: Notification[]
+  recent: Notification[]
 }
 
 export default class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNotificationsPageState> {
   constructor(props: MyNotificationsPageProps) {
-    super(props);
+    super(props)
 
     const [unread, recent] = (this.props.notifications || []).reduce(
       (result, item) => {
-        result[item.read ? 1 : 0].push(item);
-        return result;
+        result[item.read ? 1 : 0].push(item)
+        return result
       },
       [[] as Notification[], [] as Notification[]]
-    );
+    )
 
     this.state = {
       unread,
       recent,
-    };
+    }
   }
 
   private items(notifications: Notification[]): JSX.Element[] {
@@ -45,16 +45,16 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
             </span>
           </a>
         </ListItem>
-      );
-    });
+      )
+    })
   }
 
   private markAllAsRead = async () => {
-    const response = await actions.markAllAsRead();
+    const response = await actions.markAllAsRead()
     if (response.ok) {
-      location.reload();
+      location.reload()
     }
-  };
+  }
 
   public render() {
     return (
@@ -82,6 +82,6 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
           </>
         )}
       </div>
-    );
+    )
   }
 }

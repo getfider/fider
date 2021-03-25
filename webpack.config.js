@@ -1,11 +1,13 @@
-const path = require("path");
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-var-requires */
+const path = require("path")
 
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const publicFolder = path.resolve(__dirname, "public");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
+const publicFolder = path.resolve(__dirname, "public")
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === "production"
 
 const plugins = [
   new MiniCssExtractPlugin({
@@ -26,10 +28,10 @@ const plugins = [
       modules: false,
     },
   }),
-];
+]
 
 // On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
-const maxSizeFactor = isProduction ? 1 : 14;
+const maxSizeFactor = isProduction ? 1 : 14
 
 module.exports = {
   mode: process.env.NODE_ENV || "development",
@@ -79,8 +81,8 @@ module.exports = {
     ],
   },
   optimization: {
-    moduleIds: 'deterministic',
-    runtimeChunk: 'single',
+    moduleIds: "deterministic",
+    runtimeChunk: "single",
     splitChunks: {
       cacheGroups: {
         common: {
@@ -89,14 +91,14 @@ module.exports = {
           test: /[\\/]public[\\/](components|services|models)[\\/]/,
         },
         markdown: {
-          chunks: 'all',
-          name: 'markdown',
-          test: /dompurify|marked/
+          chunks: "all",
+          name: "markdown",
+          test: /dompurify|marked/,
         },
         vendor: {
-          chunks: 'all',
-          name: 'vendor',
-          test: /react|react-dom|tslib|react-textarea-autosize|react-icons/
+          chunks: "all",
+          name: "vendor",
+          test: /react|react-dom|tslib|react-textarea-autosize|react-icons/,
         },
       },
     },
@@ -108,4 +110,4 @@ module.exports = {
     entrypoints: false,
     modules: false,
   },
-};
+}

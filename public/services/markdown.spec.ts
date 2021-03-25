@@ -1,4 +1,4 @@
-import * as markdown from "./markdown";
+import * as markdown from "./markdown"
 
 const testCases = [
   {
@@ -50,18 +50,18 @@ How are you?`,
     expectedFull: "<p>-123<br>-456<br>-789</p>",
     expectedSimple: "<p>-123<br>-456<br>-789</p>",
   },
-];
+]
 
 testCases.forEach((x) => {
   test(`Can parse markdown ${x.input} to ${x.expectedFull} (full mode)`, () => {
-    const result = markdown.full(x.input);
-    expect(result).toEqual(x.expectedFull);
-  });
-});
+    const result = markdown.full(x.input)
+    expect(result).toEqual(x.expectedFull)
+  })
+})
 
 testCases.forEach((x) => {
   test(`Can parse markdown ${x.input} to ${x.expectedSimple} (simple mode)`, () => {
-    const result = markdown.simple(x.input);
-    expect(result).toEqual(x.expectedSimple);
-  });
-});
+    const result = markdown.simple(x.input)
+    expect(result).toEqual(x.expectedSimple)
+  })
+})
