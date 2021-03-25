@@ -234,7 +234,7 @@ func TestTryAgainLater(t *testing.T) {
 	resp := ctx.Response.(*httptest.ResponseRecorder)
 	Expect(ctx.ResponseStatusCode).Equals(http.StatusServiceUnavailable)
 	Expect(resp.Code).Equals(http.StatusServiceUnavailable)
-	Expect(resp.Header().Get("Cache-Control")).Equals("no-cache, no-store, must-revalidate")
+	Expect(resp.Header().Get("Cache-Control")).Equals("no-cache, no-store")
 	Expect(resp.Header().Get("Retry-After")).Equals("86400")
 }
 

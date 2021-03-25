@@ -23,6 +23,8 @@ import (
 	cache "github.com/patrickmn/go-cache"
 )
 
+// fonts.gstatic.com and fonts.googleapis.com are required for Custom CSS to work with Google Fonts
+
 var (
 	cspBase    = "base-uri 'self'"
 	cspDefault = "default-src 'self'"

@@ -7,7 +7,7 @@ PORT=3000
 start_fider () {
   echo "Starting Fider (HOST_MODE: $1)..."
   docker rm -f $FIDER_CONTAINER $PG_CONTAINER || true
-  docker run -d -e POSTGRES_USER=fider_e2e -e POSTGRES_PASSWORD=fider_e2e_pw --name $PG_CONTAINER postgres:9.6.8
+  docker run -d -e POSTGRES_USER=fider_e2e -e POSTGRES_PASSWORD=fider_e2e_pw --name $PG_CONTAINER postgres:12
   docker run --link $PG_CONTAINER:pg waisbrot/wait
   docker run \
     -d \
