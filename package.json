@@ -84,6 +84,6 @@
     "node": ">=14"
   },
   "scripts": {
-    "heroku-postbuild": "NODE_ENV=production npx webpack-cli"
+    "heroku-postbuild": "make build-ssr && make build-ui"
   }
 }
