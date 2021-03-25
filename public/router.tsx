@@ -6,7 +6,7 @@ interface PageConfiguration {
   showHeader: boolean;
 }
 
-export const route = (path: string, component: any, showHeader: boolean = true): PageConfiguration => {
+export const route = (path: string, component: any, showHeader = true): PageConfiguration => {
   path = path.replace("/", "/").replace(":number", "\\d+").replace(":string", ".+").replace("*", "/?.*");
 
   const regex = new RegExp(`^${path}$`);

@@ -5,7 +5,22 @@ import React from "react";
 import { Comment, Post, Tag, Vote, ImageUpload } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
-import { VoteCounter, ShowPostResponse, Button, UserName, Avatar, Moment, MultiLineText, List, ListItem, Input, Form, TextArea, MultiImageUploader, ImageViewer } from "@fider/components";
+import {
+  VoteCounter,
+  ShowPostResponse,
+  Button,
+  UserName,
+  Avatar,
+  Moment,
+  MultiLineText,
+  List,
+  ListItem,
+  Input,
+  Form,
+  TextArea,
+  MultiImageUploader,
+  ImageViewer,
+} from "@fider/components";
 import { FaSave, FaTimes, FaEdit } from "react-icons/fa";
 import { ResponseForm } from "./components/ResponseForm";
 import { TagsPanel } from "./components/TagsPanel";

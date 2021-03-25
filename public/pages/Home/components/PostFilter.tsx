@@ -47,7 +47,15 @@ export const PostFilter = (props: PostFilterProps) => {
   return (
     <div>
       <span className="subtitle">View</span>
-      <DropDown header="What do you want to see?" className="l-post-filter" inline={true} style="simple" items={options} defaultValue={activeView} onChange={handleChangeView} />
+      <DropDown
+        header="What do you want to see?"
+        className="l-post-filter"
+        inline={true}
+        style="simple"
+        items={options}
+        defaultValue={activeView}
+        onChange={handleChangeView}
+      />
     </div>
   );
 };

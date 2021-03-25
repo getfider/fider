@@ -23,7 +23,5 @@ export const logError = async (message: string, err?: Error): Promise<Result | u
   try {
     analytics.error(err);
     return await http.post("/_api/log-error", { message, data });
-  } catch (err) {
-    // tslint:disable-next-line:no-empty
-  }
+  } catch (err) {}
 };

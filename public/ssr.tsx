@@ -13,7 +13,13 @@ import UIToolkitPage from "./pages/UI/UIToolkit.page";
 
 // Only public routes should be here
 // Routes behind authentication are not crawled
-const routes = [route("", HomePage), route("/posts/:number*", ShowPostPage), route("/signin", SignInPage, false), route("/signup", SignUpPage, false), route("/-/ui", UIToolkitPage)];
+const routes = [
+  route("", HomePage),
+  route("/posts/:number*", ShowPostPage),
+  route("/signin", SignInPage, false),
+  route("/signup", SignUpPage, false),
+  route("/-/ui", UIToolkitPage),
+];
 
 function ssrRender(url: string, pathname: string, args: any) {
   const fider = Fider.initialize({ ...args });

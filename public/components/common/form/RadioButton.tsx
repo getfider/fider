@@ -37,7 +37,13 @@ export class RadioButton extends React.Component<RadioButtonProps, RadioButtonSt
     const inputs = this.props.options.map((option) => {
       return (
         <div key={option.value} className="c-form-radio-option">
-          <input id={`visibility-${option.value}`} type="radio" name={`input-${this.props.field}`} checked={this.state.selected === option} onChange={this.onChange.bind(this, option)} />
+          <input
+            id={`visibility-${option.value}`}
+            type="radio"
+            name={`input-${this.props.field}`}
+            checked={this.state.selected === option}
+            onChange={this.onChange.bind(this, option)}
+          />
           <label htmlFor={`visibility-${option.value}`}>{option.label}</label>
         </div>
       );

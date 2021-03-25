@@ -16,7 +16,10 @@ export default class ExportPage extends AdminBasePage<{}, {}> {
       <Form>
         <Segment>
           <Field label="Export Posts">
-            <p className="info">Use this button to download a CSV file with all posts in this site. This can be useful to analyse the data with an external tool or simply to back it up.</p>
+            <p className="info">
+              Use this button to download a CSV file with all posts in this site. This can be useful to analyse the data with an external tool or simply to back
+              it up.
+            </p>
           </Field>
           <Field>
             <Button color="positive" href="/admin/export/posts.csv">

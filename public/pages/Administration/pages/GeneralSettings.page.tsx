@@ -83,12 +83,22 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
     return (
       <Form error={this.state.error}>
         <Input field="title" label="Title" maxLength={60} value={this.state.title} disabled={!Fider.session.user.isAdministrator} onChange={this.setTitle}>
-          <p className="info">The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The product/service name is usually the best choice.</p>
+          <p className="info">
+            The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The product/service name is usually the best
+            choice.
+          </p>
         </Input>
 
-        <TextArea field="welcomeMessage" label="Welcome Message" value={this.state.welcomeMessage} disabled={!Fider.session.user.isAdministrator} onChange={this.setWelcomeMessage}>
+        <TextArea
+          field="welcomeMessage"
+          label="Welcome Message"
+          value={this.state.welcomeMessage}
+          disabled={!Fider.session.user.isAdministrator}
+          onChange={this.setWelcomeMessage}
+        >
           <p className="info">
-            The message is shown on this site's home page. Use it to help visitors understad what this space is about and the importance of their feedback. Leave it empty for a default message.
+            The message is shown on this site's home page. Use it to help visitors understad what this space is about and the importance of their feedback.
+            Leave it empty for a default message.
           </p>
         </TextArea>
 
@@ -102,12 +112,22 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           onChange={this.setInvitation}
         >
           <p className="info">
-            This text is used as a placeholder for the suggestion's text box. Use it to invite your visitors into sharing their suggestions and feedback. Leave it empty for a default message.
+            This text is used as a placeholder for the suggestion's text box. Use it to invite your visitors into sharing their suggestions and feedback. Leave
+            it empty for a default message.
           </p>
         </Input>
 
-        <ImageUploader label="Logo" field="logo" bkey={Fider.session.tenant.logoBlobKey} previewMaxWidth={200} disabled={!Fider.session.user.isAdministrator} onChange={this.setLogo}>
-          <p className="info">We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 200x200 pixels.</p>
+        <ImageUploader
+          label="Logo"
+          field="logo"
+          bkey={Fider.session.tenant.logoBlobKey}
+          previewMaxWidth={200}
+          disabled={!Fider.session.user.isAdministrator}
+          onChange={this.setLogo}
+        >
+          <p className="info">
+            We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 200x200 pixels.
+          </p>
         </ImageUploader>
 
         {!Fider.isSingleHostMode() && (

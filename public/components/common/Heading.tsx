@@ -13,7 +13,8 @@ interface HeadingLogo {
   className?: string;
 }
 
-const Header: React.FunctionComponent<{ level: number; className: string }> = (props) => React.createElement(`h${props.level}`, { className: props.className }, props.children);
+const Header: React.FunctionComponent<{ level: number; className: string }> = (props) =>
+  React.createElement(`h${props.level}`, { className: props.className }, props.children);
 
 export const Heading = (props: HeadingLogo) => {
   const size = props.size || "normal";

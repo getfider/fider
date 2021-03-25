@@ -33,7 +33,7 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
 
   const suffix = typeof props.suffix === "string" ? <span className="c-form-input-suffix">{props.suffix}</span> : props.suffix;
 
-  const icon = !!props.icon
+  const icon = props.icon
     ? React.createElement(props.icon, {
         onClick: props.onIconClick,
         className: classSet({ link: !!props.onIconClick }),

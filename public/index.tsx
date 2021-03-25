@@ -15,7 +15,7 @@ const Loading = () => (
 
 const logProductionError = (err: Error) => {
   if (Fider.isProduction()) {
-    console.error(err); // tslint:disable-line
+    console.error(err);
     actions.logError(`react.ErrorBoundary: ${err.message}`, err);
   }
 };
@@ -33,7 +33,6 @@ window.addEventListener("error", (evt: ErrorEvent) => {
     actions.logError(`window.error: ${evt.message}`, evt.error);
   }
 });
-
 (() => {
   let fider;
 

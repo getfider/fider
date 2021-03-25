@@ -143,7 +143,11 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 afterLabel={this.state.changingEmail ? undefined : changeEmail}
                 onChange={this.setNewEmail}
               >
-                <p className="info">{Fider.session.user.email || this.state.changingEmail ? "Your email is private and will never be publicly displayed." : "Your account doesn't have an email."}</p>
+                <p className="info">
+                  {Fider.session.user.email || this.state.changingEmail
+                    ? "Your email is private and will never be publicly displayed."
+                    : "Your account doesn't have an email."}
+                </p>
                 {this.state.changingEmail && (
                   <>
                     <Button color="positive" size="mini" onClick={this.submitNewEmail}>
@@ -181,7 +185,9 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 {this.state.avatarType === UserAvatarType.Letter && <p className="info">A letter avatar based on your initials is generated for you.</p>}
                 {this.state.avatarType === UserAvatarType.Custom && (
                   <ImageUploader field="avatar" previewMaxWidth={80} onChange={this.setAvatar} bkey={Fider.session.user.avatarBlobKey}>
-                    <p className="info">We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.</p>
+                    <p className="info">
+                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.
+                    </p>
                   </ImageUploader>
                 )}
               </Select>

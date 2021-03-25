@@ -65,7 +65,7 @@ lint-server: ## Lint server code
 	golangci-lint run
 
 lint-ui: ## Lint ui code
-	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}'
+	npx eslint .
 
 
 

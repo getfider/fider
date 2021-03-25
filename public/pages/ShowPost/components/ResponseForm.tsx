@@ -90,7 +90,13 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                 <span className="info">Votes from this post will be merged into original post.</span>
               </>
             ) : (
-              <TextArea field="text" onChange={this.setText} value={this.state.text} minRows={5} placeholder="What's going on with this post? Let your users know what are your plans..." />
+              <TextArea
+                field="text"
+                onChange={this.setText}
+                value={this.state.text}
+                minRows={5}
+                placeholder="What's going on with this post? Let your users know what are your plans..."
+              />
             )}
           </Form>
         </Modal.Content>

@@ -1,5 +1,5 @@
-import { Browser, BrowserTab, pageHasLoaded, ensure, elementIsNotVisible, delay, elementIsVisible, mailgun } from "../lib";
-import { HomePage, ShowPostPage } from "../pages";
+import { Browser, BrowserTab, pageHasLoaded } from "../lib";
+import { HomePage } from "../pages";
 
 export interface TestContext {
   browser1: Browser;

@@ -1,6 +1,19 @@
 import React, { useState } from "react";
 import { Comment, Post, ImageUpload } from "@fider/models";
-import { Avatar, UserName, Moment, Form, TextArea, Button, MultiLineText, DropDown, DropDownItem, Modal, ImageViewer, MultiImageUploader } from "@fider/components";
+import {
+  Avatar,
+  UserName,
+  Moment,
+  Form,
+  TextArea,
+  Button,
+  MultiLineText,
+  DropDown,
+  DropDownItem,
+  Modal,
+  ImageViewer,
+  MultiImageUploader,
+} from "@fider/components";
 import { formatDate, Failure, actions } from "@fider/services";
 import { FaEllipsisH } from "react-icons/fa";
 import { useFider } from "@fider/hooks";

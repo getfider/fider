@@ -82,7 +82,9 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
   private addNewElement(instances: MultiImageUploaderInstances, bkey?: string) {
     const id = btoa(Math.random().toString());
     instances[id] = {
-      element: <ImageUploader key={id} bkey={bkey} instanceID={id} field="attachment" previewMaxWidth={this.props.previewMaxWidth} onChange={this.imageUploaded} />,
+      element: (
+        <ImageUploader key={id} bkey={bkey} instanceID={id} field="attachment" previewMaxWidth={this.props.previewMaxWidth} onChange={this.imageUploaded} />
+      ),
     };
   }
 

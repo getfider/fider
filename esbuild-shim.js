@@ -1,4 +1,4 @@
-const global = (1, eval)('this');
+const global = (1, eval)("this");
 global.global = global;
 global.globalThis = global;
 global.frames = global;
@@ -6,17 +6,17 @@ global.self = global;
 
 const document = {
   documentElement: {},
-  getElementById: () => undefined
-}
+  getElementById: () => undefined,
+};
 
 const window = {
   document,
   location: {
-    href: ''
-  }
-}
+    href: "",
+  },
+};
 
-const navigator = {}
+const navigator = {};
 
 global.navigator = navigator;
 global.window = window;

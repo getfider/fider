@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -79,8 +81,8 @@ module.exports = {
     ],
   },
   optimization: {
-    moduleIds: 'deterministic',
-    runtimeChunk: 'single',
+    moduleIds: "deterministic",
+    runtimeChunk: "single",
     splitChunks: {
       cacheGroups: {
         common: {
@@ -89,14 +91,14 @@ module.exports = {
           test: /[\\/]public[\\/](components|services|models)[\\/]/,
         },
         markdown: {
-          chunks: 'all',
-          name: 'markdown',
-          test: /dompurify|marked/
+          chunks: "all",
+          name: "markdown",
+          test: /dompurify|marked/,
         },
         vendor: {
-          chunks: 'all',
-          name: 'vendor',
-          test: /react|react-dom|tslib|react-textarea-autosize|react-icons/
+          chunks: "all",
+          name: "vendor",
+          test: /react|react-dom|tslib|react-textarea-autosize|react-icons/,
         },
       },
     },

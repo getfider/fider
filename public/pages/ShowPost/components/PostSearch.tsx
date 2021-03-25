@@ -66,6 +66,15 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
       };
     });
 
-    return <DropDown className="c-post-search" searchable={true} items={items} placeholder="Search original post" onChange={this.onChange} onSearchChange={this.onSearchChange} />;
+    return (
+      <DropDown
+        className="c-post-search"
+        searchable={true}
+        items={items}
+        placeholder="Search original post"
+        onChange={this.onChange}
+        onSearchChange={this.onSearchChange}
+      />
+    );
   }
 }

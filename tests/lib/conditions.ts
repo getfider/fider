@@ -8,7 +8,7 @@ export type WaitCondition = (
 };
 
 export const elementIsVisible = (target: string | WebComponent): WaitCondition => {
-  return (tab: BrowserTab) => {
+  return () => {
     const selector = typeof target === "string" ? target : target.selector;
     return {
       function: (query: string) => {
@@ -25,7 +25,7 @@ export const elementIsVisible = (target: string | WebComponent): WaitCondition =
 };
 
 export const elementIsNotVisible = (target: string | WebComponent): WaitCondition => {
-  return (tab: BrowserTab) => {
+  return () => {
     const selector = typeof target === "string" ? target : target.selector;
     return {
       function: (query: string) => {

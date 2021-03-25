@@ -99,7 +99,11 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
           </Segment>
           <Segment>
             <span className="event-title">Status Changed</span>
-            {info("event_notification_change_status", "status change on posts you've subscribed to", "status change on all posts unless individually unsubscribed")}
+            {info(
+              "event_notification_change_status",
+              "status change on posts you've subscribed to",
+              "status change on all posts unless individually unsubscribed"
+            )}
             <p>
               {icon("event_notification_change_status", WebChannel)}
               {icon("event_notification_change_status", EmailChannel)}

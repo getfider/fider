@@ -73,7 +73,11 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {
             <p>
               {emailOk ? ok : warn}
               <strong>Email:</strong> {this.props.profile && this.props.profile.email}
-              {!emailOk && <p className="info">Email is not required, but highly recommended. If invalid or not found, new users won't be able to receive notifications.</p>}
+              {!emailOk && (
+                <p className="info">
+                  Email is not required, but highly recommended. If invalid or not found, new users won't be able to receive notifications.
+                </p>
+              )}
             </p>
           </Segment>
         </Segments>

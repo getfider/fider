@@ -70,6 +70,6 @@ export class FiderImpl {
   }
 }
 
-export let Fider = new FiderImpl();
+export const Fider = new FiderImpl();
 
 export const FiderContext = createContext<FiderImpl>(Fider);

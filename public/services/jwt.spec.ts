@@ -8,7 +8,8 @@ import { jwt } from "./jwt";
       age: "30",
       iat: 1516239022,
     },
-    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gU25vdyIsImFnZSI6IjMwIiwiaWF0IjoxNTE2MjM5MDIyfQ.A4e171Ry70APUJ2a9uo9G9Aju9G08AJB_Cr9B9ivX-o",
+    token:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gU25vdyIsImFnZSI6IjMwIiwiaWF0IjoxNTE2MjM5MDIyfQ.A4e171Ry70APUJ2a9uo9G9Aju9G08AJB_Cr9B9ivX-o",
   },
   {
     expected: undefined,

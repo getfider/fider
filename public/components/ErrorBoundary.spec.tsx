@@ -7,12 +7,12 @@ describe("<ErrorBoundary />", () => {
 
   // Stub out console.error to hide noisy Virtual DOM exceptions.
   beforeAll(() => {
-    errorMethod = console.error; // tslint:disable-line
-    console.error = () => null; // tslint:disable-line
+    errorMethod = console.error;
+    console.error = () => null;
   });
 
   afterAll(() => {
-    console.error = errorMethod; // tslint:disable-line
+    console.error = errorMethod;
   });
 
   test("when no error caught", () => {
