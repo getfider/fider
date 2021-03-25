@@ -1,24 +1,24 @@
-import { Fider } from "@fider/services";
+import { Fider } from "@fider/services"
 
 const navigator = {
   url: () => {
-    return window.location.href;
+    return window.location.href
   },
   goHome: () => {
-    window.location.href = "/";
+    window.location.href = "/"
   },
   goTo: (url: string) => {
-    const isEqual = window.location.href === url || window.location.pathname === url;
+    const isEqual = window.location.href === url || window.location.pathname === url
     if (!isEqual) {
-      window.location.href = url;
+      window.location.href = url
     }
   },
   replaceState: (path: string): void => {
     if (history.replaceState !== undefined) {
-      const newURL = Fider.settings.baseURL + path;
-      window.history.replaceState({ path: newURL }, "", newURL);
+      const newURL = Fider.settings.baseURL + path
+      window.history.replaceState({ path: newURL }, "", newURL)
     }
   },
-};
+}
 
-export default navigator;
+export default navigator

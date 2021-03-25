@@ -4,7 +4,7 @@ export const analytics = {
       window.ga("send", "event", {
         eventCategory,
         eventAction,
-      });
+      })
     }
   },
   error: (err?: Error): void => {
@@ -12,7 +12,7 @@ export const analytics = {
       window.ga("send", "exception", {
         exDescription: err ? err.stack : "<not available>",
         exFatal: false,
-      });
+      })
     }
   },
-};
+}

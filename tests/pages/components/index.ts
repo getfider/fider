@@ -1,2 +1,2 @@
-export * from "./PostList";
-export * from "./CommentList";
+export * from "./PostList"
+export * from "./CommentList"

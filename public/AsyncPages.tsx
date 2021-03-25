@@ -1,9 +1,9 @@
-import { lazy, ComponentType } from "react";
+import { lazy, ComponentType } from "react"
 
-type LazyImport = () => Promise<{ default: ComponentType<any> }>;
+type LazyImport = () => Promise<{ default: ComponentType<any> }>
 
-const MAX_RETRIES = 10;
-const INTERVAL = 500;
+const MAX_RETRIES = 10
+const INTERVAL = 500
 
 const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES): Promise<{ default: ComponentType<any> }> => {
   return new Promise((resolve, reject) => {
@@ -12,16 +12,16 @@ const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES): Promise<{ default: Co
       .catch((err) => {
         setTimeout(() => {
           if (retriesLeft === 1) {
-            reject(new Error(`${err} after ${MAX_RETRIES} retries`));
-            return;
+            reject(new Error(`${err} after ${MAX_RETRIES} retries`))
+            return
           }
-          retry(fn, retriesLeft - 1).then(resolve, reject);
-        }, INTERVAL);
-      });
-  });
-};
+          retry(fn, retriesLeft - 1).then(resolve, reject)
+        }, INTERVAL)
+      })
+  })
+}
 
-const load = (fn: LazyImport) => lazy(() => retry(() => fn()));
+const load = (fn: LazyImport) => lazy(() => retry(() => fn()))
 
 export const AsyncHomePage = load(
   () =>
@@ -29,7 +29,7 @@ export const AsyncHomePage = load(
       /* webpackChunkName: "Home.page" */
       "@fider/pages/Home/Home.page"
     )
-);
+)
 
 export const AsyncShowPostPage = load(
   () =>
@@ -37,7 +37,7 @@ export const AsyncShowPostPage = load(
       /* webpackChunkName: "ShowPost.page" */
       "@fider/pages/ShowPost/ShowPost.page"
     )
-);
+)
 
 export const AsyncManageMembersPage = load(
   () =>
@@ -45,7 +45,7 @@ export const AsyncManageMembersPage = load(
       /* webpackChunkName: "ManageMembers.page" */
       "@fider/pages/Administration/pages/ManageMembers.page"
     )
-);
+)
 
 export const AsyncManageTagsPage = load(
   () =>
@@ -53,7 +53,7 @@ export const AsyncManageTagsPage = load(
       /* webpackChunkName: "ManageTags.page" */
       "@fider/pages/Administration/pages/ManageTags.page"
     )
-);
+)
 
 export const AsyncPrivacySettingsPage = load(
   () =>
@@ -61,7 +61,7 @@ export const AsyncPrivacySettingsPage = load(
       /* webpackChunkName: "PrivacySettings.page" */
       "@fider/pages/Administration/pages/PrivacySettings.page"
     )
-);
+)
 
 export const AsyncExportPage = load(
   () =>
@@ -69,7 +69,7 @@ export const AsyncExportPage = load(
       /* webpackChunkName: "Export.page" */
       "@fider/pages/Administration/pages/Export.page"
     )
-);
+)
 
 export const AsyncInvitationsPage = load(
   () =>
@@ -77,7 +77,7 @@ export const AsyncInvitationsPage = load(
       /* webpackChunkName: "Invitations.page" */
       "@fider/pages/Administration/pages/Invitations.page"
     )
-);
+)
 
 export const AsyncManageAuthenticationPage = load(
   () =>
@@ -85,7 +85,7 @@ export const AsyncManageAuthenticationPage = load(
       /* webpackChunkName: "ManageAuthentication.page" */
       "@fider/pages/Administration/pages/ManageAuthentication.page"
     )
-);
+)
 
 export const AsyncAdvancedSettingsPage = load(
   () =>
@@ -93,7 +93,7 @@ export const AsyncAdvancedSettingsPage = load(
       /* webpackChunkName: "AdvancedSettings.page" */
       "@fider/pages/Administration/pages/AdvancedSettings.page"
     )
-);
+)
 
 export const AsyncGeneralSettingsPage = load(
   () =>
@@ -101,7 +101,7 @@ export const AsyncGeneralSettingsPage = load(
       /* webpackChunkName: "GeneralSettings.page" */
       "@fider/pages/Administration/pages/GeneralSettings.page"
     )
-);
+)
 
 export const AsyncSignInPage = load(
   () =>
@@ -109,7 +109,7 @@ export const AsyncSignInPage = load(
       /* webpackChunkName: "SignIn.page" */
       "@fider/pages/SignIn/SignIn.page"
     )
-);
+)
 
 export const AsyncSignUpPage = load(
   () =>
@@ -117,7 +117,7 @@ export const AsyncSignUpPage = load(
       /* webpackChunkName: "SignUp.page" */
       "@fider/pages/SignUp/SignUp.page"
     )
-);
+)
 
 export const AsyncCompleteSignInProfilePage = load(
   () =>
@@ -125,7 +125,7 @@ export const AsyncCompleteSignInProfilePage = load(
       /* webpackChunkName: "CompleteSignInProfile.page" */
       "@fider/pages/CompleteSignInProfile/CompleteSignInProfile.page"
     )
-);
+)
 
 export const AsyncMyNotificationsPage = load(
   () =>
@@ -133,7 +133,7 @@ export const AsyncMyNotificationsPage = load(
       /* webpackChunkName: "MyNotifications.page" */
       "@fider/pages/MyNotifications/MyNotifications.page"
     )
-);
+)
 
 export const AsyncMySettingsPage = load(
   () =>
@@ -141,7 +141,7 @@ export const AsyncMySettingsPage = load(
       /* webpackChunkName: "MySettings.page" */
       "@fider/pages/MySettings/MySettings.page"
     )
-);
+)
 
 export const AsyncOAuthEchoPage = load(
   () =>
@@ -149,7 +149,7 @@ export const AsyncOAuthEchoPage = load(
       /* webpackChunkName: "OAuthEcho.page" */
       "@fider/pages/OAuthEcho/OAuthEcho.page"
     )
-);
+)
 
 export const AsyncUIToolkitPage = load(
   () =>
@@ -157,4 +157,4 @@ export const AsyncUIToolkitPage = load(
       /* webpackChunkName: "UIToolkit.page" */
       "@fider/pages/UI/UIToolkit.page"
     )
-);
+)

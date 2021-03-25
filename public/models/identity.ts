@@ -1,13 +1,13 @@
 export interface Tenant {
-  id: number;
-  name: string;
-  cname: string;
-  subdomain: string;
-  invitation: string;
-  welcomeMessage: string;
-  status: TenantStatus;
-  isPrivate: boolean;
-  logoBlobKey: string;
+  id: number
+  name: string
+  cname: string
+  subdomain: string
+  invitation: string
+  welcomeMessage: string
+  status: TenantStatus
+  isPrivate: boolean
+  logoBlobKey: string
 }
 
 export enum TenantStatus {
@@ -17,11 +17,11 @@ export enum TenantStatus {
 }
 
 export interface User {
-  id: number;
-  name: string;
-  role: UserRole;
-  status: UserStatus;
-  avatarURL: string;
+  id: number
+  name: string
+  role: UserRole
+  status: UserStatus
+  avatarURL: string
 }
 
 export enum UserAvatarType {
@@ -43,18 +43,18 @@ export enum UserRole {
 }
 
 export const isCollaborator = (role: UserRole): boolean => {
-  return role === UserRole.Collaborator || role === UserRole.Administrator;
-};
+  return role === UserRole.Collaborator || role === UserRole.Administrator
+}
 
 export interface CurrentUser {
-  id: number;
-  name: string;
-  email: string;
-  avatarType: UserAvatarType;
-  avatarBlobKey: string;
-  avatarURL: string;
-  role: UserRole;
-  status: UserStatus;
-  isAdministrator: boolean;
-  isCollaborator: boolean;
+  id: number
+  name: string
+  email: string
+  avatarType: UserAvatarType
+  avatarBlobKey: string
+  avatarURL: string
+  role: UserRole
+  status: UserStatus
+  isAdministrator: boolean
+  isCollaborator: boolean
 }

@@ -1,44 +1,44 @@
-import React from "react";
-import { uploadedImageURL } from "@fider/services";
-import { useFider } from "@fider/hooks";
-import { Tenant } from "@fider/models";
+import React from "react"
+import { uploadedImageURL } from "@fider/services"
+import { useFider } from "@fider/hooks"
+import { Tenant } from "@fider/models"
 
-type Size = 24 | 50 | 100 | 200;
+type Size = 24 | 50 | 100 | 200
 
 interface TenantLogoProps {
-  size: Size;
-  useFiderIfEmpty?: boolean;
+  size: Size
+  useFiderIfEmpty?: boolean
 }
 
 export const TenantLogoURL = (tenant: Tenant, size: Size): string | undefined => {
   if (tenant && tenant.logoBlobKey) {
-    return uploadedImageURL(tenant.logoBlobKey, size);
+    return uploadedImageURL(tenant.logoBlobKey, size)
   }
-  return undefined;
-};
+  return undefined
+}
 
 export const TenantLogo = (props: TenantLogoProps) => {
-  const fider = useFider();
+  const fider = useFider()
 
-  const tenant = fider.session.tenant;
+  const tenant = fider.session.tenant
   if (tenant && tenant.logoBlobKey) {
-    return <img src={TenantLogoURL(fider.session.tenant, props.size)} alt={tenant.name} />;
+    return <img src={TenantLogoURL(fider.session.tenant, props.size)} alt={tenant.name} />
   } else if (props.useFiderIfEmpty) {
-    return <img src="https://getfider.com/images/logo-100x100.png" alt="Fider" />;
+    return <img src="https://getfider.com/images/logo-100x100.png" alt="Fider" />
   }
-  return null;
-};
+  return null
+}
 
 TenantLogo.defaultProps = {
   useFiderIfEmpty: false,
-};
+}
 
 interface OAuthProviderLogoProps {
   option: {
-    provider?: string;
-    displayName: string;
-    logoBlobKey?: string;
-  };
+    provider?: string
+    displayName: string
+    logoBlobKey?: string
+  }
 }
 
 const systemProvidersLogo: { [key: string]: string } = {
@@ -46,23 +46,23 @@ const systemProvidersLogo: { [key: string]: string } = {
   facebook: `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvVFIvMjAwMS9SRUMtU1ZHLTIwMDEwOTA0L0RURC9zdmcxMC5kdGQnPjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzIgMzIiIGhlaWdodD0iMzJweCIgaWQ9IkxheWVyXzEiIHZlcnNpb249IjEuMCIgdmlld0JveD0iMCAwIDMyIDMyIiB3aWR0aD0iMzJweCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PGc+PHBhdGggZD0iTTMyLDMwYzAsMS4xMDQtMC44OTYsMi0yLDJIMmMtMS4xMDQsMC0yLTAuODk2LTItMlYyYzAtMS4xMDQsMC44OTYtMiwyLTJoMjhjMS4xMDQsMCwyLDAuODk2LDIsMlYzMHoiIGZpbGw9IiMzQjU5OTgiLz48cGF0aCBkPSJNMjIsMzJWMjBoNGwxLTVoLTV2LTJjMC0yLDEuMDAyLTMsMy0zaDJWNWMtMSwwLTIuMjQsMC00LDBjLTMuNjc1LDAtNiwyLjg4MS02LDd2M2gtNHY1aDR2MTJIMjJ6IiBmaWxsPSIjRkZGRkZGIiBpZD0iZiIvPjwvZz48Zy8+PGcvPjxnLz48Zy8+PGcvPjxnLz48L3N2Zz4=`,
   github:
     "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvVFIvMjAwMS9SRUMtU1ZHLTIwMDEwOTA0L0RURC9zdmcxMC5kdGQnPjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzIgMzIiIGhlaWdodD0iMzJweCIgaWQ9IkxheWVyXzEiIHZlcnNpb249IjEuMCIgdmlld0JveD0iMCAwIDMyIDMyIiB3aWR0aD0iMzJweCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMTYuMDAzLDBDNy4xNywwLDAuMDA4LDcuMTYyLDAuMDA4LDE1Ljk5NyAgYzAsNy4wNjcsNC41ODIsMTMuMDYzLDEwLjk0LDE1LjE3OWMwLjgsMC4xNDYsMS4wNTItMC4zMjgsMS4wNTItMC43NTJjMC0wLjM4LDAuMDA4LTEuNDQyLDAtMi43NzcgIGMtNC40NDksMC45NjctNS4zNzEtMi4xMDctNS4zNzEtMi4xMDdjLTAuNzI3LTEuODQ4LTEuNzc1LTIuMzQtMS43NzUtMi4zNGMtMS40NTItMC45OTIsMC4xMDktMC45NzMsMC4xMDktMC45NzMgIGMxLjYwNSwwLjExMywyLjQ1MSwxLjY0OSwyLjQ1MSwxLjY0OWMxLjQyNywyLjQ0MywzLjc0MywxLjczNyw0LjY1NCwxLjMyOWMwLjE0Ni0xLjAzNCwwLjU2LTEuNzM5LDEuMDE3LTIuMTM5ICBjLTMuNTUyLTAuNDA0LTcuMjg2LTEuNzc2LTcuMjg2LTcuOTA2YzAtMS43NDcsMC42MjMtMy4xNzQsMS42NDYtNC4yOTJDNy4yOCwxMC40NjQsNi43Myw4LjgzNyw3LjYwMiw2LjYzNCAgYzAsMCwxLjM0My0wLjQzLDQuMzk4LDEuNjQxYzEuMjc2LTAuMzU1LDIuNjQ1LTAuNTMyLDQuMDA1LTAuNTM4YzEuMzU5LDAuMDA2LDIuNzI3LDAuMTgzLDQuMDA1LDAuNTM4ICBjMy4wNTUtMi4wNyw0LjM5Ni0xLjY0MSw0LjM5Ni0xLjY0MWMwLjg3MiwyLjIwMywwLjMyMywzLjgzLDAuMTU5LDQuMjM0YzEuMDIzLDEuMTE4LDEuNjQ0LDIuNTQ1LDEuNjQ0LDQuMjkyICBjMCw2LjE0Ni0zLjc0LDcuNDk4LTcuMzA0LDcuODkzQzE5LjQ3OSwyMy41NDgsMjAsMjQuNTA4LDIwLDI2YzAsMiwwLDMuOTAyLDAsNC40MjhjMCwwLjQyOCwwLjI1OCwwLjkwMSwxLjA3LDAuNzQ2ICBDMjcuNDIyLDI5LjA1NSwzMiwyMy4wNjIsMzIsMTUuOTk3QzMyLDcuMTYyLDI0LjgzOCwwLDE2LjAwMywweiIgZmlsbD0iIzE4MTYxNiIgZmlsbC1ydWxlPSJldmVub2RkIi8+PGcvPjxnLz48Zy8+PGcvPjxnLz48Zy8+PC9zdmc+",
-};
+}
 
 export const OAuthProviderLogoURL = (logoBlobKey?: string): string | undefined => {
   if (logoBlobKey) {
-    return uploadedImageURL(logoBlobKey, 100);
+    return uploadedImageURL(logoBlobKey, 100)
   }
-  return undefined;
-};
+  return undefined
+}
 
 export const OAuthProviderLogo = (props: OAuthProviderLogoProps) => {
   if (props.option.logoBlobKey) {
-    return <img src={OAuthProviderLogoURL(props.option.logoBlobKey)} alt={props.option.displayName} />;
+    return <img src={OAuthProviderLogoURL(props.option.logoBlobKey)} alt={props.option.displayName} />
   }
 
   if (props.option.provider && props.option.provider in systemProvidersLogo) {
-    return <img src={systemProvidersLogo[props.option.provider]} alt={props.option.displayName} />;
+    return <img src={systemProvidersLogo[props.option.provider]} alt={props.option.displayName} />
   }
 
-  return null;
-};
+  return null
+}

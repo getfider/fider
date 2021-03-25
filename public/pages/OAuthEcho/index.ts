@@ -1,1 +1,1 @@
-export * from "./OAuthEcho.page";
+export * from "./OAuthEcho.page"

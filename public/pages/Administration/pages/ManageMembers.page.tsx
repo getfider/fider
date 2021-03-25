@@ -1,40 +1,40 @@
-import "./ManageMembers.page.scss";
+import "./ManageMembers.page.scss"
 
-import React from "react";
-import { Segment, List, Input, ListItem, Avatar, UserName, DropDown, DropDownItem } from "@fider/components/common";
-import { User, UserRole, UserStatus } from "@fider/models";
-import { AdminBasePage } from "../components/AdminBasePage";
-import { FaUsers, FaEllipsisH, FaTimes, FaSearch } from "react-icons/fa";
-import { actions, Fider } from "@fider/services";
+import React from "react"
+import { Segment, List, Input, ListItem, Avatar, UserName, DropDown, DropDownItem } from "@fider/components/common"
+import { User, UserRole, UserStatus } from "@fider/models"
+import { AdminBasePage } from "../components/AdminBasePage"
+import { FaUsers, FaEllipsisH, FaTimes, FaSearch } from "react-icons/fa"
+import { actions, Fider } from "@fider/services"
 
 interface ManageMembersPageState {
-  query: string;
-  users: User[];
-  visibleUsers: User[];
+  query: string
+  users: User[]
+  visibleUsers: User[]
 }
 
 interface ManageMembersPageProps {
-  users: User[];
+  users: User[]
 }
 
 interface UserListItemProps {
-  user: User;
-  onAction: (actionName: string, user: User) => Promise<void>;
+  user: User
+  onAction: (actionName: string, user: User) => Promise<void>
 }
 
 const UserListItem = (props: UserListItemProps) => {
-  const admin = props.user.role === UserRole.Administrator && <span className="staff">administrator</span>;
-  const collaborator = props.user.role === UserRole.Collaborator && <span className="staff">collaborator</span>;
-  const blocked = props.user.status === UserStatus.Blocked && <span className="blocked">blocked</span>;
-  const isVisitor = props.user.role === UserRole.Visitor;
+  const admin = props.user.role === UserRole.Administrator && <span className="staff">administrator</span>
+  const collaborator = props.user.role === UserRole.Collaborator && <span className="staff">collaborator</span>
+  const blocked = props.user.status === UserStatus.Blocked && <span className="blocked">blocked</span>
+  const isVisitor = props.user.role === UserRole.Visitor
 
   const renderEllipsis = () => {
-    return <FaEllipsisH />;
-  };
+    return <FaEllipsisH />
+  }
 
   const actionSelected = (item: DropDownItem) => {
-    props.onAction(item.value, props.user);
-  };
+    props.onAction(item.value, props.user)
+  }
 
   return (
     <ListItem>
@@ -63,89 +63,89 @@ const UserListItem = (props: UserListItemProps) => {
         />
       )}
     </ListItem>
-  );
-};
+  )
+}
 
 export default class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
-  public id = "p-admin-members";
-  public name = "members";
-  public icon = FaUsers;
-  public title = "Members";
-  public subtitle = "Manage your site administrators and collaborators";
+  public id = "p-admin-members"
+  public name = "members"
+  public icon = FaUsers
+  public title = "Members"
+  public subtitle = "Manage your site administrators and collaborators"
 
   constructor(props: ManageMembersPageProps) {
-    super(props);
+    super(props)
 
-    const users = this.props.users.sort(this.sortByStaff);
+    const users = this.props.users.sort(this.sortByStaff)
     this.state = {
       query: "",
       users,
       visibleUsers: users.slice(0, 10),
-    };
+    }
   }
 
   private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
-    event.preventDefault();
+    event.preventDefault()
     this.setState({
       visibleUsers: this.state.users.slice(0, this.state.visibleUsers.length + 10),
-    });
-  };
+    })
+  }
 
   private clearSearch = () => {
-    this.handleSearchFilterChanged("");
-  };
+    this.handleSearchFilterChanged("")
+  }
 
   private handleSearchFilterChanged = (query: string) => {
-    const users = this.props.users.filter((x) => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0).sort(this.sortByStaff);
-    this.setState({ query, users, visibleUsers: users.slice(0, 10) });
-  };
+    const users = this.props.users.filter((x) => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0).sort(this.sortByStaff)
+    this.setState({ query, users, visibleUsers: users.slice(0, 10) })
+  }
 
   private handleAction = async (actionName: string, user: User) => {
     const changeRole = async (role: UserRole) => {
-      const result = await actions.changeUserRole(user.id, role);
+      const result = await actions.changeUserRole(user.id, role)
       if (result.ok) {
-        user.role = role;
+        user.role = role
       }
-      this.handleSearchFilterChanged(this.state.query);
-    };
+      this.handleSearchFilterChanged(this.state.query)
+    }
 
     const changeStatus = async (status: UserStatus) => {
-      const action = status === UserStatus.Blocked ? actions.blockUser : actions.unblockUser;
-      const result = await action(user.id);
+      const action = status === UserStatus.Blocked ? actions.blockUser : actions.unblockUser
+      const result = await action(user.id)
       if (result.ok) {
-        user.status = status;
+        user.status = status
       }
-      this.forceUpdate();
-    };
+      this.forceUpdate()
+    }
 
     if (actionName === "to-collaborator") {
-      await changeRole(UserRole.Collaborator);
+      await changeRole(UserRole.Collaborator)
     } else if (actionName === "to-visitor") {
-      await changeRole(UserRole.Visitor);
+      await changeRole(UserRole.Visitor)
     } else if (actionName === "to-administrator") {
-      await changeRole(UserRole.Administrator);
+      await changeRole(UserRole.Administrator)
     } else if (actionName === "block") {
-      await changeStatus(UserStatus.Blocked);
+      await changeStatus(UserStatus.Blocked)
     } else if (actionName === "unblock") {
-      await changeStatus(UserStatus.Active);
+      await changeStatus(UserStatus.Active)
     }
-  };
+  }
 
   private sortByStaff = (left: User, right: User) => {
     if (right.role === left.role) {
       if (left.name < right.name) {
-        return -1;
+        return -1
       } else if (left.name > right.name) {
-        return 1;
+        return 1
       }
-      return 0;
+      return 0
     }
 
     if (right.role !== UserRole.Visitor) {
-      return 1;
+      return 1
     }
-    return -1;
-  };
+    return -1
+  }
 
   public content() {
     return (
@@ -174,7 +174,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
           )}
           {this.state.query && (
             <>
-              Showing {this.state.visibleUsers.length} of {this.state.users.length} users matching '{this.state.query}'
+              Showing {this.state.visibleUsers.length} of {this.state.users.length} users matching &apos;{this.state.query}&apos;
             </>
           )}
           {this.state.visibleUsers.length < this.state.users.length && (
@@ -195,6 +195,6 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
           </li>
         </ul>
       </>
-    );
+    )
   }
 }

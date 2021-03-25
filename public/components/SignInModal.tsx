@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { Modal, SignInControl, LegalFooter } from "@fider/components/common";
+import React, { useState, useEffect } from "react"
+import { Modal, SignInControl, LegalFooter } from "@fider/components/common"
 
 interface SignInModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) => {
-  const [confirmationAddress, setConfirmationAddress] = useState("");
+  const [confirmationAddress, setConfirmationAddress] = useState("")
 
   useEffect(() => {
     if (confirmationAddress) {
-      setTimeout(() => setConfirmationAddress(""), 5000);
+      setTimeout(() => setConfirmationAddress(""), 5000)
     }
-  }, [confirmationAddress]);
+  }, [confirmationAddress])
 
   const onEmailSent = (email: string): void => {
-    setConfirmationAddress(email);
-  };
+    setConfirmationAddress(email)
+  }
 
   const closeModal = () => {
-    setConfirmationAddress("");
-    props.onClose();
-  };
+    setConfirmationAddress("")
+    props.onClose()
+  }
 
   const content = confirmationAddress ? (
     <>
@@ -37,7 +37,7 @@ export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) =
     </>
   ) : (
     <SignInControl useEmail={true} onEmailSent={onEmailSent} />
-  );
+  )
 
   return (
     <Modal.Window isOpen={props.isOpen} onClose={closeModal}>
@@ -45,5 +45,5 @@ export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) =
       <Modal.Content>{content}</Modal.Content>
       <LegalFooter />
     </Modal.Window>
-  );
-};
+  )
+}
