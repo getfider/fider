@@ -48,25 +48,25 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     if (!webEnabled && !emailEnabled) {
       return (
         <p className="info">
-          You'll <strong>NOT</strong> receive any notification about this event.
+          You&apos;ll <strong>NOT</strong> receive any notification about this event.
         </p>
       );
     } else if (webEnabled && !emailEnabled) {
       return (
         <p className="info">
-          You'll receive <strong>web</strong> notifications about {about}.
+          You&apos;ll receive <strong>web</strong> notifications about {about}.
         </p>
       );
     } else if (!webEnabled && emailEnabled) {
       return (
         <p className="info">
-          You'll receive <strong>email</strong> notifications about {about}.
+          You&apos;ll receive <strong>email</strong> notifications about {about}.
         </p>
       );
     } else if (webEnabled && emailEnabled) {
       return (
         <p className="info">
-          You'll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.
+          You&apos;ll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.
         </p>
       );
     }
@@ -76,7 +76,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
   return (
     <>
       <Field label="Notifications">
-        <p className="info">Use following panel to choose which events you'd like to receive notification</p>
+        <p className="info">Use following panel to choose which events you&apos;d like to receive notification</p>
       </Field>
 
       <div className="notifications-settings">

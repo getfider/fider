@@ -25,13 +25,13 @@ const Lonely = () => {
   return (
     <div className="l-lonely center">
       <Hint permanentCloseKey="at-least-3-posts" condition={fider.session.isAuthenticated && fider.session.user.isAdministrator}>
-        It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The initial content is key to start the
+        It&apos;s recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The initial content is key to start the
         interactions with your audience.
       </Hint>
       <p>
         <FaRegLightbulb />
       </p>
-      <p>It's lonely out here. Start by sharing a suggestion!</p>
+      <p>It&apos;s lonely out here. Start by sharing a suggestion!</p>
     </div>
   );
 };

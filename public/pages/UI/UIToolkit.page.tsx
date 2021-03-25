@@ -406,7 +406,7 @@ const UIToolkitPage = () => {
 
       <h1>Hints</h1>
       <Hint permanentCloseKey="ui-toolkip-example">Did you know that you can close this permanently?</Hint>
-      <Hint>You can't close this one :)</Hint>
+      <Hint>You can&apos;t close this one :)</Hint>
 
       <h1>Form</h1>
       <Form error={error}>

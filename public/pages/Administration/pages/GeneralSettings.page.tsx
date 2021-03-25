@@ -17,14 +17,14 @@ interface GeneralSettingsPageState {
   error?: Failure;
 }
 
-export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettingsPageState> {
+export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSettingsPageState> {
   public id = "p-admin-general";
   public name = "general";
   public icon = FaCogs;
   public title = "General";
   public subtitle = "Manage your site settings";
 
-  constructor(props: {}) {
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -97,7 +97,7 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           onChange={this.setWelcomeMessage}
         >
           <p className="info">
-            The message is shown on this site's home page. Use it to help visitors understad what this space is about and the importance of their feedback.
+            The message is shown on this site&apos;s home page. Use it to help visitors understad what this space is about and the importance of their feedback.
             Leave it empty for a default message.
           </p>
         </TextArea>
@@ -112,8 +112,8 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           onChange={this.setInvitation}
         >
           <p className="info">
-            This text is used as a placeholder for the suggestion's text box. Use it to invite your visitors into sharing their suggestions and feedback. Leave
-            it empty for a default message.
+            This text is used as a placeholder for the suggestion&apos;s text box. Use it to invite your visitors into sharing their suggestions and feedback.
+            Leave it empty for a default message.
           </p>
         </Input>
 

@@ -48,7 +48,7 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
     }
   };
 
-  if (!props.isOpen) {
+  if (!props.isOpen || !root.current) {
     return null;
   }
 
@@ -65,7 +65,7 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
         {props.children}
       </div>
     </div>,
-    root.current!
+    root.current
   );
 };
 
@@ -75,20 +75,20 @@ ModalWindow.defaultProps = {
   center: true,
 };
 
+const Header = (props: { children: React.ReactNode }) => <div className="c-modal-header">{props.children}</div>;
+const Content = (props: { children: React.ReactNode }) => <div className="c-modal-content">{props.children}</div>;
+const Footer = (props: ModalFooterProps) => {
+  const align = props.align || "right";
+  const className = classSet({
+    "c-modal-footer": true,
+    [`m-${align}`]: true,
+  });
+  return <div className={className}>{props.children}</div>;
+};
+
 export const Modal = {
   Window: ModalWindow,
-  Header: (props: { children: React.ReactNode }) => {
-    return <div className="c-modal-header">{props.children}</div>;
-  },
-  Content: (props: { children: React.ReactNode }) => {
-    return <div className="c-modal-content">{props.children}</div>;
-  },
-  Footer: (props: ModalFooterProps) => {
-    const align = props.align || "right";
-    const className = classSet({
-      "c-modal-footer": true,
-      [`m-${align}`]: true,
-    });
-    return <div className={className}>{props.children}</div>;
-  },
+  Header,
+  Content,
+  Footer,
 };

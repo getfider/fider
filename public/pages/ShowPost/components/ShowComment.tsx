@@ -106,7 +106,7 @@ export const ShowComment = (props: ShowCommentProps) => {
 
   const editedMetadata = !!comment.editedAt && !!comment.editedBy && (
     <div className="c-comment-metadata">
-      <span title={`This comment has been edited by ${comment.editedBy!.name} on ${formatDate(comment.editedAt)}`}>· edited</span>
+      <span title={`This comment has been edited by ${comment.editedBy.name} on ${formatDate(comment.editedAt)}`}>· edited</span>
     </div>
   );
 

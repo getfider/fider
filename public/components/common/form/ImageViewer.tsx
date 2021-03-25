@@ -48,7 +48,7 @@ export class ImageViewer extends React.Component<ImageViewerProps, ImageViewerSt
       <Modal.Window className="c-image-viewer-modal" isOpen={this.state.showModal} onClose={this.closeModal} center={false} size="fluid">
         <Modal.Content>
           {!this.state.loadedPreview && <Loader />}
-          <img onLoad={this.onPreviewLoad} src={uploadedImageURL(this.props.bkey, 1500)} />
+          <img alt="" onLoad={this.onPreviewLoad} src={uploadedImageURL(this.props.bkey, 1500)} />
         </Modal.Content>
 
         <Modal.Footer>
@@ -66,7 +66,7 @@ export class ImageViewer extends React.Component<ImageViewerProps, ImageViewerSt
       <div className="c-image-viewer">
         {this.modal()}
         {!this.state.loadedThumbnail && <Loader />}
-        <img onClick={this.openModal} onLoad={this.onThumbnailLoad} src={previewURL} />
+        <img alt="" onClick={this.openModal} onLoad={this.onThumbnailLoad} src={previewURL} />
       </div>
     );
   }

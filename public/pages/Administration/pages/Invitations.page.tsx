@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button, ButtonClickEvent, TextArea, Form, Input, Field } from "@fider/components";
+import { Button, TextArea, Form, Input, Field } from "@fider/components";
 import { actions, notify, Failure, Fider } from "@fider/services";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { FaEnvelope } from "react-icons/fa";
@@ -14,14 +14,14 @@ interface InvitationsPageState {
   error?: Failure;
 }
 
-export default class InvitationsPage extends AdminBasePage<{}, InvitationsPageState> {
+export default class InvitationsPage extends AdminBasePage<any, InvitationsPageState> {
   public id = "p-admin-invitations";
   public name = "invitations";
   public icon = FaEnvelope;
   public title = "Invitations";
   public subtitle = "Invite people to share their feedback";
 
-  constructor(props: {}) {
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -49,7 +49,7 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
     this.setState({ rawRecipients, recipients, numOfRecipients: recipients.length });
   };
 
-  private sendSample = async (e: ButtonClickEvent) => {
+  private sendSample = async () => {
     const result = await actions.sendSampleInvite(this.state.subject, this.state.message);
     if (result.ok) {
       notify.success(
@@ -61,7 +61,7 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
     this.setState({ error: result.error });
   };
 
-  private sendInvites = async (e: ButtonClickEvent) => {
+  private sendInvites = async () => {
     const result = await actions.sendInvites(this.state.subject, this.state.message, this.state.recipients);
     if (result.ok) {
       notify.success("Your invites have been sent.");
@@ -106,10 +106,11 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
         <TextArea field="message" label="Message" minRows={8} value={this.state.message} onChange={this.setMessage}>
           <div className="info">
             <p>
-              This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a high change people will ignore your message.
+              This is the content of the invite. Be polite and explain what this invite is for, otherwise there&apos;s a high change people will ignore your
+              message.
             </p>
             <p>
-              You're allowed to write whatever you want as long as you include the invitation link placeholder named <strong>%invite%</strong>.
+              You&apos;re allowed to write whatever you want as long as you include the invitation link placeholder named <strong>%invite%</strong>.
             </p>
           </div>
         </TextArea>
@@ -121,12 +122,12 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
           {Fider.session.user.email ? (
             <Button onClick={this.sendSample}>Send a sample email to {Fider.session.user.email}</Button>
           ) : (
-            <Button disabled={true}>Your profile doesn't have an email</Button>
+            <Button disabled={true}>Your profile doesn&apos;t have an email</Button>
           )}
         </Field>
 
         <Field label="Confirmation">
-          <p className="info">Whenever you're ready, click the following button to send out these invites.</p>
+          <p className="info">Whenever you&apos;re ready, click the following button to send out these invites.</p>
           <Button onClick={this.sendInvites} color="positive" disabled={this.state.numOfRecipients === 0}>
             Send {this.state.numOfRecipients} {this.state.numOfRecipients === 1 ? "invite" : "invites"}
           </Button>

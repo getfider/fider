@@ -75,7 +75,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
         />
         <p className="info">
           Additional information is available in our{" "}
-          <a target="_blank" href="https://getfider.com/docs/configuring-oauth/">
+          <a rel="noopener" target="_blank" href="https://getfider.com/docs/configuring-oauth/">
             OAuth Documentation
           </a>
           .

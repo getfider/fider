@@ -2,7 +2,7 @@ import "./AdvancedSettings.page.scss";
 
 import React from "react";
 
-import { TextArea, Form, Button, ButtonClickEvent } from "@fider/components";
+import { TextArea, Form, Button } from "@fider/components";
 import { Failure, actions, Fider } from "@fider/services";
 import { FaStar } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
@@ -35,7 +35,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
     this.setState({ customCSS });
   };
 
-  private handleSave = async (e: ButtonClickEvent): Promise<void> => {
+  private handleSave = async (): Promise<void> => {
     const result = await actions.updateTenantAdvancedSettings(this.state.customCSS);
     if (result.ok) {
       location.reload();
@@ -61,12 +61,12 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
             This is a powerful and flexible feature, but requires basic understanding of <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS">CSS</a>.
           </p>
           <p className="info">
-            Custom CSS might break the design of your site as Fider evolves. By doing this, you're taking this risk, and you will need to fix issues if they
-            arise. <br /> You can minimize some issues by following these recommendations:
+            Custom CSS might break the design of your site as Fider evolves. By doing this, you&apos;re taking this risk, and you will need to fix issues if
+            they arise. <br /> You can minimize some issues by following these recommendations:
           </p>
           <ul className="info">
             <li>
-              <strong>Avoid nested selectors</strong>: Fider might change the structure of the HTML at any time, and it's likely that such changes would
+              <strong>Avoid nested selectors</strong>: Fider might change the structure of the HTML at any time, and it&apos;s likely that such changes would
               invalidate some rules.
             </li>
             <li>

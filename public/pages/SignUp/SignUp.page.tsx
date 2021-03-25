@@ -24,10 +24,10 @@ interface SignUpPageState {
   };
 }
 
-export default class SignUpPage extends React.Component<{}, SignUpPageState> {
+export default class SignUpPage extends React.Component<any, SignUpPageState> {
   private user?: OAuthUser;
 
-  constructor(props: {}) {
+  constructor(props: any) {
     super(props);
     this.state = {
       submitted: false,
@@ -142,7 +142,7 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
     return (
       <div id="p-signup" className="page container">
         {modal}
-        <img className="logo" src="https://getfider.com/images/logo-100x100.png" />
+        <img className="logo" alt="Logo" src="https://getfider.com/images/logo-100x100.png" />
 
         <h3>1. Who are you?</h3>
         <DisplayError fields={["token"]} error={this.state.error} />

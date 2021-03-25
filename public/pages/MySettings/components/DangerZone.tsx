@@ -7,8 +7,8 @@ interface DangerZoneState {
   clicked: boolean;
 }
 
-export class DangerZone extends React.Component<{}, DangerZoneState> {
-  constructor(props: {}) {
+export class DangerZone extends React.Component<any, DangerZoneState> {
+  constructor(props: any) {
     super(props);
     this.state = {
       clicked: false,

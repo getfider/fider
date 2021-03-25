@@ -1,4 +1,6 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
+
 import { parse as parseURL } from "url";
 import * as http from "http";
 import * as https from "https";
@@ -6,7 +8,7 @@ import { delay } from "./";
 
 const httpGet = (endpoint: string): Promise<any> => {
   const url = parseURL(endpoint);
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const opts = {
       host: url.host,
       port: 443,

@@ -6,8 +6,8 @@ interface APIKeyFormState {
   apiKey?: string;
 }
 
-export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
-  constructor(props: {}) {
+export class APIKeyForm extends React.Component<any, APIKeyFormState> {
+  constructor(props: any) {
     super(props);
     this.state = {};
   }
@@ -39,7 +39,7 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
         </p>
         <p className="info">
           To learn how to use the API, read the{" "}
-          <a href="https://getfider.com/docs/api" target="_blank">
+          <a rel="noopener" href="https://getfider.com/docs/api" target="_blank">
             official documentation
           </a>
           .

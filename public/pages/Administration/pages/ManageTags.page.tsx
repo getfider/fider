@@ -76,7 +76,7 @@ export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, M
     });
   };
 
-  private handleTagEdited = (tag: Tag) => {
+  private handleTagEdited = () => {
     this.setState({
       allTags: this.state.allTags.sort(tagSorter),
     });

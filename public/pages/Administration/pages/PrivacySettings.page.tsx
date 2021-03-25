@@ -10,14 +10,14 @@ interface PrivacySettingsPageState {
   isPrivate: boolean;
 }
 
-export default class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettingsPageState> {
+export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySettingsPageState> {
   public id = "p-admin-privacy";
   public name = "privacy";
   public icon = FaKey;
   public title = "Privacy";
   public subtitle = "Manage your site privacy";
 
-  constructor(props: {}) {
+  constructor(props: any) {
     super(props);
 
     this.state = {
@@ -27,7 +27,7 @@ export default class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettin
 
   private toggle = async (active: boolean) => {
     this.setState(
-      (state) => ({
+      () => ({
         isPrivate: active,
       }),
       async () => {

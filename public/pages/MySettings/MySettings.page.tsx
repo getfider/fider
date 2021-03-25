@@ -176,10 +176,10 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 {this.state.avatarType === UserAvatarType.Gravatar && (
                   <p className="info">
                     A{" "}
-                    <a href="https://en.gravatar.com" target="_blank">
+                    <a rel="noopener" href="https://en.gravatar.com" target="_blank">
                       Gravatar
                     </a>{" "}
-                    will be used based on your email. If you don't have a Gravatar, a letter avatar based on your initials is generated for you.
+                    will be used based on your email. If you don&apos;t have a Gravatar, a letter avatar based on your initials is generated for you.
                   </p>
                 )}
                 {this.state.avatarType === UserAvatarType.Letter && <p className="info">A letter avatar based on your initials is generated for you.</p>}

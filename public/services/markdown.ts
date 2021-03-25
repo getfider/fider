@@ -24,7 +24,7 @@ const link = (href: string, title: string, text: string) => {
 };
 
 const simpleRenderer = new marked.Renderer();
-simpleRenderer.heading = (_, _, raw) => `<p>${raw}</p>`;
+simpleRenderer.heading = (_text, _level, raw) => `<p>${raw}</p>`;
 simpleRenderer.image = () => "";
 simpleRenderer.link = link;
 

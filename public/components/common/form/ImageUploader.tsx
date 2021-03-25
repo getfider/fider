@@ -4,7 +4,7 @@ import React from "react";
 import { ValidationContext } from "./Form";
 import { DisplayError, hasError } from "./DisplayError";
 import { classSet, fileToBase64, uploadedImageURL } from "@fider/services";
-import { Button, ButtonClickEvent, Modal } from "@fider/components";
+import { Button, Modal } from "@fider/components";
 import { FaRegImage } from "react-icons/fa";
 import { ImageUpload } from "@fider/models";
 
@@ -65,7 +65,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     }
   };
 
-  public removeFile = async (e: ButtonClickEvent) => {
+  public removeFile = async () => {
     if (this.fileSelector) {
       this.fileSelector.value = "";
     }
@@ -91,7 +91,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     );
   };
 
-  public selectFile = async (e: ButtonClickEvent) => {
+  public selectFile = async () => {
     if (this.fileSelector) {
       this.fileSelector.click();
     }
@@ -108,7 +108,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
   private modal() {
     return (
       <Modal.Window className="c-image-viewer-modal" isOpen={this.state.showModal} onClose={this.closeModal} center={false} size="fluid">
-        <Modal.Content>{this.props.bkey ? <img src={uploadedImageURL(this.props.bkey)} /> : <img src={this.state.previewURL} />}</Modal.Content>
+        <Modal.Content>{this.props.bkey ? <img alt="" src={uploadedImageURL(this.props.bkey)} /> : <img alt="" src={this.state.previewURL} />}</Modal.Content>
 
         <Modal.Footer>
           <Button color="cancel" onClick={this.closeModal}>
@@ -142,7 +142,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
 
             {hasFile && (
               <div className="preview">
-                <img onClick={this.openModal} src={this.state.previewURL} style={imgStyles} />
+                <img alt="" onClick={this.openModal} src={this.state.previewURL} style={imgStyles} />
                 {!this.props.disabled && (
                   <Button onClick={this.removeFile} color="danger">
                     X

@@ -38,7 +38,7 @@ export const DisplayError = (props: DisplayErrorProps) => {
     items = arrayToTag(dict[""]);
   } else if (props.fields) {
     for (const field of props.fields || Object.keys(dict)) {
-      if (dict.hasOwnProperty(field)) {
+      if (Object.prototype.hasOwnProperty.call(dict, field)) {
         const tags = arrayToTag(dict[field]);
         tags.forEach((t) => items.push(t));
       }

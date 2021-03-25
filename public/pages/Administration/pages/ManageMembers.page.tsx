@@ -174,7 +174,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
           )}
           {this.state.query && (
             <>
-              Showing {this.state.visibleUsers.length} of {this.state.users.length} users matching '{this.state.query}'
+              Showing {this.state.visibleUsers.length} of {this.state.users.length} users matching &apos;{this.state.query}&apos;
             </>
           )}
           {this.state.visibleUsers.length < this.state.users.length && (

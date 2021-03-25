@@ -34,9 +34,7 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   }
 });
 (() => {
-  let fider;
-
-  fider = Fider.initialize();
+  const fider = Fider.initialize();
 
   __webpack_nonce__ = fider.session.contextID;
   __webpack_public_path__ = `${fider.settings.globalAssetsURL}/assets/`;

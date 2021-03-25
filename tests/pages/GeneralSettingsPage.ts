@@ -1,5 +1,5 @@
-import { BrowserTab, WaitCondition, Page, elementIsVisible, findBy, TextInput, WebComponent, Button, pageHasLoaded } from "../lib";
-import { HomePage, FacebookSignInPage } from ".";
+import { BrowserTab, WaitCondition, Page, elementIsVisible, findBy, TextInput, Button, pageHasLoaded } from "../lib";
+import { HomePage } from ".";
 
 export class GeneralSettingsPage extends Page {
   constructor(tab: BrowserTab) {

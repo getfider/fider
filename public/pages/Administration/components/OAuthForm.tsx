@@ -228,7 +228,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
                   enabling it. The Test button is available after saving this configuration.
                 </p>
               )}
-              {!enabled && <p className="info">Users won't be able to sign in with this Provider.</p>}
+              {!enabled && <p className="info">Users won&apos;t be able to sign in with this Provider.</p>}
             </Field>
           </div>
         </div>

@@ -19,7 +19,7 @@ const ok = <FaCheckCircle className="check" />;
 const error = <FaTimesCircle className="error" />;
 const warn = <FaExclamationTriangle className="warn" />;
 
-export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
+export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, any> {
   public componentDidMount() {
     navigator.replaceState("/");
   }
@@ -64,7 +64,7 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {
               <strong>Name:</strong> {this.props.profile && this.props.profile.name}
               {!nameOk && (
                 <p className="info">
-                  Name is required, if not found we'll use <strong>Anonymous</strong> as the name of every new user.
+                  Name is required, if not found we&apos;ll use <strong>Anonymous</strong> as the name of every new user.
                 </p>
               )}
             </p>
@@ -75,7 +75,7 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {
               <strong>Email:</strong> {this.props.profile && this.props.profile.email}
               {!emailOk && (
                 <p className="info">
-                  Email is not required, but highly recommended. If invalid or not found, new users won't be able to receive notifications.
+                  Email is not required, but highly recommended. If invalid or not found, new users won&apos;t be able to receive notifications.
                 </p>
               )}
             </p>

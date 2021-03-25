@@ -33,7 +33,7 @@ export class BrowserTab {
     await this.page.waitForFunction(inst.function, { timeout }, ...inst.args);
   }
 
-  public async press(key: string): Promise<void> {
+  public async press(key: puppeteer.KeyInput): Promise<void> {
     await this.page.keyboard.press(key);
   }
 

@@ -16,7 +16,7 @@ export const set = (name: string, value: any): string => {
 };
 
 export const get = (name: string): string => {
-  name = name.replace(/[\[\]]/g, "\\$&");
+  name = name.replace(/[[\]]/g, "\\$&");
   const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
   const results = regex.exec(navigator.url());
 

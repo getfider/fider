@@ -19,7 +19,8 @@ export class FiderSession {
   }
 
   public get user(): CurrentUser {
-    return this.pUser!;
+    if (!this.pUser) throw new Error("User is undefined");
+    return this.pUser;
   }
 
   public get tenant(): Tenant {

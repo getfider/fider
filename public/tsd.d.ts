@@ -1,3 +1,5 @@
+export {};
+
 declare global {
   interface Window {
     ga?: (cmd: string, evt: string, args?: any) => void;
@@ -7,5 +9,3 @@ declare global {
   let __webpack_nonce__: string;
   let __webpack_public_path__: string;
 }
-
-declare let require: (id: string) => any;

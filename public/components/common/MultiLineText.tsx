@@ -1,13 +1,13 @@
 import React from "react";
 import { markdown } from "@fider/services";
 
-interface MultiLineText {
+interface MultiLineTextProps {
   className?: string;
   text?: string;
   style: "full" | "simple";
 }
 
-export const MultiLineText = (props: MultiLineText) => {
+export const MultiLineText = (props: MultiLineTextProps) => {
   if (!props.text) {
     return <p />;
   }

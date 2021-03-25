@@ -16,7 +16,6 @@ module.exports = {
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
-    "plugin:jsx-a11y/recommended",
     "plugin:prettier/recommended",
   ],
   rules: {
@@ -24,6 +23,8 @@ module.exports = {
     "prettier/prettier": ["error", {}, { usePrettierrc: true }],
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off", // turn this on in future
+    "react/jsx-no-target-blank": ["error", { "allowReferrer": true }],
+    "@typescript-eslint/no-explicit-any": "off", // TODO: turn this on in future
+    "@typescript-eslint/explicit-module-boundary-types": "off" // TODO: turn this on in future
   },
 };

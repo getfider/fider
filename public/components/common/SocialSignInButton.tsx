@@ -23,7 +23,7 @@ export const SocialSignInButton = (props: SocialSignInButtonProps) => {
 
   return (
     <Button href={href} rel="nofollow" fluid={true} className={className}>
-      {props.option.logoURL ? <img src={props.option.logoURL} /> : <OAuthProviderLogo option={props.option} />}
+      {props.option.logoURL ? <img alt={props.option.displayName} src={props.option.logoURL} /> : <OAuthProviderLogo option={props.option} />}
       <span>{props.option.displayName}</span>
     </Button>
   );
