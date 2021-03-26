@@ -53,7 +53,7 @@ jobs:
       - name: push docker image (push)
         if: ${{ github.event.workflow_run.event == 'push' }}
         run: |
-          docker tag getfider/fider getfider/fider:PR_$(cat ./sha7)
-          docker push getfider/fider:PR_$(cat ./sha7)
-          docker tag getfider/fider getfider/fider:master
-          docker push getfider/fider:master
+          docker tag getfider/fider getfider/fider:SHA_$(cat ./sha7)
+          docker push getfider/fider:SHA_$(cat ./sha7)
+          docker tag getfider/fider getfider/fider:main
+          docker push getfider/fider:main
