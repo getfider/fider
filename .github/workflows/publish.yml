@@ -43,13 +43,13 @@ jobs:
           password: ${{ secrets.DOCKER_PASS }}
 
       - name: push docker image (pull_request)
-        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           docker tag getfider/fider getfider/fider:PR_$(cat ./pr)
           docker push getfider/fider:PR_$(cat ./pr)
 
       - name: push docker image (push)
-        if: ${{ github.event.workflow_run.event == 'push' }}
+        if: ${{ github.event_name == 'push' }}
         run: |
           docker tag getfider/fider getfider/fider:PR_$(cat ./sha7)
           docker push getfider/fider:PR_$(cat ./sha7)
