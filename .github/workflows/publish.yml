@@ -11,7 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: "Download artifact"
+      - name: log event context
+        env:
+          EVENT: ${{ toJSON(github.event) }}
+        run: echo "$EVENT"
+      - name: download artifact
         uses: actions/github-script@v3.1.0
         with:
           script: |
@@ -32,8 +36,6 @@ jobs:
             var fs = require('fs');
             fs.writeFileSync('${{github.workspace}}/out.zip', Buffer.from(download.data));
       - run: unzip out.zip
-      - run: ls -lh
-
       - run: docker load --input fider.tar
 
       - name: Login to Docker Hub

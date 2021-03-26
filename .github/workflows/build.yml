@@ -1,4 +1,4 @@
-name: fider
+name: build
 
 on:
   push:
@@ -72,25 +72,27 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-server, test-ui]
     steps:
-      - name: checkout code
-        uses: actions/checkout@v1
-      - run: docker build -t getfider/fider .
+      - uses: actions/checkout@v2
 
-      - name: extract branch name
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: getBranch
-
-      - uses: azure/docker-login@v1
-        if: steps.getBranch.outputs.branch == 'master'
-        with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASS }}
-
-      - name: push docker image
-        if: steps.getBranch.outputs.branch == 'master'
+      - name: extract variables
         run: |
-          export SHORT_SHA=`git rev-parse --short=7 ${GITHUB_SHA}`
-          docker tag getfider/fider getfider/fider:${SHORT_SHA}
-          docker push getfider/fider:${SHORT_SHA}
-          docker tag getfider/fider getfider/fider:master
-          docker push getfider/fider:master
+          echo "##[set-output name=sha7;]$(echo ${GITHUB_SHA::7})"
+          echo sha7=${GITHUB_SHA::7}
+        id: vars
+
+      - run: docker build --build-arg buildnumber=${{ steps.vars.outputs.sha7 }} -t getfider/fider .
+
+      - run: mkdir -p ./out
+
+      - run: docker save -o ./out/fider.tar getfider/fider
+
+      - run: echo ${{ github.event.number }} > ./out/pr
+        if: ${{ github.event_name == 'pull_request' }}
+
+      - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
+        if: ${{ github.event_name == 'push' }}
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: out
+          path: out/

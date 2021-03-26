@@ -3,11 +3,13 @@
 #####################
 FROM golang:1.16.2-buster AS server-builder 
 
+ARG buildnumber=local
+
 RUN mkdir /server
 WORKDIR /server
 
 COPY . .
-RUN GOOS=linux GOARCH=amd64 make build-server
+RUN BUILDNUMBER=${buildnumber} GOOS=linux GOARCH=amd64 make build-server
 
 #################
 ### UI Build Step

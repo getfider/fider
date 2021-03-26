@@ -2,8 +2,8 @@
 ##
 ## For more information, refer to https://suva.sh/posts/well-documented-makefiles/
 
-LDFLAGS += -X main.buildtime=$(shell date -u "+%Y-%m-%dT%H:%M:%S")"
-LDFLAGS += -X main.buildnumber=${GITHUB_RUN_ID}"
+LDFLAGS += -X main.buildtime=$(shell date -u "+%Y-%m-%dT%H:%M:%S")
+LDFLAGS += -X main.buildnumber=${BUILDNUMBER}
 
 ##@ Running
 
