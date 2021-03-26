@@ -76,32 +76,23 @@ jobs:
 
       - name: extract variables
         run: |
-          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
           echo "##[set-output name=sha7;]$(echo ${GITHUB_SHA::7})"
+          echo sha7=${{ steps.vars.outputs.sha7 }}
         id: vars
 
       - run: docker build --build-arg buildnumber=${{ steps.vars.outputs.sha7 }} -t getfider/fider .
+
       - run: mkdir -p ./out
-      - run: docker save getfider/fider > ./out/fider.tar
-      - run: echo PR_${{ github.event.number }} > ./out/name
-        if: steps.vars.outputs.branch != 'master'
-      - run: echo SHA_${{ steps.vars.outputs.sha7 }} > ./out/name
-        if: steps.vars.outputs.branch != 'master'
+
+      - run: docker save -o ./out/fider.tar getfider/fider
+
+      - run: echo ${{ github.event.number }} > ./out/pr
+        if: ${{ github.event.workflow_run.conclusion == 'pull_request' }}
+
+      - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
+        if: ${{ github.event.workflow_run.conclusion == 'push' }}
+
       - uses: actions/upload-artifact@v2
         with:
           name: out
           path: out/
-
-      # - uses: azure/docker-login@v1
-      #   if: steps.vars.outputs.branch == 'master'
-      #   with:
-      #     username: ${{ secrets.DOCKER_USER }}
-      #     password: ${{ secrets.DOCKER_PASS }}
-
-      # - name: push docker image
-      #   if: steps.vars.outputs.branch == 'master'
-      #   run: |
-      #     docker tag getfider/fider getfider/fider:${{ steps.vars.outputs.sha7 }}
-      #     docker push getfider/fider:${{ steps.vars.outputs.sha7 }}
-      #     docker tag getfider/fider getfider/fider:master
-      #     docker push getfider/fider:master
