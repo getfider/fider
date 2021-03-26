@@ -77,7 +77,7 @@ jobs:
       - name: extract variables
         run: |
           echo "##[set-output name=sha7;]$(echo ${GITHUB_SHA::7})"
-          echo sha7=${{ steps.vars.outputs.sha7 }}
+          echo sha7=${GITHUB_SHA::7}
         id: vars
 
       - run: docker build --build-arg buildnumber=${{ steps.vars.outputs.sha7 }} -t getfider/fider .
@@ -87,10 +87,10 @@ jobs:
       - run: docker save -o ./out/fider.tar getfider/fider
 
       - run: echo ${{ github.event.number }} > ./out/pr
-        if: ${{ github.event.workflow_run.conclusion == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' }}
 
       - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
-        if: ${{ github.event.workflow_run.conclusion == 'push' }}
+        if: ${{ github.event_name == 'push' }}
 
       - uses: actions/upload-artifact@v2
         with:
