@@ -16,14 +16,17 @@ import (
 type config struct {
 	Environment    string `env:"GO_ENV,default=production"`
 	SignUpDisabled bool   `env:"SIGNUP_DISABLED,default=false"`
-	AutoSSL        bool   `env:"SSL_AUTO,default=false"`
-	SSLCert        string `env:"SSL_CERT"`
-	SSLCertKey     string `env:"SSL_CERT_KEY"`
-	Port           string `env:"PORT,default=3000"`
-	HostMode       string `env:"HOST_MODE,default=single"`
-	HostDomain     string `env:"HOST_DOMAIN,required"`
-	JWTSecret      string `env:"JWT_SECRET,required"`
-	Rendergun      struct {
+	TLS            struct {
+		Automatic   bool   `env:"SSL_AUTO,default=false"`
+		Certificate string `env:"SSL_CERT"`
+		PrivateKey  string `env:"SSL_CERT_KEY"`
+		Force       bool   `env:"SSL_FORCE,default=false"`
+	}
+	Port       string `env:"PORT,default=3000"`
+	HostMode   string `env:"HOST_MODE,default=single"`
+	HostDomain string `env:"HOST_DOMAIN,required"`
+	JWTSecret  string `env:"JWT_SECRET,required"`
+	Rendergun  struct {
 		URL string `env:"RENDERGUN_URL"`
 	}
 	Experimental_SSR_SEO bool `env:"EXPERIMENTAL_SSR_SEO,default=false"`
@@ -62,11 +65,11 @@ type config struct {
 			Region string `env:"EMAIL_MAILGUN_REGION,default=US"`
 		}
 		SMTP struct {
-			Host            string  `env:"EMAIL_SMTP_HOST"`
-			Port            string  `env:"EMAIL_SMTP_PORT"`
-			Username        string  `env:"EMAIL_SMTP_USERNAME"`
-			Password        string  `env:"EMAIL_SMTP_PASSWORD"`
-			EnableStartTLS  bool    `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			Host           string `env:"EMAIL_SMTP_HOST"`
+			Port           string `env:"EMAIL_SMTP_PORT"`
+			Username       string `env:"EMAIL_SMTP_USERNAME"`
+			Password       string `env:"EMAIL_SMTP_PASSWORD"`
+			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
 		}
 	}
 	BlobStorage struct {
