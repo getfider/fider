@@ -13,7 +13,7 @@ import (
 var (
 	// replaced during CI build
 	buildtime   = ""
-	buildnumber = "local"
+	// buildnumber = "local"
 
 	// Use this for non-stable releases
 	// version = "x.y.z-" + buildnumber
