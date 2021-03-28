@@ -98,7 +98,7 @@ module.exports = {
         vendor: {
           chunks: "all",
           name: "vendor",
-          test: /react|react-dom|tslib|react-textarea-autosize|react-icons/,
+          test: /(react($|\/)|react-dom|tslib|react-textarea-autosize|react-icons)/,
         },
       },
     },
