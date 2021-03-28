@@ -4,51 +4,52 @@ const testCases = [
   {
     input: "Visit [GitHub](https://github.com) to learn more.",
     expectedFull: '<p>Visit <a target="_blank" rel="noopener" href="https://github.com">GitHub</a> to learn more.</p>',
-    expectedSimple: '<p>Visit <a target="_blank" rel="noopener" href="https://github.com">GitHub</a> to learn more.</p>',
+    expectedPlainText: "Visit GitHub to learn more.",
   },
   {
     input: "My Picture ![](http://demo.dev.fider.io:3000/images/100/28)",
-    expectedFull: '<p>My Picture <img alt="" src="http://demo.dev.fider.io:3000/images/100/28"></p>',
-    expectedSimple: "<p>My Picture </p>",
+    expectedFull: "<p>My Picture </p>",
+    expectedPlainText: "My Picture",
   },
   {
     input: "# Hello World",
     expectedFull: "<h1>Hello World</h1>",
     expectedSimple: "<p>Hello World</p>",
+    expectedPlainText: "Hello World",
   },
   {
     input: "Hello <b>Beautiful</b> World",
     expectedFull: "<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>",
-    expectedSimple: "<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>",
+    expectedPlainText: "Hello &lt;b&gt;Beautiful&lt;/b&gt; World",
   },
   {
     input: `[Uh oh...]("onerror="alert('XSS'))`,
     expectedFull: '<p><a target="_blank" rel="noopener" href="">Uh oh...</a></p>',
-    expectedSimple: '<p><a target="_blank" rel="noopener" href="">Uh oh...</a></p>',
+    expectedPlainText: "Uh oh...",
   },
   {
     input: "~~Option 3~~",
     expectedFull: "<p><del>Option 3</del></p>",
-    expectedSimple: "<p><del>Option 3</del></p>",
+    expectedPlainText: "Option 3",
   },
   {
     input: "Check this out: `HEEEY`",
     expectedFull: "<p>Check this out: <code>HEEEY</code></p>",
-    expectedSimple: "<p>Check this out: <code>HEEEY</code></p>",
+    expectedPlainText: "Check this out: HEEEY",
   },
   {
     input: `# Hello World
 How are you?`,
     expectedFull: `<h1>Hello World</h1>
 <p>How are you?</p>`,
-    expectedSimple: `<p>Hello World</p><p>How are you?</p>`,
+    expectedPlainText: "Hello World How are you?",
   },
   {
     input: `-123
 -456
 -789`,
     expectedFull: "<p>-123<br>-456<br>-789</p>",
-    expectedSimple: "<p>-123<br>-456<br>-789</p>",
+    expectedPlainText: "-123 -456 -789",
   },
 ]
 
@@ -60,8 +61,8 @@ testCases.forEach((x) => {
 })
 
 testCases.forEach((x) => {
-  test(`Can parse markdown ${x.input} to ${x.expectedSimple} (simple mode)`, () => {
-    const result = markdown.simple(x.input)
-    expect(result).toEqual(x.expectedSimple)
+  test(`Can parse markdown ${x.input} to ${x.expectedPlainText} (plain text)`, () => {
+    const result = markdown.plainText(x.input)
+    expect(result).toEqual(x.expectedPlainText)
   })
 })

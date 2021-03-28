@@ -121,7 +121,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
             </Form>
           ) : (
             <>
-              <MultiLineText className="description" text={this.props.post.description} style="simple" />
+              <MultiLineText className="description" text={this.props.post.description} style="full" />
               {this.props.attachments.map((x) => (
                 <ImageViewer key={x} bkey={x} />
               ))}

@@ -41,7 +41,7 @@ export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) =
 
   return (
     <Modal.Window isOpen={props.isOpen} onClose={closeModal}>
-      <Modal.Header>Sign in to raise your voice</Modal.Header>
+      <Modal.Header>Sign in to post and vote</Modal.Header>
       <Modal.Content>{content}</Modal.Content>
       <LegalFooter />
     </Modal.Window>

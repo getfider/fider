@@ -39,7 +39,7 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
       return (
         <ListItem key={n.id}>
           <a href={`/notifications/${n.id}`}>
-            <MultiLineText text={n.title} style="simple" />
+            <MultiLineText text={n.title} style="full" />
             <span className="info">
               <Moment date={n.createdAt} />
             </span>

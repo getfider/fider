@@ -149,7 +149,7 @@ export const ShowComment = (props: ShowCommentProps) => {
             </Form>
           ) : (
             <>
-              <MultiLineText text={comment.content} style="simple" />
+              <MultiLineText text={comment.content} style="full" />
               {comment.attachments && comment.attachments.map((x) => <ImageViewer key={x} bkey={x} />)}
             </>
           )}

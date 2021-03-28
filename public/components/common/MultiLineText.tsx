@@ -1,10 +1,11 @@
 import React from "react"
-import { markdown } from "@fider/services"
+import { markdown, truncate } from "@fider/services"
 
 interface MultiLineTextProps {
   className?: string
   text?: string
-  style: "full" | "simple"
+  maxLength?: number
+  style: "full" | "plainText"
 }
 
 export const MultiLineText = (props: MultiLineTextProps) => {
@@ -12,6 +13,7 @@ export const MultiLineText = (props: MultiLineTextProps) => {
     return <p />
   }
 
-  const func = props.style === "full" ? markdown.full : markdown.simple
-  return <div className={`markdown-body ${props.className || ""}`} dangerouslySetInnerHTML={{ __html: func(props.text) }} />
+  const html = markdown[props.style](props.text)
+  const className = `markdown-body ${props.className || ""}`
+  return <div className={className} dangerouslySetInnerHTML={{ __html: props.maxLength ? truncate(html, props.maxLength) : html }} />
 }

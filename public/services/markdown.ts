@@ -23,13 +23,23 @@ const link = (href: string, title: string, text: string) => {
   return `<a href="${href}"${titleAttr} rel="noopener" target="_blank">${text}</a>`
 }
 
-const simpleRenderer = new marked.Renderer()
-simpleRenderer.heading = (_text, _level, raw) => `<p>${raw}</p>`
-simpleRenderer.image = () => ""
-simpleRenderer.link = link
-
 const fullRenderer = new marked.Renderer()
+fullRenderer.image = () => ""
 fullRenderer.link = link
+
+const plainTextRenderer = new marked.Renderer()
+plainTextRenderer.link = (_href, _title, text) => text
+plainTextRenderer.image = (_href, _title, _text) => ""
+plainTextRenderer.br = () => " "
+plainTextRenderer.strong = (text) => text
+plainTextRenderer.list = (body) => body
+plainTextRenderer.listitem = (text) => `${text} `
+plainTextRenderer.heading = (text) => text
+plainTextRenderer.paragraph = (text) => ` ${text} `
+plainTextRenderer.code = (code) => code
+plainTextRenderer.codespan = (code) => code
+plainTextRenderer.html = (html) => html
+plainTextRenderer.del = (text) => text
 
 const entities: { [key: string]: string } = {
   "<": "&lt;",
@@ -43,6 +53,6 @@ export const full = (input: string): string => {
   return sanitize(marked(encodeHTML(input), { renderer: fullRenderer }).trim())
 }
 
-export const simple = (input: string): string => {
-  return sanitize(marked(encodeHTML(input), { renderer: simpleRenderer }).trim())
+export const plainText = (input: string): string => {
+  return sanitize(marked(encodeHTML(input), { renderer: plainTextRenderer }).trim())
 }

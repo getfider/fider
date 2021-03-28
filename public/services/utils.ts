@@ -138,7 +138,7 @@ export const uploadedImageURL = (bkey: string | undefined, size?: number): strin
 }
 
 export const truncate = (input: string, maxLength: number): string => {
-  if (input && input.length > 1000) {
+  if (input && input.length > maxLength) {
     return `${input.substr(0, maxLength)}...`
   }
   return input
