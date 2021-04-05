@@ -22,5 +22,5 @@
       "@fider/*": ["*"]
     }
   },
-  "include": ["./public/**/*"]
+  "include": ["./public/**/*", "index.d.ts"]
 }

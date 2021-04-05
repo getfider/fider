@@ -58,7 +58,7 @@ export const CommentInput = (props: CommentInputProps) => {
         <Form error={error}>
           {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
           <TextArea
-            placeholder="Write a comment..."
+            placeholder="Leave a comment"
             field="content"
             value={content}
             minRows={1}

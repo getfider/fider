@@ -46,7 +46,7 @@ module.exports = {
   },
   devtool: "source-map",
   resolve: {
-    extensions: [".mjs", ".ts", ".tsx", ".js"],
+    extensions: [".mjs", ".ts", ".tsx", ".js", ".svg"],
     alias: {
       "@fider": publicFolder,
     },
