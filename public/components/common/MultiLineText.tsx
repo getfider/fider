@@ -15,5 +15,10 @@ export const MultiLineText = (props: MultiLineTextProps) => {
 
   const html = markdown[props.style](props.text)
   const className = `markdown-body ${props.className || ""}`
-  return <div className={className} dangerouslySetInnerHTML={{ __html: props.maxLength ? truncate(html, props.maxLength) : html }} />
+  const tagName = props.style === "plainText" ? "p" : "div"
+
+  return React.createElement(tagName, {
+    className,
+    dangerouslySetInnerHTML: { __html: props.maxLength ? truncate(html, props.maxLength) : html },
+  })
 }
