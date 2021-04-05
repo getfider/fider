@@ -2,7 +2,7 @@ import "./Home.page.scss"
 
 import React, { useState } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
-import { MultiLineText, Hint } from "@fider/components"
+import { MultiLineText, Hint, PoweredByFider } from "@fider/components"
 import { SimilarPosts } from "./components/SimilarPosts"
 import { FaRegLightbulb } from "react-icons/fa"
 import { PostInput } from "./components/PostInput"
@@ -63,6 +63,7 @@ const HomePage = (props: HomePageProps) => {
         <div className="l-welcome-col col-md-4">
           <MultiLineText className="welcome-message" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
           <PostInput placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."} onTitleChanged={setTitle} />
+          <PoweredByFider />
         </div>
         <div className="l-posts-col col-md-8">
           {isLonely() ? (
