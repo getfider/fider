@@ -347,28 +347,10 @@ const UIToolkitPage = () => {
       <h1>Tags</h1>
       <List>
         <ListItem>
-          <ShowTag tag={easyTag} size="normal" />
-          <ShowTag tag={hardTag} size="normal" />
-          <ShowTag tag={easyTag} circular={true} size="normal" />
-          <ShowTag tag={hardTag} circular={true} size="normal" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="small" />
-          <ShowTag tag={hardTag} size="small" />
-          <ShowTag tag={easyTag} circular={true} size="small" />
-          <ShowTag tag={hardTag} circular={true} size="small" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="tiny" />
-          <ShowTag tag={hardTag} size="tiny" />
-          <ShowTag tag={easyTag} circular={true} size="tiny" />
-          <ShowTag tag={hardTag} circular={true} size="tiny" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="mini" />
-          <ShowTag tag={hardTag} size="mini" />
-          <ShowTag tag={easyTag} circular={true} size="mini" />
-          <ShowTag tag={hardTag} circular={true} size="mini" />
+          <ShowTag tag={easyTag} />
+          <ShowTag tag={hardTag} />
+          <ShowTag tag={easyTag} circular={true} />
+          <ShowTag tag={hardTag} circular={true} />
         </ListItem>
       </List>
 

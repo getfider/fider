@@ -49,7 +49,7 @@ export const VotesPanel = (props: VotesPanelProps) => {
             see details
           </span>
         )}
-        {props.votes.length === 0 && <span className="info">None yet</span>}
+        {props.votes.length === 0 && <span className="info">None</span>}
       </div>
     </>
   )

@@ -58,7 +58,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
         ))}
       </List>
     ) : (
-      <span className="info">None yet</span>
+      <span className="info">None</span>
     )
 
   const editTagsList = props.tags.length > 0 && (

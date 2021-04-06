@@ -17,7 +17,7 @@ export const TagListItem = (props: TagListItemProps) => {
   return (
     <ListItem onClick={onClick}>
       {props.assigned ? <FaCheck /> : <svg className="icon" />}
-      <ShowTag tag={props.tag} size="mini" circular={true} />
+      <ShowTag tag={props.tag} circular={true} />
       <span>{props.tag.name}</span>
     </ListItem>
   )
