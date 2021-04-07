@@ -43,7 +43,7 @@ export const formatDate = (input: Date | string, format: DateFormat = "full"): s
   const year = date.getFullYear()
 
   if (format === "short") {
-    return `${monthNames[monthIndex].substring(0, 3)} ${year}`
+    return `${monthNames[monthIndex].substring(0, 3)} '${year.toString().substring(2)}`
   }
 
   const day = date.getDate()

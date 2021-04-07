@@ -365,13 +365,13 @@ const UIToolkitPage = () => {
       <h1>Moment</h1>
       <List>
         <ListItem>
-          <Moment date="2017-06-03T16:55:06.815042Z" />
+          Relative: <Moment date="2017-06-03T16:55:06.815042Z" format="relative" />
         </ListItem>
         <ListItem>
-          <Moment date={new Date(2014, 10, 3, 12, 53, 12, 0)} />
+          Short: <Moment date="2017-06-03T16:55:06.815042Z" format="short" />
         </ListItem>
         <ListItem>
-          <Moment date={new Date()} />
+          Full: <Moment date="2017-06-03T16:55:06.815042Z" format="full" />
         </ListItem>
       </List>
 

@@ -85,7 +85,7 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
                       <span className="info">{x.user.email}</span>
                     </span>
                     <span className="l-date info">
-                      <Moment date={x.createdAt} useRelative={false} format="short" />
+                      <Moment date={x.createdAt} />
                     </span>
                   </ListItem>
                 ))}
