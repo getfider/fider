@@ -21,7 +21,7 @@
     .header-col,
     .comments-col {
       float: left;
-      width: calc(100% - 230px);
+      width: calc(100% - 300px);
     }
     .action-col {
       float: right;
@@ -38,7 +38,7 @@
   .action-col {
     margin-bottom: 20px;
     @include media(">=md") {
-      width: 200px;
+      width: 240px;
     }
 
     .subtitle + .c-list {

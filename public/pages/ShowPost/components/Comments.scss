@@ -1,10 +1,6 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-comment-list {
-  @include media(">=lg") {
-    max-width: 650px;
-  }
-
   .c-avatar {
     margin-right: 10px;
   }
