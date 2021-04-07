@@ -10,7 +10,7 @@
   }
 
   .c-comment {
-    margin: 0 0 20px 0;
+    margin: 20px 0 0 0;
     display: flex;
 
     .c-comment-content {
@@ -73,20 +73,13 @@
 }
 
 .c-comment-input {
-  margin: 0 0 15px 0;
+  display: flex;
+  margin: 10px 0 0 0;
 
   .c-form {
-    margin-top: 5px;
-    display: inline-block;
-    width: 100%;
+    flex-grow: 1;
     textarea {
       margin-top: 5px;
-    }
-  }
-
-  &.m-authenticated {
-    .c-form {
-      width: 85%;
     }
   }
 }
