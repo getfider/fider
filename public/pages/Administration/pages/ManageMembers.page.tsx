@@ -4,7 +4,7 @@ import React from "react"
 import { Segment, List, Input, ListItem, Avatar, UserName, DropDown, DropDownItem } from "@fider/components/common"
 import { User, UserRole, UserStatus } from "@fider/models"
 import { AdminBasePage } from "../components/AdminBasePage"
-import { FaUsers, FaEllipsisH, FaTimes, FaSearch } from "react-icons/fa"
+import { FaUsers, FaTimes, FaSearch } from "react-icons/fa"
 import { actions, Fider } from "@fider/services"
 
 interface ManageMembersPageState {
@@ -29,7 +29,11 @@ const UserListItem = (props: UserListItemProps) => {
   const isVisitor = props.user.role === UserRole.Visitor
 
   const renderEllipsis = () => {
-    return <FaEllipsisH />
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16" focusable="false">
+        <path d="M3 9.5A1.5 1.5 0 114.5 8 1.5 1.5 0 013 9.5zM11.5 8A1.5 1.5 0 1013 6.5 1.5 1.5 0 0011.5 8zm-5 0A1.5 1.5 0 108 6.5 1.5 1.5 0 006.5 8z"></path>
+      </svg>
+    )
   }
 
   const actionSelected = (item: DropDownItem) => {

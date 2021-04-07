@@ -6,26 +6,38 @@
   }
 
   .c-avatar {
-    margin-right: 5px;
-    vertical-align: top;
-    margin-top: 2px;
+    margin-right: 10px;
   }
 
   .c-comment {
-    position: relative;
     margin: 0 0 20px 0;
-    border-top: none;
-    line-height: 1.2;
+    display: flex;
 
     .c-comment-content {
-      display: inline-block;
-      width: 85%;
+      flex-grow: 1;
 
-      .c-comment-metadata {
-        display: inline-block;
-        font-size: 80%;
-        color: $gray-darker;
-        margin-left: 3px;
+      .c-comment-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 10px;
+
+        .c-comment-author {
+          .c-comment-metadata {
+            font-size: $font-size-tiny;
+            color: $gray-darker;
+          }
+        }
+
+        .c-comment-menu {
+          align-self: center;
+        }
+      }
+
+      .c-comment-body {
+        background-color: $gray-lighter;
+        border-radius: 4px;
+        padding: 8px;
       }
 
       .l-more-actions {
