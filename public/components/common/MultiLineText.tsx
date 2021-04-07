@@ -10,7 +10,7 @@ interface MultiLineTextProps {
 
 export const MultiLineText = (props: MultiLineTextProps) => {
   if (!props.text) {
-    return <p />
+    return null
   }
 
   const html = markdown[props.style](props.text)

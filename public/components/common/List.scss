@@ -12,7 +12,7 @@
       padding: 5px;
     }
     .c-list-item:hover {
-      background-color: $gray-lighter;
+      background-color: $gray-200;
       border-radius: 2px;
     }
   }
@@ -21,7 +21,7 @@
     .c-list-item {
       padding: 15px 0 0 0;
       margin: 0 0 15px 0;
-      border-top: 1px solid $gray-lighter;
+      border-top: 1px solid $gray-200;
       &:first-child {
         border-top: none;
         padding-top: 0;

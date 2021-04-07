@@ -21,7 +21,7 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   font-family: $font-site;
-  color: $gray-darkest;
+  color: $gray-900;
   font-size: $font-size;
 }
 
@@ -127,7 +127,7 @@ a:hover {
 }
 
 .status-open {
-  color: $gray-darkest;
+  color: $gray-900;
 }
 
 .status-planned {
@@ -211,7 +211,7 @@ input {
 .info {
   font-size: 90%;
   font-weight: 400;
-  color: $gray-darker;
+  color: $gray-700;
 }
 
 .right {
@@ -240,7 +240,7 @@ svg.icon {
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: $gray-dark;
+  color: $gray-500;
   display: block;
   &.active {
     cursor: pointer;
@@ -267,8 +267,8 @@ svg.icon {
 
   blockquote {
     padding: 0 8px;
-    color: $gray-darkest;
-    border-left: 4px solid $gray-light;
+    color: $gray-900;
+    border-left: 4px solid $gray-300;
     margin: 5px 0;
   }
 
@@ -395,11 +395,11 @@ svg.icon {
     tr {
       th {
         padding: 5px;
-        border-bottom: 1px solid $gray;
-        background-color: $gray-lighter;
+        border-bottom: 1px solid $gray-400;
+        background-color: $gray-200;
       }
       td {
-        border-bottom: 1px solid $gray;
+        border-bottom: 1px solid $gray-400;
         padding: 5px;
       }
     }
