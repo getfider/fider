@@ -20,6 +20,7 @@ export const UserName = (props: UserNameProps) => {
 
   return (
     <div className={className}>
+      <span>{props.user.name || "Anonymous"}</span>
       {props.user.role && isCollaborator(props.user.role) && (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
           <path
@@ -29,7 +30,6 @@ export const UserName = (props: UserNameProps) => {
           ></path>
         </svg>
       )}
-      <span>{props.user.name || "Anonymous"}</span>
     </div>
   )
 }

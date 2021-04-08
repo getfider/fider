@@ -54,16 +54,11 @@
     appearance: none;
     width: 100%;
     padding: 10px;
-    outline: 0;
     margin: 0;
     resize: none !important;
     border: 1px solid $gray-300;
     border-radius: 3px;
 
-    &:focus {
-      border: 1px solid $gray-400;
-      box-shadow: 0px 0px 1px 1px $gray-300;
-    }
 
     &:disabled {
       opacity: 0.45;

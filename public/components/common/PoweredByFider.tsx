@@ -4,8 +4,10 @@ import "./PoweredByFider.scss"
 
 export const PoweredByFider = () => {
   return (
-    <a className="c-powered" rel="noopener" href="https://getfider.com" target="_blank">
-      Powered by Fider
-    </a>
+    <div className="c-powered">
+      <a rel="noopener" href="https://getfider.com" target="_blank">
+        Powered by Fider
+      </a>
+    </div>
   )
 }
