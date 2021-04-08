@@ -118,9 +118,9 @@ export const ShowComment = (props: ShowCommentProps) => {
       <div className="c-comment-content">
         <div className="c-comment-header">
           <div className="c-comment-author">
-            <UserName user={comment.user} />
+            <UserName user={comment.user} />{" "}
             <div className="c-comment-metadata">
-              <Moment date={comment.createdAt} /> {editedMetadata}
+              · <Moment date={comment.createdAt} /> {editedMetadata}
             </div>
           </div>
           <div className="c-comment-menu">

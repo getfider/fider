@@ -1,25 +1,28 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-comment-list {
-  .c-avatar {
-    margin-right: 10px;
-  }
 
   .c-comment {
     margin: 20px 0 0 0;
     display: flex;
+    .c-avatar {
+      margin: 8px 8px 0 0;
+    }
 
     .c-comment-content {
       flex-grow: 1;
+      background-color: $gray-50;
+      border-radius: 4px;
+      padding: 8px;
 
       .c-comment-header {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        margin-bottom: 10px;
 
         .c-comment-author {
           .c-comment-metadata {
+            display: inline-block;
             font-size: $font-size-tiny;
             color: $gray-700;
           }
@@ -28,12 +31,6 @@
         .c-comment-menu {
           align-self: center;
         }
-      }
-
-      .c-comment-body {
-        background-color: $gray-50;
-        border-radius: 4px;
-        padding: 8px;
       }
 
       .l-more-actions {
@@ -70,9 +67,14 @@
 
 .c-comment-input {
   display: flex;
-  margin: 10px 0 0 0;
+  margin-top: 10px;
+  .c-avatar {
+    margin-top: 8px;
+    margin-right: 8px;
+  }
 
   .c-form {
+    padding: 8px;
     flex-grow: 1;
     textarea {
       margin-top: 5px;

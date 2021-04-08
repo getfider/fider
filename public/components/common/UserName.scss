@@ -3,9 +3,16 @@
 .c-username {
   color: $gray-900;
   font-weight: 600;
+  display: inline-flex;
 
   &.m-staff {
     color: $admin-color;
     border-color: $admin-color;
+
+    svg {
+      height: 14px;
+      margin-right: 4px;
+      align-self: center;
+    }
   }
 }

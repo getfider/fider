@@ -212,6 +212,9 @@ input {
   font-size: 90%;
   font-weight: 400;
   color: $gray-700;
+  display: flex;
+  align-items: center;
+  white-space: pre-wrap;
 }
 
 .right {

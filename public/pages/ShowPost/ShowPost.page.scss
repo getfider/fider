@@ -7,6 +7,7 @@
       font-weight: 400;
       margin: 0px;
       font-size: $font-size-xlarge;
+      margin-bottom: 2px;
       @include media("sm") {
         font-size: $font-size-big;
       }
