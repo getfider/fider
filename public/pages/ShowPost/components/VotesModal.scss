@@ -15,6 +15,7 @@
         flex-grow: 1;
 
         span {
+          display: block;
           max-width: 250px;
           text-overflow: ellipsis;
           overflow: hidden;
