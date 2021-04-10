@@ -37,7 +37,7 @@ jobs:
             fs.writeFileSync('${{github.workspace}}/out.zip', Buffer.from(download.data));
       - run: unzip out.zip
       - run: docker load --input fider.tar
-      - run: docker run --rm --entrypoint cat yourimage /app/dist/assets.js > ./assets.json
+      - run: docker run --rm --entrypoint cat getfider/fider /app/dist/assets.js > ./assets.json
       - run: npx relative-ci-agent
         env:
           RELATIVE_CI_KEY: ${{ secrets.RELATIVE_CI_KEY }}
