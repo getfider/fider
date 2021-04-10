@@ -15,7 +15,6 @@ import {
   MultiImageUploader,
 } from "@fider/components"
 import { formatDate, Failure, actions } from "@fider/services"
-import { FaEllipsisH } from "react-icons/fa"
 import { useFider } from "@fider/hooks"
 
 interface ShowCommentProps {
@@ -56,7 +55,11 @@ export const ShowComment = (props: ShowCommentProps) => {
   }
 
   const renderEllipsis = () => {
-    return <FaEllipsisH />
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16" focusable="false">
+        <path d="M3 9.5A1.5 1.5 0 114.5 8 1.5 1.5 0 013 9.5zM11.5 8A1.5 1.5 0 1013 6.5 1.5 1.5 0 0011.5 8zm-5 0A1.5 1.5 0 108 6.5 1.5 1.5 0 006.5 8z"></path>
+      </svg>
+    )
   }
 
   const closeModal = async () => {
@@ -105,37 +108,40 @@ export const ShowComment = (props: ShowCommentProps) => {
   const comment = props.comment
 
   const editedMetadata = !!comment.editedAt && !!comment.editedBy && (
-    <div className="c-comment-metadata">
-      <span title={`This comment has been edited by ${comment.editedBy.name} on ${formatDate(comment.editedAt)}`}>· edited</span>
-    </div>
+    <span data-tooltip={`This comment has been edited by ${comment.editedBy.name} on ${formatDate(comment.editedAt)}`}>· edited</span>
   )
 
   return (
     <div className="c-comment">
       {modal()}
-      <Avatar user={comment.user} />
+      <Avatar size="large" user={comment.user} />
       <div className="c-comment-content">
-        <UserName user={comment.user} />
-        <div className="c-comment-metadata">
-          · <Moment date={comment.createdAt} />
+        <div className="c-comment-header">
+          <div className="c-comment-author">
+            <UserName user={comment.user} />{" "}
+            <div className="c-comment-metadata">
+              · <Moment date={comment.createdAt} /> {editedMetadata}
+            </div>
+          </div>
+          <div className="c-comment-menu">
+            {!isEditing && canEditComment() && (
+              <DropDown
+                className="l-more-actions"
+                direction="left"
+                inline={true}
+                style="simple"
+                highlightSelected={false}
+                items={[
+                  { label: "Edit", value: "edit" },
+                  { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> },
+                ]}
+                onChange={onActionSelected}
+                renderControl={renderEllipsis}
+              />
+            )}
+          </div>
         </div>
-        {editedMetadata}
-        {!isEditing && canEditComment() && (
-          <DropDown
-            className="l-more-actions"
-            direction="left"
-            inline={true}
-            style="simple"
-            highlightSelected={false}
-            items={[
-              { label: "Edit", value: "edit" },
-              { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> },
-            ]}
-            onChange={onActionSelected}
-            renderControl={renderEllipsis}
-          />
-        )}
-        <div className="c-comment-text">
+        <div className="c-comment-body">
           {isEditing ? (
             <Form error={error}>
               <TextArea field="content" minRows={1} value={newContent} placeholder={comment.content} onChange={setNewContent} />

@@ -3,28 +3,29 @@
 .c-message {
   padding: 15px;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
 
   .icon {
-    margin-right: 5px;
-    margin-top: -4px;
+    margin-right: 6px;
     height: 14px;
   }
 
   &.m-success {
-    color: $green-darker;
-    border-left: 4px solid $green;
-    background-color: $green-lightest;
+    color: $green-700;
+    border-left: 2px solid $green-500;
+    background-color: $green-50;
   }
 
   &.m-warning {
-    color: $yellow-darker;
-    border-left: 4px solid $yellow;
-    background-color: $yellow-lightest;
+    color: $yellow-700;
+    border-left: 2px solid $yellow-500;
+    background-color: $yellow-50;
   }
 
   &.m-error {
-    color: $red-darker;
-    border-left: 4px solid $red;
-    background-color: $red-lightest;
+    color: $red-700;
+    border-left: 2px solid $red-500;
+    background-color: $red-50;
   }
 }

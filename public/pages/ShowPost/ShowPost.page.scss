@@ -7,6 +7,7 @@
       font-weight: 400;
       margin: 0px;
       font-size: $font-size-xlarge;
+      margin-bottom: 2px;
       @include media("sm") {
         font-size: $font-size-big;
       }
@@ -21,7 +22,7 @@
     .header-col,
     .comments-col {
       float: left;
-      width: calc(100% - 230px);
+      width: calc(100% - 300px);
     }
     .action-col {
       float: right;
@@ -38,7 +39,7 @@
   .action-col {
     margin-bottom: 20px;
     @include media(">=md") {
-      width: 200px;
+      width: 240px;
     }
 
     .subtitle + .c-list {
@@ -51,7 +52,7 @@
       .icon {
         height: 12px;
         margin-right: 2px;
-        color: $green;
+        color: $green-400;
       }
     }
     span {

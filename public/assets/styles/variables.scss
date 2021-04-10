@@ -10,122 +10,113 @@ $font-size-xlarge: 22px;
 $font-site: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
 $font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 
-$bg-color: #fdfdfd;
 $white: #fff;
 
-// http://www.colorbox.io
-// Luminosity 98 to 15 with Sine EaseOut
-$gray-darkest: #262626;
-$gray-darker: #5c5c5c;
-$gray-dark: #929292;
-$gray: #c2c2c2;
-$gray-light: #e3e3e3;
-$gray-lighter: #f5f5f5;
-$gray-lightest: #fafafa;
+$gray-900: #111827;
+$gray-700: #374151;
+$gray-500: #6b7280;
+$gray-400: #9ca3af;
+$gray-300: #d1d5db;
+$gray-200: #e5e7eb;
+$gray-100: #f3f4f6;
+$gray-50: #f9fafb;
 
 $gray-scale: (
-  darkest: $gray-darkest,
-  darker: $gray-darker,
-  dark: $gray-dark,
-  default: $gray,
-  light: $gray-light,
-  lighter: $gray-lighter,
-  lightest: $gray-lightest,
+  900: $gray-900,
+  700: $gray-700,
+  500: $gray-500,
+  400: $gray-400,
+  300: $gray-300,
+  200: $gray-200,
+  100: $gray-100,
+  50: $gray-50,
 );
 
-// http://www.colorbox.io
-// Hue 121 to 121 SineEaseOut
-// Saturation 5 to 80 SineEaseOut
-// Luminosity 100 to 40 SineEaseOut
-$green-darkest: #19801b;
-$green-darker: #23a025;
-$green-dark: #36c138;
-$green: #58dd5a;
-$green-light: #89f18b;
-$green-lighter: #bffcc0;
-$green-lightest: #f2fff2;
+$green-900: #064e3b;
+$green-700: #047857;
+$green-500: #10b981;
+$green-400: #34d399;
+$green-300: #6ee7b7;
+$green-200: #a7f3d0;
+$green-100: #d1fae5;
+$green-50: #ecfdf5;
 
 $green-scale: (
-  darkest: $green-darkest,
-  darker: $green-darker,
-  dark: $green-dark,
-  default: $green,
-  light: $green-light,
-  lighter: $green-lighter,
-  lightest: $green-lightest,
+  900: $green-900,
+  700: $green-700,
+  500: $green-500,
+  400: $green-400,
+  300: $green-300,
+  200: $green-200,
+  100: $green-100,
+  50: $green-50,
 );
 
-// http://www.colorbox.io
-// Hue 40 to 40 SineEaseOut
-// Saturation 5 to 80 SineEaseOut
-// Luminosity 100 to 40 SineEaseOut
-$yellow-darkest: #664400;
-$yellow-darker: #8d5e00;
-$yellow-dark: #b47800;
-$yellow: #d78f00;
-$yellow-light: #efaa20;
-$yellow-lighter: #fbd382;
-$yellow-lightest: #fff7e6;
+$yellow-900: #78350f;
+$yellow-700: #b45309;
+$yellow-500: #f59e0b;
+$yellow-400: #fbbf24;
+$yellow-300: #fcd34d;
+$yellow-200: #fde68a;
+$yellow-100: #fef3c7;
+$yellow-50: #fffbeb;
 
 $yellow-scale: (
-  darkest: $yellow-darkest,
-  darker: $yellow-darker,
-  dark: $yellow-dark,
-  default: $yellow,
-  light: $yellow-light,
-  lighter: $yellow-lighter,
-  lightest: $yellow-lightest,
+  900: $yellow-900,
+  700: $yellow-700,
+  500: $yellow-500,
+  400: $yellow-400,
+  300: $yellow-300,
+  200: $yellow-200,
+  100: $yellow-100,
+  50: $yellow-50,
 );
 
-// http://www.colorbox.io
-// Hue 0 to 0 SineEaseOut
-// Saturation 5 to 80 SineEaseOut
-// Luminosity 100 to 40 SineEaseOut
-$red-darkest: #801919;
-$red-darker: #a02323;
-$red-dark: #c13636;
-$red: #dd5858;
-$red-light: #f18989;
-$red-lighter: #fcbfbf;
-$red-lightest: #fff2f2;
+$red-900: #7f1d1d;
+$red-700: #b91c1c;
+$red-500: #ef4444;
+$red-400: #f87171;
+$red-300: #fca5a5;
+$red-200: #fecaca;
+$red-100: #fee2e2;
+$red-50: #fef2f2;
 
 $red-scale: (
-  darkest: $red-darkest,
-  darker: $red-darker,
-  dark: $red-dark,
-  default: $red,
-  light: $red-light,
-  lighter: $red-lighter,
-  lightest: $red-lightest,
+  900: $red-900,
+  700: $red-700,
+  500: $red-500,
+  400: $red-400,
+  300: $red-300,
+  200: $red-200,
+  100: $red-100,
+  50: $red-50,
 );
 
-// http://www.colorbox.io
-// Hue 220 to 220 SineEaseOut
-// Saturation 5 to 80 SineEaseOut
-// Luminosity 100 to 40 SineEaseOut
-$blue-darkest: #193c80;
-$blue-darker: #234da0;
-$blue-dark: #3664c1;
-$blue: #5885dd;
-$blue-light: #89acf1;
-$blue-lighter: #bfd4fc;
-$blue-lightest: #f2f7ff;
+$blue-900: #1e3a8a;
+$blue-700: #1d4ed8;
+$blue-500: #3b82f6;
+$blue-400: #60a5fa;
+$blue-300: #93c5fd;
+$blue-200: #bfdbfe;
+$blue-100: #dbeafe;
+$blue-50: #eff6ff;
 
 $blue-scale: (
-  darkest: $blue-darkest,
-  darker: $blue-darker,
-  dark: $blue-dark,
-  default: $blue,
-  light: $blue-light,
-  lighter: $blue-lighter,
-  lightest: $blue-lightest,
+  900: $blue-900,
+  700: $blue-700,
+  500: $blue-500,
+  400: $blue-400,
+  300: $blue-300,
+  200: $blue-200,
+  100: $blue-100,
+  50: $blue-50,
 );
 
-$main-color: #3b4ade;
-$admin-color: #3b4ade;
-$link-color: #3664c1;
+$main-color: #4338ca;
+$admin-color: #4338ca;
+$link-color: #3b82f6;
 
-$orange: #ff9320;
+$orange: #f59e0b;
 
 // Queries
 $sm-width: 576px;
@@ -175,9 +166,9 @@ $xl-width: 1200px;
 
 @function textColorFor($color) {
   @if (lightness($color) > 60) {
-    @return $gray-darkest; // Lighter background, return dark color
+    @return $gray-900; // Lighter background, return dark color
   } @else {
-    @return $gray-lightest; // Darker background, return light color
+    @return $gray-100; // Darker background, return light color
   }
 }
 

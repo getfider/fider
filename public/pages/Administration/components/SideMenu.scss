@@ -18,7 +18,7 @@
   > div {
     width: 30px;
     height: 4px;
-    background-color: $gray-darkest;
+    background-color: $gray-900;
     margin: 4px 0;
     transition: 0.4s;
   }
@@ -48,11 +48,10 @@
     display: block;
     padding: 12px;
     border-bottom: 1px solid rgba(34, 36, 38, 0.1);
-    color: $gray-darkest;
+    color: $gray-900;
 
     &:hover {
-      color: $gray-darkest;
-      background-color: $gray-lighter;
+      background-color: $gray-100;
     }
 
     &.m-active {

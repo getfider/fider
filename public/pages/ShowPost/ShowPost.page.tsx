@@ -10,7 +10,6 @@ import {
   ShowPostResponse,
   Button,
   UserName,
-  Avatar,
   Moment,
   MultiLineText,
   List,
@@ -107,7 +106,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 )}
 
                 <span className="info">
-                  <Moment date={this.props.post.createdAt} /> &middot; <Avatar user={this.props.post.user} /> <UserName user={this.props.post.user} />
+                  Posted by <UserName user={this.props.post.user} /> &middot; <Moment date={this.props.post.createdAt} />
                 </span>
               </div>
             </ListItem>
@@ -121,7 +120,8 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
             </Form>
           ) : (
             <>
-              <MultiLineText className="description" text={this.props.post.description} style="full" />
+              {this.props.post.description && <MultiLineText className="description" text={this.props.post.description} style="full" />}
+              {!this.props.post.description && <em className="info">No description provided.</em>}
               {this.props.attachments.map((x) => (
                 <ImageViewer key={x} bkey={x} />
               ))}

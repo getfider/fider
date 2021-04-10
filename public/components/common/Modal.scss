@@ -75,7 +75,7 @@
     font-size: $font-size-large;
     font-weight: 600;
     padding: 15px 20px;
-    border-bottom: 1px solid $gray-lighter;
+    border-bottom: 1px solid $gray-200;
   }
 
   .c-modal-content {
@@ -83,11 +83,11 @@
   }
 
   .c-modal-footer {
-    background: $gray-lightest;
+    background: $gray-100;
     padding: 10px;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
-    border-top: 1px solid $gray-light;
+    border-top: 1px solid $gray-300;
     &.m-right {
       text-align: right;
     }

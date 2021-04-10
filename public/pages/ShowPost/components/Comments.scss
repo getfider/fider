@@ -1,31 +1,40 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-comment-list {
-  @include media(">=lg") {
-    max-width: 650px;
-  }
-
-  .c-avatar {
-    margin-right: 5px;
-    vertical-align: top;
-    margin-top: 2px;
-  }
 
   .c-comment {
-    position: relative;
-    margin: 0 0 20px 0;
-    border-top: none;
-    line-height: 1.2;
+    margin: 20px 0 0 0;
+    display: flex;
+    .c-avatar {
+      margin: 8px 8px 0 0;
+    }
 
     .c-comment-content {
-      display: inline-block;
-      width: 85%;
+      flex-grow: 1;
+      background-color: $gray-50;
+      border-radius: 4px;
+      padding: 8px;
 
-      .c-comment-metadata {
-        display: inline-block;
-        font-size: 80%;
-        color: $gray-darker;
-        margin-left: 3px;
+      .c-comment-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        .c-comment-author {
+          .c-comment-metadata {
+            display: inline-block;
+            font-size: $font-size-tiny;
+            color: $gray-700;
+          }
+        }
+
+        .c-comment-menu {
+          align-self: center;
+        }
+      }
+
+      .c-comment-body {
+        margin-top: 5px;
       }
 
       .l-more-actions {
@@ -39,20 +48,20 @@
         }
 
         .icon {
-          color: $gray-dark;
+          color: $gray-500;
           font-size: 12px;
         }
 
         &:hover {
           .icon {
-            color: $gray-darkest;
+            color: $gray-900;
           }
         }
 
         &.is-open {
           display: inline-block !important;
           .icon {
-            color: $gray-darkest;
+            color: $gray-900;
           }
         }
       }
@@ -61,20 +70,18 @@
 }
 
 .c-comment-input {
-  margin: 0 0 15px 0;
-
-  .c-form {
-    margin-top: 5px;
-    display: inline-block;
-    width: 100%;
-    textarea {
-      margin-top: 5px;
-    }
+  display: flex;
+  margin-top: 10px;
+  .c-avatar {
+    margin-top: 8px;
+    margin-right: 8px;
   }
 
-  &.m-authenticated {
-    .c-form {
-      width: 85%;
+  .c-form {
+    padding: 8px;
+    flex-grow: 1;
+    textarea {
+      margin-top: 5px;
     }
   }
 }

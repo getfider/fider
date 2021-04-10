@@ -10,7 +10,7 @@
     .col-right {
       .c-list-item:first-child {
         padding-top: 15px;
-        border-top: 1px solid $gray-lighter;
+        border-top: 1px solid $gray-200;
       }
     }
   }
@@ -37,7 +37,7 @@
       vertical-align: middle;
       margin-left: 5px;
       .c-dropdown-text {
-        color: $gray-dark;
+        color: $gray-500;
       }
     }
     .staff {
@@ -45,7 +45,7 @@
     }
     .blocked {
       font-size: $font-size-tiny;
-      color: $red;
+      color: $red-400;
     }
   }
 

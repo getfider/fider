@@ -93,7 +93,10 @@ func New(settings *models.SystemSettings) *Engine {
 //Start the server.
 func (e *Engine) Start(address string) {
 	log.Info(e, "Application is starting")
-	log.Infof(e, "GO_ENV: @{Env}", dto.Props{
+	log.Infof(e, "Version: @{Version}", dto.Props{
+		"Version": e.renderer.settings.Version,
+	})
+	log.Infof(e, "Environment: @{Env}", dto.Props{
 		"Env": env.Config.Environment,
 	})
 

@@ -29,7 +29,7 @@ fullRenderer.link = link
 
 const plainTextRenderer = new marked.Renderer()
 plainTextRenderer.link = (_href, _title, text) => text
-plainTextRenderer.image = (_href, _title, _text) => ""
+plainTextRenderer.image = () => ""
 plainTextRenderer.br = () => " "
 plainTextRenderer.strong = (text) => text
 plainTextRenderer.list = (body) => body

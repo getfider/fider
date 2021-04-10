@@ -15,8 +15,8 @@
 
   .l-welcome-col {
     @include media("sm") {
-      background-color: $gray-lighter;
-      box-shadow: 1px 2px 5px 1px $gray-light;
+      background-color: $gray-100;
+      box-shadow: 1px 2px 5px 1px $gray-300;
       border-radius: 3px;
       margin: 0px 10px 10px 10px;
     }
@@ -46,7 +46,7 @@
         text-transform: uppercase;
         padding: 5px 25px 5px 5px;
         &:hover {
-          background-color: $gray-lighter;
+          background-color: $gray-200;
         }
       }
     }
@@ -68,7 +68,7 @@
     }
     .selected-tag {
       .icon {
-        color: $green;
+        color: $green-400;
       }
     }
   }

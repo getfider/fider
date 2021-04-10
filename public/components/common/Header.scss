@@ -17,9 +17,9 @@
     padding: 2px;
     border-radius: 0px;
     font-size: 10px;
-    color: $red-darkest;
-    border-bottom: 1px solid $red-darkest;
-    background-color: rgba($red, 0.05);
+    color: $red-900;
+    border-bottom: 1px solid $red-900;
+    background-color: rgba($red-400, 0.05);
   }
 
   .c-menu {
@@ -78,12 +78,12 @@
       > span {
         font-weight: 600;
         text-transform: uppercase;
-        color: $gray-darker;
+        color: $gray-700;
       }
 
       &:hover {
         > span {
-          color: $gray-darkest;
+          color: $gray-900;
         }
       }
 
@@ -111,7 +111,7 @@
           font-size: $font-size-mini;
           padding: 10px;
           display: block;
-          color: $gray-darkest;
+          color: $gray-900;
           text-transform: uppercase;
           font-weight: 600;
           cursor: default;
@@ -121,9 +121,9 @@
           font-size: $font-size-small;
           padding: 10px;
           display: block;
-          color: $gray-darkest;
+          color: $gray-900;
           &:hover {
-            background-color: $gray-lighter;
+            background-color: $gray-200;
           }
         }
         .c-menu-user-divider {
@@ -147,13 +147,13 @@
         border-radius: 5px;
         margin-left: -10px;
         margin-top: -25px;
-        background-color: $red;
+        background-color: $red-500;
         border: 1px solid $white !important;
       }
 
       .c-unread-count {
         display: inline-block;
-        background-color: $red;
+        background-color: $red-500;
         position: absolute;
         right: 5px;
         padding: 2px 8px;

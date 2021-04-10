@@ -21,8 +21,7 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   font-family: $font-site;
-  background-color: $bg-color;
-  color: $gray-darkest;
+  color: $gray-900;
   font-size: $font-size;
 }
 
@@ -87,7 +86,7 @@ h5:last-child {
 
 p {
   margin: 0 0 14px;
-  line-height: 1.38;
+  line-height: 1.5;
 }
 p:first-child {
   margin-top: 0;
@@ -128,7 +127,7 @@ a:hover {
 }
 
 .status-open {
-  color: $gray-darkest;
+  color: $gray-900;
 }
 
 .status-planned {
@@ -167,6 +166,8 @@ a:hover {
 
 *:focus {
   outline: 0;
+  box-shadow: 0 0 0 3px $blue-300;
+  transition: all 0.3s ease;
 }
 
 [type="reset"],
@@ -203,7 +204,6 @@ h2,
 h3,
 h4,
 h5,
-.ui,
 input {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -212,7 +212,7 @@ input {
 .info {
   font-size: 90%;
   font-weight: 400;
-  color: $gray-darker;
+  color: $gray-700;
 }
 
 .right {
@@ -241,7 +241,7 @@ svg.icon {
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: $gray-dark;
+  color: $gray-500;
   display: block;
   &.active {
     cursor: pointer;
@@ -268,8 +268,8 @@ svg.icon {
 
   blockquote {
     padding: 0 8px;
-    color: $gray-darkest;
-    border-left: 4px solid $gray-light;
+    color: $gray-900;
+    border-left: 4px solid $gray-300;
     margin: 5px 0;
   }
 
@@ -318,13 +318,13 @@ svg.icon {
   }
 }
 
-.ui.inline.dropdown {
+.inline.dropdown {
   > .text {
     border-bottom: 1px dashed #9e9e9e;
   }
 }
 
-.ui.basic.red.label {
+.basic.red.label {
   width: 100%;
   color: #ef7878 !important;
   border-color: #ef7878 !important;
@@ -396,11 +396,11 @@ svg.icon {
     tr {
       th {
         padding: 5px;
-        border-bottom: 1px solid $gray;
-        background-color: $gray-lighter;
+        border-bottom: 1px solid $gray-400;
+        background-color: $gray-200;
       }
       td {
-        border-bottom: 1px solid $gray;
+        border-bottom: 1px solid $gray-400;
         padding: 5px;
       }
     }

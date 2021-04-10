@@ -4,23 +4,27 @@
   .c-modal-content {
     height: 300px;
     overflow-y: scroll;
+
     .c-list-item {
-      margin: 5px 0px;
+      margin: 2px 0px;
       display: flex;
-      .c-avatar {
-        margin-right: 5px;
-      }
+      align-items: center;
+
       .l-user {
-        vertical-align: middle;
+        margin-left: 5px;
+        flex-grow: 1;
+
         span {
           display: block;
+          max-width: 250px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
         }
       }
+
       .l-date {
-        margin-left: auto;
         text-align: right;
-        width: 60px;
-        min-width: 60px;
       }
     }
   }

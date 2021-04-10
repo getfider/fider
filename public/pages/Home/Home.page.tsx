@@ -1,10 +1,10 @@
 import "./Home.page.scss"
+import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
 import React, { useState } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
-import { MultiLineText, Hint } from "@fider/components"
+import { MultiLineText, Hint, PoweredByFider } from "@fider/components"
 import { SimilarPosts } from "./components/SimilarPosts"
-import { FaRegLightbulb } from "react-icons/fa"
 import { PostInput } from "./components/PostInput"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
@@ -29,9 +29,9 @@ const Lonely = () => {
         interactions with your audience.
       </Hint>
       <p>
-        <FaRegLightbulb />
+        <img alt="No Posts" height="100" src={NoDataIllustration} />
       </p>
-      <p>It&apos;s lonely out here. Start by sharing a suggestion!</p>
+      <p>No posts have been created yet.</p>
     </div>
   )
 }
@@ -63,6 +63,7 @@ const HomePage = (props: HomePageProps) => {
         <div className="l-welcome-col col-md-4">
           <MultiLineText className="welcome-message" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
           <PostInput placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."} onTitleChanged={setTitle} />
+          <PoweredByFider />
         </div>
         <div className="l-posts-col col-md-8">
           {isLonely() ? (

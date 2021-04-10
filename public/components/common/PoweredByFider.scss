@@ -1,0 +1,15 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-powered {
+  text-align: center;
+  display: block;
+  margin-top: 20px;
+
+  a {
+    color: rgba($gray-900, 0.6);
+    font-size: $font-size-tiny;
+  }
+  a:hover {
+    color: $gray-900;
+  }
+}

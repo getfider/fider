@@ -1,11 +1,22 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-username {
-  color: $gray-darkest;
+  color: $gray-900;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
 
   &.m-staff {
     color: $admin-color;
     border-color: $admin-color;
+
+    div {
+      svg {
+        height: 14px;
+        vertical-align: text-bottom;
+        margin-left: 2px;
+        align-items: flex-end;
+      }
+    }
   }
 }

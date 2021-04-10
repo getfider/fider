@@ -103,49 +103,54 @@ const UIToolkitPage = () => {
   return (
     <div id="p-ui-toolkit" className="page container">
       <div className="color-scale">
-        <div className="color gray-darkest" />
-        <div className="color gray-darker" />
-        <div className="color gray-dark" />
-        <div className="color gray-default" />
-        <div className="color gray-light" />
-        <div className="color gray-lighter" />
-        <div className="color gray-lightest" />
+        <div className="color gray-900" />
+        <div className="color gray-700" />
+        <div className="color gray-500" />
+        <div className="color gray-400" />
+        <div className="color gray-300" />
+        <div className="color gray-200" />
+        <div className="color gray-100" />
+        <div className="color gray-50" />
       </div>
       <div className="color-scale">
-        <div className="color green-darkest" />
-        <div className="color green-darker" />
-        <div className="color green-dark" />
-        <div className="color green-default" />
-        <div className="color green-light" />
-        <div className="color green-lighter" />
-        <div className="color green-lightest" />
+        <div className="color green-900" />
+        <div className="color green-700" />
+        <div className="color green-500" />
+        <div className="color green-400" />
+        <div className="color green-300" />
+        <div className="color green-200" />
+        <div className="color green-100" />
+        <div className="color green-50" />
       </div>
       <div className="color-scale">
-        <div className="color red-darkest" />
-        <div className="color red-darker" />
-        <div className="color red-dark" />
-        <div className="color red-default" />
-        <div className="color red-light" />
-        <div className="color red-lighter" />
-        <div className="color red-lightest" />
+        <div className="color red-900" />
+        <div className="color red-700" />
+        <div className="color red-500" />
+        <div className="color red-400" />
+        <div className="color red-300" />
+        <div className="color red-200" />
+        <div className="color red-100" />
+        <div className="color red-50" />
       </div>
       <div className="color-scale">
-        <div className="color blue-darkest" />
-        <div className="color blue-darker" />
-        <div className="color blue-dark" />
-        <div className="color blue-default" />
-        <div className="color blue-light" />
-        <div className="color blue-lighter" />
-        <div className="color blue-lightest" />
+        <div className="color blue-900" />
+        <div className="color blue-700" />
+        <div className="color blue-500" />
+        <div className="color blue-400" />
+        <div className="color blue-300" />
+        <div className="color blue-200" />
+        <div className="color blue-100" />
+        <div className="color blue-50" />
       </div>
       <div className="color-scale">
-        <div className="color yellow-darkest" />
-        <div className="color yellow-darker" />
-        <div className="color yellow-dark" />
-        <div className="color yellow-default" />
-        <div className="color yellow-light" />
-        <div className="color yellow-lighter" />
-        <div className="color yellow-lightest" />
+        <div className="color yellow-900" />
+        <div className="color yellow-700" />
+        <div className="color yellow-500" />
+        <div className="color yellow-400" />
+        <div className="color yellow-300" />
+        <div className="color yellow-200" />
+        <div className="color yellow-100" />
+        <div className="color yellow-50" />
       </div>
 
       <h1>Heading 1</h1>
@@ -347,28 +352,10 @@ const UIToolkitPage = () => {
       <h1>Tags</h1>
       <List>
         <ListItem>
-          <ShowTag tag={easyTag} size="normal" />
-          <ShowTag tag={hardTag} size="normal" />
-          <ShowTag tag={easyTag} circular={true} size="normal" />
-          <ShowTag tag={hardTag} circular={true} size="normal" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="small" />
-          <ShowTag tag={hardTag} size="small" />
-          <ShowTag tag={easyTag} circular={true} size="small" />
-          <ShowTag tag={hardTag} circular={true} size="small" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="tiny" />
-          <ShowTag tag={hardTag} size="tiny" />
-          <ShowTag tag={easyTag} circular={true} size="tiny" />
-          <ShowTag tag={hardTag} circular={true} size="tiny" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="mini" />
-          <ShowTag tag={hardTag} size="mini" />
-          <ShowTag tag={easyTag} circular={true} size="mini" />
-          <ShowTag tag={hardTag} circular={true} size="mini" />
+          <ShowTag tag={easyTag} />
+          <ShowTag tag={hardTag} />
+          <ShowTag tag={easyTag} circular={true} />
+          <ShowTag tag={hardTag} circular={true} />
         </ListItem>
       </List>
 
@@ -383,13 +370,13 @@ const UIToolkitPage = () => {
       <h1>Moment</h1>
       <List>
         <ListItem>
-          <Moment date="2017-06-03T16:55:06.815042Z" />
+          Relative: <Moment date="2017-06-03T16:55:06.815042Z" format="relative" />
         </ListItem>
         <ListItem>
-          <Moment date={new Date(2014, 10, 3, 12, 53, 12, 0)} />
+          Short: <Moment date="2017-06-03T16:55:06.815042Z" format="short" />
         </ListItem>
         <ListItem>
-          <Moment date={new Date()} />
+          Full: <Moment date="2017-06-03T16:55:06.815042Z" format="full" />
         </ListItem>
       </List>
 
@@ -399,6 +386,9 @@ const UIToolkitPage = () => {
       <h1>Message Box</h1>
       <Message showIcon={true} type="error">
         Something went wrong.
+      </Message>
+      <Message showIcon={true} type="warning">
+        Be careful!
       </Message>
       <Message showIcon={true} type="success">
         Your order has been confirmed.

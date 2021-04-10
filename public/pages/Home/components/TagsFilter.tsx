@@ -53,7 +53,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
         render: (
           <div className={this.state.selected.indexOf(t.slug) >= 0 ? "selected-tag" : ""}>
             <FaCheck />
-            <ShowTag tag={t} size="mini" circular={true} />
+            <ShowTag tag={t} circular={true} />
             {t.name}
           </div>
         ),

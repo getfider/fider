@@ -47,7 +47,7 @@ const StatusDetails = (props: PostResponseProps): JSX.Element | null => {
   )
 }
 
-export const ShowPostResponse = (props: PostResponseProps): JSX.Element => {
+export const ShowPostResponse = (props: PostResponseProps): JSX.Element | null => {
   const status = PostStatus.Get(props.status)
 
   if (props.response && (status.show || props.response.text)) {
@@ -64,5 +64,5 @@ export const ShowPostResponse = (props: PostResponseProps): JSX.Element => {
     )
   }
 
-  return <div />
+  return null
 }
