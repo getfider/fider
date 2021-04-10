@@ -105,9 +105,10 @@ module.exports = {
   },
   plugins,
   stats: {
+    context: "./public",
     assets: true,
-    children: false,
-    entrypoints: false,
-    modules: false,
+    entrypoints: true,
+    chunks: true,
+    modules: true,
   },
 }
