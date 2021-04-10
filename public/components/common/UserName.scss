@@ -10,10 +10,13 @@
     color: $admin-color;
     border-color: $admin-color;
 
-    svg {
-      height: 14px;
-      margin-left: 2px;
-      align-self: center;
+    div {
+      svg {
+        height: 14px;
+        vertical-align: text-bottom;
+        margin-left: 2px;
+        align-items: flex-end;
+      }
     }
   }
 }

@@ -20,7 +20,7 @@ export const Moment = (props: MomentText) => {
     diff >= 365 && format === "relative" ? formatDate(props.date, "short") : format === "relative" ? timeSince(now, date) : formatDate(props.date, format)
 
   return (
-    <span className="date" title={formatDate(props.date, "full")}>
+    <span className="date" data-tooltip={formatDate(props.date, "full")}>
       {display}
     </span>
   )

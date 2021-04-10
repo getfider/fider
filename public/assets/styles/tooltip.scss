@@ -1,0 +1,27 @@
+[data-tooltip]{
+  cursor: pointer;
+  position: relative;
+}
+
+[data-tooltip]::before {
+  background-color: $gray-700;
+  color: $white;
+  font-size: $font-size-tiny;
+  padding: 4px 6px;
+  height: max-content;
+  width: max-content;
+  border-radius: 4px;
+  position: absolute;
+  text-align: center;
+  bottom: 40px;
+  font-weight: 500;
+  left: 50%;
+  content: attr(data-tooltip);
+  transform: translate(-50%, 100%) scale(0);
+  transition: 0.1s;
+}
+
+[data-tooltip]:hover:before {
+  display: block;
+  transform: translate(-50%, 100%) scale(1);
+}

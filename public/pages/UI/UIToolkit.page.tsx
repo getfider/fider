@@ -387,6 +387,9 @@ const UIToolkitPage = () => {
       <Message showIcon={true} type="error">
         Something went wrong.
       </Message>
+      <Message showIcon={true} type="warning">
+        Be careful!
+      </Message>
       <Message showIcon={true} type="success">
         Your order has been confirmed.
       </Message>
