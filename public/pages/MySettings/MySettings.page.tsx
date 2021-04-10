@@ -106,7 +106,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
 
   public render() {
     const changeEmail = (
-      <span className="ui info clickable" onClick={this.startChangeEmail}>
+      <span className="info clickable" onClick={this.startChangeEmail}>
         change
       </span>
     )
