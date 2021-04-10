@@ -16,7 +16,7 @@
 
 @include media("md") {
   .container {
-    width: 700px;
+    width: 720px;
     margin-left: auto !important;
     margin-right: auto !important;
   }
@@ -24,7 +24,7 @@
 
 @include media("lg") {
   .container {
-    width: 720px;
+    width: 960px;
     margin-left: auto !important;
     margin-right: auto !important;
   }
@@ -32,7 +32,7 @@
 
 @include media("xl") {
   .container {
-    width: 1000px;
+    width: 1140px;
     margin-left: auto !important;
     margin-right: auto !important;
   }
