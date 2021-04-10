@@ -36,10 +36,10 @@ import { readFileSync } from "fs"
   })
 })
 ;[
-  { input: new Date(2018, 4, 27, 10, 12, 59), expected: "May 2018" },
-  { input: new Date(2058, 12, 12, 23, 21, 53), expected: "Jan 2059" },
-  { input: "2018-04-11T18:13:33.128082", expected: "Apr 2018" },
-  { input: "2017-11-20T07:47:42.158142", expected: "Nov 2017" },
+  { input: new Date(2018, 4, 27, 10, 12, 59), expected: "May '18" },
+  { input: new Date(2058, 12, 12, 23, 21, 53), expected: "Jan '59" },
+  { input: "2018-04-11T18:13:33.128082", expected: "Apr '18" },
+  { input: "2017-11-20T07:47:42.158142", expected: "Nov '17" },
 ].forEach((x) => {
   test(`formatDate (short) of ${x.input} should be ${x.expected}`, () => {
     const result = formatDate(x.input, "short")
