@@ -84,7 +84,7 @@ jobs:
 
       - run: mkdir -p ./out
 
-      - run: docker save -o ./out/fider.tar getfider/fider
+      - run: docker save -o ./out/bcc-uservoice.tar getfider/fider
 
       - run: echo ${{ github.event.number }} > ./out/pr
         if: ${{ github.event_name == 'pull_request' }}

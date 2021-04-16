@@ -36,24 +36,77 @@ jobs:
             var fs = require('fs');
             fs.writeFileSync('${{github.workspace}}/out.zip', Buffer.from(download.data));
       - run: unzip out.zip
-      - run: docker load --input fider.tar
+      - run: docker load --input bcc-uservoice.tar
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
+      - name: Authenticate into Google Cloud Platform
+        uses: google-github-actions/setup-gcloud@master
         with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASS }}
+          service_account_email: ${{ secrets.GCLOUD_EMAIL }}
+          service_account_key: ${{ secrets.GCLOUD_KEY }}
 
-      - name: push docker image (pull_request)
-        if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        run: |
-          docker tag getfider/fider getfider/fider:PR_$(cat ./pr)
-          docker push getfider/fider:PR_$(cat ./pr)
+      - name: Configure Docker to use Google Cloud Platform
+        run: "gcloud auth configure-docker --quiet"
 
-      - name: push docker image (push)
-        if: ${{ github.event.workflow_run.event == 'push' }}
+      - name: Push and deploy image
         run: |
-          docker tag getfider/fider getfider/fider:SHA_$(cat ./sha7)
-          docker push getfider/fider:SHA_$(cat ./sha7)
-          docker tag getfider/fider getfider/fider:main
-          docker push getfider/fider:main
+          IMAGE_ID=eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME }}
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+          
+          gcloud run deploy ${{ secrets.GCLOUD_APP_NAME }} --image $IMAGE_ID:$VERSION \
+          --project ${{ secrets.GCLOUD_PROJECT }} \
+          --region europe-north1 \
+          --vpc-connector ${{ secrets.GCLOUD_VPC_CONNECTOR_NAME }} \
+          --port 80 \
+          --allow-unauthenticated \
+          --platform managed \
+          --update-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          --update-env-vars EMAIL_NOREPLY=smtpbcc@gmail.com \
+          --update-env-vars EMAIL_SMTP_HOST=smtp.gmail.com \
+          --update-env-vars EMAIL_SMTP_PASSWORD=${{ secrets.EMAIL_SMTP_PASSWORD }} \
+          --update-env-vars EMAIL_SMTP_PORT=587 \
+          --update-env-vars EMAIL_SMTP_USERNAME=smtpbcc@gmail.com \
+          --update-env-vars HOST_DOMAIN=uservoice.bcc.no \
+          --update-env-vars JWT_SECRET=${{ secrets.JWT_SECRET }} \          
+          --update-env-vars GCP_ProjectID=${{ secrets.GCLOUD_PROJECT }} \
+          --update-env-vars Authentication__Authority=${{ secrets.AUTH_AUTHORITY }} \
+          --update-env-vars Authentication__ClientId=${{ secrets.AUTH_CLIENT_ID }} \
+          --update-env-vars Authentication__ClientSecret=${{ secrets.AUTH_CLIENT_SECRET }} \
+          --update-env-vars ApplicationInsights__ConnectionString=${{ secrets.APPINSIGHTS_CONNECTION_STRING }} \
+
+
+
+
+
+
+
+
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKER_USER }}
+      #     password: ${{ secrets.DOCKER_PASS }}
+
+      # - name: push docker image (pull_request)
+      #   if: ${{ github.event.workflow_run.event == 'pull_request' }}
+      #   run: |
+      #     docker tag getfider/fider getfider/fider:PR_$(cat ./pr)
+      #     docker push getfider/fider:PR_$(cat ./pr)
+
+      # - name: push docker image (push)
+      #   if: ${{ github.event.workflow_run.event == 'push' }}
+      #   run: |
+      #     docker tag getfider/fider getfider/fider:SHA_$(cat ./sha7)
+      #     docker push getfider/fider:SHA_$(cat ./sha7)
+      #     docker tag getfider/fider getfider/fider:main
+      #     docker push getfider/fider:main
