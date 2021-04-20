@@ -134,7 +134,7 @@ jobs:
           --region europe-west1 \
           --allow-unauthenticated \
           --platform managed \
-          --port 3000
+          --port 3000 \
           --set-env-vars DATABASE_URL="${{ secrets.DATABASE_URL }}" \
           --set-env-vars EMAIL_NOREPLY=smtpbcc@gmail.com \
           --set-env-vars EMAIL_SMTP_HOST=smtp.gmail.com \
