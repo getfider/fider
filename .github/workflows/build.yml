@@ -10,6 +10,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: uservoice
+
 jobs:
   # test-ui:
   #   name: test-ui
@@ -72,6 +75,7 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    environment: Production
     # needs: [test-server, test-ui] 
     steps:
       - uses: actions/checkout@v2
@@ -82,11 +86,11 @@ jobs:
           echo sha7=${GITHUB_SHA::7}
         id: vars
 
-      - run: docker build --build-arg buildnumber=${{ steps.vars.outputs.sha7 }} -t getfider/fider .
+      - run: docker build --build-arg buildnumber=${{ steps.vars.outputs.sha7 }} -t $IMAGE_NAME .
 
       - run: mkdir -p ./out
 
-      - run: docker save -o ./out/bcc-uservoice.tar getfider/fider
+      - run: docker save -o ./out/bcc-uservoice.tar $IMAGE_NAME
 
       - run: echo ${{ github.event.number }} > ./out/pr
         if: ${{ github.event_name == 'pull_request' }}
@@ -98,3 +102,47 @@ jobs:
         with:
           name: out
           path: out/
+
+      - name: Authenticate into Google Cloud Platform
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          service_account_key: ${{ secrets.GCLOUD_KEY }}
+          export_default_credentials: true
+
+      - name: Configure Docker to use Google Cloud Platform
+        run: "gcloud auth configure-docker --quiet"
+
+      - name: Push and deploy image
+        run: |
+          IMAGE_ID=eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/uservoice
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "main" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+          gcloud run deploy uservoice --image $IMAGE_ID:$VERSION \
+          --project ${{ secrets.GCLOUD_PROJECT }} \
+          --region europe-west1 \
+          --allow-unauthenticated \
+          --platform managed \
+          --update-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          --update-env-vars EMAIL_NOREPLY=smtpbcc@gmail.com \
+          --update-env-vars EMAIL_SMTP_HOST=smtp.gmail.com \
+          --update-env-vars EMAIL_SMTP_PASSWORD=${{ secrets.EMAIL_SMTP_PASSWORD }} \
+          --update-env-vars EMAIL_SMTP_PORT=587 \
+          --update-env-vars EMAIL_SMTP_USERNAME=smtpbcc@gmail.com \
+          --update-env-vars HOST_DOMAIN=uservoice.bcc.no \
+          --update-env-vars JWT_SECRET=${{ secrets.JWT_SECRET }} \          
+          --update-env-vars GCP_ProjectID=${{ secrets.GCLOUD_PROJECT }} \
+          --update-env-vars Authentication__Authority=${{ secrets.AUTH_AUTHORITY }} \
+          --update-env-vars Authentication__ClientId=${{ secrets.AUTH_CLIENT_ID }} \
+          --update-env-vars Authentication__ClientSecret=${{ secrets.AUTH_CLIENT_SECRET }} \
