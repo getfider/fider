@@ -51,7 +51,7 @@ jobs:
 
       - name: Push and deploy image
         run: |
-          IMAGE_ID=eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME }}
+          IMAGE_ID=eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/uservoice
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
@@ -62,7 +62,7 @@ jobs:
           [ "$VERSION" == "master" ] && VERSION=latest
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker tag ${{ secrets.GCLOUD_APP_NAME }} $IMAGE_ID:$VERSION
+          docker tag uservoice $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
           gcloud run deploy uservoice --image $IMAGE_ID:$VERSION \
