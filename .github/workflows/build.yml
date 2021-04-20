@@ -132,6 +132,6 @@ jobs:
           --set-env-vars EMAIL_SMTP_PASSWORD=${{ secrets.EMAIL_SMTP_PASSWORD }} \
           --set-env-vars EMAIL_SMTP_PORT=587 \
           --set-env-vars EMAIL_SMTP_USERNAME=smtpbcc@gmail.com \
-          --set-env-vars HOST_DOMAIN=feedback.bcc.no \
+          --set-env-vars HOST_DOMAIN=uservoice.bcc.no \
           --set-env-vars JWT_SECRET="${{ secrets.JWT_SECRET }}" \
           --set-env-vars GCP_ProjectID=${{ secrets.GCLOUD_PROJECT }}
