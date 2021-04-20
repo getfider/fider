@@ -141,7 +141,7 @@ jobs:
           --update-env-vars EMAIL_SMTP_PORT=587 \
           --update-env-vars EMAIL_SMTP_USERNAME=smtpbcc@gmail.com \
           --update-env-vars HOST_DOMAIN=uservoice.bcc.no \
-          --update-env-vars JWT_SECRET=${{ secrets.JWT_SECRET }} \          
+          --update-env-vars JWT_SECRET="${{ secrets.JWT_SECRET }}" \
           --update-env-vars GCP_ProjectID=${{ secrets.GCLOUD_PROJECT }} \
           --update-env-vars Authentication__Authority=${{ secrets.AUTH_AUTHORITY }} \
           --update-env-vars Authentication__ClientId=${{ secrets.AUTH_CLIENT_ID }} \
