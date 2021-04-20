@@ -9,6 +9,7 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment: Production
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: log origin event
