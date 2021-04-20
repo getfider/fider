@@ -51,8 +51,21 @@ jobs:
 
       - name: Push and deploy image
         run: |
-          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT }}/uservoice
-          gcloud run deploy uservoice --image gcr.io/${{ secrets.GCP_PROJECT }}/uservoice \
+          IMAGE_ID=eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME }}
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag ${{ secrets.GCLOUD_APP_NAME }} $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+          gcloud run deploy uservoice --image $IMAGE_ID:$VERSION \
           --project ${{ secrets.GCLOUD_PROJECT }} \
           --region europe-west1 \
           --allow-unauthenticated \
