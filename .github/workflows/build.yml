@@ -134,12 +134,12 @@ jobs:
           --region europe-west1 \
           --allow-unauthenticated \
           --platform managed \
-          --update-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          --update-env-vars EMAIL_NOREPLY=smtpbcc@gmail.com \
-          --update-env-vars EMAIL_SMTP_HOST=smtp.gmail.com \
-          --update-env-vars EMAIL_SMTP_PASSWORD=${{ secrets.EMAIL_SMTP_PASSWORD }} \
-          --update-env-vars EMAIL_SMTP_PORT=587 \
-          --update-env-vars EMAIL_SMTP_USERNAME=smtpbcc@gmail.com \
-          --update-env-vars HOST_DOMAIN=uservoice.bcc.no \
-          --update-env-vars JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-          --update-env-vars GCP_ProjectID=${{ secrets.GCLOUD_PROJECT }} \
+          --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          --set-env-vars EMAIL_NOREPLY=smtpbcc@gmail.com \
+          --set-env-vars EMAIL_SMTP_HOST=smtp.gmail.com \
+          --set-env-vars EMAIL_SMTP_PASSWORD=${{ secrets.EMAIL_SMTP_PASSWORD }} \
+          --set-env-vars EMAIL_SMTP_PORT=587 \
+          --set-env-vars EMAIL_SMTP_USERNAME=smtpbcc@gmail.com \
+          --set-env-vars HOST_DOMAIN=uservoice.bcc.no \
+          --set-env-vars JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+          --set-env-vars GCP_ProjectID=${{ secrets.GCLOUD_PROJECT }}
