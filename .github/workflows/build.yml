@@ -88,10 +88,10 @@ jobs:
 
       - run: docker build --build-arg buildnumber=${{ steps.vars.outputs.sha7 }} -t $IMAGE_NAME .
 
-      - run: echo ${{ github.event.number }} > ./out/pr
+      - run: echo ${{ github.event.number }}
         if: ${{ github.event_name == 'pull_request' }}
 
-      - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
+      - run: echo ${{ steps.vars.outputs.sha7 }}
         if: ${{ github.event_name == 'push' }}
 
       - name: Authenticate into Google Cloud Platform
