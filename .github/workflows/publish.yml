@@ -50,7 +50,7 @@ jobs:
 
       - name: Push and deploy image
         run: |
-          IMAGE_ID=eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/${{ secrets.GCLOUD_APP_NAME }}
+          IMAGE_ID=eu.gcr.io/${{ secrets.GCLOUD_PROJECT }}/uservoice
           # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           # Strip git ref prefix from version
@@ -64,11 +64,9 @@ jobs:
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
           
-          gcloud run deploy ${{ secrets.GCLOUD_APP_NAME }} --image $IMAGE_ID:$VERSION \
+          gcloud run deploy uservoice --image $IMAGE_ID:$VERSION \
           --project ${{ secrets.GCLOUD_PROJECT }} \
-          --region europe-north1 \
-          --vpc-connector ${{ secrets.GCLOUD_VPC_CONNECTOR_NAME }} \
-          --port 80 \
+          --region europe-west1 \
           --allow-unauthenticated \
           --platform managed \
           --update-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }} \
@@ -83,7 +81,6 @@ jobs:
           --update-env-vars Authentication__Authority=${{ secrets.AUTH_AUTHORITY }} \
           --update-env-vars Authentication__ClientId=${{ secrets.AUTH_CLIENT_ID }} \
           --update-env-vars Authentication__ClientSecret=${{ secrets.AUTH_CLIENT_SECRET }} \
-          --update-env-vars ApplicationInsights__ConnectionString=${{ secrets.APPINSIGHTS_CONNECTION_STRING }} \
 
 
 
