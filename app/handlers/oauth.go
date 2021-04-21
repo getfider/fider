@@ -101,10 +101,6 @@ func OAuthToken() web.HandlerFunc {
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				if c.Tenant().IsPrivate {
-					return c.Redirect("/not-invited")
-				}
-
 				user = &models.User{
 					Name:   oauthUser.Result.Name,
 					Tenant: c.Tenant(),
