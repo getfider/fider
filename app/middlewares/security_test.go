@@ -23,7 +23,7 @@ func TestSecureWithoutCDN(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com ; script-src 'self' 'nonce-" + ctxID + "' https://cdn.polyfill.io https://js.stripe.com https://www.google-analytics.com ; img-src 'self' https: data: ; font-src 'self' https://fonts.gstatic.com data: ; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com https://ipinfo.io https://js.stripe.com ; frame-src 'self' https://js.stripe.com"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com ; script-src 'self' 'nonce-" + ctxID + "' https://www.google-analytics.com ; img-src 'self' https: data: ; font-src 'self' https://fonts.gstatic.com data: ; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com ; frame-src 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
@@ -46,7 +46,7 @@ func TestSecureWithCDN(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com *.test.fider.io; script-src 'self' 'nonce-" + ctxID + "' https://cdn.polyfill.io https://js.stripe.com https://www.google-analytics.com *.test.fider.io; img-src 'self' https: data: *.test.fider.io; font-src 'self' https://fonts.gstatic.com data: *.test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com https://ipinfo.io https://js.stripe.com *.test.fider.io; frame-src 'self' https://js.stripe.com"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com *.test.fider.io; script-src 'self' 'nonce-" + ctxID + "' https://www.google-analytics.com *.test.fider.io; img-src 'self' https: data: *.test.fider.io; font-src 'self' https://fonts.gstatic.com data: *.test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com *.test.fider.io; frame-src 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
@@ -69,7 +69,7 @@ func TestSecureWithCDN_SingleHost(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com test.fider.io; script-src 'self' 'nonce-" + ctxID + "' https://cdn.polyfill.io https://js.stripe.com https://www.google-analytics.com test.fider.io; img-src 'self' https: data: test.fider.io; font-src 'self' https://fonts.gstatic.com data: test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com https://ipinfo.io https://js.stripe.com test.fider.io; frame-src 'self' https://js.stripe.com"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com test.fider.io; script-src 'self' 'nonce-" + ctxID + "' https://www.google-analytics.com test.fider.io; img-src 'self' https: data: test.fider.io; font-src 'self' https://fonts.gstatic.com data: test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com test.fider.io; frame-src 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)

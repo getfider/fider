@@ -1,13 +1,34 @@
-// Print all variables that does not start with _ (95)
-// Compressed to avoid whitespace being printed
+{{define "head"}}
+  {{ if .private.chunkAssets }}
+    {{range .private.chunkAssets.CSS}}
+      <link rel="preload" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" as="style" />
+    {{end}}
+    {{range .private.chunkAssets.JS}}
+      <link rel="preload" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" as="script" />
+    {{end}}
+  {{end}}
+{{end}}
+
+{{define "noscript"}}
+<noscript class="container">
+  <div class="c-segment">
+    <h2>Please enable JavaScript</h2>
+    <p>This website relies on JavaScript-based technologies and services.</p>
+    <p>Please enable JavaScript and then reload the page.</p>
+  </div>
+</noscript>
+{{end}}
+
 {{define "server-data"}} 
   {{ .public }}
 {{ end }}
+
 {{define "content"}}<div id="root"></div><div id="root-modal"></div><div id="root-toastify"></div>{{end}}
+
 {{define "end-of-body"}}
   {{ if .private.assets }}
-  {{range .private.assets.JS}}
-  <script src="{{ $.public.settings.globalAssetsURL }}{{ . }}" crossorigin="anonymous"></script>
-  {{end}}
+    {{range .private.assets.JS}}
+    <script src="{{ $.public.settings.globalAssetsURL }}{{ . }}" crossorigin="anonymous"></script>
+    {{end}}
   {{end}}
 {{end}}

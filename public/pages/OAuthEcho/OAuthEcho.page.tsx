@@ -1,27 +1,27 @@
-import "./OAuthEcho.page.scss";
+import "./OAuthEcho.page.scss"
 
-import React from "react";
-import { navigator } from "@fider/services";
-import { Segments, Segment } from "@fider/components";
-import { FaCheckCircle, FaTimesCircle, FaExclamationTriangle } from "react-icons/fa";
+import React from "react"
+import { navigator } from "@fider/services"
+import { Segments, Segment } from "@fider/components"
+import { FaCheckCircle, FaTimesCircle, FaExclamationTriangle } from "react-icons/fa"
 
 interface OAuthEchoPageProps {
-  err: string | undefined;
-  body: string;
+  err: string | undefined
+  body: string
   profile: {
-    id: string;
-    name: string;
-    email: string;
-  };
+    id: string
+    name: string
+    email: string
+  }
 }
 
-const ok = <FaCheckCircle className="check" />;
-const error = <FaTimesCircle className="error" />;
-const warn = <FaExclamationTriangle className="warn" />;
+const ok = <FaCheckCircle className="check" />
+const error = <FaTimesCircle className="error" />
+const warn = <FaExclamationTriangle className="warn" />
 
-export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
+export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, any> {
   public componentDidMount() {
-    navigator.replaceState("/");
+    navigator.replaceState("/")
   }
 
   private renderError() {
@@ -30,19 +30,19 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {
         <h5>Error</h5>
         <pre>{this.props.err}</pre>
       </>
-    );
+    )
   }
 
   private renderParseResult() {
-    const idOk = this.props.profile && this.props.profile.id !== "";
-    const nameOk = this.props.profile && this.props.profile.name !== "Anonymous";
-    const emailOk = this.props.profile && this.props.profile.email !== "";
+    const idOk = this.props.profile && this.props.profile.id !== ""
+    const nameOk = this.props.profile && this.props.profile.name !== "Anonymous"
+    const emailOk = this.props.profile && this.props.profile.email !== ""
 
-    let responseBody = "";
+    let responseBody = ""
     try {
-      responseBody = JSON.stringify(JSON.parse(this.props.body), null, "  ");
+      responseBody = JSON.stringify(JSON.parse(this.props.body), null, "  ")
     } catch {
-      responseBody = this.props.body;
+      responseBody = this.props.body
     }
 
     return (
@@ -55,9 +55,7 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {
             <p>
               {idOk ? ok : error}
               <strong>ID:</strong> {this.props.profile && this.props.profile.id}
-              {!idOk && (
-                <p className="info">ID is required. If not found, users will see an error during sign in process.</p>
-              )}
+              {!idOk && <p className="info">ID is required. If not found, users will see an error during sign in process.</p>}
             </p>
           </Segment>
           <Segment>
@@ -66,7 +64,7 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {
               <strong>Name:</strong> {this.props.profile && this.props.profile.name}
               {!nameOk && (
                 <p className="info">
-                  Name is required, if not found we'll use <strong>Anonymous</strong> as the name of every new user.
+                  Name is required, if not found we&apos;ll use <strong>Anonymous</strong> as the name of every new user.
                 </p>
               )}
             </p>
@@ -77,15 +75,14 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {
               <strong>Email:</strong> {this.props.profile && this.props.profile.email}
               {!emailOk && (
                 <p className="info">
-                  Email is not required, but highly recommended. If invalid or not found, new users won't be able to
-                  receive notifications.
+                  Email is not required, but highly recommended. If invalid or not found, new users won&apos;t be able to receive notifications.
                 </p>
               )}
             </p>
           </Segment>
         </Segments>
       </>
-    );
+    )
   }
 
   public render() {
@@ -93,6 +90,6 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {
       <div id="p-oauth-echo" className="page container">
         {this.props.err ? this.renderError() : this.renderParseResult()}
       </div>
-    );
+    )
   }
 }

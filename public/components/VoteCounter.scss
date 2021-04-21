@@ -1,9 +1,9 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-vote-counter {
   margin-right: 10px;
 
-  button, 
+  button,
   button.m-voted,
   button.m-disabled {
     font-size: 18px;
@@ -15,10 +15,10 @@
     text-align: center;
     margin: 0 auto;
     padding: 0 0;
-    color: $gray-darker;
+    color: $gray-700;
 
     .icon {
-      color: $gray;
+      color: $gray-400;
       margin-bottom: -3px;
     }
   }
@@ -28,7 +28,7 @@
     cursor: not-allowed;
   }
 
-  button.m-voted, 
+  button.m-voted,
   button.no-touch:hover {
     color: $main-color;
 

@@ -17,15 +17,11 @@ func (p Props) Value() (driver.Value, error) {
 // Merge current props with given props
 func (p Props) Merge(props Props) Props {
 	new := Props{}
-	if p != nil {
-		for k, v := range p {
-			new[k] = v
-		}
+	for k, v := range p {
+		new[k] = v
 	}
-	if props != nil {
-		for k, v := range props {
-			new[k] = v
-		}
+	for k, v := range props {
+		new[k] = v
 	}
 	return new
 }

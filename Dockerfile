@@ -1,29 +1,49 @@
-# Build Step
-FROM getfider/githubci:0.0.2 AS builder
+#####################
+### Server Build Step
+#####################
+FROM golang:1.16.2-buster AS server-builder 
 
-RUN mkdir /app
-WORKDIR /app
+ARG buildnumber=local
+
+RUN mkdir /server
+WORKDIR /server
+
+COPY . .
+RUN BUILDNUMBER=${buildnumber} GOOS=linux GOARCH=amd64 make build-server
+
+#################
+### UI Build Step
+#################
+FROM node:14-buster AS ui-builder 
+
+RUN mkdir /ui
+WORKDIR /ui
 
 COPY . .
 RUN npm ci
-RUN node -v 
-RUN npm -v 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 mage build
+RUN make build-ssr
+RUN make build-ui
 
-# Runtime Step
-FROM alpine:3.10
-RUN apk update && apk add ca-certificates
+################
+### Runtime Step
+################
+FROM debian:buster-slim
+
+RUN apt-get update
+RUN apt-get install -y ca-certificates
 
 RUN mkdir /app
 WORKDIR /app
 
-COPY --from=builder /app/favicon.png /app
-COPY --from=builder /app/migrations /app/migrations
-COPY --from=builder /app/views /app/views
-COPY --from=builder /app/dist /app/dist
-COPY --from=builder /app/LICENSE /app
-COPY --from=builder /app/robots.txt /app
-COPY --from=builder /app/fider /app
+COPY --from=server-builder /server/migrations /app/migrations
+COPY --from=server-builder /server/views /app/views
+COPY --from=server-builder /server/LICENSE /app
+COPY --from=server-builder /server/fider /app
+
+COPY --from=ui-builder /ui/favicon.png /app
+COPY --from=ui-builder /ui/dist /app/dist
+COPY --from=ui-builder /ui/robots.txt /app
+COPY --from=ui-builder /ui/ssr.js /app
 
 EXPOSE 3000
 

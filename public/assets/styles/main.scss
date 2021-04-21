@@ -2,10 +2,6 @@
              Site
 *******************************/
 
-@-ms-viewport {
-  width: device-width;
-}
-
 html,
 body {
   height: 100%;
@@ -25,12 +21,15 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   font-family: $font-site;
-  background-color: $bg-color;
-  color: $gray-darkest;
+  color: $gray-900;
   font-size: $font-size;
 }
 
-button, input, optgroup, select, textarea {
+button,
+input,
+optgroup,
+select,
+textarea {
   font-family: $font-site;
   font-size: $font-size;
 }
@@ -39,7 +38,11 @@ button, input, optgroup, select, textarea {
              Headers
 *******************************/
 
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
   line-height: 120%;
   margin: 25px 0em 14px;
   font-weight: 600;
@@ -83,7 +86,7 @@ h5:last-child {
 
 p {
   margin: 0 0 14px;
-  line-height: 1.38;
+  line-height: 1.5;
 }
 p:first-child {
   margin-top: 0;
@@ -124,7 +127,7 @@ a:hover {
 }
 
 .status-open {
-  color: $gray-darkest;
+  color: $gray-900;
 }
 
 .status-planned {
@@ -140,7 +143,7 @@ a:hover {
 }
 
 .status-declined {
-  color: #db2828
+  color: #db2828;
 }
 
 .status-duplicate {
@@ -163,11 +166,16 @@ a:hover {
 
 *:focus {
   outline: 0;
+  box-shadow: 0 0 0 3px $blue-300;
+  transition: all 0.3s ease;
 }
 
-[type=reset], [type=submit], button, html [type=button] {
-  appearance: button;
+[type="reset"],
+[type="submit"],
+button,
+html [type="button"] {
   -webkit-appearance: button;
+  appearance: button;
 }
 
 .page {
@@ -190,7 +198,13 @@ code {
   font-family: $font-code;
 }
 
-body, h1, h2, h3, h4, h5, .ui, input {
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+input {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -198,7 +212,7 @@ body, h1, h2, h3, h4, h5, .ui, input {
 .info {
   font-size: 90%;
   font-weight: 400;
-  color: $gray-darker;
+  color: $gray-700;
 }
 
 .right {
@@ -225,9 +239,9 @@ svg.icon {
   font-size: $font-size-mini;
   margin: 10px 0 5px 0;
   font-weight: 600;
-  letter-spacing: .3px;
+  letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: $gray-dark;
+  color: $gray-500;
   display: block;
   &.active {
     cursor: pointer;
@@ -254,19 +268,20 @@ svg.icon {
 
   blockquote {
     padding: 0 8px;
-    color: $gray-darkest;
-    border-left: 4px solid $gray-light;
+    color: $gray-900;
+    border-left: 4px solid $gray-300;
     margin: 5px 0;
   }
 
-  ul, ol {
+  ul,
+  ol {
     padding-left: 30px;
     margin: 0 0 14px;
 
     &:first-child {
       margin-top: 0;
     }
-  
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -298,18 +313,18 @@ svg.icon {
     padding: 0.2em;
     font-size: 85%;
     margin: 0;
-    background-color: rgba(27,31,35,0.05);
+    background-color: rgba(27, 31, 35, 0.05);
     border-radius: 3px;
   }
 }
 
-.ui.inline.dropdown {
+.inline.dropdown {
   > .text {
-    border-bottom: 1px dashed #9e9e9e
+    border-bottom: 1px dashed #9e9e9e;
   }
 }
 
-.ui.basic.red.label {
+.basic.red.label {
   width: 100%;
   color: #ef7878 !important;
   border-color: #ef7878 !important;
@@ -381,11 +396,11 @@ svg.icon {
     tr {
       th {
         padding: 5px;
-        border-bottom: 1px solid $gray;
-        background-color: $gray-lighter;
+        border-bottom: 1px solid $gray-400;
+        background-color: $gray-200;
       }
       td {
-        border-bottom: 1px solid $gray;
+        border-bottom: 1px solid $gray-400;
         padding: 5px;
       }
     }
@@ -397,9 +412,10 @@ svg.icon {
   font-weight: 700;
   margin: 15px 0px;
 
-  &::before, &::after {
+  &::before,
+  &::after {
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABaAAAAACCAYAAACuTHuKAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OThBRDY4OUNDMTYxMUU0OUE3NUVGOEJDMzMzMjE2NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OThBRDY4QUNDMTYxMUU0OUE3NUVGOEJDMzMzMjE2NyI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5OEFENjg3Q0MxNjExRTQ5QTc1RUY4QkMzMzMyMTY3IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5OEFENjg4Q0MxNjExRTQ5QTc1RUY4QkMzMzMyMTY3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+VU513gAAADVJREFUeNrs0DENACAQBDBIWLGBJQby/mUcJn5sJXQmOQMAAAAAAJqt+2prAAAAAACg2xdgANk6BEVuJgyMAAAAAElFTkSuQmCC);
-    content: '';
+    content: "";
     display: table-cell;
     position: relative;
     top: 50%;

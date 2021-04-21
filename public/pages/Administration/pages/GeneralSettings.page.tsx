@@ -1,53 +1,53 @@
-import "./GeneralSettings.page.scss";
+import "./GeneralSettings.page.scss"
 
-import React from "react";
+import React from "react"
 
-import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components/common";
-import { actions, Failure, Fider } from "@fider/services";
-import { FaCogs } from "react-icons/fa";
-import { AdminBasePage } from "../components/AdminBasePage";
-import { ImageUpload } from "@fider/models";
+import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components/common"
+import { actions, Failure, Fider } from "@fider/services"
+import { FaCogs } from "react-icons/fa"
+import { AdminBasePage } from "../components/AdminBasePage"
+import { ImageUpload } from "@fider/models"
 
 interface GeneralSettingsPageState {
-  logo?: ImageUpload;
-  title: string;
-  invitation: string;
-  welcomeMessage: string;
-  cname: string;
-  error?: Failure;
+  logo?: ImageUpload
+  title: string
+  invitation: string
+  welcomeMessage: string
+  cname: string
+  error?: Failure
 }
 
-export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettingsPageState> {
-  public id = "p-admin-general";
-  public name = "general";
-  public icon = FaCogs;
-  public title = "General";
-  public subtitle = "Manage your site settings";
+export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSettingsPageState> {
+  public id = "p-admin-general"
+  public name = "general"
+  public icon = FaCogs
+  public title = "General"
+  public subtitle = "Manage your site settings"
 
-  constructor(props: {}) {
-    super(props);
+  constructor(props: any) {
+    super(props)
 
     this.state = {
       title: Fider.session.tenant.name,
       cname: Fider.session.tenant.cname,
       welcomeMessage: Fider.session.tenant.welcomeMessage,
-      invitation: Fider.session.tenant.invitation
-    };
+      invitation: Fider.session.tenant.invitation,
+    }
   }
 
   private handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings(this.state);
+    const result = await actions.updateTenantSettings(this.state)
     if (result.ok) {
-      e.preventEnable();
-      location.href = `/`;
+      e.preventEnable()
+      location.href = `/`
     } else if (result.error) {
-      this.setState({ error: result.error });
+      this.setState({ error: result.error })
     }
-  };
+  }
 
   public dnsInstructions(): JSX.Element {
-    const isApex = this.state.cname.split(".").length <= 2;
-    const recordType = isApex ? "ALIAS" : "CNAME";
+    const isApex = this.state.cname.split(".").length <= 2
+    const recordType = isApex ? "ALIAS" : "CNAME"
     return (
       <>
         <strong>{this.state.cname}</strong> {recordType}{" "}
@@ -56,43 +56,36 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           {Fider.settings.domain}
         </strong>
       </>
-    );
+    )
   }
 
   private setTitle = (title: string): void => {
-    this.setState({ title });
-  };
+    this.setState({ title })
+  }
 
   private setWelcomeMessage = (welcomeMessage: string): void => {
-    this.setState({ welcomeMessage });
-  };
+    this.setState({ welcomeMessage })
+  }
 
   private setInvitation = (invitation: string): void => {
-    this.setState({ invitation });
-  };
+    this.setState({ invitation })
+  }
 
   private setLogo = (logo: ImageUpload): void => {
-    this.setState({ logo });
-  };
+    this.setState({ logo })
+  }
 
   private setCNAME = (cname: string): void => {
-    this.setState({ cname });
-  };
+    this.setState({ cname })
+  }
 
   public content() {
     return (
       <Form error={this.state.error}>
-        <Input
-          field="title"
-          label="Title"
-          maxLength={60}
-          value={this.state.title}
-          disabled={!Fider.session.user.isAdministrator}
-          onChange={this.setTitle}
-        >
+        <Input field="title" label="Title" maxLength={60} value={this.state.title} disabled={!Fider.session.user.isAdministrator} onChange={this.setTitle}>
           <p className="info">
-            The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The
-            product/service name is usually the best choice.
+            The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The product/service name is usually the best
+            choice.
           </p>
         </Input>
 
@@ -104,8 +97,8 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           onChange={this.setWelcomeMessage}
         >
           <p className="info">
-            The message is shown on this site's home page. Use it to help visitors understad what this space is about
-            and the importance of their feedback. Leave it empty for a default message.
+            The message is shown on this site&apos;s home page. Use it to help visitors understad what this space is about and the importance of their feedback.
+            Leave it empty for a default message.
           </p>
         </TextArea>
 
@@ -119,8 +112,8 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           onChange={this.setInvitation}
         >
           <p className="info">
-            This text is used as a placeholder for the suggestion's text box. Use it to invite your visitors into
-            sharing their suggestions and feedback. Leave it empty for a default message.
+            This text is used as a placeholder for the suggestion&apos;s text box. Use it to invite your visitors into sharing their suggestions and feedback.
+            Leave it empty for a default message.
           </p>
         </Input>
 
@@ -133,8 +126,7 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           onChange={this.setLogo}
         >
           <p className="info">
-            We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
-            dimensions of 200x200 pixels.
+            We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 200x200 pixels.
           </p>
         </ImageUploader>
 
@@ -153,15 +145,11 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
                 [
                   <p key={0}>Enter the following record into your DNS zone records:</p>,
                   <p key={1}>{this.dnsInstructions()}</p>,
-                  <p key={2}>
-                    Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS
-                    propagation.
-                  </p>
+                  <p key={2}>Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS propagation.</p>,
                 ]
               ) : (
                 <p>
-                  Custom domains allow you to access your app via your own domain name (for example,{" "}
-                  <code>feedback.yourcompany.com</code>
+                  Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcompany.com</code>
                   ).
                 </p>
               )}
@@ -175,6 +163,6 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           </Button>
         </div>
       </Form>
-    );
+    )
   }
 }

@@ -79,13 +79,18 @@ func listPostVotes(ctx context.Context, q *query.ListPostVotes) error {
 			sqlLimit = strconv.Itoa(q.Limit)
 		}
 
+		emailColumn := "''"
+		if q.IncludeEmail {
+			emailColumn = "u.email"
+		}
+
 		votes := []*dbVote{}
 		err := trx.Select(&votes, `
 		SELECT 
 			pv.created_at, 
 			u.id AS user_id,
 			u.name AS user_name,
-			u.email AS user_email,
+			`+emailColumn+` AS user_email,
 			u.avatar_type AS user_avatar_type,
 			u.avatar_bkey AS user_avatar_bkey
 		FROM post_votes pv

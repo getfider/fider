@@ -69,6 +69,9 @@ Disallow: /_api/
 Disallow: /api/v1/
 Disallow: /admin/
 Disallow: /oauth/
+Disallow: /terms
+Disallow: /privacy
+Disallow: /-/ui
 Sitemap: https://demo.test.fider.io/sitemap.xml`)
 }
 
@@ -96,8 +99,8 @@ func TestSitemap_WithPosts(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetAllPosts) error {
 		q.Result = []*models.Post{
-			&models.Post{Number: 1, Slug: "my-new-idea-1", Title: "My new idea 1"},
-			&models.Post{Number: 2, Slug: "the-other-idea", Title: "The other idea"},
+			{Number: 1, Slug: "my-new-idea-1", Title: "My new idea 1"},
+			{Number: 2, Slug: "the-other-idea", Title: "The other idea"},
 		}
 		return nil
 	})

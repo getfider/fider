@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-avatar {
   border-radius: 50%;
@@ -19,9 +19,5 @@
   &.m-large {
     width: 35px;
     height: 35px;
-  }
-
-  &.m-staff {
-    border: 1px solid $admin-color;
   }
 }

@@ -30,19 +30,22 @@ func New(content string) *Query {
 //String returns a string value from the json object based on its selector
 func (q *Query) String(selector string) string {
 	selectors := strings.Split(selector, ",")
+
 	for _, s := range selectors {
 		data := q.get(strings.TrimSpace(s))
 		if data != nil {
-			var str json.Number
-			err := json.Unmarshal(*data, &str)
-			if err != nil {
-				return ""
+			var str string
+			if err := json.Unmarshal(*data, &str); err == nil && str != "" {
+				return str
 			}
-			if str != "" {
-				return str.String()
+
+			var num int
+			if err := json.Unmarshal(*data, &num); err == nil {
+				return strconv.Itoa(num)
 			}
 		}
 	}
+
 	return ""
 }
 

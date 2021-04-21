@@ -1,14 +1,14 @@
-import "./ListPosts.scss";
+import "./ListPosts.scss"
 
-import React from "react";
-import { Post, Tag, CurrentUser } from "@fider/models";
-import { ShowTag, ShowPostResponse, VoteCounter, MultiLineText, ListItem, List } from "@fider/components";
-import { FaRegComments } from "react-icons/fa";
+import React from "react"
+import { Post, Tag, CurrentUser } from "@fider/models"
+import { ShowTag, ShowPostResponse, VoteCounter, MultiLineText, ListItem, List } from "@fider/components"
+import { FaRegComments } from "react-icons/fa"
 
 interface ListPostsProps {
-  posts?: Post[];
-  tags: Tag[];
-  emptyText: string;
+  posts?: Post[]
+  tags: Tag[]
+  emptyText: string
 }
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
@@ -24,30 +24,30 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         <a className="c-list-item-title" href={`/posts/${props.post.number}/${props.post.slug}`}>
           {props.post.title}
         </a>
-        <MultiLineText className="c-list-item-description" text={props.post.description} style="simple" />
+        <MultiLineText className="c-list-item-description" maxLength={300} text={props.post.description} style="plainText" />
         <ShowPostResponse showUser={false} status={props.post.status} response={props.post.response} />
-        {props.tags.map(tag => (
-          <ShowTag key={tag.id} size="tiny" tag={tag} />
+        {props.tags.map((tag) => (
+          <ShowTag key={tag.id} tag={tag} />
         ))}
       </div>
     </ListItem>
-  );
-};
+  )
+}
 
 export const ListPosts = (props: ListPostsProps) => {
   if (!props.posts) {
-    return null;
+    return null
   }
 
   if (props.posts.length === 0) {
-    return <p className="center">{props.emptyText}</p>;
+    return <p className="center">{props.emptyText}</p>
   }
 
   return (
     <List className="c-post-list" divided={true}>
-      {props.posts.map(post => (
-        <ListPostItem key={post.id} post={post} tags={props.tags.filter(tag => post.tags.indexOf(tag.slug) >= 0)} />
+      {props.posts.map((post) => (
+        <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
       ))}
     </List>
-  );
-};
+  )
+}

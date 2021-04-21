@@ -1,74 +1,74 @@
-import React from "react";
-import { classSet } from "@fider/services";
+import React from "react"
+import { classSet } from "@fider/services"
 
 interface ButtonProps {
-  className?: string;
-  disabled?: boolean;
-  href?: string;
-  rel?: "nofollow";
-  type?: "button" | "submit";
-  color?: "positive" | "danger" | "default" | "cancel";
-  fluid?: boolean;
-  size?: "mini" | "tiny" | "small" | "normal" | "large";
-  onClick?: (event: ButtonClickEvent) => Promise<any>;
+  className?: string
+  disabled?: boolean
+  href?: string
+  rel?: "nofollow"
+  type?: "button" | "submit"
+  color?: "positive" | "danger" | "default" | "cancel"
+  fluid?: boolean
+  size?: "mini" | "tiny" | "small" | "normal" | "large"
+  onClick?: (event: ButtonClickEvent) => Promise<any>
 }
 
 interface ButtonState {
-  clicked: boolean;
+  clicked: boolean
 }
 
-import "./Button.scss";
+import "./Button.scss"
 
 export class ButtonClickEvent {
-  private shouldEnable = true;
+  private shouldEnable = true
   public preventEnable(): void {
-    this.shouldEnable = false;
+    this.shouldEnable = false
   }
   public canEnable(): boolean {
-    return this.shouldEnable;
+    return this.shouldEnable
   }
 }
 
 export class Button extends React.Component<ButtonProps, ButtonState> {
-  private unmounted: boolean = false;
+  private unmounted = false
 
   public static defaultProps: Partial<ButtonProps> = {
     size: "small",
     fluid: false,
     color: "default",
-    type: "button"
-  };
+    type: "button",
+  }
 
   public constructor(props: ButtonProps) {
-    super(props);
+    super(props)
     this.state = {
-      clicked: false
-    };
+      clicked: false,
+    }
   }
 
   public componentWillUnmount() {
-    this.unmounted = true;
+    this.unmounted = true
   }
 
   public click = async (e?: React.SyntheticEvent<HTMLElement>) => {
     if (e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault()
+      e.stopPropagation()
     }
 
     if (this.state.clicked) {
-      return;
+      return
     }
 
-    const event = new ButtonClickEvent();
-    this.setState({ clicked: true });
+    const event = new ButtonClickEvent()
+    this.setState({ clicked: true })
     if (this.props.onClick) {
-      await this.props.onClick(event);
+      await this.props.onClick(event)
       if (!this.unmounted && event.canEnable()) {
-        this.setState({ clicked: false });
+        this.setState({ clicked: false })
       }
     }
-  };
+  }
 
   public render() {
     const className = classSet({
@@ -78,27 +78,27 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
       [`m-${this.props.color}`]: this.props.color,
       "m-loading": this.state.clicked,
       "m-disabled": this.state.clicked || this.props.disabled,
-      [this.props.className!]: this.props.className
-    });
+      [this.props.className || ""]: this.props.className,
+    })
 
     if (this.props.href) {
       return (
         <a href={this.props.href} rel={this.props.rel} className={className}>
           {this.props.children}
         </a>
-      );
+      )
     } else if (this.props.onClick) {
       return (
         <button type={this.props.type} className={className} onClick={this.click}>
           {this.props.children}
         </button>
-      );
+      )
     } else {
       return (
         <button type={this.props.type} className={className}>
           {this.props.children}
         </button>
-      );
+      )
     }
   }
 }

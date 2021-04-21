@@ -1,1 +1,1 @@
-export * from "./MyNotifications.page";
+export * from "./MyNotifications.page"

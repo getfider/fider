@@ -1,30 +1,30 @@
-import React, { useState } from "react";
-import { classSet } from "@fider/services";
-import { DisplayError, ValidationContext, hasError } from "../";
+import React, { useState } from "react"
+import { classSet } from "@fider/services"
+import { DisplayError, ValidationContext, hasError } from "../"
 
 interface CheckboxProps {
-  field: string;
-  checked?: boolean;
-  onChange: (checked: boolean) => void;
+  field: string
+  checked?: boolean
+  onChange: (checked: boolean) => void
 }
 
-export const Checkbox: React.FC<CheckboxProps> = props => {
-  const [checked, setChecked] = useState<boolean>(props.checked || false);
+export const Checkbox: React.FC<CheckboxProps> = (props) => {
+  const [checked, setChecked] = useState<boolean>(props.checked || false)
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked: boolean = e.currentTarget.checked;
+    const isChecked: boolean = e.currentTarget.checked
 
-    setChecked(isChecked);
-    props.onChange(isChecked);
-  };
+    setChecked(isChecked)
+    props.onChange(isChecked)
+  }
 
   return (
     <ValidationContext.Consumer>
-      {ctx => (
+      {(ctx) => (
         <div
           className={classSet({
             "c-form-field m-checkbox": true,
-            "m-error": hasError(props.field, ctx.error)
+            "m-error": hasError(props.field, ctx.error),
           })}
         >
           <label htmlFor={`input-${props.field}`}>
@@ -35,5 +35,5 @@ export const Checkbox: React.FC<CheckboxProps> = props => {
         </div>
       )}
     </ValidationContext.Consumer>
-  );
-};
+  )
+}

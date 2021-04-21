@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   smtp:
     image: mailhog/mailhog:latest
@@ -8,7 +8,7 @@ services:
   pgdev:
     container_name: fider_pgdev
     restart: always
-    image: postgres:9.6.8
+    image: postgres:12
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     ports:
@@ -19,7 +19,7 @@ services:
   pgtest:
     container_name: fider_pgtest
     restart: always
-    image: postgres:9.6.8
+    image: postgres:12
     ports:
       - "5566:5432"
     environment:

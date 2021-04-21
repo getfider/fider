@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-post-list {
   .c-list-item {
@@ -6,10 +6,8 @@
     border-top-width: 0.1px !important;
 
     .c-list-item-title {
-      color: $gray-darkest;
+      color: $gray-900;
       font-weight: 500;
-      display: block;
-      max-width: 85%;
       margin-bottom: 10px;
       font-size: $font-size-large;
       &:hover {
@@ -18,8 +16,8 @@
     }
 
     .c-list-item-content {
-      width: calc(100% - 55px);
-      display: block;
+      flex-grow: 1;
+      align-self: center;
 
       .c-tag {
         margin: 0 3px 3px 0;
@@ -29,11 +27,10 @@
         vertical-align: middle;
       }
     }
-    
+
     .c-list-item-description {
-      color: $gray-darker;
-      min-height: 20px;
-      margin-bottom: 10px;
+      color: $gray-700;
+      margin-top: 10px;
     }
   }
 }

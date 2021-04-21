@@ -1,33 +1,33 @@
-import "./Header.scss";
+import "./Header.scss"
 
-import React, { useState, useEffect } from "react";
-import { SignInModal, EnvironmentInfo, Avatar, TenantLogo, TenantStatusInfo } from "@fider/components";
-import { actions } from "@fider/services";
-import { FaUser, FaCog, FaCaretDown } from "react-icons/fa";
-import { useFider } from "@fider/hooks";
+import React, { useState, useEffect } from "react"
+import { SignInModal, EnvironmentInfo, Avatar, TenantLogo } from "@fider/components"
+import { actions } from "@fider/services"
+import { FaUser, FaCog, FaCaretDown } from "react-icons/fa"
+import { useFider } from "@fider/hooks"
 
 export const Header = () => {
-  const fider = useFider();
-  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const fider = useFider()
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
 
   useEffect(() => {
     if (fider.session.isAuthenticated) {
-      actions.getTotalUnreadNotifications().then(result => {
+      actions.getTotalUnreadNotifications().then((result) => {
         if (result.ok && result.data > 0) {
-          setUnreadNotifications(result.data);
+          setUnreadNotifications(result.data)
         }
-      });
+      })
     }
-  }, [fider.session.isAuthenticated]);
+  }, [fider.session.isAuthenticated])
 
   const showModal = () => {
     if (!fider.session.isAuthenticated) {
-      setIsSignInModalOpen(true);
+      setIsSignInModalOpen(true)
     }
-  };
+  }
 
-  const hideModal = () => setIsSignInModalOpen(false);
+  const hideModal = () => setIsSignInModalOpen(false)
 
   const items = fider.session.isAuthenticated && (
     <div className="c-menu-user">
@@ -49,15 +49,15 @@ export const Header = () => {
         <a key={2} href="/admin" className="c-menu-user-item">
           Site Settings
         </a>,
-        <div key={5} className="c-menu-user-divider" />
+        <div key={5} className="c-menu-user-divider" />,
       ]}
       <a href="/signout?redirect=/" className="c-menu-user-item signout">
         Sign out
       </a>
     </div>
-  );
+  )
 
-  const showRightMenu = fider.session.isAuthenticated || !fider.session.tenant.isPrivate;
+  const showRightMenu = fider.session.isAuthenticated || !fider.session.tenant.isPrivate
   return (
     <div id="c-header">
       <EnvironmentInfo />
@@ -66,7 +66,7 @@ export const Header = () => {
         <div className="container">
           <a href="/" className="c-menu-item-title">
             <TenantLogo size={100} />
-            <span>{fider.session.tenant.name}</span>
+            <h1>{fider.session.tenant.name}</h1>
           </a>
           {showRightMenu && (
             <div onClick={showModal} className="c-menu-item-signin">
@@ -79,7 +79,6 @@ export const Header = () => {
           )}
         </div>
       </div>
-      <TenantStatusInfo />
     </div>
-  );
-};
+  )
+}

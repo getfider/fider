@@ -15,7 +15,7 @@ func Maintenance() web.MiddlewareFunc {
 				return next(c)
 			}
 
-			c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+			c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 			c.Response.Header().Set("Retry-After", "3600")
 
 			return c.Render(http.StatusServiceUnavailable, "maintenance.html", web.Props{

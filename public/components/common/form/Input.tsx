@@ -1,56 +1,55 @@
-import React from "react";
-import { classSet } from "@fider/services";
-import { ValidationContext } from "./Form";
-import { DisplayError, hasError } from "./DisplayError";
-import { IconType } from "react-icons";
+import React from "react"
+import { classSet } from "@fider/services"
+import { ValidationContext } from "./Form"
+import { DisplayError, hasError } from "./DisplayError"
+import { IconType } from "react-icons"
 
 interface InputProps {
-  field: string;
-  label?: string;
-  className?: string;
-  autoComplete?: string;
-  autoFocus?: boolean;
-  noTabFocus?: boolean;
-  afterLabel?: JSX.Element;
-  icon?: IconType;
-  maxLength?: number;
-  value?: string;
-  disabled?: boolean;
-  suffix?: string | JSX.Element;
-  placeholder?: string;
-  onIconClick?: () => void;
-  onFocus?: () => void;
-  inputRef?: React.MutableRefObject<any>;
-  onChange?: (value: string) => void;
+  field: string
+  label?: string
+  className?: string
+  autoComplete?: string
+  autoFocus?: boolean
+  noTabFocus?: boolean
+  afterLabel?: JSX.Element
+  icon?: IconType
+  maxLength?: number
+  value?: string
+  disabled?: boolean
+  suffix?: string | JSX.Element
+  placeholder?: string
+  onIconClick?: () => void
+  onFocus?: () => void
+  inputRef?: React.MutableRefObject<any>
+  onChange?: (value: string) => void
 }
 
-export const Input: React.FunctionComponent<InputProps> = props => {
+export const Input: React.FunctionComponent<InputProps> = (props) => {
   const onChange = (e: React.FormEvent<HTMLInputElement>) => {
     if (props.onChange) {
-      props.onChange(e.currentTarget.value);
+      props.onChange(e.currentTarget.value)
     }
-  };
+  }
 
-  const suffix =
-    typeof props.suffix === "string" ? <span className="c-form-input-suffix">{props.suffix}</span> : props.suffix;
+  const suffix = typeof props.suffix === "string" ? <span className="c-form-input-suffix">{props.suffix}</span> : props.suffix
 
-  const icon = !!props.icon
+  const icon = props.icon
     ? React.createElement(props.icon, {
         onClick: props.onIconClick,
-        className: classSet({ link: !!props.onIconClick })
+        className: classSet({ link: !!props.onIconClick }),
       })
-    : undefined;
+    : undefined
 
   return (
     <ValidationContext.Consumer>
-      {ctx => (
+      {(ctx) => (
         <div
           className={classSet({
             "c-form-field": true,
             "m-suffix": props.suffix,
             "m-error": hasError(props.field, ctx.error),
             "m-icon": !!props.icon,
-            [`${props.className}`]: props.className
+            [`${props.className}`]: props.className,
           })}
         >
           {!!props.label && (
@@ -82,5 +81,5 @@ export const Input: React.FunctionComponent<InputProps> = props => {
         </div>
       )}
     </ValidationContext.Consumer>
-  );
-};
+  )
+}

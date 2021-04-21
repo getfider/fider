@@ -1,33 +1,33 @@
-import React, { useState } from "react";
-import { OAuthConfig, OAuthConfigStatus, ImageUpload } from "@fider/models";
-import { Failure, actions } from "@fider/services";
-import { Form, Button, Input, Heading, SocialSignInButton, Field, ImageUploader, Toggle } from "@fider/components";
-import { useFider } from "@fider/hooks";
+import React, { useState } from "react"
+import { OAuthConfig, OAuthConfigStatus, ImageUpload } from "@fider/models"
+import { Failure, actions } from "@fider/services"
+import { Form, Button, Input, Heading, SocialSignInButton, Field, ImageUploader, Toggle } from "@fider/components"
+import { useFider } from "@fider/hooks"
 
 interface OAuthFormProps {
-  config?: OAuthConfig;
-  onCancel: () => void;
+  config?: OAuthConfig
+  onCancel: () => void
 }
 
-export const OAuthForm: React.FC<OAuthFormProps> = props => {
-  const fider = useFider();
-  const [provider] = useState((props.config && props.config.provider) || "");
-  const [displayName, setDisplayName] = useState((props.config && props.config.displayName) || "");
-  const [enabled, setEnabled] = useState((props.config && props.config.status === OAuthConfigStatus.Enabled) || false);
-  const [clientID, setClientID] = useState((props.config && props.config.clientID) || "");
-  const [clientSecret, setClientSecret] = useState((props.config && props.config.clientSecret) || "");
-  const [clientSecretEnabled, setClientSecretEnabled] = useState(!props.config);
-  const [authorizeURL, setAuthorizeURL] = useState((props.config && props.config.authorizeURL) || "");
-  const [tokenURL, setTokenURL] = useState((props.config && props.config.tokenURL) || "");
-  const [profileURL, setProfileURL] = useState((props.config && props.config.profileURL) || "");
-  const [scope, setScope] = useState((props.config && props.config.scope) || "");
-  const [jsonUserIDPath, setJSONUserIDPath] = useState((props.config && props.config.jsonUserIDPath) || "");
-  const [jsonUserNamePath, setJSONUserNamePath] = useState((props.config && props.config.jsonUserNamePath) || "");
-  const [jsonUserEmailPath, setJSONUserEmailPath] = useState((props.config && props.config.jsonUserEmailPath) || "");
-  const [logo, setLogo] = useState<ImageUpload | undefined>();
-  const [logoURL, setLogoURL] = useState<string | undefined>();
-  const [logoBlobKey, setLogoBlobKey] = useState((props.config && props.config.logoBlobKey) || "");
-  const [error, setError] = useState<Failure | undefined>();
+export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
+  const fider = useFider()
+  const [provider] = useState((props.config && props.config.provider) || "")
+  const [displayName, setDisplayName] = useState((props.config && props.config.displayName) || "")
+  const [enabled, setEnabled] = useState((props.config && props.config.status === OAuthConfigStatus.Enabled) || false)
+  const [clientID, setClientID] = useState((props.config && props.config.clientID) || "")
+  const [clientSecret, setClientSecret] = useState((props.config && props.config.clientSecret) || "")
+  const [clientSecretEnabled, setClientSecretEnabled] = useState(!props.config)
+  const [authorizeURL, setAuthorizeURL] = useState((props.config && props.config.authorizeURL) || "")
+  const [tokenURL, setTokenURL] = useState((props.config && props.config.tokenURL) || "")
+  const [profileURL, setProfileURL] = useState((props.config && props.config.profileURL) || "")
+  const [scope, setScope] = useState((props.config && props.config.scope) || "")
+  const [jsonUserIDPath, setJSONUserIDPath] = useState((props.config && props.config.jsonUserIDPath) || "")
+  const [jsonUserNamePath, setJSONUserNamePath] = useState((props.config && props.config.jsonUserNamePath) || "")
+  const [jsonUserEmailPath, setJSONUserEmailPath] = useState((props.config && props.config.jsonUserEmailPath) || "")
+  const [logo, setLogo] = useState<ImageUpload | undefined>()
+  const [logoURL, setLogoURL] = useState<string | undefined>()
+  const [logoBlobKey, setLogoBlobKey] = useState((props.config && props.config.logoBlobKey) || "")
+  const [error, setError] = useState<Failure | undefined>()
 
   const handleSave = async () => {
     const result = await actions.saveOAuthConfig({
@@ -43,31 +43,31 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
       jsonUserIDPath,
       jsonUserNamePath,
       jsonUserEmailPath,
-      logo
-    });
+      logo,
+    })
     if (result.ok) {
-      location.reload();
+      location.reload()
     } else {
-      setError(result.error);
+      setError(result.error)
     }
-  };
+  }
 
   const handleLogoChange = (newLogo: ImageUpload, instanceID: string, previewURL: string) => {
-    setLogo(newLogo);
-    setLogoURL(previewURL);
-    setLogoBlobKey("");
-  };
+    setLogo(newLogo)
+    setLogoURL(previewURL)
+    setLogoBlobKey("")
+  }
 
   const handleCancel = async () => {
-    props.onCancel();
-  };
+    props.onCancel()
+  }
 
   const enableClientSecret = () => {
-    setClientSecret("");
-    setClientSecretEnabled(true);
-  };
+    setClientSecret("")
+    setClientSecretEnabled(true)
+  }
 
-  const title = props.config ? `OAuth Provider: ${props.config.displayName}` : "New OAuth Provider";
+  const title = props.config ? `OAuth Provider: ${props.config.displayName}` : "New OAuth Provider"
   return (
     <>
       <Heading title={title} size="small" />
@@ -92,8 +92,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
               onChange={handleLogoChange}
             >
               <p className="info">
-                We accept JPG, GIF and PNG images, smaller than 50KB and with an aspect ratio of 1:1 with minimum
-                dimensions of 24x24 pixels.
+                We accept JPG, GIF and PNG images, smaller than 50KB and with an aspect ratio of 1:1 with minimum dimensions of 24x24 pixels.
               </p>
             </ImageUploader>
           </div>
@@ -104,14 +103,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
           </div>
         </div>
 
-        <Input
-          field="clientID"
-          label="Client ID"
-          maxLength={100}
-          value={clientID}
-          disabled={!fider.session.user.isAdministrator}
-          onChange={setClientID}
-        />
+        <Input field="clientID" label="Client ID" maxLength={100} value={clientID} disabled={!fider.session.user.isAdministrator} onChange={setClientID} />
 
         <Input
           field="clientSecret"
@@ -128,9 +120,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
                   change
                 </span>
               </>
-            ) : (
-              undefined
-            )
+            ) : undefined
           }
         />
         <Input
@@ -141,33 +131,17 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
           disabled={!fider.session.user.isAdministrator}
           onChange={setAuthorizeURL}
         />
-        <Input
-          field="tokenURL"
-          label="Token URL"
-          maxLength={300}
-          value={tokenURL}
-          disabled={!fider.session.user.isAdministrator}
-          onChange={setTokenURL}
-        />
+        <Input field="tokenURL" label="Token URL" maxLength={300} value={tokenURL} disabled={!fider.session.user.isAdministrator} onChange={setTokenURL} />
 
-        <Input
-          field="scope"
-          label="Scope"
-          maxLength={100}
-          value={scope}
-          disabled={!fider.session.user.isAdministrator}
-          onChange={setScope}
-        >
+        <Input field="scope" label="Scope" maxLength={100} value={scope} disabled={!fider.session.user.isAdministrator} onChange={setScope}>
           <p className="info">
-            It is recommended to only request the minimum scopes we need to fetch the user <strong>id</strong>,{" "}
-            <strong>name</strong> and <strong>email</strong>. Multiple scopes must be separated by space.
+            It is recommended to only request the minimum scopes we need to fetch the user <strong>id</strong>, <strong>name</strong> and <strong>email</strong>
+            . Multiple scopes must be separated by space.
           </p>
         </Input>
 
         <h3>User Profile</h3>
-        <p className="info">
-          This section is used to configure how Fider will fetch user after the authentication process.
-        </p>
+        <p className="info">This section is used to configure how Fider will fetch user after the authentication process.</p>
 
         <Input
           field="profileURL"
@@ -177,10 +151,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
           disabled={!fider.session.user.isAdministrator}
           onChange={setProfileURL}
         >
-          <p className="info">
-            The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the
-            Access Token.
-          </p>
+          <p className="info">The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the Access Token.</p>
         </Input>
 
         <h4>JSON Path</h4>
@@ -196,8 +167,8 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
             onChange={setJSONUserIDPath}
           >
             <p className="info">
-              Path to extract User ID from the JSON. This ID <strong>must</strong> be unique within the provider or
-              unexpected side effects might happen. For example below, the path would be <strong>id</strong>.
+              Path to extract User ID from the JSON. This ID <strong>must</strong> be unique within the provider or unexpected side effects might happen. For
+              example below, the path would be <strong>id</strong>.
             </p>
           </Input>
           <Input
@@ -210,8 +181,8 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
             onChange={setJSONUserNamePath}
           >
             <p className="info">
-              Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong>{" "}
-              recommended. For the example below, the path would be <strong>profile.name</strong>.
+              Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong> recommended. For the example below, the path would
+              be <strong>profile.name</strong>.
             </p>
           </Input>
           <Input
@@ -224,8 +195,8 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
             onChange={setJSONUserEmailPath}
           >
             <p className="info">
-              Path to extract user Email from the JSON. This is optional, but <strong>highly</strong> recommended. For
-              the example below, the path would be <strong>profile.emails[0]</strong>.
+              Path to extract user Email from the JSON. This is optional, but <strong>highly</strong> recommended. For the example below, the path would be{" "}
+              <strong>profile.emails[0]</strong>.
             </p>
           </Input>
         </div>
@@ -253,12 +224,11 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
               <span>{enabled ? "Enabled" : "Disabled"}</span>
               {enabled && (
                 <p className="info">
-                  This provider will be available for everyone to use during the sign in process. It is recommended that
-                  you keep it disable and test it before enabling it. The Test button is available after saving this
-                  configuration.
+                  This provider will be available for everyone to use during the sign in process. It is recommended that you keep it disable and test it before
+                  enabling it. The Test button is available after saving this configuration.
                 </p>
               )}
-              {!enabled && <p className="info">Users won't be able to sign in with this Provider.</p>}
+              {!enabled && <p className="info">Users won&apos;t be able to sign in with this Provider.</p>}
             </Field>
           </div>
         </div>
@@ -273,5 +243,5 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
         </div>
       </Form>
     </>
-  );
-};
+  )
+}

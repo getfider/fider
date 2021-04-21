@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-dropdown {
   position: relative;
@@ -14,7 +14,7 @@
 
   &.is-open {
     .c-dropdown-arrow {
-      border-color: transparent transparent $gray;
+      border-color: transparent transparent $gray-400;
       border-width: 0 5px 5px;
     }
   }
@@ -25,15 +25,10 @@
     }
   }
 
-
-  &.m-style-simple {
-
-  }
-
   &.m-style-normal {
     .c-dropdown-control {
-      border: 1px solid $gray-light;
-  
+      border: 1px solid $gray-300;
+
       &:hover {
         box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
       }
@@ -44,41 +39,41 @@
     position: relative;
     cursor: pointer;
     overflow: hidden;
-    background-color: $white;
+    background-color: transparent;
     border-radius: 3px;
     box-sizing: border-box;
-    color: $gray-darkest;
+    color: $gray-900;
     outline: none;
     padding: 8px 52px 8px 10px;
     transition: all 200ms ease;
-    
+
     input {
       border: none;
       width: 100%;
     }
 
     .c-dropdown-placeholder {
-      color: $gray-light;
+      color: $gray-300;
     }
 
     .c-dropdown-arrow {
-      border-color: $gray-dark transparent transparent;
+      border-color: $gray-500 transparent transparent;
       border-style: solid;
       border-width: 5px 5px 0;
-      content: ' ';
+      content: " ";
       display: block;
       height: 0;
       margin-top: -ceil(2.5);
       position: absolute;
       right: 10px;
       top: 40%;
-      width: 0
+      width: 0;
     }
   }
 
   .c-dropdown-menu {
     background-color: $white;
-    border: 1px solid $gray-light;
+    border: 1px solid $gray-300;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
     box-sizing: border-box;
     margin-top: -1px;
@@ -101,7 +96,7 @@
       padding: 12px 10px;
       text-transform: uppercase;
       font-weight: 700;
-      font-size: .78571429em;
+      font-size: 0.78571429em;
     }
 
     .c-dropdown-item {
@@ -115,11 +110,11 @@
         border-bottom-right-radius: 3px;
         border-bottom-left-radius: 3px;
       }
-      
+
       &:hover {
-        background-color: $gray-lightest;
+        background-color: $gray-100;
       }
-      
+
       &.is-selected {
         font-weight: 700;
       }
@@ -127,7 +122,7 @@
 
     .c-dropdown-noresults {
       box-sizing: border-box;
-      color: $gray;
+      color: $gray-400;
       cursor: default;
       display: block;
       padding: 8px 10px;

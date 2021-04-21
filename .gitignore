@@ -9,6 +9,7 @@ logs/
 
 fider
 fider.exe
+ssr.js
 .env
 npm-debug.log
 

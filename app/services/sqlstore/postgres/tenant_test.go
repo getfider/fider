@@ -21,7 +21,6 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	env.Config.Stripe.SecretKey = ""
 	createTenant := &cmd.CreateTenant{
 		Name:      "My Domain Inc.",
 		Subdomain: "mydomain",
@@ -49,31 +48,6 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(getByDomain.Result.Subdomain).Equals("mydomain")
 	Expect(getByDomain.Result.Status).Equals(enum.TenantActive)
 	Expect(getByDomain.Result.IsPrivate).IsFalse()
-	Expect(getByDomain.Result.Billing).IsNil()
-}
-
-func TestTenantStorage_Add_WithBillingEnabled(t *testing.T) {
-	ctx := SetupDatabaseTest(t)
-	defer TeardownDatabaseTest()
-
-	env.Config.Stripe.SecretKey = "sk_1"
-	err := bus.Dispatch(ctx, &cmd.CreateTenant{
-		Name:      "My Domain Inc.",
-		Subdomain: "mydomain",
-		Status:    enum.TenantPending,
-	})
-	Expect(err).IsNil()
-
-	getByDomain := &query.GetTenantByDomain{Domain: "mydomain"}
-	err = bus.Dispatch(ctx, getByDomain)
-	Expect(err).IsNil()
-
-	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
-	Expect(getByDomain.Result.Subdomain).Equals("mydomain")
-	Expect(getByDomain.Result.Status).Equals(enum.TenantPending)
-	Expect(getByDomain.Result.IsPrivate).IsFalse()
-	Expect(getByDomain.Result.Billing).IsNotNil()
-	Expect(getByDomain.Result.Billing.TrialEndsAt).TemporarilySimilar(time.Now().Add(30*24*time.Hour), 5*time.Second)
 }
 
 func TestTenantStorage_SingleTenant_Add(t *testing.T) {

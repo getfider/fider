@@ -85,7 +85,7 @@ func TestRenderer_WithCanonicalURL(t *testing.T) {
 	compareRendererResponse(buf, "/app/pkg/web/testdata/canonical.html", ctx)
 }
 
-func TestRenderer_Props(t *testing.T) {
+func TestRenderer_Home(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
@@ -99,16 +99,40 @@ func TestRenderer_Props(t *testing.T) {
 		Title:       "My Page Title",
 		Description: "My Page Description",
 		Data: web.Map{
-			"number": 2,
-			"array":  []string{"1", "2"},
-			"object": web.Map{
-				"key1": "value1",
-				"key2": "value2",
-			},
+			"posts":          make([]web.Map, 0),
+			"tags":           make([]web.Map, 0),
+			"countPerStatus": web.Map{},
 		},
 	}, ctx)
 
-	compareRendererResponse(buf, "/app/pkg/web/testdata/props.html", ctx)
+	compareRendererResponse(buf, "/app/pkg/web/testdata/home.html", ctx)
+}
+
+func TestRenderer_Home_SSR(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.Experimental_SSR_SEO = true
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		return nil
+	})
+
+	buf := new(bytes.Buffer)
+	ctx := newGetContext("https://demo.test.fider.io:3000/", map[string]string{
+		"User-Agent": "Googlebot",
+	})
+	ctx.SetTenant(&models.Tenant{})
+	renderer := web.NewRenderer(&models.SystemSettings{})
+	renderer.Render(buf, http.StatusOK, "index.html", web.Props{
+		Title:       "My Page Title",
+		Description: "My Page Description",
+		Data: web.Map{
+			"posts":          make([]web.Map, 0),
+			"tags":           make([]web.Map, 0),
+			"countPerStatus": web.Map{},
+		},
+	}, ctx)
+
+	compareRendererResponse(buf, "/app/pkg/web/testdata/home_ssr.html", ctx)
 }
 
 func TestRenderer_AuthenticatedUser(t *testing.T) {
@@ -143,7 +167,7 @@ func TestRenderer_WithOAuth(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
 		q.Result = []*dto.OAuthProviderOption{
-			&dto.OAuthProviderOption{
+			{
 				Provider:         app.GoogleProvider,
 				DisplayName:      "Google",
 				ClientID:         "1234",

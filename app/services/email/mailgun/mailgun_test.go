@@ -122,7 +122,7 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 func TestSend_SkipUnlistedAddress(t *testing.T) {
 	RegisterT(t)
 	reset()
-	email.SetWhitelist("^.*@gmail.com$")
+	email.SetAllowlist("^.*@gmail.com$")
 
 	bus.Publish(ctx, &cmd.SendMail{
 		From: "Fider Test",
@@ -144,7 +144,7 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 func TestBatch_Success(t *testing.T) {
 	RegisterT(t)
 	reset()
-	email.SetWhitelist("")
+	email.SetAllowlist("")
 
 	bus.Publish(ctx, &cmd.SendMail{
 		From: "Fider Test",

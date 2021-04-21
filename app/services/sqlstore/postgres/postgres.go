@@ -107,7 +107,6 @@ func (s Service) Init() {
 	bus.AddHandler(updateTenantSettings)
 	bus.AddHandler(updateTenantPrivacySettings)
 	bus.AddHandler(updateTenantAdvancedSettings)
-	bus.AddHandler(updateTenantBillingSettings)
 
 	bus.AddHandler(getVerificationByKey)
 	bus.AddHandler(saveVerificationKey)

@@ -1,29 +1,24 @@
-import * as Pages from "@fider/AsyncPages";
+import * as Pages from "@fider/AsyncPages"
 
 interface PageConfiguration {
-  regex: RegExp;
-  component: any;
-  showHeader: boolean;
+  regex: RegExp
+  component: any
+  showHeader: boolean
 }
 
-const route = (path: string, component: any, showHeader: boolean = true): PageConfiguration => {
-  path = path
-    .replace("/", "/")
-    .replace(":number", "\\d+")
-    .replace(":string", ".+")
-    .replace("*", "/?.*");
+export const route = (path: string, component: any, showHeader = true): PageConfiguration => {
+  path = path.replace("/", "/").replace(":number", "\\d+").replace(":string", ".+").replace("*", "/?.*")
 
-  const regex = new RegExp(`^${path}$`);
-  return { regex, component, showHeader };
-};
+  const regex = new RegExp(`^${path}$`)
+  return { regex, component, showHeader }
+}
 
-const pathRegex = [
+const defaultRoutes = [
   route("", Pages.AsyncHomePage),
   route("/posts/:number*", Pages.AsyncShowPostPage),
   route("/admin/members", Pages.AsyncManageMembersPage),
   route("/admin/tags", Pages.AsyncManageTagsPage),
   route("/admin/privacy", Pages.AsyncPrivacySettingsPage),
-  route("/admin/billing", Pages.AsyncBillingPage),
   route("/admin/export", Pages.AsyncExportPage),
   route("/admin/invitations", Pages.AsyncInvitationsPage),
   route("/admin/authentication", Pages.AsyncManageAuthenticationPage),
@@ -36,17 +31,17 @@ const pathRegex = [
   route("/notifications", Pages.AsyncMyNotificationsPage),
   route("/settings", Pages.AsyncMySettingsPage),
   route("/oauth/:string/echo", Pages.AsyncOAuthEchoPage, false),
-  route("/-/ui", Pages.AsyncUIToolkitPage)
-];
+  route("/-/ui", Pages.AsyncUIToolkitPage),
+]
 
-export const resolveRootComponent = (path: string): PageConfiguration => {
+export const resolveRootComponent = (path: string, routes: PageConfiguration[] = defaultRoutes): PageConfiguration => {
   if (path.length > 0 && path.charAt(path.length - 1) === "/") {
-    path = path.substring(0, path.length - 1);
+    path = path.substring(0, path.length - 1)
   }
-  for (const entry of pathRegex) {
+  for (const entry of routes) {
     if (entry && entry.regex.test(path)) {
-      return entry;
+      return entry
     }
   }
-  throw new Error(`Component not found for route ${path}.`);
-};
+  throw new Error(`Component not found for route ${path}.`)
+}

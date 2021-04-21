@@ -5,6 +5,8 @@ var (
 	TenantActive = 1
 	//TenantPending is used for signup via email that requires user confirmation
 	TenantPending = 2
-	//TenantLocked is used when tenants are locked for various reasons
+	//TenantLocked is used to set tenant on a read-only mode
 	TenantLocked = 3
+	//TenantDisabled is used to block all access
+	TenantDisabled = 4
 )

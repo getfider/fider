@@ -1,19 +1,24 @@
-import React from "react";
-import { markdown } from "@fider/services";
+import React from "react"
+import { markdown, truncate } from "@fider/services"
 
-interface MultiLineText {
-  className?: string;
-  text?: string;
-  style: "full" | "simple";
+interface MultiLineTextProps {
+  className?: string
+  text?: string
+  maxLength?: number
+  style: "full" | "plainText"
 }
 
-export const MultiLineText = (props: MultiLineText) => {
+export const MultiLineText = (props: MultiLineTextProps) => {
   if (!props.text) {
-    return <p />;
+    return null
   }
 
-  const func = props.style === "full" ? markdown.full : markdown.simple;
-  return (
-    <div className={`markdown-body ${props.className || ""}`} dangerouslySetInnerHTML={{ __html: func(props.text) }} />
-  );
-};
+  const html = markdown[props.style](props.text)
+  const className = `markdown-body ${props.className || ""}`
+  const tagName = props.style === "plainText" ? "p" : "div"
+
+  return React.createElement(tagName, {
+    className,
+    dangerouslySetInnerHTML: { __html: props.maxLength ? truncate(html, props.maxLength) : html },
+  })
+}

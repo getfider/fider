@@ -1,37 +1,37 @@
-import React from "react";
+import React from "react"
 
-import { Button, Modal, ButtonClickEvent } from "@fider/components";
-import { actions, notify, navigator } from "@fider/services";
+import { Button, Modal, ButtonClickEvent } from "@fider/components"
+import { actions, notify, navigator } from "@fider/services"
 
 interface DangerZoneState {
-  clicked: boolean;
+  clicked: boolean
 }
 
-export class DangerZone extends React.Component<{}, DangerZoneState> {
-  constructor(props: {}) {
-    super(props);
+export class DangerZone extends React.Component<any, DangerZoneState> {
+  constructor(props: any) {
+    super(props)
     this.state = {
-      clicked: false
-    };
+      clicked: false,
+    }
   }
 
   public onClickDelete = async () => {
-    this.setState({ clicked: true });
-  };
+    this.setState({ clicked: true })
+  }
 
   public onCancel = async () => {
-    this.setState({ clicked: false });
-  };
+    this.setState({ clicked: false })
+  }
 
   public onConfirm = async (e: ButtonClickEvent) => {
-    const response = await actions.deleteCurrentAccount();
+    const response = await actions.deleteCurrentAccount()
     if (response.ok) {
-      e.preventEnable();
-      navigator.goHome();
+      e.preventEnable()
+      navigator.goHome()
     } else {
-      notify.error("Failed to delete your account. Try again later");
+      notify.error("Failed to delete your account. Try again later")
     }
-  };
+  }
 
   public render() {
     return (
@@ -40,8 +40,8 @@ export class DangerZone extends React.Component<{}, DangerZoneState> {
           <Modal.Header>Delete account</Modal.Header>
           <Modal.Content>
             <p>
-              When you choose to delete your account, we will erase all your personal information forever. The content
-              you have published will remain, but it will be anonymised.
+              When you choose to delete your account, we will erase all your personal information forever. The content you have published will remain, but it
+              will be anonymised.
             </p>
             <p>
               This process is irreversible. <strong>Are you sure?</strong>
@@ -59,14 +59,14 @@ export class DangerZone extends React.Component<{}, DangerZoneState> {
 
         <h4>Delete account</h4>
         <p className="info">
-          When you choose to delete your account, we will erase all your personal information forever. The content you
-          have published will remain, but it will be anonymised.
+          When you choose to delete your account, we will erase all your personal information forever. The content you have published will remain, but it will
+          be anonymised.
         </p>
         <p className="info">This process is irreversible. Please be certain.</p>
         <Button color="danger" size="tiny" onClick={this.onClickDelete}>
           Delete My Account
         </Button>
       </div>
-    );
+    )
   }
 }

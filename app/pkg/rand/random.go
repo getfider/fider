@@ -1,13 +1,9 @@
 package rand
 
 import (
-	"math/rand"
-	"time"
+	"crypto/rand"
+	"math/big"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 var chars = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
@@ -18,8 +14,13 @@ func String(n int) string {
 	}
 
 	bytes := make([]byte, n)
+	charsetLen := big.NewInt(int64(len(chars)))
 	for i := 0; i < n; i++ {
-		bytes[i] = chars[rand.Intn(len(chars))]
+		c, err := rand.Int(rand.Reader, charsetLen)
+		if err != nil {
+			panic(err)
+		}
+		bytes[i] = chars[c.Int64()]
 	}
 
 	return string(bytes)

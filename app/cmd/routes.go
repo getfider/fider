@@ -58,7 +58,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/oauth/:provider", handlers.SignInByOAuth())
 	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 
-	//From this step, a Tenant is required (regardless of status)
+	//Starting from this step, a Tenant is required
 	r.Use(middlewares.RequireTenant())
 
 	r.Get("/sitemap.xml", handlers.Sitemap())
@@ -159,14 +159,6 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
-
-		ui.Use(middlewares.RequireBillingEnabled())
-
-		ui.Get("/admin/billing", handlers.BillingPage())
-		ui.Get("/_api/admin/billing/plans/:countryCode", handlers.GetBillingPlans())
-		ui.Post("/_api/admin/billing/paymentinfo", handlers.UpdatePaymentInfo())
-		ui.Post("/_api/admin/billing/subscription/:planID", handlers.BillingSubscribe())
-		ui.Delete("/_api/admin/billing/subscription/:planID", handlers.CancelBillingSubscription())
 	}
 
 	api := r.Group()

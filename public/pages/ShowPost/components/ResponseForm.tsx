@@ -1,92 +1,86 @@
-import React from "react";
+import React from "react"
 
-import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
-import { Post, PostStatus } from "@fider/models";
+import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components"
+import { Post, PostStatus } from "@fider/models"
 
-import { actions, Failure } from "@fider/services";
-import { FaBullhorn } from "react-icons/fa";
-import { PostSearch } from "./PostSearch";
+import { actions, Failure } from "@fider/services"
+import { FaBullhorn } from "react-icons/fa"
+import { PostSearch } from "./PostSearch"
 
 interface ResponseFormProps {
-  post: Post;
+  post: Post
 }
 
 interface ResponseFormState {
-  showModal: boolean;
-  status: string;
-  text: string;
-  originalNumber: number;
-  error?: Failure;
+  showModal: boolean
+  status: string
+  text: string
+  originalNumber: number
+  error?: Failure
 }
 
 export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
   constructor(props: ResponseFormProps) {
-    super(props);
+    super(props)
 
     this.state = {
       showModal: false,
       status: this.props.post.status,
       originalNumber: 0,
-      text: this.props.post.response ? this.props.post.response.text : ""
-    };
+      text: this.props.post.response ? this.props.post.response.text : "",
+    }
   }
 
   private submit = async () => {
-    const result = await actions.respond(this.props.post.number, this.state);
+    const result = await actions.respond(this.props.post.number, this.state)
     if (result.ok) {
-      location.reload();
+      location.reload()
     } else {
       this.setState({
-        error: result.error
-      });
+        error: result.error,
+      })
     }
-  };
+  }
 
   private showModal = async () => {
-    this.setState({ showModal: true });
-  };
+    this.setState({ showModal: true })
+  }
 
   private closeModal = async () => {
-    this.setState({ showModal: false });
-  };
+    this.setState({ showModal: false })
+  }
 
   private setStatus = (opt?: SelectOption) => {
     if (opt) {
-      this.setState({ status: opt.value });
+      this.setState({ status: opt.value })
     }
-  };
+  }
 
   private setOriginalNumber = (originalNumber: number) => {
-    this.setState({ originalNumber });
-  };
+    this.setState({ originalNumber })
+  }
 
   private setText = (text: string) => {
-    this.setState({ text });
-  };
+    this.setState({ text })
+  }
 
   public render() {
     const button = (
       <Button className="respond" fluid={true} onClick={this.showModal}>
         <FaBullhorn /> Respond
       </Button>
-    );
+    )
 
-    const options = PostStatus.All.map(s => ({
+    const options = PostStatus.All.map((s) => ({
       value: s.value.toString(),
-      label: s.title
-    }));
+      label: s.title,
+    }))
 
     const modal = (
       <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal} center={false} size="large">
         <Modal.Content>
           <Form error={this.state.error} className="c-response-form">
-            <Select
-              field="status"
-              label="Status"
-              defaultValue={this.state.status}
-              options={options}
-              onChange={this.setStatus}
-            />
+            <Select field="status" label="Status" defaultValue={this.state.status} options={options} onChange={this.setStatus} />
             {this.state.status === PostStatus.Duplicate.value ? (
               <>
                 <Field>
@@ -116,13 +110,13 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
           </Button>
         </Modal.Footer>
       </Modal.Window>
-    );
+    )
 
     return (
       <>
         {button}
         {modal}
       </>
-    );
+    )
   }
 }

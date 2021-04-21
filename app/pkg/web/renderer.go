@@ -13,6 +13,7 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/log"
 
 	"io/ioutil"
 
@@ -37,6 +38,22 @@ type clientAssets struct {
 	JS  []string
 }
 
+type distAsset struct {
+	Name string `json:"name"`
+	Size int64  `json:"size"`
+}
+
+type assetsFile struct {
+	Entrypoints struct {
+		Main struct {
+			Assets []distAsset `json:"assets"`
+		} `json:"main"`
+	} `json:"entrypoints"`
+	ChunkGroups map[string]struct {
+		Assets []distAsset `json:"assets"`
+	} `json:"namedChunkGroups"`
+}
+
 //Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
@@ -44,14 +61,16 @@ type Renderer struct {
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
 	mutex         sync.RWMutex
+	reactRenderer *ReactRenderer
 }
 
 // NewRenderer creates a new Renderer
 func NewRenderer(settings *models.SystemSettings) *Renderer {
 	return &Renderer{
-		templates: make(map[string]*template.Template),
-		settings:  settings,
-		mutex:     sync.RWMutex{},
+		templates:     make(map[string]*template.Template),
+		settings:      settings,
+		mutex:         sync.RWMutex{},
+		reactRenderer: NewReactRenderer("ssr.js"),
 	}
 }
 
@@ -74,17 +93,6 @@ func (r *Renderer) loadAssets() error {
 
 	if r.assets != nil && env.IsProduction() {
 		return nil
-	}
-
-	type assetsFile struct {
-		Entrypoints struct {
-			Main struct {
-				Assets []string `json:"assets"`
-			} `json:"main"`
-		} `json:"entrypoints"`
-		ChunkGroups map[string]struct {
-			Assets []string `json:"assets"`
-		} `json:"namedChunkGroups"`
 	}
 
 	assetsFilePath := "/dist/assets.json"
@@ -121,21 +129,21 @@ func (r *Renderer) loadAssets() error {
 	return nil
 }
 
-func getClientAssets(assets []string) *clientAssets {
+func getClientAssets(assets []distAsset) *clientAssets {
 	clientAssets := &clientAssets{
 		CSS: make([]string, 0),
 		JS:  make([]string, 0),
 	}
 
 	for _, asset := range assets {
-		if strings.HasSuffix(asset, ".map") {
+		if strings.HasSuffix(asset.Name, ".map") {
 			continue
 		}
 
-		assetURL := "/assets/" + asset
-		if strings.HasSuffix(asset, ".css") {
+		assetURL := "/assets/" + asset.Name
+		if strings.HasSuffix(asset.Name, ".css") {
 			clientAssets.CSS = append(clientAssets.CSS, assetURL)
-		} else if strings.HasSuffix(asset, ".js") {
+		} else if strings.HasSuffix(asset.Name, ".js") {
 			clientAssets.JS = append(clientAssets.JS, assetURL)
 		}
 	}
@@ -144,23 +152,20 @@ func getClientAssets(assets []string) *clientAssets {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props, ctx *Context) {
+func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
-		err := r.loadAssets()
-		if err != nil && !env.IsTest() {
+		if err := r.loadAssets(); err != nil {
 			panic(err)
 		}
 	}
 
-	tmpl, ok := r.templates[name]
-	if !ok || env.IsDevelopment() {
-		tmpl = r.add(name)
-	}
-
 	public := make(Map)
 	private := make(Map)
+	if props.Data == nil {
+		props.Data = make(Map)
+	}
 
 	tenant := ctx.Tenant()
 	tenantName := "Fider"
@@ -218,7 +223,6 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		"environment":     r.settings.Environment,
 		"compiler":        r.settings.Compiler,
 		"googleAnalytics": r.settings.GoogleAnalytics,
-		"stripePublicKey": env.Config.Stripe.PublicKey,
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,
 		"baseURL":         ctx.BaseURL(),
@@ -243,11 +247,30 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		}
 	}
 
+	// Only index.html template uses React, other templates are already SSR
+	if env.Config.Experimental_SSR_SEO && ctx.Request.IsCrawler() && templateName == "index.html" {
+		html, err := r.reactRenderer.Render(ctx.Request.URL, public)
+		if err != nil {
+			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{
+				"Error": err.Error(),
+			})
+		}
+		if html != "" {
+			templateName = "ssr.html"
+			props.Data["html"] = template.HTML(html)
+		}
+	}
+
+	tmpl, ok := r.templates[templateName]
+	if !ok || env.IsDevelopment() {
+		tmpl = r.add(templateName)
+	}
+
 	err = tmpl.Execute(w, Map{
 		"public":  public,
 		"private": private,
 	})
 	if err != nil {
-		panic(errors.Wrap(err, "failed to execute template %s", name))
+		panic(errors.Wrap(err, "failed to execute template %s", templateName))
 	}
 }

@@ -1,47 +1,42 @@
-import React, { useState } from "react";
-import { PostStatus, Post } from "@fider/models";
-import { actions, navigator, Failure } from "@fider/services";
-import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
-import { useFider } from "@fider/hooks";
+import React, { useState } from "react"
+import { PostStatus, Post } from "@fider/models"
+import { actions, navigator, Failure } from "@fider/services"
+import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components"
+import { useFider } from "@fider/hooks"
 
 interface ModerationPanelProps {
-  post: Post;
+  post: Post
 }
 
 export const ModerationPanel = (props: ModerationPanelProps) => {
-  const fider = useFider();
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [text, setText] = useState("");
-  const [error, setError] = useState<Failure>();
+  const fider = useFider()
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [text, setText] = useState("")
+  const [error, setError] = useState<Failure>()
 
-  const hideModal = async () => setShowConfirmation(false);
-  const showModal = async () => setShowConfirmation(true);
+  const hideModal = async () => setShowConfirmation(false)
+  const showModal = async () => setShowConfirmation(true)
 
   const handleDelete = async () => {
-    const response = await actions.deletePost(props.post.number, text);
+    const response = await actions.deletePost(props.post.number, text)
     if (response.ok) {
-      hideModal();
-      navigator.goHome();
+      hideModal()
+      navigator.goHome()
     } else if (response.error) {
-      setError(response.error);
+      setError(response.error)
     }
-  };
+  }
 
-  const status = PostStatus.Get(props.post.status);
+  const status = PostStatus.Get(props.post.status)
   if (!fider.session.isAuthenticated || !fider.session.user.isAdministrator || status.closed) {
-    return null;
+    return null
   }
 
   const modal = (
     <Modal.Window isOpen={showConfirmation} onClose={hideModal} center={false} size="large">
       <Modal.Content>
         <Form error={error}>
-          <TextArea
-            field="text"
-            onChange={setText}
-            value={text}
-            placeholder="Why are you deleting this post? (optional)"
-          >
+          <TextArea field="text" onChange={setText} value={text} placeholder="Why are you deleting this post? (optional)">
             <span className="info">
               This operation <strong>cannot</strong> be undone.
             </span>
@@ -58,7 +53,7 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
         </Button>
       </Modal.Footer>
     </Modal.Window>
-  );
+  )
 
   return (
     <>
@@ -72,5 +67,5 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
         </ListItem>
       </List>
     </>
-  );
-};
+  )
+}

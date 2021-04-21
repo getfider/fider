@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-form {
   position: relative;
@@ -6,7 +6,7 @@
 
   &.m-mini {
     font-size: 80%;
-    input[type=text],
+    input[type="text"],
     textarea,
     select {
       padding: 8px;
@@ -22,7 +22,7 @@
     label {
       font-weight: initial;
     }
-    input[type=checkbox] {
+    input[type="checkbox"] {
       vertical-align: middle;
       margin: 0 5px 3px 0;
     }
@@ -46,29 +46,22 @@
     margin: 0 0 5px;
   }
 
-
-  input[type=text],
+  input[type="text"],
   textarea,
-  select,
-  .StripeElement {
+  select {
     background-color: $white;
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    padding: 10px;
-    outline: 0;
+    padding: 8px;
     margin: 0;
     resize: none !important;
-    border: 1px solid $gray-light;
+    border: 1px solid $gray-300;
     border-radius: 3px;
-  
-    &:focus {
-      border: 1px solid $gray;
-      box-shadow: 0px 0px 1px 1px $gray-light;
-    }
-  
+
+
     &:disabled {
-      opacity: .45;
+      opacity: 0.45;
       cursor: not-allowed;
     }
 
@@ -76,7 +69,7 @@
       pointer-events: none;
       cursor: default;
       position: absolute;
-      opacity: .5;
+      opacity: 0.5;
       width: 35px;
       height: 100%;
       padding: 12px 0px;
@@ -93,19 +86,19 @@
   }
 
   &.m-error {
-    input[type=text],
+    input[type="text"],
     textarea,
     select {
-      border-color: $red;
+      border-color: $red-500;
     }
 
     label {
-      color: $red;
+      color: $red-500;
     }
   }
 
   &.m-icon {
-    input[type=text] {
+    input[type="text"] {
       padding-right: 35px;
     }
   }
@@ -119,19 +112,19 @@
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
-    input[type=text] {
+    input[type="text"] {
       max-width: 100%;
       width: auto;
       flex: 1 0 auto;
       border-top-right-radius: 0px;
       border-bottom-right-radius: 0px;
-    }   
+    }
     .c-form-input-suffix {
       line-height: 20px;
       flex: 0 0 auto;
       padding: 8px 10px 9px 10px;
       font-weight: 600;
-      background-color: $gray-lighter;
+      background-color: $gray-200;
       border-top-right-radius: 3px;
       border-bottom-right-radius: 3px;
     }
@@ -149,7 +142,7 @@
 }
 
 .c-form-field-error {
-  color: $red;
+  color: $red-400;
   font-weight: bold;
   font-size: $font-size-small;
   margin: 0 0 10px 0;
@@ -161,14 +154,14 @@
 }
 
 ::placeholder {
-  color: $gray-dark;
+  color: $gray-500;
   opacity: 1;
 }
 
 :-ms-input-placeholder {
-  color: $gray-dark;
+  color: $gray-500;
 }
 
 ::-ms-input-placeholder {
-  color: $gray-dark;
+  color: $gray-500;
 }

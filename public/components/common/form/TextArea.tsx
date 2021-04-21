@@ -1,36 +1,36 @@
-import React from "react";
-import { classSet } from "@fider/services";
-import { ValidationContext } from "../";
-import { DisplayError, hasError } from "./DisplayError";
-import Textarea from "react-textarea-autosize";
+import React from "react"
+import { classSet } from "@fider/services"
+import { ValidationContext } from "../"
+import { DisplayError, hasError } from "./DisplayError"
+import Textarea from "react-textarea-autosize"
 
 interface TextAreaProps {
-  label?: string;
-  field: string;
-  value?: string;
-  disabled?: boolean;
-  minRows?: number;
-  placeholder?: string;
-  onChange?: (value: string) => void;
-  inputRef?: React.MutableRefObject<any>;
-  onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
+  label?: string
+  field: string
+  value?: string
+  disabled?: boolean
+  minRows?: number
+  placeholder?: string
+  onChange?: (value: string) => void
+  inputRef?: React.MutableRefObject<any>
+  onFocus?: React.FocusEventHandler<HTMLTextAreaElement>
 }
 
-export const TextArea: React.FunctionComponent<TextAreaProps> = props => {
+export const TextArea: React.FunctionComponent<TextAreaProps> = (props) => {
   const onChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     if (props.onChange) {
-      props.onChange(e.currentTarget.value);
+      props.onChange(e.currentTarget.value)
     }
-  };
+  }
 
   return (
     <ValidationContext.Consumer>
-      {ctx => (
+      {(ctx) => (
         <>
           <div
             className={classSet({
               "c-form-field": true,
-              "m-error": hasError(props.field, ctx.error)
+              "m-error": hasError(props.field, ctx.error),
             })}
           >
             {!!props.label && <label htmlFor={`input-${props.field}`}>{props.label}</label>}
@@ -42,7 +42,7 @@ export const TextArea: React.FunctionComponent<TextAreaProps> = props => {
                 value={props.value}
                 minRows={props.minRows || 3}
                 placeholder={props.placeholder}
-                inputRef={props.inputRef}
+                ref={props.inputRef}
                 onFocus={props.onFocus}
               />
             </div>
@@ -52,5 +52,5 @@ export const TextArea: React.FunctionComponent<TextAreaProps> = props => {
         </>
       )}
     </ValidationContext.Consumer>
-  );
-};
+  )
+}

@@ -29,21 +29,22 @@
 
 <img src="etc/homepage.png">
 
+## Get Started
+
+There are two options on how to get started with Fider
+
+- **Self-Hosted**: You can install Fider on any cloud providers. There is no fee associated and you are responsible for managing it. [Learn how](https://getfider.com/#get-started)
+- **Cloud**: Cloud Fider is a fully managed services where you get started in minutes. It's a Pay What You Can model where you contribute financially to support this project and we'll host Fider for you. [Sign up now](https://getfider.com/#get-started)
+
 ## Contributors
 
 This project exists thanks to all the people who contribute.
 
 <a href="https://github.com/getfider/fider/graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
 
-Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn the many ways you can contribute to Fider.
+Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn how you can contribute to Fider.
 
 ## Sponsors
-
-Thanks to [BrowserStack](https://browserstack.com/) for providing us with free cross-browser testing for Fider.
-
-<a href="https://browserstack.com" target="_blank">
-  <img src="etc/browserstack.png">
-</a>
 
 Does your organization use Fider? [Become a sponsor](https://opencollective.com/fider) and your logo will show up here with a link to your website.
 
@@ -61,5 +62,8 @@ Thank you to all our backers! 🙏
   <img src="https://opencollective.com/fider/backers.svg?width=890">
 </a>
 
+Thanks to [BrowserStack](https://browserstack.com/) for providing us with free cross-browser testing for Fider.
 
-
+<a href="https://browserstack.com" target="_blank">
+  <img src="etc/browserstack.png">
+</a>

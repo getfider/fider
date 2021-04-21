@@ -1,7 +1,7 @@
-import "./UIToolkit.page.scss";
+import "./UIToolkit.page.scss"
 
-import React, { useState } from "react";
-import { PostStatus, UserStatus } from "@fider/models";
+import React, { useState } from "react"
+import { PostStatus, UserStatus } from "@fider/models"
 import {
   Heading,
   Button,
@@ -25,55 +25,55 @@ import {
   SelectOption,
   ButtonClickEvent,
   Message,
-  Hint
-} from "@fider/components";
-import { User, UserRole, Tag } from "@fider/models";
-import { notify, Failure } from "@fider/services";
-import { DropDown, DropDownItem } from "@fider/components";
-import { FaSearch, FaRegLightbulb, FaCogs } from "react-icons/fa";
+  Hint,
+} from "@fider/components"
+import { User, UserRole, Tag } from "@fider/models"
+import { notify, Failure } from "@fider/services"
+import { DropDown, DropDownItem } from "@fider/components"
+import { FaSearch, FaRegLightbulb, FaCogs } from "react-icons/fa"
 
 const jonSnow: User = {
   id: 0,
   name: "Jon Snow",
   role: UserRole.Administrator,
   status: UserStatus.Active,
-  avatarURL: "/avatars/letter/0/Jon%20Snow"
-};
+  avatarURL: "/avatars/letter/0/Jon%20Snow",
+}
 
 const aryaStark: User = {
   id: 0,
   name: "Arya Snow",
   role: UserRole.Visitor,
   status: UserStatus.Active,
-  avatarURL: "/avatars/letter/0/Arya%20Snow"
-};
+  avatarURL: "/avatars/letter/0/Arya%20Snow",
+}
 
-const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };
-const hardTag: Tag = { id: 3, slug: "hard", name: "hard", color: "fbca04", isPublic: false };
+const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true }
+const hardTag: Tag = { id: 3, slug: "hard", name: "hard", color: "fbca04", isPublic: false }
 
-const visibilityPublic = { label: "Public", value: "public" };
-const visibilityPrivate = { label: "Private", value: "private" };
+const visibilityPublic = { label: "Public", value: "public" }
+const visibilityPrivate = { label: "Private", value: "private" }
 
 const UIToolkitPage = () => {
-  const [error, setError] = useState<Failure | undefined>(undefined);
+  const [error, setError] = useState<Failure | undefined>(undefined)
 
   const notifyError = async () => {
-    notify.error("Something went wrong...");
-  };
+    notify.error("Something went wrong...")
+  }
 
   const notifySuccess = async () => {
-    notify.success("Congratulations! It worked!");
-  };
+    notify.success("Congratulations! It worked!")
+  }
 
   const notifyStatusChange = (opt?: SelectOption) => {
     if (opt) {
-      notify.success(opt.value);
+      notify.success(opt.value)
     }
-  };
+  }
 
   const showLoading = async (e: ButtonClickEvent) => {
-    return e.preventEnable();
-  };
+    return e.preventEnable()
+  }
 
   const forceError = async () => {
     setError({
@@ -81,71 +81,76 @@ const UIToolkitPage = () => {
         { field: "title", message: "Title is mandatory" },
         { field: "description", message: "Error #1" },
         { field: "description", message: "Error #2" },
-        { field: "status", message: "Status is mandatory" }
-      ]
-    });
-  };
+        { field: "status", message: "Status is mandatory" },
+      ],
+    })
+  }
 
   const renderText = (item?: DropDownItem) => {
     if (item) {
-      return `${item.label} (value: ${item.value})`;
+      return `${item.label} (value: ${item.value})`
     }
-    return <span>No country is selected</span>;
-  };
+    return <span>No country is selected</span>
+  }
 
   const renderControl = (item?: DropDownItem) => {
     if (item) {
-      return item.render;
+      return item.render
     }
-    return <span>...</span>;
-  };
+    return <span>...</span>
+  }
 
   return (
     <div id="p-ui-toolkit" className="page container">
       <div className="color-scale">
-        <div className="color gray-darkest" />
-        <div className="color gray-darker" />
-        <div className="color gray-dark" />
-        <div className="color gray-default" />
-        <div className="color gray-light" />
-        <div className="color gray-lighter" />
-        <div className="color gray-lightest" />
+        <div className="color gray-900" />
+        <div className="color gray-700" />
+        <div className="color gray-500" />
+        <div className="color gray-400" />
+        <div className="color gray-300" />
+        <div className="color gray-200" />
+        <div className="color gray-100" />
+        <div className="color gray-50" />
       </div>
       <div className="color-scale">
-        <div className="color green-darkest" />
-        <div className="color green-darker" />
-        <div className="color green-dark" />
-        <div className="color green-default" />
-        <div className="color green-light" />
-        <div className="color green-lighter" />
-        <div className="color green-lightest" />
+        <div className="color green-900" />
+        <div className="color green-700" />
+        <div className="color green-500" />
+        <div className="color green-400" />
+        <div className="color green-300" />
+        <div className="color green-200" />
+        <div className="color green-100" />
+        <div className="color green-50" />
       </div>
       <div className="color-scale">
-        <div className="color red-darkest" />
-        <div className="color red-darker" />
-        <div className="color red-dark" />
-        <div className="color red-default" />
-        <div className="color red-light" />
-        <div className="color red-lighter" />
-        <div className="color red-lightest" />
+        <div className="color red-900" />
+        <div className="color red-700" />
+        <div className="color red-500" />
+        <div className="color red-400" />
+        <div className="color red-300" />
+        <div className="color red-200" />
+        <div className="color red-100" />
+        <div className="color red-50" />
       </div>
       <div className="color-scale">
-        <div className="color blue-darkest" />
-        <div className="color blue-darker" />
-        <div className="color blue-dark" />
-        <div className="color blue-default" />
-        <div className="color blue-light" />
-        <div className="color blue-lighter" />
-        <div className="color blue-lightest" />
+        <div className="color blue-900" />
+        <div className="color blue-700" />
+        <div className="color blue-500" />
+        <div className="color blue-400" />
+        <div className="color blue-300" />
+        <div className="color blue-200" />
+        <div className="color blue-100" />
+        <div className="color blue-50" />
       </div>
       <div className="color-scale">
-        <div className="color yellow-darkest" />
-        <div className="color yellow-darker" />
-        <div className="color yellow-dark" />
-        <div className="color yellow-default" />
-        <div className="color yellow-light" />
-        <div className="color yellow-lighter" />
-        <div className="color yellow-lightest" />
+        <div className="color yellow-900" />
+        <div className="color yellow-700" />
+        <div className="color yellow-500" />
+        <div className="color yellow-400" />
+        <div className="color yellow-300" />
+        <div className="color yellow-200" />
+        <div className="color yellow-100" />
+        <div className="color yellow-50" />
       </div>
 
       <h1>Heading 1</h1>
@@ -185,13 +190,7 @@ const UIToolkitPage = () => {
 
       <Heading title="Page Heading" icon={FaCogs} subtitle="This is a page heading" />
 
-      <Heading
-        title="Section Heading"
-        icon={FaRegLightbulb}
-        subtitle="This is a page heading"
-        size="small"
-        dividing={true}
-      />
+      <Heading title="Section Heading" icon={FaRegLightbulb} subtitle="This is a page heading" size="small" dividing={true} />
 
       <h1>Buttons</h1>
       <List>
@@ -353,28 +352,10 @@ const UIToolkitPage = () => {
       <h1>Tags</h1>
       <List>
         <ListItem>
-          <ShowTag tag={easyTag} size="normal" />
-          <ShowTag tag={hardTag} size="normal" />
-          <ShowTag tag={easyTag} circular={true} size="normal" />
-          <ShowTag tag={hardTag} circular={true} size="normal" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="small" />
-          <ShowTag tag={hardTag} size="small" />
-          <ShowTag tag={easyTag} circular={true} size="small" />
-          <ShowTag tag={hardTag} circular={true} size="small" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="tiny" />
-          <ShowTag tag={hardTag} size="tiny" />
-          <ShowTag tag={easyTag} circular={true} size="tiny" />
-          <ShowTag tag={hardTag} circular={true} size="tiny" />
-        </ListItem>
-        <ListItem>
-          <ShowTag tag={easyTag} size="mini" />
-          <ShowTag tag={hardTag} size="mini" />
-          <ShowTag tag={easyTag} circular={true} size="mini" />
-          <ShowTag tag={hardTag} circular={true} size="mini" />
+          <ShowTag tag={easyTag} />
+          <ShowTag tag={hardTag} />
+          <ShowTag tag={easyTag} circular={true} />
+          <ShowTag tag={hardTag} circular={true} />
         </ListItem>
       </List>
 
@@ -389,13 +370,13 @@ const UIToolkitPage = () => {
       <h1>Moment</h1>
       <List>
         <ListItem>
-          <Moment date="2017-06-03T16:55:06.815042Z" />
+          Relative: <Moment date="2017-06-03T16:55:06.815042Z" format="relative" />
         </ListItem>
         <ListItem>
-          <Moment date={new Date(2014, 10, 3, 12, 53, 12, 0)} />
+          Short: <Moment date="2017-06-03T16:55:06.815042Z" format="short" />
         </ListItem>
         <ListItem>
-          <Moment date={new Date()} />
+          Full: <Moment date="2017-06-03T16:55:06.815042Z" format="full" />
         </ListItem>
       </List>
 
@@ -406,13 +387,16 @@ const UIToolkitPage = () => {
       <Message showIcon={true} type="error">
         Something went wrong.
       </Message>
+      <Message showIcon={true} type="warning">
+        Be careful!
+      </Message>
       <Message showIcon={true} type="success">
         Your order has been confirmed.
       </Message>
 
       <h1>Hints</h1>
       <Hint permanentCloseKey="ui-toolkip-example">Did you know that you can close this permanently?</Hint>
-      <Hint>You can't close this one :)</Hint>
+      <Hint>You can&apos;t close this one :)</Hint>
 
       <h1>Form</h1>
       <Form error={error}>
@@ -439,12 +423,7 @@ const UIToolkitPage = () => {
             <Input label="Title3" field="title3" />
           </div>
           <div className="col-md-3">
-            <RadioButton
-              label="Visibility"
-              field="visibility"
-              defaultOption={visibilityPublic}
-              options={[visibilityPrivate, visibilityPublic]}
-            />
+            <RadioButton label="Visibility" field="visibility" defaultOption={visibilityPublic} options={[visibilityPrivate, visibilityPublic]} />
           </div>
         </div>
 
@@ -454,14 +433,18 @@ const UIToolkitPage = () => {
           options={[
             { value: "open", label: "Open" },
             { value: "started", label: "Started" },
-            { value: "planned", label: "Planned" }
+            { value: "planned", label: "Planned" },
           ]}
           onChange={notifyStatusChange}
         />
 
         <Field label="Number">
           <DropDown
-            items={[{ label: "One", value: "1" }, { label: "Two", value: "2" }, { label: "Three", value: "3" }]}
+            items={[
+              { label: "One", value: "1" },
+              { label: "Two", value: "2" },
+              { label: "Three", value: "3" },
+            ]}
             defaultValue={"1"}
             placeholder="Select a number"
           />
@@ -472,7 +455,7 @@ const UIToolkitPage = () => {
             items={[
               { label: "Brazil", value: "br" },
               { label: "United States", value: "us" },
-              { label: "Ireland", value: "ie" }
+              { label: "Ireland", value: "ie" },
             ]}
             defaultValue={"1"}
             renderText={renderText}
@@ -485,7 +468,7 @@ const UIToolkitPage = () => {
             items={[
               { label: "Green", value: "green", render: <span style={{ color: "green" }}>Green</span> },
               { label: "Red", value: "red", render: <span style={{ color: "red" }}>Red</span> },
-              { label: "Blue", value: "blue", render: <span style={{ color: "blue" }}>Blue</span> }
+              { label: "Blue", value: "blue", render: <span style={{ color: "blue" }}>Blue</span> },
             ]}
             placeholder="Select a color"
             inline={true}
@@ -503,7 +486,7 @@ const UIToolkitPage = () => {
         <Input field="search" placeholder="Search..." icon={FaSearch} />
       </Segment>
     </div>
-  );
-};
+  )
+}
 
-export default UIToolkitPage;
+export default UIToolkitPage

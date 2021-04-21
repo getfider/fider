@@ -60,7 +60,7 @@ func getProviderStatus(key string) int {
 
 var (
 	systemProviders = []*models.OAuthConfig{
-		&models.OAuthConfig{
+		{
 			Provider:          app.FacebookProvider,
 			DisplayName:       "Facebook",
 			ProfileURL:        "https://graph.facebook.com/me?fields=name,email",
@@ -74,7 +74,7 @@ var (
 			JSONUserNamePath:  "name",
 			JSONUserEmailPath: "email",
 		},
-		&models.OAuthConfig{
+		{
 			Provider:          app.GoogleProvider,
 			DisplayName:       "Google",
 			ProfileURL:        "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -88,7 +88,7 @@ var (
 			JSONUserNamePath:  "name",
 			JSONUserEmailPath: "email",
 		},
-		&models.OAuthConfig{
+		{
 			Provider:          app.GitHubProvider,
 			DisplayName:       "GitHub",
 			ProfileURL:        "https://api.github.com/user",
@@ -147,12 +147,13 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 
 	oauthBaseURL := web.OAuthBaseURL(ctx)
 	authURL, _ := url.Parse(config.AuthorizeURL)
-	parameters := url.Values{}
+	parameters := getProviderInitialParams(authURL)
 	parameters.Add("client_id", config.ClientID)
 	parameters.Add("scope", config.Scope)
 	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, q.Provider))
 	parameters.Add("response_type", "code")
 	parameters.Add("state", q.Redirect+"|"+q.Identifier)
+
 	authURL.RawQuery = parameters.Encode()
 	q.Result = authURL.String()
 	return nil

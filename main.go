@@ -13,7 +13,7 @@ import (
 var (
 	// replaced during CI build
 	buildtime   = ""
-	buildnumber = "local"
+	// buildnumber = "local"
 
 	// Use this for non-stable releases
 	// version = "x.y.z-" + buildnumber
@@ -21,7 +21,7 @@ var (
 	// Use this for stable releases
 	// version = "x.y.z"
 
-	version = "0.19.0-" + buildnumber
+	version = "0.18.1"
 )
 
 func main() {

@@ -113,6 +113,34 @@ func TestGetAuthURL_Custom(t *testing.T) {
 	Expect(authURL.Result).Equals("https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state=http%3A%2F%2Fexample.org%7C456")
 }
 
+func TestGetAuthURL_Twitch(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_custom" {
+			q.Result = &models.OAuthConfig{
+				Provider:     q.Provider,
+				ClientID:     "CU_CL_ID",
+				Scope:        "openid",
+				AuthorizeURL: "https://id.twitch.tv/oauth/authorize",
+			}
+		}
+		return nil
+	})
+
+	ctx := newGetContext("http://login.test.fider.io:3000")
+	authURL := &query.GetOAuthAuthorizationURL{
+		Provider:   "_custom",
+		Redirect:   "http://example.org",
+		Identifier: "456",
+	}
+
+	err := bus.Dispatch(ctx, authURL)
+	Expect(err).IsNil()
+	Expect(authURL.Result).Equals("https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state=http%3A%2F%2Fexample.org%7C456")
+}
+
 func TestParseProfileResponse_AllFields(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})

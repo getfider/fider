@@ -1,28 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="{{ .private.favicon }}?size=64" sizes="64x64" type="image/png">
   <link rel="icon" href="{{ .private.favicon }}?size=192" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="{{ .private.favicon }}?size=180&bg=white" sizes="180x180" type="image/png">
   {{ if .private.canonicalURL }}
-  <link rel="canonical" href="{{ .private.canonicalURL }}" />
+    <link rel="canonical" href="{{ .private.canonicalURL }}" />
   {{ end }}
   {{ if .private.assets }}
-  {{range .private.assets.CSS}}
-    <link rel="stylesheet" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" />
-  {{end}}
-  {{end}}
-  {{ if .private.chunkAssets }}
-    {{range .private.chunkAssets.CSS}}
-      <link rel="preload" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" as="style" />
-    {{end}}
-    {{range .private.chunkAssets.JS}}
-      <link rel="preload" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" as="script" />
+    {{range .private.assets.CSS}}
+      <link rel="stylesheet" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" />
     {{end}}
   {{end}}
+  {{block "head" .}}{{end}}
   <title>{{ .public.title }}</title>
   <meta name="description" content="{{ .public.description }}" />
   <meta property="og:title" content="{{ .public.title }}" />
@@ -32,13 +24,7 @@
   <meta property="og:image" content="{{ .private.logo }}">
 </head>
 <body>
-  <noscript class="container">
-    <div class="c-segment">
-      <h2>Please enable JavaScript</h2>
-      <p>This website relies on JavaScript-based technologies and services.</p>
-      <p>Please enable JavaScript and then reload the page.</p>
-    </div>
-  </noscript>
+  {{block "noscript" .}}{{end}}
 
   {{ if ne .public.settings.googleAnalytics "" }}
   <script type="text/javascript" nonce="{{ .public.contextID }}">
@@ -58,7 +44,6 @@
   <script id="server-data" type="application/json">
     {{template "server-data" .}}
   </script>
-  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=es6,fetch" crossorigin="anonymous"></script>
   {{template "end-of-body" .}}
   {{ if .public.tenant }} 
     {{ if .public.tenant.CustomCSS }} 

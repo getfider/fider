@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-button {
   -webkit-appearance: none;
@@ -27,35 +27,35 @@
   }
 
   &.m-default {
-    color: $gray-darkest;
-    background-color: $gray-lightest;
-    border: 1px solid $gray-light;
+    color: $gray-900;
+    background-color: $gray-100;
+    border: 1px solid $gray-300;
 
     &:hover {
-      border: 1px solid $gray-dark;
+      border: 1px solid $gray-500;
     }
   }
 
   &.m-positive {
     color: $white;
-    background-color: $green-dark;
-    border: 1px solid $green-dark;
+    background-color: $green-500;
+    border: 1px solid $green-500;
 
     &:hover {
-      background-color: $green-darker;
-      border-color: $green-darker;
+      background-color: $green-700;
+      border-color: $green-700;
     }
   }
 
   &.m-danger {
-    color: $red;
-    border: 1px solid $gray-light;
+    color: $red-500;
+    border: 1px solid $gray-300;
     background-color: $white;
 
     &:hover {
       color: $white;
-      border: 1px solid $red;
-      background-color: $red;
+      border: 1px solid $red-500;
+      background-color: $red-500;
     }
   }
 
@@ -96,37 +96,37 @@
     color: transparent !important;
     opacity: 1;
     pointer-events: auto;
-    -webkit-transition: all 0s linear,opacity .1s ease;
-    transition: all 0s linear,opacity .1s ease;
+    -webkit-transition: all 0s linear, opacity 0.1s ease;
+    transition: all 0s linear, opacity 0.1s ease;
 
     &:before {
       position: absolute;
-      content: '';
+      content: "";
       top: 50%;
       left: 50%;
-      margin: -.64285714em 0 0 -.64285714em;
+      margin: -0.64285714em 0 0 -0.64285714em;
       width: 1.28571429em;
       height: 1.28571429em;
       border-radius: 500rem;
-      border: .2em solid rgba(0,0,0,.15);
+      border: 0.2em solid rgba(0, 0, 0, 0.15);
     }
-    
+
     &:after {
       position: absolute;
-      content: '';
+      content: "";
       top: 50%;
       left: 50%;
-      margin: -.64285714em 0 0 -.64285714em;
+      margin: -0.64285714em 0 0 -0.64285714em;
       width: 1.28571429em;
       height: 1.28571429em;
-      -webkit-animation: button-spin .6s linear;
-      animation: button-spin .6s linear;
+      -webkit-animation: button-spin 0.6s linear;
+      animation: button-spin 0.6s linear;
       -webkit-animation-iteration-count: infinite;
       animation-iteration-count: infinite;
       border-radius: 500rem;
       border-color: #fff transparent transparent;
       border-style: solid;
-      border-width: .2em;
+      border-width: 0.2em;
       -webkit-box-shadow: 0 0 0 1px transparent;
       box-shadow: 0 0 0 1px transparent;
     }
@@ -138,13 +138,13 @@
 
   &.m-social {
     background-color: $white;
-    color: $gray-darkest;
+    color: $gray-900;
     text-align: center;
     height: 40px;
     line-height: 22px;
     padding: 8px 0px;
     border: none;
-    box-shadow: 0 0 0 1px rgba(20,11,47,0.1), 0 2px 4px -2px rgba(0,0,0,0.2);
+    box-shadow: 0 0 0 1px rgba(20, 11, 47, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
 
     &.m-loading img {
       display: none;
@@ -160,9 +160,9 @@
 
     &:hover {
       background-color: #fafafb;
-      color: $gray-darkest;
+      color: $gray-900;
       border: none;
-      box-shadow: 0 0 0 1px rgba(20,11,47,0.1), 0 2px 4px -2px rgba(0,0,0,0.2);
+      box-shadow: 0 0 0 1px rgba(20, 11, 47, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
     }
   }
 }
@@ -170,20 +170,20 @@
 @-webkit-keyframes button-spin {
   from {
     -webkit-transform: rotate(0deg);
-            transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   to {
     -webkit-transform: rotate(360deg);
-            transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 @keyframes button-spin {
   from {
     -webkit-transform: rotate(0deg);
-            transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   to {
     -webkit-transform: rotate(360deg);
-            transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }

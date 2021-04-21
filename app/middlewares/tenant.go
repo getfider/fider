@@ -31,8 +31,12 @@ func SingleTenant() web.MiddlewareFunc {
 				return c.Failure(err)
 			}
 
-			if firstTenant.Result != nil {
+			if firstTenant.Result != nil && firstTenant.Result.Status != enum.TenantDisabled {
 				c.SetTenant(firstTenant.Result)
+
+				if c.Request.URL.Hostname() != env.Config.HostDomain {
+					return c.NotFound()
+				}
 			}
 
 			return next(c)
@@ -61,7 +65,7 @@ func MultiTenant() web.MiddlewareFunc {
 				return c.Failure(err)
 			}
 
-			if byDomain.Result != nil {
+			if byDomain.Result != nil && byDomain.Result.Status != enum.TenantDisabled {
 				c.SetTenant(byDomain.Result)
 
 				if byDomain.Result.CNAME != "" && !c.IsAjax() {
@@ -82,12 +86,14 @@ func MultiTenant() web.MiddlewareFunc {
 func RequireTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if c.Tenant() == nil {
+			tenant := c.Tenant()
+			if tenant == nil {
 				if env.IsSingleHostMode() {
 					return c.Redirect("/signup")
 				}
 				return c.NotFound()
 			}
+
 			return next(c)
 		}
 	}

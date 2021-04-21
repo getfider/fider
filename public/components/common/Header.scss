@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 @mixin menu-item {
   position: relative;
@@ -17,9 +17,9 @@
     padding: 2px;
     border-radius: 0px;
     font-size: 10px;
-    color: $red;
-    border-bottom: 1px solid $red;
-    background-color: rgba($red, 0.05);
+    color: $red-900;
+    border-bottom: 1px solid $red-900;
+    background-color: rgba($red-400, 0.05);
   }
 
   .c-menu {
@@ -57,7 +57,7 @@
           margin-right: 5px;
         }
       }
-      span {
+      h1 {
         font-size: $font-size-big;
         margin: 0 0 0 0;
         font-weight: 600;
@@ -78,12 +78,12 @@
       > span {
         font-weight: 600;
         text-transform: uppercase;
-        color: #999;
+        color: $gray-700;
       }
 
       &:hover {
         > span {
-          color: $gray-darkest;
+          color: $gray-900;
         }
       }
 
@@ -93,12 +93,12 @@
         overflow: visible;
         width: auto;
         height: auto;
-        top: 100%!important;
+        top: 100% !important;
         opacity: 1;
         z-index: 11;
         background-color: $white;
-        box-shadow: 0 1px 3px 0 rgba(0,0,0,.08);
-        border: 1px solid rgba(34,36,38,.15);
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(34, 36, 38, 0.15);
         min-width: 160px;
         border-radius: 0px 0px 5px 5px;
 
@@ -111,7 +111,7 @@
           font-size: $font-size-mini;
           padding: 10px;
           display: block;
-          color: $gray-darkest;
+          color: $gray-900;
           text-transform: uppercase;
           font-weight: 600;
           cursor: default;
@@ -121,13 +121,13 @@
           font-size: $font-size-small;
           padding: 10px;
           display: block;
-          color: $gray-darkest;
+          color: $gray-900;
           &:hover {
-            background-color: $gray-lighter;
+            background-color: $gray-200;
           }
         }
         .c-menu-user-divider {
-          border-top: 1px solid rgba(34,36,38,.1);
+          border-top: 1px solid rgba(34, 36, 38, 0.1);
           display: block;
           cursor: default;
         }
@@ -147,13 +147,13 @@
         border-radius: 5px;
         margin-left: -10px;
         margin-top: -25px;
-        background-color: $red;
+        background-color: $red-500;
         border: 1px solid $white !important;
       }
 
       .c-unread-count {
         display: inline-block;
-        background-color: $red;
+        background-color: $red-500;
         position: absolute;
         right: 5px;
         padding: 2px 8px;
@@ -162,6 +162,6 @@
         font-size: $font-size-mini;
         text-align: center;
       }
-    }    
+    }
   }
 }

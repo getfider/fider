@@ -1,42 +1,42 @@
-import React from "react";
+import React from "react"
 
-import HomePage, { HomePageProps } from "../Home/Home.page";
-import SignInPage from "../SignIn/SignIn.page";
-import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";
-import { actions, Failure, querystring, Fider } from "@fider/services";
+import HomePage, { HomePageProps } from "../Home/Home.page"
+import SignInPage from "../SignIn/SignIn.page"
+import { Modal, Button, Form, Input, LegalFooter } from "@fider/components"
+import { actions, Failure, querystring, Fider } from "@fider/services"
 
 interface CompleteSignInProfilePageState {
-  name: string;
-  error?: Failure;
+  name: string
+  error?: Failure
 }
 
 export default class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
-  private key: string;
+  private key: string
 
   constructor(props: HomePageProps) {
-    super(props);
-    this.key = querystring.get("k");
+    super(props)
+    this.key = querystring.get("k")
     this.state = {
-      name: ""
-    };
+      name: "",
+    }
   }
 
   private submit = async () => {
-    const result = await actions.completeProfile(this.key, this.state.name);
+    const result = await actions.completeProfile(this.key, this.state.name)
     if (result.ok) {
-      location.href = "/";
+      location.href = "/"
     } else if (result.error) {
-      this.setState({ error: result.error });
+      this.setState({ error: result.error })
     }
-  };
+  }
 
   private setName = (name: string) => {
-    this.setState({ name });
-  };
+    this.setState({ name })
+  }
 
   private noop = () => {
     // do nothing
-  };
+  }
 
   public render() {
     return (
@@ -61,10 +61,8 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
           </Modal.Content>
           <LegalFooter />
         </Modal.Window>
-        {Fider.session.tenant.isPrivate
-          ? React.createElement(SignInPage, this.props)
-          : React.createElement(HomePage, this.props)}
+        {Fider.session.tenant.isPrivate ? React.createElement(SignInPage, this.props) : React.createElement(HomePage, this.props)}
       </>
-    );
+    )
   }
 }

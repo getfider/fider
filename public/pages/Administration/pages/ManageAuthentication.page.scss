@@ -1,8 +1,9 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 #p-admin-authentication {
   .l-provider {
-    img, strong {
+    img,
+    strong {
       vertical-align: middle;
       margin-right: 2px;
     }
@@ -11,12 +12,12 @@
       height: 24px;
     }
     .m-enabled {
-      color: $green-darker;
+      color: $green-700;
       font-weight: 500;
       font-size: $font-size-mini;
     }
     .m-disabled {
-      color: $red;
+      color: $red-400;
       font-weight: 500;
       font-size: $font-size-mini;
     }
