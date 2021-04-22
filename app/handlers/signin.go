@@ -96,9 +96,6 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 			user = userByEmail.Result
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
-					if c.Tenant().IsPrivate {
-						return NotInvitedPage()(c)
-					}
 					return Index()(c)
 				}
 				return c.Failure(err)
