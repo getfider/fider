@@ -3,7 +3,6 @@ import "./SignIn.page.scss"
 import React from "react"
 import { SignInControl, TenantLogo, LegalNotice } from "@fider/components"
 import { notify, Fider } from "@fider/services"
-import { useFider } from "@fider/hooks"
 
 const Locked = (): JSX.Element => (
   <>
@@ -37,7 +36,6 @@ export default class SignInPage extends React.Component<any, any> {
       <div id="p-signin" className="page container">
         <div className="message">
           <TenantLogo size={100} />
-          <strong>{useFider().settings.oauth.length}</strong>
           {Fider.session.tenant.isPrivate ? <Private /> : <Locked />}
         </div>
         <SignInControl onEmailSent={this.onEmailSent} useEmail={false} redirectTo={Fider.settings.baseURL} />
