@@ -30,7 +30,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   const providersLen = fider.settings.oauth.length
-  const loginUrl = location.replace(fider.settings.oauth[0].url+'?redirect='+props.redirectTo);
+  const loginUrl = fider.settings.oauth[0].url+'?redirect='+props.redirectTo;
 
   if (!isCookieEnabled()) {
     return (
@@ -41,6 +41,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     )
   }
 
+  location.replace(loginUrl);
   return (
     <div>redirecting you to login automatically. <a href={loginUrl}>click here</a> if it doesn't work</div>
   )
