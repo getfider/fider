@@ -226,38 +226,39 @@ func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 }
 
-func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *testing.T) {
-	RegisterT(t)
+//// Test deactivated since the requirement changed
+// func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *testing.T) {
+// 	RegisterT(t)
 
-	key := "1234567890"
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
-		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
-			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
-				Key:       q.Key,
-				Kind:      q.Kind,
-				ExpiresAt: expiresAt,
-				Email:     "hot.pie@got.com",
-			}
-			return nil
-		}
-		return app.ErrNotFound
-	})
+// 	key := "1234567890"
+// 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+// 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
+// 			expiresAt := time.Now().Add(5 * time.Minute)
+// 			q.Result = &models.EmailVerification{
+// 				Key:       q.Key,
+// 				Kind:      q.Kind,
+// 				ExpiresAt: expiresAt,
+// 				Email:     "hot.pie@got.com",
+// 			}
+// 			return nil
+// 		}
+// 		return app.ErrNotFound
+// 	})
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
-		return app.ErrNotFound
-	})
+// 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+// 		return app.ErrNotFound
+// 	})
 
-	server := mock.NewServer()
-	mock.DemoTenant.IsPrivate = true
+// 	server := mock.NewServer()
+// 	mock.DemoTenant.IsPrivate = true
 
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
-		Execute(handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
+// 	code, _ := server.
+// 		OnTenant(mock.DemoTenant).
+// 		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
+// 		Execute(handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
 
-	Expect(code).Equals(http.StatusForbidden)
-}
+// 	Expect(code).Equals(http.StatusForbidden)
+// }
 
 func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *testing.T) {
 	RegisterT(t)
