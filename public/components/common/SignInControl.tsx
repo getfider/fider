@@ -41,9 +41,9 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   if (true) {
-    location.replace('https://uservoice.bcc.no/oauth/_5duc5gfyud?redirect='+props.redirectTo);
+    const url = location.replace(fider.settings.oauth[0].url+'?redirect='+props.redirectTo);
     return (
-      <div>redirecting you to login automatically.</div>
+      <div>redirecting you to login automatically. <a href={url}>click here</a> if it doesn't work</div>
     )
   }
 
