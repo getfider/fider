@@ -41,7 +41,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   if (true) {
-    history.push('https://uservoice.bcc.no/oauth/_5duc5gfyud?redirect='+props.redirectTo);
+    location.replace('https://uservoice.bcc.no/oauth/_5duc5gfyud?redirect='+props.redirectTo);
     return (
       <div>redirecting you to login automatically.</div>
     )
