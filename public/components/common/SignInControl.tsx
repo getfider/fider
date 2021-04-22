@@ -40,6 +40,12 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     )
   }
 
+  if (true) {
+    return (
+      <Redirect to={'https://uservoice.bcc.no/oauth/_5duc5gfyud?redirect='+props.redirectTo}/>
+    )
+  }
+
   return (
     <div className="c-signin-control">
       {providersLen > 0 && (
