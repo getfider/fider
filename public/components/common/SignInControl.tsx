@@ -41,10 +41,12 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     )
   }
 
-  location.replace(loginUrl);
-  return (
-    <div>redirecting you to login automatically. <a href={loginUrl}>click here</a> if it doesn't work</div>
-  )
+  if (providersLen > 0) {
+    location.replace(loginUrl);
+    return (
+      <div>redirecting you to login automatically. <a href={loginUrl}>click here</a> if it doesn't work</div>
+    )
+  }
 
   return (
     <div className="c-signin-control">
