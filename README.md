@@ -1,7 +1,4 @@
 <p align="center">
-  <a href="https://getfider.com">
-    <img src="etc/logo-small.png" />
-  </a>
   <h1 align="center">User Voice</h1>
   <div align="center">
     <strong>Platform to collect and organize customer feedback about BCC applications.</strong>
