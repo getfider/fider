@@ -19,4 +19,3 @@
 
 - Allow new registrations when "Private site" is enabled
 - Immediately redirect to the only OAuth provider
-- Add ApplicationInsights
