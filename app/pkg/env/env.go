@@ -23,6 +23,7 @@ type config struct {
 	HostMode       string `env:"HOST_MODE,default=single"`
 	HostDomain     string `env:"HOST_DOMAIN,required"`
 	JWTSecret      string `env:"JWT_SECRET,required"`
+	InstrumentationKey string `env:"INSTRUMENTATION_KEY,required"`
 	Rendergun      struct {
 		URL string `env:"RENDERGUN_URL"`
 	}
