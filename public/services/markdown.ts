@@ -20,7 +20,7 @@ if (DOMPurify.isSupported) {
 
 const link = (href: string, title: string, text: string) => {
   const titleAttr = title ? ` title=${title}` : ""
-  return `<a href="${href}"${titleAttr} rel="noopener" target="_blank">${text}</a>`
+  return `<a class="text-link" href="${href}"${titleAttr} rel="noopener" target="_blank">${text}</a>`
 }
 
 const fullRenderer = new marked.Renderer()

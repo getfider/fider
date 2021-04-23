@@ -1,9 +1,12 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path")
+const glob = require("glob")
 
-const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
+const PurgecssPlugin = require("purgecss-webpack-plugin")
+const SpriteLoaderPlugin = require("svg-sprite-loader/plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
 const publicFolder = path.resolve(__dirname, "public")
 
@@ -28,6 +31,12 @@ const plugins = [
       modules: false,
     },
   }),
+  new PurgecssPlugin({
+    paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
+    defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
+    safelist: [/--/, /__/],
+  }),
+  new SpriteLoaderPlugin({ plainSprite: true }),
 ]
 
 // On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
@@ -71,11 +80,14 @@ module.exports = {
         },
       },
       {
-        test: /\.(svg?)(\?[a-z0-9=&.]+)?$/,
+        test: /\.svg$/,
         include: publicFolder,
-        loader: "file-loader",
+        loader: "svg-sprite-loader",
         options: {
-          name: "images/[name].[hash].[ext]",
+          extract: true,
+          outputPath: "icons/",
+          spriteFilename: "sprite.[hash].svg",
+          publicPath: "/assets/icons/",
         },
       },
     ],
@@ -98,7 +110,7 @@ module.exports = {
         vendor: {
           chunks: "all",
           name: "vendor",
-          test: /(react($|\/)|react-dom|tslib|react-textarea-autosize|react-icons)/,
+          test: /(react($|\/)|react-dom|tslib|react-textarea-autosize)/,
         },
       },
     },

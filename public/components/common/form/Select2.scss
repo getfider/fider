@@ -1,0 +1,39 @@
+// NOT USED, BUT WE MIGHT NEED IN FUTURE
+
+// @import "~@fider/assets/styles/variables.scss";
+
+// .c-select2 {
+//   position: relative;
+
+//   &__handle {
+//     font-size: get("font.size.sm");
+//     line-height: 20px;
+//     text-align: left;
+//     background-color: get("colors.white");
+//     padding: sizing(2);
+//     border-radius: get("border.radius.medium");
+//     border: 1px solid get("colors.gray.300");
+//   }
+
+//   &__list {
+//     font-size: get("font.size.sm");
+//     margin-top: spacing(1);
+//     position: absolute;
+//     overflow: auto;
+//     max-height: 15rem;
+//     padding: spacing(1) 0;
+//     background-color: get("colors.white");
+//     border-radius: get("border.radius.medium");
+//     border: 1px solid get("colors.gray.300");
+//     list-style-type: none;
+//     z-index: 10;
+
+//     li {
+//       padding: spacing(2);
+//       &:hover {
+//         cursor: pointer;
+//         background-color: get("colors.gray.200");
+//       }
+//     }
+//   }
+// }

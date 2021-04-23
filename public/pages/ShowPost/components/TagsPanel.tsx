@@ -1,10 +1,13 @@
 import React, { useState } from "react"
 import { Tag, Post } from "@fider/models"
 import { actions } from "@fider/services"
-import { ShowTag, List, ListItem } from "@fider/components"
+import { ShowTag, Icon } from "@fider/components"
 import { TagListItem } from "./TagListItem"
-import { FaCheckCircle, FaCog } from "react-icons/fa"
 import { useFider } from "@fider/hooks"
+
+import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
+import IconCheckCircle from "@fider/assets/images/heroicons-check-circle.svg"
+import { HStack, VStack } from "@fider/components/layout"
 
 interface TagsPanelProps {
   post: Post
@@ -50,36 +53,33 @@ export const TagsPanel = (props: TagsPanelProps) => {
 
   const tagsList =
     assignedTags.length > 0 ? (
-      <List className="c-tag-list">
+      <VStack spacing={2} className="flex-items-baseline">
         {assignedTags.map((tag) => (
-          <ListItem key={tag.id}>
-            <ShowTag tag={tag} />
-          </ListItem>
+          <ShowTag key={tag.id} tag={tag} />
         ))}
-      </List>
+      </VStack>
     ) : (
-      <span className="info">None</span>
+      <span className="text-muted">None</span>
     )
 
   const editTagsList = props.tags.length > 0 && (
-    <List className="c-tag-list">
+    <VStack>
       {props.tags.map((tag) => (
         <TagListItem key={tag.id} tag={tag} assigned={assignedTags.indexOf(tag) >= 0} onClick={assignOrUnassignTag} />
       ))}
-    </List>
+    </VStack>
   )
 
-  const subtitleClasses = `subtitle ${canEdit && "active"}`
-  const icon = canEdit && (isEditing ? <FaCheckCircle /> : <FaCog />)
+  const icon = canEdit && (isEditing ? <Icon sprite={IconCheckCircle} className="h-4" /> : <Icon sprite={IconPencilAlt} className="h-4" />)
 
   return (
-    <>
-      <span className={subtitleClasses} onClick={onSubtitleClick}>
-        Tags {icon}
-      </span>
+    <VStack>
+      <HStack spacing={2} className="text-category clickable" onClick={onSubtitleClick}>
+        <span>Tags</span> {icon}
+      </HStack>
 
       {!isEditing && tagsList}
       {isEditing && editTagsList}
-    </>
+    </VStack>
   )
 }

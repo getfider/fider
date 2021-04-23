@@ -1,11 +1,11 @@
 import React from "react"
 
-import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components"
+import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption, Icon } from "@fider/components"
 import { Post, PostStatus } from "@fider/models"
 
 import { actions, Failure } from "@fider/services"
-import { FaBullhorn } from "react-icons/fa"
 import { PostSearch } from "./PostSearch"
+import IconSpeakerPhone from "@fider/assets/images/heroicons-speakerphone.svg"
 
 interface ResponseFormProps {
   post: Post
@@ -66,8 +66,8 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
   public render() {
     const button = (
-      <Button className="respond" fluid={true} onClick={this.showModal}>
-        <FaBullhorn /> Respond
+      <Button className="w-full" onClick={this.showModal}>
+        <Icon sprite={IconSpeakerPhone} /> <span>Respond</span>
       </Button>
     )
 
@@ -87,7 +87,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                   <PostSearch exclude={[this.props.post.number]} onChanged={this.setOriginalNumber} />
                 </Field>
                 <DisplayError fields={["originalNumber"]} error={this.state.error} />
-                <span className="info">Votes from this post will be merged into original post.</span>
+                <span className="text-muted">Votes from this post will be merged into original post.</span>
               </>
             ) : (
               <TextArea
@@ -102,10 +102,10 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="positive" onClick={this.submit}>
+          <Button variant="primary" onClick={this.submit}>
             Submit
           </Button>
-          <Button color="cancel" onClick={this.closeModal}>
+          <Button variant="tertiary" onClick={this.closeModal}>
             Cancel
           </Button>
         </Modal.Footer>

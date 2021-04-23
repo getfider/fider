@@ -1,7 +1,6 @@
 import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { Fider, FiderContext } from "./services/fider"
-import { IconContext } from "react-icons"
 import { Header } from "./components"
 import { resolveRootComponent, route } from "./router"
 
@@ -9,7 +8,8 @@ import HomePage from "./pages/Home/Home.page"
 import ShowPostPage from "./pages/ShowPost/ShowPost.page"
 import SignInPage from "./pages/SignIn/SignIn.page"
 import SignUpPage from "./pages/SignUp/SignUp.page"
-import UIToolkitPage from "./pages/UI/UIToolkit.page"
+import DesignSystemPage from "./pages/DesignSystem/DesignSystem.page"
+import LegalPage from "./pages/Legal/Legal.page"
 
 // Only public routes should be here
 // Routes behind authentication are not crawled
@@ -18,7 +18,9 @@ const routes = [
   route("/posts/:number*", ShowPostPage),
   route("/signin", SignInPage, false),
   route("/signup", SignUpPage, false),
-  route("/-/ui", UIToolkitPage),
+  route("/terms", LegalPage, false),
+  route("/privacy", LegalPage, false),
+  route("/_design", DesignSystemPage),
 ]
 
 function ssrRender(url: string, pathname: string, args: any) {
@@ -28,10 +30,8 @@ function ssrRender(url: string, pathname: string, args: any) {
 
   return renderToStaticMarkup(
     <FiderContext.Provider value={fider}>
-      <IconContext.Provider value={{ className: "icon" }}>
-        {config.showHeader && <Header />}
-        {React.createElement(config.component, args.props)}
-      </IconContext.Provider>
+      {config.showHeader && <Header />}
+      {React.createElement(config.component, args.props)}
     </FiderContext.Provider>
   )
 }

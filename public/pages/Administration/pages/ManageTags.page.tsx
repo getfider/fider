@@ -1,14 +1,12 @@
-import "./ManageTags.page.scss"
-
 import React from "react"
-import { Button, Segment, List, ListItem, Heading } from "@fider/components"
+import { Button } from "@fider/components"
 
 import { Tag } from "@fider/models"
 import { actions, Failure, Fider } from "@fider/services"
-import { FaTags } from "react-icons/fa"
 import { AdminBasePage } from "../components/AdminBasePage"
 import { TagFormState, TagForm } from "../components/TagForm"
 import { TagListItem } from "../components/TagListItem"
+import { VStack } from "@fider/components/layout"
 
 interface ManageTagsPageProps {
   tags: Tag[]
@@ -33,7 +31,6 @@ const tagSorter = (t1: Tag, t2: Tag) => {
 export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTagsPageState> {
   public id = "p-admin-tags"
   public name = "tags"
-  public icon = FaTags
   public title = "Tags"
   public subtitle = "Manage your site tags"
 
@@ -95,36 +92,31 @@ export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, M
     const form =
       Fider.session.user.isAdministrator &&
       (this.state.isAdding ? (
-        <Segment>
-          <TagForm onSave={this.saveNewTag} onCancel={this.cancelAdd} />
-        </Segment>
+        <TagForm onSave={this.saveNewTag} onCancel={this.cancelAdd} />
       ) : (
-        <Button color="positive" onClick={this.addNew}>
+        <Button variant="secondary" onClick={this.addNew}>
           Add new
         </Button>
       ))
 
     return (
-      <>
-        <Segment>
-          <List divided={true}>
-            <ListItem>
-              <Heading size="small" title="Public Tags" subtitle="These tags are visible to all visitors." />
-            </ListItem>
-            {publicTaglist.length === 0 ? <ListItem>There aren’t any public tags yet.</ListItem> : publicTaglist}
-          </List>
-        </Segment>
-
-        <Segment>
-          <List divided={true}>
-            <ListItem>
-              <Heading size="small" title="Private Tags" subtitle="These tags are only visible for members of this site." />
-            </ListItem>
-            {privateTagList.length === 0 ? <ListItem>There aren’t any private tags yet.</ListItem> : privateTagList}
-          </List>
-        </Segment>
-        {form}
-      </>
+      <VStack spacing={8}>
+        <div>
+          <h2 className="text-display">Public Tags</h2>
+          <p className="text-muted">These tags are visible to all visitors.</p>
+          <VStack spacing={4} divide={true}>
+            {publicTaglist.length === 0 ? <p className="text-muted">There aren’t any public tags yet.</p> : publicTaglist}
+          </VStack>
+        </div>
+        <div>
+          <h2 className="text-display">Private Tags</h2>
+          <p className="text-muted">These tags are only visible for members of this site.</p>
+          <VStack spacing={4} divide={true}>
+            {privateTagList.length === 0 ? <p className="text-muted">There aren’t any private tags yet.</p> : privateTagList}
+          </VStack>
+        </div>
+        <div>{form}</div>
+      </VStack>
     )
   }
 }

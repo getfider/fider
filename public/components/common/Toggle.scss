@@ -1,54 +1,43 @@
 @import "~@fider/assets/styles/variables.scss";
 
+@mixin transition {
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, transform;
+}
+
 .c-toggle {
+  padding: 0;
+  position: relative;
+  display: inline-flex;
+  height: sizing(4);
+  width: sizing(8);
+  border: 2px solid transparent;
+  background-color: get("colors.gray.200");
+  border-radius: 50px;
   cursor: pointer;
+  @include transition();
 
-  &.m-disabled {
-    cursor: not-allowed;
-    label {
-      cursor: not-allowed;
-    }
-  }
-
-  input {
-    display: none;
-  }
-
-  .text {
-    margin-left: 5px;
-    vertical-align: middle;
-  }
-
-  label {
+  span {
+    pointer-events: none;
+    height: sizing(3);
+    width: sizing(3);
     display: inline-block;
-    vertical-align: middle;
-    width: 30px;
-    height: 15px;
-    border-radius: 10px;
-    position: relative;
-    cursor: pointer;
-    background: $gray-300;
+    border-radius: 50px;
+    background-color: get("colors.white");
+    transform: matrix(1, 0, 0, 1, 0, 0);
+    @include transition();
   }
 
-  .switch {
-    position: absolute;
-    width: 13px;
-    height: 13px;
-    margin-top: 1px;
-    margin-left: 1px;
-    border-radius: 1em;
-    box-shadow: 0px 1px 5px 0px $gray-500;
-    background: $gray-100;
-    transition: transform 0.2s ease-in;
+  &--disabled {
+    @include disabled();
   }
 
-  input:checked ~ label {
-    background: $green-500;
-  }
+  &--enabled {
+    background-color: get("colors.green.600");
 
-  input:checked ~ label .switch {
-    background: $gray-100;
-    transform: translatex(15px);
-    transition: transform 0.2s ease-in;
+    span {
+      transform: matrix(1, 0, 0, 1, 16, 0);
+    }
   }
 }

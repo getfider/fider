@@ -1,13 +1,15 @@
 import React from "react"
 
-import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fider/components"
+import { Button, OAuthProviderLogo, Icon } from "@fider/components"
 import { OAuthConfig, OAuthProviderOption } from "@fider/models"
 import { OAuthForm } from "../components/OAuthForm"
 import { actions, notify, Fider } from "@fider/services"
-import { FaEdit, FaPlay, FaSignInAlt } from "react-icons/fa"
 import { AdminBasePage } from "../components/AdminBasePage"
 
-import "./ManageAuthentication.page.scss"
+import IconPlay from "@fider/assets/images/heroicons-play.svg"
+import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
+
+import { HStack, VStack } from "@fider/components/layout"
 
 interface ManageAuthenticationPageProps {
   providers: OAuthProviderOption[]
@@ -21,7 +23,6 @@ interface ManageAuthenticationPageState {
 export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthenticationPageProps, ManageAuthenticationPageState> {
   public id = "p-admin-authentication"
   public name = "authentication"
-  public icon = FaSignInAlt
   public title = "Authentication"
   public subtitle = "Manage your site authentication"
 
@@ -63,61 +64,59 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
       return <OAuthForm config={this.state.editing} onCancel={this.cancel} />
     }
 
-    const enabled = <p className="m-enabled">Enabled</p>
-    const disabled = <p className="m-disabled">Disabled</p>
+    const enabled = <span className="text-green-700">Enabled</span>
+    const disabled = <span className="text-red-700">Disabled</span>
 
     return (
       <>
-        <Heading
-          title="OAuth Providers"
-          subtitle="You can use these section to add any authentication provider thats supports the OAuth2 protocol."
-          size="small"
-        />
-        <p className="info">
-          Additional information is available in our{" "}
-          <a rel="noopener" target="_blank" href="https://getfider.com/docs/configuring-oauth/">
+        <h2 className="text-display">OAuth Providers</h2>
+        <p>
+          You can use these section to add any authentication provider thats supports the OAuth2 protocol. Additional information is available in our{" "}
+          <a rel="noopener" className="text-link" target="_blank" href="https://getfider.com/docs/configuring-oauth/">
             OAuth Documentation
           </a>
           .
         </p>
-        <Segment>
-          <List divided={true}>
-            {this.props.providers.map((o) => (
-              <ListItem key={o.provider}>
-                {o.isCustomProvider && (
-                  <>
-                    {Fider.session.user.isAdministrator && (
-                      <Button onClick={this.edit.bind(this, o.provider)} size="mini" className="right">
-                        <FaEdit />
-                        Edit
-                      </Button>
-                    )}
-                    <Button onClick={this.startTest.bind(this, o.provider)} size="mini" className="right">
-                      <FaPlay />
-                      Test
-                    </Button>
-                  </>
-                )}
-                <div className="l-provider">
+        <VStack spacing={6}>
+          {this.props.providers.map((o) => (
+            <div key={o.provider}>
+              <HStack justify="between">
+                <HStack className="h-6">
                   <OAuthProviderLogo option={o} />
                   <strong>{o.displayName}</strong>
-                  {o.isEnabled ? enabled : disabled}
-                </div>
+                </HStack>
                 {o.isCustomProvider && (
-                  <span className="info">
-                    <strong>Client ID:</strong> {o.clientID} <br />
-                    <strong>Callback URL:</strong> {o.callbackURL}
-                  </span>
+                  <HStack>
+                    {Fider.session.user.isAdministrator && (
+                      <Button onClick={this.edit.bind(this, o.provider)} size="small">
+                        <Icon sprite={IconPencilAlt} />
+                        <span>Edit</span>
+                      </Button>
+                    )}
+                    <Button onClick={this.startTest.bind(this, o.provider)} size="small">
+                      <Icon sprite={IconPlay} />
+                      <span>Test</span>
+                    </Button>
+                  </HStack>
                 )}
-              </ListItem>
-            ))}
-          </List>
-        </Segment>
-        {Fider.session.user.isAdministrator && (
-          <Button color="positive" onClick={this.addNew}>
-            Add new
-          </Button>
-        )}
+              </HStack>
+              <div className="text-xs block my-1">{o.isEnabled ? enabled : disabled}</div>
+              {o.isCustomProvider && (
+                <span className="text-muted">
+                  <strong>Client ID:</strong> {o.clientID} <br />
+                  <strong>Callback URL:</strong> {o.callbackURL}
+                </span>
+              )}
+            </div>
+          ))}
+          <div>
+            {Fider.session.user.isAdministrator && (
+              <Button variant="secondary" onClick={this.addNew}>
+                Add new
+              </Button>
+            )}
+          </div>
+        </VStack>
       </>
     )
   }

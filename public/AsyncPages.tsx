@@ -151,10 +151,18 @@ export const AsyncOAuthEchoPage = load(
     )
 )
 
-export const AsyncUIToolkitPage = load(
+export const AsyncDesignSystemPage = load(
   () =>
     import(
-      /* webpackChunkName: "UIToolkit.page" */
-      "@fider/pages/UI/UIToolkit.page"
+      /* webpackChunkName: "DesignSystem.page" */
+      "@fider/pages/DesignSystem/DesignSystem.page"
+    )
+)
+
+export const AsyncLegalPage = load(
+  () =>
+    import(
+      /* webpackChunkName: "Legal.page" */
+      "@fider/pages/Legal/Legal.page"
     )
 )

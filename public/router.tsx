@@ -24,6 +24,8 @@ const defaultRoutes = [
   route("/admin/authentication", Pages.AsyncManageAuthenticationPage),
   route("/admin/advanced", Pages.AsyncAdvancedSettingsPage),
   route("/admin", Pages.AsyncGeneralSettingsPage),
+  route("/terms", Pages.AsyncLegalPage, false),
+  route("/privacy", Pages.AsyncLegalPage, false),
   route("/signin", Pages.AsyncSignInPage, false),
   route("/signup", Pages.AsyncSignUpPage, false),
   route("/signin/verify", Pages.AsyncCompleteSignInProfilePage),
@@ -31,7 +33,7 @@ const defaultRoutes = [
   route("/notifications", Pages.AsyncMyNotificationsPage),
   route("/settings", Pages.AsyncMySettingsPage),
   route("/oauth/:string/echo", Pages.AsyncOAuthEchoPage, false),
-  route("/-/ui", Pages.AsyncUIToolkitPage),
+  route("/_design", Pages.AsyncDesignSystemPage),
 ]
 
 export const resolveRootComponent = (path: string, routes: PageConfiguration[] = defaultRoutes): PageConfiguration => {

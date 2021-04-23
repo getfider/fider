@@ -55,8 +55,8 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
   const className = classSet({
     "c-modal-window": true,
     [`${props.className}`]: !!props.className,
-    "m-center": props.center,
-    [`m-${props.size}`]: true,
+    "c-modal-window--center": props.center,
+    [`c-modal-window--${props.size}`]: true,
   })
 
   return ReactDOM.createPortal(
@@ -81,7 +81,7 @@ const Footer = (props: ModalFooterProps) => {
   const align = props.align || "right"
   const className = classSet({
     "c-modal-footer": true,
-    [`m-${align}`]: true,
+    [`c-modal-footer--${align}`]: true,
   })
   return <div className={className}>{props.children}</div>
 }

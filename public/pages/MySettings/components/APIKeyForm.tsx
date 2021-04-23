@@ -22,30 +22,30 @@ export class APIKeyForm extends React.Component<any, APIKeyFormState> {
   private showAPIKey() {
     return (
       <>
-        <p className="info">
+        <p className="text-muted">
           Your new API Key is: <code>{this.state.apiKey}</code>
         </p>
-        <p className="info">Stored it securely on your servers and never store it in the client side of your app.</p>
+        <p className="text-muted">Stored it securely on your servers and never store it in the client side of your app.</p>
       </>
     )
   }
 
   public render() {
     return (
-      <div className="l-api-key">
-        <h4>API Key</h4>
-        <p className="info">
+      <div>
+        <h4 className="text-title mb-1">API Key</h4>
+        <p className="text-muted">
           The API Key is only shown whenever generated. If your Key is lost or has been compromised, generated a new one and take note of it.
         </p>
-        <p className="info">
+        <p className="text-muted">
           To learn how to use the API, read the{" "}
-          <a rel="noopener" href="https://getfider.com/docs/api" target="_blank">
+          <a className="text-link" rel="noopener" href="https://getfider.com/docs/api" target="_blank">
             official documentation
           </a>
           .
         </p>
         <p>
-          <Button size="tiny" onClick={this.regenerate}>
+          <Button size="small" onClick={this.regenerate}>
             Regenerate API Key
           </Button>
         </p>

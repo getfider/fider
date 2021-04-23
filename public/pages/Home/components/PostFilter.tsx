@@ -1,8 +1,7 @@
-import "./PostFilter.scss"
-
-import React from "react"
+import React, { useState } from "react"
 import { PostStatus } from "@fider/models"
-import { DropDown, DropDownItem } from "@fider/components"
+import { Dropdown } from "@fider/components"
+import { HStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
 
 interface PostFilterProps {
@@ -11,14 +10,22 @@ interface PostFilterProps {
   viewChanged: (name: string) => void
 }
 
+interface OptionItem {
+  value: string
+  label: string
+  count?: number
+}
+
 export const PostFilter = (props: PostFilterProps) => {
   const fider = useFider()
+  const [view, setView] = useState<string>(props.activeView)
 
-  const handleChangeView = (item: DropDownItem) => {
-    props.viewChanged(item.value as string)
+  const handleChangeView = (item: OptionItem) => () => {
+    setView(item.value)
+    props.viewChanged(item.value)
   }
 
-  const options: DropDownItem[] = [
+  const options: OptionItem[] = [
     { value: "trending", label: "Trending" },
     { value: "recent", label: "Recent" },
     { value: "most-wanted", label: "Most Wanted" },
@@ -33,29 +40,26 @@ export const PostFilter = (props: PostFilterProps) => {
     options.push({
       label: s.title,
       value: s.value,
-      render: (
-        <span>
-          {s.title} <a className="counter">{props.countPerStatus[s.value]}</a>
-        </span>
-      ),
+      count: props.countPerStatus[s.value],
     })
   })
 
-  const viewExists = options.filter((x) => x.value === props.activeView).length > 0
-  const activeView = viewExists ? props.activeView : "trending"
+  const selectedItem = options.filter((x) => x.value === view)
+  const label = selectedItem.length > 0 ? selectedItem[0].label : options[0].label
 
   return (
-    <div>
-      <span className="subtitle">View</span>
-      <DropDown
-        header="What do you want to see?"
-        className="l-post-filter"
-        inline={true}
-        style="simple"
-        items={options}
-        defaultValue={activeView}
-        onChange={handleChangeView}
-      />
-    </div>
+    <HStack>
+      <span className="text-category">View</span>
+      <Dropdown renderHandle={<div className="text-medium text-xs uppercase rounded-md uppercase bg-gray-100 px-2 py-1">{label}</div>}>
+        {options.map((o) => (
+          <Dropdown.ListItem onClick={handleChangeView(o)} key={o.value}>
+            <HStack spacing={2}>
+              <span className={view === o.value ? "text-semibold" : ""}>{o.label}</span>
+              <div>{o.count && o.count > 0 && <span className="bg-gray-200 inline-block rounded-full px-1 w-min-4 text-2xs text-center">{o.count}</span>}</div>
+            </HStack>
+          </Dropdown.ListItem>
+        ))}
+      </Dropdown>
+    </HStack>
   )
 }

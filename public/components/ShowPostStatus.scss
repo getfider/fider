@@ -1,0 +1,31 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-status-label {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 11px;
+
+  &--open {
+    color: get("colors.gray.900");
+  }
+
+  &--planned {
+    color: #6435c9;
+  }
+
+  &--started {
+    color: #2185d0;
+  }
+
+  &--completed {
+    color: #21ba45;
+  }
+
+  &--declined {
+    color: #db2828;
+  }
+
+  &--duplicate {
+    color: #d6a100;
+  }
+}

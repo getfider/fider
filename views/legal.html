@@ -1,9 +1,3 @@
-{{define "server-data"}}{{end}}
-
-{{define "content"}}
-  <div class="container legal-page">
-    {{ .public.props.Content | markdown }}
-  </div>
-{{end}}
-
-{{define "end-of-body"}}{{end}}
+{{define "server-data"}}{{end}} {{define "content"}}
+<div id="p-legal" class="container page w-max-10xl">{{ .public.props.Content | markdown }}</div>
+{{end}} {{define "end-of-body"}}{{end}}

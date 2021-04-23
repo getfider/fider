@@ -1,0 +1,21 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-posts-container {
+  &__header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    row-gap: spacing(3);
+  }
+
+  &__filter-col {
+    grid-column: span 3 / span 3;
+    margin-left: spacing(4);
+  }
+
+  &__search-col {
+    grid-auto-columns: auto;
+    &:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+}

@@ -1,0 +1,5 @@
+$sizing-inc: 4px;
+
+@function sizing($i) {
+  @return $sizing-inc * $i;
+}

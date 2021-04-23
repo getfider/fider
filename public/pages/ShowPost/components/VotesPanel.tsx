@@ -1,11 +1,10 @@
-import "./VotesPanel.scss"
-
 import React, { useState } from "react"
 import { Post, Vote } from "@fider/models"
-import { Avatar } from "@fider/components"
-import { Fider, classSet } from "@fider/services"
+import { AvatarStack, Button } from "@fider/components"
+import { Fider } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import { VotesModal } from "./VotesModal"
+import { HStack, VStack } from "@fider/components/layout"
 
 interface VotesPanelProps {
   post: Post
@@ -15,42 +14,36 @@ interface VotesPanelProps {
 export const VotesPanel = (props: VotesPanelProps) => {
   const fider = useFider()
   const [isVotesModalOpen, setIsVotesModalOpen] = useState(false)
+  const canShowAll = fider.session.isAuthenticated && Fider.session.user.isCollaborator
 
   const openModal = () => {
-    if (canShowAll()) {
+    if (canShowAll) {
       setIsVotesModalOpen(true)
     }
   }
 
   const closeModal = () => setIsVotesModalOpen(false)
-  const canShowAll = () => fider.session.isAuthenticated && Fider.session.user.isCollaborator
 
   const extraVotesCount = props.post.votesCount - props.votes.length
-  const moreVotesClassName = classSet({
-    "l-votes-more": true,
-    clickable: canShowAll(),
-  })
 
   return (
-    <>
+    <VStack>
       <VotesModal post={props.post} isOpen={isVotesModalOpen} onClose={closeModal} />
-      <span className="subtitle">Voters</span>
-      <div className="l-votes-list">
-        {props.votes.map((x) => (
-          <Avatar key={x.user.id} user={x.user} />
-        ))}
+      <span className="text-category">Voters</span>
+      <HStack>
+        {props.votes.length > 0 && <AvatarStack users={props.votes.map((x) => x.user)} />}
         {extraVotesCount > 0 && (
-          <span onClick={openModal} className={moreVotesClassName}>
+          <Button variant="tertiary" disabled={!canShowAll} size="small" onClick={openModal}>
             +{extraVotesCount} more
-          </span>
+          </Button>
         )}
-        {props.votes.length > 0 && extraVotesCount === 0 && canShowAll() && (
-          <span onClick={openModal} className={moreVotesClassName}>
+        {props.votes.length > 0 && extraVotesCount === 0 && canShowAll && (
+          <Button variant="tertiary" size="small" disabled={!canShowAll} onClick={openModal}>
             see details
-          </span>
+          </Button>
         )}
-        {props.votes.length === 0 && <span className="info">None</span>}
-      </div>
-    </>
+        {props.votes.length === 0 && <span className="text-muted">None</span>}
+      </HStack>
+    </VStack>
   )
 }

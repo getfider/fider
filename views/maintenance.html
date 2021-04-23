@@ -1,17 +1,17 @@
-{{define "server-data"}}{{end}}
-
-{{define "content"}}
-  <div class="container failure-page">
-    <img src="{{ .private.logo }}"/>
-    <h1>UNDER MAINTENANCE</h1>
+{{define "server-data"}}{{end}} {{define "content"}}
+<div class="container page">
+  <div class="w-max-7xl mx-auto text-center mt-8">
+    <div class="h-20 mb-4">
+      <img src="{{ .private.logo }}" />
+    </div>
+    <h1 class="text-display">UNDER MAINTENANCE</h1>
     <p>{{ .public.props.message }}</p>
 
-    {{ if .public.props.until }} 
-      <p>We'll be back at <strong>{{ .public.props.until }}</strong>.</p>
+    {{ if .public.props.until }}
+    <p>We'll be back at <strong>{{ .public.props.until }}</strong>.</p>
     {{ else }}
-      <p>We'll be back soon.</p>
+    <p>We'll be back soon.</p>
     {{ end }}
   </div>
-{{end}}
-
-{{define "end-of-body"}}{{end}}
+</div>
+{{end}} {{define "end-of-body"}}{{end}}

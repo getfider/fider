@@ -1,0 +1,31 @@
+@each $name, $shades in $colors {
+  @if type-of($shades) == "map" {
+    @each $shade, $color in $shades {
+      .text-#{$name}-#{$shade} {
+        color: #{$color};
+      }
+      .hover\:text-#{$name}-#{$shade}:hover {
+        color: #{$color};
+      }
+      .bg-#{$name}-#{$shade} {
+        background-color: #{$color};
+      }
+      .hover\:bg-#{$name}-#{$shade}:hover {
+        background-color: #{$color};
+      }
+      .border-#{$name}-#{$shade} {
+        border-color: #{$color};
+      }
+    }
+  } @else {
+    .text-#{$name} {
+      color: #{$shades};
+    }
+    .bg-#{$name} {
+      background-color: #{$shades};
+    }
+    .border-#{$name} {
+      border-color: #{$shades};
+    }
+  }
+}

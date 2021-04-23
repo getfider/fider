@@ -1,4 +1,7 @@
+import { HStack, VStack } from "@fider/components/layout"
 import React from "react"
+
+import "./RadioButton.scss"
 
 interface RadioButtonOption {
   value: string
@@ -36,7 +39,7 @@ export class RadioButton extends React.Component<RadioButtonProps, RadioButtonSt
   public render() {
     const inputs = this.props.options.map((option) => {
       return (
-        <div key={option.value} className="c-form-radio-option">
+        <HStack key={option.value} className="text-sm">
           <input
             id={`visibility-${option.value}`}
             type="radio"
@@ -45,14 +48,14 @@ export class RadioButton extends React.Component<RadioButtonProps, RadioButtonSt
             onChange={this.onChange.bind(this, option)}
           />
           <label htmlFor={`visibility-${option.value}`}>{option.label}</label>
-        </div>
+        </HStack>
       )
     })
 
     return (
       <div className="c-form-field">
         <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>
-        {inputs}
+        <VStack className="c-radiobutton">{inputs}</VStack>
       </div>
     )
   }

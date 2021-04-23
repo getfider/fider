@@ -52,7 +52,7 @@ export class ImageViewer extends React.Component<ImageViewerProps, ImageViewerSt
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="cancel" onClick={this.closeModal}>
+          <Button variant="tertiary" onClick={this.closeModal}>
             Close
           </Button>
         </Modal.Footer>

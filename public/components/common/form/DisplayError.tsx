@@ -1,6 +1,8 @@
 import React from "react"
 import { Failure } from "@fider/services"
 
+import "./DisplayError.scss"
+
 const arrayToTag = (items: string[]) => {
   return items.map((m) => <li key={m}>{m}</li>)
 }
@@ -46,7 +48,7 @@ export const DisplayError = (props: DisplayErrorProps) => {
   }
 
   return items.length > 0 ? (
-    <div className={`c-form-field-error`}>
+    <div className={`c-form-error`}>
       <ul>{items}</ul>
     </div>
   ) : null

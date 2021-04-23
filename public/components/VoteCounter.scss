@@ -1,44 +1,36 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-vote-counter {
-  margin-right: 10px;
-
-  button,
-  button.m-voted,
-  button.m-disabled {
-    font-size: 18px;
+  &__button {
+    font-size: get("font.size.lg");
     border: none;
-    width: 45px;
-    font-weight: 700;
+    width: sizing(11);
+    font-weight: get("font.weight.bold");
     cursor: pointer;
     background-color: transparent;
     text-align: center;
     margin: 0 auto;
     padding: 0 0;
-    color: $gray-700;
+    color: get("colors.gray.700");
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-    .icon {
-      color: $gray-400;
-      margin-bottom: -3px;
+    svg {
+      color: get("colors.gray.400");
+      margin-bottom: -2px;
     }
-  }
 
-  button.m-disabled {
-    @include disabled();
-    cursor: not-allowed;
-  }
-
-  button.m-voted,
-  button.no-touch:hover {
-    color: $main-color;
-
-    .icon {
-      color: $main-color;
+    &--voted,
+    &:hover {
+      color: get("colors.primary.base");
+      svg {
+        color: get("colors.primary.base");
+      }
     }
-  }
 
-  .icon {
-    margin: 0 auto;
-    display: block;
+    &--disabled {
+      @include disabled();
+    }
   }
 }

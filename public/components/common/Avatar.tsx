@@ -1,8 +1,7 @@
 import "./Avatar.scss"
 
 import React from "react"
-import { classSet } from "@fider/services"
-import { isCollaborator, UserRole } from "@fider/models"
+import { UserRole } from "@fider/models"
 
 interface AvatarProps {
   user: {
@@ -10,17 +9,10 @@ interface AvatarProps {
     avatarURL: string
     name: string
   }
-  size?: "small" | "normal" | "large"
+  size?: "small" | "normal"
 }
 
 export const Avatar = (props: AvatarProps) => {
-  const size = props.size || "normal"
-
-  const className = classSet({
-    "c-avatar": true,
-    [`m-${size}`]: true,
-    "m-staff": props.user.role && isCollaborator(props.user.role),
-  })
-
-  return <img className={className} alt={props.user.name} src={`${props.user.avatarURL}?size=50`} />
+  const size = props.size === "small" ? "h-6 w-6" : "h-8 w-8"
+  return <img className={`c-avatar ${size}`} alt={props.user.name} src={`${props.user.avatarURL}?size=50`} />
 }

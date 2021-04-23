@@ -2,6 +2,7 @@ import "./Toggle.scss"
 
 import React, { useState } from "react"
 import { classSet } from "@fider/services"
+import { HStack } from "../layout"
 
 interface ToggleProps {
   label?: string
@@ -10,7 +11,7 @@ interface ToggleProps {
   onToggle?: (active: boolean) => void
 }
 
-export const Toggle: React.StatelessComponent<ToggleProps> = (props) => {
+export const Toggle: React.FC<ToggleProps> = (props) => {
   const [active, setActive] = useState(props.active)
 
   const toggle = () => {
@@ -27,16 +28,16 @@ export const Toggle: React.StatelessComponent<ToggleProps> = (props) => {
 
   const className = classSet({
     "c-toggle": true,
-    "m-disabled": !!props.disabled,
+    "c-toggle--enabled": active,
+    "c-toggle--disabled": !!props.disabled,
   })
 
   return (
-    <span className={className} onClick={toggle}>
-      <input type="checkbox" checked={active} readOnly={true} />
-      <label>
-        <span className="switch" />
-      </label>
-      <span className="text">{!!props.label && props.label}</span>
-    </span>
+    <HStack spacing={2}>
+      <button onClick={toggle} type="button" className={className} role="switch">
+        <span aria-hidden="true" className="shadow"></span>
+      </button>
+      {props.label && <span className="text-sm">{props.label}</span>}
+    </HStack>
   )
 }

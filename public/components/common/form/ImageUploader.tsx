@@ -4,9 +4,9 @@ import React from "react"
 import { ValidationContext } from "./Form"
 import { DisplayError, hasError } from "./DisplayError"
 import { classSet, fileToBase64, uploadedImageURL } from "@fider/services"
-import { Button, Modal } from "@fider/components"
-import { FaRegImage } from "react-icons/fa"
+import { Button, Icon, Modal } from "@fider/components"
 import { ImageUpload } from "@fider/models"
+import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 
 const hardFileSizeLimit = 5 * 1024 * 1024
 
@@ -16,7 +16,6 @@ interface ImageUploaderProps {
   label?: string
   bkey?: string
   disabled?: boolean
-  previewMaxWidth: number
   onChange(state: ImageUpload, instanceID?: string, previewURL?: string): void
 }
 
@@ -34,7 +33,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
       upload: undefined,
       remove: false,
       showModal: false,
-      previewURL: uploadedImageURL(this.props.bkey, this.props.previewMaxWidth),
+      previewURL: uploadedImageURL(this.props.bkey),
     }
   }
 
@@ -111,7 +110,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
         <Modal.Content>{this.props.bkey ? <img alt="" src={uploadedImageURL(this.props.bkey)} /> : <img alt="" src={this.state.previewURL} />}</Modal.Content>
 
         <Modal.Footer>
-          <Button color="cancel" onClick={this.closeModal}>
+          <Button variant="tertiary" onClick={this.closeModal}>
             Close
           </Button>
         </Modal.Footer>
@@ -122,10 +121,6 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
   public render() {
     const isUploading = !!this.state.upload
     const hasFile = (!this.state.remove && this.props.bkey) || isUploading
-
-    const imgStyles: React.CSSProperties = {
-      maxWidth: `${this.props.previewMaxWidth}px`,
-    }
 
     return (
       <ValidationContext.Consumer>
@@ -138,13 +133,13 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
             })}
           >
             {this.modal()}
-            <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>
+            {this.props.label && <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>}
 
             {hasFile && (
-              <div className="preview">
-                <img alt="" onClick={this.openModal} src={this.state.previewURL} style={imgStyles} />
+              <div className="preview h-20">
+                <img alt="" onClick={this.openModal} src={this.state.previewURL} />
                 {!this.props.disabled && (
-                  <Button onClick={this.removeFile} color="danger">
+                  <Button onClick={this.removeFile} variant="danger">
                     X
                   </Button>
                 )}
@@ -152,14 +147,12 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
             )}
 
             <input ref={(e) => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/*" />
-            <DisplayError fields={[this.props.field]} error={ctx.error} />
             {!hasFile && (
-              <div className="c-form-field-wrapper">
-                <Button onClick={this.selectFile} disabled={this.props.disabled}>
-                  <FaRegImage />
-                </Button>
-              </div>
+              <Button onClick={this.selectFile} disabled={this.props.disabled}>
+                <Icon sprite={IconPhotograph} />
+              </Button>
             )}
+            <DisplayError fields={[this.props.field]} error={ctx.error} />
             {this.props.children}
           </div>
         )}

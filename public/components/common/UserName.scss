@@ -1,14 +1,14 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-username {
-  color: $gray-900;
+  color: get("colors.gray.900");
   font-weight: 600;
   display: inline-flex;
   align-items: center;
 
-  &.m-staff {
-    color: $admin-color;
-    border-color: $admin-color;
+  &--staff {
+    color: get("colors.primary.base");
+    border-color: get("colors.primary.base");
 
     div {
       svg {

@@ -42,10 +42,11 @@ func LegalPage(title, file string) web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		return c.Render(http.StatusOK, "legal.html", web.Props{
-			Title: title,
+		return c.Page(web.Props{
+			Title:     title,
+			ChunkName: "Legal.page",
 			Data: web.Map{
-				"Content": string(bytes),
+				"content": string(bytes),
 			},
 		})
 	}

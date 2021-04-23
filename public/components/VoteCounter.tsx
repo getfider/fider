@@ -2,10 +2,10 @@ import "./VoteCounter.scss"
 
 import React, { useState } from "react"
 import { Post, PostStatus } from "@fider/models"
-import { actions, device, classSet } from "@fider/services"
-import { SignInModal } from "@fider/components"
-import { FaCaretUp } from "react-icons/fa"
+import { actions, classSet } from "@fider/services"
+import { Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
+import FaCaretUp from "@fider/assets/images/fa-caretup.svg"
 
 interface VoteCounterProps {
   post: Post
@@ -37,21 +37,21 @@ export const VoteCounter = (props: VoteCounterProps) => {
   const status = PostStatus.Get(props.post.status)
 
   const className = classSet({
-    "m-voted": !status.closed && hasVoted,
-    "m-disabled": status.closed,
-    "no-touch": !device.isTouch(),
+    "c-vote-counter__button": true,
+    "c-vote-counter__button--voted": !status.closed && hasVoted,
+    "c-vote-counter__button--disabled": status.closed,
   })
 
   const vote = (
     <button className={className} onClick={voteOrUndo}>
-      <FaCaretUp />
+      <Icon sprite={FaCaretUp} height="16" width="16" />
       {votesCount}
     </button>
   )
 
   const disabled = (
     <button className={className}>
-      <FaCaretUp />
+      <Icon sprite={FaCaretUp} height="16" width="16" />
       {votesCount}
     </button>
   )

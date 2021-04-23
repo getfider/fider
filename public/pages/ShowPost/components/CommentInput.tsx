@@ -1,11 +1,12 @@
 import React, { useState, useRef } from "react"
 
 import { Post, ImageUpload } from "@fider/models"
-import { Avatar, UserName, Button, TextArea, Form, MultiImageUploader } from "@fider/components/common"
+import { Avatar, UserName, Button, TextArea, Form, MultiImageUploader } from "@fider/components"
 import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
 import { useFider } from "@fider/hooks"
+import { HStack } from "@fider/components/layout"
 
 interface CommentInputProps {
   post: Post
@@ -53,29 +54,35 @@ export const CommentInput = (props: CommentInputProps) => {
   return (
     <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <div className={`c-comment-input ${Fider.session.isAuthenticated && "m-authenticated"}`}>
-        {Fider.session.isAuthenticated && <Avatar size="large" user={Fider.session.user} />}
-        <Form error={error}>
-          {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
-          <TextArea
-            placeholder="Leave a comment"
-            field="content"
-            value={content}
-            minRows={1}
-            onChange={commentChanged}
-            onFocus={handleOnFocus}
-            inputRef={inputRef}
-          />
-          {content && (
-            <>
-              <MultiImageUploader field="attachments" maxUploads={2} previewMaxWidth={100} onChange={setAttachments} />
-              <Button color="positive" onClick={submit}>
-                Submit
-              </Button>
-            </>
-          )}
-        </Form>
-      </div>
+      <HStack spacing={2} center={false} className="c-comment-input">
+        {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
+        <div className="flex-grow bg-gray-50 rounded-md p-2">
+          <Form error={error}>
+            {Fider.session.isAuthenticated && (
+              <div className="mb-1">
+                <UserName user={Fider.session.user} />
+              </div>
+            )}
+            <TextArea
+              placeholder="Leave a comment"
+              field="content"
+              value={content}
+              minRows={1}
+              onChange={commentChanged}
+              onFocus={handleOnFocus}
+              inputRef={inputRef}
+            />
+            {content && (
+              <>
+                <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
+                <Button variant="primary" onClick={submit}>
+                  Submit
+                </Button>
+              </>
+            )}
+          </Form>
+        </div>
+      </HStack>
     </>
   )
 }
