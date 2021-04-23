@@ -8,7 +8,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	_ "github.com/lib/pq"
-	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 var (
@@ -26,7 +25,6 @@ var (
 )
 
 func main() {
-	client := appinsights.NewTelemetryClient(env.Config.InstrumentationKey)
 	settings := &models.SystemSettings{
 		BuildTime:       buildtime,
 		Version:         version,
@@ -37,8 +35,6 @@ func main() {
 		Domain:          env.MultiTenantDomain(),
 		HasLegal:        env.HasLegal(),
 	}
-
-	client.TrackEvent("Main executed")
 
 	args := os.Args[1:]
 	if len(args) > 0 && args[0] == "ping" {
