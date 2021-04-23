@@ -28,7 +28,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         <Markdown className="text-gray-600" maxLength={300} text={props.post.description} style="plainText" />
         <ShowPostResponse showUser={false} status={props.post.status} response={props.post.response} />
         {props.tags.length >= 1 && (
-          <HStack>
+          <HStack className="flex-wrap">
             {props.tags.map((tag) => (
               <ShowTag key={tag.id} tag={tag} />
             ))}

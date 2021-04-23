@@ -94,7 +94,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
   public render() {
     return (
       <div id="p-show-post" className="page container">
-        <div className="p-show-post">
+        <VStack className="p-show-post" spacing={4}>
           <div className="p-show-post__header-col">
             <VStack spacing={4}>
               <HStack>
@@ -171,7 +171,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
           <div className="p-show-post__discussion_col">
             <DiscussionPanel post={this.props.post} comments={this.props.comments} />
           </div>
-        </div>
+        </VStack>
       </div>
     )
   }

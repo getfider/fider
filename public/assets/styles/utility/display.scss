@@ -6,6 +6,10 @@
   display: block;
 }
 
+.relative {
+  position: relative;
+}
+
 .inline-block {
   display: inline-block;
 }
@@ -75,6 +79,10 @@
   flex-grow: 1;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
 .flex-items-center {
   align-items: center;
 }
@@ -92,11 +100,8 @@
 }
 
 @each $i in 0, 1, 2, 4, 6, 8 {
-  .flex-x.flex--spacing-#{$i} > * + * {
-    margin-left: spacing($i);
-  }
-  .flex-y.flex--spacing-#{$i} > * + * {
-    margin-top: spacing($i);
+  .flex--spacing-#{$i} {
+    gap: spacing($i);
   }
 }
 

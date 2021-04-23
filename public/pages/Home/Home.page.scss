@@ -6,7 +6,7 @@
   column-gap: 0;
   row-gap: spacing(6);
 
-  @include media("md") {
+  @include media("lg") {
     grid-template-columns: 1fr 1fr 1fr;
     column-gap: spacing(6);
     row-gap: 0;
@@ -14,10 +14,13 @@
 
   .p-home {
     &__welcome-col {
-      @include media("sm") {
-        background-color: get("colors.gray.100");
-        padding: spacing(2);
-        border-radius: get("border.radius.medium");
+      background-color: get("colors.gray.100");
+      padding: spacing(2);
+      border-radius: get("border.radius.medium");
+
+      @include media("lg") {
+        padding: 0;
+        background-color: transparent;
       }
     }
 
