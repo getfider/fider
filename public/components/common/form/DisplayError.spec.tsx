@@ -19,7 +19,7 @@ describe("<DisplayError />", () => {
 
     const wrapper = shallow(<DisplayError error={error} />)
     const root = wrapper.find("div")
-    expect(root.hasClass("c-form-field-error")).toBe(true)
+    expect(root.hasClass("c-form-error")).toBe(true)
     const items = root.find("ul li")
     expect(items).toHaveLength(1)
     expect(items.at(0).key()).toBe("Something went wrong.")
@@ -47,7 +47,7 @@ describe("<DisplayError />", () => {
 
     const wrapper1 = shallow(<DisplayError error={error} fields={["name"]} />)
     const root1 = wrapper1.find("div")
-    expect(root1.hasClass("c-form-field-error")).toBe(true)
+    expect(root1.hasClass("c-form-error")).toBe(true)
     const items1 = root1.find("ul li")
     expect(items1).toHaveLength(2)
     expect(items1.at(0).key()).toBe("Name is required")
@@ -57,7 +57,7 @@ describe("<DisplayError />", () => {
 
     const wrapper2 = shallow(<DisplayError error={error} fields={["age"]} />)
     const root2 = wrapper2.find("div")
-    expect(root2.hasClass("c-form-field-error")).toBe(true)
+    expect(root2.hasClass("c-form-error")).toBe(true)
     const items2 = root2.find("ul li")
     expect(items2).toHaveLength(1)
     expect(items2.at(0).key()).toBe("Age must be >= 18")
@@ -65,7 +65,7 @@ describe("<DisplayError />", () => {
 
     const wrapper3 = shallow(<DisplayError error={error} fields={["name", "age"]} />)
     const root3 = wrapper3.find("div")
-    expect(root3.hasClass("c-form-field-error")).toBe(true)
+    expect(root3.hasClass("c-form-error")).toBe(true)
     const items3 = root3.find("ul li")
     expect(items3).toHaveLength(3)
     expect(items3.at(0).key()).toBe("Name is required")
