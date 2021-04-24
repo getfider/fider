@@ -24,11 +24,12 @@ import (
 )
 
 // fonts.gstatic.com and fonts.googleapis.com are required for Custom CSS to work with Google Fonts
+// unsafe-inline on Style is required for rendering Tags on SSR
 
 var (
 	cspBase    = "base-uri 'self'"
 	cspDefault = "default-src 'self'"
-	cspStyle   = "style-src 'self' 'nonce-%[1]s' https://fonts.googleapis.com %[2]s"
+	cspStyle   = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com %[2]s"
 	cspScript  = "script-src 'self' 'nonce-%[1]s' https://www.google-analytics.com %[2]s"
 	cspFont    = "font-src 'self' https://fonts.gstatic.com data: %[2]s"
 	cspImage   = "img-src 'self' https: data: %[2]s"
