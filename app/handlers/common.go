@@ -103,16 +103,6 @@ func Page(title, description, chunkName string) web.HandlerFunc {
 	}
 }
 
-//BrowserNotSupported returns an error page for browser that Fider dosn't support
-func BrowserNotSupported() web.HandlerFunc {
-	return func(c *web.Context) error {
-		return c.Render(http.StatusOK, "browser-not-supported.html", web.Props{
-			Title:       "Browser not supported",
-			Description: "We don't support this version of your browser",
-		})
-	}
-}
-
 //NewLogError is the input model for UI errors
 type NewLogError struct {
 	Message string      `json:"message"`

@@ -8,7 +8,7 @@ export interface LegalPageProps {
 
 const LegalPage = (props: LegalPageProps) => {
   return (
-    <div id="p-legal" className="page container">
+    <div id="p-legal" className="page container w-max-10xl">
       <Markdown text={props.content} style="full" />
     </div>
   )

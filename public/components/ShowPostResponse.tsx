@@ -26,7 +26,6 @@ const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
 interface PostResponseProps {
   status: string
   response: PostResponse | null
-  showUser: boolean
 }
 
 const StatusDetails = (props: PostResponseProps): JSX.Element | null => {
@@ -49,13 +48,9 @@ export const ShowPostResponse = (props: PostResponseProps): JSX.Element | null =
       <div className="p-2 shadow rounded">
         <HStack>
           {status.show && <ShowPostStatus status={status} />}
-          {props.showUser && (
-            <>
-              <span className="text-xs">
-                &middot; <UserName user={props.response.user} />
-              </span>
-            </>
-          )}
+          <span className="text-xs">
+            &middot; <UserName user={props.response.user} />
+          </span>
         </HStack>
         {status === PostStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
       </div>

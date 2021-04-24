@@ -48,7 +48,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Tenant())
 	r.Use(middlewares.User())
 
-	r.Get("/browser-not-supported", handlers.BrowserNotSupported())
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
 	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 

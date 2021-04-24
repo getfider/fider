@@ -131,14 +131,15 @@ export default class SignUpPage extends React.Component<any, SignUpPageState> {
         <Modal.Header>Thank you for registering!</Modal.Header>
         <Modal.Content>
           <p>
-            We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your registration.
+            We have just sent a confirmation link to <b>{this.state.email}</b>.
           </p>
+          <p>Click the link to complete the registration.</p>
         </Modal.Content>
       </Modal.Window>
     )
 
     return (
-      <div id="p-signup" className="page container w-max-8xl">
+      <div id="p-signup" className="page container w-max-6xl">
         {modal}
         <div className="h-20 text-center mb-4">
           <img className="logo" alt="Logo" src="https://getfider.com/images/logo-100x100.png" />

@@ -131,7 +131,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   </>
                 )}
               </VStack>
-              <ShowPostResponse showUser={true} status={this.props.post.status} response={this.props.post.response} />
+              <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
             </VStack>
           </div>
 
