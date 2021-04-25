@@ -84,6 +84,7 @@ module.exports = {
         include: publicFolder,
         loader: "svg-sprite-loader",
         options: {
+          esModule: false,
           extract: true,
           outputPath: "icons/",
           spriteFilename: "sprite.[hash].svg",

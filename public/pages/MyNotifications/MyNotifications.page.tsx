@@ -70,7 +70,7 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
           )}
         </HStack>
 
-        <VStack spacing={8}>
+        <VStack spacing={4}>
           {this.state.unread.length > 0 && this.items(this.state.unread)}
           {this.state.unread.length === 0 && <span className="text-muted">No unread notifications.</span>}
         </VStack>
