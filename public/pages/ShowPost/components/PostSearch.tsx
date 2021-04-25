@@ -43,7 +43,7 @@ export const PostSearch = (props: PostSearchProps) => {
   return (
     <>
       <Input field="query" icon={IconSearch} placeholder="Search original post..." value={query} onChange={setQuery} />
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid gap-2 grid-cols-1 lg:grid-cols-3">
         {posts.map((p) => (
           <VStack onClick={selectPost(p)} className={`bg-gray-50 p-4 clickable border-2 rounded ${selectedPost === p ? "border-primary-base" : ""}`} key={p.id}>
             <HStack className="text-2xs">
