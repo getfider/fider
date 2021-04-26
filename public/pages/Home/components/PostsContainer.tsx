@@ -105,10 +105,10 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
       <div className="c-posts-container">
         <div className="c-posts-container__header mb-4">
           {!this.state.query && (
-            <HStack className="c-posts-container__filter-col">
+            <div className="c-posts-container__filter-col">
               <PostFilter activeView={this.state.view} viewChanged={this.handleViewChanged} countPerStatus={this.props.countPerStatus} />
               <TagsFilter tags={this.props.tags} selectionChanged={this.handleTagsFilterChanged} selected={this.state.tags} />
-            </HStack>
+            </div>
           )}
           <div className="c-posts-container__search-col">
             <Input

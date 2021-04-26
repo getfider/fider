@@ -100,8 +100,11 @@
 }
 
 @each $i in 0, 1, 2, 4, 6, 8 {
-  .flex--spacing-#{$i} {
-    gap: spacing($i);
+  .flex-x.flex--spacing-#{$i} > * + * {
+    margin-left: spacing($i);
+  }
+  .flex-y.flex--spacing-#{$i} > * + * {
+    margin-top: spacing($i);
   }
 }
 
