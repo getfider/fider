@@ -7,6 +7,8 @@
   padding: sizing(2);
   border: 1px solid get("colors.gray.300");
   border-radius: get("border.radius.medium");
+  -webkit-appearance: none;
+  appearance: none;
 
   &:disabled {
     @include disabled();
