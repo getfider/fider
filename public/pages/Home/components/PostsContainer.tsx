@@ -10,7 +10,6 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
 import { TagsFilter } from "./TagsFilter"
-import { HStack } from "@fider/components/layout"
 
 interface PostsContainerProps {
   user?: CurrentUser
