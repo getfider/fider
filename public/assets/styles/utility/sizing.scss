@@ -12,10 +12,10 @@
 
 @for $i from 0 through 20 {
   .w-max-#{$i}xl {
-    width: sizing($i * 20);
+    max-width: sizing($i * 20);
   }
   .h-max-#{$i}xl {
-    height: sizing($i * 20);
+    max-height: sizing($i * 20);
   }
 }
 
