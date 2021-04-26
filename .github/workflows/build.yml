@@ -134,6 +134,7 @@ jobs:
           --set-env-vars EMAIL_SMTP_USERNAME=noreply@bcc.no \
           --set-env-vars HOST_DOMAIN=uservoice.bcc.no \
           --set-env-vars JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+          --set-env-vars GOOGLE_ANALYTICS="${{ secrets.GOOGLE_ANALYTICS }}" \
           --set-env-vars GCP_ProjectID=${{ secrets.GCLOUD_PROJECT }}^
 
         # Database url example for Google Cloud SQL
