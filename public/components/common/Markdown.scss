@@ -11,6 +11,18 @@
     margin: spacing(1) 0;
   }
 
+  h1 {
+    font-size: get("font.size.2xl");
+  }
+
+  h2 {
+    font-size: get("font.size.xl");
+  }
+
+  h3 {
+    font-size: get("font.size.lg");
+  }
+
   ul,
   ol {
     padding-left: spacing(8);
