@@ -53,7 +53,7 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
               {props.afterLabel}
             </label>
           )}
-          <HStack spacing={0} center={false} className="relative">
+          <HStack spacing={0} center={!!props.icon} className="relative">
             <input
               className={classSet({
                 "c-input": true,

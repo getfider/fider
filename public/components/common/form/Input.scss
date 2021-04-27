@@ -25,6 +25,8 @@
   }
 
   &__suffix {
+    display: flex;
+    align-items: center;
     background-color: get("colors.gray.200");
     padding: spacing(2);
     border-top-right-radius: get("border.radius.medium");

@@ -64,7 +64,7 @@ const HomePage = (props: HomePageProps) => {
         <VStack spacing={2}>
           <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
           <PostInput placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."} onTitleChanged={setTitle} />
-          <PoweredByFider className="sm:hidden" />
+          <PoweredByFider className="sm:hidden md:hidden lg:block" />
         </VStack>
       </div>
       <div className="p-home__posts-col">
@@ -75,7 +75,7 @@ const HomePage = (props: HomePageProps) => {
         ) : (
           <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
         )}
-        <PoweredByFider className="md:hidden lg:hidden xl:hidden" />
+        <PoweredByFider className="lg:hidden xl:hidden mt-8" />
       </div>
     </div>
   )

@@ -12,6 +12,8 @@
   background-position: right 0.5rem center;
   background-repeat: no-repeat;
   background-size: 1.5em 1.5em;
+  -webkit-appearance: none;
+  appearance: none;
 
   &:disabled {
     @include disabled();
