@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
-import { Modal, SignInControl, LegalFooter } from "@fider/components/common"
+import { Modal, SignInControl, LegalFooter } from "@fider/components"
+import { Button } from "./common"
 
 interface SignInModalProps {
   isOpen: boolean
@@ -30,9 +31,9 @@ export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) =
         We have just sent a confirmation link to <b>{confirmationAddress}</b>. <br /> Click the link and you’ll be signed in.
       </p>
       <p>
-        <a href="#" onClick={closeModal}>
+        <Button variant="tertiary" onClick={closeModal}>
           OK
-        </a>
+        </Button>
       </p>
     </>
   ) : (

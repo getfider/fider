@@ -1,66 +1,26 @@
 @import "~@fider/assets/styles/variables.scss";
 
-.c-side-menu-toggler {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin-top: 5px;
-  cursor: pointer;
-
-  @include media("md") {
-    margin-top: 15px;
-  }
-
-  @include media(">=lg") {
-    display: none;
-  }
-
-  > div {
-    width: 30px;
-    height: 4px;
-    background-color: $gray-900;
-    margin: 4px 0;
-    transition: 0.4s;
-  }
-
-  &.active {
-    .bar1 {
-      transform: rotate(-45deg) translate(-4px, 3px);
-    }
-    .bar2 {
-      opacity: 0;
-    }
-    .bar3 {
-      transform: rotate(45deg) translate(-8px, -8px);
-    }
-  }
-}
-
 .c-side-menu {
-  display: block;
-  border: 1px solid rgba(34, 36, 38, 0.1);
-  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.1);
-  border-radius: 5px;
-  background-color: $white;
-  margin-bottom: 15px;
-
-  .c-side-menu-item {
-    display: block;
-    padding: 12px;
-    border-bottom: 1px solid rgba(34, 36, 38, 0.1);
-    color: $gray-900;
+  &__item {
+    padding: spacing(3);
+    border-bottom: 1px solid get("colors.gray.200");
+    color: get("colors.gray.900");
 
     &:hover {
-      background-color: $gray-100;
+      background-color: get("colors.gray.100");
     }
 
-    &.m-active {
-      color: $admin-color;
-      border-left: 2px solid $admin-color;
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &--active {
+      color: get("colors.primary.base");
+      border-left: 2px solid get("colors.primary.base");
       font-weight: 600;
-      background-color: $white;
+      background-color: get("colors.white");
       &:hover {
-        color: $admin-color;
+        color: get("colors.primary.base");
       }
     }
   }

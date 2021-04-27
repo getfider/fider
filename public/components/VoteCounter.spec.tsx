@@ -36,9 +36,9 @@ describe("<VoteCounter />", () => {
     post.votesCount = 9
     const wrapper = shallow(<VoteCounter post={post} />)
     const button = wrapper.find("button")
-    expect(button.text()).toBe("<FaCaretUp />9")
-    expect(button.hasClass("m-voted")).toBe(true)
-    expect(button.hasClass("m-disabled")).toBe(false)
+    expect(button.text()).toBe("<Icon />9")
+    expect(button.hasClass("c-vote-counter__button--voted")).toBe(true)
+    expect(button.hasClass("c-vote-counter__button--disabled")).toBe(false)
   })
 
   test("when hasVoted === false", () => {
@@ -46,18 +46,18 @@ describe("<VoteCounter />", () => {
     post.votesCount = 2
     const wrapper = shallow(<VoteCounter post={post} />)
     const button = wrapper.find("button")
-    expect(button.text()).toBe("<FaCaretUp />2")
-    expect(button.hasClass("m-voted")).toBe(false)
-    expect(button.hasClass("m-disabled")).toBe(false)
+    expect(button.text()).toBe("<Icon />2")
+    expect(button.hasClass("c-vote-counter__button--voted")).toBe(false)
+    expect(button.hasClass("c-vote-counter__button--disabled")).toBe(false)
   })
 
   test("when post is closed", () => {
     post.status = PostStatus.Completed.value
     const wrapper = shallow(<VoteCounter post={post} />)
     const button = wrapper.find("button")
-    expect(button.text()).toBe("<FaCaretUp />5")
-    expect(button.hasClass("m-voted")).toBe(false)
-    expect(button.hasClass("m-disabled")).toBe(true)
+    expect(button.text()).toBe("<Icon />5")
+    expect(button.hasClass("c-vote-counter__button--voted")).toBe(false)
+    expect(button.hasClass("c-vote-counter__button--disabled")).toBe(true)
   })
 
   test("click when unauthenticated", async () => {
@@ -84,7 +84,7 @@ describe("<VoteCounter />", () => {
     expect(mock.post).toHaveBeenCalledTimes(1)
 
     await rerender(wrapper)
-    expect(wrapper.find("button").text()).toBe("<FaCaretUp />6")
+    expect(wrapper.find("button").text()).toBe("<Icon />6")
   })
 
   test("click when authenticated and hasVoted === true", async () => {
@@ -99,6 +99,6 @@ describe("<VoteCounter />", () => {
     expect(mock.delete).toHaveBeenCalledTimes(1)
 
     await rerender(wrapper)
-    expect(wrapper.find("button").text()).toBe("<FaCaretUp />4")
+    expect(wrapper.find("button").text()).toBe("<Icon />4")
   })
 })

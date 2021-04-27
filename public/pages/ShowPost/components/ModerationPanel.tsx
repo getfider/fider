@@ -1,8 +1,9 @@
 import React, { useState } from "react"
 import { PostStatus, Post } from "@fider/models"
 import { actions, navigator, Failure } from "@fider/services"
-import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components"
+import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
+import { VStack } from "@fider/components/layout"
 
 interface ModerationPanelProps {
   post: Post
@@ -37,7 +38,7 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
       <Modal.Content>
         <Form error={error}>
           <TextArea field="text" onChange={setText} value={text} placeholder="Why are you deleting this post? (optional)">
-            <span className="info">
+            <span className="text-muted">
               This operation <strong>cannot</strong> be undone.
             </span>
           </TextArea>
@@ -45,10 +46,10 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
       </Modal.Content>
 
       <Modal.Footer>
-        <Button color="danger" onClick={handleDelete}>
+        <Button variant="danger" onClick={handleDelete}>
           Delete
         </Button>
-        <Button color="cancel" onClick={hideModal}>
+        <Button variant="tertiary" onClick={hideModal}>
           Cancel
         </Button>
       </Modal.Footer>
@@ -56,16 +57,12 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
   )
 
   return (
-    <>
+    <VStack>
       {modal}
-      <span className="subtitle">Moderation</span>
-      <List>
-        <ListItem>
-          <Button color="danger" size="tiny" fluid={true} onClick={showModal}>
-            Delete
-          </Button>
-        </ListItem>
-      </List>
-    </>
+      <span className="text-category">Moderation</span>
+      <Button variant="danger" size="small" className="w-full" onClick={showModal}>
+        Delete
+      </Button>
+    </VStack>
   )
 }

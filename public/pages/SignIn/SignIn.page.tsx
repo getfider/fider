@@ -1,12 +1,10 @@
-import "./SignIn.page.scss"
-
 import React from "react"
 import { SignInControl, TenantLogo, LegalNotice } from "@fider/components"
 import { notify, Fider } from "@fider/services"
 
 const Locked = (): JSX.Element => (
   <>
-    <p className="welcome">
+    <p className="text-title">
       <strong>{Fider.session.tenant.name}</strong> is currently locked.
     </p>
     <p>To reactivate this site, sign in with an administrator account and update the required settings.</p>
@@ -15,7 +13,7 @@ const Locked = (): JSX.Element => (
 
 const Private = (): JSX.Element => (
   <>
-    <p className="welcome">
+    <p className="text-title">
       <strong>{Fider.session.tenant.name}</strong> is a private space and requires an invitation to join it.
     </p>
     <p>If you have an account or an invitation, you may use following options to sign in.</p>
@@ -33,11 +31,12 @@ export default class SignInPage extends React.Component<any, any> {
 
   public render() {
     return (
-      <div id="p-signin" className="page container">
-        <div className="message">
+      <div id="p-signin" className="page container w-max-6xl">
+        <div className="h-20 text-center mb-4">
           <TenantLogo size={100} />
-          {Fider.session.tenant.isPrivate ? <Private /> : <Locked />}
         </div>
+        <div className="text-center w-max-4xl mx-auto mb-4">{Fider.session.tenant.isPrivate ? <Private /> : <Locked />}</div>
+
         <SignInControl onEmailSent={this.onEmailSent} useEmail={true} redirectTo={Fider.settings.baseURL} />
         <LegalNotice />
       </div>

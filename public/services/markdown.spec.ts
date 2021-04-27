@@ -3,7 +3,7 @@ import * as markdown from "./markdown"
 const testCases = [
   {
     input: "Visit [GitHub](https://github.com) to learn more.",
-    expectedFull: '<p>Visit <a target="_blank" rel="noopener" href="https://github.com">GitHub</a> to learn more.</p>',
+    expectedFull: '<p>Visit <a target="_blank" rel="noopener" href="https://github.com" class="text-link">GitHub</a> to learn more.</p>',
     expectedPlainText: "Visit GitHub to learn more.",
   },
   {
@@ -24,7 +24,7 @@ const testCases = [
   },
   {
     input: `[Uh oh...]("onerror="alert('XSS'))`,
-    expectedFull: '<p><a target="_blank" rel="noopener" href="">Uh oh...</a></p>',
+    expectedFull: '<p><a target="_blank" rel="noopener" href="" class="text-link">Uh oh...</a></p>',
     expectedPlainText: "Uh oh...",
   },
   {

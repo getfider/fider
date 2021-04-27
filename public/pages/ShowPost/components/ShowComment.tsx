@@ -1,21 +1,10 @@
 import React, { useState } from "react"
 import { Comment, Post, ImageUpload } from "@fider/models"
-import {
-  Avatar,
-  UserName,
-  Moment,
-  Form,
-  TextArea,
-  Button,
-  MultiLineText,
-  DropDown,
-  DropDownItem,
-  Modal,
-  ImageViewer,
-  MultiImageUploader,
-} from "@fider/components"
+import { Avatar, UserName, Moment, Form, TextArea, Button, Markdown, Modal, ImageViewer, MultiImageUploader, Dropdown, Icon } from "@fider/components"
+import { HStack } from "@fider/components/layout"
 import { formatDate, Failure, actions } from "@fider/services"
 import { useFider } from "@fider/hooks"
+import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 
 interface ShowCommentProps {
   post: Post
@@ -54,14 +43,6 @@ export const ShowComment = (props: ShowCommentProps) => {
     }
   }
 
-  const renderEllipsis = () => {
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16" focusable="false">
-        <path d="M3 9.5A1.5 1.5 0 114.5 8 1.5 1.5 0 013 9.5zM11.5 8A1.5 1.5 0 1013 6.5 1.5 1.5 0 0011.5 8zm-5 0A1.5 1.5 0 108 6.5 1.5 1.5 0 006.5 8z"></path>
-      </svg>
-    )
-  }
-
   const closeModal = async () => {
     setIsDeleteConfirmationModalOpen(false)
   }
@@ -73,12 +54,12 @@ export const ShowComment = (props: ShowCommentProps) => {
     }
   }
 
-  const onActionSelected = (item: DropDownItem) => {
-    if (item.value === "edit") {
+  const onActionSelected = (action: string) => () => {
+    if (action === "edit") {
       setIsEditing(true)
       setNewContent(props.comment.content)
       clearError()
-    } else if (item.value === "delete") {
+    } else if (action === "delete") {
       setIsDeleteConfirmationModalOpen(true)
     }
   }
@@ -94,10 +75,10 @@ export const ShowComment = (props: ShowCommentProps) => {
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="danger" onClick={deleteComment}>
+          <Button variant="danger" onClick={deleteComment}>
             Delete
           </Button>
-          <Button color="cancel" onClick={closeModal}>
+          <Button variant="tertiary" onClick={closeModal}>
             Cancel
           </Button>
         </Modal.Footer>
@@ -112,55 +93,50 @@ export const ShowComment = (props: ShowCommentProps) => {
   )
 
   return (
-    <div className="c-comment">
+    <HStack spacing={2} center={false} className="c-comment flex-items-baseline">
       {modal()}
-      <Avatar size="large" user={comment.user} />
-      <div className="c-comment-content">
-        <div className="c-comment-header">
-          <div className="c-comment-author">
-            <UserName user={comment.user} />{" "}
-            <div className="c-comment-metadata">
-              · <Moment date={comment.createdAt} /> {editedMetadata}
-            </div>
-          </div>
-          <div className="c-comment-menu">
+      <div className="pt-4">
+        <Avatar user={comment.user} />
+      </div>
+      <div className="flex-grow bg-gray-50 rounded-md p-2">
+        <div className="mb-1">
+          <HStack justify="between">
+            <HStack>
+              <UserName user={comment.user} />{" "}
+              <div className="text-xs">
+                · <Moment date={comment.createdAt} /> {editedMetadata}
+              </div>
+            </HStack>
             {!isEditing && canEditComment() && (
-              <DropDown
-                className="l-more-actions"
-                direction="left"
-                inline={true}
-                style="simple"
-                highlightSelected={false}
-                items={[
-                  { label: "Edit", value: "edit" },
-                  { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> },
-                ]}
-                onChange={onActionSelected}
-                renderControl={renderEllipsis}
-              />
+              <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
+                <Dropdown.ListItem onClick={onActionSelected("edit")}>Edit</Dropdown.ListItem>
+                <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700">
+                  Delete
+                </Dropdown.ListItem>
+              </Dropdown>
             )}
-          </div>
+          </HStack>
         </div>
-        <div className="c-comment-body">
+        <div>
           {isEditing ? (
             <Form error={error}>
               <TextArea field="content" minRows={1} value={newContent} placeholder={comment.content} onChange={setNewContent} />
-              <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} previewMaxWidth={100} onChange={setAttachments} />
-              <Button size="tiny" onClick={saveEdit} color="positive">
+              <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} />
+              <Button size="small" onClick={saveEdit} variant="primary">
                 Save
               </Button>
-              <Button color="cancel" size="tiny" onClick={cancelEdit}>
+              <Button variant="tertiary" size="small" onClick={cancelEdit}>
                 Cancel
               </Button>
             </Form>
           ) : (
             <>
-              <MultiLineText text={comment.content} style="full" />
+              <Markdown text={comment.content} style="full" />
               {comment.attachments && comment.attachments.map((x) => <ImageViewer key={x} bkey={x} />)}
             </>
           )}
         </div>
       </div>
-    </div>
+    </HStack>
   )
 }

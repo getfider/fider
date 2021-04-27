@@ -111,7 +111,7 @@ func OAuthToken() web.HandlerFunc {
 					Email:  oauthUser.Result.Email,
 					Role:   enum.RoleVisitor,
 					Providers: []*models.UserProvider{
-						&models.UserProvider{
+						{
 							UID:  oauthUser.Result.ID,
 							Name: provider,
 						},

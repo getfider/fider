@@ -1,11 +1,9 @@
-import "./MyNotifications.page.scss"
-
 import React from "react"
 
 import { Notification } from "@fider/models"
-import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components"
+import { Markdown, Moment, PageTitle } from "@fider/components"
 import { actions } from "@fider/services"
-import { FaBell } from "react-icons/fa"
+import { HStack, VStack } from "@fider/components/layout"
 
 interface MyNotificationsPageProps {
   notifications: Notification[]
@@ -37,19 +35,21 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
   private items(notifications: Notification[]): JSX.Element[] {
     return notifications.map((n) => {
       return (
-        <ListItem key={n.id}>
-          <a href={`/notifications/${n.id}`}>
-            <MultiLineText text={n.title} style="full" />
-            <span className="info">
-              <Moment date={n.createdAt} />
-            </span>
+        <div key={n.id}>
+          <a className="text-link block" href={`/notifications/${n.id}`}>
+            <Markdown text={n.title} style="full" />
           </a>
-        </ListItem>
+          <span className="text-muted">
+            <Moment date={n.createdAt} />
+          </span>
+        </div>
       )
     })
   }
 
-  private markAllAsRead = async () => {
+  private markAllAsRead = async (e: React.MouseEvent) => {
+    e.preventDefault()
+
     const response = await actions.markAllAsRead()
     if (response.ok) {
       location.reload()
@@ -59,26 +59,26 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
   public render() {
     return (
       <div id="p-my-notifications" className="page container">
-        <Heading title="Notifications" subtitle="Stay up to date with what's happening" icon={FaBell} />
+        <PageTitle title="Notifications" subtitle="Stay up to date with what's happening" />
 
-        <h4>
-          Unread
+        <HStack spacing={4} className="mt-8 mb-2">
+          <h4 className="text-title">Unread</h4>
           {this.state.unread.length > 0 && (
-            <span className="mark-as-read" onClick={this.markAllAsRead}>
+            <a href="#" className="text-link text-xs" onClick={this.markAllAsRead}>
               Mark All as Read
-            </span>
+            </a>
           )}
-        </h4>
-        <List>
+        </HStack>
+
+        <VStack spacing={4}>
           {this.state.unread.length > 0 && this.items(this.state.unread)}
-          {this.state.unread.length === 0 && <span className="info">No unread notifications.</span>}
-        </List>
+          {this.state.unread.length === 0 && <span className="text-muted">No unread notifications.</span>}
+        </VStack>
+
         {this.state.recent.length > 0 && (
           <>
-            <h4>Read on last 30 days</h4>
-            <List>
-              <ListItem>{this.items(this.state.recent)}</ListItem>
-            </List>
+            <h4 className="text-title mt-8 mb-2">Read on last 30 days</h4>
+            <VStack spacing={4}>{this.items(this.state.recent)}</VStack>
           </>
         )}
       </div>

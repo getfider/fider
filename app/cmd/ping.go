@@ -19,7 +19,7 @@ func RunPing() int {
 		protocol = "https://"
 	}
 
-	resp, err := http.Get(protocol + "localhost:3000/-/health")
+	resp, err := http.Get(protocol + "localhost:3000/_health")
 	if err != nil {
 		fmt.Printf("Request failed with: %s\n", err)
 		return 1

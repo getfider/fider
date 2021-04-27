@@ -1,10 +1,7 @@
-import "./AdvancedSettings.page.scss"
-
 import React from "react"
 
 import { TextArea, Form, Button } from "@fider/components"
 import { Failure, actions, Fider } from "@fider/services"
-import { FaStar } from "react-icons/fa"
 import { AdminBasePage } from "../components/AdminBasePage"
 
 interface AdvancedSettingsPageProps {
@@ -19,7 +16,6 @@ interface AdvancedSettingsPageState {
 export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProps, AdvancedSettingsPageState> {
   public id = "p-admin-advanced"
   public name = "advanced"
-  public icon = FaStar
   public title = "Advanced"
   public subtitle = "Manage your site settings"
 
@@ -55,13 +51,15 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
           value={this.state.customCSS}
           onChange={this.setCustomCSS}
         >
-          <p className="info">
+          <p className="text-muted">
             Custom CSS allows you to change the look and feel of Fider and apply your own branding.
             <br />
             This is a powerful and flexible feature, but requires basic understanding of <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS">CSS</a>.
           </p>
-          <p className="info">Custom CSS might break the design of your site as Fider evolves. You can minimize conflict by following these recommendations:</p>
-          <ul className="info">
+          <p className="text-muted">
+            Custom CSS might break the design of your site as Fider evolves. You can minimize conflict by following these recommendations:
+          </p>
+          <ul className="text-muted">
             <li>
               <strong>Avoid nested selectors</strong>: Fider might change the structure of the HTML at any time. It&apos;s likely that such changes would
               invalidate some rules.
@@ -74,7 +72,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
 
         {Fider.session.user.isAdministrator && (
           <div className="field">
-            <Button color="positive" onClick={this.handleSave}>
+            <Button variant="primary" onClick={this.handleSave}>
               Save
             </Button>
           </div>

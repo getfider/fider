@@ -1,0 +1,69 @@
+// get
+@function get($key, $map: $all) {
+  $keys: str-explode($key, ".");
+
+  @if not deep-map-check($map, $keys...) {
+    @error 'The argument $map: `#{$map}` doesn\'t has some of the $keys: `#{$keys}`!';
+  }
+
+  @return deep-map-get($map, $keys...);
+}
+
+// deep-map-get
+@function deep-map-get($map, $keys...) {
+  @each $key in $keys {
+    $map: map-get($map, $key);
+  }
+  @return $map;
+}
+
+// str-explode
+@function str-explode($string, $delimiter: "") {
+  @if type-of($string) != "string" {
+    @error 'The argument $string: `#{$string}` is of incorrect type: `#{type-of($string)}`. Type of `String` is required!';
+  } @else if type-of($delimiter) != "string" {
+    @error 'The argument $string: `#{$string}` is of incorrect type: `#{type-of($string)}`. Type of `String` is required!';
+  }
+
+  $result: ();
+  $running: true;
+
+  @if str-length($delimiter) == 0 {
+    @for $i from 1 through str-length($string) {
+      $result: append($result, str-slice($string, $i, $i));
+    }
+
+    @return $result;
+  }
+
+  @while $running {
+    $index: str-index($string, $delimiter);
+
+    @if $index != null {
+      $item: str-slice($string, 1, ($index - 1));
+      $result: append($result, $item);
+      $string: str-slice($string, ($index + str-length($delimiter)));
+    } @else {
+      $running: false;
+    }
+  }
+
+  @return append($result, $string);
+}
+
+// deep-map-check
+@function deep-map-check($map, $keys...) {
+  @if type-of($map) != "map" {
+    @error 'The argument $map: `#{$map}` is of incorrect type: `#{type-of($map)}`. Type of `Map` is required!';
+  }
+
+  @each $key in $keys {
+    @if not map-has-key($map, $key) {
+      @return false;
+    }
+
+    $map: map-get($map, $key);
+  }
+
+  @return true;
+}

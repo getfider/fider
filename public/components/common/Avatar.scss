@@ -3,21 +3,5 @@
 .c-avatar {
   border-radius: 50%;
   vertical-align: middle;
-  padding: 1px;
   display: inline-block;
-
-  &.m-small {
-    width: 25px;
-    height: 25px;
-  }
-
-  &.m-normal {
-    width: 30px;
-    height: 30px;
-  }
-
-  &.m-large {
-    width: 35px;
-    height: 35px;
-  }
 }

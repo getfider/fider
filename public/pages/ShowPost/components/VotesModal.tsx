@@ -1,10 +1,10 @@
-import "./VotesModal.scss"
-
 import React from "react"
 import { Post, Vote } from "@fider/models"
-import { Modal, Button, Loader, List, ListItem, Avatar, UserName, Moment, Input } from "@fider/components"
+import { Modal, Button, Loader, Avatar, UserName, Moment, Input } from "@fider/components"
 import { actions } from "@fider/services"
-import { FaTimes, FaSearch } from "react-icons/fa"
+import IconSearch from "@fider/assets/images/heroicons-search.svg"
+import IconX from "@fider/assets/images/heroicons-x.svg"
+import { HStack, VStack } from "@fider/components/layout"
 
 interface VotesModalProps {
   isOpen: boolean
@@ -63,39 +63,42 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
 
   public render() {
     return (
-      <Modal.Window className="c-votes-modal" isOpen={this.props.isOpen} center={false} onClose={this.closeModal}>
+      <Modal.Window isOpen={this.props.isOpen} center={false} onClose={this.closeModal}>
         <Modal.Content>
           {this.state.isLoading && <Loader />}
           {!this.state.isLoading && (
             <>
               <Input
                 field="query"
-                icon={this.state.query ? FaTimes : FaSearch}
+                icon={this.state.query ? IconX : IconSearch}
                 onIconClick={this.state.query ? this.clearSearch : undefined}
                 placeholder="Search for users by name..."
                 value={this.state.query}
                 onChange={this.handleSearchFilterChanged}
               />
-              <List hover={true}>
+              <VStack spacing={2} className="h-max-5xl overflow-scroll">
                 {this.state.filteredVotes.map((x) => (
-                  <ListItem key={x.user.id}>
-                    <Avatar user={x.user} />
-                    <span className="l-user">
-                      <UserName user={x.user} />
-                      <span className="info">{x.user.email}</span>
-                    </span>
-                    <span className="l-date info">
+                  <HStack key={x.user.id} justify="between">
+                    <HStack>
+                      <Avatar user={x.user} />
+                      <VStack spacing={0}>
+                        <UserName user={x.user} />
+                        <span className="text-muted">{x.user.email}</span>
+                      </VStack>
+                    </HStack>
+                    <span className="text-muted">
                       <Moment date={x.createdAt} />
                     </span>
-                  </ListItem>
+                  </HStack>
                 ))}
-              </List>
+                {this.state.filteredVotes.length === 0 && <p className="text-muted">No users found matching &apos;{this.state.query}&apos;.</p>}
+              </VStack>
             </>
           )}
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="cancel" onClick={this.closeModal}>
+          <Button variant="tertiary" onClick={this.closeModal}>
             Close
           </Button>
         </Modal.Footer>

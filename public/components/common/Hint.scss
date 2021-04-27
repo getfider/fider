@@ -2,17 +2,18 @@
 
 .c-hint {
   position: relative;
-  padding: 15px 35px 15px 15px;
-  margin-bottom: 10px;
-  color: $blue-700;
-  border-left: 2px solid $blue-500;
-  background-color: $blue-50;
+  padding: spacing(4);
+  margin-bottom: spacing(2);
+  color: get("colors.blue.800");
+  border-left: 2px solid get("colors.blue.800");
+  background-color: get("colors.blue.50");
+  text-align: left;
 
-  .close {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-    font-size: $font-size-large;
+  span {
+    flex: 1;
+  }
+
+  &__close {
     cursor: pointer;
   }
 }

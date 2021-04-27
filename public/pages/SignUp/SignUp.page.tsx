@@ -1,5 +1,3 @@
-import "./SignUp.page.scss"
-
 import React from "react"
 import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components"
 import { jwt, actions, Failure, querystring, Fider } from "@fider/services"
@@ -133,18 +131,21 @@ export default class SignUpPage extends React.Component<any, SignUpPageState> {
         <Modal.Header>Thank you for registering!</Modal.Header>
         <Modal.Content>
           <p>
-            We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your registration.
+            We have just sent a confirmation link to <b>{this.state.email}</b>.
           </p>
+          <p>Click the link to complete the registration.</p>
         </Modal.Content>
       </Modal.Window>
     )
 
     return (
-      <div id="p-signup" className="page container">
+      <div id="p-signup" className="page container w-max-6xl">
         {modal}
-        <img className="logo" alt="Logo" src="https://getfider.com/images/logo-100x100.png" />
+        <div className="h-20 text-center mb-4">
+          <img className="logo" alt="Logo" src="https://getfider.com/images/logo-100x100.png" />
+        </div>
 
-        <h3>1. Who are you?</h3>
+        <h3 className="text-display mb-2">1. Who are you?</h3>
         <DisplayError fields={["token"]} error={this.state.error} />
 
         {this.user ? (
@@ -162,19 +163,19 @@ export default class SignUpPage extends React.Component<any, SignUpPageState> {
           </>
         )}
 
-        <h3>2. What is this Feedback Forum for?</h3>
+        <h3 className="text-display mb-2 mt-8">2. What is this Feedback Forum for?</h3>
 
-        <Form error={this.state.error}>
+        <Form error={this.state.error} className="mb-8">
           <Input field="tenantName" maxLength={60} onChange={this.setTenantName} placeholder="your company or product name" />
           {!Fider.isSingleHostMode() && (
             <Input field="subdomain" maxLength={40} onChange={this.setSubdomain} placeholder="subdomain" suffix={Fider.settings.domain}>
               {this.state.subdomain.available && (
-                <Message type="success" showIcon={true}>
+                <Message className="mt-2" type="success" showIcon={true}>
                   This subdomain is available!
                 </Message>
               )}
               {this.state.subdomain.message && (
-                <Message type="error" showIcon={true}>
+                <Message className="mt-2" type="error" showIcon={true}>
                   {this.state.subdomain.message}
                 </Message>
               )}
@@ -182,15 +183,11 @@ export default class SignUpPage extends React.Component<any, SignUpPageState> {
           )}
         </Form>
 
-        <h3>3. Review</h3>
-
-        <p>Make sure information provided above is correct.</p>
-
-        <Form error={this.state.error}>
+        <Form error={this.state.error} className="mb-4">
           <LegalAgreement onChange={this.onAgree} />
         </Form>
 
-        <Button color="positive" size="large" onClick={this.confirm}>
+        <Button variant="primary" size="large" onClick={this.confirm}>
           Confirm
         </Button>
       </div>

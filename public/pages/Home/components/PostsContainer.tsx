@@ -1,9 +1,12 @@
+import "./PostsContainer.scss"
+
 import React from "react"
 
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { Loader, Field, Input } from "@fider/components"
+import { Loader, Input } from "@fider/components"
 import { actions, navigator, querystring } from "@fider/services"
-import { FaTimes, FaSearch } from "react-icons/fa"
+import IconSearch from "@fider/assets/images/heroicons-search.svg"
+import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
 import { TagsFilter } from "./TagsFilter"
@@ -96,21 +99,20 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
   public render() {
     const showMoreLink = this.getShowMoreLink()
+
     return (
-      <>
-        <div className="row">
+      <div className="c-posts-container">
+        <div className="c-posts-container__header mb-4">
           {!this.state.query && (
-            <div className="l-filter-col col-7 col-md-8 col-lg-9 mb-2">
-              <Field>
-                <PostFilter activeView={this.state.view} viewChanged={this.handleViewChanged} countPerStatus={this.props.countPerStatus} />
-                <TagsFilter tags={this.props.tags} selectionChanged={this.handleTagsFilterChanged} defaultSelection={this.state.tags} />
-              </Field>
+            <div className="c-posts-container__filter-col">
+              <PostFilter activeView={this.state.view} viewChanged={this.handleViewChanged} countPerStatus={this.props.countPerStatus} />
+              <TagsFilter tags={this.props.tags} selectionChanged={this.handleTagsFilterChanged} selected={this.state.tags} />
             </div>
           )}
-          <div className={!this.state.query ? `l-search-col col-5 col-md-4 col-lg-3 mb-2` : "col-sm-12 mb-2"}>
+          <div className="c-posts-container__search-col">
             <Input
               field="query"
-              icon={this.state.query ? FaTimes : FaSearch}
+              icon={this.state.query ? IconX : IconSearch}
               onIconClick={this.state.query ? this.clearSearch : undefined}
               placeholder="Search..."
               value={this.state.query}
@@ -121,11 +123,13 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         <ListPosts posts={this.state.posts} tags={this.props.tags} emptyText={"No results matched your search, try something different."} />
         {this.state.loading && <Loader />}
         {showMoreLink && (
-          <a href={showMoreLink} className="c-post-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
-            View more posts
-          </a>
+          <div className="my-4 ml-4">
+            <a href={showMoreLink} className="text-primary-base text-medium hover:underline" onClick={this.showMore}>
+              View more posts
+            </a>
+          </div>
         )}
-      </>
+      </div>
     )
   }
 }

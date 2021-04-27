@@ -1,31 +1,24 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-message {
-  padding: 15px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
+  padding: spacing(4);
+  margin-bottom: spacing(2);
 
-  .icon {
-    margin-right: 6px;
-    height: 14px;
+  &--success {
+    color: get("colors.green.800");
+    border-left: 2px solid get("colors.green.800");
+    background-color: get("colors.green.50");
   }
 
-  &.m-success {
-    color: $green-700;
-    border-left: 2px solid $green-500;
-    background-color: $green-50;
+  &--warning {
+    color: get("colors.yellow.800");
+    border-left: 2px solid get("colors.yellow.800");
+    background-color: get("colors.yellow.50");
   }
 
-  &.m-warning {
-    color: $yellow-700;
-    border-left: 2px solid $yellow-500;
-    background-color: $yellow-50;
-  }
-
-  &.m-error {
-    color: $red-700;
-    border-left: 2px solid $red-500;
-    background-color: $red-50;
+  &--error {
+    color: get("colors.red.800");
+    border-left: 2px solid get("colors.red.800");
+    background-color: get("colors.red.50");
   }
 }

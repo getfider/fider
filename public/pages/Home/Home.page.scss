@@ -1,75 +1,31 @@
 @import "~@fider/assets/styles/variables.scss";
 
 #p-home {
-  .welcome-message {
-    margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 0;
+  row-gap: spacing(6);
+
+  @include media("lg") {
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: spacing(6);
+    row-gap: 0;
   }
 
-  .l-lonely {
-    .c-hint {
-      max-width: 500px;
-      text-align: left;
-      margin: 0 auto 10px auto;
-    }
-  }
+  .p-home {
+    &__welcome-col {
+      background-color: get("colors.gray.100");
+      padding: spacing(2);
+      border-radius: get("border.radius.medium");
 
-  .l-welcome-col {
-    @include media("sm") {
-      background-color: $gray-100;
-      box-shadow: 1px 2px 5px 1px $gray-300;
-      border-radius: 3px;
-      margin: 0px 10px 10px 10px;
-    }
-  }
-
-  .l-filter-col {
-    display: flex;
-    align-items: center;
-    @include media(">=md") {
-      padding-left: 25px;
-    }
-    .c-form-field {
-      > div {
-        display: inline-block;
-        .subtitle {
-          display: inline-block;
-          margin: 6px 0 0 0;
-        }
-      }
-    }
-    .c-dropdown {
-      .c-dropdown-control {
+      @include media("lg") {
+        padding: 0;
         background-color: transparent;
-        font-weight: bold;
-        border: none;
-        font-size: $font-size-tiny;
-        text-transform: uppercase;
-        padding: 5px 25px 5px 5px;
-        &:hover {
-          background-color: $gray-200;
-        }
       }
     }
-  }
 
-  .l-tags-filter {
-    .selected.item {
-      background-color: transparent;
-      font-weight: normal;
-    }
-    .c-tag {
-      margin: 0 5px 0 0;
-    }
-    .icon {
-      height: 12px;
-      margin-right: 2px;
-      vertical-align: top;
-      color: transparent;
-    }
-    .selected-tag {
-      .icon {
-        color: $green-400;
-      }
+    &__posts-col {
+      grid-column: span 2 / span 2;
     }
   }
 }

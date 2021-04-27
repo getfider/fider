@@ -1,0 +1,52 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-input {
+  line-height: get("font.size.xl");
+  background-color: get("colors.white");
+  width: 100%;
+  padding: sizing(2);
+  border: 1px solid get("colors.gray.300");
+  border-radius: get("border.radius.medium");
+  -webkit-appearance: none;
+  appearance: none;
+
+  &:disabled {
+    @include disabled();
+  }
+
+  & + svg,
+  & + img {
+    position: absolute;
+    position: absolute;
+    width: 36px;
+    padding: spacing(2);
+    margin: 0;
+    right: 0;
+  }
+
+  &__suffix {
+    display: flex;
+    align-items: center;
+    background-color: get("colors.gray.200");
+    padding: spacing(2);
+    border-top-right-radius: get("border.radius.medium");
+    border-bottom-right-radius: get("border.radius.medium");
+  }
+
+  &--icon {
+    padding-right: spacing(8);
+  }
+
+  &--error {
+    border-color: get("colors.red.600");
+  }
+
+  &--suffixed {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    & + * {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+}

@@ -1,24 +1,23 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-button {
-  -webkit-appearance: none;
-  appearance: none;
   line-height: 1.15;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
-  font-size: $font-size;
-  border-radius: 3px;
+  font-size: get("font.size.base");
+  border-radius: 4px;
   border: none;
-  margin: 0 4px 0 0;
   padding: 8px 16px;
-  text-align: left;
-  font-weight: 600;
+  font-weight: 500;
+  white-space: nowrap;
 
-  .icon {
-    margin-top: -3px;
+  svg + *,
+  img + * {
+    margin-left: spacing(1);
   }
 
-  &.m-cancel {
+  &--tertiary {
     background-color: transparent;
 
     &:hover {
@@ -26,77 +25,74 @@
     }
   }
 
-  &.m-default {
-    color: $gray-900;
-    background-color: $gray-100;
-    border: 1px solid $gray-300;
+  &--secondary {
+    color: get("colors.gray.900");
+    background-color: get("colors.gray.50");
+    border: 1px solid get("colors.gray.300");
 
     &:hover {
-      border: 1px solid $gray-500;
+      background-color: get("colors.gray.100");
     }
   }
 
-  &.m-positive {
-    color: $white;
-    background-color: $green-500;
-    border: 1px solid $green-500;
+  &--primary {
+    color: get("colors.white");
+    background-color: get("colors.primary.base");
+    border: 1px solid get("colors.primary.base");
 
     &:hover {
-      background-color: $green-700;
-      border-color: $green-700;
+      background-color: get("colors.primary.dark");
     }
   }
 
-  &.m-danger {
-    color: $red-500;
-    border: 1px solid $gray-300;
-    background-color: $white;
+  &--danger {
+    color: get("colors.red.600");
+    border: 1px solid get("colors.gray.300");
+    background-color: get("colors.white");
 
     &:hover {
-      color: $white;
-      border: 1px solid $red-500;
-      background-color: $red-500;
+      color: get("colors.white");
+      border: 1px solid get("colors.red.600");
+      background-color: get("colors.red.600");
     }
   }
 
-  &.m-mini {
-    padding: 6px 12px;
-    font-size: $font-size-mini;
+  &--small {
+    padding: 6px 10px;
+    font-size: 11px;
+
+    svg,
+    img {
+      height: sizing(3);
+    }
   }
 
-  &.m-tiny {
-    padding: 7px 14px;
-    font-size: $font-size-tiny;
+  &--default {
+    padding: 8px 12px;
+    font-size: get("font.size.sm");
+
+    svg,
+    img {
+      height: sizing(4);
+    }
   }
 
-  &.m-small {
-    padding: 8px 16px;
-    font-size: $font-size-small;
+  &--large {
+    padding: 10px 14px;
+    font-size: get("font.size.lg");
+
+    svg,
+    img {
+      height: sizing(5);
+    }
   }
 
-  &.m-normal {
-    padding: 9px 18px;
-    font-size: $font-size;
-  }
-
-  &.m-large {
-    padding: 10px 20px;
-    font-size: $font-size-large;
-  }
-
-  &.m-fluid {
-    display: block;
-    width: 100%;
-  }
-
-  &.m-loading {
+  &--loading {
     position: relative;
     cursor: default;
-    text-shadow: none !important;
-    color: transparent !important;
+    color: transparent;
     opacity: 1;
     pointer-events: auto;
-    -webkit-transition: all 0s linear, opacity 0.1s ease;
     transition: all 0s linear, opacity 0.1s ease;
 
     &:before {
@@ -108,7 +104,7 @@
       width: 1.28571429em;
       height: 1.28571429em;
       border-radius: 500rem;
-      border: 0.2em solid rgba(0, 0, 0, 0.15);
+      border: 0.2em solid get("colors.gray.500");
     }
 
     &:after {
@@ -119,71 +115,26 @@
       margin: -0.64285714em 0 0 -0.64285714em;
       width: 1.28571429em;
       height: 1.28571429em;
-      -webkit-animation: button-spin 0.6s linear;
       animation: button-spin 0.6s linear;
-      -webkit-animation-iteration-count: infinite;
       animation-iteration-count: infinite;
       border-radius: 500rem;
-      border-color: #fff transparent transparent;
+      border-color: get("colors.white") transparent transparent;
       border-style: solid;
       border-width: 0.2em;
-      -webkit-box-shadow: 0 0 0 1px transparent;
       box-shadow: 0 0 0 1px transparent;
     }
   }
 
-  &.m-disabled {
+  &--disabled {
     @include disabled();
   }
-
-  &.m-social {
-    background-color: $white;
-    color: $gray-900;
-    text-align: center;
-    height: 40px;
-    line-height: 22px;
-    padding: 8px 0px;
-    border: none;
-    box-shadow: 0 0 0 1px rgba(20, 11, 47, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
-
-    &.m-loading img {
-      display: none;
-    }
-
-    img {
-      display: inline-block;
-      vertical-align: middle;
-      width: 24px;
-      height: 24px;
-      margin-right: 5px;
-    }
-
-    &:hover {
-      background-color: #fafafb;
-      color: $gray-900;
-      border: none;
-      box-shadow: 0 0 0 1px rgba(20, 11, 47, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
-    }
-  }
 }
 
-@-webkit-keyframes button-spin {
-  from {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
 @keyframes button-spin {
   from {
-    -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
   }
   to {
-    -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
 }

@@ -39,7 +39,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Use(middlewares.Session())
 
-	r.Get("/-/health", handlers.Health())
+	r.Get("/_health", handlers.Health())
 	r.Get("/robots.txt", handlers.RobotsTXT())
 	r.Post("/_api/log-error", handlers.LogError())
 
@@ -48,7 +48,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Tenant())
 	r.Use(middlewares.User())
 
-	r.Get("/browser-not-supported", handlers.BrowserNotSupported())
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
 	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 
@@ -77,7 +76,7 @@ func routes(r *web.Engine) *web.Engine {
 		})
 	}
 
-	r.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements", "UIToolkit.page"))
+	r.Get("/_design", handlers.Page("Design System", "A preview of Fider UI elements", "DesignSystem.page"))
 	r.Get("/signup/verify", handlers.VerifySignUpKey())
 	r.Get("/signout", handlers.SignOut())
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())

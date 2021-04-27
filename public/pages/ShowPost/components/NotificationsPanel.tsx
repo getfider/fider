@@ -1,9 +1,11 @@
 import React, { useState } from "react"
 import { Post } from "@fider/models"
-import { Button, List, ListItem } from "@fider/components"
+import { Button, Icon } from "@fider/components"
 import { actions } from "@fider/services"
-import { FaVolumeUp, FaVolumeMute } from "react-icons/fa"
 import { useFider } from "@fider/hooks"
+import IconVolumeOn from "@fider/assets/images/heroicons-volume-on.svg"
+import IconVolumeOff from "@fider/assets/images/heroicons-volume-off.svg"
+import { VStack } from "@fider/components/layout"
 
 interface NotificationsPanelProps {
   post: Post
@@ -28,30 +30,26 @@ export const NotificationsPanel = (props: NotificationsPanelProps) => {
   }
 
   const button = subscribed ? (
-    <Button fluid={true} onClick={subscribeOrUnsubscribe}>
-      <FaVolumeMute /> Unsubscribe
+    <Button className="w-full" onClick={subscribeOrUnsubscribe}>
+      <Icon sprite={IconVolumeOff} /> <span>Unsubscribe</span>
     </Button>
   ) : (
-    <Button fluid={true} onClick={subscribeOrUnsubscribe}>
-      <FaVolumeUp /> Subscribe
+    <Button className="w-full" onClick={subscribeOrUnsubscribe}>
+      <Icon sprite={IconVolumeOn} /> <span>Subscribe</span>
     </Button>
   )
 
   const text = subscribed ? (
-    <span className="info">You’re receiving notifications about activity on this post.</span>
+    <span className="text-muted">You’re receiving notifications about activity on this post.</span>
   ) : (
-    <span className="info">You&apos;ll not receive any notification about this post.</span>
+    <span className="text-muted">You&apos;ll not receive any notification about this post.</span>
   )
 
   return (
-    <>
-      <span className="subtitle">Notifications</span>
-      <List>
-        <ListItem>
-          {button}
-          {text}
-        </ListItem>
-      </List>
-    </>
+    <VStack>
+      <span className="text-category">Notifications</span>
+      {button}
+      {text}
+    </VStack>
   )
 }

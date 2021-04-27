@@ -1,11 +1,12 @@
-import "./ManageMembers.page.scss"
-
 import React from "react"
-import { Segment, List, Input, ListItem, Avatar, UserName, DropDown, DropDownItem } from "@fider/components/common"
+import { Input, Avatar, UserName, Icon, Dropdown, Button } from "@fider/components"
 import { User, UserRole, UserStatus } from "@fider/models"
 import { AdminBasePage } from "../components/AdminBasePage"
-import { FaUsers, FaTimes, FaSearch } from "react-icons/fa"
+import IconSearch from "@fider/assets/images/heroicons-search.svg"
+import IconX from "@fider/assets/images/heroicons-x.svg"
+import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import { actions, Fider } from "@fider/services"
+import { HStack, VStack } from "@fider/components/layout"
 
 interface ManageMembersPageState {
   query: string
@@ -23,57 +24,44 @@ interface UserListItemProps {
 }
 
 const UserListItem = (props: UserListItemProps) => {
-  const admin = props.user.role === UserRole.Administrator && <span className="staff">administrator</span>
-  const collaborator = props.user.role === UserRole.Collaborator && <span className="staff">collaborator</span>
-  const blocked = props.user.status === UserStatus.Blocked && <span className="blocked">blocked</span>
+  const admin = props.user.role === UserRole.Administrator && <span>administrator</span>
+  const collaborator = props.user.role === UserRole.Collaborator && <span>collaborator</span>
+  const blocked = props.user.status === UserStatus.Blocked && <span className="text-red-700">blocked</span>
   const isVisitor = props.user.role === UserRole.Visitor
 
-  const renderEllipsis = () => {
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16" focusable="false">
-        <path d="M3 9.5A1.5 1.5 0 114.5 8 1.5 1.5 0 013 9.5zM11.5 8A1.5 1.5 0 1013 6.5 1.5 1.5 0 0011.5 8zm-5 0A1.5 1.5 0 108 6.5 1.5 1.5 0 006.5 8z"></path>
-      </svg>
-    )
-  }
-
-  const actionSelected = (item: DropDownItem) => {
-    props.onAction(item.value, props.user)
+  const actionSelected = (actionName: string) => () => {
+    props.onAction(actionName, props.user)
   }
 
   return (
-    <ListItem>
-      <Avatar user={props.user} />
-      <div className="l-user-details">
-        <UserName user={props.user} />
-        <span>
-          {admin} {collaborator} {blocked}
-        </span>
-      </div>
+    <HStack spacing={4}>
+      <HStack spacing={4}>
+        <Avatar user={props.user} />
+        <VStack spacing={0}>
+          <UserName user={props.user} />
+          <span className="text-muted">
+            {admin} {collaborator} {blocked}
+          </span>
+        </VStack>
+      </HStack>
       {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
-        <DropDown
-          className="l-user-actions"
-          inline={true}
-          highlightSelected={false}
-          style="simple"
-          items={[
-            !blocked && (!!collaborator || isVisitor) && { label: "Promote to Administrator", value: "to-administrator" },
-            !blocked && (!!admin || isVisitor) && { label: "Promote to Collaborator", value: "to-collaborator" },
-            !blocked && (!!collaborator || !!admin) && { label: "Demote to Visitor", value: "to-visitor" },
-            isVisitor && !blocked && { label: "Block User", value: "block" },
-            isVisitor && !!blocked && { label: "Unblock User", value: "unblock" },
-          ]}
-          renderControl={renderEllipsis}
-          onChange={actionSelected}
-        />
+        <Dropdown renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
+          {!blocked && (!!collaborator || isVisitor) && (
+            <Dropdown.ListItem onClick={actionSelected("to-administrator")}>Promote to Administrator</Dropdown.ListItem>
+          )}
+          {!blocked && (!!admin || isVisitor) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
+          {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Visitor</Dropdown.ListItem>}
+          {isVisitor && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
+          {isVisitor && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
+        </Dropdown>
       )}
-    </ListItem>
+    </HStack>
   )
 }
 
 export default class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
   public id = "p-admin-members"
   public name = "members"
-  public icon = FaUsers
   public title = "Members"
   public subtitle = "Manage your site administrators and collaborators"
 
@@ -88,8 +76,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
     }
   }
 
-  private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
-    event.preventDefault()
+  private showMore = (): void => {
     this.setState({
       visibleUsers: this.state.users.slice(0, this.state.visibleUsers.length + 10),
     })
@@ -156,46 +143,45 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
       <>
         <Input
           field="query"
-          icon={this.state.query ? FaTimes : FaSearch}
+          icon={this.state.query ? IconX : IconSearch}
           onIconClick={this.state.query ? this.clearSearch : undefined}
           placeholder="Search for users by name..."
           value={this.state.query}
           onChange={this.handleSearchFilterChanged}
         />
-        <Segment>
-          {this.state.visibleUsers.length === 0 && <span>No users found.</span>}
-          <List divided={true}>
+        <div className="p-2">
+          <VStack spacing={2} divide={true}>
             {this.state.visibleUsers.map((user) => (
               <UserListItem key={user.id} user={user} onAction={this.handleAction} />
             ))}
-          </List>
-        </Segment>
-        <p className="info">
+          </VStack>
+        </div>
+        <p className="text-muted">
           {!this.state.query && (
             <>
-              Showing {this.state.visibleUsers.length} of {this.state.users.length} registered users
+              Showing {this.state.visibleUsers.length} of {this.state.users.length} registered users.
             </>
           )}
           {this.state.query && (
             <>
-              Showing {this.state.visibleUsers.length} of {this.state.users.length} users matching &apos;{this.state.query}&apos;
+              Showing {this.state.visibleUsers.length} of {this.state.users.length} users matching &apos;{this.state.query}&apos;.
             </>
           )}
           {this.state.visibleUsers.length < this.state.users.length && (
-            <a className="l-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
+            <Button variant="tertiary" onClick={this.showMore}>
               view more
-            </a>
+            </Button>
           )}
         </p>
-        <ul className="l-legend info">
+        <ul className="text-muted">
           <li>
-            <strong>&middot; Administrators</strong>have full access to edit and manage content, permissions and all site settings.
+            <strong>Administrators</strong> have full access to edit and manage content, permissions and all site settings.
           </li>
           <li>
-            <strong>&middot; Collaborators</strong> can edit and manage content, but not permissions and settings.
+            <strong>Collaborators</strong> can edit and manage content, but not permissions and settings.
           </li>
           <li>
-            <strong>&middot; Blocked</strong> users are unable to log into this site.
+            <strong>Blocked</strong> users are unable to log into this site.
           </li>
         </ul>
       </>

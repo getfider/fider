@@ -1,3 +1,5 @@
+import "./Button.scss"
+
 import React from "react"
 import { classSet } from "@fider/services"
 
@@ -7,17 +9,14 @@ interface ButtonProps {
   href?: string
   rel?: "nofollow"
   type?: "button" | "submit"
-  color?: "positive" | "danger" | "default" | "cancel"
-  fluid?: boolean
-  size?: "mini" | "tiny" | "small" | "normal" | "large"
-  onClick?: (event: ButtonClickEvent) => Promise<any>
+  variant?: "primary" | "danger" | "secondary" | "tertiary"
+  size?: "small" | "default" | "large"
+  onClick?: (event: ButtonClickEvent) => Promise<any> | void
 }
 
 interface ButtonState {
   clicked: boolean
 }
-
-import "./Button.scss"
 
 export class ButtonClickEvent {
   private shouldEnable = true
@@ -33,9 +32,8 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   private unmounted = false
 
   public static defaultProps: Partial<ButtonProps> = {
-    size: "small",
-    fluid: false,
-    color: "default",
+    size: "default",
+    variant: "secondary",
     type: "button",
   }
 
@@ -73,12 +71,12 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   public render() {
     const className = classSet({
       "c-button": true,
-      "m-fluid": this.props.fluid,
-      [`m-${this.props.size}`]: this.props.size,
-      [`m-${this.props.color}`]: this.props.color,
-      "m-loading": this.state.clicked,
-      "m-disabled": this.state.clicked || this.props.disabled,
+      [`c-button--${this.props.size}`]: this.props.size,
+      [`c-button--${this.props.variant}`]: this.props.variant,
+      "c-button--loading": this.state.clicked,
+      "c-button--disabled": this.state.clicked || this.props.disabled,
       [this.props.className || ""]: this.props.className,
+      "shadow-sm": this.props.variant !== "tertiary",
     })
 
     if (this.props.href) {

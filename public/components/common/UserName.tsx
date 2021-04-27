@@ -16,7 +16,7 @@ export const UserName = (props: UserNameProps) => {
   const isStaff = props.user.role && isCollaborator(props.user.role)
   const className = classSet({
     "c-username": true,
-    "m-staff": isStaff,
+    "c-username--staff": isStaff,
   })
 
   return (

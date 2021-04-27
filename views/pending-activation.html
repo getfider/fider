@@ -1,16 +1,12 @@
-{{define "title"}}
-Pending Activation &middot; Fider
-{{end}}
-      
-{{define "server-data"}}{{end}}
-
-{{define "content"}}
-<div class="container failure-page">
-  <img src="{{ .private.logo }}"/>
-  <h1>YOUR ACCOUNT IS PENDING ACTIVATION</h1>
-  <p>We sent you a confirmation email with a link to activate your site.</p>
-  <p>Please check your inbox to activate it.</p>
+{{define "title"}} Pending Activation &middot; Fider {{end}} {{define "server-data"}}{{end}} {{define "content"}}
+<div class="container page">
+  <div class="w-max-7xl mx-auto text-center mt-8">
+    <div class="h-20 mb-4">
+      <img src="{{ .private.logo }}" />
+    </div>
+    <h1 class="text-display">YOUR ACCOUNT IS PENDING ACTIVATION</h1>
+    <p>We sent you a confirmation email with a link to activate your site.</p>
+    <p>Please check your inbox to activate it.</p>
+  </div>
 </div>
-{{end}}
-
-{{define "end-of-body"}}{{end}}
+{{end}} {{define "end-of-body"}}{{end}}

@@ -4,6 +4,8 @@ import { ValidationContext } from "../"
 import { DisplayError, hasError } from "./DisplayError"
 import Textarea from "react-textarea-autosize"
 
+import "./TextArea.scss"
+
 interface TextAreaProps {
   label?: string
   field: string
@@ -27,25 +29,22 @@ export const TextArea: React.FunctionComponent<TextAreaProps> = (props) => {
     <ValidationContext.Consumer>
       {(ctx) => (
         <>
-          <div
-            className={classSet({
-              "c-form-field": true,
-              "m-error": hasError(props.field, ctx.error),
-            })}
-          >
+          <div className="c-form-field">
             {!!props.label && <label htmlFor={`input-${props.field}`}>{props.label}</label>}
-            <div className="c-form-field-wrapper">
-              <Textarea
-                id={`input-${props.field}`}
-                disabled={props.disabled}
-                onChange={onChange}
-                value={props.value}
-                minRows={props.minRows || 3}
-                placeholder={props.placeholder}
-                ref={props.inputRef}
-                onFocus={props.onFocus}
-              />
-            </div>
+            <Textarea
+              className={classSet({
+                "c-textarea": true,
+                "c-textarea--error": hasError(props.field, ctx.error),
+              })}
+              id={`input-${props.field}`}
+              disabled={props.disabled}
+              onChange={onChange}
+              value={props.value}
+              minRows={props.minRows || 3}
+              placeholder={props.placeholder}
+              ref={props.inputRef}
+              onFocus={props.onFocus}
+            />
             <DisplayError fields={[props.field]} error={ctx.error} />
             {props.children}
           </div>

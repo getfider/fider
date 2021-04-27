@@ -1,83 +1,59 @@
-import React from "react"
-import { Post, PostStatus } from "@fider/models"
+import React, { useEffect, useState } from "react"
+import IconSearch from "@fider/assets/images/heroicons-search.svg"
+import { Input, ShowPostStatus } from "@fider/components"
 import { actions } from "@fider/services"
-import { DropDown, DropDownItem } from "@fider/components"
-import { FaCaretUp } from "react-icons/fa"
+import { Post, PostStatus } from "@fider/models"
+import { HStack, VStack } from "@fider/components/layout"
 
 interface PostSearchProps {
   exclude?: number[]
   onChanged(postNumber: number): void
 }
 
-interface PostSearchState {
-  posts: Post[]
-}
+export const PostSearch = (props: PostSearchProps) => {
+  const [query, setQuery] = useState("")
+  const [posts, setPosts] = useState<Post[]>([])
+  const [selectedPost, setSelectedPost] = useState<Post>()
 
-export class PostSearch extends React.Component<PostSearchProps, PostSearchState> {
-  private timer?: number
-
-  constructor(props: PostSearchProps) {
-    super(props)
-    this.state = {
-      posts: [],
+  useEffect(() => {
+    if (!query) {
+      return
     }
-  }
 
-  public componentDidMount() {
-    this.search("")
-  }
-
-  private onSearchChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
-    this.search(e.currentTarget.value)
-  }
-
-  private onChange = (item: DropDownItem) => {
-    this.props.onChanged(item.value as number)
-  }
-
-  private search = (searchQuery: string) => {
-    window.clearTimeout(this.timer)
-    this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query: searchQuery }).then((res) => {
+    const timer = setTimeout(() => {
+      actions.searchPosts({ query, limit: 6 }).then((res) => {
         if (res.ok) {
-          const posts =
-            this.props.exclude && this.props.exclude.length > 0
-              ? res.data.filter((i) => this.props.exclude && this.props.exclude.indexOf(i.number) === -1)
-              : res.data
-          this.setState({ posts })
+          const filteredPosts =
+            props.exclude && props.exclude.length > 0 ? res.data.filter((i) => props.exclude && props.exclude.indexOf(i.number) === -1) : res.data
+          setPosts(filteredPosts)
         }
       })
     }, 500)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [query])
+
+  const selectPost = (post: Post) => () => {
+    props.onChanged(post.number)
+    setSelectedPost(post)
   }
 
-  public render() {
-    const items = this.state.posts.map((p) => {
-      const status = PostStatus.Get(p.status)
-      return {
-        label: p.title,
-        value: p.number,
-        render: (
-          <>
-            <span className="votes">
-              <FaCaretUp />
-              {p.votesCount}
-            </span>
-            <span className={`status-label status-${status.value}`}>{status.title}</span>
-            {p.title}
-          </>
-        ),
-      }
-    })
-
-    return (
-      <DropDown
-        className="c-post-search"
-        searchable={true}
-        items={items}
-        placeholder="Search original post"
-        onChange={this.onChange}
-        onSearchChange={this.onSearchChange}
-      />
-    )
-  }
+  return (
+    <>
+      <Input field="query" icon={IconSearch} placeholder="Search original post..." value={query} onChange={setQuery} />
+      <div className="grid gap-2 grid-cols-1 lg:grid-cols-3">
+        {posts.map((p) => (
+          <VStack onClick={selectPost(p)} className={`bg-gray-50 p-4 clickable border-2 rounded ${selectedPost === p ? "border-primary-base" : ""}`} key={p.id}>
+            <HStack className="text-2xs">
+              <span>#{p.number}</span> <span>&middot;</span> <ShowPostStatus status={PostStatus.Get(p.status)} /> <span>&middot;</span>{" "}
+              <span>{p.votesCount} votes</span>
+            </HStack>
+            <span>{p.title}</span>
+          </VStack>
+        ))}
+      </div>
+    </>
+  )
 }

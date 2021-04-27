@@ -2,6 +2,7 @@ import "./SignInControl.scss"
 
 import React, { useState } from "react"
 import { SocialSignInButton, Form, Button, Input, Message } from "@fider/components"
+import { Divider } from "@fider/components/layout"
 import { device, actions, Failure, isCookieEnabled } from "@fider/services"
 import { useFider } from "@fider/hooks"
 
@@ -34,7 +35,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   if (!isCookieEnabled()) {
     return (
       <Message type="error">
-        <h3>Cookies Required</h3>
+        <h3 className="text-display">Cookies Required</h3>
         <p>Cookies are not enabled on your browser. Please enable cookies in your browser preferences to continue.</p>
       </Message>
     )
@@ -43,25 +44,22 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   return (
     <div className="c-signin-control">
       {providersLen > 0 && (
-        <div className="l-signin-social">
-          <div className="row">
-            {fider.settings.oauth.map((o, i) => (
+        <>
+          <div className="c-signin-control__oauth mb-2">
+            {fider.settings.oauth.map((o) => (
               <React.Fragment key={o.provider}>
-                {i % 4 === 0 && <div className="col-lf" />}
-                <div className={`col-sm l-provider-${o.provider} l-social-col ${providersLen === 1 ? "l-social-col-100" : ""}`}>
-                  <SocialSignInButton option={o} redirectTo={props.redirectTo} />
-                </div>
+                <SocialSignInButton option={o} redirectTo={props.redirectTo} />
               </React.Fragment>
             ))}
           </div>
-          <p className="info">We will never post to these accounts on your behalf.</p>
-        </div>
+          <p className="text-muted">We will never post to these accounts on your behalf.</p>
+        </>
       )}
 
-      {providersLen > 0 && <div className="c-divider">OR</div>}
+      {providersLen > 0 && <Divider />}
 
       {props.useEmail && (
-        <div className="l-signin-email">
+        <div>
           <p>Enter your email address to sign in</p>
           <Form error={error}>
             <Input
@@ -71,7 +69,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
               onChange={setEmail}
               placeholder="yourname@example.com"
               suffix={
-                <Button type="submit" color="positive" disabled={email === ""} onClick={signIn}>
+                <Button type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
                   Sign in
                 </Button>
               }

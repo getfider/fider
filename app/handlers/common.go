@@ -42,10 +42,11 @@ func LegalPage(title, file string) web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		return c.Render(http.StatusOK, "legal.html", web.Props{
-			Title: title,
+		return c.Page(web.Props{
+			Title:     title,
+			ChunkName: "Legal.page",
 			Data: web.Map{
-				"Content": string(bytes),
+				"content": string(bytes),
 			},
 		})
 	}
@@ -98,16 +99,6 @@ func Page(title, description, chunkName string) web.HandlerFunc {
 			Title:       title,
 			Description: description,
 			ChunkName:   chunkName,
-		})
-	}
-}
-
-//BrowserNotSupported returns an error page for browser that Fider dosn't support
-func BrowserNotSupported() web.HandlerFunc {
-	return func(c *web.Context) error {
-		return c.Render(http.StatusOK, "browser-not-supported.html", web.Props{
-			Title:       "Browser not supported",
-			Description: "We don't support this version of your browser",
 		})
 	}
 }

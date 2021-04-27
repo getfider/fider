@@ -1,18 +1,18 @@
-{{define "server-data"}}{{end}}
-
-{{define "content"}}
-  <div class="container failure-page">
-    <img src="{{ .private.logo }}"/>
-    <h1>PAGE NOT FOUND</h1>
+{{define "server-data"}}{{end}} {{define "content"}}
+<div class="container page">
+  <div class="w-max-7xl mx-auto text-center mt-8">
+    <div class="h-20 mb-4">
+      <img src="{{ .private.logo }}" />
+    </div>
+    <h1 class="text-display">PAGE NOT FOUND</h1>
     <p>
       The link you clicked may be broken or <br />
       the page may have been removed.
     </p>
 
     {{ if .public.tenant }}
-      <span>Take me back to <a href="{{ .public.settings.baseURL }}">{{ .public.settings.baseURL }}</a> home page.</span>
+    <span>Take me back to <a class="text-link" href="{{ .public.settings.baseURL }}">{{ .public.settings.baseURL }}</a> home page.</span>
     {{ end }}
   </div>
-{{end}}
-
-{{define "end-of-body"}}{{end}}
+</div>
+{{end}} {{define "end-of-body"}}{{end}}
