@@ -10,7 +10,8 @@ interface IconProps {
 
 export const Icon = (props: IconProps) => {
   if (typeof props.sprite === "string") {
-    return <img height={props.height} width={props.width} className={props.className} src={props.sprite} />
+    const styles = { height: props.height && `${props.height}px`, width: props.width && `${props.width}px` }
+    return <img style={styles} height={props.height} width={props.width} className={props.className} src={props.sprite} />
   }
 
   return (
