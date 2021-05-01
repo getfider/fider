@@ -84,8 +84,8 @@
     }
   },
   "engines": {
-    "npm": ">=7",
-    "node": ">=14"
+    "npm": "7.x",
+    "node": "14.x"
   },
   "scripts": {
     "heroku-postbuild": "make build-ssr && make build-ui"
