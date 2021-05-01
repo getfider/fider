@@ -243,12 +243,6 @@ func (c *Context) Failure(err error) error {
 		return c.NotFound()
 	}
 
-	log.Errorf(c, err.Error(), dto.Props{
-		"Body":       c.Request.Body,
-		"HttpMethod": c.Request.Method,
-		"URL":        c.Request.URL.String(),
-	})
-
 	if renderErr := c.Render(http.StatusInternalServerError, "500.html", Props{
 		Title:       "Shoot! Well, this is unexpected…",
 		Description: "An error has occurred and we're working to fix the problem!",
