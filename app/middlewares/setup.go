@@ -42,6 +42,8 @@ func WorkerSetup() worker.MiddlewareFunc {
 				logFinish("begin_error", err)
 			}
 
+			c.Set(app.TransactionCtxKey, trx)
+
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
@@ -50,8 +52,6 @@ func WorkerSetup() worker.MiddlewareFunc {
 					logFinish("panicked", err)
 				}
 			}()
-
-			c.Set(app.TransactionCtxKey, trx)
 
 			//Execute the chain
 			if err = next(c); err != nil {
@@ -108,6 +108,8 @@ func WebSetup() web.MiddlewareFunc {
 				logFinish("begin_error", err)
 			}
 
+			c.Set(app.TransactionCtxKey, trx)
+
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
@@ -116,8 +118,6 @@ func WebSetup() web.MiddlewareFunc {
 					logFinish("panicked", err)
 				}
 			}()
-
-			c.Set(app.TransactionCtxKey, trx)
 
 			//Execute the chain
 			if err := next(c); err != nil {
