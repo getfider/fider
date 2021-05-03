@@ -40,6 +40,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 			if err != nil {
 				err = c.Failure(err)
 				logFinish("begin_error", err)
+				return err
 			}
 
 			c.Set(app.TransactionCtxKey, trx)
@@ -106,6 +107,7 @@ func WebSetup() web.MiddlewareFunc {
 			if err != nil {
 				err = c.Failure(err)
 				logFinish("begin_error", err)
+				return err
 			}
 
 			c.Set(app.TransactionCtxKey, trx)
