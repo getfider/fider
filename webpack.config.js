@@ -34,7 +34,7 @@ const plugins = [
   new PurgecssPlugin({
     paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
     defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
-    safelist: [/--/, /__/],
+    safelist: [/--/, /__/, /data-/],
   }),
   new SpriteLoaderPlugin({ plainSprite: true }),
 ]
