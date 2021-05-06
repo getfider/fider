@@ -1,8 +1,8 @@
-@import "_functions";
-@import "_colors";
-@import "_spacing";
-@import "_sizing";
-@import "_text";
+@import "variables/_functions";
+@import "variables/_colors";
+@import "variables/_spacing";
+@import "variables/_sizing";
+@import "variables/_text";
 
 $all: (
   colors: $colors,
