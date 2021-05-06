@@ -290,10 +290,15 @@ func (trx *Trx) MustCommit() {
 
 // Rollback current transaction
 func (trx *Trx) Rollback() error {
+	if trx.tx == nil {
+		return nil
+	}
+
 	err := trx.tx.Rollback()
 	if err != nil && err != sql.ErrTxDone {
 		return wrap(err, "failed to rollback transaction")
 	}
+
 	return nil
 }
 
