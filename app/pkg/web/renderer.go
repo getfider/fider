@@ -214,6 +214,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	}
 
 	public["contextID"] = ctx.ContextID()
+	public["sessionID"] = ctx.SessionID()
 	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
