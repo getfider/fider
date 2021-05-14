@@ -11,21 +11,27 @@
     .c-list-item {
       padding: 5px;
     }
+
     .c-list-item:hover {
       background-color: $gray-200;
-      border-radius: 2px;
+      border-radius   : 2px;
     }
   }
 
   &.m-divided {
     .c-list-item {
-      padding: 15px 0 0 0;
-      margin: 0 0 15px 0;
-      border-top: 1px solid $gray-200;
+      // padding   : 15px 0 0 0;
+      // border-top: 1px solid $gray-200;
+      margin    : 0 0 15px 0;
+      background   : #fff;
+      border-radius: 8px;
+      padding      : 15px;
+
       &:first-child {
-        border-top: none;
+        border-top : none;
         padding-top: 0;
       }
+
       &:last-child {
         margin-bottom: 0;
       }
@@ -33,12 +39,12 @@
   }
 
   .c-list-item {
-    display: list-item;
-    table-layout: fixed;
-    list-style-type: none;
+    display            : list-item;
+    table-layout       : fixed;
+    list-style-type    : none;
     list-style-position: outside;
-    padding: 3px 0;
-    border: none;
+    padding            : 3px 0;
+    border             : none;
 
     &.m-selectable {
       cursor: pointer;

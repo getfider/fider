@@ -7,7 +7,10 @@ $font-size-large: 16px;
 $font-size-big: 18px;
 $font-size-xlarge: 22px;
 
-$font-site: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+// $font-site: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+$font-site: 'Ubuntu', sans-serif;
 $font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 
 $white: #fff;
