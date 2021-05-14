@@ -25,14 +25,22 @@ func WorkerSetup() worker.MiddlewareFunc {
 			})
 
 			logFinish := func(state string, err error) {
-				if err != nil {
-					log.Error(c, err)
-				}
+				elapsedMs := time.Since(start).Nanoseconds() / int64(time.Millisecond)
 
+				if errors.Cause(err) == context.Canceled {
+					log.Infof(c, "Task '@{TaskName:magenta}' was canceled after @{ElapsedMs:magenta}ms", dto.Props{
+						"State":     state,
+						"TaskName":  c.TaskName(),
+						"ElapsedMs": elapsedMs,
+					})
+					return
+				}
+			
+				log.Error(c, err)
 				log.Infof(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (@{State})", dto.Props{
 					"State":     state,
 					"TaskName":  c.TaskName(),
-					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					"ElapsedMs": elapsedMs,
 				})
 			}
 
@@ -63,11 +71,6 @@ func WorkerSetup() worker.MiddlewareFunc {
 
 			//No errors, so try to commit it
 			if err = trx.Commit(); err != nil {
-				if errors.Cause(err) == context.Canceled {
-					logFinish("canceled", nil)
-					return err
-				}
-
 				logFinish("commit_error", err)
 				return err
 			}
@@ -90,6 +93,17 @@ func WebSetup() web.MiddlewareFunc {
 			})
 
 			logFinish := func(state string, err error) {
+				elapsedMs := time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond)
+
+				if errors.Cause(err) == context.Canceled {
+					log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} was canceled after @{ElapsedMs:magenta}ms", dto.Props{
+						"HttpMethod": c.Request.Method,
+						"URL":        c.Request.URL.String(),
+						"ElapsedMs":  elapsedMs,
+					})
+					return
+				}
+			
 				if err != nil {
 					log.Error(c, err)
 				}
@@ -99,7 +113,7 @@ func WebSetup() web.MiddlewareFunc {
 					"HttpMethod": c.Request.Method,
 					"StatusCode": c.ResponseStatusCode,
 					"URL":        c.Request.URL.String(),
-					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
+					"ElapsedMs":  elapsedMs,
 				})
 			}
 
@@ -130,11 +144,6 @@ func WebSetup() web.MiddlewareFunc {
 
 			//No errors, so try to commit it
 			if err := c.Commit(); err != nil {
-				if errors.Cause(err) == context.Canceled {
-					logFinish("canceled", nil)
-					return err
-				}
-
 				logFinish("commit_error", err)
 				return err
 			}

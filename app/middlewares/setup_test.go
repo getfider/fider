@@ -57,7 +57,7 @@ func TestWebSetup_Panic(t *testing.T) {
 	Expect(status).Equals(http.StatusInternalServerError)
 }
 
-func TestWorkerSetup_Logging_Success(t *testing.T) {
+func TestWebSetup_Logging_Success(t *testing.T) {
 	RegisterT(t)
 
 	var infoLogs []*cmd.LogInfo
@@ -89,7 +89,37 @@ func TestWorkerSetup_Logging_Success(t *testing.T) {
 	Expect(errorLogs).HasLen(0)
 }
 
-func TestWorkerSetup_Logging_Error(t *testing.T) {
+func TestWebSetup_Logging_RequestCanceled(t *testing.T) {
+	RegisterT(t)
+
+	var infoLogs []*cmd.LogInfo
+	bus.AddListener(func(ctx context.Context, q *cmd.LogInfo) error {
+		infoLogs = append(infoLogs, q)
+		return nil
+	})
+
+	var errorLogs []*cmd.LogError
+	bus.AddListener(func(ctx context.Context, q *cmd.LogError) error {
+		errorLogs = append(errorLogs, q)
+		return nil
+	})
+
+	server := mock.NewServer()
+	server.Use(middlewares.WebSetup())
+	status, _ := server.Execute(func(c *web.Context) error {
+		return context.Canceled
+	})
+
+	Expect(status).Equals(http.StatusOK)
+
+	Expect(infoLogs).HasLen(2)
+	Expect(infoLogs[0].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}")
+	Expect(infoLogs[1].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} was canceled after @{ElapsedMs:magenta}ms")
+
+	Expect(errorLogs).HasLen(0)
+}
+
+func TestWebSetup_Logging_Error(t *testing.T) {
 	RegisterT(t)
 
 	var infoLogs []*cmd.LogInfo
