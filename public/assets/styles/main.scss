@@ -159,7 +159,6 @@ a:hover {
   display: flex;
   flex-direction: column;
   background: #F6F7FA;
-  padding: 15px 0;
 }
 
 .center {
@@ -183,7 +182,8 @@ html [type="button"] {
 .page {
   flex: 1 0 auto;
   // margin-top: 10px;
-  padding-bottom: 20px;
+  // padding-bottom: 20px;
+  padding: 20px 0;
 }
 
 .page::after {
