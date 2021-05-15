@@ -7,7 +7,6 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entities"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -30,8 +29,8 @@ type dbOAuthConfig struct {
 	JSONUserEmailPath string `db:"json_user_email_path"`
 }
 
-func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
-	return &models.OAuthConfig{
+func (m *dbOAuthConfig) toModel() *entities.OAuthConfig {
+	return &entities.OAuthConfig{
 		ID:                m.ID,
 		Provider:          m.Provider,
 		DisplayName:       m.DisplayName,
@@ -90,7 +89,7 @@ func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) 
 			}
 		}
 
-		q.Result = make([]*models.OAuthConfig, len(configs))
+		q.Result = make([]*entities.OAuthConfig, len(configs))
 		for i, config := range configs {
 			q.Result[i] = config.toModel()
 		}

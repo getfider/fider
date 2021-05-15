@@ -1,8 +1,6 @@
-package models
+package entities
 
-import (
-	"encoding/json"
-)
+import "encoding/json"
 
 // OAuthConfig is the configuration of a custom OAuth provider
 type OAuthConfig struct {
