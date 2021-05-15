@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 
 	"github.com/getfider/fider/app/services/oauth"
 
@@ -220,7 +220,7 @@ func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 func TestOAuthTokenHandler_NewUser(t *testing.T) {
 	RegisterT(t)
 
-	var registeredUser *entities.User
+	var registeredUser *entity.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		registeredUser = c.User
 		return nil
@@ -267,7 +267,7 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	var newUser *entities.User
+	var newUser *entity.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		c.User.ID = 1
 		newUser = c.User
@@ -305,7 +305,7 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 
 	Expect(response.Header().Get("Location")).Equals("/")
-	ExpectFiderAuthCookie(response, &entities.User{
+	ExpectFiderAuthCookie(response, &entity.User{
 		ID:   1,
 		Name: "Mark",
 	})
@@ -314,12 +314,12 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	RegisterT(t)
 
-	user := &entities.User{
+	user := &entity.User{
 		ID:     3,
 		Name:   "Some Facebook Guy",
 		Email:  "",
 		Tenant: mock.DemoTenant,
-		Providers: []*entities.UserProvider{
+		Providers: []*entity.UserProvider{
 			{UID: "FB456", Name: app.FacebookProvider},
 		},
 	}
@@ -357,7 +357,7 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 
 	Expect(response.Header().Get("Location")).Equals("/")
-	ExpectFiderAuthCookie(response, &entities.User{
+	ExpectFiderAuthCookie(response, &entity.User{
 		ID:    3,
 		Name:  "Some Facebook Guy",
 		Email: "",
@@ -367,9 +367,9 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 	RegisterT(t)
 
-	var newProvider *entities.UserProvider
+	var newProvider *entity.UserProvider
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUserProvider) error {
-		newProvider = &entities.UserProvider{
+		newProvider = &entity.UserProvider{
 			Name: c.ProviderName,
 			UID:  c.ProviderUID,
 		}

@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 )
 
 //FromPosts return a byte array of CSV file containing all posts
-func FromPosts(posts []*entities.Post) ([]byte, error) {
+func FromPosts(posts []*entity.Post) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	writer := gocsv.NewWriter(buffer)
 

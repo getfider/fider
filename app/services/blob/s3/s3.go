@@ -19,7 +19,7 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -74,7 +74,7 @@ func (s Service) Init() {
 }
 
 func listBlobs(ctx context.Context, q *query.ListBlobs) error {
-	tenant := ctx.Value(app.TenantCtxKey).(*entities.Tenant)
+	tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	basePath := fmt.Sprintf("tenants/%d/", tenant.ID)
 	response, err := DefaultClient.ListObjectsWithContext(ctx, &s3.ListObjectsInput{
 		Bucket:  aws.String(env.Config.BlobStorage.S3.BucketName),
@@ -153,7 +153,7 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 }
 
 func keyFullPathURL(ctx context.Context, key string) string {
-	tenant, ok := ctx.Value(app.TenantCtxKey).(*entities.Tenant)
+	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
 		return path.Join("tenants", strconv.Itoa(tenant.ID), key)
 	}

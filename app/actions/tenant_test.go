@@ -7,7 +7,7 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -115,8 +115,8 @@ func TestCreateTenant_EmptySubdomain(t *testing.T) {
 func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 	RegisterT(t)
 
-	admin := &entities.User{ID: 1, Role: enum.RoleAdministrator}
-	collaborator := &entities.User{ID: 2, Role: enum.RoleCollaborator}
+	admin := &entity.User{ID: 1, Role: enum.RoleAdministrator}
+	collaborator := &entity.User{ID: 2, Role: enum.RoleCollaborator}
 
 	action := actions.NewUpdateTenantSettings()
 
@@ -160,7 +160,7 @@ func TestUpdateTenantSettings_LargeInvitation(t *testing.T) {
 func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
 	RegisterT(t)
 
-	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entities.Tenant{
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
 		ID:          1,
 		LogoBlobKey: "hello-world.png",
 	})

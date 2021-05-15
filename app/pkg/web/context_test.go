@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
@@ -89,7 +89,7 @@ func TestTenantURL(t *testing.T) {
 	RegisterT(t)
 
 	ctx := newGetContext("http://login.test.fider.io:3000", nil)
-	tenant := &entities.Tenant{
+	tenant := &entity.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 	}
@@ -100,7 +100,7 @@ func TestTenantURL_WithCNAME(t *testing.T) {
 	RegisterT(t)
 
 	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
-	tenant := &entities.Tenant{
+	tenant := &entity.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 		CNAME:     "feedback.theavengers.com",
@@ -113,7 +113,7 @@ func TestTenantURL_SingleHostMode(t *testing.T) {
 	env.Config.HostMode = "single"
 
 	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
-	tenant := &entities.Tenant{
+	tenant := &entity.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 	}
@@ -138,7 +138,7 @@ func TestGlobalAssetsURL_MultiHostMode(t *testing.T) {
 
 	env.Config.HostMode = "multi"
 	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
-	ctx.SetTenant(&entities.Tenant{
+	ctx.SetTenant(&entity.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 		CNAME:     "feedback.theavengers.com",
@@ -157,7 +157,7 @@ func TestTenantAssetsURL_SingleHostMode(t *testing.T) {
 
 	env.Config.HostMode = "single"
 	ctx := newGetContext("http://feedback.theavengers.com:3000", nil)
-	ctx.SetTenant(&entities.Tenant{
+	ctx.SetTenant(&entity.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 	})
@@ -175,7 +175,7 @@ func TestTenantAssetsURL_MultiHostMode(t *testing.T) {
 
 	env.Config.HostMode = "multi"
 	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
-	ctx.SetTenant(&entities.Tenant{
+	ctx.SetTenant(&entity.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 		CNAME:     "feedback.theavengers.com",

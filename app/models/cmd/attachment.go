@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 )
 
 type SetAttachments struct {
-	Post        *entities.Post
-	Comment     *entities.Comment
+	Post        *entity.Post
+	Comment     *entity.Comment
 	Attachments []*dto.ImageUpload
 }
 

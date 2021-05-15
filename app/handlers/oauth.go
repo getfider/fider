@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/models/query"
@@ -88,7 +88,7 @@ func OAuthToken() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		var user *entities.User
+		var user *entity.User
 
 		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.Result.ID}
 		err := bus.Dispatch(c, userByProvider)
@@ -105,12 +105,12 @@ func OAuthToken() web.HandlerFunc {
 					return c.Redirect("/not-invited")
 				}
 
-				user = &entities.User{
+				user = &entity.User{
 					Name:   oauthUser.Result.Name,
 					Tenant: c.Tenant(),
 					Email:  oauthUser.Result.Email,
 					Role:   enum.RoleVisitor,
-					Providers: []*entities.UserProvider{
+					Providers: []*entity.UserProvider{
 						{
 							UID:  oauthUser.Result.ID,
 							Name: provider,

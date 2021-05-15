@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -13,7 +13,7 @@ type CreateTenant struct {
 	Subdomain string
 	Status    int
 
-	Result *entities.Tenant
+	Result *entity.Tenant
 }
 
 type UpdateTenantPrivacySettings struct {
@@ -46,7 +46,7 @@ type SaveVerificationKey struct {
 type NewEmailVerification interface {
 	GetEmail() string
 	GetName() string
-	GetUser() *entities.User
+	GetUser() *entity.User
 	GetKind() enum.EmailVerificationKind
 }
 

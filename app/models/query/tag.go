@@ -1,21 +1,21 @@
 package query
 
 import (
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 )
 
 type GetTagBySlug struct {
 	Slug string
 
-	Result *entities.Tag
+	Result *entity.Tag
 }
 
 type GetAssignedTags struct {
-	Post *entities.Post
+	Post *entity.Post
 
-	Result []*entities.Tag
+	Result []*entity.Tag
 }
 
 type GetAllTags struct {
-	Result []*entities.Tag
+	Result []*entity.Tag
 }

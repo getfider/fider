@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -39,12 +39,12 @@ func NewCreateEditOAuthConfig() *CreateEditOAuthConfig {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *CreateEditOAuthConfig) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *CreateEditOAuthConfig) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Provider != "" {

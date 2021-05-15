@@ -7,7 +7,7 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/bus"
 )
 
@@ -18,7 +18,7 @@ type HistoryItem struct {
 	To           []dto.Recipient
 	TemplateName string
 	Props        dto.Props
-	Tenant       *entities.Tenant
+	Tenant       *entity.Tenant
 }
 
 func init() {
@@ -55,7 +55,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		Props:        c.Props,
 	}
 
-	tenant, ok := ctx.Value(app.TenantCtxKey).(*entities.Tenant)
+	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
 		item.Tenant = tenant
 	}

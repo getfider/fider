@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
 func storeEvent(ctx context.Context, c *cmd.StoreEvent) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		dbClientIP := sql.NullString{
 			String: c.ClientIP,
 			Valid:  len(c.ClientIP) > 0,

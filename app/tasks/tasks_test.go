@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -129,14 +129,14 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*entities.User{
+		q.Result = []*entity.User{
 			mock.AryaStark,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &entities.Post{
+	post := &entity.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
@@ -191,14 +191,14 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*entities.User{
+		q.Result = []*entity.User{
 			mock.JonSnow,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &entities.Post{
+	post := &entity.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
@@ -254,21 +254,21 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*entities.User{
+		q.Result = []*entity.User{
 			mock.AryaStark,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &entities.Post{
+	post := &entity.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		Status:      enum.PostPlanned,
-		Response: &entities.PostResponse{
+		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Planned for next release.",
 			User:        mock.JonSnow,
@@ -325,21 +325,21 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*entities.User{
+		q.Result = []*entity.User{
 			mock.AryaStark,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &entities.Post{
+	post := &entity.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		Status:      enum.PostDeleted,
-		Response: &entities.PostResponse{
+		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Invalid post!",
 			User:        mock.JonSnow,
@@ -391,23 +391,23 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*entities.User{
+		q.Result = []*entity.User{
 			mock.AryaStark,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &entities.Post{
+	post := &entity.Post{
 		ID:     2,
 		Number: 2,
 		Title:  "I need TypeScript",
 		Slug:   "i-need-typescript",
 		Status: enum.PostDuplicate,
-		Response: &entities.PostResponse{
+		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			User:        mock.JonSnow,
-			Original: &entities.OriginalPost{
+			Original: &entity.OriginalPost{
 				Number: 1,
 				Title:  "Add support for TypeScript",
 				Slug:   "add-support-for-typescript",

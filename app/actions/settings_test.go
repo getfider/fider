@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	. "github.com/getfider/fider/app/pkg/assert"
 )
@@ -21,7 +21,7 @@ func TestInvalidUserNames(t *testing.T) {
 		action := actions.NewUpdateUserSettings()
 		action.Name = name
 		action.AvatarType = enum.AvatarTypeGravatar
-		result := action.Validate(context.Background(), &entities.User{})
+		result := action.Validate(context.Background(), &entity.User{})
 		ExpectFailed(result, "name")
 	}
 }
@@ -36,7 +36,7 @@ func TestValidUserNames(t *testing.T) {
 		action := actions.NewUpdateUserSettings()
 		action.Name = name
 		action.AvatarType = enum.AvatarTypeGravatar
-		result := action.Validate(context.Background(), &entities.User{})
+		result := action.Validate(context.Background(), &entity.User{})
 		ExpectSuccess(result)
 	}
 }
@@ -55,7 +55,7 @@ func TestInvalidSettings(t *testing.T) {
 		action := actions.NewUpdateUserSettings()
 		action.Name = "John Snow"
 		action.Settings = settings
-		result := action.Validate(context.Background(), &entities.User{})
+		result := action.Validate(context.Background(), &entity.User{})
 		ExpectFailed(result, "settings", "avatarType")
 	}
 }
@@ -79,7 +79,7 @@ func TestValidSettings(t *testing.T) {
 		action.Settings = settings
 		action.AvatarType = enum.AvatarTypeGravatar
 
-		result := action.Validate(context.Background(), &entities.User{
+		result := action.Validate(context.Background(), &entity.User{
 			AvatarBlobKey: "jon.png",
 		})
 

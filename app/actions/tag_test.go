@@ -6,7 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -19,7 +19,7 @@ func TestCreateEditTag_InvalidName(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
-		q.Result = &entities.Tag{Slug: "feature-request", Name: "Feature Request", Color: "000000"}
+		q.Result = &entity.Tag{Slug: "feature-request", Name: "Feature Request", Color: "000000"}
 		return nil
 	})
 
@@ -57,7 +57,7 @@ func TestCreateEditTag_InvalidColor(t *testing.T) {
 func TestCreateEditTag_ValidInput(t *testing.T) {
 	RegisterT(t)
 
-	tag := &entities.Tag{Slug: "to-discuss", Name: "To Discuss", Color: "000000"}
+	tag := &entity.Tag{Slug: "to-discuss", Name: "To Discuss", Color: "000000"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
 		if q.Slug == tag.Slug {
 			q.Result = tag

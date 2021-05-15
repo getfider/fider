@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -20,12 +20,12 @@ type CreateUser struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *CreateUser) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *CreateUser) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (action *CreateUser) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *CreateUser) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Name == "" {
@@ -59,7 +59,7 @@ type ChangeUserRole struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *ChangeUserRole) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *ChangeUserRole) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	if user == nil {
 		return false
 	}
@@ -67,7 +67,7 @@ func (action *ChangeUserRole) IsAuthorized(ctx context.Context, user *entities.U
 }
 
 // Validate if current model is valid
-func (action *ChangeUserRole) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *ChangeUserRole) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 	if action.Role < enum.RoleVisitor || action.Role > enum.RoleAdministrator {
 		return validate.Error(app.ErrNotFound)
@@ -95,22 +95,22 @@ func (action *ChangeUserRole) Validate(ctx context.Context, user *entities.User)
 type ChangeUserEmail struct {
 	Email           string `json:"email" format:"lower"`
 	VerificationKey string
-	Requestor       *entities.User
+	Requestor       *entity.User
 }
 
 func NewChangeUserEmail() *ChangeUserEmail {
 	return &ChangeUserEmail{
-		VerificationKey: entities.GenerateEmailVerificationKey(),
+		VerificationKey: entity.GenerateEmailVerificationKey(),
 	}
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *ChangeUserEmail) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *ChangeUserEmail) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (action *ChangeUserEmail) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *ChangeUserEmail) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Email == "" {
@@ -158,7 +158,7 @@ func (action *ChangeUserEmail) GetName() string {
 }
 
 //GetUser returns the current user performing this action
-func (action *ChangeUserEmail) GetUser() *entities.User {
+func (action *ChangeUserEmail) GetUser() *entity.User {
 	return action.Requestor
 }
 

@@ -11,7 +11,7 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -104,7 +104,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 	form.Add("html", message.Body)
 	form.Add("o:tag", fmt.Sprintf("template:%s", c.TemplateName))
 
-	tenant, ok := ctx.Value(app.TenantCtxKey).(*entities.Tenant)
+	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok && !env.IsSingleHostMode() {
 		form.Add("o:tag", fmt.Sprintf("tenant:%s", tenant.Subdomain))
 	}

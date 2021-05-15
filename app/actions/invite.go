@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -26,12 +26,12 @@ type InviteUsers struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *InviteUsers) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *InviteUsers) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (action *InviteUsers) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *InviteUsers) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Subject == "" {
@@ -71,7 +71,7 @@ func (action *InviteUsers) Validate(ctx context.Context, user *entities.User) *v
 					if errors.Cause(err) == app.ErrNotFound {
 						action.Invitations = append(action.Invitations, &dto.UserInvitation{
 							Email:           email,
-							VerificationKey: entities.GenerateEmailVerificationKey(),
+							VerificationKey: entity.GenerateEmailVerificationKey(),
 						})
 					}
 				}

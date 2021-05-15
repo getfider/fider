@@ -9,7 +9,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/services/email/mailgun"
@@ -23,7 +23,7 @@ import (
 var ctx context.Context
 
 func reset() {
-	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &entities.Tenant{
+	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
 		Subdomain: "got",
 	})
 	bus.Init(mailgun.Service{}, httpclientmock.Service{})

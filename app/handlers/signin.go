@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app"
@@ -74,13 +74,13 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 			return err
 		}
 
-		var user *entities.User
+		var user *entity.User
 		if kind == enum.EmailVerificationKindSignUp && c.Tenant().Status == enum.TenantPending {
 			if err = bus.Dispatch(c, &cmd.ActivateTenant{TenantID: c.Tenant().ID}); err != nil {
 				return c.Failure(err)
 			}
 
-			user = &entities.User{
+			user = &entity.User{
 				Name:   result.Name,
 				Email:  result.Email,
 				Tenant: c.Tenant(),
@@ -144,7 +144,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Ok(web.Map{})
 		}
 
-		user := &entities.User{
+		user := &entity.User{
 			Name:   action.Name,
 			Email:  action.Email,
 			Tenant: c.Tenant(),

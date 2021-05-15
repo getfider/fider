@@ -2,17 +2,17 @@ package query
 
 import (
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 )
 
 type GetCustomOAuthConfigByProvider struct {
 	Provider string
 
-	Result *entities.OAuthConfig
+	Result *entity.OAuthConfig
 }
 
 type ListCustomOAuthConfig struct {
-	Result []*entities.OAuthConfig
+	Result []*entity.OAuthConfig
 }
 
 type GetOAuthAuthorizationURL struct {

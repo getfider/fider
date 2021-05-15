@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -77,7 +77,7 @@ func TestCompleteProfile_ValidKey(t *testing.T) {
 	key := "1234567890"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
-			q.Result = &entities.EmailVerification{
+			q.Result = &entity.EmailVerification{
 				Key:   q.Key,
 				Kind:  q.Kind,
 				Email: "jon.snow@got.com",
@@ -100,7 +100,7 @@ func TestCompleteProfile_UserInvitation_ValidKey(t *testing.T) {
 	key := "1234567890"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindUserInvitation {
-			q.Result = &entities.EmailVerification{
+			q.Result = &entity.EmailVerification{
 				Key:   q.Key,
 				Kind:  q.Kind,
 				Email: "jon.snow@got.com",

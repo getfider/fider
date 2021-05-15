@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/models/query"
@@ -124,7 +124,7 @@ func LogError() web.HandlerFunc {
 	}
 }
 
-func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*entities.EmailVerification, error) {
+func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*entity.EmailVerification, error) {
 	key := c.QueryParam("k")
 
 	//If key has been used, return NotFound

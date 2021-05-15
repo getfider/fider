@@ -5,7 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -29,8 +29,8 @@ type dbOAuthConfig struct {
 	JSONUserEmailPath string `db:"json_user_email_path"`
 }
 
-func (m *dbOAuthConfig) toModel() *entities.OAuthConfig {
-	return &entities.OAuthConfig{
+func (m *dbOAuthConfig) toModel() *entity.OAuthConfig {
+	return &entity.OAuthConfig{
 		ID:                m.ID,
 		Provider:          m.Provider,
 		DisplayName:       m.DisplayName,
@@ -49,7 +49,7 @@ func (m *dbOAuthConfig) toModel() *entities.OAuthConfig {
 }
 
 func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if tenant == nil {
 			return app.ErrNotFound
 		}
@@ -73,7 +73,7 @@ func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuth
 }
 
 func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		configs := []*dbOAuthConfig{}
 		if tenant != nil {
 			err := trx.Select(&configs, `
@@ -89,7 +89,7 @@ func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) 
 			}
 		}
 
-		q.Result = make([]*entities.OAuthConfig, len(configs))
+		q.Result = make([]*entity.OAuthConfig, len(configs))
 		for i, config := range configs {
 			q.Result[i] = config.toModel()
 		}
@@ -98,7 +98,7 @@ func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) 
 }
 
 func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var err error
 
 		if c.Logo.Remove {

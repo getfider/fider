@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -25,7 +25,7 @@ func TestReactRenderer_RenderEmptyHomeHTML(t *testing.T) {
 	r := web.NewReactRenderer("ssr.js")
 	u, _ := url.Parse("https://demo.test.fider.io")
 	html, err := r.Render(u, web.Map{
-		"tenant":   &entities.Tenant{},
+		"tenant":   &entity.Tenant{},
 		"settings": web.Map{},
 		"props": web.Map{
 			"posts":          make([]web.Map, 0),

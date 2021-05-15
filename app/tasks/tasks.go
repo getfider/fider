@@ -11,7 +11,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -103,7 +103,7 @@ func SendChangeEmailConfirmation(action *actions.ChangeUserEmail) worker.Task {
 }
 
 //NotifyAboutNewPost sends a notification (web and email) to subscribers
-func NotifyAboutNewPost(post *entities.Post) worker.Task {
+func NotifyAboutNewPost(post *entity.Post) worker.Task {
 	return describe("Notify about new post", func(c *worker.Context) error {
 		// Web notification
 		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewPost)
@@ -163,7 +163,7 @@ func NotifyAboutNewPost(post *entities.Post) worker.Task {
 }
 
 //NotifyAboutNewComment sends a notification (web and email) to subscribers
-func NotifyAboutNewComment(post *entities.Post, comment string) worker.Task {
+func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		// Web notification
 		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewComment)
@@ -224,7 +224,7 @@ func NotifyAboutNewComment(post *entities.Post, comment string) worker.Task {
 }
 
 //NotifyAboutStatusChange sends a notification (web and email) to subscribers
-func NotifyAboutStatusChange(post *entities.Post, prevStatus enum.PostStatus) worker.Task {
+func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) worker.Task {
 	return describe("Notify about post status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same
 		if prevStatus == post.Status {
@@ -296,7 +296,7 @@ func NotifyAboutStatusChange(post *entities.Post, prevStatus enum.PostStatus) wo
 }
 
 //NotifyAboutDeletedPost sends a notification (web and email) to subscribers of the post that has been deleted
-func NotifyAboutDeletedPost(post *entities.Post) worker.Task {
+func NotifyAboutDeletedPost(post *entity.Post) worker.Task {
 	return describe("Notify about deleted post", func(c *worker.Context) error {
 
 		// Web notification
@@ -386,7 +386,7 @@ func SendInvites(subject, message string, invitations []*dto.UserInvitation) wor
 	})
 }
 
-func getActiveSubscribers(ctx context.Context, post *entities.Post, channel enum.NotificationChannel, event enum.NotificationEvent) ([]*entities.User, error) {
+func getActiveSubscribers(ctx context.Context, post *entity.Post, channel enum.NotificationChannel, event enum.NotificationEvent) ([]*entity.User, error) {
 	q := &query.GetActiveSubscribers{
 		Number:  post.Number,
 		Channel: channel,

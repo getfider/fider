@@ -9,7 +9,7 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -221,7 +221,7 @@ func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 	key := "th3-s3cr3t"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindChangeEmail {
-			q.Result = &entities.EmailVerification{
+			q.Result = &entity.EmailVerification{
 				UserID:    mock.JonSnow.ID,
 				Key:       q.Key,
 				Kind:      q.Kind,
@@ -265,7 +265,7 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 	key := "th3-s3cr3t"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindChangeEmail {
-			q.Result = &entities.EmailVerification{
+			q.Result = &entity.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: time.Now().Add(10 * time.Minute),

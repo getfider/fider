@@ -6,7 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -93,7 +93,7 @@ func TestCreateUser_ValidInput(t *testing.T) {
 func TestChangeUserRole_Unauthorized(t *testing.T) {
 	RegisterT(t)
 
-	for _, user := range []*entities.User{
+	for _, user := range []*entity.User{
 		{ID: 1, Role: enum.RoleVisitor},
 		{ID: 1, Role: enum.RoleCollaborator},
 		{ID: 2, Role: enum.RoleAdministrator},
@@ -106,7 +106,7 @@ func TestChangeUserRole_Unauthorized(t *testing.T) {
 func TestChangeUserRole_Authorized(t *testing.T) {
 	RegisterT(t)
 
-	user := &entities.User{ID: 2, Role: enum.RoleAdministrator}
+	user := &entity.User{ID: 2, Role: enum.RoleAdministrator}
 	action := actions.ChangeUserRole{UserID: 1}
 	Expect(action.IsAuthorized(context.Background(), user)).IsTrue()
 }
@@ -114,8 +114,8 @@ func TestChangeUserRole_Authorized(t *testing.T) {
 func TestChangeUserRole_InvalidRole(t *testing.T) {
 	RegisterT(t)
 
-	targetUser := &entities.User{Role: enum.RoleVisitor}
-	currentUser := &entities.User{Role: enum.RoleAdministrator}
+	targetUser := &entity.User{Role: enum.RoleVisitor}
+	currentUser := &entity.User{Role: enum.RoleAdministrator}
 
 	action := actions.ChangeUserRole{UserID: targetUser.ID, Role: 4}
 	action.IsAuthorized(context.Background(), currentUser)
@@ -130,8 +130,8 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	currentUser := &entities.User{
-		Tenant: &entities.Tenant{ID: 1},
+	currentUser := &entity.User{
+		Tenant: &entity.Tenant{ID: 1},
 		Role:   enum.RoleAdministrator,
 	}
 
@@ -145,12 +145,12 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 	RegisterT(t)
 
-	targetUser := &entities.User{
-		Tenant: &entities.Tenant{ID: 1},
+	targetUser := &entity.User{
+		Tenant: &entity.Tenant{ID: 1},
 	}
 
-	currentUser := &entities.User{
-		Tenant: &entities.Tenant{ID: 2},
+	currentUser := &entity.User{
+		Tenant: &entity.Tenant{ID: 2},
 		Role:   enum.RoleAdministrator,
 	}
 
@@ -171,8 +171,8 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 func TestChangeUserRole_CurrentUser(t *testing.T) {
 	RegisterT(t)
 
-	currentUser := &entities.User{
-		Tenant: &entities.Tenant{ID: 2},
+	currentUser := &entity.User{
+		Tenant: &entity.Tenant{ID: 2},
 		Role:   enum.RoleAdministrator,
 	}
 

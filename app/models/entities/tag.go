@@ -1,4 +1,4 @@
-package entities
+package entity
 
 //Tag represents a simple tag
 type Tag struct {

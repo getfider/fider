@@ -3,7 +3,7 @@ package actions
 import (
 	"context"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -18,17 +18,17 @@ type SignInByEmail struct {
 
 func NewSignInByEmail() *SignInByEmail {
 	return &SignInByEmail{
-		VerificationKey: entities.GenerateEmailVerificationKey(),
+		VerificationKey: entity.GenerateEmailVerificationKey(),
 	}
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *SignInByEmail) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *SignInByEmail) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return true
 }
 
 // Validate if current model is valid
-func (action *SignInByEmail) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *SignInByEmail) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Email == "" {
@@ -57,7 +57,7 @@ func (action *SignInByEmail) GetName() string {
 }
 
 //GetUser returns the current user performing this action
-func (action *SignInByEmail) GetUser() *entities.User {
+func (action *SignInByEmail) GetUser() *entity.User {
 	return nil
 }
 
@@ -74,12 +74,12 @@ type CompleteProfile struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *CompleteProfile) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *CompleteProfile) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return true
 }
 
 // Validate if current model is valid
-func (action *CompleteProfile) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *CompleteProfile) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Name == "" {

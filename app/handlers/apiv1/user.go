@@ -4,7 +4,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -31,7 +31,7 @@ func CreateUser() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		var user *entities.User
+		var user *entity.User
 
 		getByReference := &query.GetUserByProvider{Provider: "reference", UID: action.Reference}
 		err := bus.Dispatch(c, getByReference)
@@ -44,7 +44,7 @@ func CreateUser() web.HandlerFunc {
 				user = getByEmail.Result
 			}
 			if err != nil && errors.Cause(err) == app.ErrNotFound {
-				user = &entities.User{
+				user = &entity.User{
 					Tenant: c.Tenant(),
 					Name:   action.Name,
 					Email:  action.Email,

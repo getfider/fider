@@ -6,7 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -84,7 +84,7 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_NAME" {
-			q.Result = &entities.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				ID:          4,
 				Provider:    q.Provider,
 				LogoBlobKey: "hello-world.png",
@@ -120,7 +120,7 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_NAME2" {
-			q.Result = &entities.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				ID:           5,
 				Provider:     q.Provider,
 				DisplayName:  "My Provider",

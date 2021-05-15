@@ -3,7 +3,7 @@ package handlers
 import (
 	"time"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -71,7 +71,7 @@ func CreateTenant() web.HandlerFunc {
 
 		c.SetTenant(createTenant.Result)
 
-		user := &entities.User{
+		user := &entity.User{
 			Tenant: createTenant.Result,
 			Role:   enum.RoleAdministrator,
 		}
@@ -79,7 +79,7 @@ func CreateTenant() web.HandlerFunc {
 		if socialSignUp {
 			user.Name = action.UserClaims.OAuthName
 			user.Email = action.UserClaims.OAuthEmail
-			user.Providers = []*entities.UserProvider{
+			user.Providers = []*entity.UserProvider{
 				{
 					UID:  action.UserClaims.OAuthID,
 					Name: action.UserClaims.OAuthProvider,

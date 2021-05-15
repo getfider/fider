@@ -4,7 +4,7 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
@@ -23,16 +23,16 @@ type CreateEditTag struct {
 	Color    string `json:"color" format:"upper"`
 	IsPublic bool   `json:"isPublic"`
 
-	Tag *entities.Tag
+	Tag *entity.Tag
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *CreateEditTag) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *CreateEditTag) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (action *CreateEditTag) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *CreateEditTag) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Slug != "" {
@@ -73,16 +73,16 @@ func (action *CreateEditTag) Validate(ctx context.Context, user *entities.User) 
 type DeleteTag struct {
 	Slug string `route:"slug"`
 
-	Tag *entities.Tag
+	Tag *entity.Tag
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *DeleteTag) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *DeleteTag) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (action *DeleteTag) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *DeleteTag) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	getSlug := &query.GetTagBySlug{Slug: action.Slug}
 	err := bus.Dispatch(ctx, getSlug)
 	if err != nil {
@@ -98,17 +98,17 @@ type AssignUnassignTag struct {
 	Slug   string `route:"slug"`
 	Number int    `route:"number"`
 
-	Tag  *entities.Tag
-	Post *entities.Post
+	Tag  *entity.Tag
+	Post *entity.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *AssignUnassignTag) IsAuthorized(ctx context.Context, user *entities.User) bool {
+func (action *AssignUnassignTag) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (action *AssignUnassignTag) Validate(ctx context.Context, user *entities.User) *validate.Result {
+func (action *AssignUnassignTag) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	getPost := &query.GetPostByNumber{Number: action.Number}
 	getSlug := &query.GetTagBySlug{Slug: action.Slug}
 	if err := bus.Dispatch(ctx, getPost, getSlug); err != nil {

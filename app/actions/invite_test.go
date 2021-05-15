@@ -7,7 +7,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -115,7 +115,7 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		if q.Email == "tony.stark@avengers.com" {
-			q.Result = &entities.User{Email: q.Email}
+			q.Result = &entity.User{Email: q.Email}
 			return nil
 		}
 		return app.ErrNotFound
@@ -146,7 +146,7 @@ func TestInviteUsers_ShouldFail_WhenAllRecipientsIgnored(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
-		q.Result = &entities.User{Email: q.Email}
+		q.Result = &entity.User{Email: q.Email}
 		return nil
 	})
 

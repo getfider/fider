@@ -1,4 +1,4 @@
-package entities
+package entity
 
 //Tenant represents a tenant
 type Tenant struct {

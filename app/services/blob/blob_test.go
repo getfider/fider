@@ -10,7 +10,7 @@ import (
 	awss3 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -26,8 +26,8 @@ import (
 	"github.com/getfider/fider/app/services/blob"
 )
 
-var tenant1 = &entities.Tenant{ID: 1}
-var tenant2 = &entities.Tenant{ID: 2}
+var tenant1 = &entity.Tenant{ID: 1}
+var tenant2 = &entity.Tenant{ID: 2}
 
 func setupS3(t *testing.T) {
 	RegisterT(t)

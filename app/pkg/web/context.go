@@ -19,7 +19,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -154,8 +154,8 @@ func (c *Context) Enqueue(task worker.Task) {
 }
 
 //Tenant returns current tenant
-func (c *Context) Tenant() *entities.Tenant {
-	tenant, ok := c.Value(app.TenantCtxKey).(*entities.Tenant)
+func (c *Context) Tenant() *entity.Tenant {
+	tenant, ok := c.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
 		return tenant
 	}
@@ -163,7 +163,7 @@ func (c *Context) Tenant() *entities.Tenant {
 }
 
 //SetTenant update HTTP context with current tenant
-func (c *Context) SetTenant(tenant *entities.Tenant) {
+func (c *Context) SetTenant(tenant *entity.Tenant) {
 	if tenant != nil {
 		c.Context = log.WithProperty(c.Context, log.PropertyKeyTenantID, tenant.ID)
 	}
@@ -341,8 +341,8 @@ func (c *Context) AddParam(name, value string) {
 }
 
 //User returns authenticated user
-func (c *Context) User() *entities.User {
-	user, ok := c.Value(app.UserCtxKey).(*entities.User)
+func (c *Context) User() *entity.User {
+	user, ok := c.Value(app.UserCtxKey).(*entity.User)
 	if ok {
 		return user
 	}
@@ -350,7 +350,7 @@ func (c *Context) User() *entities.User {
 }
 
 //SetUser update HTTP context with current user
-func (c *Context) SetUser(user *entities.User) {
+func (c *Context) SetUser(user *entity.User) {
 	if user != nil {
 		c.Context = log.WithProperty(c.Context, log.PropertyKeyUserID, user.ID)
 	}
@@ -534,7 +534,7 @@ func GlobalAssetsURL(ctx context.Context, path string, a ...interface{}) string 
 }
 
 //TenantBaseURL returns base URL for a given tenant
-func TenantBaseURL(ctx context.Context, tenant *entities.Tenant) string {
+func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
 
 	if env.IsSingleHostMode() {
@@ -558,7 +558,7 @@ func TenantBaseURL(ctx context.Context, tenant *entities.Tenant) string {
 // TenantAssetsURL return the full URL to a tenant-specific static asset
 func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
-	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entities.Tenant)
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	path = fmt.Sprintf(path, a...)
 	if env.Config.CDN.Host != "" && hasTenant {
 		if env.IsSingleHostMode() {
@@ -571,7 +571,7 @@ func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string 
 
 // LogoURL return the full URL to the tenant-specific logo URL
 func LogoURL(ctx context.Context) string {
-	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entities.Tenant)
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if hasTenant && tenant.LogoBlobKey != "" {
 		return TenantAssetsURL(ctx, "/images/%s?size=200", tenant.LogoBlobKey)
 	}

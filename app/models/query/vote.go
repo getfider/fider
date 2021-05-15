@@ -1,11 +1,11 @@
 package query
 
-import "github.com/getfider/fider/app/models/entities"
+import "github.com/getfider/fider/app/models/entity"
 
 type ListPostVotes struct {
 	PostID       int
 	Limit        int
 	IncludeEmail bool
 
-	Result []*entities.Vote
+	Result []*entity.Vote
 }

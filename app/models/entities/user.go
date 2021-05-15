@@ -1,4 +1,4 @@
-package entities
+package entity
 
 import "github.com/getfider/fider/app/models/enum"
 
