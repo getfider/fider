@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
@@ -141,7 +140,7 @@ func deleteCurrentUser(ctx context.Context, c *cmd.DeleteCurrentUser) error {
 
 func regenerateAPIKey(ctx context.Context, c *cmd.RegenerateAPIKey) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
-		apiKey := models.GenerateSecretKey()
+		apiKey := entities.GenerateEmailVerificationKey()
 
 		if _, err := trx.Execute(
 			"UPDATE users SET api_key = $3, api_key_date = $4 WHERE id = $1 AND tenant_id = $2",

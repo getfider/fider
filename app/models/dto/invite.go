@@ -1,11 +1,8 @@
-package models
+package dto
 
 import (
-	"time"
-
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/rand"
 )
 
 //UserInvitation is the model used to register an invite sent to an user
@@ -32,29 +29,4 @@ func (e *UserInvitation) GetUser() *entities.User {
 //GetKind returns EmailVerificationKindUserInvitation
 func (e *UserInvitation) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindUserInvitation
-}
-
-//NewEmailVerification is used to register a new email verification process
-type NewEmailVerification interface {
-	GetEmail() string
-	GetName() string
-	GetUser() *entities.User
-	GetKind() enum.EmailVerificationKind
-}
-
-//EmailVerification is the model used by email verification process
-type EmailVerification struct {
-	Email      string
-	Name       string
-	Key        string
-	UserID     int
-	Kind       enum.EmailVerificationKind
-	CreatedAt  time.Time
-	ExpiresAt  time.Time
-	VerifiedAt *time.Time
-}
-
-// GenerateSecretKey returns a 64 chars key
-func GenerateSecretKey() string {
-	return rand.String(64)
 }

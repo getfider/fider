@@ -11,7 +11,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
@@ -79,7 +78,7 @@ func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
 			now := time.Now()
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:        q.Key,
 				Kind:       q.Kind,
 				VerifiedAt: &now,
@@ -107,7 +106,7 @@ func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
 			now := time.Now().Add(-5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: now,
@@ -144,7 +143,7 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,
@@ -206,7 +205,7 @@ func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,
@@ -234,7 +233,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,
@@ -270,7 +269,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *te
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,
@@ -329,7 +328,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *test
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindUserInvitation {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,
@@ -376,7 +375,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_NewUser(t *testing.T
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindUserInvitation {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,
@@ -421,7 +420,7 @@ func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignUp {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,
@@ -484,7 +483,7 @@ func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,
@@ -522,7 +521,7 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
 			expiresAt := time.Now().Add(5 * time.Minute)
-			q.Result = &models.EmailVerification{
+			q.Result = &entities.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: expiresAt,

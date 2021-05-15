@@ -11,7 +11,6 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -467,7 +466,7 @@ func TestSendInvites(t *testing.T) {
 	})
 
 	worker := mock.NewWorker()
-	task := tasks.SendInvites("My Subject", "Click here: %invite%", []*models.UserInvitation{
+	task := tasks.SendInvites("My Subject", "Click here: %invite%", []*dto.UserInvitation{
 		{Email: "user1@domain.com", VerificationKey: "1234"},
 		{Email: "user2@domain.com", VerificationKey: "5678"},
 	})

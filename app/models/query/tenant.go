@@ -1,7 +1,6 @@
 package query
 
 import (
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 )
@@ -22,7 +21,7 @@ type GetVerificationByKey struct {
 	Kind enum.EmailVerificationKind
 	Key  string
 
-	Result *models.EmailVerification
+	Result *entities.EmailVerification
 }
 
 type GetFirstTenant struct {

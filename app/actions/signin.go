@@ -3,7 +3,6 @@ package actions
 import (
 	"context"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -19,7 +18,7 @@ type SignInByEmail struct {
 
 func NewSignInByEmail() *SignInByEmail {
 	return &SignInByEmail{
-		VerificationKey: models.GenerateSecretKey(),
+		VerificationKey: entities.GenerateEmailVerificationKey(),
 	}
 }
 

@@ -11,7 +11,6 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -63,8 +62,8 @@ type dbEmailVerification struct {
 	VerifiedAt dbx.NullTime               `db:"verified_at"`
 }
 
-func (t *dbEmailVerification) toModel() *models.EmailVerification {
-	model := &models.EmailVerification{
+func (t *dbEmailVerification) toModel() *entities.EmailVerification {
+	model := &entities.EmailVerification{
 		Name:       t.Name,
 		Email:      t.Email,
 		Key:        t.Key,

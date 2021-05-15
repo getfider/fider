@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
@@ -27,7 +26,7 @@ type CreateTenant struct {
 
 func NewCreateTenant() *CreateTenant {
 	return &CreateTenant{
-		VerificationKey: models.GenerateSecretKey(),
+		VerificationKey: entities.GenerateEmailVerificationKey(),
 	}
 }
 

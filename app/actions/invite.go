@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -22,7 +22,7 @@ type InviteUsers struct {
 	Recipients     []string `json:"recipients" format:"lower"`
 	IsSampleInvite bool
 
-	Invitations []*models.UserInvitation
+	Invitations []*dto.UserInvitation
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -64,14 +64,14 @@ func (action *InviteUsers) Validate(ctx context.Context, user *entities.User) *v
 		}
 
 		if result.Ok {
-			action.Invitations = make([]*models.UserInvitation, 0)
+			action.Invitations = make([]*dto.UserInvitation, 0)
 			for _, email := range action.Recipients {
 				if email != "" {
 					err := bus.Dispatch(ctx, &query.GetUserByEmail{Email: email})
 					if errors.Cause(err) == app.ErrNotFound {
-						action.Invitations = append(action.Invitations, &models.UserInvitation{
+						action.Invitations = append(action.Invitations, &dto.UserInvitation{
 							Email:           email,
-							VerificationKey: models.GenerateSecretKey(),
+							VerificationKey: entities.GenerateEmailVerificationKey(),
 						})
 					}
 				}

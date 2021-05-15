@@ -3,9 +3,9 @@ package cmd
 import (
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
+	"github.com/getfider/fider/app/models/enum"
 )
 
 type CreateTenant struct {
@@ -39,7 +39,15 @@ type ActivateTenant struct {
 type SaveVerificationKey struct {
 	Key      string
 	Duration time.Duration
-	Request  models.NewEmailVerification
+	Request  NewEmailVerification
+}
+
+//NewEmailVerification is used to register a new email verification process
+type NewEmailVerification interface {
+	GetEmail() string
+	GetName() string
+	GetUser() *entities.User
+	GetKind() enum.EmailVerificationKind
 }
 
 type SetKeyAsVerified struct {

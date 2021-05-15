@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -101,7 +100,7 @@ type ChangeUserEmail struct {
 
 func NewChangeUserEmail() *ChangeUserEmail {
 	return &ChangeUserEmail{
-		VerificationKey: models.GenerateSecretKey(),
+		VerificationKey: entities.GenerateEmailVerificationKey(),
 	}
 }
 
