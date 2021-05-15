@@ -466,7 +466,7 @@ func TestSendInvites(t *testing.T) {
 	})
 
 	worker := mock.NewWorker()
-	task := tasks.SendInvites("My Subject", "Click here: %invite%", []*dto.UserInvitation{
+	task := tasks.SendInvites("My Subject", "Click here: %invite%", []*entity.UserInvitation{
 		{Email: "user1@domain.com", VerificationKey: "1234"},
 		{Email: "user2@domain.com", VerificationKey: "5678"},
 	})

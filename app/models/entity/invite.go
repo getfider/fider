@@ -1,7 +1,6 @@
-package dto
+package entity
 
 import (
-	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -22,7 +21,7 @@ func (e *UserInvitation) GetName() string {
 }
 
 //GetUser returns the current user performing this action
-func (e *UserInvitation) GetUser() *entity.User {
+func (e *UserInvitation) GetUser() *User {
 	return nil
 }
 
