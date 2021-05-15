@@ -14,7 +14,6 @@ export interface SystemSettings {
   buildTime: string
   version: string
   environment: string
-  compiler: string
   domain: string
   hasLegal: boolean
   baseURL: string

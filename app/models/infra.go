@@ -12,7 +12,6 @@ type SystemSettings struct {
 	Version         string
 	Environment     string
 	GoogleAnalytics string
-	Compiler        string
 	Domain          string
 	HasLegal        bool
 }

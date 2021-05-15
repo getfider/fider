@@ -222,7 +222,6 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		"buildTime":       r.settings.BuildTime,
 		"version":         r.settings.Version,
 		"environment":     r.settings.Environment,
-		"compiler":        r.settings.Compiler,
 		"googleAnalytics": r.settings.GoogleAnalytics,
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,

@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"runtime"
 
 	"github.com/getfider/fider/app/cmd"
 	"github.com/getfider/fider/app/models"
@@ -12,7 +11,7 @@ import (
 
 var (
 	// replaced during CI build
-	buildtime   = ""
+	buildtime = ""
 	// buildnumber = "local"
 
 	// Use this for non-stable releases
@@ -28,7 +27,6 @@ func main() {
 	settings := &models.SystemSettings{
 		BuildTime:       buildtime,
 		Version:         version,
-		Compiler:        runtime.Version(),
 		Environment:     env.Config.Environment,
 		GoogleAnalytics: env.Config.GoogleAnalytics,
 		Mode:            env.Config.HostMode,
