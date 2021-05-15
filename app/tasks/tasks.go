@@ -162,7 +162,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 }
 
 //NotifyAboutNewComment sends a notification (web and email) to subscribers
-func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker.Task {
+func NotifyAboutNewComment(post *models.Post, comment string) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		// Web notification
 		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewComment)
@@ -203,7 +203,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"title":       post.Title,
 			"tenantName":  c.Tenant().Name,
 			"userName":    c.User().Name,
-			"content":     markdown.Full(comment.Content),
+			"content":     markdown.Full(comment),
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
 			"view":        linkWithText("view it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),

@@ -223,18 +223,18 @@ func PostComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		getPost := &query.GetPostByNumber{Number: action.Input.Number}
+		getPost := &query.GetPostByNumber{Number: action.Number}
 		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Input.Attachments, Folder: "attachments"}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Attachments, Folder: "attachments"}); err != nil {
 			return c.Failure(err)
 		}
 
 		addNewComment := &cmd.AddNewComment{
 			Post:    getPost.Result,
-			Content: action.Input.Content,
+			Content: action.Content,
 		}
 		if err := bus.Dispatch(c, addNewComment); err != nil {
 			return c.Failure(err)
@@ -243,12 +243,12 @@ func PostComment() web.HandlerFunc {
 		if err := bus.Dispatch(c, &cmd.SetAttachments{
 			Post:        getPost.Result,
 			Comment:     addNewComment.Result,
-			Attachments: action.Input.Attachments,
+			Attachments: action.Attachments,
 		}); err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Input))
+		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Content))
 
 		return c.Ok(web.Map{
 			"id": addNewComment.Result.ID,

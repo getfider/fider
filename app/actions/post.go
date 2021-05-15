@@ -125,13 +125,9 @@ func (action *UpdatePost) Validate(ctx context.Context, user *models.User) *vali
 
 // AddNewComment represents a new comment to be added
 type AddNewComment struct {
-	Input *models.NewComment
-}
-
-// Returns the struct to bind the request to
-func (action *AddNewComment) BindTarget() interface{} {
-	action.Input = new(models.NewComment)
-	return action.Input
+	Number      int                   `route:"number"`
+	Content     string                `json:"content"`
+	Attachments []*models.ImageUpload `json:"attachments"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -143,11 +139,11 @@ func (action *AddNewComment) IsAuthorized(ctx context.Context, user *models.User
 func (action *AddNewComment) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Input.Content == "" {
+	if action.Content == "" {
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
-	messages, err := validate.MultiImageUpload(nil, action.Input.Attachments, validate.MultiImageUploadOpts{
+	messages, err := validate.MultiImageUpload(nil, action.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   2,
 		MaxKilobytes: 5120,
 		ExactRatio:   false,
