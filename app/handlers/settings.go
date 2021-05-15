@@ -18,21 +18,21 @@ import (
 // ChangeUserEmail register the intent of changing user email
 func ChangeUserEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := actions.NewChangeUserEmail()
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewChangeUserEmail()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      input.Input.VerificationKey,
+			Key:      action.Input.VerificationKey,
 			Duration: 24 * time.Hour,
-			Request:  input.Input,
+			Request:  action.Input,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendChangeEmailConfirmation(input.Input))
+		c.Enqueue(tasks.SendChangeEmailConfirmation(action.Input))
 
 		return c.Ok(web.Map{})
 	}
@@ -87,23 +87,23 @@ func UserSettings() web.HandlerFunc {
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := actions.NewUpdateUserSettings()
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewUpdateUserSettings()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Input.Avatar,
+				Image:  action.Input.Avatar,
 				Folder: "avatars",
 			},
 			&cmd.UpdateCurrentUser{
-				Name:       input.Input.Name,
-				Avatar:     input.Input.Avatar,
-				AvatarType: input.Input.AvatarType,
+				Name:       action.Input.Name,
+				Avatar:     action.Input.Avatar,
+				AvatarType: action.Input.AvatarType,
 			},
 			&cmd.UpdateCurrentUserSettings{
-				Settings: input.Input.Settings,
+				Settings: action.Input.Settings,
 			},
 		); err != nil {
 			return c.Failure(err)

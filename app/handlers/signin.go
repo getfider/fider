@@ -46,21 +46,21 @@ func NotInvitedPage() web.HandlerFunc {
 // SignInByEmail sends a new email with verification key
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := actions.NewSignInByEmail()
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewSignInByEmail()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      input.Input.VerificationKey,
+			Key:      action.Input.VerificationKey,
 			Duration: 30 * time.Minute,
-			Request:  input.Input,
+			Request:  action.Input,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(input.Input))
+		c.Enqueue(tasks.SendSignInEmail(action.Input))
 
 		return c.Ok(web.Map{})
 	}

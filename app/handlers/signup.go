@@ -47,12 +47,12 @@ func CreateTenant() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		input := actions.NewCreateTenant()
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewCreateTenant()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		socialSignUp := input.Input.Token != ""
+		socialSignUp := action.Input.Token != ""
 
 		status := enum.TenantPending
 		if socialSignUp {
@@ -60,8 +60,8 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		createTenant := &cmd.CreateTenant{
-			Name:      input.Input.TenantName,
-			Subdomain: input.Input.Subdomain,
+			Name:      action.Input.TenantName,
+			Subdomain: action.Input.Subdomain,
 			Status:    status,
 		}
 		err := bus.Dispatch(c, createTenant)
@@ -77,10 +77,10 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		if socialSignUp {
-			user.Name = input.Input.UserClaims.OAuthName
-			user.Email = input.Input.UserClaims.OAuthEmail
+			user.Name = action.Input.UserClaims.OAuthName
+			user.Email = action.Input.UserClaims.OAuthEmail
 			user.Providers = []*models.UserProvider{
-				{UID: input.Input.UserClaims.OAuthID, Name: input.Input.UserClaims.OAuthProvider},
+				{UID: action.Input.UserClaims.OAuthID, Name: action.Input.UserClaims.OAuthProvider},
 			}
 
 			if err := bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
@@ -94,19 +94,19 @@ func CreateTenant() web.HandlerFunc {
 			}
 
 		} else {
-			user.Name = input.Input.Name
-			user.Email = input.Input.Email
+			user.Name = action.Input.Name
+			user.Email = action.Input.Email
 
 			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-				Key:      input.Input.VerificationKey,
+				Key:      action.Input.VerificationKey,
 				Duration: 48 * time.Hour,
-				Request:  input.Input,
+				Request:  action.Input,
 			})
 			if err != nil {
 				return c.Failure(err)
 			}
 
-			c.Enqueue(tasks.SendSignUpEmail(input.Input, web.TenantBaseURL(c, createTenant.Result)))
+			c.Enqueue(tasks.SendSignUpEmail(action.Input, web.TenantBaseURL(c, createTenant.Result)))
 		}
 
 		return c.Ok(web.Map{})

@@ -34,18 +34,18 @@ func AdvancedSettingsPage() web.HandlerFunc {
 // UpdateSettings update current tenant' settings
 func UpdateSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := actions.NewUpdateTenantSettings()
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewUpdateTenantSettings()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Input.Logo,
+				Image:  action.Input.Logo,
 				Folder: "logos",
 			},
 			&cmd.UpdateTenantSettings{
-				Settings: input.Input,
+				Settings: action.Input,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -141,18 +141,18 @@ func GetOAuthConfig() web.HandlerFunc {
 // SaveOAuthConfig is used to create/edit OAuth configurations
 func SaveOAuthConfig() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := actions.NewCreateEditOAuthConfig()
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewCreateEditOAuthConfig()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Input.Logo,
+				Image:  action.Input.Logo,
 				Folder: "logos",
 			},
 			&cmd.SaveCustomOAuthConfig{
-				Config: input.Input,
+				Config: action.Input,
 			},
 		); err != nil {
 			return c.Failure(err)
