@@ -28,8 +28,7 @@ func createServer() *Server {
 		return nil
 	})
 
-	settings := &models.SystemSettings{}
-	engine := web.New(settings)
+	engine := web.New()
 
 	request, _ := http.NewRequest("GET", "/", nil)
 	recorder := httptest.NewRecorder()

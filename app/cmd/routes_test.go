@@ -10,6 +10,6 @@ import (
 func TestGetMainEngine(t *testing.T) {
 	RegisterT(t)
 
-	r := routes(web.New(nil))
+	r := routes(web.New())
 	Expect(r).IsNotNil()
 }

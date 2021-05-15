@@ -5,17 +5,6 @@ import (
 	"time"
 )
 
-// SystemSettings is the system-wide settings
-type SystemSettings struct {
-	Mode            string
-	BuildTime       string
-	Version         string
-	Environment     string
-	GoogleAnalytics string
-	Domain          string
-	HasLegal        bool
-}
-
 // Notification is the system generated notification entity
 type Notification struct {
 	ID        int       `json:"id" db:"id"`

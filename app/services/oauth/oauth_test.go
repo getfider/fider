@@ -24,7 +24,7 @@ import (
 
 func newGetContext(rawurl string) *web.Context {
 	u, _ := url.Parse(rawurl)
-	e := web.New(nil)
+	e := web.New()
 	res := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", u.RequestURI(), nil)
 	req.Host = u.Host

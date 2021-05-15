@@ -17,7 +17,7 @@ import (
 
 func newGetContext(rawurl string, headers map[string]string) *web.Context {
 	u, _ := url.Parse(rawurl)
-	e := web.New(nil)
+	e := web.New()
 	res := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", u.RequestURI(), nil)
 	req.Host = u.Host
@@ -34,7 +34,7 @@ func newGetContext(rawurl string, headers map[string]string) *web.Context {
 }
 
 func newBodyContext(method string, params web.StringMap, body, contentType string) *web.Context {
-	e := web.New(nil)
+	e := web.New()
 	res := httptest.NewRecorder()
 	req := httptest.NewRequest(method, "/some/resource", strings.NewReader(body))
 	req.Host = "demo.test.fider.io:3000"

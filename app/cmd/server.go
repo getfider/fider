@@ -6,7 +6,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -28,7 +27,7 @@ import (
 
 //RunServer starts the Fider Server
 //Returns an exitcode, 0 for OK and 1 for ERROR
-func RunServer(settings *models.SystemSettings) int {
+func RunServer() int {
 	svcs := bus.Init()
 	ctx := log.WithProperty(context.Background(), log.PropertyKeyTag, "BOOTSTRAP")
 	for _, s := range svcs {
@@ -40,13 +39,13 @@ func RunServer(settings *models.SystemSettings) int {
 
 	bus.Publish(ctx, &cmd.PurgeExpiredNotifications{})
 
-	e := routes(web.New(settings))
+	e := routes(web.New())
 
 	go e.Start(":" + env.Config.Port)
-	return listenSignals(e, settings)
+	return listenSignals(e)
 }
 
-func listenSignals(e *web.Engine, settings *models.SystemSettings) int {
+func listenSignals(e *web.Engine) int {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, append([]os.Signal{syscall.SIGTERM, syscall.SIGINT}, extraSignals...)...)
 	for {
@@ -59,7 +58,7 @@ func listenSignals(e *web.Engine, settings *models.SystemSettings) int {
 			}
 			return 0
 		default:
-			ret := handleExtraSignal(s, e, settings)
+			ret := handleExtraSignal(s, e)
 			if ret >= 0 {
 				return ret
 			}
