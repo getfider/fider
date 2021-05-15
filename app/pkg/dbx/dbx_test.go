@@ -7,7 +7,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/getfider/fider/app/models/entity"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -94,7 +93,7 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 
 	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.MustRollback()
-	u := []*entity.User{}
+	u := []*user{}
 
 	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 1 ORDER BY id")
 	Expect(err).IsNil()
