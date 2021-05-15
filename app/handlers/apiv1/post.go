@@ -36,20 +36,20 @@ func CreatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Input.Attachments, Folder: "attachments"}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Attachments, Folder: "attachments"}); err != nil {
 			return c.Failure(err)
 		}
 
 		newPost := &cmd.AddNewPost{
-			Title:       action.Input.Title,
-			Description: action.Input.Description,
+			Title:       action.Title,
+			Description: action.Description,
 		}
 		err := bus.Dispatch(c, newPost)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		setAttachments := &cmd.SetAttachments{Post: newPost.Result, Attachments: action.Input.Attachments}
+		setAttachments := &cmd.SetAttachments{Post: newPost.Result, Attachments: action.Attachments}
 		addVote := &cmd.AddVote{Post: newPost.Result, User: c.User()}
 		if err = bus.Dispatch(c, setAttachments, addVote); err != nil {
 			return c.Failure(err)

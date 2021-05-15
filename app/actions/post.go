@@ -16,13 +16,9 @@ import (
 
 // CreateNewPost is used to create a new post
 type CreateNewPost struct {
-	Input *models.NewPost
-}
-
-// Returns the struct to bind the request to
-func (action *CreateNewPost) BindTarget() interface{} {
-	action.Input = new(models.NewPost)
-	return action.Input
+	Title       string                `json:"title"`
+	Description string                `json:"description"`
+	Attachments []*models.ImageUpload `json:"attachments"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -34,14 +30,14 @@ func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *models.User
 func (action *CreateNewPost) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Input.Title == "" {
+	if action.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(action.Input.Title) < 10 {
+	} else if len(action.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
-	} else if len(action.Input.Title) > 100 {
+	} else if len(action.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	} else {
-		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Input.Title)})
+		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Title)})
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
 			return validate.Error(err)
 		} else if err == nil {
@@ -49,7 +45,7 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *models.User) *v
 		}
 	}
 
-	messages, err := validate.MultiImageUpload(nil, action.Input.Attachments, validate.MultiImageUploadOpts{
+	messages, err := validate.MultiImageUpload(nil, action.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   3,
 		MaxKilobytes: 5120,
 		ExactRatio:   false,

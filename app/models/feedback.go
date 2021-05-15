@@ -42,13 +42,6 @@ func (i *Post) CanBeVoted() bool {
 	return i.Status != enum.PostCompleted && i.Status != enum.PostDeclined && i.Status != enum.PostDuplicate
 }
 
-// NewPost represents a new post
-type NewPost struct {
-	Title       string         `json:"title"`
-	Description string         `json:"description"`
-	Attachments []*ImageUpload `json:"attachments"`
-}
-
 // UpdatePost represents a request to edit an existing post
 type UpdatePost struct {
 	Number      int            `route:"number"`

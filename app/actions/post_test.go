@@ -33,7 +33,7 @@ func TestCreateNewPost_InvalidPostTitles(t *testing.T) {
 		"My great great great great great great great great great great great great great great great great great post.",
 		"my GREAT post",
 	} {
-		action := &actions.CreateNewPost{Input: &models.NewPost{Title: title}}
+		action := &actions.CreateNewPost{Title: title}
 		result := action.Validate(context.Background(), nil)
 		ExpectFailed(result, "title")
 	}
@@ -50,7 +50,7 @@ func TestCreateNewPost_ValidPostTitles(t *testing.T) {
 		"this is my new post",
 		"this post is very descriptive",
 	} {
-		action := &actions.CreateNewPost{Input: &models.NewPost{Title: title}}
+		action := &actions.CreateNewPost{Title: title}
 		result := action.Validate(context.Background(), nil)
 		ExpectSuccess(result)
 	}
