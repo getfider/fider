@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -280,7 +281,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *te
 		return app.ErrNotFound
 	})
 
-	user := &models.User{
+	user := &entities.User{
 		Name:   "Hot Pie",
 		Email:  "hot.pie@got.com",
 		Tenant: mock.DemoTenant,
@@ -318,7 +319,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *test
 	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
-	user := &models.User{
+	user := &entities.User{
 		Name:   "Hot Pie",
 		Email:  "hot.pie@got.com",
 		Tenant: mock.DemoTenant,
@@ -404,7 +405,7 @@ func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 	server := mock.NewServer()
 	mock.DemoTenant.Status = enum.TenantPending
 
-	var newUser *models.User
+	var newUser *entities.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		newUser = c.User
 		return nil
@@ -507,7 +508,7 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 
 	server := mock.NewServer()
 
-	var newUser *models.User
+	var newUser *entities.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		newUser = c.User
 		return nil
@@ -594,7 +595,7 @@ func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 }
 
-func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *models.User) {
+func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *entities.User) {
 	cookies := response.Header()["Set-Cookie"]
 	if expected == nil {
 		for _, c := range cookies {
@@ -617,7 +618,7 @@ func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *models
 	}
 }
 
-func ExpectFiderToken(token string, expected *models.User) {
+func ExpectFiderToken(token string, expected *entities.User) {
 	user, err := jwt.DecodeFiderClaims(token)
 	Expect(err).IsNil()
 	Expect(user.UserID).Equals(expected.ID)

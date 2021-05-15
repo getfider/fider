@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -22,12 +23,12 @@ type CreateNewPost struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (action *CreateNewPost) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateNewPost) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Title == "" {
@@ -69,12 +70,12 @@ type UpdatePost struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *UpdatePost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdatePost) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (action *UpdatePost) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdatePost) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Title == "" {
@@ -131,12 +132,12 @@ type AddNewComment struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *AddNewComment) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *AddNewComment) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (action *AddNewComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *AddNewComment) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Content == "" {
@@ -167,12 +168,12 @@ type SetResponse struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *SetResponse) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *SetResponse) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (action *SetResponse) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *SetResponse) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Status < enum.PostOpen || action.Status > enum.PostDuplicate {
@@ -211,12 +212,12 @@ type DeletePost struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *DeletePost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *DeletePost) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (action *DeletePost) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *DeletePost) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	getPost := &query.GetPostByNumber{Number: action.Number}
 	if err := bus.Dispatch(ctx, getPost); err != nil {
 		return validate.Error(err)
@@ -248,7 +249,7 @@ type EditComment struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *EditComment) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *EditComment) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	postByNumber := &query.GetPostByNumber{Number: action.PostNumber}
 	commentByID := &query.GetCommentByID{CommentID: action.ID}
 	if err := bus.Dispatch(ctx, postByNumber, commentByID); err != nil {
@@ -261,7 +262,7 @@ func (action *EditComment) IsAuthorized(ctx context.Context, user *models.User) 
 }
 
 // Validate if current model is valid
-func (action *EditComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *EditComment) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Content == "" {
@@ -296,7 +297,7 @@ type DeleteComment struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *DeleteComment) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *DeleteComment) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	commentByID := &query.GetCommentByID{CommentID: action.CommentID}
 	if err := bus.Dispatch(ctx, commentByID); err != nil {
 		return false
@@ -306,6 +307,6 @@ func (action *DeleteComment) IsAuthorized(ctx context.Context, user *models.User
 }
 
 // Validate if current model is valid
-func (action *DeleteComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *DeleteComment) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	return validate.Success()
 }

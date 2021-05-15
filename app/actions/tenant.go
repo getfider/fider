@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -30,12 +31,12 @@ func NewCreateTenant() *CreateTenant {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *CreateTenant) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateTenant) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return true
 }
 
 // Validate if current model is valid
-func (action *CreateTenant) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateTenant) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
 	var err error
@@ -96,7 +97,7 @@ func (action *CreateTenant) GetName() string {
 }
 
 //GetUser returns the current user performing this action
-func (action *CreateTenant) GetUser() *models.User {
+func (action *CreateTenant) GetUser() *entities.User {
 	return nil
 }
 
@@ -121,15 +122,15 @@ func NewUpdateTenantSettings() *UpdateTenantSettings {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *UpdateTenantSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdateTenantSettings) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (action *UpdateTenantSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
-	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entities.Tenant)
 	if hasTenant {
 		action.Logo.BlobKey = tenant.LogoBlobKey
 	}
@@ -172,12 +173,12 @@ type UpdateTenantAdvancedSettings struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *UpdateTenantAdvancedSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdateTenantAdvancedSettings) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	return validate.Success()
 }
 
@@ -187,11 +188,11 @@ type UpdateTenantPrivacy struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *UpdateTenantPrivacy) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdateTenantPrivacy) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (action *UpdateTenantPrivacy) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdateTenantPrivacy) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	return validate.Success()
 }

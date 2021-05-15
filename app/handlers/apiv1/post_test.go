@@ -564,8 +564,8 @@ func TestListCommentHandler(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentsByPost) error {
 		q.Result = []*models.Comment{
-			&models.Comment{ID: 1, Content: "First Comment"},
-			&models.Comment{ID: 2, Content: "First Comment"},
+			{ID: 1, Content: "First Comment"},
+			{ID: 2, Content: "First Comment"},
 		}
 		return nil
 	})

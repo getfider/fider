@@ -4,6 +4,7 @@ import (
 	"context"
 	"regexp"
 
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
@@ -27,12 +28,12 @@ type CreateEditTag struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *CreateEditTag) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateEditTag) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (action *CreateEditTag) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateEditTag) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Slug != "" {
@@ -77,12 +78,12 @@ type DeleteTag struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *DeleteTag) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *DeleteTag) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (action *DeleteTag) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *DeleteTag) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	getSlug := &query.GetTagBySlug{Slug: action.Slug}
 	err := bus.Dispatch(ctx, getSlug)
 	if err != nil {
@@ -103,12 +104,12 @@ type AssignUnassignTag struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *AssignUnassignTag) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *AssignUnassignTag) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (action *AssignUnassignTag) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *AssignUnassignTag) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	getPost := &query.GetPostByNumber{Number: action.Number}
 	getSlug := &query.GetTagBySlug{Slug: action.Slug}
 	if err := bus.Dispatch(ctx, getPost, getSlug); err != nil {

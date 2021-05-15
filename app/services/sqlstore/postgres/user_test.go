@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -105,11 +106,11 @@ func TestUserStorage_Register(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user := &models.User{
+	user := &entities.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
 		Role:  enum.RoleCollaborator,
-		Providers: []*models.UserProvider{
+		Providers: []*entities.UserProvider{
 			{
 				UID:  "123123123",
 				Name: app.FacebookProvider,
@@ -134,7 +135,7 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user := &models.User{
+	user := &entities.User{
 		Name:  "Rob Stark",
 		Email: "   ",
 		Role:  enum.RoleCollaborator,
@@ -164,13 +165,13 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	`)
 	Expect(err).IsNil()
 
-	newTenantCtx := context.WithValue(ctx, app.TenantCtxKey, &models.Tenant{ID: tenantID})
+	newTenantCtx := context.WithValue(ctx, app.TenantCtxKey, &entities.Tenant{ID: tenantID})
 
-	user := &models.User{
+	user := &entities.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
 		Role:  enum.RoleCollaborator,
-		Providers: []*models.UserProvider{
+		Providers: []*entities.UserProvider{
 			{
 				UID:  "123123123",
 				Name: app.FacebookProvider,

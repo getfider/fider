@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -35,7 +36,7 @@ type UpdateCurrentUserSettings struct {
 }
 
 type RegisterUser struct {
-	User *models.User
+	User *entities.User
 }
 
 type RegisterUserProvider struct {

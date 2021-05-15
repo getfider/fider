@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -129,7 +130,7 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entities.User{
 			mock.AryaStark,
 		}
 		return nil
@@ -191,7 +192,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entities.User{
 			mock.JonSnow,
 		}
 		return nil
@@ -254,7 +255,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entities.User{
 			mock.AryaStark,
 		}
 		return nil
@@ -325,7 +326,7 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entities.User{
 			mock.AryaStark,
 		}
 		return nil
@@ -391,7 +392,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entities.User{
 			mock.AryaStark,
 		}
 		return nil

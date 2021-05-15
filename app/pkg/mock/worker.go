@@ -5,16 +5,16 @@ import (
 	"net/url"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
 // Worker is fake wrapper for background worker
 type Worker struct {
-	tenant   *models.Tenant
-	user     *models.User
-	baseURL  string
+	tenant  *entities.Tenant
+	user    *entities.User
+	baseURL string
 }
 
 func createWorker() *Worker {
@@ -22,13 +22,13 @@ func createWorker() *Worker {
 }
 
 // OnTenant set current context tenant
-func (w *Worker) OnTenant(tenant *models.Tenant) *Worker {
+func (w *Worker) OnTenant(tenant *entities.Tenant) *Worker {
 	w.tenant = tenant
 	return w
 }
 
 // AsUser set current context user
-func (w *Worker) AsUser(user *models.User) *Worker {
+func (w *Worker) AsUser(user *entities.User) *Worker {
 	w.user = user
 	return w
 }

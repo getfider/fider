@@ -2,6 +2,7 @@ package query
 
 import (
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -25,11 +26,11 @@ type GetVerificationByKey struct {
 }
 
 type GetFirstTenant struct {
-	Result *models.Tenant
+	Result *entities.Tenant
 }
 
 type GetTenantByDomain struct {
 	Domain string
 
-	Result *models.Tenant
+	Result *entities.Tenant
 }

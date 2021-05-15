@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -14,7 +15,7 @@ type Post struct {
 	Slug          string          `json:"slug"`
 	Description   string          `json:"description"`
 	CreatedAt     time.Time       `json:"createdAt"`
-	User          *User           `json:"user"`
+	User          *entities.User  `json:"user"`
 	HasVoted      bool            `json:"hasVoted"`
 	VotesCount    int             `json:"votesCount"`
 	CommentsCount int             `json:"commentsCount"`
@@ -44,10 +45,10 @@ func (i *Post) CanBeVoted() bool {
 
 //PostResponse is a staff response to a given post
 type PostResponse struct {
-	Text        string        `json:"text"`
-	RespondedAt time.Time     `json:"respondedAt"`
-	User        *User         `json:"user"`
-	Original    *OriginalPost `json:"original"`
+	Text        string         `json:"text"`
+	RespondedAt time.Time      `json:"respondedAt"`
+	User        *entities.User `json:"user"`
+	Original    *OriginalPost  `json:"original"`
 }
 
 //OriginalPost holds details of the original post of a duplicate
@@ -60,13 +61,13 @@ type OriginalPost struct {
 
 //Comment represents an user comment on an post
 type Comment struct {
-	ID          int        `json:"id"`
-	Content     string     `json:"content"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	User        *User      `json:"user"`
-	Attachments []string   `json:"attachments,omitempty"`
-	EditedAt    *time.Time `json:"editedAt,omitempty"`
-	EditedBy    *User      `json:"editedBy,omitempty"`
+	ID          int            `json:"id"`
+	Content     string         `json:"content"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	User        *entities.User `json:"user"`
+	Attachments []string       `json:"attachments,omitempty"`
+	EditedAt    *time.Time     `json:"editedAt,omitempty"`
+	EditedBy    *entities.User `json:"editedBy,omitempty"`
 }
 
 //Tag represents a simple tag

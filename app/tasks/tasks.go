@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -386,7 +387,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 	})
 }
 
-func getActiveSubscribers(ctx context.Context, post *models.Post, channel enum.NotificationChannel, event enum.NotificationEvent) ([]*models.User, error) {
+func getActiveSubscribers(ctx context.Context, post *models.Post, channel enum.NotificationChannel, event enum.NotificationEvent) ([]*entities.User, error) {
 	q := &query.GetActiveSubscribers{
 		Number:  post.Number,
 		Channel: channel,

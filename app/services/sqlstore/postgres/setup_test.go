@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/services/sqlstore/postgres"
 
@@ -13,7 +14,6 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/web"
@@ -21,13 +21,13 @@ import (
 
 var trx *dbx.Trx
 
-var demoTenant *models.Tenant
-var avengersTenant *models.Tenant
-var gotTenant *models.Tenant
-var jonSnow *models.User
-var aryaStark *models.User
-var sansaStark *models.User
-var tonyStark *models.User
+var demoTenant *entities.Tenant
+var avengersTenant *entities.Tenant
+var gotTenant *entities.Tenant
+var jonSnow *entities.User
+var aryaStark *entities.User
+var sansaStark *entities.User
+var tonyStark *entities.User
 
 var demoTenantCtx context.Context
 var avengersTenantCtx context.Context

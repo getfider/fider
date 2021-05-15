@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -25,12 +26,12 @@ type InviteUsers struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *InviteUsers) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *InviteUsers) IsAuthorized(ctx context.Context, user *entities.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (action *InviteUsers) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *InviteUsers) Validate(ctx context.Context, user *entities.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Subject == "" {

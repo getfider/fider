@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -103,9 +104,9 @@ func TestDeletePost_WhenIsBeingReferenced(t *testing.T) {
 func TestDeleteComment(t *testing.T) {
 	RegisterT(t)
 
-	author := &models.User{ID: 1, Role: enum.RoleVisitor}
-	notAuthor := &models.User{ID: 2, Role: enum.RoleVisitor}
-	administrator := &models.User{ID: 3, Role: enum.RoleAdministrator}
+	author := &entities.User{ID: 1, Role: enum.RoleVisitor}
+	notAuthor := &entities.User{ID: 2, Role: enum.RoleVisitor}
+	administrator := &entities.User{ID: 3, Role: enum.RoleAdministrator}
 	comment := &models.Comment{
 		ID:      1,
 		User:    author,

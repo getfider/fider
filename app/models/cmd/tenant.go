@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entities"
 )
 
 type CreateTenant struct {
@@ -11,7 +12,7 @@ type CreateTenant struct {
 	Subdomain string
 	Status    int
 
-	Result *models.Tenant
+	Result *entities.Tenant
 }
 
 type UpdateTenantPrivacySettings struct {

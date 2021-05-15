@@ -10,9 +10,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -64,7 +64,7 @@ func TestRenderer_Tenant(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
-	ctx.SetTenant(&models.Tenant{Name: "Game of Thrones"})
+	ctx.SetTenant(&entities.Tenant{Name: "Game of Thrones"})
 	renderer := web.NewRenderer()
 	renderer.Render(buf, http.StatusOK, "index.html", web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/tenant.html", ctx)
@@ -120,7 +120,7 @@ func TestRenderer_Home_SSR(t *testing.T) {
 	ctx := newGetContext("https://demo.test.fider.io:3000/", map[string]string{
 		"User-Agent": "Googlebot",
 	})
-	ctx.SetTenant(&models.Tenant{})
+	ctx.SetTenant(&entities.Tenant{})
 	renderer := web.NewRenderer()
 	renderer.Render(buf, http.StatusOK, "index.html", web.Props{
 		Title:       "My Page Title",
@@ -144,7 +144,7 @@ func TestRenderer_AuthenticatedUser(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
-	ctx.SetUser(&models.User{
+	ctx.SetUser(&entities.User{
 		ID:         5,
 		Name:       "Jon Snow",
 		Email:      "jon.snow@got.com",

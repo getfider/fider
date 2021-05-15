@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entities"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
@@ -49,7 +50,7 @@ func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
 }
 
 func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		if tenant == nil {
 			return app.ErrNotFound
 		}
@@ -73,7 +74,7 @@ func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuth
 }
 
 func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		configs := []*dbOAuthConfig{}
 		if tenant != nil {
 			err := trx.Select(&configs, `
@@ -98,7 +99,7 @@ func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) 
 }
 
 func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		var err error
 
 		if c.Logo.Remove {

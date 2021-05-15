@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/jsonq"
@@ -54,13 +54,13 @@ func (s *Server) Use(middleware web.MiddlewareFunc) *Server {
 }
 
 // OnTenant set current context tenant
-func (s *Server) OnTenant(tenant *models.Tenant) *Server {
+func (s *Server) OnTenant(tenant *entities.Tenant) *Server {
 	s.context.SetTenant(tenant)
 	return s
 }
 
 // AsUser set current context user
-func (s *Server) AsUser(user *models.User) *Server {
+func (s *Server) AsUser(user *entities.User) *Server {
 	s.context.SetUser(user)
 	return s
 }

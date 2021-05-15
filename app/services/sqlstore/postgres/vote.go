@@ -7,6 +7,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -38,7 +39,7 @@ func (v *dbVote) toModel(ctx context.Context) *models.Vote {
 }
 
 func addVote(ctx context.Context, c *cmd.AddVote) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		if !c.Post.CanBeVoted() {
 			return nil
 		}
@@ -57,7 +58,7 @@ func addVote(ctx context.Context, c *cmd.AddVote) error {
 }
 
 func removeVote(ctx context.Context, c *cmd.RemoveVote) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		if !c.Post.CanBeVoted() {
 			return nil
 		}
@@ -72,7 +73,7 @@ func removeVote(ctx context.Context, c *cmd.RemoveVote) error {
 }
 
 func listPostVotes(ctx context.Context, q *query.ListPostVotes) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		q.Result = make([]*models.Vote, 0)
 		sqlLimit := "ALL"
 		if q.Limit > 0 {

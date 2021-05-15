@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -37,7 +38,7 @@ func (c *dbComment) toModel(ctx context.Context) *models.Comment {
 }
 
 func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		var id int
 		if err := trx.Get(&id, `
 			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) 
@@ -62,7 +63,7 @@ func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 }
 
 func updateComment(ctx context.Context, c *cmd.UpdateComment) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		_, err := trx.Execute(`
 			UPDATE comments SET content = $1, edited_at = $2, edited_by_id = $3 
 			WHERE id = $4 AND tenant_id = $5`, c.Content, time.Now(), user.ID, c.CommentID, tenant.ID)
@@ -74,7 +75,7 @@ func updateComment(ctx context.Context, c *cmd.UpdateComment) error {
 }
 
 func deleteComment(ctx context.Context, c *cmd.DeleteComment) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		if _, err := trx.Execute(
 			"UPDATE comments SET deleted_at = $1, deleted_by_id = $2 WHERE id = $3 AND tenant_id = $4",
 			time.Now(), user.ID, c.CommentID, tenant.ID,
@@ -86,7 +87,7 @@ func deleteComment(ctx context.Context, c *cmd.DeleteComment) error {
 }
 
 func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		q.Result = nil
 
 		comment := dbComment{}
@@ -130,7 +131,7 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 }
 
 func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
 		q.Result = make([]*models.Comment, 0)
 
 		comments := []*dbComment{}
