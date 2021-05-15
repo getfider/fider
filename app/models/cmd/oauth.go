@@ -1,13 +1,12 @@
 package cmd
 
 import (
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
 )
 
 type SaveCustomOAuthConfig struct {
 	ID                int
-	Logo              *models.ImageUpload
+	Logo              *dto.ImageUpload
 	Provider          string
 	Status            int
 	DisplayName       string

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
 )
 
@@ -20,7 +21,7 @@ type UpdateTenantPrivacySettings struct {
 }
 
 type UpdateTenantSettings struct {
-	Logo           *models.ImageUpload
+	Logo           *dto.ImageUpload
 	Title          string
 	Invitation     string
 	WelcomeMessage string

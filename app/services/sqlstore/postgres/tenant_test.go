@@ -6,10 +6,10 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -125,7 +125,7 @@ func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{
 		Title: "My Domain Inc.",
 		CNAME: "feedback.mycompany.com",
-		Logo:  &models.ImageUpload{},
+		Logo:  &dto.ImageUpload{},
 	})
 	Expect(err).IsNil()
 
@@ -164,7 +164,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{
-		Logo: &models.ImageUpload{
+		Logo: &dto.ImageUpload{
 			BlobKey: "some-logo-key.png",
 		},
 		Title:          "New Demonstration",
@@ -303,7 +303,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(getConfig.Result).IsNil()
 
 	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
-		Logo: &models.ImageUpload{
+		Logo: &dto.ImageUpload{
 			BlobKey: "uploads/my-logo-key.png",
 		},
 		Provider:          "_TEST",
@@ -339,7 +339,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 
 	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
 		ID: getConfig.Result.ID,
-		Logo: &models.ImageUpload{
+		Logo: &dto.ImageUpload{
 			BlobKey: "",
 		},
 		Provider:          "_TEST2222", //this has to be ignored

@@ -4,12 +4,12 @@ import (
 	"context"
 	"strings"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -17,24 +17,24 @@ import (
 // CreateEditOAuthConfig is used to create/edit OAuth config
 type CreateEditOAuthConfig struct {
 	ID                int
-	Logo              *models.ImageUpload `json:"logo"`
-	Provider          string              `json:"provider"`
-	Status            int                 `json:"status"`
-	DisplayName       string              `json:"displayName"`
-	ClientID          string              `json:"clientID"`
-	ClientSecret      string              `json:"clientSecret"`
-	AuthorizeURL      string              `json:"authorizeURL" format:"lower"`
-	TokenURL          string              `json:"tokenURL" format:"lower"`
-	Scope             string              `json:"scope"`
-	ProfileURL        string              `json:"profileURL" format:"lower"`
-	JSONUserIDPath    string              `json:"jsonUserIDPath"`
-	JSONUserNamePath  string              `json:"jsonUserNamePath"`
-	JSONUserEmailPath string              `json:"jsonUserEmailPath"`
+	Logo              *dto.ImageUpload `json:"logo"`
+	Provider          string           `json:"provider"`
+	Status            int              `json:"status"`
+	DisplayName       string           `json:"displayName"`
+	ClientID          string           `json:"clientID"`
+	ClientSecret      string           `json:"clientSecret"`
+	AuthorizeURL      string           `json:"authorizeURL" format:"lower"`
+	TokenURL          string           `json:"tokenURL" format:"lower"`
+	Scope             string           `json:"scope"`
+	ProfileURL        string           `json:"profileURL" format:"lower"`
+	JSONUserIDPath    string           `json:"jsonUserIDPath"`
+	JSONUserNamePath  string           `json:"jsonUserNamePath"`
+	JSONUserEmailPath string           `json:"jsonUserEmailPath"`
 }
 
 func NewCreateEditOAuthConfig() *CreateEditOAuthConfig {
 	return &CreateEditOAuthConfig{
-		Logo: &models.ImageUpload{},
+		Logo: &dto.ImageUpload{},
 	}
 }
 

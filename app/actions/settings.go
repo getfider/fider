@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -12,15 +12,15 @@ import (
 
 // UpdateUserSettings happens when users updates their settings
 type UpdateUserSettings struct {
-	Name       string              `json:"name"`
-	AvatarType enum.AvatarType     `json:"avatarType"`
-	Avatar     *models.ImageUpload `json:"avatar"`
-	Settings   map[string]string   `json:"settings"`
+	Name       string            `json:"name"`
+	AvatarType enum.AvatarType   `json:"avatarType"`
+	Avatar     *dto.ImageUpload  `json:"avatar"`
+	Settings   map[string]string `json:"settings"`
 }
 
 func NewUpdateUserSettings() *UpdateUserSettings {
 	return &UpdateUserSettings{
-		Avatar: &models.ImageUpload{},
+		Avatar: &dto.ImageUpload{},
 	}
 }
 

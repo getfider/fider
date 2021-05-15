@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -29,8 +29,8 @@ func TestValidateImageUpload(t *testing.T) {
 	for _, testCase := range testCases {
 		img, _ := ioutil.ReadFile(env.Path(testCase.fileName))
 
-		upload := &models.ImageUpload{
-			Upload: &models.ImageUploadData{
+		upload := &dto.ImageUpload{
+			Upload: &dto.ImageUploadData{
 				Content: img,
 			},
 		}
@@ -54,8 +54,8 @@ func TestValidateImageUpload_ExactRatio(t *testing.T) {
 		MaxKilobytes: 200,
 	}
 
-	upload := &models.ImageUpload{
-		Upload: &models.ImageUploadData{
+	upload := &dto.ImageUpload{
+		Upload: &dto.ImageUploadData{
 			Content: img,
 		},
 	}
@@ -83,7 +83,7 @@ func TestValidateImageUpload_Nil(t *testing.T) {
 	Expect(messages).HasLen(0)
 	Expect(err).IsNil()
 
-	messages, err = validate.ImageUpload(&models.ImageUpload{}, validate.ImageUploadOpts{
+	messages, err = validate.ImageUpload(&dto.ImageUpload{}, validate.ImageUploadOpts{
 		IsRequired:   false,
 		MinHeight:    200,
 		MinWidth:     200,
@@ -98,12 +98,12 @@ func TestValidateImageUpload_Required(t *testing.T) {
 	RegisterT(t)
 
 	var testCases = []struct {
-		upload *models.ImageUpload
+		upload *dto.ImageUpload
 		count  int
 	}{
 		{nil, 1},
-		{&models.ImageUpload{}, 1},
-		{&models.ImageUpload{
+		{&dto.ImageUpload{}, 1},
+		{&dto.ImageUpload{
 			BlobKey: "some-file.png",
 			Remove:  true,
 		}, 1},
@@ -127,19 +127,19 @@ func TestValidateMultiImageUpload(t *testing.T) {
 
 	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 
-	uploads := []*models.ImageUpload{
-		&models.ImageUpload{
-			Upload: &models.ImageUploadData{
+	uploads := []*dto.ImageUpload{
+		{
+			Upload: &dto.ImageUploadData{
 				Content: img,
 			},
 		},
-		&models.ImageUpload{
-			Upload: &models.ImageUploadData{
+		{
+			Upload: &dto.ImageUploadData{
 				Content: img,
 			},
 		},
-		&models.ImageUpload{
-			Upload: &models.ImageUploadData{
+		{
+			Upload: &dto.ImageUploadData{
 				Content: img,
 			},
 		},
@@ -158,22 +158,22 @@ func TestValidateMultiImageUpload_Existing(t *testing.T) {
 
 	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 
-	uploads := []*models.ImageUpload{
-		&models.ImageUpload{
+	uploads := []*dto.ImageUpload{
+		{
 			BlobKey: "attachments/file1.png",
 			Remove:  true,
 		},
-		&models.ImageUpload{
+		{
 			BlobKey: "attachments/file2.png",
 			Remove:  true,
 		},
-		&models.ImageUpload{
-			Upload: &models.ImageUploadData{
+		{
+			Upload: &dto.ImageUploadData{
 				Content: img,
 			},
 		},
-		&models.ImageUpload{
-			Upload: &models.ImageUploadData{
+		{
+			Upload: &dto.ImageUploadData{
 				Content: img,
 			},
 		},

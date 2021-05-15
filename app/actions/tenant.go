@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
@@ -108,16 +109,16 @@ func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
 
 //UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
-	Logo           *models.ImageUpload `json:"logo"`
-	Title          string              `json:"title"`
-	Invitation     string              `json:"invitation"`
-	WelcomeMessage string              `json:"welcomeMessage"`
-	CNAME          string              `json:"cname" format:"lower"`
+	Logo           *dto.ImageUpload `json:"logo"`
+	Title          string           `json:"title"`
+	Invitation     string           `json:"invitation"`
+	WelcomeMessage string           `json:"welcomeMessage"`
+	CNAME          string           `json:"cname" format:"lower"`
 }
 
 func NewUpdateTenantSettings() *UpdateTenantSettings {
 	return &UpdateTenantSettings{
-		Logo: &models.ImageUpload{},
+		Logo: &dto.ImageUpload{},
 	}
 }
 

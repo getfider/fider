@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -10,16 +11,15 @@ import (
 	"github.com/gosimple/slug"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
 // CreateNewPost is used to create a new post
 type CreateNewPost struct {
-	Title       string                `json:"title"`
-	Description string                `json:"description"`
-	Attachments []*models.ImageUpload `json:"attachments"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Attachments []*dto.ImageUpload `json:"attachments"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -61,10 +61,10 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *entities.User) 
 
 // UpdatePost is used to edit an existing new post
 type UpdatePost struct {
-	Number      int                   `route:"number"`
-	Title       string                `json:"title"`
-	Description string                `json:"description"`
-	Attachments []*models.ImageUpload `json:"attachments"`
+	Number      int                `route:"number"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Attachments []*dto.ImageUpload `json:"attachments"`
 
 	Post *entities.Post
 }
@@ -126,9 +126,9 @@ func (action *UpdatePost) Validate(ctx context.Context, user *entities.User) *va
 
 // AddNewComment represents a new comment to be added
 type AddNewComment struct {
-	Number      int                   `route:"number"`
-	Content     string                `json:"content"`
-	Attachments []*models.ImageUpload `json:"attachments"`
+	Number      int                `route:"number"`
+	Content     string             `json:"content"`
+	Attachments []*dto.ImageUpload `json:"attachments"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -239,10 +239,10 @@ func (action *DeletePost) Validate(ctx context.Context, user *entities.User) *va
 
 // EditComment represents the action to update an existing comment
 type EditComment struct {
-	PostNumber  int                   `route:"number"`
-	ID          int                   `route:"id"`
-	Content     string                `json:"content"`
-	Attachments []*models.ImageUpload `json:"attachments"`
+	PostNumber  int                `route:"number"`
+	ID          int                `route:"id"`
+	Content     string             `json:"content"`
+	Attachments []*dto.ImageUpload `json:"attachments"`
 
 	Post    *entities.Post
 	Comment *entities.Comment

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -13,7 +14,6 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -225,7 +225,7 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 
 	err := bus.Dispatch(jonSnowCtx, &cmd.UpdateCurrentUser{
 		Name: "Jon Stark",
-		Avatar: &models.ImageUpload{
+		Avatar: &dto.ImageUpload{
 			BlobKey: "jon.png",
 		},
 	})

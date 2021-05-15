@@ -8,20 +8,6 @@ import (
 	"github.com/getfider/fider/app/pkg/rand"
 )
 
-//ImageUpload is the input model used to upload/remove an image
-type ImageUpload struct {
-	BlobKey string           `json:"bkey"`
-	Upload  *ImageUploadData `json:"upload"`
-	Remove  bool             `json:"remove"`
-}
-
-//ImageUploadData is the input model used to upload a new logo
-type ImageUploadData struct {
-	FileName    string `json:"fileName"`
-	ContentType string `json:"contentType"`
-	Content     []byte `json:"content"`
-}
-
 //UserInvitation is the model used to register an invite sent to an user
 type UserInvitation struct {
 	Email           string
