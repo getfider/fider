@@ -122,7 +122,7 @@ func SetResponse() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		getPost := &query.GetPostByNumber{Number: action.Model.Number}
+		getPost := &query.GetPostByNumber{Number: action.Input.Number}
 		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
@@ -130,13 +130,13 @@ func SetResponse() web.HandlerFunc {
 		prevStatus := getPost.Result.Status
 
 		var command bus.Msg
-		if action.Model.Status == enum.PostDuplicate {
+		if action.Input.Status == enum.PostDuplicate {
 			command = &cmd.MarkPostAsDuplicate{Post: getPost.Result, Original: action.Original}
 		} else {
 			command = &cmd.SetPostResponse{
 				Post:   getPost.Result,
-				Text:   action.Model.Text,
-				Status: action.Model.Status,
+				Text:   action.Input.Text,
+				Status: action.Input.Status,
 			}
 		}
 
@@ -266,17 +266,17 @@ func UpdateComment() web.HandlerFunc {
 
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
-				Images: action.Model.Attachments,
+				Images: action.Input.Attachments,
 				Folder: "attachments",
 			},
 			&cmd.UpdateComment{
-				CommentID: action.Model.ID,
-				Content:   action.Model.Content,
+				CommentID: action.Input.ID,
+				Content:   action.Input.Content,
 			},
 			&cmd.SetAttachments{
 				Post:        action.Post,
 				Comment:     action.Comment,
-				Attachments: action.Model.Attachments,
+				Attachments: action.Input.Attachments,
 			},
 		)
 		if err != nil {

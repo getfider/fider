@@ -16,7 +16,7 @@ import (
 func TestInviteUsers_Empty(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{}}
+	action := &actions.InviteUsers{Input: &models.InviteUsers{}}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subject", "message", "recipients")
 	Expect(action.Invitations).IsNil()
@@ -25,7 +25,7 @@ func TestInviteUsers_Empty(t *testing.T) {
 func TestInviteUsers_Oversized(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{Input: &models.InviteUsers{
 		Subject:    "Join us and share your ideas. Because we have a cool website and this subject needs to be very long",
 		Message:    "Use this link to join %invite%",
 		Recipients: []string{"jon.snow@got.com"},
@@ -38,7 +38,7 @@ func TestInviteUsers_Oversized(t *testing.T) {
 func TestInviteUsers_MissingInvite(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{Input: &models.InviteUsers{
 		Subject:    "Share your feedback.",
 		Message:    "Please!",
 		Recipients: []string{"jon.snow@got.com"},
@@ -56,7 +56,7 @@ func TestInviteUsers_TooManyRecipients(t *testing.T) {
 		recipients[i] = fmt.Sprintf("jon.snow%d@got.com", i)
 	}
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{Input: &models.InviteUsers{
 		Subject:    "Share your feedback.",
 		Message:    "Use this link to join %invite%",
 		Recipients: recipients,
@@ -69,7 +69,7 @@ func TestInviteUsers_TooManyRecipients(t *testing.T) {
 func TestInviteUsers_InvalidRecipient(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{Input: &models.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
@@ -89,7 +89,7 @@ func TestInviteUsers_Valid(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{Input: &models.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
@@ -121,7 +121,7 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{Input: &models.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
@@ -150,7 +150,7 @@ func TestInviteUsers_ShouldFail_WhenAllRecipientsIgnored(t *testing.T) {
 		return nil
 	})
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{Input: &models.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
@@ -166,7 +166,7 @@ func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {
 
 	action := &actions.InviteUsers{
 		IsSampleInvite: true,
-		Model: &models.InviteUsers{
+		Input: &models.InviteUsers{
 			Subject: "Share your feedback.",
 			Message: "Use this link to join our community: %invite%",
 		},

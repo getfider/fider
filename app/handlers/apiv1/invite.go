@@ -23,10 +23,10 @@ func SendSampleInvite() web.HandlerFunc {
 		}
 
 		if c.User().Email != "" {
-			input.Model.Message = strings.Replace(input.Model.Message, app.InvitePlaceholder, "*the link to accept invitation will be here*", -1)
+			input.Input.Message = strings.Replace(input.Input.Message, app.InvitePlaceholder, "*the link to accept invitation will be here*", -1)
 			to := dto.NewRecipient(c.User().Name, c.User().Email, dto.Props{
-				"subject": input.Model.Subject,
-				"message": markdown.Full(input.Model.Message),
+				"subject": input.Input.Subject,
+				"message": markdown.Full(input.Input.Message),
 			})
 
 			bus.Publish(c, &cmd.SendMail{
@@ -55,7 +55,7 @@ func SendInvites() web.HandlerFunc {
 			"TotalInvites": len(action.Invitations),
 			"ClientIP":     c.Request.ClientIP,
 		})
-		c.Enqueue(tasks.SendInvites(action.Model.Subject, action.Model.Message, action.Invitations))
+		c.Enqueue(tasks.SendInvites(action.Input.Subject, action.Input.Message, action.Invitations))
 
 		return c.Ok(web.Map{})
 	}

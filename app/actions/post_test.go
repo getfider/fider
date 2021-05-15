@@ -59,7 +59,7 @@ func TestCreateNewPost_ValidPostTitles(t *testing.T) {
 func TestSetResponse_InvalidStatus(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.SetResponse{Model: &models.SetResponse{
+	action := &actions.SetResponse{Input: &models.SetResponse{
 		Status: enum.PostDeleted,
 		Text:   "Spam!",
 	}}
