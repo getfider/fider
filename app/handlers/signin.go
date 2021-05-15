@@ -134,19 +134,19 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 // CompleteSignInProfile handles the action to update user profile
 func CompleteSignInProfile() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CompleteProfile)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.CompleteProfile)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := bus.Dispatch(c, &query.GetUserByEmail{Email: input.Model.Email})
+		err := bus.Dispatch(c, &query.GetUserByEmail{Email: action.Model.Email})
 		if errors.Cause(err) != app.ErrNotFound {
 			return c.Ok(web.Map{})
 		}
 
 		user := &models.User{
-			Name:   input.Model.Name,
-			Email:  input.Model.Email,
+			Name:   action.Model.Name,
+			Email:  action.Model.Email,
 			Tenant: c.Tenant(),
 			Role:   enum.RoleVisitor,
 		}
@@ -155,7 +155,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: input.Model.Key})
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Model.Key})
 		if err != nil {
 			return c.Failure(err)
 		}

@@ -26,28 +26,28 @@ func ListUsers() web.HandlerFunc {
 // CreateUser is used to create new users
 func CreateUser() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CreateUser)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.CreateUser)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		var user *models.User
 
-		getByReference := &query.GetUserByProvider{Provider: "reference", UID: input.Model.Reference}
+		getByReference := &query.GetUserByProvider{Provider: "reference", UID: action.Model.Reference}
 		err := bus.Dispatch(c, getByReference)
 		user = getByReference.Result
 
 		if err != nil && errors.Cause(err) == app.ErrNotFound {
-			if input.Model.Email != "" {
-				getByEmail := &query.GetUserByEmail{Email: input.Model.Email}
+			if action.Model.Email != "" {
+				getByEmail := &query.GetUserByEmail{Email: action.Model.Email}
 				err = bus.Dispatch(c, getByEmail)
 				user = getByEmail.Result
 			}
 			if err != nil && errors.Cause(err) == app.ErrNotFound {
 				user = &models.User{
 					Tenant: c.Tenant(),
-					Name:   input.Model.Name,
-					Email:  input.Model.Email,
+					Name:   action.Model.Name,
+					Email:  action.Model.Email,
 					Role:   enum.RoleVisitor,
 				}
 				err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
@@ -58,11 +58,11 @@ func CreateUser() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if input.Model.Reference != "" && !user.HasProvider("reference") {
+		if action.Model.Reference != "" && !user.HasProvider("reference") {
 			if err := bus.Dispatch(c, &cmd.RegisterUserProvider{
 				UserID:       user.ID,
 				ProviderName: "reference",
-				ProviderUID:  input.Model.Reference,
+				ProviderUID:  action.Model.Reference,
 			}); err != nil {
 				return c.Failure(err)
 			}

@@ -116,14 +116,14 @@ func UpdateUserSettings() web.HandlerFunc {
 // ChangeUserRole changes given user role
 func ChangeUserRole() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.ChangeUserRole)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.ChangeUserRole)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		changeRole := &cmd.ChangeUserRole{
-			UserID: input.Model.UserID,
-			Role:   input.Model.Role,
+			UserID: action.Model.UserID,
+			Role:   action.Model.Role,
 		}
 
 		if err := bus.Dispatch(c, changeRole); err != nil {

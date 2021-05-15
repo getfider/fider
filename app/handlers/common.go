@@ -112,13 +112,13 @@ type NewLogError struct {
 //LogError logs an error coming from the UI
 func LogError() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(NewLogError)
-		err := c.Bind(input)
+		action := new(NewLogError)
+		err := c.Bind(action)
 		if err != nil {
 			return c.Failure(err)
 		}
-		log.Debugf(c, input.Message, dto.Props{
-			"Data": input.Data,
+		log.Debugf(c, action.Message, dto.Props{
+			"Data": action.Data,
 		})
 		return c.Ok(web.Map{})
 	}

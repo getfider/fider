@@ -46,16 +46,16 @@ func SendSampleInvite() web.HandlerFunc {
 // SendInvites sends an email to each recipient
 func SendInvites() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.InviteUsers)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.InviteUsers)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		log.Warnf(c, "Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", dto.Props{
-			"TotalInvites": len(input.Invitations),
+			"TotalInvites": len(action.Invitations),
 			"ClientIP":     c.Request.ClientIP,
 		})
-		c.Enqueue(tasks.SendInvites(input.Model.Subject, input.Model.Message, input.Invitations))
+		c.Enqueue(tasks.SendInvites(action.Model.Subject, action.Model.Message, action.Invitations))
 
 		return c.Ok(web.Map{})
 	}

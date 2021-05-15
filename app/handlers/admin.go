@@ -58,12 +58,12 @@ func UpdateSettings() web.HandlerFunc {
 // UpdateAdvancedSettings update current tenant' advanced settings
 func UpdateAdvancedSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantAdvancedSettings)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.UpdateTenantAdvancedSettings)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{Settings: input.Model}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{Settings: action.Model}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -74,12 +74,12 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 // UpdatePrivacy update current tenant's privacy settings
 func UpdatePrivacy() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantPrivacy)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.UpdateTenantPrivacy)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		updateSettings := &cmd.UpdateTenantPrivacySettings{Settings: input.Model}
+		updateSettings := &cmd.UpdateTenantPrivacySettings{Settings: action.Model}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)
 		}
