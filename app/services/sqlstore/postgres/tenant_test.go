@@ -261,7 +261,7 @@ func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
 	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
 		Key:      "th3-s3cr3t",
 		Duration: 15 * time.Minute,
-		Request: &models.ChangeUserEmail{
+		Request: &actions.ChangeUserEmail{
 			Email:     "jon.stark@got.com",
 			Requestor: jonSnow,
 		},

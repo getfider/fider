@@ -77,14 +77,3 @@ type Tag struct {
 	Color    string `json:"color"`
 	IsPublic bool   `json:"isPublic"`
 }
-
-// DeleteTag is used to delete an existing tag
-type DeleteTag struct {
-	Slug string `route:"slug"`
-}
-
-// AssignUnassignTag is used to assign or remove a tag to/from an post
-type AssignUnassignTag struct {
-	Slug   string `route:"slug"`
-	Number int    `route:"number"`
-}

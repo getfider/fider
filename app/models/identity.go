@@ -82,59 +82,6 @@ type ImageUploadData struct {
 	Content     []byte `json:"content"`
 }
 
-//SignInByEmail is the input model when user request to sign in by email
-type SignInByEmail struct {
-	Email           string `json:"email" format:"lower"`
-	VerificationKey string
-}
-
-//GetEmail returns the email being verified
-func (e *SignInByEmail) GetEmail() string {
-	return e.Email
-}
-
-//GetName returns empty for this kind of process
-func (e *SignInByEmail) GetName() string {
-	return ""
-}
-
-//GetUser returns the current user performing this action
-func (e *SignInByEmail) GetUser() *User {
-	return nil
-}
-
-//GetKind returns EmailVerificationKindSignIn
-func (e *SignInByEmail) GetKind() enum.EmailVerificationKind {
-	return enum.EmailVerificationKindSignIn
-}
-
-//ChangeUserEmail is the input model used to change current user's email
-type ChangeUserEmail struct {
-	Email           string `json:"email" format:"lower"`
-	VerificationKey string
-	Requestor       *User
-}
-
-//GetEmail returns the email being verified
-func (e *ChangeUserEmail) GetEmail() string {
-	return e.Email
-}
-
-//GetName returns empty for this kind of process
-func (e *ChangeUserEmail) GetName() string {
-	return ""
-}
-
-//GetUser returns the current user performing this action
-func (e *ChangeUserEmail) GetUser() *User {
-	return e.Requestor
-}
-
-//GetKind returns EmailVerificationKindSignIn
-func (e *ChangeUserEmail) GetKind() enum.EmailVerificationKind {
-	return enum.EmailVerificationKindChangeEmail
-}
-
 //UserInvitation is the model used to register an invite sent to an user
 type UserInvitation struct {
 	Email           string
@@ -179,34 +126,6 @@ type EmailVerification struct {
 	CreatedAt  time.Time
 	ExpiresAt  time.Time
 	VerifiedAt *time.Time
-}
-
-// CompleteProfile is the model used to complete user profile during email sign in
-type CompleteProfile struct {
-	Key   string `json:"key"`
-	Name  string `json:"name"`
-	Email string
-}
-
-// UpdateUserSettings is the model used to update user's settings
-type UpdateUserSettings struct {
-	Name       string            `json:"name"`
-	AvatarType enum.AvatarType   `json:"avatarType"`
-	Avatar     *ImageUpload      `json:"avatar"`
-	Settings   map[string]string `json:"settings"`
-}
-
-// CreateUser is the input model to create a new user
-type CreateUser struct {
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Reference string `json:"reference"`
-}
-
-// ChangeUserRole is the input model change role of an user
-type ChangeUserRole struct {
-	Role   enum.Role `route:"role"`
-	UserID int       `json:"userID"`
 }
 
 // GenerateSecretKey returns a 64 chars key

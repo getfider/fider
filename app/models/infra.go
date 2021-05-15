@@ -26,24 +26,6 @@ type Notification struct {
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 }
 
-// CreateEditOAuthConfig is used to create/edit an OAuth Configuration
-type CreateEditOAuthConfig struct {
-	ID                int
-	Logo              *ImageUpload `json:"logo"`
-	Provider          string       `json:"provider"`
-	Status            int          `json:"status"`
-	DisplayName       string       `json:"displayName"`
-	ClientID          string       `json:"clientID"`
-	ClientSecret      string       `json:"clientSecret"`
-	AuthorizeURL      string       `json:"authorizeURL" format:"lower"`
-	TokenURL          string       `json:"tokenURL" format:"lower"`
-	Scope             string       `json:"scope"`
-	ProfileURL        string       `json:"profileURL" format:"lower"`
-	JSONUserIDPath    string       `json:"jsonUserIDPath"`
-	JSONUserNamePath  string       `json:"jsonUserNamePath"`
-	JSONUserEmailPath string       `json:"jsonUserEmailPath"`
-}
-
 // OAuthConfig is the configuration of a custom OAuth provider
 type OAuthConfig struct {
 	ID                int
@@ -84,17 +66,4 @@ func (o OAuthConfig) MarshalJSON() ([]byte, error) {
 		"jsonUserNamePath":  o.JSONUserNamePath,
 		"jsonUserEmailPath": o.JSONUserEmailPath,
 	})
-}
-
-// APIAuthorize is used during API Authorize process
-type APIAuthorize struct {
-	APIKey string `json:"apiKey"`
-}
-
-// Event is used for tracking client audit events and actions
-type Event struct {
-	ID        int       `json:"id"`
-	ClientIP  string    `json:"clientIP"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"createdAt"`
 }
