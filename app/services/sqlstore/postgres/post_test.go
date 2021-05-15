@@ -583,7 +583,7 @@ func TestPostStorage_Attachments(t *testing.T) {
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
 		Post: newPost1.Result,
 		Attachments: []*models.ImageUpload{
-			&models.ImageUpload{
+			{
 				BlobKey: "12345-test.png",
 				Upload: &models.ImageUploadData{
 					FileName:    "test.png",
@@ -604,11 +604,11 @@ func TestPostStorage_Attachments(t *testing.T) {
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
 		Post: newPost2.Result,
 		Attachments: []*models.ImageUpload{
-			&models.ImageUpload{
+			{
 				BlobKey: "12345-test.png",
 				Remove:  true,
 			},
-			&models.ImageUpload{
+			{
 				BlobKey: "67890-test2.png",
 				Upload: &models.ImageUploadData{
 					FileName:    "test2.png",
@@ -616,7 +616,7 @@ func TestPostStorage_Attachments(t *testing.T) {
 					Content:     bytes,
 				},
 			},
-			&models.ImageUpload{
+			{
 				BlobKey: "67890-test6.png",
 				Upload: &models.ImageUploadData{
 					FileName:    "test6.png",
@@ -639,7 +639,7 @@ func TestPostStorage_Attachments(t *testing.T) {
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
 		Post: newPost1.Result,
 		Attachments: []*models.ImageUpload{
-			&models.ImageUpload{
+			{
 				BlobKey: "12345-test.png",
 				Remove:  true,
 			},

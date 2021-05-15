@@ -65,13 +65,13 @@ func TestUploadMultipleImages(t *testing.T) {
 
 	uploadImages := &cmd.UploadImages{
 		Images: []*models.ImageUpload{
-			&models.ImageUpload{
+			{
 				Upload: &models.ImageUploadData{
 					Content:     []byte("Hello World 1"),
 					ContentType: "text/plain",
 				},
 			},
-			&models.ImageUpload{
+			{
 				Upload: &models.ImageUploadData{
 					Content:     []byte("Hello World 2"),
 					ContentType: "text/plain",

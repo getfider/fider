@@ -93,17 +93,17 @@ func UpdatePost() web.HandlerFunc {
 
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
-				Images: action.Input.Attachments,
+				Images: action.Attachments,
 				Folder: "attachments",
 			},
 			&cmd.UpdatePost{
 				Post:        action.Post,
-				Title:       action.Input.Title,
-				Description: action.Input.Description,
+				Title:       action.Title,
+				Description: action.Description,
 			},
 			&cmd.SetAttachments{
 				Post:        action.Post,
-				Attachments: action.Input.Attachments,
+				Attachments: action.Attachments,
 			},
 		)
 		if err != nil {

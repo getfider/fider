@@ -60,14 +60,12 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *models.User) *v
 
 // UpdatePost is used to edit an existing new post
 type UpdatePost struct {
-	Input *models.UpdatePost
-	Post  *models.Post
-}
+	Number      int                   `route:"number"`
+	Title       string                `json:"title"`
+	Description string                `json:"description"`
+	Attachments []*models.ImageUpload `json:"attachments"`
 
-// Returns the struct to bind the request to
-func (action *UpdatePost) BindTarget() interface{} {
-	action.Input = new(models.UpdatePost)
-	return action.Input
+	Post *models.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -79,24 +77,24 @@ func (action *UpdatePost) IsAuthorized(ctx context.Context, user *models.User) b
 func (action *UpdatePost) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Input.Title == "" {
+	if action.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(action.Input.Title) < 10 {
+	} else if len(action.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
-	if len(action.Input.Title) > 100 {
+	if len(action.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
-	postByNumber := &query.GetPostByNumber{Number: action.Input.Number}
+	postByNumber := &query.GetPostByNumber{Number: action.Number}
 	if err := bus.Dispatch(ctx, postByNumber); err != nil {
 		return validate.Error(err)
 	}
 
 	action.Post = postByNumber.Result
 
-	postBySlug := &query.GetPostBySlug{Slug: slug.Make(action.Input.Title)}
+	postBySlug := &query.GetPostBySlug{Slug: slug.Make(action.Title)}
 	err := bus.Dispatch(ctx, postBySlug)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
@@ -104,14 +102,14 @@ func (action *UpdatePost) Validate(ctx context.Context, user *models.User) *vali
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
-	if len(action.Input.Attachments) > 0 {
+	if len(action.Attachments) > 0 {
 		getAttachments := &query.GetAttachments{Post: action.Post}
 		err = bus.Dispatch(ctx, getAttachments)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		messages, err := validate.MultiImageUpload(getAttachments.Result, action.Input.Attachments, validate.MultiImageUploadOpts{
+		messages, err := validate.MultiImageUpload(getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   3,
 			MaxKilobytes: 5120,
 			ExactRatio:   false,
