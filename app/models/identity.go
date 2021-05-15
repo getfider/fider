@@ -261,13 +261,6 @@ type ChangeUserRole struct {
 	UserID int       `json:"userID"`
 }
 
-// InviteUsers is used to invite new users into Fider
-type InviteUsers struct {
-	Subject    string   `json:"subject"`
-	Message    string   `json:"message"`
-	Recipients []string `json:"recipients" format:"lower"`
-}
-
 // GenerateSecretKey returns a 64 chars key
 func GenerateSecretKey() string {
 	return rand.String(64)
