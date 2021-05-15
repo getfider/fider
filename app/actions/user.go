@@ -14,13 +14,9 @@ import (
 
 //CreateUser is the action to create a new user
 type CreateUser struct {
-	Input *models.CreateUser
-}
-
-// Returns the struct to bind the request to
-func (action *CreateUser) BindTarget() interface{} {
-	action.Input = new(models.CreateUser)
-	return action.Input
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Reference string `json:"reference"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -32,23 +28,23 @@ func (action *CreateUser) IsAuthorized(ctx context.Context, user *models.User) b
 func (action *CreateUser) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Input.Name == "" {
+	if action.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
-	} else if len(action.Input.Name) > 100 {
+	} else if len(action.Name) > 100 {
 		result.AddFieldFailure("name", "Name must have less than 100 characters.")
 	}
 
-	if action.Input.Email == "" && action.Input.Reference == "" {
+	if action.Email == "" && action.Reference == "" {
 		result.AddFieldFailure("", "Either email or reference is required")
 	} else {
-		if action.Input.Email != "" {
-			messages := validate.Email(action.Input.Email)
+		if action.Email != "" {
+			messages := validate.Email(action.Email)
 			if len(messages) > 0 {
 				result.AddFieldFailure("email", messages...)
 			}
 		}
 
-		if len(action.Input.Reference) > 100 {
+		if len(action.Reference) > 100 {
 			result.AddFieldFailure("reference", "Reference must have less than 100 characters.")
 		}
 	}
@@ -58,13 +54,8 @@ func (action *CreateUser) Validate(ctx context.Context, user *models.User) *vali
 
 //ChangeUserRole is the input model change role of an user
 type ChangeUserRole struct {
-	Input *models.ChangeUserRole
-}
-
-// Returns the struct to bind the request to
-func (action *ChangeUserRole) BindTarget() interface{} {
-	action.Input = new(models.ChangeUserRole)
-	return action.Input
+	Role   enum.Role `route:"role"`
+	UserID int       `json:"userID"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -72,21 +63,21 @@ func (action *ChangeUserRole) IsAuthorized(ctx context.Context, user *models.Use
 	if user == nil {
 		return false
 	}
-	return user.IsAdministrator() && user.ID != action.Input.UserID
+	return user.IsAdministrator() && user.ID != action.UserID
 }
 
 // Validate if current model is valid
 func (action *ChangeUserRole) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
-	if action.Input.Role < enum.RoleVisitor || action.Input.Role > enum.RoleAdministrator {
+	if action.Role < enum.RoleVisitor || action.Role > enum.RoleAdministrator {
 		return validate.Error(app.ErrNotFound)
 	}
 
-	if user.ID == action.Input.UserID {
+	if user.ID == action.UserID {
 		result.AddFieldFailure("userID", "It is not allowed to change your own Role.")
 	}
 
-	userByID := &query.GetUserByID{UserID: action.Input.UserID}
+	userByID := &query.GetUserByID{UserID: action.UserID}
 	err := bus.Dispatch(ctx, userByID)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
@@ -102,20 +93,15 @@ func (action *ChangeUserRole) Validate(ctx context.Context, user *models.User) *
 
 //ChangeUserEmail is the action used to change current user's email
 type ChangeUserEmail struct {
-	Input *models.ChangeUserEmail
+	Email           string `json:"email" format:"lower"`
+	VerificationKey string
+	Requestor       *models.User
 }
 
 func NewChangeUserEmail() *ChangeUserEmail {
 	return &ChangeUserEmail{
-		Input: &models.ChangeUserEmail{
-			VerificationKey: models.GenerateSecretKey(),
-		},
+		VerificationKey: models.GenerateSecretKey(),
 	}
-}
-
-// Returns the struct to bind the request to
-func (action *ChangeUserEmail) BindTarget() interface{} {
-	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -127,28 +113,28 @@ func (action *ChangeUserEmail) IsAuthorized(ctx context.Context, user *models.Us
 func (action *ChangeUserEmail) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Input.Email == "" {
+	if action.Email == "" {
 		result.AddFieldFailure("email", "Email is required.")
 		return result
 	}
 
-	if len(action.Input.Email) > 200 {
+	if len(action.Email) > 200 {
 		result.AddFieldFailure("email", "Email must have less than 200 characters.")
 		return result
 	}
 
-	if user.Email == action.Input.Email {
+	if user.Email == action.Email {
 		result.AddFieldFailure("email", "Choose a different email.")
 		return result
 	}
 
-	messages := validate.Email(action.Input.Email)
+	messages := validate.Email(action.Email)
 	if len(messages) > 0 {
 		result.AddFieldFailure("email", messages...)
 		return result
 	}
 
-	userByEmail := &query.GetUserByEmail{Email: action.Input.Email}
+	userByEmail := &query.GetUserByEmail{Email: action.Email}
 	err := bus.Dispatch(ctx, userByEmail)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
@@ -157,6 +143,26 @@ func (action *ChangeUserEmail) Validate(ctx context.Context, user *models.User) 
 		result.AddFieldFailure("email", "This email is already in use by someone else")
 		return result
 	}
-	action.Input.Requestor = user
+	action.Requestor = user
 	return result
+}
+
+//GetEmail returns the email being verified
+func (action *ChangeUserEmail) GetEmail() string {
+	return action.Email
+}
+
+//GetName returns empty for this kind of process
+func (action *ChangeUserEmail) GetName() string {
+	return ""
+}
+
+//GetUser returns the current user performing this action
+func (action *ChangeUserEmail) GetUser() *models.User {
+	return action.Requestor
+}
+
+//GetKind returns EmailVerificationKindSignIn
+func (action *ChangeUserEmail) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindChangeEmail
 }

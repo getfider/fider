@@ -24,15 +24,15 @@ func ChangeUserEmail() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      action.Input.VerificationKey,
+			Key:      action.VerificationKey,
 			Duration: 24 * time.Hour,
-			Request:  action.Input,
+			Request:  action,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendChangeEmailConfirmation(action.Input))
+		c.Enqueue(tasks.SendChangeEmailConfirmation(action))
 
 		return c.Ok(web.Map{})
 	}
@@ -122,8 +122,8 @@ func ChangeUserRole() web.HandlerFunc {
 		}
 
 		changeRole := &cmd.ChangeUserRole{
-			UserID: action.Input.UserID,
-			Role:   action.Input.Role,
+			UserID: action.UserID,
+			Role:   action.Role,
 		}
 
 		if err := bus.Dispatch(c, changeRole); err != nil {

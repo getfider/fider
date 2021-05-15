@@ -85,7 +85,7 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	bus.Init(emailmock.Service{})
 
 	worker := mock.NewWorker()
-	task := tasks.SendChangeEmailConfirmation(&models.ChangeUserEmail{
+	task := tasks.SendChangeEmailConfirmation(&actions.ChangeUserEmail{
 		Email:           "newemail@domain.com",
 		VerificationKey: "13579",
 		Requestor:       mock.JonSnow,

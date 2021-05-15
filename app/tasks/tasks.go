@@ -74,7 +74,7 @@ func SendSignInEmail(email, verificationKey string) worker.Task {
 }
 
 //SendChangeEmailConfirmation is used to send the change email confirmation email to requestor
-func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
+func SendChangeEmailConfirmation(action *actions.ChangeUserEmail) worker.Task {
 	return describe("Send change email confirmation", func(c *worker.Context) error {
 
 		previous := c.User().Email
@@ -82,11 +82,11 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			previous = "(empty)"
 		}
 
-		to := dto.NewRecipient(model.Requestor.Name, model.Email, dto.Props{
+		to := dto.NewRecipient(action.Requestor.Name, action.Email, dto.Props{
 			"name":     c.User().Name,
 			"oldEmail": previous,
-			"newEmail": model.Email,
-			"link":     link(web.BaseURL(c), "/change-email/verify?k=%s", model.VerificationKey),
+			"newEmail": action.Email,
+			"link":     link(web.BaseURL(c), "/change-email/verify?k=%s", action.VerificationKey),
 		})
 
 		bus.Publish(c, &cmd.SendMail{
