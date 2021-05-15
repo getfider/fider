@@ -352,7 +352,7 @@ func NotifyAboutDeletedPost(post *entity.Post) worker.Task {
 }
 
 //SendInvites sends one email to each invited recipient
-func SendInvites(subject, message string, invitations []*entity.UserInvitation) worker.Task {
+func SendInvites(subject, message string, invitations []*actions.UserInvitation) worker.Task {
 	return describe("Send invites", func(c *worker.Context) error {
 		to := make([]dto.Recipient, len(invitations))
 		for i, invite := range invitations {

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -21,7 +22,7 @@ type InviteUsers struct {
 	Recipients     []string `json:"recipients" format:"lower"`
 	IsSampleInvite bool
 
-	Invitations []*entity.UserInvitation
+	Invitations []*UserInvitation
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -63,12 +64,12 @@ func (action *InviteUsers) Validate(ctx context.Context, user *entity.User) *val
 		}
 
 		if result.Ok {
-			action.Invitations = make([]*entity.UserInvitation, 0)
+			action.Invitations = make([]*UserInvitation, 0)
 			for _, email := range action.Recipients {
 				if email != "" {
 					err := bus.Dispatch(ctx, &query.GetUserByEmail{Email: email})
 					if errors.Cause(err) == app.ErrNotFound {
-						action.Invitations = append(action.Invitations, &entity.UserInvitation{
+						action.Invitations = append(action.Invitations, &UserInvitation{
 							Email:           email,
 							VerificationKey: entity.GenerateEmailVerificationKey(),
 						})
@@ -84,4 +85,30 @@ func (action *InviteUsers) Validate(ctx context.Context, user *entity.User) *val
 	}
 
 	return result
+}
+
+//UserInvitation is the model used to register an invite sent to an user
+type UserInvitation struct {
+	Email           string
+	VerificationKey string
+}
+
+//GetEmail returns the invited user's email
+func (e *UserInvitation) GetEmail() string {
+	return e.Email
+}
+
+//GetName returns empty for this kind of process
+func (e *UserInvitation) GetName() string {
+	return ""
+}
+
+//GetUser returns the current user performing this action
+func (e *UserInvitation) GetUser() *entity.User {
+	return nil
+}
+
+//GetKind returns EmailVerificationKindUserInvitation
+func (e *UserInvitation) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindUserInvitation
 }
