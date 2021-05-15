@@ -19,8 +19,8 @@ func TestInvalidUserNames(t *testing.T) {
 	} {
 
 		action := actions.NewUpdateUserSettings()
-		action.Input.Name = name
-		action.Input.AvatarType = enum.AvatarTypeGravatar
+		action.Name = name
+		action.AvatarType = enum.AvatarTypeGravatar
 		result := action.Validate(context.Background(), &models.User{})
 		ExpectFailed(result, "name")
 	}
@@ -34,8 +34,8 @@ func TestValidUserNames(t *testing.T) {
 		"Arya",
 	} {
 		action := actions.NewUpdateUserSettings()
-		action.Input.Name = name
-		action.Input.AvatarType = enum.AvatarTypeGravatar
+		action.Name = name
+		action.AvatarType = enum.AvatarTypeGravatar
 		result := action.Validate(context.Background(), &models.User{})
 		ExpectSuccess(result)
 	}
@@ -53,8 +53,8 @@ func TestInvalidSettings(t *testing.T) {
 		},
 	} {
 		action := actions.NewUpdateUserSettings()
-		action.Input.Name = "John Snow"
-		action.Input.Settings = settings
+		action.Name = "John Snow"
+		action.Settings = settings
 		result := action.Validate(context.Background(), &models.User{})
 		ExpectFailed(result, "settings", "avatarType")
 	}
@@ -75,15 +75,15 @@ func TestValidSettings(t *testing.T) {
 		},
 	} {
 		action := actions.NewUpdateUserSettings()
-		action.Input.Name = "John Snow"
-		action.Input.Settings = settings
-		action.Input.AvatarType = enum.AvatarTypeGravatar
+		action.Name = "John Snow"
+		action.Settings = settings
+		action.AvatarType = enum.AvatarTypeGravatar
 
 		result := action.Validate(context.Background(), &models.User{
 			AvatarBlobKey: "jon.png",
 		})
 
 		ExpectSuccess(result)
-		Expect(action.Input.Avatar.BlobKey).Equals("jon.png")
+		Expect(action.Avatar.BlobKey).Equals("jon.png")
 	}
 }

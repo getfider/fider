@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -95,7 +96,7 @@ func TestTenantStorage_UpdatePrivacy(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	setPrivate := &cmd.UpdateTenantPrivacySettings{
-		Settings: &models.UpdateTenantPrivacy{IsPrivate: true},
+		IsPrivate: true,
 	}
 	getByDomain := &query.GetTenantByDomain{
 		Domain: "demo",
@@ -122,11 +123,9 @@ func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{
-		Settings: &models.UpdateTenantSettings{
-			Title: "My Domain Inc.",
-			CNAME: "feedback.mycompany.com",
-			Logo:  &models.ImageUpload{},
-		},
+		Title: "My Domain Inc.",
+		CNAME: "feedback.mycompany.com",
+		Logo:  &models.ImageUpload{},
 	})
 	Expect(err).IsNil()
 
@@ -164,7 +163,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	settings := &models.UpdateTenantSettings{
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{
 		Logo: &models.ImageUpload{
 			BlobKey: "some-logo-key.png",
 		},
@@ -172,8 +171,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 		Invitation:     "Leave us your suggestion",
 		WelcomeMessage: "Welcome!",
 		CNAME:          "demo.company.com",
-	}
-	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{Settings: settings})
+	})
 	Expect(err).IsNil()
 
 	getByDomain := &query.GetTenantByDomain{Domain: "demo"}
@@ -191,10 +189,9 @@ func TestTenantStorage_AdvancedSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	settings := &models.UpdateTenantAdvancedSettings{
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantAdvancedSettings{
 		CustomCSS: ".primary { color: red; }",
-	}
-	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantAdvancedSettings{Settings: settings})
+	})
 	Expect(err).IsNil()
 
 	getByDomain := &query.GetTenantByDomain{Domain: "demo"}
@@ -211,7 +208,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
 		Key:      "s3cr3tk3y",
 		Duration: 15 * time.Minute,
-		Request: &models.CreateTenant{
+		Request: &actions.CreateTenant{
 			Email: "jon.snow@got.com",
 			Name:  "Jon Snow",
 		},

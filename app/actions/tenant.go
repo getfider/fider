@@ -13,20 +13,20 @@ import (
 
 //CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
-	Input *models.CreateTenant
+	Token           string `json:"token"`
+	Name            string `json:"name"`
+	Email           string `json:"email" format:"lower"`
+	VerificationKey string
+	TenantName      string `json:"tenantName"`
+	LegalAgreement  bool   `json:"legalAgreement"`
+	Subdomain       string `json:"subdomain" format:"lower"`
+	UserClaims      *jwt.OAuthClaims
 }
 
 func NewCreateTenant() *CreateTenant {
 	return &CreateTenant{
-		Input: &models.CreateTenant{
-			VerificationKey: models.GenerateSecretKey(),
-		},
+		VerificationKey: models.GenerateSecretKey(),
 	}
-}
-
-// Returns the struct to bind the request to
-func (action *CreateTenant) BindTarget() interface{} {
-	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -39,68 +39,85 @@ func (action *CreateTenant) Validate(ctx context.Context, user *models.User) *va
 	result := validate.Success()
 
 	var err error
-	if action.Input.Name == "" && action.Input.Email == "" {
-		if action.Input.Token == "" {
+	if action.Name == "" && action.Email == "" {
+		if action.Token == "" {
 			result.AddFieldFailure("token", "Please identify yourself before proceeding.")
 		} else {
-			if action.Input.UserClaims, err = jwt.DecodeOAuthClaims(action.Input.Token); err != nil {
+			if action.UserClaims, err = jwt.DecodeOAuthClaims(action.Token); err != nil {
 				return validate.Error(err)
 			}
 		}
 	} else {
-		if action.Input.Email == "" {
+		if action.Email == "" {
 			result.AddFieldFailure("email", "Email is required.")
 		} else {
-			messages := validate.Email(action.Input.Email)
+			messages := validate.Email(action.Email)
 			result.AddFieldFailure("email", messages...)
 		}
 
-		if action.Input.Name == "" {
+		if action.Name == "" {
 			result.AddFieldFailure("name", "Name is required.")
 		}
-		if len(action.Input.Name) > 60 {
+		if len(action.Name) > 60 {
 			result.AddFieldFailure("name", "Name must have less than 60 characters.")
 		}
 	}
 
 	if env.IsSingleHostMode() {
-		action.Input.Subdomain = "default"
+		action.Subdomain = "default"
 	}
 
-	if action.Input.TenantName == "" {
+	if action.TenantName == "" {
 		result.AddFieldFailure("tenantName", "Name is required.")
 	}
 
-	messages, err := validate.Subdomain(ctx, action.Input.Subdomain)
+	messages, err := validate.Subdomain(ctx, action.Subdomain)
 	if err != nil {
 		return validate.Error(err)
 	}
 
 	result.AddFieldFailure("subdomain", messages...)
 
-	if env.HasLegal() && !action.Input.LegalAgreement {
+	if env.HasLegal() && !action.LegalAgreement {
 		result.AddFieldFailure("legalAgreement", "You must agree before proceeding.")
 	}
 
 	return result
 }
 
+//GetEmail returns the email being verified
+func (action *CreateTenant) GetEmail() string {
+	return action.Email
+}
+
+//GetName returns the name of the email owner
+func (action *CreateTenant) GetName() string {
+	return action.Name
+}
+
+//GetUser returns the current user performing this action
+func (action *CreateTenant) GetUser() *models.User {
+	return nil
+}
+
+//GetKind returns EmailVerificationKindSignUp
+func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignUp
+}
+
 //UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
-	Input *models.UpdateTenantSettings
+	Logo           *models.ImageUpload `json:"logo"`
+	Title          string              `json:"title"`
+	Invitation     string              `json:"invitation"`
+	WelcomeMessage string              `json:"welcomeMessage"`
+	CNAME          string              `json:"cname" format:"lower"`
 }
 
 func NewUpdateTenantSettings() *UpdateTenantSettings {
 	return &UpdateTenantSettings{
-		Input: &models.UpdateTenantSettings{
-			Logo: &models.ImageUpload{},
-		},
+		Logo: &models.ImageUpload{},
 	}
-}
-
-// Returns the struct to bind the request to
-func (action *UpdateTenantSettings) BindTarget() interface{} {
-	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -114,10 +131,10 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *models.U
 
 	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
 	if hasTenant {
-		action.Input.Logo.BlobKey = tenant.LogoBlobKey
+		action.Logo.BlobKey = tenant.LogoBlobKey
 	}
 
-	messages, err := validate.ImageUpload(action.Input.Logo, validate.ImageUploadOpts{
+	messages, err := validate.ImageUpload(action.Logo, validate.ImageUploadOpts{
 		IsRequired:   false,
 		MinHeight:    200,
 		MinWidth:     200,
@@ -129,20 +146,20 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *models.U
 	}
 	result.AddFieldFailure("logo", messages...)
 
-	if action.Input.Title == "" {
+	if action.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
 	}
 
-	if len(action.Input.Title) > 60 {
+	if len(action.Title) > 60 {
 		result.AddFieldFailure("title", "Title must have less than 60 characters.")
 	}
 
-	if len(action.Input.Invitation) > 60 {
+	if len(action.Invitation) > 60 {
 		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
 	}
 
-	if action.Input.CNAME != "" {
-		messages := validate.CNAME(ctx, action.Input.CNAME)
+	if action.CNAME != "" {
+		messages := validate.CNAME(ctx, action.CNAME)
 		result.AddFieldFailure("cname", messages...)
 	}
 
@@ -151,13 +168,7 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *models.U
 
 //UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
 type UpdateTenantAdvancedSettings struct {
-	Input *models.UpdateTenantAdvancedSettings
-}
-
-// Returns the struct to bind the request to
-func (action *UpdateTenantAdvancedSettings) BindTarget() interface{} {
-	action.Input = new(models.UpdateTenantAdvancedSettings)
-	return action.Input
+	CustomCSS string `json:"customCSS"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -172,13 +183,7 @@ func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *
 
 //UpdateTenantPrivacy is the input model used to update tenant privacy settings
 type UpdateTenantPrivacy struct {
-	Input *models.UpdateTenantPrivacy
-}
-
-// Returns the struct to bind the request to
-func (action *UpdateTenantPrivacy) BindTarget() interface{} {
-	action.Input = new(models.UpdateTenantPrivacy)
-	return action.Input
+	IsPrivate bool `json:"isPrivate"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action

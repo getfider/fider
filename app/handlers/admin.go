@@ -41,11 +41,15 @@ func UpdateSettings() web.HandlerFunc {
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  action.Input.Logo,
+				Image:  action.Logo,
 				Folder: "logos",
 			},
 			&cmd.UpdateTenantSettings{
-				Settings: action.Input,
+				Logo:           action.Logo,
+				Title:          action.Title,
+				Invitation:     action.Invitation,
+				WelcomeMessage: action.WelcomeMessage,
+				CNAME:          action.CNAME,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -63,7 +67,9 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{Settings: action.Input}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{
+			CustomCSS: action.CustomCSS,
+		}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -79,7 +85,9 @@ func UpdatePrivacy() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		updateSettings := &cmd.UpdateTenantPrivacySettings{Settings: action.Input}
+		updateSettings := &cmd.UpdateTenantPrivacySettings{
+			IsPrivate: action.IsPrivate,
+		}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)
 		}

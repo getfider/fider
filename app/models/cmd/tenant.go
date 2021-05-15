@@ -15,15 +15,19 @@ type CreateTenant struct {
 }
 
 type UpdateTenantPrivacySettings struct {
-	Settings *models.UpdateTenantPrivacy
+	IsPrivate bool
 }
 
 type UpdateTenantSettings struct {
-	Settings *models.UpdateTenantSettings
+	Logo           *models.ImageUpload
+	Title          string
+	Invitation     string
+	WelcomeMessage string
+	CNAME          string
 }
 
 type UpdateTenantAdvancedSettings struct {
-	Settings *models.UpdateTenantAdvancedSettings
+	CustomCSS string
 }
 
 type ActivateTenant struct {

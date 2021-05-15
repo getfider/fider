@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/rand"
 )
 
@@ -69,52 +68,6 @@ type UserProvider struct {
 	UID  string
 }
 
-//CreateTenant is the input model used to create a tenant
-type CreateTenant struct {
-	Token           string `json:"token"`
-	Name            string `json:"name"`
-	Email           string `json:"email" format:"lower"`
-	VerificationKey string
-	TenantName      string `json:"tenantName"`
-	LegalAgreement  bool   `json:"legalAgreement"`
-	Subdomain       string `json:"subdomain" format:"lower"`
-	UserClaims      *jwt.OAuthClaims
-}
-
-//GetEmail returns the email being verified
-func (e *CreateTenant) GetEmail() string {
-	return e.Email
-}
-
-//GetName returns the name of the email owner
-func (e *CreateTenant) GetName() string {
-	return e.Name
-}
-
-//GetUser returns the current user performing this action
-func (e *CreateTenant) GetUser() *User {
-	return nil
-}
-
-//GetKind returns EmailVerificationKindSignUp
-func (e *CreateTenant) GetKind() enum.EmailVerificationKind {
-	return enum.EmailVerificationKindSignUp
-}
-
-//UpdateTenantSettings is the input model used to update tenant general settings
-type UpdateTenantSettings struct {
-	Logo           *ImageUpload `json:"logo"`
-	Title          string       `json:"title"`
-	Invitation     string       `json:"invitation"`
-	WelcomeMessage string       `json:"welcomeMessage"`
-	CNAME          string       `json:"cname" format:"lower"`
-}
-
-//UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
-type UpdateTenantAdvancedSettings struct {
-	CustomCSS string `json:"customCSS"`
-}
-
 //ImageUpload is the input model used to upload/remove an image
 type ImageUpload struct {
 	BlobKey string           `json:"bkey"`
@@ -127,11 +80,6 @@ type ImageUploadData struct {
 	FileName    string `json:"fileName"`
 	ContentType string `json:"contentType"`
 	Content     []byte `json:"content"`
-}
-
-//UpdateTenantPrivacy is the input model used to update tenant privacy settings
-type UpdateTenantPrivacy struct {
-	IsPrivate bool `json:"isPrivate"`
 }
 
 //SignInByEmail is the input model when user request to sign in by email

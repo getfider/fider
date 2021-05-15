@@ -110,7 +110,7 @@ func isSubdomainAvailable(ctx context.Context, q *query.IsSubdomainAvailable) er
 
 func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacySettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		_, err := trx.Execute("UPDATE tenants SET is_private = $1 WHERE id = $2", c.Settings.IsPrivate, tenant.ID)
+		_, err := trx.Execute("UPDATE tenants SET is_private = $1 WHERE id = $2", c.IsPrivate, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant privacy settings")
 		}
@@ -120,20 +120,20 @@ func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacy
 
 func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		if c.Settings.Logo.Remove {
-			c.Settings.Logo.BlobKey = ""
+		if c.Logo.Remove {
+			c.Logo.BlobKey = ""
 		}
 
 		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5 WHERE id = $6"
-		_, err := trx.Execute(query, c.Settings.Title, c.Settings.Invitation, c.Settings.WelcomeMessage, c.Settings.CNAME, c.Settings.Logo.BlobKey, tenant.ID)
+		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.CNAME, c.Logo.BlobKey, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant settings")
 		}
 
-		tenant.Name = c.Settings.Title
-		tenant.Invitation = c.Settings.Invitation
-		tenant.CNAME = c.Settings.CNAME
-		tenant.WelcomeMessage = c.Settings.WelcomeMessage
+		tenant.Name = c.Title
+		tenant.Invitation = c.Invitation
+		tenant.CNAME = c.CNAME
+		tenant.WelcomeMessage = c.WelcomeMessage
 
 		return nil
 	})
@@ -142,12 +142,12 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvancedSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		query := "UPDATE tenants SET custom_css = $1 WHERE id = $2"
-		_, err := trx.Execute(query, c.Settings.CustomCSS, tenant.ID)
+		_, err := trx.Execute(query, c.CustomCSS, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant advanced settings")
 		}
 
-		tenant.CustomCSS = c.Settings.CustomCSS
+		tenant.CustomCSS = c.CustomCSS
 		return nil
 	})
 }

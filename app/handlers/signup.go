@@ -52,7 +52,7 @@ func CreateTenant() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		socialSignUp := action.Input.Token != ""
+		socialSignUp := action.Token != ""
 
 		status := enum.TenantPending
 		if socialSignUp {
@@ -60,8 +60,8 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		createTenant := &cmd.CreateTenant{
-			Name:      action.Input.TenantName,
-			Subdomain: action.Input.Subdomain,
+			Name:      action.TenantName,
+			Subdomain: action.Subdomain,
 			Status:    status,
 		}
 		err := bus.Dispatch(c, createTenant)
@@ -77,10 +77,13 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		if socialSignUp {
-			user.Name = action.Input.UserClaims.OAuthName
-			user.Email = action.Input.UserClaims.OAuthEmail
+			user.Name = action.UserClaims.OAuthName
+			user.Email = action.UserClaims.OAuthEmail
 			user.Providers = []*models.UserProvider{
-				{UID: action.Input.UserClaims.OAuthID, Name: action.Input.UserClaims.OAuthProvider},
+				{
+					UID:  action.UserClaims.OAuthID,
+					Name: action.UserClaims.OAuthProvider,
+				},
 			}
 
 			if err := bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
@@ -94,19 +97,19 @@ func CreateTenant() web.HandlerFunc {
 			}
 
 		} else {
-			user.Name = action.Input.Name
-			user.Email = action.Input.Email
+			user.Name = action.Name
+			user.Email = action.Email
 
 			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-				Key:      action.Input.VerificationKey,
+				Key:      action.VerificationKey,
 				Duration: 48 * time.Hour,
-				Request:  action.Input,
+				Request:  action,
 			})
 			if err != nil {
 				return c.Failure(err)
 			}
 
-			c.Enqueue(tasks.SendSignUpEmail(action.Input, web.TenantBaseURL(c, createTenant.Result)))
+			c.Enqueue(tasks.SendSignUpEmail(action, web.TenantBaseURL(c, createTenant.Result)))
 		}
 
 		return c.Ok(web.Map{})

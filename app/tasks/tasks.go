@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
@@ -32,10 +33,10 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 }
 
 //SendSignUpEmail is used to send the sign up email to requestor
-func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
+func SendSignUpEmail(action *actions.CreateTenant, baseURL string) worker.Task {
 	return describe("Send sign up email", func(c *worker.Context) error {
-		to := dto.NewRecipient(model.Name, model.Email, dto.Props{
-			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
+		to := dto.NewRecipient(action.Name, action.Email, dto.Props{
+			"link": link(baseURL, "/signup/verify?k=%s", action.VerificationKey),
 		})
 
 		bus.Publish(c, &cmd.SendMail{
@@ -52,11 +53,11 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 }
 
 //SendSignInEmail is used to send the sign in email to requestor
-func SendSignInEmail(model *models.SignInByEmail) worker.Task {
+func SendSignInEmail(email, verificationKey string) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
-		to := dto.NewRecipient("", model.Email, dto.Props{
+		to := dto.NewRecipient("", email, dto.Props{
 			"tenantName": c.Tenant().Name,
-			"link":       link(web.BaseURL(c), "/signin/verify?k=%s", model.VerificationKey),
+			"link":       link(web.BaseURL(c), "/signin/verify?k=%s", verificationKey),
 		})
 
 		bus.Publish(c, &cmd.SendMail{

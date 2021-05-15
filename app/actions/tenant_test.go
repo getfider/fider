@@ -19,17 +19,15 @@ func TestCreateTenant_ShouldHaveVerificationKey(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.NewCreateTenant()
-	Expect(action.Input.VerificationKey).IsNotEmpty()
+	Expect(action.VerificationKey).IsNotEmpty()
 }
 
 func TestCreateTenant_EmptyToken(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.CreateTenant{
-		Input: &models.CreateTenant{
-			Token:          "",
-			LegalAgreement: true,
-		},
+		Token:          "",
+		LegalAgreement: true,
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "token", "tenantName", "subdomain")
@@ -39,11 +37,9 @@ func TestCreateTenant_EmptyTenantName(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.CreateTenant{
-		Input: &models.CreateTenant{
-			Token:          jonSnowToken,
-			TenantName:     "",
-			LegalAgreement: true,
-		},
+		Token:          jonSnowToken,
+		TenantName:     "",
+		LegalAgreement: true,
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "tenantName", "subdomain")
@@ -53,11 +49,9 @@ func TestCreateTenant_EmptyEmail(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.CreateTenant{
-		Input: &models.CreateTenant{
-			Name:           "Jon Snow",
-			Email:          "",
-			LegalAgreement: true,
-		},
+		Name:           "Jon Snow",
+		Email:          "",
+		LegalAgreement: true,
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "email", "tenantName", "subdomain")
@@ -67,11 +61,9 @@ func TestCreateTenant_InvalidEmail(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.CreateTenant{
-		Input: &models.CreateTenant{
-			Name:           "Jon Snow",
-			Email:          "jonsnow",
-			LegalAgreement: true,
-		},
+		Name:           "Jon Snow",
+		Email:          "jonsnow",
+		LegalAgreement: true,
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "email", "tenantName", "subdomain")
@@ -86,13 +78,11 @@ func TestCreateTenant_NoAgreement(t *testing.T) {
 	})
 
 	action := actions.CreateTenant{
-		Input: &models.CreateTenant{
-			Name:           "Jon",
-			Email:          "jon.snow@got.com",
-			TenantName:     "My Company",
-			Subdomain:      "company",
-			LegalAgreement: false,
-		},
+		Name:           "Jon",
+		Email:          "jon.snow@got.com",
+		TenantName:     "My Company",
+		Subdomain:      "company",
+		LegalAgreement: false,
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "legalAgreement")
@@ -102,11 +92,9 @@ func TestCreateTenant_EmptyName(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.CreateTenant{
-		Input: &models.CreateTenant{
-			Name:           "",
-			Email:          "jon.snow@got.com",
-			LegalAgreement: true,
-		},
+		Name:           "",
+		Email:          "jon.snow@got.com",
+		LegalAgreement: true,
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "name", "tenantName", "subdomain")
@@ -116,11 +104,9 @@ func TestCreateTenant_EmptySubdomain(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.CreateTenant{
-		Input: &models.CreateTenant{
-			Token:          jonSnowToken,
-			TenantName:     "My Company",
-			LegalAgreement: true,
-		},
+		Token:          jonSnowToken,
+		TenantName:     "My Company",
+		LegalAgreement: true,
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subdomain")
@@ -150,7 +136,7 @@ func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 func TestUpdateTenantSettings_InvalidCNAME(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.UpdateTenantSettings{Input: &models.UpdateTenantSettings{Title: "Ok", CNAME: "bla"}}
+	action := actions.UpdateTenantSettings{Title: "Ok", CNAME: "bla"}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "cname")
 }
@@ -158,7 +144,7 @@ func TestUpdateTenantSettings_InvalidCNAME(t *testing.T) {
 func TestUpdateTenantSettings_LargeTitle(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.UpdateTenantSettings{Input: &models.UpdateTenantSettings{Title: "123456789012345678901234567890123456789012345678901234567890123"}}
+	action := actions.UpdateTenantSettings{Title: "123456789012345678901234567890123456789012345678901234567890123"}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "title")
 }
@@ -166,7 +152,7 @@ func TestUpdateTenantSettings_LargeTitle(t *testing.T) {
 func TestUpdateTenantSettings_LargeInvitation(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.UpdateTenantSettings{Input: &models.UpdateTenantSettings{Title: "Ok", Invitation: "123456789012345678901234567890123456789012345678901234567890123"}}
+	action := actions.UpdateTenantSettings{Title: "Ok", Invitation: "123456789012345678901234567890123456789012345678901234567890123"}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "invitation")
 }
@@ -180,9 +166,9 @@ func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
 	})
 
 	action := actions.NewUpdateTenantSettings()
-	action.Input.Title = "OK"
-	action.Input.Invitation = "Share your ideas!"
+	action.Title = "OK"
+	action.Invitation = "Share your ideas!"
 	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
-	Expect(action.Input.Logo.BlobKey).Equals("hello-world.png")
+	Expect(action.Logo.BlobKey).Equals("hello-world.png")
 }

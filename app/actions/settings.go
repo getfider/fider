@@ -11,20 +11,16 @@ import (
 
 // UpdateUserSettings happens when users updates their settings
 type UpdateUserSettings struct {
-	Input *models.UpdateUserSettings
+	Name       string              `json:"name"`
+	AvatarType enum.AvatarType     `json:"avatarType"`
+	Avatar     *models.ImageUpload `json:"avatar"`
+	Settings   map[string]string   `json:"settings"`
 }
 
 func NewUpdateUserSettings() *UpdateUserSettings {
 	return &UpdateUserSettings{
-		Input: &models.UpdateUserSettings{
-			Avatar: &models.ImageUpload{},
-		},
+		Avatar: &models.ImageUpload{},
 	}
-}
-
-// Returns the struct to bind the request to
-func (action *UpdateUserSettings) BindTarget() interface{} {
-	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -36,21 +32,21 @@ func (action *UpdateUserSettings) IsAuthorized(ctx context.Context, user *models
 func (action *UpdateUserSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Input.Name == "" {
+	if action.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
 	}
 
-	if action.Input.AvatarType < 1 || action.Input.AvatarType > 3 {
+	if action.AvatarType < 1 || action.AvatarType > 3 {
 		result.AddFieldFailure("avatarType", "Invalid avatar type.")
 	}
 
-	if len(action.Input.Name) > 50 {
+	if len(action.Name) > 50 {
 		result.AddFieldFailure("name", "Name must have less than 50 characters.")
 	}
 
-	action.Input.Avatar.BlobKey = user.AvatarBlobKey
-	messages, err := validate.ImageUpload(action.Input.Avatar, validate.ImageUploadOpts{
-		IsRequired:   action.Input.AvatarType == enum.AvatarTypeCustom,
+	action.Avatar.BlobKey = user.AvatarBlobKey
+	messages, err := validate.ImageUpload(action.Avatar, validate.ImageUploadOpts{
+		IsRequired:   action.AvatarType == enum.AvatarTypeCustom,
 		MinHeight:    50,
 		MinWidth:     50,
 		ExactRatio:   true,
@@ -61,8 +57,8 @@ func (action *UpdateUserSettings) Validate(ctx context.Context, user *models.Use
 	}
 	result.AddFieldFailure("avatar", messages...)
 
-	if action.Input.Settings != nil {
-		for k, v := range action.Input.Settings {
+	if action.Settings != nil {
+		for k, v := range action.Settings {
 			ok := false
 			for _, e := range enum.AllNotificationEvents {
 				if e.UserSettingsKeyName == k {

@@ -52,15 +52,15 @@ func SignInByEmail() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      action.Input.VerificationKey,
+			Key:      action.VerificationKey,
 			Duration: 30 * time.Minute,
-			Request:  action.Input,
+			Request:  action,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(action.Input))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationKey))
 
 		return c.Ok(web.Map{})
 	}
@@ -139,14 +139,14 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := bus.Dispatch(c, &query.GetUserByEmail{Email: action.Input.Email})
+		err := bus.Dispatch(c, &query.GetUserByEmail{Email: action.Email})
 		if errors.Cause(err) != app.ErrNotFound {
 			return c.Ok(web.Map{})
 		}
 
 		user := &models.User{
-			Name:   action.Input.Name,
-			Email:  action.Input.Email,
+			Name:   action.Name,
+			Email:  action.Email,
 			Tenant: c.Tenant(),
 			Role:   enum.RoleVisitor,
 		}
@@ -155,7 +155,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Input.Key})
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Key})
 		if err != nil {
 			return c.Failure(err)
 		}

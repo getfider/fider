@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -24,7 +25,7 @@ func TestSendSignUpEmailTask(t *testing.T) {
 	bus.Init(emailmock.Service{})
 
 	worker := mock.NewWorker()
-	task := tasks.SendSignUpEmail(&models.CreateTenant{
+	task := tasks.SendSignUpEmail(&actions.CreateTenant{
 		VerificationKey: "1234",
 	}, "http://domain.com")
 
@@ -53,9 +54,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 	bus.Init(emailmock.Service{})
 
 	worker := mock.NewWorker()
-	task := tasks.SendSignInEmail(&models.SignInByEmail{
-		VerificationKey: "9876",
-	})
+	task := tasks.SendSignInEmail("jon@got.com", "9876")
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -73,6 +72,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].From).Equals(mock.DemoTenant.Name)
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
+		Address: "jon@got.com",
 		Props: dto.Props{
 			"tenantName": mock.DemoTenant.Name,
 			"link":       template.HTML("<a href='http://domain.com/signin/verify?k=9876'>http://domain.com/signin/verify?k=9876</a>"),
