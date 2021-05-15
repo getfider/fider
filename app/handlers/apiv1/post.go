@@ -160,14 +160,14 @@ func DeletePost() web.HandlerFunc {
 
 		err := bus.Dispatch(c, &cmd.SetPostResponse{
 			Post:   input.Post,
-			Text:   input.Model.Text,
+			Text:   input.Text,
 			Status: enum.PostDeleted,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if input.Model.Text != "" {
+		if input.Text != "" {
 			// Only send notification if user wrote a comment.
 			c.Enqueue(tasks.NotifyAboutDeletedPost(input.Post))
 		}

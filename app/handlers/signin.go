@@ -46,7 +46,7 @@ func NotInvitedPage() web.HandlerFunc {
 // SignInByEmail sends a new email with verification key
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.SignInByEmail)
+		input := actions.NewSignInByEmail()
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}

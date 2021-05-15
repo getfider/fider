@@ -18,7 +18,7 @@ import (
 // ChangeUserEmail register the intent of changing user email
 func ChangeUserEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.ChangeUserEmail)
+		input := actions.NewChangeUserEmail()
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
@@ -87,7 +87,7 @@ func UserSettings() web.HandlerFunc {
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateUserSettings)
+		input := actions.NewUpdateUserSettings()
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}

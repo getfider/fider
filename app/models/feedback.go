@@ -57,12 +57,6 @@ type UpdatePost struct {
 	Attachments []*ImageUpload `json:"attachments"`
 }
 
-// DeletePost represents a request to delete an existing post
-type DeletePost struct {
-	Number int    `route:"number"`
-	Text   string `json:"text"`
-}
-
 // NewComment represents a new comment
 type NewComment struct {
 	Number      int            `route:"number"`

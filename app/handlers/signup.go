@@ -47,7 +47,7 @@ func CreateTenant() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		input := new(actions.CreateTenant)
+		input := actions.NewCreateTenant()
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}

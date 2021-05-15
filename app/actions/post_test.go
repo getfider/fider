@@ -92,11 +92,11 @@ func TestDeletePost_WhenIsBeingReferenced(t *testing.T) {
 		return nil
 	})
 
-	action := &actions.DeletePost{Model: &models.DeletePost{}}
-	action.Model.Number = post1.Number
+	action := &actions.DeletePost{}
+	action.Number = post1.Number
 	ExpectSuccess(action.Validate(context.Background(), nil))
 
-	action.Model.Number = post2.Number
+	action.Number = post2.Number
 	ExpectFailed(action.Validate(context.Background(), nil))
 }
 

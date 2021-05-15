@@ -17,38 +17,38 @@ type CreateUser struct {
 	Model *models.CreateUser
 }
 
-// Initialize the model
-func (input *CreateUser) Initialize() interface{} {
-	input.Model = new(models.CreateUser)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *CreateUser) BindTarget() interface{} {
+	action.Model = new(models.CreateUser)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateUser) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateUser) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *CreateUser) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateUser) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Name == "" {
+	if action.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
-	} else if len(input.Model.Name) > 100 {
+	} else if len(action.Model.Name) > 100 {
 		result.AddFieldFailure("name", "Name must have less than 100 characters.")
 	}
 
-	if input.Model.Email == "" && input.Model.Reference == "" {
+	if action.Model.Email == "" && action.Model.Reference == "" {
 		result.AddFieldFailure("", "Either email or reference is required")
 	} else {
-		if input.Model.Email != "" {
-			messages := validate.Email(input.Model.Email)
+		if action.Model.Email != "" {
+			messages := validate.Email(action.Model.Email)
 			if len(messages) > 0 {
 				result.AddFieldFailure("email", messages...)
 			}
 		}
 
-		if len(input.Model.Reference) > 100 {
+		if len(action.Model.Reference) > 100 {
 			result.AddFieldFailure("reference", "Reference must have less than 100 characters.")
 		}
 	}
@@ -61,32 +61,32 @@ type ChangeUserRole struct {
 	Model *models.ChangeUserRole
 }
 
-// Initialize the model
-func (input *ChangeUserRole) Initialize() interface{} {
-	input.Model = new(models.ChangeUserRole)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *ChangeUserRole) BindTarget() interface{} {
+	action.Model = new(models.ChangeUserRole)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *ChangeUserRole) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *ChangeUserRole) IsAuthorized(ctx context.Context, user *models.User) bool {
 	if user == nil {
 		return false
 	}
-	return user.IsAdministrator() && user.ID != input.Model.UserID
+	return user.IsAdministrator() && user.ID != action.Model.UserID
 }
 
 // Validate if current model is valid
-func (input *ChangeUserRole) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *ChangeUserRole) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
-	if input.Model.Role < enum.RoleVisitor || input.Model.Role > enum.RoleAdministrator {
+	if action.Model.Role < enum.RoleVisitor || action.Model.Role > enum.RoleAdministrator {
 		return validate.Error(app.ErrNotFound)
 	}
 
-	if user.ID == input.Model.UserID {
+	if user.ID == action.Model.UserID {
 		result.AddFieldFailure("userID", "It is not allowed to change your own Role.")
 	}
 
-	userByID := &query.GetUserByID{UserID: input.Model.UserID}
+	userByID := &query.GetUserByID{UserID: action.Model.UserID}
 	err := bus.Dispatch(ctx, userByID)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
@@ -105,44 +105,50 @@ type ChangeUserEmail struct {
 	Model *models.ChangeUserEmail
 }
 
-// Initialize the model
-func (input *ChangeUserEmail) Initialize() interface{} {
-	input.Model = new(models.ChangeUserEmail)
-	input.Model.VerificationKey = models.GenerateSecretKey()
-	return input.Model
+func NewChangeUserEmail() *ChangeUserEmail {
+	return &ChangeUserEmail{
+		Model: &models.ChangeUserEmail{
+			VerificationKey: models.GenerateSecretKey(),
+		},
+	}
+}
+
+// Returns the struct to bind the request to
+func (action *ChangeUserEmail) BindTarget() interface{} {
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *ChangeUserEmail) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *ChangeUserEmail) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *ChangeUserEmail) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *ChangeUserEmail) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Email == "" {
+	if action.Model.Email == "" {
 		result.AddFieldFailure("email", "Email is required.")
 		return result
 	}
 
-	if len(input.Model.Email) > 200 {
+	if len(action.Model.Email) > 200 {
 		result.AddFieldFailure("email", "Email must have less than 200 characters.")
 		return result
 	}
 
-	if user.Email == input.Model.Email {
+	if user.Email == action.Model.Email {
 		result.AddFieldFailure("email", "Choose a different email.")
 		return result
 	}
 
-	messages := validate.Email(input.Model.Email)
+	messages := validate.Email(action.Model.Email)
 	if len(messages) > 0 {
 		result.AddFieldFailure("email", messages...)
 		return result
 	}
 
-	userByEmail := &query.GetUserByEmail{Email: input.Model.Email}
+	userByEmail := &query.GetUserByEmail{Email: action.Model.Email}
 	err := bus.Dispatch(ctx, userByEmail)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
@@ -151,6 +157,6 @@ func (input *ChangeUserEmail) Validate(ctx context.Context, user *models.User) *
 		result.AddFieldFailure("email", "This email is already in use by someone else")
 		return result
 	}
-	input.Model.Requestor = user
+	action.Model.Requestor = user
 	return result
 }

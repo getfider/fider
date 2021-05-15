@@ -22,49 +22,49 @@ type CreateEditTag struct {
 	Model *models.CreateEditTag
 }
 
-// Initialize the model
-func (input *CreateEditTag) Initialize() interface{} {
-	input.Model = new(models.CreateEditTag)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *CreateEditTag) BindTarget() interface{} {
+	action.Model = new(models.CreateEditTag)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditTag) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateEditTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *CreateEditTag) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateEditTag) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Slug != "" {
-		getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
+	if action.Model.Slug != "" {
+		getSlug := &query.GetTagBySlug{Slug: action.Model.Slug}
 		err := bus.Dispatch(ctx, getSlug)
 		if err != nil {
 			return validate.Error(err)
 		}
-		input.Tag = getSlug.Result
+		action.Tag = getSlug.Result
 	}
 
-	if input.Model.Name == "" {
+	if action.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
-	} else if len(input.Model.Name) > 30 {
+	} else if len(action.Model.Name) > 30 {
 		result.AddFieldFailure("name", "Name must have less than 30 characters.")
 	} else {
-		getDuplicateSlug := &query.GetTagBySlug{Slug: slug.Make(input.Model.Name)}
+		getDuplicateSlug := &query.GetTagBySlug{Slug: slug.Make(action.Model.Name)}
 		err := bus.Dispatch(ctx, getDuplicateSlug)
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
 			return validate.Error(err)
-		} else if err == nil && (input.Tag == nil || input.Tag.ID != getDuplicateSlug.Result.ID) {
+		} else if err == nil && (action.Tag == nil || action.Tag.ID != getDuplicateSlug.Result.ID) {
 			result.AddFieldFailure("name", "This tag name is already in use.")
 		}
 	}
 
-	if input.Model.Color == "" {
+	if action.Model.Color == "" {
 		result.AddFieldFailure("color", "Color is required.")
-	} else if len(input.Model.Color) != 6 {
+	} else if len(action.Model.Color) != 6 {
 		result.AddFieldFailure("color", "Color must be exactly 6 characters.")
-	} else if !colorRegex.MatchString(input.Model.Color) {
+	} else if !colorRegex.MatchString(action.Model.Color) {
 		result.AddFieldFailure("color", "Color is invalid.")
 	}
 
@@ -77,26 +77,26 @@ type DeleteTag struct {
 	Model *models.DeleteTag
 }
 
-// Initialize the model
-func (input *DeleteTag) Initialize() interface{} {
-	input.Model = new(models.DeleteTag)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *DeleteTag) BindTarget() interface{} {
+	action.Model = new(models.DeleteTag)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeleteTag) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *DeleteTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *DeleteTag) Validate(ctx context.Context, user *models.User) *validate.Result {
-	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
+func (action *DeleteTag) Validate(ctx context.Context, user *models.User) *validate.Result {
+	getSlug := &query.GetTagBySlug{Slug: action.Model.Slug}
 	err := bus.Dispatch(ctx, getSlug)
 	if err != nil {
 		return validate.Error(err)
 	}
 
-	input.Tag = getSlug.Result
+	action.Tag = getSlug.Result
 	return validate.Success()
 }
 
@@ -107,26 +107,26 @@ type AssignUnassignTag struct {
 	Model *models.AssignUnassignTag
 }
 
-// Initialize the model
-func (input *AssignUnassignTag) Initialize() interface{} {
-	input.Model = new(models.AssignUnassignTag)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *AssignUnassignTag) BindTarget() interface{} {
+	action.Model = new(models.AssignUnassignTag)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *AssignUnassignTag) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *AssignUnassignTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *AssignUnassignTag) Validate(ctx context.Context, user *models.User) *validate.Result {
-	getPost := &query.GetPostByNumber{Number: input.Model.Number}
-	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
+func (action *AssignUnassignTag) Validate(ctx context.Context, user *models.User) *validate.Result {
+	getPost := &query.GetPostByNumber{Number: action.Model.Number}
+	getSlug := &query.GetTagBySlug{Slug: action.Model.Slug}
 	if err := bus.Dispatch(ctx, getPost, getSlug); err != nil {
 		return validate.Error(err)
 	}
 
-	input.Post = getPost.Result
-	input.Tag = getSlug.Result
+	action.Post = getPost.Result
+	action.Tag = getSlug.Result
 	return validate.Success()
 }

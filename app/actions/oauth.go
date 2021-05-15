@@ -18,39 +18,45 @@ type CreateEditOAuthConfig struct {
 	Model *models.CreateEditOAuthConfig
 }
 
-// Initialize the model
-func (input *CreateEditOAuthConfig) Initialize() interface{} {
-	input.Model = new(models.CreateEditOAuthConfig)
-	input.Model.Logo = &models.ImageUpload{}
-	return input.Model
+func NewCreateEditOAuthConfig() *CreateEditOAuthConfig {
+	return &CreateEditOAuthConfig{
+		Model: &models.CreateEditOAuthConfig{
+			Logo: &models.ImageUpload{},
+		},
+	}
+}
+
+// Returns the struct to bind the request to
+func (action *CreateEditOAuthConfig) BindTarget() interface{} {
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditOAuthConfig) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateEditOAuthConfig) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *CreateEditOAuthConfig) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Provider != "" {
-		getConfig := &query.GetCustomOAuthConfigByProvider{Provider: input.Model.Provider}
+	if action.Model.Provider != "" {
+		getConfig := &query.GetCustomOAuthConfigByProvider{Provider: action.Model.Provider}
 		err := bus.Dispatch(ctx, getConfig)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		input.Model.ID = getConfig.Result.ID
-		input.Model.Logo.BlobKey = getConfig.Result.LogoBlobKey
-		if input.Model.ClientSecret == "" {
-			input.Model.ClientSecret = getConfig.Result.ClientSecret
+		action.Model.ID = getConfig.Result.ID
+		action.Model.Logo.BlobKey = getConfig.Result.LogoBlobKey
+		if action.Model.ClientSecret == "" {
+			action.Model.ClientSecret = getConfig.Result.ClientSecret
 		}
 	} else {
-		input.Model.Provider = "_" + strings.ToLower(rand.String(10))
+		action.Model.Provider = "_" + strings.ToLower(rand.String(10))
 	}
 
-	messages, err := validate.ImageUpload(input.Model.Logo, validate.ImageUploadOpts{
+	messages, err := validate.ImageUpload(action.Model.Logo, validate.ImageUploadOpts{
 		IsRequired:   false,
 		MinHeight:    24,
 		MinWidth:     24,
@@ -62,64 +68,64 @@ func (input *CreateEditOAuthConfig) Validate(ctx context.Context, user *models.U
 	}
 	result.AddFieldFailure("logo", messages...)
 
-	if input.Model.Status != enum.OAuthConfigEnabled &&
-		input.Model.Status != enum.OAuthConfigDisabled {
+	if action.Model.Status != enum.OAuthConfigEnabled &&
+		action.Model.Status != enum.OAuthConfigDisabled {
 		result.AddFieldFailure("status", "Invalid status.")
 	}
 
-	if input.Model.DisplayName == "" {
+	if action.Model.DisplayName == "" {
 		result.AddFieldFailure("displayName", "Display Name is required.")
-	} else if len(input.Model.DisplayName) > 50 {
+	} else if len(action.Model.DisplayName) > 50 {
 		result.AddFieldFailure("displayName", "Display Name must have less than 50 characters.")
 	}
 
-	if input.Model.ClientID == "" {
+	if action.Model.ClientID == "" {
 		result.AddFieldFailure("clientID", "Client ID is required.")
-	} else if len(input.Model.ClientID) > 100 {
+	} else if len(action.Model.ClientID) > 100 {
 		result.AddFieldFailure("clientID", "Client ID must have less than 100 characters.")
 	}
 
-	if input.Model.ClientSecret == "" {
+	if action.Model.ClientSecret == "" {
 		result.AddFieldFailure("clientSecret", "Client Secret is required.")
-	} else if len(input.Model.ClientSecret) > 500 {
+	} else if len(action.Model.ClientSecret) > 500 {
 		result.AddFieldFailure("clientSecret", "Client Secret must have less than 500 characters.")
 	}
 
-	if input.Model.Scope == "" {
+	if action.Model.Scope == "" {
 		result.AddFieldFailure("scope", "Scope is required.")
-	} else if len(input.Model.Scope) > 100 {
+	} else if len(action.Model.Scope) > 100 {
 		result.AddFieldFailure("scope", "Scope must have less than 100 characters.")
 	}
 
-	if input.Model.AuthorizeURL == "" {
+	if action.Model.AuthorizeURL == "" {
 		result.AddFieldFailure("authorizeURL", "Authorize URL is required.")
-	} else if messages := validate.URL(input.Model.AuthorizeURL); len(messages) > 0 {
+	} else if messages := validate.URL(action.Model.AuthorizeURL); len(messages) > 0 {
 		result.AddFieldFailure("authorizeURL", messages...)
 	}
 
-	if input.Model.TokenURL == "" {
+	if action.Model.TokenURL == "" {
 		result.AddFieldFailure("tokenURL", "Token URL is required.")
-	} else if messages := validate.URL(input.Model.TokenURL); len(messages) > 0 {
+	} else if messages := validate.URL(action.Model.TokenURL); len(messages) > 0 {
 		result.AddFieldFailure("tokenURL", messages...)
 	}
 
-	if input.Model.ProfileURL != "" {
-		if messages := validate.URL(input.Model.ProfileURL); len(messages) > 0 {
+	if action.Model.ProfileURL != "" {
+		if messages := validate.URL(action.Model.ProfileURL); len(messages) > 0 {
 			result.AddFieldFailure("profileURL", messages...)
 		}
 	}
 
-	if input.Model.JSONUserIDPath == "" {
+	if action.Model.JSONUserIDPath == "" {
 		result.AddFieldFailure("jsonUserIDPath", "JSON User ID Path is required.")
-	} else if len(input.Model.JSONUserIDPath) > 100 {
+	} else if len(action.Model.JSONUserIDPath) > 100 {
 		result.AddFieldFailure("jsonUserIDPath", "JSON User ID Path must have less than 100 characters.")
 	}
 
-	if len(input.Model.JSONUserNamePath) > 100 {
+	if len(action.Model.JSONUserNamePath) > 100 {
 		result.AddFieldFailure("jsonUserNamePath", "JSON User Name Path must have less than 100 characters.")
 	}
 
-	if len(input.Model.JSONUserEmailPath) > 100 {
+	if len(action.Model.JSONUserEmailPath) > 100 {
 		result.AddFieldFailure("jsonUserEmailPath", "JSON User Email Path must have less than 100 characters.")
 	}
 

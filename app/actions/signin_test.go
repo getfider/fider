@@ -33,8 +33,7 @@ func TestSignInByEmail_InvalidEmail(t *testing.T) {
 func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.SignInByEmail{}
-	action.Initialize()
+	action := actions.NewSignInByEmail()
 	action.Model.Email = "jon.snow@got.com"
 
 	result := action.Validate(context.Background(), nil)

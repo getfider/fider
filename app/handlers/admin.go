@@ -34,7 +34,7 @@ func AdvancedSettingsPage() web.HandlerFunc {
 // UpdateSettings update current tenant' settings
 func UpdateSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantSettings)
+		input := actions.NewUpdateTenantSettings()
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
@@ -141,7 +141,7 @@ func GetOAuthConfig() web.HandlerFunc {
 // SaveOAuthConfig is used to create/edit OAuth configurations
 func SaveOAuthConfig() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CreateEditOAuthConfig)
+		input := actions.NewCreateEditOAuthConfig()
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}

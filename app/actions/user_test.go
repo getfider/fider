@@ -100,9 +100,9 @@ func TestChangeUserRole_Unauthorized(t *testing.T) {
 	RegisterT(t)
 
 	for _, user := range []*models.User{
-		&models.User{ID: 1, Role: enum.RoleVisitor},
-		&models.User{ID: 1, Role: enum.RoleCollaborator},
-		&models.User{ID: 2, Role: enum.RoleAdministrator},
+		{ID: 1, Role: enum.RoleVisitor},
+		{ID: 1, Role: enum.RoleCollaborator},
+		{ID: 2, Role: enum.RoleAdministrator},
 	} {
 		action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 2}}
 		Expect(action.IsAuthorized(context.Background(), user)).IsFalse()

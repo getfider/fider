@@ -18,9 +18,7 @@ import (
 func TestCreateTenant_ShouldHaveVerificationKey(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CreateTenant{}
-	action.Initialize()
-
+	action := actions.NewCreateTenant()
 	Expect(action.Model.VerificationKey).IsNotEmpty()
 }
 
@@ -134,8 +132,7 @@ func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 	admin := &models.User{ID: 1, Role: enum.RoleAdministrator}
 	collaborator := &models.User{ID: 2, Role: enum.RoleCollaborator}
 
-	action := actions.UpdateTenantSettings{}
-	action.Initialize()
+	action := actions.NewUpdateTenantSettings()
 
 	Expect(action.IsAuthorized(context.Background(), admin)).IsTrue()
 	Expect(action.IsAuthorized(context.Background(), collaborator)).IsFalse()
@@ -145,8 +142,7 @@ func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.UpdateTenantSettings{}
-	action.Initialize()
+	action := actions.NewUpdateTenantSettings()
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "title")
 }
@@ -183,8 +179,7 @@ func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
 		LogoBlobKey: "hello-world.png",
 	})
 
-	action := actions.UpdateTenantSettings{}
-	action.Initialize()
+	action := actions.NewUpdateTenantSettings()
 	action.Model.Title = "OK"
 	action.Model.Invitation = "Share your ideas!"
 	result := action.Validate(ctx, nil)

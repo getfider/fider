@@ -52,11 +52,10 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 	}
 }
 
-func TestCreateEditOAuthConfig_Initialize(t *testing.T) {
+func TestCreateEditOAuthConfig_DefaultValues(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.CreateEditOAuthConfig{}
-	action.Initialize()
+	action := actions.NewCreateEditOAuthConfig()
 	Expect(action.Model.Logo.BlobKey).Equals("")
 }
 
@@ -101,8 +100,7 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.CreateEditOAuthConfig{}
-	action.Initialize()
+	action := actions.NewCreateEditOAuthConfig()
 	action.Model.Provider = "_NAME"
 	action.Model.DisplayName = "My Provider"
 	action.Model.Status = enum.OAuthConfigDisabled
@@ -139,8 +137,7 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.CreateEditOAuthConfig{}
-	action.Initialize()
+	action := actions.NewCreateEditOAuthConfig()
 	action.Model.Provider = "_NAME2"
 	action.Model.DisplayName = "My Provider"
 	action.Model.Status = enum.OAuthConfigDisabled
@@ -166,8 +163,7 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.CreateEditOAuthConfig{}
-	action.Initialize()
+	action := actions.NewCreateEditOAuthConfig()
 	action.Model.Provider = "_MY_NEW_PROVIDER"
 	action.Model.DisplayName = "My Provider"
 	action.Model.Status = enum.OAuthConfigDisabled

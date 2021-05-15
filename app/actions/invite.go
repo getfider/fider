@@ -21,44 +21,44 @@ type InviteUsers struct {
 	Invitations    []*models.UserInvitation
 }
 
-// Initialize the model
-func (input *InviteUsers) Initialize() interface{} {
-	input.Model = new(models.InviteUsers)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *InviteUsers) BindTarget() interface{} {
+	action.Model = new(models.InviteUsers)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *InviteUsers) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *InviteUsers) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *InviteUsers) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *InviteUsers) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Subject == "" {
+	if action.Model.Subject == "" {
 		result.AddFieldFailure("subject", "Subject is required.")
-	} else if len(input.Model.Subject) > 70 {
+	} else if len(action.Model.Subject) > 70 {
 		result.AddFieldFailure("subject", "Subject must have less than 70 characters.")
 	}
 
-	if input.Model.Message == "" {
+	if action.Model.Message == "" {
 		result.AddFieldFailure("message", "Message is required.")
-	} else if !strings.Contains(input.Model.Message, app.InvitePlaceholder) {
+	} else if !strings.Contains(action.Model.Message, app.InvitePlaceholder) {
 		msg := fmt.Sprintf("Your message is missing the invitation link placeholder. Please add '%s' to your message.", app.InvitePlaceholder)
 		result.AddFieldFailure("message", msg)
 	}
 
 	//When it's a sample invite, we skip recipients validation
-	if !input.IsSampleInvite {
+	if !action.IsSampleInvite {
 
-		if len(input.Model.Recipients) == 0 {
+		if len(action.Model.Recipients) == 0 {
 			result.AddFieldFailure("recipients", "At least one recipient is required.")
-		} else if len(input.Model.Recipients) > 30 {
+		} else if len(action.Model.Recipients) > 30 {
 			result.AddFieldFailure("recipients", "Too many recipients. We limit at 30 recipients per invite.")
 		}
 
-		for _, email := range input.Model.Recipients {
+		for _, email := range action.Model.Recipients {
 			if email != "" {
 				messages := validate.Email(email)
 				result.AddFieldFailure("recipients", messages...)
@@ -66,12 +66,12 @@ func (input *InviteUsers) Validate(ctx context.Context, user *models.User) *vali
 		}
 
 		if result.Ok {
-			input.Invitations = make([]*models.UserInvitation, 0)
-			for _, email := range input.Model.Recipients {
+			action.Invitations = make([]*models.UserInvitation, 0)
+			for _, email := range action.Model.Recipients {
 				if email != "" {
 					err := bus.Dispatch(ctx, &query.GetUserByEmail{Email: email})
 					if errors.Cause(err) == app.ErrNotFound {
-						input.Invitations = append(input.Invitations, &models.UserInvitation{
+						action.Invitations = append(action.Invitations, &models.UserInvitation{
 							Email:           email,
 							VerificationKey: models.GenerateSecretKey(),
 						})
@@ -79,7 +79,7 @@ func (input *InviteUsers) Validate(ctx context.Context, user *models.User) *vali
 				}
 			}
 
-			if len(input.Invitations) == 0 {
+			if len(action.Invitations) == 0 {
 				result.AddFieldFailure("recipients", "All these addresses have already been registered on this site.")
 			}
 		}

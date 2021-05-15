@@ -19,29 +19,29 @@ type CreateNewPost struct {
 	Model *models.NewPost
 }
 
-// Initialize the model
-func (input *CreateNewPost) Initialize() interface{} {
-	input.Model = new(models.NewPost)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *CreateNewPost) BindTarget() interface{} {
+	action.Model = new(models.NewPost)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateNewPost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *CreateNewPost) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateNewPost) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Title == "" {
+	if action.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(input.Model.Title) < 10 {
+	} else if len(action.Model.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
-	} else if len(input.Model.Title) > 100 {
+	} else if len(action.Model.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	} else {
-		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)})
+		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Model.Title)})
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
 			return validate.Error(err)
 		} else if err == nil {
@@ -49,7 +49,7 @@ func (input *CreateNewPost) Validate(ctx context.Context, user *models.User) *va
 		}
 	}
 
-	messages, err := validate.MultiImageUpload(nil, input.Model.Attachments, validate.MultiImageUploadOpts{
+	messages, err := validate.MultiImageUpload(nil, action.Model.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   3,
 		MaxKilobytes: 5120,
 		ExactRatio:   false,
@@ -68,54 +68,54 @@ type UpdatePost struct {
 	Post  *models.Post
 }
 
-// Initialize the model
-func (input *UpdatePost) Initialize() interface{} {
-	input.Model = new(models.UpdatePost)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *UpdatePost) BindTarget() interface{} {
+	action.Model = new(models.UpdatePost)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdatePost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdatePost) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *UpdatePost) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdatePost) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Title == "" {
+	if action.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(input.Model.Title) < 10 {
+	} else if len(action.Model.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
-	if len(input.Model.Title) > 100 {
+	if len(action.Model.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
-	postByNumber := &query.GetPostByNumber{Number: input.Model.Number}
+	postByNumber := &query.GetPostByNumber{Number: action.Model.Number}
 	if err := bus.Dispatch(ctx, postByNumber); err != nil {
 		return validate.Error(err)
 	}
 
-	input.Post = postByNumber.Result
+	action.Post = postByNumber.Result
 
-	postBySlug := &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)}
+	postBySlug := &query.GetPostBySlug{Slug: slug.Make(action.Model.Title)}
 	err := bus.Dispatch(ctx, postBySlug)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
-	} else if err == nil && postBySlug.Result.ID != input.Post.ID {
+	} else if err == nil && postBySlug.Result.ID != action.Post.ID {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
-	if len(input.Model.Attachments) > 0 {
-		getAttachments := &query.GetAttachments{Post: input.Post}
+	if len(action.Model.Attachments) > 0 {
+		getAttachments := &query.GetAttachments{Post: action.Post}
 		err = bus.Dispatch(ctx, getAttachments)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
+		messages, err := validate.MultiImageUpload(getAttachments.Result, action.Model.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   3,
 			MaxKilobytes: 5120,
 			ExactRatio:   false,
@@ -134,26 +134,26 @@ type AddNewComment struct {
 	Model *models.NewComment
 }
 
-// Initialize the model
-func (input *AddNewComment) Initialize() interface{} {
-	input.Model = new(models.NewComment)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *AddNewComment) BindTarget() interface{} {
+	action.Model = new(models.NewComment)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *AddNewComment) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *AddNewComment) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *AddNewComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *AddNewComment) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Content == "" {
+	if action.Model.Content == "" {
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
-	messages, err := validate.MultiImageUpload(nil, input.Model.Attachments, validate.MultiImageUploadOpts{
+	messages, err := validate.MultiImageUpload(nil, action.Model.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   2,
 		MaxKilobytes: 5120,
 		ExactRatio:   false,
@@ -172,31 +172,31 @@ type SetResponse struct {
 	Original *models.Post
 }
 
-// Initialize the model
-func (input *SetResponse) Initialize() interface{} {
-	input.Model = new(models.SetResponse)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *SetResponse) BindTarget() interface{} {
+	action.Model = new(models.SetResponse)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *SetResponse) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *SetResponse) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *SetResponse) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *SetResponse) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Status < enum.PostOpen || input.Model.Status > enum.PostDuplicate {
+	if action.Model.Status < enum.PostOpen || action.Model.Status > enum.PostDuplicate {
 		result.AddFieldFailure("status", "Status is invalid.")
 	}
 
-	if input.Model.Status == enum.PostDuplicate {
-		if input.Model.OriginalNumber == input.Model.Number {
+	if action.Model.Status == enum.PostDuplicate {
+		if action.Model.OriginalNumber == action.Model.Number {
 			result.AddFieldFailure("originalNumber", "Cannot be a duplicate of itself")
 		}
 
-		getOriginaPost := &query.GetPostByNumber{Number: input.Model.OriginalNumber}
+		getOriginaPost := &query.GetPostByNumber{Number: action.Model.OriginalNumber}
 		err := bus.Dispatch(ctx, getOriginaPost)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
@@ -207,7 +207,7 @@ func (input *SetResponse) Validate(ctx context.Context, user *models.User) *vali
 		}
 
 		if getOriginaPost.Result != nil {
-			input.Original = getOriginaPost.Result
+			action.Original = getOriginaPost.Result
 		}
 	}
 
@@ -216,31 +216,27 @@ func (input *SetResponse) Validate(ctx context.Context, user *models.User) *vali
 
 // DeletePost represents the action of an administrator deleting an existing Post
 type DeletePost struct {
-	Model *models.DeletePost
-	Post  *models.Post
-}
+	Number int    `route:"number"`
+	Text   string `json:"text"`
 
-// Initialize the model
-func (input *DeletePost) Initialize() interface{} {
-	input.Model = new(models.DeletePost)
-	return input.Model
+	Post *models.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeletePost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *DeletePost) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *DeletePost) Validate(ctx context.Context, user *models.User) *validate.Result {
-	getPost := &query.GetPostByNumber{Number: input.Model.Number}
+func (action *DeletePost) Validate(ctx context.Context, user *models.User) *validate.Result {
+	getPost := &query.GetPostByNumber{Number: action.Number}
 	if err := bus.Dispatch(ctx, getPost); err != nil {
 		return validate.Error(err)
 	}
 
-	input.Post = getPost.Result
+	action.Post = getPost.Result
 
-	isReferencedQuery := &query.PostIsReferenced{PostID: input.Post.ID}
+	isReferencedQuery := &query.PostIsReferenced{PostID: action.Post.ID}
 	if err := bus.Dispatch(ctx, isReferencedQuery); err != nil {
 		return validate.Error(err)
 	}
@@ -259,41 +255,41 @@ type EditComment struct {
 	Comment *models.Comment
 }
 
-// Initialize the model
-func (input *EditComment) Initialize() interface{} {
-	input.Model = new(models.EditComment)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *EditComment) BindTarget() interface{} {
+	action.Model = new(models.EditComment)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *EditComment) IsAuthorized(ctx context.Context, user *models.User) bool {
-	postByNumber := &query.GetPostByNumber{Number: input.Model.PostNumber}
-	commentByID := &query.GetCommentByID{CommentID: input.Model.ID}
+func (action *EditComment) IsAuthorized(ctx context.Context, user *models.User) bool {
+	postByNumber := &query.GetPostByNumber{Number: action.Model.PostNumber}
+	commentByID := &query.GetCommentByID{CommentID: action.Model.ID}
 	if err := bus.Dispatch(ctx, postByNumber, commentByID); err != nil {
 		return false
 	}
 
-	input.Post = postByNumber.Result
-	input.Comment = commentByID.Result
-	return user.ID == input.Comment.User.ID || user.IsCollaborator()
+	action.Post = postByNumber.Result
+	action.Comment = commentByID.Result
+	return user.ID == action.Comment.User.ID || user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *EditComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *EditComment) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Content == "" {
+	if action.Model.Content == "" {
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
-	if len(input.Model.Attachments) > 0 {
-		getAttachments := &query.GetAttachments{Post: input.Post, Comment: input.Comment}
+	if len(action.Model.Attachments) > 0 {
+		getAttachments := &query.GetAttachments{Post: action.Post, Comment: action.Comment}
 		err := bus.Dispatch(ctx, getAttachments)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
+		messages, err := validate.MultiImageUpload(getAttachments.Result, action.Model.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   2,
 			MaxKilobytes: 5120,
 			ExactRatio:   false,
@@ -312,15 +308,15 @@ type DeleteComment struct {
 	Model *models.DeleteComment
 }
 
-// Initialize the model
-func (input *DeleteComment) Initialize() interface{} {
-	input.Model = new(models.DeleteComment)
-	return input.Model
+// Returns the struct to bind the request to
+func (action *DeleteComment) BindTarget() interface{} {
+	action.Model = new(models.DeleteComment)
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeleteComment) IsAuthorized(ctx context.Context, user *models.User) bool {
-	commentByID := &query.GetCommentByID{CommentID: input.Model.CommentID}
+func (action *DeleteComment) IsAuthorized(ctx context.Context, user *models.User) bool {
+	commentByID := &query.GetCommentByID{CommentID: action.Model.CommentID}
 	if err := bus.Dispatch(ctx, commentByID); err != nil {
 		return false
 	}
@@ -329,6 +325,6 @@ func (input *DeleteComment) IsAuthorized(ctx context.Context, user *models.User)
 }
 
 // Validate if current model is valid
-func (input *DeleteComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *DeleteComment) Validate(ctx context.Context, user *models.User) *validate.Result {
 	return validate.Success()
 }

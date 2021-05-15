@@ -14,37 +14,43 @@ type UpdateUserSettings struct {
 	Model *models.UpdateUserSettings
 }
 
-// Initialize the model
-func (input *UpdateUserSettings) Initialize() interface{} {
-	input.Model = new(models.UpdateUserSettings)
-	input.Model.Avatar = &models.ImageUpload{}
-	return input.Model
+func NewUpdateUserSettings() *UpdateUserSettings {
+	return &UpdateUserSettings{
+		Model: &models.UpdateUserSettings{
+			Avatar: &models.ImageUpload{},
+		},
+	}
+}
+
+// Returns the struct to bind the request to
+func (action *UpdateUserSettings) BindTarget() interface{} {
+	return action.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateUserSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdateUserSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *UpdateUserSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdateUserSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Name == "" {
+	if action.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
 	}
 
-	if input.Model.AvatarType < 1 || input.Model.AvatarType > 3 {
+	if action.Model.AvatarType < 1 || action.Model.AvatarType > 3 {
 		result.AddFieldFailure("avatarType", "Invalid avatar type.")
 	}
 
-	if len(input.Model.Name) > 50 {
+	if len(action.Model.Name) > 50 {
 		result.AddFieldFailure("name", "Name must have less than 50 characters.")
 	}
 
-	input.Model.Avatar.BlobKey = user.AvatarBlobKey
-	messages, err := validate.ImageUpload(input.Model.Avatar, validate.ImageUploadOpts{
-		IsRequired:   input.Model.AvatarType == enum.AvatarTypeCustom,
+	action.Model.Avatar.BlobKey = user.AvatarBlobKey
+	messages, err := validate.ImageUpload(action.Model.Avatar, validate.ImageUploadOpts{
+		IsRequired:   action.Model.AvatarType == enum.AvatarTypeCustom,
 		MinHeight:    50,
 		MinWidth:     50,
 		ExactRatio:   true,
@@ -55,8 +61,8 @@ func (input *UpdateUserSettings) Validate(ctx context.Context, user *models.User
 	}
 	result.AddFieldFailure("avatar", messages...)
 
-	if input.Model.Settings != nil {
-		for k, v := range input.Model.Settings {
+	if action.Model.Settings != nil {
+		for k, v := range action.Model.Settings {
 			ok := false
 			for _, e := range enum.AllNotificationEvents {
 				if e.UserSettingsKeyName == k {

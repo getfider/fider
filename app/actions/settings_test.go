@@ -18,8 +18,7 @@ func TestInvalidUserNames(t *testing.T) {
 		"123456789012345678901234567890123456789012345678901", // 51 chars
 	} {
 
-		action := actions.UpdateUserSettings{}
-		action.Initialize()
+		action := actions.NewUpdateUserSettings()
 		action.Model.Name = name
 		action.Model.AvatarType = enum.AvatarTypeGravatar
 		result := action.Validate(context.Background(), &models.User{})
@@ -34,8 +33,7 @@ func TestValidUserNames(t *testing.T) {
 		"Jon Snow",
 		"Arya",
 	} {
-		action := actions.UpdateUserSettings{}
-		action.Initialize()
+		action := actions.NewUpdateUserSettings()
 		action.Model.Name = name
 		action.Model.AvatarType = enum.AvatarTypeGravatar
 		result := action.Validate(context.Background(), &models.User{})
@@ -47,15 +45,14 @@ func TestInvalidSettings(t *testing.T) {
 	RegisterT(t)
 
 	for _, settings := range []map[string]string{
-		map[string]string{
+		{
 			"bad_name": "3",
 		},
-		map[string]string{
+		{
 			enum.NotificationEventNewComment.UserSettingsKeyName: "4",
 		},
 	} {
-		action := actions.UpdateUserSettings{}
-		action.Initialize()
+		action := actions.NewUpdateUserSettings()
 		action.Model.Name = "John Snow"
 		action.Model.Settings = settings
 		result := action.Validate(context.Background(), &models.User{})
@@ -68,17 +65,16 @@ func TestValidSettings(t *testing.T) {
 
 	for _, settings := range []map[string]string{
 		nil,
-		map[string]string{
+		{
 			enum.NotificationEventNewPost.UserSettingsKeyName:      enum.NotificationEventNewPost.DefaultSettingValue,
 			enum.NotificationEventNewComment.UserSettingsKeyName:   enum.NotificationEventNewComment.DefaultSettingValue,
 			enum.NotificationEventChangeStatus.UserSettingsKeyName: enum.NotificationEventChangeStatus.DefaultSettingValue,
 		},
-		map[string]string{
+		{
 			enum.NotificationEventNewComment.UserSettingsKeyName: enum.NotificationEventNewComment.DefaultSettingValue,
 		},
 	} {
-		action := actions.UpdateUserSettings{}
-		action.Initialize()
+		action := actions.NewUpdateUserSettings()
 		action.Model.Name = "John Snow"
 		action.Model.Settings = settings
 		action.Model.AvatarType = enum.AvatarTypeGravatar

@@ -181,7 +181,12 @@ func (c *Context) Bind(i interface{}) error {
 
 //BindTo context values into given model
 func (c *Context) BindTo(i actions.Actionable) *validate.Result {
-	err := c.engine.binder.Bind(i.Initialize(), c)
+	var target interface{} = i
+	if t, ok := i.(actions.BindTargetAction); ok {
+		target = t.BindTarget()
+	}
+
+	err := c.engine.binder.Bind(target, c)
 	if err != nil {
 		if err == ErrContentTypeNotAllowed {
 			return validate.Failed(err.Error())
