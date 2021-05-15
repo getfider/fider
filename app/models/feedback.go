@@ -42,22 +42,6 @@ func (i *Post) CanBeVoted() bool {
 	return i.Status != enum.PostCompleted && i.Status != enum.PostDeclined && i.Status != enum.PostDuplicate
 }
 
-// EditComment represents a request to edit existing comment
-type EditComment struct {
-	PostNumber  int            `route:"number"`
-	ID          int            `route:"id"`
-	Content     string         `json:"content"`
-	Attachments []*ImageUpload `json:"attachments"`
-}
-
-// SetResponse represents the action to update an post response
-type SetResponse struct {
-	Number         int             `route:"number"`
-	Status         enum.PostStatus `json:"status"`
-	Text           string          `json:"text"`
-	OriginalNumber int             `json:"originalNumber"`
-}
-
 //PostResponse is a staff response to a given post
 type PostResponse struct {
 	Text        string        `json:"text"`
@@ -91,14 +75,6 @@ type Tag struct {
 	Name     string `json:"name"`
 	Slug     string `json:"slug"`
 	Color    string `json:"color"`
-	IsPublic bool   `json:"isPublic"`
-}
-
-//CreateEditTag is used to create a new tag or edit existing
-type CreateEditTag struct {
-	Slug     string `route:"slug"`
-	Name     string `json:"name"`
-	Color    string `json:"color" format:"upper"`
 	IsPublic bool   `json:"isPublic"`
 }
 

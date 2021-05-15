@@ -158,14 +158,12 @@ func (action *AddNewComment) Validate(ctx context.Context, user *models.User) *v
 
 // SetResponse represents the action to update an post response
 type SetResponse struct {
-	Input    *models.SetResponse
-	Original *models.Post
-}
+	Number         int             `route:"number"`
+	Status         enum.PostStatus `json:"status"`
+	Text           string          `json:"text"`
+	OriginalNumber int             `json:"originalNumber"`
 
-// Returns the struct to bind the request to
-func (action *SetResponse) BindTarget() interface{} {
-	action.Input = new(models.SetResponse)
-	return action.Input
+	Original *models.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -177,16 +175,16 @@ func (action *SetResponse) IsAuthorized(ctx context.Context, user *models.User) 
 func (action *SetResponse) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Input.Status < enum.PostOpen || action.Input.Status > enum.PostDuplicate {
+	if action.Status < enum.PostOpen || action.Status > enum.PostDuplicate {
 		result.AddFieldFailure("status", "Status is invalid.")
 	}
 
-	if action.Input.Status == enum.PostDuplicate {
-		if action.Input.OriginalNumber == action.Input.Number {
+	if action.Status == enum.PostDuplicate {
+		if action.OriginalNumber == action.Number {
 			result.AddFieldFailure("originalNumber", "Cannot be a duplicate of itself")
 		}
 
-		getOriginaPost := &query.GetPostByNumber{Number: action.Input.OriginalNumber}
+		getOriginaPost := &query.GetPostByNumber{Number: action.OriginalNumber}
 		err := bus.Dispatch(ctx, getOriginaPost)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
@@ -240,21 +238,19 @@ func (action *DeletePost) Validate(ctx context.Context, user *models.User) *vali
 
 // EditComment represents the action to update an existing comment
 type EditComment struct {
-	Input   *models.EditComment
+	PostNumber  int                   `route:"number"`
+	ID          int                   `route:"id"`
+	Content     string                `json:"content"`
+	Attachments []*models.ImageUpload `json:"attachments"`
+
 	Post    *models.Post
 	Comment *models.Comment
 }
 
-// Returns the struct to bind the request to
-func (action *EditComment) BindTarget() interface{} {
-	action.Input = new(models.EditComment)
-	return action.Input
-}
-
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *EditComment) IsAuthorized(ctx context.Context, user *models.User) bool {
-	postByNumber := &query.GetPostByNumber{Number: action.Input.PostNumber}
-	commentByID := &query.GetCommentByID{CommentID: action.Input.ID}
+	postByNumber := &query.GetPostByNumber{Number: action.PostNumber}
+	commentByID := &query.GetCommentByID{CommentID: action.ID}
 	if err := bus.Dispatch(ctx, postByNumber, commentByID); err != nil {
 		return false
 	}
@@ -268,18 +264,18 @@ func (action *EditComment) IsAuthorized(ctx context.Context, user *models.User) 
 func (action *EditComment) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Input.Content == "" {
+	if action.Content == "" {
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
-	if len(action.Input.Attachments) > 0 {
+	if len(action.Attachments) > 0 {
 		getAttachments := &query.GetAttachments{Post: action.Post, Comment: action.Comment}
 		err := bus.Dispatch(ctx, getAttachments)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		messages, err := validate.MultiImageUpload(getAttachments.Result, action.Input.Attachments, validate.MultiImageUploadOpts{
+		messages, err := validate.MultiImageUpload(getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   2,
 			MaxKilobytes: 5120,
 			ExactRatio:   false,
