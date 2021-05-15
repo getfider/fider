@@ -33,21 +33,21 @@ func CreateUser() web.HandlerFunc {
 
 		var user *models.User
 
-		getByReference := &query.GetUserByProvider{Provider: "reference", UID: action.Model.Reference}
+		getByReference := &query.GetUserByProvider{Provider: "reference", UID: action.Input.Reference}
 		err := bus.Dispatch(c, getByReference)
 		user = getByReference.Result
 
 		if err != nil && errors.Cause(err) == app.ErrNotFound {
-			if action.Model.Email != "" {
-				getByEmail := &query.GetUserByEmail{Email: action.Model.Email}
+			if action.Input.Email != "" {
+				getByEmail := &query.GetUserByEmail{Email: action.Input.Email}
 				err = bus.Dispatch(c, getByEmail)
 				user = getByEmail.Result
 			}
 			if err != nil && errors.Cause(err) == app.ErrNotFound {
 				user = &models.User{
 					Tenant: c.Tenant(),
-					Name:   action.Model.Name,
-					Email:  action.Model.Email,
+					Name:   action.Input.Name,
+					Email:  action.Input.Email,
 					Role:   enum.RoleVisitor,
 				}
 				err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
@@ -58,11 +58,11 @@ func CreateUser() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if action.Model.Reference != "" && !user.HasProvider("reference") {
+		if action.Input.Reference != "" && !user.HasProvider("reference") {
 			if err := bus.Dispatch(c, &cmd.RegisterUserProvider{
 				UserID:       user.ID,
 				ProviderName: "reference",
-				ProviderUID:  action.Model.Reference,
+				ProviderUID:  action.Input.Reference,
 			}); err != nil {
 				return c.Failure(err)
 			}

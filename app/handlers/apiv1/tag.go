@@ -62,12 +62,12 @@ func CreateEditTag() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		if action.Model.Slug != "" {
+		if action.Input.Slug != "" {
 			updateTag := &cmd.UpdateTag{
 				TagID:    action.Tag.ID,
-				Name:     action.Model.Name,
-				Color:    action.Model.Color,
-				IsPublic: action.Model.IsPublic,
+				Name:     action.Input.Name,
+				Color:    action.Input.Color,
+				IsPublic: action.Input.IsPublic,
 			}
 			if err := bus.Dispatch(c, updateTag); err != nil {
 				return c.Failure(err)
@@ -76,9 +76,9 @@ func CreateEditTag() web.HandlerFunc {
 		}
 
 		addNewTag := &cmd.AddNewTag{
-			Name:     action.Model.Name,
-			Color:    action.Model.Color,
-			IsPublic: action.Model.IsPublic,
+			Name:     action.Input.Name,
+			Color:    action.Input.Color,
+			IsPublic: action.Input.IsPublic,
 		}
 		if err := bus.Dispatch(c, addNewTag); err != nil {
 			return c.Failure(err)

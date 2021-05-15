@@ -24,15 +24,15 @@ func ChangeUserEmail() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      input.Model.VerificationKey,
+			Key:      input.Input.VerificationKey,
 			Duration: 24 * time.Hour,
-			Request:  input.Model,
+			Request:  input.Input,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendChangeEmailConfirmation(input.Model))
+		c.Enqueue(tasks.SendChangeEmailConfirmation(input.Input))
 
 		return c.Ok(web.Map{})
 	}
@@ -94,16 +94,16 @@ func UpdateUserSettings() web.HandlerFunc {
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Model.Avatar,
+				Image:  input.Input.Avatar,
 				Folder: "avatars",
 			},
 			&cmd.UpdateCurrentUser{
-				Name:       input.Model.Name,
-				Avatar:     input.Model.Avatar,
-				AvatarType: input.Model.AvatarType,
+				Name:       input.Input.Name,
+				Avatar:     input.Input.Avatar,
+				AvatarType: input.Input.AvatarType,
 			},
 			&cmd.UpdateCurrentUserSettings{
-				Settings: input.Model.Settings,
+				Settings: input.Input.Settings,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -122,8 +122,8 @@ func ChangeUserRole() web.HandlerFunc {
 		}
 
 		changeRole := &cmd.ChangeUserRole{
-			UserID: action.Model.UserID,
-			Role:   action.Model.Role,
+			UserID: action.Input.UserID,
+			Role:   action.Input.Role,
 		}
 
 		if err := bus.Dispatch(c, changeRole); err != nil {

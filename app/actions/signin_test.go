@@ -17,7 +17,7 @@ import (
 func TestSignInByEmail_EmptyEmail(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: " "}}
+	action := actions.SignInByEmail{Input: &models.SignInByEmail{Email: " "}}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "email")
 }
@@ -25,7 +25,7 @@ func TestSignInByEmail_EmptyEmail(t *testing.T) {
 func TestSignInByEmail_InvalidEmail(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: "Hi :)"}}
+	action := actions.SignInByEmail{Input: &models.SignInByEmail{Email: "Hi :)"}}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "email")
 }
@@ -34,17 +34,17 @@ func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.NewSignInByEmail()
-	action.Model.Email = "jon.snow@got.com"
+	action.Input.Email = "jon.snow@got.com"
 
 	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
-	Expect(action.Model.VerificationKey).IsNotEmpty()
+	Expect(action.Input.VerificationKey).IsNotEmpty()
 }
 
 func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CompleteProfile{Model: &models.CompleteProfile{}}
+	action := actions.CompleteProfile{Input: &models.CompleteProfile{}}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "name", "key")
 }
@@ -52,7 +52,7 @@ func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
 func TestCompleteProfile_LongName(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CompleteProfile{Model: &models.CompleteProfile{
+	action := actions.CompleteProfile{Input: &models.CompleteProfile{
 		Name: "123456789012345678901234567890123456789012345678901", // 51 chars
 	}}
 	result := action.Validate(context.Background(), nil)
@@ -66,7 +66,7 @@ func TestCompleteProfile_UnknownKey(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
+	action := actions.CompleteProfile{Input: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "key")
 }
@@ -87,11 +87,11 @@ func TestCompleteProfile_ValidKey(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: key}}
+	action := actions.CompleteProfile{Input: &models.CompleteProfile{Name: "Jon Snow", Key: key}}
 	result := action.Validate(context.Background(), nil)
 
 	ExpectSuccess(result)
-	Expect(action.Model.Email).Equals("jon.snow@got.com")
+	Expect(action.Input.Email).Equals("jon.snow@got.com")
 }
 
 func TestCompleteProfile_UserInvitation_ValidKey(t *testing.T) {
@@ -110,9 +110,9 @@ func TestCompleteProfile_UserInvitation_ValidKey(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: key}}
+	action := actions.CompleteProfile{Input: &models.CompleteProfile{Name: "Jon Snow", Key: key}}
 	result := action.Validate(context.Background(), nil)
 
 	ExpectSuccess(result)
-	Expect(action.Model.Email).Equals("jon.snow@got.com")
+	Expect(action.Input.Email).Equals("jon.snow@got.com")
 }

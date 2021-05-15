@@ -19,13 +19,13 @@ var colorRegex = regexp.MustCompile(`^([A-Fa-f0-9]{6})$`)
 // CreateEditTag is used to create a new tag or edit existing
 type CreateEditTag struct {
 	Tag   *models.Tag
-	Model *models.CreateEditTag
+	Input *models.CreateEditTag
 }
 
 // Returns the struct to bind the request to
 func (action *CreateEditTag) BindTarget() interface{} {
-	action.Model = new(models.CreateEditTag)
-	return action.Model
+	action.Input = new(models.CreateEditTag)
+	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -37,8 +37,8 @@ func (action *CreateEditTag) IsAuthorized(ctx context.Context, user *models.User
 func (action *CreateEditTag) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Model.Slug != "" {
-		getSlug := &query.GetTagBySlug{Slug: action.Model.Slug}
+	if action.Input.Slug != "" {
+		getSlug := &query.GetTagBySlug{Slug: action.Input.Slug}
 		err := bus.Dispatch(ctx, getSlug)
 		if err != nil {
 			return validate.Error(err)
@@ -46,12 +46,12 @@ func (action *CreateEditTag) Validate(ctx context.Context, user *models.User) *v
 		action.Tag = getSlug.Result
 	}
 
-	if action.Model.Name == "" {
+	if action.Input.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
-	} else if len(action.Model.Name) > 30 {
+	} else if len(action.Input.Name) > 30 {
 		result.AddFieldFailure("name", "Name must have less than 30 characters.")
 	} else {
-		getDuplicateSlug := &query.GetTagBySlug{Slug: slug.Make(action.Model.Name)}
+		getDuplicateSlug := &query.GetTagBySlug{Slug: slug.Make(action.Input.Name)}
 		err := bus.Dispatch(ctx, getDuplicateSlug)
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
 			return validate.Error(err)
@@ -60,11 +60,11 @@ func (action *CreateEditTag) Validate(ctx context.Context, user *models.User) *v
 		}
 	}
 
-	if action.Model.Color == "" {
+	if action.Input.Color == "" {
 		result.AddFieldFailure("color", "Color is required.")
-	} else if len(action.Model.Color) != 6 {
+	} else if len(action.Input.Color) != 6 {
 		result.AddFieldFailure("color", "Color must be exactly 6 characters.")
-	} else if !colorRegex.MatchString(action.Model.Color) {
+	} else if !colorRegex.MatchString(action.Input.Color) {
 		result.AddFieldFailure("color", "Color is invalid.")
 	}
 
@@ -74,13 +74,13 @@ func (action *CreateEditTag) Validate(ctx context.Context, user *models.User) *v
 // DeleteTag is used to delete an existing tag
 type DeleteTag struct {
 	Tag   *models.Tag
-	Model *models.DeleteTag
+	Input *models.DeleteTag
 }
 
 // Returns the struct to bind the request to
 func (action *DeleteTag) BindTarget() interface{} {
-	action.Model = new(models.DeleteTag)
-	return action.Model
+	action.Input = new(models.DeleteTag)
+	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -90,7 +90,7 @@ func (action *DeleteTag) IsAuthorized(ctx context.Context, user *models.User) bo
 
 // Validate if current model is valid
 func (action *DeleteTag) Validate(ctx context.Context, user *models.User) *validate.Result {
-	getSlug := &query.GetTagBySlug{Slug: action.Model.Slug}
+	getSlug := &query.GetTagBySlug{Slug: action.Input.Slug}
 	err := bus.Dispatch(ctx, getSlug)
 	if err != nil {
 		return validate.Error(err)
@@ -104,13 +104,13 @@ func (action *DeleteTag) Validate(ctx context.Context, user *models.User) *valid
 type AssignUnassignTag struct {
 	Tag   *models.Tag
 	Post  *models.Post
-	Model *models.AssignUnassignTag
+	Input *models.AssignUnassignTag
 }
 
 // Returns the struct to bind the request to
 func (action *AssignUnassignTag) BindTarget() interface{} {
-	action.Model = new(models.AssignUnassignTag)
-	return action.Model
+	action.Input = new(models.AssignUnassignTag)
+	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -120,8 +120,8 @@ func (action *AssignUnassignTag) IsAuthorized(ctx context.Context, user *models.
 
 // Validate if current model is valid
 func (action *AssignUnassignTag) Validate(ctx context.Context, user *models.User) *validate.Result {
-	getPost := &query.GetPostByNumber{Number: action.Model.Number}
-	getSlug := &query.GetTagBySlug{Slug: action.Model.Slug}
+	getPost := &query.GetPostByNumber{Number: action.Input.Number}
+	getSlug := &query.GetTagBySlug{Slug: action.Input.Slug}
 	if err := bus.Dispatch(ctx, getPost, getSlug); err != nil {
 		return validate.Error(err)
 	}

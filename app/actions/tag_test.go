@@ -28,7 +28,7 @@ func TestCreateEditTag_InvalidName(t *testing.T) {
 		"Feature Request",
 		rand.String(31),
 	} {
-		action := &actions.CreateEditTag{Model: &models.CreateEditTag{Name: name, Color: "FFFFFF"}}
+		action := &actions.CreateEditTag{Input: &models.CreateEditTag{Name: name, Color: "FFFFFF"}}
 		result := action.Validate(context.Background(), nil)
 		ExpectFailed(result, "name")
 	}
@@ -48,7 +48,7 @@ func TestCreateEditTag_InvalidColor(t *testing.T) {
 		"FFF",
 		"000000X",
 	} {
-		action := &actions.CreateEditTag{Model: &models.CreateEditTag{Name: "Bug", Color: color}}
+		action := &actions.CreateEditTag{Input: &models.CreateEditTag{Name: "Bug", Color: color}}
 		result := action.Validate(context.Background(), nil)
 		ExpectFailed(result, "color")
 	}
@@ -68,12 +68,12 @@ func TestCreateEditTag_ValidInput(t *testing.T) {
 		}
 	})
 
-	action := &actions.CreateEditTag{Model: &models.CreateEditTag{Name: "Bug", Color: "FF0000"}}
+	action := &actions.CreateEditTag{Input: &models.CreateEditTag{Name: "Bug", Color: "FF0000"}}
 	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 	Expect(action.Tag).IsNil()
 
-	action = &actions.CreateEditTag{Model: &models.CreateEditTag{Name: "New Name", Slug: "to-discuss", Color: "FF0000"}}
+	action = &actions.CreateEditTag{Input: &models.CreateEditTag{Name: "New Name", Slug: "to-discuss", Color: "FF0000"}}
 	result = action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 	Expect(action.Tag).Equals(tag)

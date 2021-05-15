@@ -36,20 +36,20 @@ func CreatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Model.Attachments, Folder: "attachments"}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Input.Attachments, Folder: "attachments"}); err != nil {
 			return c.Failure(err)
 		}
 
 		newPost := &cmd.AddNewPost{
-			Title:       action.Model.Title,
-			Description: action.Model.Description,
+			Title:       action.Input.Title,
+			Description: action.Input.Description,
 		}
 		err := bus.Dispatch(c, newPost)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		setAttachments := &cmd.SetAttachments{Post: newPost.Result, Attachments: action.Model.Attachments}
+		setAttachments := &cmd.SetAttachments{Post: newPost.Result, Attachments: action.Input.Attachments}
 		addVote := &cmd.AddVote{Post: newPost.Result, User: c.User()}
 		if err = bus.Dispatch(c, setAttachments, addVote); err != nil {
 			return c.Failure(err)
@@ -93,17 +93,17 @@ func UpdatePost() web.HandlerFunc {
 
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
-				Images: action.Model.Attachments,
+				Images: action.Input.Attachments,
 				Folder: "attachments",
 			},
 			&cmd.UpdatePost{
 				Post:        action.Post,
-				Title:       action.Model.Title,
-				Description: action.Model.Description,
+				Title:       action.Input.Title,
+				Description: action.Input.Description,
 			},
 			&cmd.SetAttachments{
 				Post:        action.Post,
-				Attachments: action.Model.Attachments,
+				Attachments: action.Input.Attachments,
 			},
 		)
 		if err != nil {
@@ -223,18 +223,18 @@ func PostComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		getPost := &query.GetPostByNumber{Number: action.Model.Number}
+		getPost := &query.GetPostByNumber{Number: action.Input.Number}
 		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Model.Attachments, Folder: "attachments"}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Input.Attachments, Folder: "attachments"}); err != nil {
 			return c.Failure(err)
 		}
 
 		addNewComment := &cmd.AddNewComment{
 			Post:    getPost.Result,
-			Content: action.Model.Content,
+			Content: action.Input.Content,
 		}
 		if err := bus.Dispatch(c, addNewComment); err != nil {
 			return c.Failure(err)
@@ -243,12 +243,12 @@ func PostComment() web.HandlerFunc {
 		if err := bus.Dispatch(c, &cmd.SetAttachments{
 			Post:        getPost.Result,
 			Comment:     addNewComment.Result,
-			Attachments: action.Model.Attachments,
+			Attachments: action.Input.Attachments,
 		}); err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Model))
+		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Input))
 
 		return c.Ok(web.Map{
 			"id": addNewComment.Result.ID,
@@ -296,7 +296,7 @@ func DeleteComment() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c, &cmd.DeleteComment{
-			CommentID: action.Model.CommentID,
+			CommentID: action.Input.CommentID,
 		})
 		if err != nil {
 			return c.Failure(err)

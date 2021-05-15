@@ -41,11 +41,11 @@ func UpdateSettings() web.HandlerFunc {
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Model.Logo,
+				Image:  input.Input.Logo,
 				Folder: "logos",
 			},
 			&cmd.UpdateTenantSettings{
-				Settings: input.Model,
+				Settings: input.Input,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -63,7 +63,7 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{Settings: action.Model}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{Settings: action.Input}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -79,7 +79,7 @@ func UpdatePrivacy() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		updateSettings := &cmd.UpdateTenantPrivacySettings{Settings: action.Model}
+		updateSettings := &cmd.UpdateTenantPrivacySettings{Settings: action.Input}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)
 		}
@@ -148,11 +148,11 @@ func SaveOAuthConfig() web.HandlerFunc {
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Model.Logo,
+				Image:  input.Input.Logo,
 				Folder: "logos",
 			},
 			&cmd.SaveCustomOAuthConfig{
-				Config: input.Model,
+				Config: input.Input,
 			},
 		); err != nil {
 			return c.Failure(err)

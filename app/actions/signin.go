@@ -12,12 +12,12 @@ import (
 
 // SignInByEmail happens when user request to sign in by email
 type SignInByEmail struct {
-	Model *models.SignInByEmail
+	Input *models.SignInByEmail
 }
 
 func NewSignInByEmail() *SignInByEmail {
 	return &SignInByEmail{
-		Model: &models.SignInByEmail{
+		Input: &models.SignInByEmail{
 			VerificationKey: models.GenerateSecretKey(),
 		},
 	}
@@ -25,7 +25,7 @@ func NewSignInByEmail() *SignInByEmail {
 
 // Returns the struct to bind the request to
 func (action *SignInByEmail) BindTarget() interface{} {
-	return action.Model
+	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -37,16 +37,16 @@ func (action *SignInByEmail) IsAuthorized(ctx context.Context, user *models.User
 func (action *SignInByEmail) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Model.Email == "" {
+	if action.Input.Email == "" {
 		result.AddFieldFailure("email", "Email is required.")
 		return result
 	}
 
-	if len(action.Model.Email) > 200 {
+	if len(action.Input.Email) > 200 {
 		result.AddFieldFailure("email", "Email must have less than 200 characters.")
 	}
 
-	messages := validate.Email(action.Model.Email)
+	messages := validate.Email(action.Input.Email)
 	result.AddFieldFailure("email", messages...)
 
 	return result
@@ -54,13 +54,13 @@ func (action *SignInByEmail) Validate(ctx context.Context, user *models.User) *v
 
 // CompleteProfile happens when users completes their profile during first time sign in
 type CompleteProfile struct {
-	Model *models.CompleteProfile
+	Input *models.CompleteProfile
 }
 
 // Returns the struct to bind the request to
 func (action *CompleteProfile) BindTarget() interface{} {
-	action.Model = new(models.CompleteProfile)
-	return action.Model
+	action.Input = new(models.CompleteProfile)
+	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -72,27 +72,27 @@ func (action *CompleteProfile) IsAuthorized(ctx context.Context, user *models.Us
 func (action *CompleteProfile) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Model.Name == "" {
+	if action.Input.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
 	}
 
-	if len(action.Model.Name) > 50 {
+	if len(action.Input.Name) > 50 {
 		result.AddFieldFailure("name", "Name must have less than 50 characters.")
 	}
 
-	if action.Model.Key == "" {
+	if action.Input.Key == "" {
 		result.AddFieldFailure("key", "Key is required.")
 	} else {
-		findBySignIn := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignIn, Key: action.Model.Key}
+		findBySignIn := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignIn, Key: action.Input.Key}
 		err1 := bus.Dispatch(ctx, findBySignIn)
 
-		findByUserInvitation := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindUserInvitation, Key: action.Model.Key}
+		findByUserInvitation := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindUserInvitation, Key: action.Input.Key}
 		err2 := bus.Dispatch(ctx, findByUserInvitation)
 
 		if err1 == nil {
-			action.Model.Email = findBySignIn.Result.Email
+			action.Input.Email = findBySignIn.Result.Email
 		} else if err2 == nil {
-			action.Model.Email = findByUserInvitation.Result.Email
+			action.Input.Email = findByUserInvitation.Result.Email
 		} else {
 			result.AddFieldFailure("key", "Key is invalid.")
 		}

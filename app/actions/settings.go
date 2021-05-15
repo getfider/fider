@@ -11,12 +11,12 @@ import (
 
 // UpdateUserSettings happens when users updates their settings
 type UpdateUserSettings struct {
-	Model *models.UpdateUserSettings
+	Input *models.UpdateUserSettings
 }
 
 func NewUpdateUserSettings() *UpdateUserSettings {
 	return &UpdateUserSettings{
-		Model: &models.UpdateUserSettings{
+		Input: &models.UpdateUserSettings{
 			Avatar: &models.ImageUpload{},
 		},
 	}
@@ -24,7 +24,7 @@ func NewUpdateUserSettings() *UpdateUserSettings {
 
 // Returns the struct to bind the request to
 func (action *UpdateUserSettings) BindTarget() interface{} {
-	return action.Model
+	return action.Input
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -36,21 +36,21 @@ func (action *UpdateUserSettings) IsAuthorized(ctx context.Context, user *models
 func (action *UpdateUserSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Model.Name == "" {
+	if action.Input.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
 	}
 
-	if action.Model.AvatarType < 1 || action.Model.AvatarType > 3 {
+	if action.Input.AvatarType < 1 || action.Input.AvatarType > 3 {
 		result.AddFieldFailure("avatarType", "Invalid avatar type.")
 	}
 
-	if len(action.Model.Name) > 50 {
+	if len(action.Input.Name) > 50 {
 		result.AddFieldFailure("name", "Name must have less than 50 characters.")
 	}
 
-	action.Model.Avatar.BlobKey = user.AvatarBlobKey
-	messages, err := validate.ImageUpload(action.Model.Avatar, validate.ImageUploadOpts{
-		IsRequired:   action.Model.AvatarType == enum.AvatarTypeCustom,
+	action.Input.Avatar.BlobKey = user.AvatarBlobKey
+	messages, err := validate.ImageUpload(action.Input.Avatar, validate.ImageUploadOpts{
+		IsRequired:   action.Input.AvatarType == enum.AvatarTypeCustom,
 		MinHeight:    50,
 		MinWidth:     50,
 		ExactRatio:   true,
@@ -61,8 +61,8 @@ func (action *UpdateUserSettings) Validate(ctx context.Context, user *models.Use
 	}
 	result.AddFieldFailure("avatar", messages...)
 
-	if action.Model.Settings != nil {
-		for k, v := range action.Model.Settings {
+	if action.Input.Settings != nil {
+		for k, v := range action.Input.Settings {
 			ok := false
 			for _, e := range enum.AllNotificationEvents {
 				if e.UserSettingsKeyName == k {
