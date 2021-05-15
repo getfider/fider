@@ -121,9 +121,7 @@ func TestDeleteComment(t *testing.T) {
 	})
 
 	action := &actions.DeleteComment{
-		Input: &models.DeleteComment{
-			CommentID: comment.ID,
-		},
+		CommentID: comment.ID,
 	}
 
 	authorized := action.IsAuthorized(context.Background(), notAuthor)

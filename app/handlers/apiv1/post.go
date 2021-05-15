@@ -296,7 +296,7 @@ func DeleteComment() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c, &cmd.DeleteComment{
-			CommentID: action.Input.CommentID,
+			CommentID: action.CommentID,
 		})
 		if err != nil {
 			return c.Failure(err)

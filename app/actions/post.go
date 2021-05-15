@@ -295,18 +295,13 @@ func (action *EditComment) Validate(ctx context.Context, user *models.User) *val
 
 // DeleteComment represents the action of deleting an existing comment
 type DeleteComment struct {
-	Input *models.DeleteComment
-}
-
-// Returns the struct to bind the request to
-func (action *DeleteComment) BindTarget() interface{} {
-	action.Input = new(models.DeleteComment)
-	return action.Input
+	PostNumber int `route:"number"`
+	CommentID  int `route:"id"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *DeleteComment) IsAuthorized(ctx context.Context, user *models.User) bool {
-	commentByID := &query.GetCommentByID{CommentID: action.Input.CommentID}
+	commentByID := &query.GetCommentByID{CommentID: action.CommentID}
 	if err := bus.Dispatch(ctx, commentByID); err != nil {
 		return false
 	}

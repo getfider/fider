@@ -50,12 +50,6 @@ type EditComment struct {
 	Attachments []*ImageUpload `json:"attachments"`
 }
 
-// DeleteComment represents a request to delete an existing comment
-type DeleteComment struct {
-	PostNumber int `route:"number"`
-	CommentID  int `route:"id"`
-}
-
 // SetResponse represents the action to update an post response
 type SetResponse struct {
 	Number         int             `route:"number"`

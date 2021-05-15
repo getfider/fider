@@ -205,12 +205,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 	}
-	comment := &models.NewComment{
-		Number:  post.Number,
-		Content: "I agree",
-	}
-
-	task := tasks.NotifyAboutNewComment(post, comment)
+	task := tasks.NotifyAboutNewComment(post, "I agree")
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
