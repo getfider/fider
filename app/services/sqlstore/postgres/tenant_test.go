@@ -303,22 +303,20 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(getConfig.Result).IsNil()
 
 	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
-		Config: &models.CreateEditOAuthConfig{
-			Logo: &models.ImageUpload{
-				BlobKey: "uploads/my-logo-key.png",
-			},
-			Provider:          "_TEST",
-			DisplayName:       "My Provider",
-			ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
-			ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-			AuthorizeURL:      "http://provider/oauth/authorize",
-			TokenURL:          "http://provider/oauth/token",
-			Scope:             "profile email",
-			ProfileURL:        "http://provider/profile/me",
-			JSONUserIDPath:    "user.id",
-			JSONUserNamePath:  "user.name",
-			JSONUserEmailPath: "user.email",
+		Logo: &models.ImageUpload{
+			BlobKey: "uploads/my-logo-key.png",
 		},
+		Provider:          "_TEST",
+		DisplayName:       "My Provider",
+		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
+		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+		AuthorizeURL:      "http://provider/oauth/authorize",
+		TokenURL:          "http://provider/oauth/token",
+		Scope:             "profile email",
+		ProfileURL:        "http://provider/profile/me",
+		JSONUserIDPath:    "user.id",
+		JSONUserNamePath:  "user.name",
+		JSONUserEmailPath: "user.email",
 	})
 	Expect(err).IsNil()
 
@@ -340,23 +338,21 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(getConfig.Result.JSONUserEmailPath).Equals("user.email")
 
 	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
-		Config: &models.CreateEditOAuthConfig{
-			ID: getConfig.Result.ID,
-			Logo: &models.ImageUpload{
-				BlobKey: "",
-			},
-			Provider:          "_TEST2222", //this has to be ignored
-			DisplayName:       "New My Provider",
-			ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
-			ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-			AuthorizeURL:      "New http://provider/oauth/authorize",
-			TokenURL:          "New http://provider/oauth/token",
-			Scope:             "New profile email",
-			ProfileURL:        "New http://provider/profile/me",
-			JSONUserIDPath:    "New user.id",
-			JSONUserNamePath:  "New user.name",
-			JSONUserEmailPath: "New user.email",
+		ID: getConfig.Result.ID,
+		Logo: &models.ImageUpload{
+			BlobKey: "",
 		},
+		Provider:          "_TEST2222", //this has to be ignored
+		DisplayName:       "New My Provider",
+		ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
+		ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+		AuthorizeURL:      "New http://provider/oauth/authorize",
+		TokenURL:          "New http://provider/oauth/token",
+		Scope:             "New profile email",
+		ProfileURL:        "New http://provider/profile/me",
+		JSONUserIDPath:    "New user.id",
+		JSONUserNamePath:  "New user.name",
+		JSONUserEmailPath: "New user.email",
 	})
 	Expect(err).IsNil()
 

@@ -156,11 +156,24 @@ func SaveOAuthConfig() web.HandlerFunc {
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  action.Input.Logo,
+				Image:  action.Logo,
 				Folder: "logos",
 			},
 			&cmd.SaveCustomOAuthConfig{
-				Config: action.Input,
+				ID:                action.ID,
+				Logo:              action.Logo,
+				Provider:          action.Provider,
+				Status:            action.Status,
+				DisplayName:       action.DisplayName,
+				ClientID:          action.ClientID,
+				ClientSecret:      action.ClientSecret,
+				AuthorizeURL:      action.AuthorizeURL,
+				TokenURL:          action.TokenURL,
+				Scope:             action.Scope,
+				ProfileURL:        action.ProfileURL,
+				JSONUserIDPath:    action.JSONUserIDPath,
+				JSONUserNamePath:  action.JSONUserNamePath,
+				JSONUserEmailPath: action.JSONUserEmailPath,
 			},
 		); err != nil {
 			return c.Failure(err)
