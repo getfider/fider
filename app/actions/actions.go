@@ -12,8 +12,3 @@ type Actionable interface {
 	IsAuthorized(ctx context.Context, user *models.User) bool
 	Validate(ctx context.Context, user *models.User) *validate.Result
 }
-
-// BindTargetAction defines an action where the bindable model is not itself
-type BindTargetAction interface {
-	BindTarget() interface{}
-}
