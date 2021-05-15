@@ -137,7 +137,7 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entities.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
@@ -199,7 +199,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entities.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
@@ -262,14 +262,14 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entities.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		Status:      enum.PostPlanned,
-		Response: &models.PostResponse{
+		Response: &entities.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Planned for next release.",
 			User:        mock.JonSnow,
@@ -333,14 +333,14 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entities.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		Status:      enum.PostDeleted,
-		Response: &models.PostResponse{
+		Response: &entities.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Invalid post!",
 			User:        mock.JonSnow,
@@ -399,16 +399,16 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entities.Post{
 		ID:     2,
 		Number: 2,
 		Title:  "I need TypeScript",
 		Slug:   "i-need-typescript",
 		Status: enum.PostDuplicate,
-		Response: &models.PostResponse{
+		Response: &entities.PostResponse{
 			RespondedAt: time.Now(),
 			User:        mock.JonSnow,
-			Original: &models.OriginalPost{
+			Original: &entities.OriginalPost{
 				Number: 1,
 				Title:  "Add support for TypeScript",
 				Slug:   "add-support-for-typescript",

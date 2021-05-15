@@ -8,7 +8,6 @@ import (
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -24,7 +23,7 @@ type CreateEditTag struct {
 	Color    string `json:"color" format:"upper"`
 	IsPublic bool   `json:"isPublic"`
 
-	Tag *models.Tag
+	Tag *entities.Tag
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -74,7 +73,7 @@ func (action *CreateEditTag) Validate(ctx context.Context, user *entities.User) 
 type DeleteTag struct {
 	Slug string `route:"slug"`
 
-	Tag *models.Tag
+	Tag *entities.Tag
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -99,8 +98,8 @@ type AssignUnassignTag struct {
 	Slug   string `route:"slug"`
 	Number int    `route:"number"`
 
-	Tag  *models.Tag
-	Post *models.Post
+	Tag  *entities.Tag
+	Post *entities.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/entities"
 )
 
@@ -25,11 +24,11 @@ type AddNewNotification struct {
 }
 
 type AddSubscriber struct {
-	Post *models.Post
+	Post *entities.Post
 	User *entities.User
 }
 
 type RemoveSubscriber struct {
-	Post *models.Post
+	Post *entities.Post
 	User *entities.User
 }

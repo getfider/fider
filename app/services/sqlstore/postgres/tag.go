@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/query"
@@ -22,8 +21,8 @@ type dbTag struct {
 	IsPublic bool   `db:"is_public"`
 }
 
-func (t *dbTag) toModel() *models.Tag {
-	return &models.Tag{
+func (t *dbTag) toModel() *entities.Tag {
+	return &entities.Tag{
 		ID:       t.ID,
 		Name:     t.Name,
 		Slug:     t.Slug,
@@ -42,7 +41,7 @@ func getTagBySlug(ctx context.Context, q *query.GetTagBySlug) error {
 
 func getAssignedTags(ctx context.Context, q *query.GetAssignedTags) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
-		q.Result = make([]*models.Tag, 0)
+		q.Result = make([]*entities.Tag, 0)
 
 		tags, err := queryTags(trx, `
 			SELECT t.id, t.name, t.slug, t.color, t.is_public 
@@ -65,7 +64,7 @@ func getAssignedTags(ctx context.Context, q *query.GetAssignedTags) error {
 
 func getAllTags(ctx context.Context, q *query.GetAllTags) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
-		q.Result = make([]*models.Tag, 0)
+		q.Result = make([]*entities.Tag, 0)
 
 		condition := `AND t.is_public = true`
 		if user != nil && user.IsCollaborator() {
@@ -176,7 +175,7 @@ func unassignTag(ctx context.Context, c *cmd.UnassignTag) error {
 	})
 }
 
-func queryTagBySlug(trx *dbx.Trx, tenant *entities.Tenant, slug string) (*models.Tag, error) {
+func queryTagBySlug(trx *dbx.Trx, tenant *entities.Tenant, slug string) (*entities.Tag, error) {
 	tag := dbTag{}
 
 	err := trx.Get(&tag, "SELECT id, name, slug, color, is_public FROM tags WHERE tenant_id = $1 AND slug = $2", tenant.ID, slug)
@@ -187,14 +186,14 @@ func queryTagBySlug(trx *dbx.Trx, tenant *entities.Tenant, slug string) (*models
 	return tag.toModel(), nil
 }
 
-func queryTags(trx *dbx.Trx, query string, args ...interface{}) ([]*models.Tag, error) {
+func queryTags(trx *dbx.Trx, query string, args ...interface{}) ([]*entities.Tag, error) {
 	tags := []*dbTag{}
 	err := trx.Select(&tags, query, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	var result = make([]*models.Tag, len(tags))
+	var result = make([]*entities.Tag, len(tags))
 	for i, tag := range tags {
 		result[i] = tag.toModel()
 	}

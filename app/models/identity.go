@@ -8,13 +8,6 @@ import (
 	"github.com/getfider/fider/app/pkg/rand"
 )
 
-//Upload represents a file that has been uploaded to Fider
-type Upload struct {
-	ContentType string `db:"content_type"`
-	Size        int    `db:"size"`
-	Content     []byte `db:"file"`
-}
-
 //ImageUpload is the input model used to upload/remove an image
 type ImageUpload struct {
 	BlobKey string           `json:"bkey"`

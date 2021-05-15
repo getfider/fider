@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entities"
@@ -246,7 +245,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 	})
 }
 
-func internalAddSubscriber(trx *dbx.Trx, post *models.Post, tenant *entities.Tenant, user *entities.User, force bool) error {
+func internalAddSubscriber(trx *dbx.Trx, post *entities.Post, tenant *entities.Tenant, user *entities.User, force bool) error {
 	conflict := " DO NOTHING"
 	if force {
 		conflict = "(user_id, post_id) DO UPDATE SET status = $5, updated_at = $4"

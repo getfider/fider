@@ -1,12 +1,14 @@
 package cmd
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models/entities"
+)
 
 type AddNewComment struct {
-	Post    *models.Post
+	Post    *entities.Post
 	Content string
 
-	Result *models.Comment
+	Result *entities.Comment
 }
 
 type UpdateComment struct {

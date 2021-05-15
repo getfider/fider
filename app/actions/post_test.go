@@ -10,7 +10,6 @@ import (
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 )
@@ -20,7 +19,7 @@ func TestCreateNewPost_InvalidPostTitles(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
 		if q.Slug == "my-great-post" {
-			q.Result = &models.Post{Slug: q.Slug}
+			q.Result = &entities.Post{Slug: q.Slug}
 			return nil
 		}
 		return app.ErrNotFound
@@ -71,8 +70,8 @@ func TestSetResponse_InvalidStatus(t *testing.T) {
 func TestDeletePost_WhenIsBeingReferenced(t *testing.T) {
 	RegisterT(t)
 
-	post1 := &models.Post{ID: 1, Number: 1, Title: "Post 1"}
-	post2 := &models.Post{ID: 2, Number: 2, Title: "Post 2"}
+	post1 := &entities.Post{ID: 1, Number: 1, Title: "Post 1"}
+	post2 := &entities.Post{ID: 2, Number: 2, Title: "Post 2"}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post1.Number {
@@ -107,7 +106,7 @@ func TestDeleteComment(t *testing.T) {
 	author := &entities.User{ID: 1, Role: enum.RoleVisitor}
 	notAuthor := &entities.User{ID: 2, Role: enum.RoleVisitor}
 	administrator := &entities.User{ID: 3, Role: enum.RoleAdministrator}
-	comment := &models.Comment{
+	comment := &entities.Comment{
 		ID:      1,
 		User:    author,
 		Content: "Comment #1",

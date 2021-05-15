@@ -2,7 +2,6 @@ package apiv1
 
 import (
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
@@ -310,7 +309,7 @@ func DeleteComment() web.HandlerFunc {
 // AddVote adds current user to given post list of votes
 func AddVote() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *models.Post, user *entities.User) bus.Msg {
+		return addOrRemove(c, func(post *entities.Post, user *entities.User) bus.Msg {
 			return &cmd.AddVote{Post: post, User: user}
 		})
 	}
@@ -319,7 +318,7 @@ func AddVote() web.HandlerFunc {
 // RemoveVote removes current user from given post list of votes
 func RemoveVote() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *models.Post, user *entities.User) bus.Msg {
+		return addOrRemove(c, func(post *entities.Post, user *entities.User) bus.Msg {
 			return &cmd.RemoveVote{Post: post, User: user}
 		})
 	}
@@ -328,7 +327,7 @@ func RemoveVote() web.HandlerFunc {
 // Subscribe adds current user to list of subscribers of given post
 func Subscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *models.Post, user *entities.User) bus.Msg {
+		return addOrRemove(c, func(post *entities.Post, user *entities.User) bus.Msg {
 			return &cmd.AddSubscriber{Post: post, User: user}
 		})
 	}
@@ -337,7 +336,7 @@ func Subscribe() web.HandlerFunc {
 // Unsubscribe removes current user from list of subscribers of given post
 func Unsubscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *models.Post, user *entities.User) bus.Msg {
+		return addOrRemove(c, func(post *entities.Post, user *entities.User) bus.Msg {
 			return &cmd.RemoveSubscriber{Post: post, User: user}
 		})
 	}
@@ -366,7 +365,7 @@ func ListVotes() web.HandlerFunc {
 	}
 }
 
-func addOrRemove(c *web.Context, getCommand func(post *models.Post, user *entities.User) bus.Msg) error {
+func addOrRemove(c *web.Context, getCommand func(post *entities.Post, user *entities.User) bus.Msg) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.NotFound()

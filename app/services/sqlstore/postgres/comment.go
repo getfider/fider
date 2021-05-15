@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/query"
@@ -22,8 +21,8 @@ type dbComment struct {
 	EditedBy    *dbUser      `db:"edited_by"`
 }
 
-func (c *dbComment) toModel(ctx context.Context) *models.Comment {
-	comment := &models.Comment{
+func (c *dbComment) toModel(ctx context.Context) *entities.Comment {
+	comment := &entities.Comment{
 		ID:          c.ID,
 		Content:     c.Content,
 		CreatedAt:   c.CreatedAt,
@@ -132,7 +131,7 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 
 func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entities.Tenant, user *entities.User) error {
-		q.Result = make([]*models.Comment, 0)
+		q.Result = make([]*entities.Comment, 0)
 
 		comments := []*dbComment{}
 		err := trx.Select(&comments,
@@ -189,7 +188,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			return errors.Wrap(err, "failed get comments of post with id '%d'", q.Post.ID)
 		}
 
-		q.Result = make([]*models.Comment, len(comments))
+		q.Result = make([]*entities.Comment, len(comments))
 		for i, comment := range comments {
 			q.Result[i] = comment.toModel(ctx)
 		}

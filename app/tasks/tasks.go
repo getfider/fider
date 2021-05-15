@@ -104,7 +104,7 @@ func SendChangeEmailConfirmation(action *actions.ChangeUserEmail) worker.Task {
 }
 
 //NotifyAboutNewPost sends a notification (web and email) to subscribers
-func NotifyAboutNewPost(post *models.Post) worker.Task {
+func NotifyAboutNewPost(post *entities.Post) worker.Task {
 	return describe("Notify about new post", func(c *worker.Context) error {
 		// Web notification
 		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewPost)
@@ -164,7 +164,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 }
 
 //NotifyAboutNewComment sends a notification (web and email) to subscribers
-func NotifyAboutNewComment(post *models.Post, comment string) worker.Task {
+func NotifyAboutNewComment(post *entities.Post, comment string) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		// Web notification
 		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewComment)
@@ -225,7 +225,7 @@ func NotifyAboutNewComment(post *models.Post, comment string) worker.Task {
 }
 
 //NotifyAboutStatusChange sends a notification (web and email) to subscribers
-func NotifyAboutStatusChange(post *models.Post, prevStatus enum.PostStatus) worker.Task {
+func NotifyAboutStatusChange(post *entities.Post, prevStatus enum.PostStatus) worker.Task {
 	return describe("Notify about post status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same
 		if prevStatus == post.Status {
@@ -297,7 +297,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus enum.PostStatus) work
 }
 
 //NotifyAboutDeletedPost sends a notification (web and email) to subscribers of the post that has been deleted
-func NotifyAboutDeletedPost(post *models.Post) worker.Task {
+func NotifyAboutDeletedPost(post *entities.Post) worker.Task {
 	return describe("Notify about deleted post", func(c *worker.Context) error {
 
 		// Web notification
@@ -387,7 +387,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 	})
 }
 
-func getActiveSubscribers(ctx context.Context, post *models.Post, channel enum.NotificationChannel, event enum.NotificationEvent) ([]*entities.User, error) {
+func getActiveSubscribers(ctx context.Context, post *entities.Post, channel enum.NotificationChannel, event enum.NotificationEvent) ([]*entities.User, error) {
 	q := &query.GetActiveSubscribers{
 		Number:  post.Number,
 		Channel: channel,

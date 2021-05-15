@@ -66,7 +66,7 @@ type UpdatePost struct {
 	Description string                `json:"description"`
 	Attachments []*models.ImageUpload `json:"attachments"`
 
-	Post *models.Post
+	Post *entities.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -164,7 +164,7 @@ type SetResponse struct {
 	Text           string          `json:"text"`
 	OriginalNumber int             `json:"originalNumber"`
 
-	Original *models.Post
+	Original *entities.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -208,7 +208,7 @@ type DeletePost struct {
 	Number int    `route:"number"`
 	Text   string `json:"text"`
 
-	Post *models.Post
+	Post *entities.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -244,8 +244,8 @@ type EditComment struct {
 	Content     string                `json:"content"`
 	Attachments []*models.ImageUpload `json:"attachments"`
 
-	Post    *models.Post
-	Comment *models.Comment
+	Post    *entities.Post
+	Comment *entities.Comment
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action

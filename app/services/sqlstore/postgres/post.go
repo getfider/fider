@@ -15,7 +15,6 @@ import (
 
 	"github.com/getfider/fider/app/pkg/bus"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -45,8 +44,8 @@ type dbPost struct {
 	Tags           []string       `db:"tags"`
 }
 
-func (i *dbPost) toModel(ctx context.Context) *models.Post {
-	post := &models.Post{
+func (i *dbPost) toModel(ctx context.Context) *entities.Post {
+	post := &entities.Post{
 		ID:            i.ID,
 		Number:        i.Number,
 		Title:         i.Title,
@@ -62,13 +61,13 @@ func (i *dbPost) toModel(ctx context.Context) *models.Post {
 	}
 
 	if i.Response.Valid {
-		post.Response = &models.PostResponse{
+		post.Response = &entities.PostResponse{
 			Text:        i.Response.String,
 			RespondedAt: i.RespondedAt.Time,
 			User:        i.ResponseUser.toModel(ctx),
 		}
 		if post.Status == enum.PostDuplicate && i.OriginalNumber.Valid {
-			post.Response.Original = &models.OriginalPost{
+			post.Response.Original = &entities.OriginalPost{
 				Number: int(i.OriginalNumber.Int64),
 				Slug:   i.OriginalSlug.String,
 				Title:  i.OriginalTitle.String,
@@ -211,7 +210,7 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 		}
 
 		c.Post.Status = c.Status
-		c.Post.Response = &models.PostResponse{
+		c.Post.Response = &entities.PostResponse{
 			Text:        c.Text,
 			RespondedAt: respondedAt,
 			User:        user,
@@ -250,10 +249,10 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 		}
 
 		c.Post.Status = enum.PostDuplicate
-		c.Post.Response = &models.PostResponse{
+		c.Post.Response = &entities.PostResponse{
 			RespondedAt: respondedAt,
 			User:        user,
-			Original: &models.OriginalPost{
+			Original: &entities.OriginalPost{
 				Number: c.Original.Number,
 				Title:  c.Original.Title,
 				Slug:   c.Original.Slug,
@@ -409,7 +408,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			return errors.Wrap(err, "failed to search posts")
 		}
 
-		q.Result = make([]*models.Post, len(posts))
+		q.Result = make([]*entities.Post, len(posts))
 		for i, post := range posts {
 			q.Result[i] = post.toModel(ctx)
 		}
@@ -428,7 +427,7 @@ func getAllPosts(ctx context.Context, q *query.GetAllPosts) error {
 	})
 }
 
-func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...interface{}) (*models.Post, error) {
+func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...interface{}) (*entities.Post, error) {
 	post := dbPost{}
 
 	if err := trx.Get(&post, query, args...); err != nil {

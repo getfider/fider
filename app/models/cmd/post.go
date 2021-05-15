@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -9,19 +9,19 @@ type AddNewPost struct {
 	Title       string
 	Description string
 
-	Result *models.Post
+	Result *entities.Post
 }
 
 type UpdatePost struct {
-	Post        *models.Post
+	Post        *entities.Post
 	Title       string
 	Description string
 
-	Result *models.Post
+	Result *entities.Post
 }
 
 type SetPostResponse struct {
-	Post   *models.Post
+	Post   *entities.Post
 	Text   string
 	Status enum.PostStatus
 }

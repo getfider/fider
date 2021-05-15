@@ -1,15 +1,17 @@
 package query
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models/entities"
+)
 
 type GetCommentByID struct {
 	CommentID int
 
-	Result *models.Comment
+	Result *entities.Comment
 }
 
 type GetCommentsByPost struct {
-	Post *models.Post
+	Post *entities.Post
 
-	Result []*models.Comment
+	Result []*entities.Comment
 }

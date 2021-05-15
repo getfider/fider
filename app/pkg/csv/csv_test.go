@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/entities"
 	"github.com/getfider/fider/app/models/enum"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -15,7 +14,7 @@ import (
 func TestExportPostsToCSV_Empty(t *testing.T) {
 	RegisterT(t)
 
-	posts := []*models.Post{}
+	posts := []*entities.Post{}
 	expected, err := ioutil.ReadFile("./testdata/empty.csv")
 	Expect(err).IsNil()
 	actual, err := csv.FromPosts(posts)
@@ -26,7 +25,7 @@ func TestExportPostsToCSV_Empty(t *testing.T) {
 func TestExportPostsToCSV_OnePost(t *testing.T) {
 	RegisterT(t)
 
-	posts := []*models.Post{
+	posts := []*entities.Post{
 		declinedPost,
 	}
 
@@ -40,7 +39,7 @@ func TestExportPostsToCSV_OnePost(t *testing.T) {
 func TestExportPostsToCSV_MorePosts(t *testing.T) {
 	RegisterT(t)
 
-	posts := []*models.Post{
+	posts := []*entities.Post{
 		declinedPost,
 		openPost,
 		duplicatePost,
@@ -53,7 +52,7 @@ func TestExportPostsToCSV_MorePosts(t *testing.T) {
 	Expect(actual).Equals(expected)
 }
 
-var declinedPost = &models.Post{
+var declinedPost = &entities.Post{
 	Number:      10,
 	Title:       "Go is fast",
 	Description: "Very tiny description",
@@ -64,7 +63,7 @@ var declinedPost = &models.Post{
 	VotesCount:    4,
 	CommentsCount: 2,
 	Status:        enum.PostDeclined,
-	Response: &models.PostResponse{
+	Response: &entities.PostResponse{
 		Text:        "Nothing we need to do",
 		RespondedAt: time.Date(2018, 4, 4, 19, 48, 10, 0, time.UTC),
 		User: &entities.User{
@@ -74,7 +73,7 @@ var declinedPost = &models.Post{
 	Tags: []string{"easy", "ignored"},
 }
 
-var openPost = &models.Post{
+var openPost = &entities.Post{
 	Number:      15,
 	Title:       "Go is great",
 	Description: "",
@@ -87,7 +86,7 @@ var openPost = &models.Post{
 	Status:        enum.PostOpen,
 }
 
-var duplicatePost = &models.Post{
+var duplicatePost = &entities.Post{
 	Number:      20,
 	Title:       "Go is easy",
 	Description: "",
@@ -98,13 +97,13 @@ var duplicatePost = &models.Post{
 	VotesCount:    4,
 	CommentsCount: 2,
 	Status:        enum.PostDuplicate,
-	Response: &models.PostResponse{
+	Response: &entities.PostResponse{
 		Text:        "This has already been suggested",
 		RespondedAt: time.Date(2018, 3, 17, 10, 15, 42, 0, time.UTC),
 		User: &entities.User{
 			Name: "Arya Stark",
 		},
-		Original: &models.OriginalPost{
+		Original: &entities.OriginalPost{
 			Number: 99,
 			Title:  "Go is very easy",
 		},
