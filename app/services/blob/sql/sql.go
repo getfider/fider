@@ -8,12 +8,12 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/services/blob"
@@ -54,7 +54,7 @@ type dbBlob struct {
 }
 
 func listBlobs(ctx context.Context, q *query.ListBlobs) error {
-	return using(ctx, func(tenant *models.Tenant) error {
+	return using(ctx, func(tenant *entity.Tenant) error {
 		trx, err := dbx.BeginTx(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
@@ -79,7 +79,7 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
-	return using(ctx, func(tenant *models.Tenant) error {
+	return using(ctx, func(tenant *entity.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
 			err := tenantID.Scan(tenant.ID)
@@ -117,7 +117,7 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 		return errors.Wrap(err, "failed to validate blob key '%s'", c.Key)
 	}
 
-	return using(ctx, func(tenant *models.Tenant) error {
+	return using(ctx, func(tenant *entity.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
 			err := tenantID.Scan(tenant.ID)
@@ -151,7 +151,7 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 }
 
 func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
-	return using(ctx, func(tenant *models.Tenant) error {
+	return using(ctx, func(tenant *entity.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
 			err := tenantID.Scan(tenant.ID)
@@ -179,7 +179,7 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 	})
 }
 
-func using(ctx context.Context, handler func(tenant *models.Tenant) error) error {
-	tenant, _ := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+func using(ctx context.Context, handler func(tenant *entity.Tenant) error) error {
+	tenant, _ := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	return handler(tenant)
 }

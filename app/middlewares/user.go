@@ -5,13 +5,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/pkg/validate"
-
-	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -26,7 +25,7 @@ func User() web.MiddlewareFunc {
 		return func(c *web.Context) error {
 			var (
 				token string
-				user  *models.User
+				user  *entity.User
 			)
 
 			cookie, err := c.Request.Cookie(web.CookieAuthName)

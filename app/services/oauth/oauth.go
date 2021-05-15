@@ -8,9 +8,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -59,7 +59,7 @@ func getProviderStatus(key string) int {
 }
 
 var (
-	systemProviders = []*models.OAuthConfig{
+	systemProviders = []*entity.OAuthConfig{
 		{
 			Provider:          app.FacebookProvider,
 			DisplayName:       "Facebook",
@@ -284,7 +284,7 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 	return nil
 }
 
-func getConfig(ctx context.Context, provider string) (*models.OAuthConfig, error) {
+func getConfig(ctx context.Context, provider string) (*entity.OAuthConfig, error) {
 	for _, config := range systemProviders {
 		if config.Status == enum.OAuthConfigEnabled && config.Provider == provider {
 			return config, nil

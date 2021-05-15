@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -42,7 +42,7 @@ func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotificat
 }
 
 func markAllNotificationsAsRead(ctx context.Context, c *cmd.MarkAllNotificationsAsRead) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if user == nil {
 			return nil
 		}
@@ -58,7 +58,7 @@ func markAllNotificationsAsRead(ctx context.Context, c *cmd.MarkAllNotifications
 }
 
 func countUnreadNotifications(ctx context.Context, q *query.CountUnreadNotifications) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = 0
 
 		if user != nil {
@@ -72,7 +72,7 @@ func countUnreadNotifications(ctx context.Context, q *query.CountUnreadNotificat
 }
 
 func markNotificationAsRead(ctx context.Context, c *cmd.MarkNotificationAsRead) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if user == nil {
 			return nil
 		}
@@ -89,9 +89,9 @@ func markNotificationAsRead(ctx context.Context, c *cmd.MarkNotificationAsRead) 
 }
 
 func getNotificationByID(ctx context.Context, q *query.GetNotificationByID) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = nil
-		notification := &models.Notification{}
+		notification := &entity.Notification{}
 
 		err := trx.Get(notification, `
 			SELECT id, title, link, read, created_at 
@@ -108,8 +108,8 @@ func getNotificationByID(ctx context.Context, q *query.GetNotificationByID) erro
 }
 
 func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		q.Result = []*models.Notification{}
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = []*entity.Notification{}
 		err := trx.Select(&q.Result, `
 			SELECT id, title, link, read, created_at 
 			FROM notifications 
@@ -124,14 +124,14 @@ func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications
 }
 
 func addNewNotification(ctx context.Context, c *cmd.AddNewNotification) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		c.Result = nil
 		if user.ID == c.User.ID {
 			return nil
 		}
 
 		now := time.Now()
-		notification := &models.Notification{
+		notification := &entity.Notification{
 			Title:     c.Title,
 			Link:      c.Link,
 			CreatedAt: now,
@@ -152,13 +152,13 @@ func addNewNotification(ctx context.Context, c *cmd.AddNewNotification) error {
 }
 
 func addSubscriber(ctx context.Context, c *cmd.AddSubscriber) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		return internalAddSubscriber(trx, c.Post, tenant, c.User, true)
 	})
 }
 
 func removeSubscriber(ctx context.Context, c *cmd.RemoveSubscriber) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute(`
 			INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_at, updated_at, status)
 			VALUES ($1, $2, $3, $4, $4, $5) ON CONFLICT (user_id, post_id)
@@ -173,8 +173,8 @@ func removeSubscriber(ctx context.Context, c *cmd.RemoveSubscriber) error {
 }
 
 func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		q.Result = make([]*models.User, 0)
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = make([]*entity.User, 0)
 
 		var (
 			users []*dbUser
@@ -237,7 +237,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 			return errors.Wrap(err, "failed to get post number '%d' subscribers", q.Number)
 		}
 
-		q.Result = make([]*models.User, len(users))
+		q.Result = make([]*entity.User, len(users))
 		for i, user := range users {
 			q.Result[i] = user.toModel(ctx)
 		}
@@ -245,7 +245,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 	})
 }
 
-func internalAddSubscriber(trx *dbx.Trx, post *models.Post, tenant *models.Tenant, user *models.User, force bool) error {
+func internalAddSubscriber(trx *dbx.Trx, post *entity.Post, tenant *entity.Tenant, user *entity.User, force bool) error {
 	conflict := " DO NOTHING"
 	if force {
 		conflict = "(user_id, post_id) DO UPDATE SET status = $5, updated_at = $4"

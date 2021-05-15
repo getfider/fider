@@ -11,10 +11,8 @@ export interface OAuthProviderOption {
 
 export interface SystemSettings {
   mode: string
-  buildTime: string
   version: string
   environment: string
-  compiler: string
   domain: string
   hasLegal: boolean
   baseURL: string

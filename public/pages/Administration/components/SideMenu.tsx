@@ -2,7 +2,7 @@ import "./SideMenu.scss"
 
 import React, { useState } from "react"
 import { classSet } from "@fider/services"
-import { FiderVersion, Icon } from "@fider/components"
+import { Icon } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconMenu from "@fider/assets/images/heroicons-menu.svg"
@@ -53,7 +53,6 @@ export const SideMenu = (props: SiteMenuProps) => {
           </>
         )}
       </VStack>
-      <FiderVersion />
     </div>
   )
 }

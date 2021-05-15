@@ -17,7 +17,6 @@ import (
 
 	"io/ioutil"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -57,7 +56,6 @@ type assetsFile struct {
 //Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
-	settings      *models.SystemSettings
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
 	mutex         sync.RWMutex
@@ -65,10 +63,9 @@ type Renderer struct {
 }
 
 // NewRenderer creates a new Renderer
-func NewRenderer(settings *models.SystemSettings) *Renderer {
+func NewRenderer() *Renderer {
 	return &Renderer{
 		templates:     make(map[string]*template.Template),
-		settings:      settings,
 		mutex:         sync.RWMutex{},
 		reactRenderer: NewReactRenderer("ssr.js"),
 	}
@@ -218,14 +215,11 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
-		"mode":            r.settings.Mode,
-		"buildTime":       r.settings.BuildTime,
-		"version":         r.settings.Version,
-		"environment":     r.settings.Environment,
-		"compiler":        r.settings.Compiler,
-		"googleAnalytics": r.settings.GoogleAnalytics,
-		"domain":          r.settings.Domain,
-		"hasLegal":        r.settings.HasLegal,
+		"mode":            env.Config.HostMode,
+		"environment":     env.Config.Environment,
+		"googleAnalytics": env.Config.GoogleAnalytics,
+		"domain":          env.MultiTenantDomain(),
+		"hasLegal":        env.HasLegal(),
 		"baseURL":         ctx.BaseURL(),
 		"tenantAssetsURL": TenantAssetsURL(ctx, ""),
 		"globalAssetsURL": GlobalAssetsURL(ctx, ""),

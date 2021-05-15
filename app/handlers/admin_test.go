@@ -44,10 +44,10 @@ func TestUpdateSettingsHandler(t *testing.T) {
 		)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(updateCmd.Settings.Title).Equals("GoT")
-	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
-	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(updateCmd.Settings.Logo.BlobKey).Equals("logos/hello-world.png")
+	Expect(updateCmd.Title).Equals("GoT")
+	Expect(updateCmd.Invitation).Equals("Join us!")
+	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Logo.BlobKey).Equals("logos/hello-world.png")
 }
 
 func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
@@ -87,10 +87,10 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 			}`)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(updateCmd.Settings.Title).Equals("GoT")
-	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
-	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(updateCmd.Settings.Logo.BlobKey).Equals("logos/picture.png")
+	Expect(updateCmd.Title).Equals("GoT")
+	Expect(updateCmd.Invitation).Equals("Join us!")
+	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Logo.BlobKey).Equals("logos/picture.png")
 }
 
 func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
@@ -123,10 +123,10 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 			}`)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(updateCmd.Settings.Title).Equals("GoT")
-	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
-	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(updateCmd.Settings.Logo.Remove).IsTrue()
+	Expect(updateCmd.Title).Equals("GoT")
+	Expect(updateCmd.Invitation).Equals("Join us!")
+	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Logo.Remove).IsTrue()
 }
 
 func TestUpdatePrivacyHandler(t *testing.T) {
@@ -148,7 +148,7 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 		)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(updateCmd.Settings.IsPrivate).IsTrue()
+	Expect(updateCmd.IsPrivate).IsTrue()
 }
 
 func TestManageMembersHandler(t *testing.T) {

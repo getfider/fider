@@ -23,12 +23,12 @@ func ListTags() web.HandlerFunc {
 // AssignTag to existing dea
 func AssignTag() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.AssignUnassignTag)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.AssignUnassignTag)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := bus.Dispatch(c, &cmd.AssignTag{Tag: input.Tag, Post: input.Post})
+		err := bus.Dispatch(c, &cmd.AssignTag{Tag: action.Tag, Post: action.Post})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -40,12 +40,12 @@ func AssignTag() web.HandlerFunc {
 // UnassignTag from existing dea
 func UnassignTag() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.AssignUnassignTag)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.AssignUnassignTag)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := bus.Dispatch(c, &cmd.UnassignTag{Tag: input.Tag, Post: input.Post})
+		err := bus.Dispatch(c, &cmd.UnassignTag{Tag: action.Tag, Post: action.Post})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -57,17 +57,17 @@ func UnassignTag() web.HandlerFunc {
 // CreateEditTag creates a new tag on current tenant
 func CreateEditTag() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CreateEditTag)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.CreateEditTag)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		if input.Model.Slug != "" {
+		if action.Slug != "" {
 			updateTag := &cmd.UpdateTag{
-				TagID:    input.Tag.ID,
-				Name:     input.Model.Name,
-				Color:    input.Model.Color,
-				IsPublic: input.Model.IsPublic,
+				TagID:    action.Tag.ID,
+				Name:     action.Name,
+				Color:    action.Color,
+				IsPublic: action.IsPublic,
 			}
 			if err := bus.Dispatch(c, updateTag); err != nil {
 				return c.Failure(err)
@@ -76,9 +76,9 @@ func CreateEditTag() web.HandlerFunc {
 		}
 
 		addNewTag := &cmd.AddNewTag{
-			Name:     input.Model.Name,
-			Color:    input.Model.Color,
-			IsPublic: input.Model.IsPublic,
+			Name:     action.Name,
+			Color:    action.Color,
+			IsPublic: action.IsPublic,
 		}
 		if err := bus.Dispatch(c, addNewTag); err != nil {
 			return c.Failure(err)
@@ -90,12 +90,12 @@ func CreateEditTag() web.HandlerFunc {
 // DeleteTag deletes an existing tag
 func DeleteTag() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.DeleteTag)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.DeleteTag)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := bus.Dispatch(c, &cmd.DeleteTag{Tag: input.Tag})
+		err := bus.Dispatch(c, &cmd.DeleteTag{Tag: action.Tag})
 		if err != nil {
 			return c.Failure(err)
 		}

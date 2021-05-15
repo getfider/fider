@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -112,19 +112,19 @@ type NewLogError struct {
 //LogError logs an error coming from the UI
 func LogError() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(NewLogError)
-		err := c.Bind(input)
+		action := new(NewLogError)
+		err := c.Bind(action)
 		if err != nil {
 			return c.Failure(err)
 		}
-		log.Debugf(c, input.Message, dto.Props{
-			"Data": input.Data,
+		log.Debugf(c, action.Message, dto.Props{
+			"Data": action.Data,
 		})
 		return c.Ok(web.Map{})
 	}
 }
 
-func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*models.EmailVerification, error) {
+func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*entity.EmailVerification, error) {
 	key := c.QueryParam("k")
 
 	//If key has been used, return NotFound

@@ -13,6 +13,20 @@ import (
 	"github.com/joeshaw/envdecode"
 )
 
+var (
+	// these values are replaced during CI build
+	buildnumber = ""
+	version     = "0.18.1"
+)
+
+func Version() string {
+	if buildnumber == "" {
+		return version
+	}
+
+	return fmt.Sprintf("%s-%s", version, buildnumber)
+}
+
 type config struct {
 	Environment    string `env:"GO_ENV,default=production"`
 	SignUpDisabled bool   `env:"SIGNUP_DISABLED,default=false"`
@@ -62,11 +76,11 @@ type config struct {
 			Region string `env:"EMAIL_MAILGUN_REGION,default=US"`
 		}
 		SMTP struct {
-			Host            string  `env:"EMAIL_SMTP_HOST"`
-			Port            string  `env:"EMAIL_SMTP_PORT"`
-			Username        string  `env:"EMAIL_SMTP_USERNAME"`
-			Password        string  `env:"EMAIL_SMTP_PASSWORD"`
-			EnableStartTLS  bool    `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			Host           string `env:"EMAIL_SMTP_HOST"`
+			Port           string `env:"EMAIL_SMTP_PORT"`
+			Username       string `env:"EMAIL_SMTP_USERNAME"`
+			Password       string `env:"EMAIL_SMTP_PASSWORD"`
+			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
 		}
 	}
 	BlobStorage struct {

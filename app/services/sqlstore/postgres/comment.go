@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -21,8 +21,8 @@ type dbComment struct {
 	EditedBy    *dbUser      `db:"edited_by"`
 }
 
-func (c *dbComment) toModel(ctx context.Context) *models.Comment {
-	comment := &models.Comment{
+func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
+	comment := &entity.Comment{
 		ID:          c.ID,
 		Content:     c.Content,
 		CreatedAt:   c.CreatedAt,
@@ -37,7 +37,7 @@ func (c *dbComment) toModel(ctx context.Context) *models.Comment {
 }
 
 func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var id int
 		if err := trx.Get(&id, `
 			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) 
@@ -62,7 +62,7 @@ func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 }
 
 func updateComment(ctx context.Context, c *cmd.UpdateComment) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute(`
 			UPDATE comments SET content = $1, edited_at = $2, edited_by_id = $3 
 			WHERE id = $4 AND tenant_id = $5`, c.Content, time.Now(), user.ID, c.CommentID, tenant.ID)
@@ -74,7 +74,7 @@ func updateComment(ctx context.Context, c *cmd.UpdateComment) error {
 }
 
 func deleteComment(ctx context.Context, c *cmd.DeleteComment) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if _, err := trx.Execute(
 			"UPDATE comments SET deleted_at = $1, deleted_by_id = $2 WHERE id = $3 AND tenant_id = $4",
 			time.Now(), user.ID, c.CommentID, tenant.ID,
@@ -86,7 +86,7 @@ func deleteComment(ctx context.Context, c *cmd.DeleteComment) error {
 }
 
 func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = nil
 
 		comment := dbComment{}
@@ -130,8 +130,8 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 }
 
 func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		q.Result = make([]*models.Comment, 0)
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = make([]*entity.Comment, 0)
 
 		comments := []*dbComment{}
 		err := trx.Select(&comments,
@@ -188,7 +188,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			return errors.Wrap(err, "failed get comments of post with id '%d'", q.Post.ID)
 		}
 
-		q.Result = make([]*models.Comment, len(comments))
+		q.Result = make([]*entity.Comment, len(comments))
 		for i, comment := range comments {
 			q.Result[i] = comment.toModel(ctx)
 		}

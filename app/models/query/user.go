@@ -1,6 +1,6 @@
 package query
 
-import "github.com/getfider/fider/app/models"
+import "github.com/getfider/fider/app/models/entity"
 
 type CountUsers struct {
 	Result int
@@ -15,7 +15,7 @@ type UserSubscribedTo struct {
 type GetUserByAPIKey struct {
 	APIKey string
 
-	Result *models.User
+	Result *entity.User
 }
 
 type GetCurrentUserSettings struct {
@@ -25,22 +25,22 @@ type GetCurrentUserSettings struct {
 type GetUserByID struct {
 	UserID int
 
-	Result *models.User
+	Result *entity.User
 }
 
 type GetUserByEmail struct {
 	Email string
 
-	Result *models.User
+	Result *entity.User
 }
 
 type GetUserByProvider struct {
 	Provider string
 	UID      string
 
-	Result *models.User
+	Result *entity.User
 }
 
 type GetAllUsers struct {
-	Result []*models.User
+	Result []*entity.User
 }

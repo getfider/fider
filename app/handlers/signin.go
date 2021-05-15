@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -46,21 +46,21 @@ func NotInvitedPage() web.HandlerFunc {
 // SignInByEmail sends a new email with verification key
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.SignInByEmail)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewSignInByEmail()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      input.Model.VerificationKey,
+			Key:      action.VerificationKey,
 			Duration: 30 * time.Minute,
-			Request:  input.Model,
+			Request:  action,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(input.Model))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationKey))
 
 		return c.Ok(web.Map{})
 	}
@@ -74,13 +74,13 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 			return err
 		}
 
-		var user *models.User
+		var user *entity.User
 		if kind == enum.EmailVerificationKindSignUp && c.Tenant().Status == enum.TenantPending {
 			if err = bus.Dispatch(c, &cmd.ActivateTenant{TenantID: c.Tenant().ID}); err != nil {
 				return c.Failure(err)
 			}
 
-			user = &models.User{
+			user = &entity.User{
 				Name:   result.Name,
 				Email:  result.Email,
 				Tenant: c.Tenant(),
@@ -134,19 +134,19 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 // CompleteSignInProfile handles the action to update user profile
 func CompleteSignInProfile() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CompleteProfile)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.CompleteProfile)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := bus.Dispatch(c, &query.GetUserByEmail{Email: input.Model.Email})
+		err := bus.Dispatch(c, &query.GetUserByEmail{Email: action.Email})
 		if errors.Cause(err) != app.ErrNotFound {
 			return c.Ok(web.Map{})
 		}
 
-		user := &models.User{
-			Name:   input.Model.Name,
-			Email:  input.Model.Email,
+		user := &entity.User{
+			Name:   action.Name,
+			Email:  action.Email,
 			Tenant: c.Tenant(),
 			Role:   enum.RoleVisitor,
 		}
@@ -155,7 +155,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: input.Model.Key})
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Key})
 		if err != nil {
 			return c.Failure(err)
 		}

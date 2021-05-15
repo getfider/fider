@@ -2,8 +2,8 @@ package apiv1
 
 import (
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -31,25 +31,25 @@ func SearchPosts() web.HandlerFunc {
 // CreatePost creates a new post on current tenant
 func CreatePost() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CreateNewPost)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.CreateNewPost)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: input.Model.Attachments, Folder: "attachments"}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Attachments, Folder: "attachments"}); err != nil {
 			return c.Failure(err)
 		}
 
 		newPost := &cmd.AddNewPost{
-			Title:       input.Model.Title,
-			Description: input.Model.Description,
+			Title:       action.Title,
+			Description: action.Description,
 		}
 		err := bus.Dispatch(c, newPost)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		setAttachments := &cmd.SetAttachments{Post: newPost.Result, Attachments: input.Model.Attachments}
+		setAttachments := &cmd.SetAttachments{Post: newPost.Result, Attachments: action.Attachments}
 		addVote := &cmd.AddVote{Post: newPost.Result, User: c.User()}
 		if err = bus.Dispatch(c, setAttachments, addVote); err != nil {
 			return c.Failure(err)
@@ -86,24 +86,24 @@ func GetPost() web.HandlerFunc {
 // UpdatePost updates an existing post of current tenant
 func UpdatePost() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdatePost)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.UpdatePost)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
-				Images: input.Model.Attachments,
+				Images: action.Attachments,
 				Folder: "attachments",
 			},
 			&cmd.UpdatePost{
-				Post:        input.Post,
-				Title:       input.Model.Title,
-				Description: input.Model.Description,
+				Post:        action.Post,
+				Title:       action.Title,
+				Description: action.Description,
 			},
 			&cmd.SetAttachments{
-				Post:        input.Post,
-				Attachments: input.Model.Attachments,
+				Post:        action.Post,
+				Attachments: action.Attachments,
 			},
 		)
 		if err != nil {
@@ -117,12 +117,12 @@ func UpdatePost() web.HandlerFunc {
 // SetResponse changes current post staff response
 func SetResponse() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.SetResponse)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.SetResponse)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		getPost := &query.GetPostByNumber{Number: input.Model.Number}
+		getPost := &query.GetPostByNumber{Number: action.Number}
 		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
@@ -130,13 +130,13 @@ func SetResponse() web.HandlerFunc {
 		prevStatus := getPost.Result.Status
 
 		var command bus.Msg
-		if input.Model.Status == enum.PostDuplicate {
-			command = &cmd.MarkPostAsDuplicate{Post: getPost.Result, Original: input.Original}
+		if action.Status == enum.PostDuplicate {
+			command = &cmd.MarkPostAsDuplicate{Post: getPost.Result, Original: action.Original}
 		} else {
 			command = &cmd.SetPostResponse{
 				Post:   getPost.Result,
-				Text:   input.Model.Text,
-				Status: input.Model.Status,
+				Text:   action.Text,
+				Status: action.Status,
 			}
 		}
 
@@ -153,23 +153,23 @@ func SetResponse() web.HandlerFunc {
 // DeletePost deletes an existing post of current tenant
 func DeletePost() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.DeletePost)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.DeletePost)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c, &cmd.SetPostResponse{
-			Post:   input.Post,
-			Text:   input.Model.Text,
+			Post:   action.Post,
+			Text:   action.Text,
 			Status: enum.PostDeleted,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if input.Model.Text != "" {
+		if action.Text != "" {
 			// Only send notification if user wrote a comment.
-			c.Enqueue(tasks.NotifyAboutDeletedPost(input.Post))
+			c.Enqueue(tasks.NotifyAboutDeletedPost(action.Post))
 		}
 
 		return c.Ok(web.Map{})
@@ -218,23 +218,23 @@ func GetComment() web.HandlerFunc {
 // PostComment creates a new comment on given post
 func PostComment() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.AddNewComment)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.AddNewComment)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		getPost := &query.GetPostByNumber{Number: input.Model.Number}
+		getPost := &query.GetPostByNumber{Number: action.Number}
 		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: input.Model.Attachments, Folder: "attachments"}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Attachments, Folder: "attachments"}); err != nil {
 			return c.Failure(err)
 		}
 
 		addNewComment := &cmd.AddNewComment{
 			Post:    getPost.Result,
-			Content: input.Model.Content,
+			Content: action.Content,
 		}
 		if err := bus.Dispatch(c, addNewComment); err != nil {
 			return c.Failure(err)
@@ -243,12 +243,12 @@ func PostComment() web.HandlerFunc {
 		if err := bus.Dispatch(c, &cmd.SetAttachments{
 			Post:        getPost.Result,
 			Comment:     addNewComment.Result,
-			Attachments: input.Model.Attachments,
+			Attachments: action.Attachments,
 		}); err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, input.Model))
+		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Content))
 
 		return c.Ok(web.Map{
 			"id": addNewComment.Result.ID,
@@ -259,24 +259,24 @@ func PostComment() web.HandlerFunc {
 // UpdateComment changes an existing comment with new content
 func UpdateComment() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.EditComment)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.EditComment)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
-				Images: input.Model.Attachments,
+				Images: action.Attachments,
 				Folder: "attachments",
 			},
 			&cmd.UpdateComment{
-				CommentID: input.Model.ID,
-				Content:   input.Model.Content,
+				CommentID: action.ID,
+				Content:   action.Content,
 			},
 			&cmd.SetAttachments{
-				Post:        input.Post,
-				Comment:     input.Comment,
-				Attachments: input.Model.Attachments,
+				Post:        action.Post,
+				Comment:     action.Comment,
+				Attachments: action.Attachments,
 			},
 		)
 		if err != nil {
@@ -290,13 +290,13 @@ func UpdateComment() web.HandlerFunc {
 // DeleteComment deletes an existing comment by its ID
 func DeleteComment() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.DeleteComment)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.DeleteComment)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c, &cmd.DeleteComment{
-			CommentID: input.Model.CommentID,
+			CommentID: action.CommentID,
 		})
 		if err != nil {
 			return c.Failure(err)
@@ -309,7 +309,7 @@ func DeleteComment() web.HandlerFunc {
 // AddVote adds current user to given post list of votes
 func AddVote() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *models.Post, user *models.User) bus.Msg {
+		return addOrRemove(c, func(post *entity.Post, user *entity.User) bus.Msg {
 			return &cmd.AddVote{Post: post, User: user}
 		})
 	}
@@ -318,7 +318,7 @@ func AddVote() web.HandlerFunc {
 // RemoveVote removes current user from given post list of votes
 func RemoveVote() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *models.Post, user *models.User) bus.Msg {
+		return addOrRemove(c, func(post *entity.Post, user *entity.User) bus.Msg {
 			return &cmd.RemoveVote{Post: post, User: user}
 		})
 	}
@@ -327,7 +327,7 @@ func RemoveVote() web.HandlerFunc {
 // Subscribe adds current user to list of subscribers of given post
 func Subscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *models.Post, user *models.User) bus.Msg {
+		return addOrRemove(c, func(post *entity.Post, user *entity.User) bus.Msg {
 			return &cmd.AddSubscriber{Post: post, User: user}
 		})
 	}
@@ -336,7 +336,7 @@ func Subscribe() web.HandlerFunc {
 // Unsubscribe removes current user from list of subscribers of given post
 func Unsubscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *models.Post, user *models.User) bus.Msg {
+		return addOrRemove(c, func(post *entity.Post, user *entity.User) bus.Msg {
 			return &cmd.RemoveSubscriber{Post: post, User: user}
 		})
 	}
@@ -365,7 +365,7 @@ func ListVotes() web.HandlerFunc {
 	}
 }
 
-func addOrRemove(c *web.Context, getCommand func(post *models.Post, user *models.User) bus.Msg) error {
+func addOrRemove(c *web.Context, getCommand func(post *entity.Post, user *entity.User) bus.Msg) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.NotFound()

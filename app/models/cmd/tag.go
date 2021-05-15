@@ -1,13 +1,15 @@
 package cmd
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models/entity"
+)
 
 type AddNewTag struct {
 	Name     string
 	Color    string
 	IsPublic bool
 
-	Result *models.Tag
+	Result *entity.Tag
 }
 
 type UpdateTag struct {
@@ -16,19 +18,19 @@ type UpdateTag struct {
 	Color    string
 	IsPublic bool
 
-	Result *models.Tag
+	Result *entity.Tag
 }
 
 type DeleteTag struct {
-	Tag *models.Tag
+	Tag *entity.Tag
 }
 
 type AssignTag struct {
-	Tag  *models.Tag
-	Post *models.Post
+	Tag  *entity.Tag
+	Post *entity.Post
 }
 
 type UnassignTag struct {
-	Tag  *models.Tag
-	Post *models.Post
+	Tag  *entity.Tag
+	Post *entity.Post
 }

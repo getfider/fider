@@ -3,45 +3,42 @@ package actions
 import (
 	"context"
 
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/gosimple/slug"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
 // CreateNewPost is used to create a new post
 type CreateNewPost struct {
-	Model *models.NewPost
-}
-
-// Initialize the model
-func (input *CreateNewPost) Initialize() interface{} {
-	input.Model = new(models.NewPost)
-	return input.Model
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Attachments []*dto.ImageUpload `json:"attachments"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateNewPost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *CreateNewPost) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Title == "" {
+	if action.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(input.Model.Title) < 10 {
+	} else if len(action.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
-	} else if len(input.Model.Title) > 100 {
+	} else if len(action.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	} else {
-		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)})
+		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Title)})
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
 			return validate.Error(err)
 		} else if err == nil {
@@ -49,7 +46,7 @@ func (input *CreateNewPost) Validate(ctx context.Context, user *models.User) *va
 		}
 	}
 
-	messages, err := validate.MultiImageUpload(nil, input.Model.Attachments, validate.MultiImageUploadOpts{
+	messages, err := validate.MultiImageUpload(nil, action.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   3,
 		MaxKilobytes: 5120,
 		ExactRatio:   false,
@@ -64,58 +61,56 @@ func (input *CreateNewPost) Validate(ctx context.Context, user *models.User) *va
 
 // UpdatePost is used to edit an existing new post
 type UpdatePost struct {
-	Model *models.UpdatePost
-	Post  *models.Post
-}
+	Number      int                `route:"number"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Attachments []*dto.ImageUpload `json:"attachments"`
 
-// Initialize the model
-func (input *UpdatePost) Initialize() interface{} {
-	input.Model = new(models.UpdatePost)
-	return input.Model
+	Post *entity.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdatePost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *UpdatePost) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdatePost) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Title == "" {
+	if action.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(input.Model.Title) < 10 {
+	} else if len(action.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
-	if len(input.Model.Title) > 100 {
+	if len(action.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
-	postByNumber := &query.GetPostByNumber{Number: input.Model.Number}
+	postByNumber := &query.GetPostByNumber{Number: action.Number}
 	if err := bus.Dispatch(ctx, postByNumber); err != nil {
 		return validate.Error(err)
 	}
 
-	input.Post = postByNumber.Result
+	action.Post = postByNumber.Result
 
-	postBySlug := &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)}
+	postBySlug := &query.GetPostBySlug{Slug: slug.Make(action.Title)}
 	err := bus.Dispatch(ctx, postBySlug)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
-	} else if err == nil && postBySlug.Result.ID != input.Post.ID {
+	} else if err == nil && postBySlug.Result.ID != action.Post.ID {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
-	if len(input.Model.Attachments) > 0 {
-		getAttachments := &query.GetAttachments{Post: input.Post}
+	if len(action.Attachments) > 0 {
+		getAttachments := &query.GetAttachments{Post: action.Post}
 		err = bus.Dispatch(ctx, getAttachments)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
+		messages, err := validate.MultiImageUpload(getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   3,
 			MaxKilobytes: 5120,
 			ExactRatio:   false,
@@ -131,29 +126,25 @@ func (input *UpdatePost) Validate(ctx context.Context, user *models.User) *valid
 
 // AddNewComment represents a new comment to be added
 type AddNewComment struct {
-	Model *models.NewComment
-}
-
-// Initialize the model
-func (input *AddNewComment) Initialize() interface{} {
-	input.Model = new(models.NewComment)
-	return input.Model
+	Number      int                `route:"number"`
+	Content     string             `json:"content"`
+	Attachments []*dto.ImageUpload `json:"attachments"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *AddNewComment) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *AddNewComment) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *AddNewComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Content == "" {
+	if action.Content == "" {
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
-	messages, err := validate.MultiImageUpload(nil, input.Model.Attachments, validate.MultiImageUploadOpts{
+	messages, err := validate.MultiImageUpload(nil, action.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   2,
 		MaxKilobytes: 5120,
 		ExactRatio:   false,
@@ -168,35 +159,33 @@ func (input *AddNewComment) Validate(ctx context.Context, user *models.User) *va
 
 // SetResponse represents the action to update an post response
 type SetResponse struct {
-	Model    *models.SetResponse
-	Original *models.Post
-}
+	Number         int             `route:"number"`
+	Status         enum.PostStatus `json:"status"`
+	Text           string          `json:"text"`
+	OriginalNumber int             `json:"originalNumber"`
 
-// Initialize the model
-func (input *SetResponse) Initialize() interface{} {
-	input.Model = new(models.SetResponse)
-	return input.Model
+	Original *entity.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *SetResponse) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *SetResponse) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *SetResponse) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *SetResponse) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Status < enum.PostOpen || input.Model.Status > enum.PostDuplicate {
+	if action.Status < enum.PostOpen || action.Status > enum.PostDuplicate {
 		result.AddFieldFailure("status", "Status is invalid.")
 	}
 
-	if input.Model.Status == enum.PostDuplicate {
-		if input.Model.OriginalNumber == input.Model.Number {
+	if action.Status == enum.PostDuplicate {
+		if action.OriginalNumber == action.Number {
 			result.AddFieldFailure("originalNumber", "Cannot be a duplicate of itself")
 		}
 
-		getOriginaPost := &query.GetPostByNumber{Number: input.Model.OriginalNumber}
+		getOriginaPost := &query.GetPostByNumber{Number: action.OriginalNumber}
 		err := bus.Dispatch(ctx, getOriginaPost)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
@@ -207,7 +196,7 @@ func (input *SetResponse) Validate(ctx context.Context, user *models.User) *vali
 		}
 
 		if getOriginaPost.Result != nil {
-			input.Original = getOriginaPost.Result
+			action.Original = getOriginaPost.Result
 		}
 	}
 
@@ -216,31 +205,27 @@ func (input *SetResponse) Validate(ctx context.Context, user *models.User) *vali
 
 // DeletePost represents the action of an administrator deleting an existing Post
 type DeletePost struct {
-	Model *models.DeletePost
-	Post  *models.Post
-}
+	Number int    `route:"number"`
+	Text   string `json:"text"`
 
-// Initialize the model
-func (input *DeletePost) Initialize() interface{} {
-	input.Model = new(models.DeletePost)
-	return input.Model
+	Post *entity.Post
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeletePost) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *DeletePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *DeletePost) Validate(ctx context.Context, user *models.User) *validate.Result {
-	getPost := &query.GetPostByNumber{Number: input.Model.Number}
+func (action *DeletePost) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	getPost := &query.GetPostByNumber{Number: action.Number}
 	if err := bus.Dispatch(ctx, getPost); err != nil {
 		return validate.Error(err)
 	}
 
-	input.Post = getPost.Result
+	action.Post = getPost.Result
 
-	isReferencedQuery := &query.PostIsReferenced{PostID: input.Post.ID}
+	isReferencedQuery := &query.PostIsReferenced{PostID: action.Post.ID}
 	if err := bus.Dispatch(ctx, isReferencedQuery); err != nil {
 		return validate.Error(err)
 	}
@@ -254,46 +239,44 @@ func (input *DeletePost) Validate(ctx context.Context, user *models.User) *valid
 
 // EditComment represents the action to update an existing comment
 type EditComment struct {
-	Model   *models.EditComment
-	Post    *models.Post
-	Comment *models.Comment
-}
+	PostNumber  int                `route:"number"`
+	ID          int                `route:"id"`
+	Content     string             `json:"content"`
+	Attachments []*dto.ImageUpload `json:"attachments"`
 
-// Initialize the model
-func (input *EditComment) Initialize() interface{} {
-	input.Model = new(models.EditComment)
-	return input.Model
+	Post    *entity.Post
+	Comment *entity.Comment
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *EditComment) IsAuthorized(ctx context.Context, user *models.User) bool {
-	postByNumber := &query.GetPostByNumber{Number: input.Model.PostNumber}
-	commentByID := &query.GetCommentByID{CommentID: input.Model.ID}
+func (action *EditComment) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	postByNumber := &query.GetPostByNumber{Number: action.PostNumber}
+	commentByID := &query.GetCommentByID{CommentID: action.ID}
 	if err := bus.Dispatch(ctx, postByNumber, commentByID); err != nil {
 		return false
 	}
 
-	input.Post = postByNumber.Result
-	input.Comment = commentByID.Result
-	return user.ID == input.Comment.User.ID || user.IsCollaborator()
+	action.Post = postByNumber.Result
+	action.Comment = commentByID.Result
+	return user.ID == action.Comment.User.ID || user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *EditComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *EditComment) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Content == "" {
+	if action.Content == "" {
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
-	if len(input.Model.Attachments) > 0 {
-		getAttachments := &query.GetAttachments{Post: input.Post, Comment: input.Comment}
+	if len(action.Attachments) > 0 {
+		getAttachments := &query.GetAttachments{Post: action.Post, Comment: action.Comment}
 		err := bus.Dispatch(ctx, getAttachments)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
+		messages, err := validate.MultiImageUpload(getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   2,
 			MaxKilobytes: 5120,
 			ExactRatio:   false,
@@ -309,18 +292,13 @@ func (input *EditComment) Validate(ctx context.Context, user *models.User) *vali
 
 // DeleteComment represents the action of deleting an existing comment
 type DeleteComment struct {
-	Model *models.DeleteComment
-}
-
-// Initialize the model
-func (input *DeleteComment) Initialize() interface{} {
-	input.Model = new(models.DeleteComment)
-	return input.Model
+	PostNumber int `route:"number"`
+	CommentID  int `route:"id"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeleteComment) IsAuthorized(ctx context.Context, user *models.User) bool {
-	commentByID := &query.GetCommentByID{CommentID: input.Model.CommentID}
+func (action *DeleteComment) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	commentByID := &query.GetCommentByID{CommentID: action.CommentID}
 	if err := bus.Dispatch(ctx, commentByID); err != nil {
 		return false
 	}
@@ -329,6 +307,6 @@ func (input *DeleteComment) IsAuthorized(ctx context.Context, user *models.User)
 }
 
 // Validate if current model is valid
-func (input *DeleteComment) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *DeleteComment) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	return validate.Success()
 }

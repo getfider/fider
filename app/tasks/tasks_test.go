@@ -6,10 +6,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -24,7 +25,7 @@ func TestSendSignUpEmailTask(t *testing.T) {
 	bus.Init(emailmock.Service{})
 
 	worker := mock.NewWorker()
-	task := tasks.SendSignUpEmail(&models.CreateTenant{
+	task := tasks.SendSignUpEmail(&actions.CreateTenant{
 		VerificationKey: "1234",
 	}, "http://domain.com")
 
@@ -53,9 +54,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 	bus.Init(emailmock.Service{})
 
 	worker := mock.NewWorker()
-	task := tasks.SendSignInEmail(&models.SignInByEmail{
-		VerificationKey: "9876",
-	})
+	task := tasks.SendSignInEmail("jon@got.com", "9876")
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -73,6 +72,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].From).Equals(mock.DemoTenant.Name)
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
+		Address: "jon@got.com",
 		Props: dto.Props{
 			"tenantName": mock.DemoTenant.Name,
 			"link":       template.HTML("<a href='http://domain.com/signin/verify?k=9876'>http://domain.com/signin/verify?k=9876</a>"),
@@ -85,7 +85,7 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	bus.Init(emailmock.Service{})
 
 	worker := mock.NewWorker()
-	task := tasks.SendChangeEmailConfirmation(&models.ChangeUserEmail{
+	task := tasks.SendChangeEmailConfirmation(&actions.ChangeUserEmail{
 		Email:           "newemail@domain.com",
 		VerificationKey: "13579",
 		Requestor:       mock.JonSnow,
@@ -129,14 +129,14 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entity.User{
 			mock.AryaStark,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entity.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
@@ -191,26 +191,21 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entity.User{
 			mock.JonSnow,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entity.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 	}
-	comment := &models.NewComment{
-		Number:  post.Number,
-		Content: "I agree",
-	}
-
-	task := tasks.NotifyAboutNewComment(post, comment)
+	task := tasks.NotifyAboutNewComment(post, "I agree")
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -259,21 +254,21 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entity.User{
 			mock.AryaStark,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entity.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		Status:      enum.PostPlanned,
-		Response: &models.PostResponse{
+		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Planned for next release.",
 			User:        mock.JonSnow,
@@ -330,21 +325,21 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entity.User{
 			mock.AryaStark,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entity.Post{
 		ID:          1,
 		Number:      1,
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		Status:      enum.PostDeleted,
-		Response: &models.PostResponse{
+		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Invalid post!",
 			User:        mock.JonSnow,
@@ -396,23 +391,23 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
-		q.Result = []*models.User{
+		q.Result = []*entity.User{
 			mock.AryaStark,
 		}
 		return nil
 	})
 
 	worker := mock.NewWorker()
-	post := &models.Post{
+	post := &entity.Post{
 		ID:     2,
 		Number: 2,
 		Title:  "I need TypeScript",
 		Slug:   "i-need-typescript",
 		Status: enum.PostDuplicate,
-		Response: &models.PostResponse{
+		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			User:        mock.JonSnow,
-			Original: &models.OriginalPost{
+			Original: &entity.OriginalPost{
 				Number: 1,
 				Title:  "Add support for TypeScript",
 				Slug:   "add-support-for-typescript",
@@ -471,7 +466,7 @@ func TestSendInvites(t *testing.T) {
 	})
 
 	worker := mock.NewWorker()
-	task := tasks.SendInvites("My Subject", "Click here: %invite%", []*models.UserInvitation{
+	task := tasks.SendInvites("My Subject", "Click here: %invite%", []*actions.UserInvitation{
 		{Email: "user1@domain.com", VerificationKey: "1234"},
 		{Email: "user2@domain.com", VerificationKey: "5678"},
 	})

@@ -3,7 +3,7 @@ package validate
 import (
 	"fmt"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/goenning/imagic"
 )
 
@@ -30,7 +30,7 @@ type ImageUploadOpts struct {
 }
 
 //MultiImageUpload validates multiple image uploads
-func MultiImageUpload(currentAttachments []string, uploads []*models.ImageUpload, opts MultiImageUploadOpts) ([]string, error) {
+func MultiImageUpload(currentAttachments []string, uploads []*dto.ImageUpload, opts MultiImageUploadOpts) ([]string, error) {
 	if currentAttachments == nil {
 		currentAttachments = []string{}
 	}
@@ -71,7 +71,7 @@ func MultiImageUpload(currentAttachments []string, uploads []*models.ImageUpload
 }
 
 //ImageUpload validates given image upload
-func ImageUpload(upload *models.ImageUpload, opts ImageUploadOpts) ([]string, error) {
+func ImageUpload(upload *dto.ImageUpload, opts ImageUploadOpts) ([]string, error) {
 	messages := []string{}
 
 	if opts.IsRequired {

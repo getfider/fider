@@ -7,8 +7,8 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers/apiv1"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -73,7 +73,7 @@ func TestCreateTagHandler_InvalidRequests(t *testing.T) {
 func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
 	RegisterT(t)
 
-	tag := &models.Tag{Name: "Bug", Slug: "bug"}
+	tag := &entity.Tag{Name: "Bug", Slug: "bug"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
 		q.Result = tag
 		return nil
@@ -127,7 +127,7 @@ func TestEditInvalidTagHandler(t *testing.T) {
 func TestEditExistingTagHandler(t *testing.T) {
 	RegisterT(t)
 
-	tag := &models.Tag{ID: 5, Name: "Bug", Slug: "bug", Color: "0000FF", IsPublic: true}
+	tag := &entity.Tag{ID: 5, Name: "Bug", Slug: "bug", Color: "0000FF", IsPublic: true}
 	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
 		q.Result = tag
 		return nil
@@ -174,7 +174,7 @@ func TestDeleteInvalidTagHandler(t *testing.T) {
 func TestDeleteExistingTagHandler(t *testing.T) {
 	RegisterT(t)
 
-	tag := &models.Tag{ID: 5, Name: "Bug", Slug: "bug", Color: "0000FF", IsPublic: true}
+	tag := &entity.Tag{ID: 5, Name: "Bug", Slug: "bug", Color: "0000FF", IsPublic: true}
 	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
 		q.Result = tag
 		return nil
@@ -198,7 +198,7 @@ func TestDeleteExistingTagHandler(t *testing.T) {
 func TestDeleteExistingTagHandler_Collaborator(t *testing.T) {
 	RegisterT(t)
 
-	tag := &models.Tag{ID: 5, Name: "Bug", Slug: "bug", Color: "0000FF", IsPublic: true}
+	tag := &entity.Tag{ID: 5, Name: "Bug", Slug: "bug", Color: "0000FF", IsPublic: true}
 	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
 		q.Result = tag
 		return nil
@@ -215,8 +215,8 @@ func TestDeleteExistingTagHandler_Collaborator(t *testing.T) {
 func TestAssignTagHandler_Success(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 2, Number: 2}
-	tag := &models.Tag{ID: 5, Slug: "bug"}
+	post := &entity.Post{ID: 2, Number: 2}
+	tag := &entity.Tag{ID: 5, Slug: "bug"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
@@ -247,7 +247,7 @@ func TestAssignTagHandler_Success(t *testing.T) {
 func TestAssignTagHandler_UnknownTag(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 2, Number: 2}
+	post := &entity.Post{ID: 2, Number: 2}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
@@ -288,8 +288,8 @@ func TestAssignOrUnassignTagHandler_Unauthorized(t *testing.T) {
 func TestUnassignTagHandler_Success(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 2, Number: 2}
-	tag := &models.Tag{ID: 5, Slug: "bug"}
+	post := &entity.Post{ID: 2, Number: 2}
+	tag := &entity.Tag{ID: 5, Slug: "bug"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
@@ -320,10 +320,10 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 func TestListTagsHandler(t *testing.T) {
 	RegisterT(t)
 
-	tag1 := &models.Tag{ID: 2, Name: "Bug", Slug: "bug", Color: "0000FF", IsPublic: true}
-	tag2 := &models.Tag{ID: 5, Name: "Feature Request", Slug: "feature-request", Color: "0000FF", IsPublic: true}
+	tag1 := &entity.Tag{ID: 2, Name: "Bug", Slug: "bug", Color: "0000FF", IsPublic: true}
+	tag2 := &entity.Tag{ID: 5, Name: "Feature Request", Slug: "feature-request", Color: "0000FF", IsPublic: true}
 	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
-		q.Result = []*models.Tag{tag1, tag2}
+		q.Result = []*entity.Tag{tag1, tag2}
 		return nil
 	})
 

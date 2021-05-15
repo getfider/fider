@@ -6,7 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/services/sqlstore/postgres"
 )
@@ -36,11 +36,11 @@ func TestToTSQuery(t *testing.T) {
 	}
 }
 
-func withTenant(ctx context.Context, tenant *models.Tenant) context.Context {
+func withTenant(ctx context.Context, tenant *entity.Tenant) context.Context {
 	return context.WithValue(ctx, app.TenantCtxKey, tenant)
 }
 
-func withUser(ctx context.Context, user *models.User) context.Context {
+func withUser(ctx context.Context, user *entity.User) context.Context {
 	ctx = context.WithValue(ctx, app.TenantCtxKey, user.Tenant)
 	ctx = context.WithValue(ctx, app.UserCtxKey, user)
 	return ctx

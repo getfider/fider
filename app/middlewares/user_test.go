@@ -10,7 +10,7 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -339,7 +339,7 @@ func TestUser_Impersonation_Collaborator(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
 		if q.APIKey == "12345" {
-			q.Result = &models.User{
+			q.Result = &entity.User{
 				Name:   "The Collaborator",
 				Role:   enum.RoleCollaborator,
 				Status: enum.UserActive,

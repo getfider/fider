@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -95,7 +96,7 @@ func TestTenantStorage_UpdatePrivacy(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	setPrivate := &cmd.UpdateTenantPrivacySettings{
-		Settings: &models.UpdateTenantPrivacy{IsPrivate: true},
+		IsPrivate: true,
 	}
 	getByDomain := &query.GetTenantByDomain{
 		Domain: "demo",
@@ -122,11 +123,9 @@ func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{
-		Settings: &models.UpdateTenantSettings{
-			Title: "My Domain Inc.",
-			CNAME: "feedback.mycompany.com",
-			Logo:  &models.ImageUpload{},
-		},
+		Title: "My Domain Inc.",
+		CNAME: "feedback.mycompany.com",
+		Logo:  &dto.ImageUpload{},
 	})
 	Expect(err).IsNil()
 
@@ -164,16 +163,15 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	settings := &models.UpdateTenantSettings{
-		Logo: &models.ImageUpload{
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{
+		Logo: &dto.ImageUpload{
 			BlobKey: "some-logo-key.png",
 		},
 		Title:          "New Demonstration",
 		Invitation:     "Leave us your suggestion",
 		WelcomeMessage: "Welcome!",
 		CNAME:          "demo.company.com",
-	}
-	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{Settings: settings})
+	})
 	Expect(err).IsNil()
 
 	getByDomain := &query.GetTenantByDomain{Domain: "demo"}
@@ -191,10 +189,9 @@ func TestTenantStorage_AdvancedSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	settings := &models.UpdateTenantAdvancedSettings{
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantAdvancedSettings{
 		CustomCSS: ".primary { color: red; }",
-	}
-	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantAdvancedSettings{Settings: settings})
+	})
 	Expect(err).IsNil()
 
 	getByDomain := &query.GetTenantByDomain{Domain: "demo"}
@@ -211,7 +208,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
 		Key:      "s3cr3tk3y",
 		Duration: 15 * time.Minute,
-		Request: &models.CreateTenant{
+		Request: &actions.CreateTenant{
 			Email: "jon.snow@got.com",
 			Name:  "Jon Snow",
 		},
@@ -264,7 +261,7 @@ func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
 	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
 		Key:      "th3-s3cr3t",
 		Duration: 15 * time.Minute,
-		Request: &models.ChangeUserEmail{
+		Request: &actions.ChangeUserEmail{
 			Email:     "jon.stark@got.com",
 			Requestor: jonSnow,
 		},
@@ -306,22 +303,20 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(getConfig.Result).IsNil()
 
 	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
-		Config: &models.CreateEditOAuthConfig{
-			Logo: &models.ImageUpload{
-				BlobKey: "uploads/my-logo-key.png",
-			},
-			Provider:          "_TEST",
-			DisplayName:       "My Provider",
-			ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
-			ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-			AuthorizeURL:      "http://provider/oauth/authorize",
-			TokenURL:          "http://provider/oauth/token",
-			Scope:             "profile email",
-			ProfileURL:        "http://provider/profile/me",
-			JSONUserIDPath:    "user.id",
-			JSONUserNamePath:  "user.name",
-			JSONUserEmailPath: "user.email",
+		Logo: &dto.ImageUpload{
+			BlobKey: "uploads/my-logo-key.png",
 		},
+		Provider:          "_TEST",
+		DisplayName:       "My Provider",
+		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
+		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+		AuthorizeURL:      "http://provider/oauth/authorize",
+		TokenURL:          "http://provider/oauth/token",
+		Scope:             "profile email",
+		ProfileURL:        "http://provider/profile/me",
+		JSONUserIDPath:    "user.id",
+		JSONUserNamePath:  "user.name",
+		JSONUserEmailPath: "user.email",
 	})
 	Expect(err).IsNil()
 
@@ -343,23 +338,21 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(getConfig.Result.JSONUserEmailPath).Equals("user.email")
 
 	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
-		Config: &models.CreateEditOAuthConfig{
-			ID: getConfig.Result.ID,
-			Logo: &models.ImageUpload{
-				BlobKey: "",
-			},
-			Provider:          "_TEST2222", //this has to be ignored
-			DisplayName:       "New My Provider",
-			ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
-			ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-			AuthorizeURL:      "New http://provider/oauth/authorize",
-			TokenURL:          "New http://provider/oauth/token",
-			Scope:             "New profile email",
-			ProfileURL:        "New http://provider/profile/me",
-			JSONUserIDPath:    "New user.id",
-			JSONUserNamePath:  "New user.name",
-			JSONUserEmailPath: "New user.email",
+		ID: getConfig.Result.ID,
+		Logo: &dto.ImageUpload{
+			BlobKey: "",
 		},
+		Provider:          "_TEST2222", //this has to be ignored
+		DisplayName:       "New My Provider",
+		ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
+		ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+		AuthorizeURL:      "New http://provider/oauth/authorize",
+		TokenURL:          "New http://provider/oauth/token",
+		Scope:             "New profile email",
+		ProfileURL:        "New http://provider/profile/me",
+		JSONUserIDPath:    "New user.id",
+		JSONUserNamePath:  "New user.name",
+		JSONUserEmailPath: "New user.email",
 	})
 	Expect(err).IsNil()
 

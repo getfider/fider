@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -11,11 +11,11 @@ type CountUnreadNotifications struct {
 
 type GetNotificationByID struct {
 	ID     int
-	Result *models.Notification
+	Result *entity.Notification
 }
 
 type GetActiveNotifications struct {
-	Result []*models.Notification
+	Result []*entity.Notification
 }
 
 type GetActiveSubscribers struct {
@@ -23,5 +23,5 @@ type GetActiveSubscribers struct {
 	Channel enum.NotificationChannel
 	Event   enum.NotificationEvent
 
-	Result []*models.User
+	Result []*entity.User
 }

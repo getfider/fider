@@ -7,7 +7,7 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -42,7 +42,7 @@ func TestIndexHandler(t *testing.T) {
 func TestDetailsHandler(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{Number: 1, Title: "My Post Title", Slug: "my-post-title"}
+	post := &entity.Post{Number: 1, Title: "My Post Title", Slug: "my-post-title"}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
@@ -84,7 +84,7 @@ func TestDetailsHandler(t *testing.T) {
 func TestDetailsHandler_RedirectOnDifferentSlu(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{Number: 1, Title: "My Post Title", Slug: "my-post-title"}
+	post := &entity.Post{Number: 1, Title: "My Post Title", Slug: "my-post-title"}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post

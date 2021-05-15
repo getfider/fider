@@ -5,7 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 )
@@ -117,11 +117,11 @@ func (s Service) Init() {
 	bus.AddHandler(saveCustomOAuthConfig)
 }
 
-type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error
+type SqlHandler func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error
 
 func using(ctx context.Context, handler SqlHandler) error {
 	trx := ctx.Value(app.TransactionCtxKey).(*dbx.Trx)
-	tenant, _ := ctx.Value(app.TenantCtxKey).(*models.Tenant)
-	user, _ := ctx.Value(app.UserCtxKey).(*models.User)
+	tenant, _ := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+	user, _ := ctx.Value(app.UserCtxKey).(*entity.User)
 	return handler(trx, tenant, user)
 }

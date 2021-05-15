@@ -7,11 +7,11 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/services/httpclient"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/mock"
 
 	"github.com/getfider/fider/app/handlers"
@@ -24,7 +24,7 @@ func TestGravatarHandler(t *testing.T) {
 
 	server := mock.NewServer()
 
-	user := &models.User{
+	user := &entity.User{
 		ID:     3,
 		Name:   "Darth Vader",
 		Email:  "darthvader.fider@gmail.com",
@@ -57,7 +57,7 @@ func TestGravatarNotFound_LetterAvatarHandler(t *testing.T) {
 
 	server := mock.NewServer()
 
-	user := &models.User{
+	user := &entity.User{
 		ID:     3,
 		Name:   "Darth Vader",
 		Email:  "darthvader.fider1234567890@gmail.com",

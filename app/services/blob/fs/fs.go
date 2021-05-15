@@ -12,9 +12,9 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -131,7 +131,7 @@ func keyFullPath(ctx context.Context, key string) string {
 
 func basePath(ctx context.Context) string {
 	startPath := env.Config.BlobStorage.FS.Path
-	tenant, ok := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
 		return path.Join(startPath, "tenants", strconv.Itoa(tenant.ID))
 	}

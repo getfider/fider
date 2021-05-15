@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -582,10 +582,10 @@ func TestPostStorage_Attachments(t *testing.T) {
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
 		Post: newPost1.Result,
-		Attachments: []*models.ImageUpload{
-			&models.ImageUpload{
+		Attachments: []*dto.ImageUpload{
+			{
 				BlobKey: "12345-test.png",
-				Upload: &models.ImageUploadData{
+				Upload: &dto.ImageUploadData{
 					FileName:    "test.png",
 					ContentType: "image/png",
 					Content:     bytes,
@@ -603,22 +603,22 @@ func TestPostStorage_Attachments(t *testing.T) {
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
 		Post: newPost2.Result,
-		Attachments: []*models.ImageUpload{
-			&models.ImageUpload{
+		Attachments: []*dto.ImageUpload{
+			{
 				BlobKey: "12345-test.png",
 				Remove:  true,
 			},
-			&models.ImageUpload{
+			{
 				BlobKey: "67890-test2.png",
-				Upload: &models.ImageUploadData{
+				Upload: &dto.ImageUploadData{
 					FileName:    "test2.png",
 					ContentType: "image/png",
 					Content:     bytes,
 				},
 			},
-			&models.ImageUpload{
+			{
 				BlobKey: "67890-test6.png",
-				Upload: &models.ImageUploadData{
+				Upload: &dto.ImageUploadData{
 					FileName:    "test6.png",
 					ContentType: "image/png",
 					Content:     bytes,
@@ -638,8 +638,8 @@ func TestPostStorage_Attachments(t *testing.T) {
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
 		Post: newPost1.Result,
-		Attachments: []*models.ImageUpload{
-			&models.ImageUpload{
+		Attachments: []*dto.ImageUpload{
+			{
 				BlobKey: "12345-test.png",
 				Remove:  true,
 			},

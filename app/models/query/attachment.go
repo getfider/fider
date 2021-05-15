@@ -1,10 +1,12 @@
 package query
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models/entity"
+)
 
 type GetAttachments struct {
-	Post    *models.Post
-	Comment *models.Comment
+	Post    *entity.Post
+	Comment *entity.Comment
 
 	Result []string
 }

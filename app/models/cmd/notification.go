@@ -1,6 +1,8 @@
 package cmd
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models/entity"
+)
 
 type MarkAllNotificationsAsRead struct{}
 
@@ -13,20 +15,20 @@ type MarkNotificationAsRead struct {
 }
 
 type AddNewNotification struct {
-	User   *models.User
+	User   *entity.User
 	Title  string
 	Link   string
 	PostID int
 
-	Result *models.Notification
+	Result *entity.Notification
 }
 
 type AddSubscriber struct {
-	Post *models.Post
-	User *models.User
+	Post *entity.Post
+	User *entity.User
 }
 
 type RemoveSubscriber struct {
-	Post *models.Post
-	User *models.User
+	Post *entity.Post
+	User *entity.User
 }

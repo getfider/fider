@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 
 	"github.com/getfider/fider/app/services/oauth"
 
@@ -15,7 +16,6 @@ import (
 
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -220,7 +220,7 @@ func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 func TestOAuthTokenHandler_NewUser(t *testing.T) {
 	RegisterT(t)
 
-	var registeredUser *models.User
+	var registeredUser *entity.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		registeredUser = c.User
 		return nil
@@ -267,7 +267,7 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	var newUser *models.User
+	var newUser *entity.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		c.User.ID = 1
 		newUser = c.User
@@ -305,7 +305,7 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 
 	Expect(response.Header().Get("Location")).Equals("/")
-	ExpectFiderAuthCookie(response, &models.User{
+	ExpectFiderAuthCookie(response, &entity.User{
 		ID:   1,
 		Name: "Mark",
 	})
@@ -314,12 +314,12 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	RegisterT(t)
 
-	user := &models.User{
+	user := &entity.User{
 		ID:     3,
 		Name:   "Some Facebook Guy",
 		Email:  "",
 		Tenant: mock.DemoTenant,
-		Providers: []*models.UserProvider{
+		Providers: []*entity.UserProvider{
 			{UID: "FB456", Name: app.FacebookProvider},
 		},
 	}
@@ -357,7 +357,7 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 
 	Expect(response.Header().Get("Location")).Equals("/")
-	ExpectFiderAuthCookie(response, &models.User{
+	ExpectFiderAuthCookie(response, &entity.User{
 		ID:    3,
 		Name:  "Some Facebook Guy",
 		Email: "",
@@ -367,9 +367,9 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 	RegisterT(t)
 
-	var newProvider *models.UserProvider
+	var newProvider *entity.UserProvider
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUserProvider) error {
-		newProvider = &models.UserProvider{
+		newProvider = &entity.UserProvider{
 			Name: c.ProviderName,
 			UID:  c.ProviderUID,
 		}

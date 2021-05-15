@@ -34,18 +34,22 @@ func AdvancedSettingsPage() web.HandlerFunc {
 // UpdateSettings update current tenant' settings
 func UpdateSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantSettings)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewUpdateTenantSettings()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Model.Logo,
+				Image:  action.Logo,
 				Folder: "logos",
 			},
 			&cmd.UpdateTenantSettings{
-				Settings: input.Model,
+				Logo:           action.Logo,
+				Title:          action.Title,
+				Invitation:     action.Invitation,
+				WelcomeMessage: action.WelcomeMessage,
+				CNAME:          action.CNAME,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -58,12 +62,14 @@ func UpdateSettings() web.HandlerFunc {
 // UpdateAdvancedSettings update current tenant' advanced settings
 func UpdateAdvancedSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantAdvancedSettings)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.UpdateTenantAdvancedSettings)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{Settings: input.Model}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{
+			CustomCSS: action.CustomCSS,
+		}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -74,12 +80,14 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 // UpdatePrivacy update current tenant's privacy settings
 func UpdatePrivacy() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantPrivacy)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.UpdateTenantPrivacy)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		updateSettings := &cmd.UpdateTenantPrivacySettings{Settings: input.Model}
+		updateSettings := &cmd.UpdateTenantPrivacySettings{
+			IsPrivate: action.IsPrivate,
+		}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)
 		}
@@ -141,18 +149,31 @@ func GetOAuthConfig() web.HandlerFunc {
 // SaveOAuthConfig is used to create/edit OAuth configurations
 func SaveOAuthConfig() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CreateEditOAuthConfig)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewCreateEditOAuthConfig()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Model.Logo,
+				Image:  action.Logo,
 				Folder: "logos",
 			},
 			&cmd.SaveCustomOAuthConfig{
-				Config: input.Model,
+				ID:                action.ID,
+				Logo:              action.Logo,
+				Provider:          action.Provider,
+				Status:            action.Status,
+				DisplayName:       action.DisplayName,
+				ClientID:          action.ClientID,
+				ClientSecret:      action.ClientSecret,
+				AuthorizeURL:      action.AuthorizeURL,
+				TokenURL:          action.TokenURL,
+				Scope:             action.Scope,
+				ProfileURL:        action.ProfileURL,
+				JSONUserIDPath:    action.JSONUserIDPath,
+				JSONUserNamePath:  action.JSONUserNamePath,
+				JSONUserEmailPath: action.JSONUserEmailPath,
 			},
 		); err != nil {
 			return c.Failure(err)

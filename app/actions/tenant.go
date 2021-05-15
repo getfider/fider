@@ -4,7 +4,8 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -13,99 +14,128 @@ import (
 
 //CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
-	Model *models.CreateTenant
+	Token           string `json:"token"`
+	Name            string `json:"name"`
+	Email           string `json:"email" format:"lower"`
+	VerificationKey string
+	TenantName      string `json:"tenantName"`
+	LegalAgreement  bool   `json:"legalAgreement"`
+	Subdomain       string `json:"subdomain" format:"lower"`
+	UserClaims      *jwt.OAuthClaims
 }
 
-// Initialize the model
-func (input *CreateTenant) Initialize() interface{} {
-	input.Model = new(models.CreateTenant)
-	input.Model.VerificationKey = models.GenerateSecretKey()
-	return input.Model
+func NewCreateTenant() *CreateTenant {
+	return &CreateTenant{
+		VerificationKey: entity.GenerateEmailVerificationKey(),
+	}
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateTenant) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *CreateTenant) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return true
 }
 
 // Validate if current model is valid
-func (input *CreateTenant) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *CreateTenant) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	var err error
-	if input.Model.Name == "" && input.Model.Email == "" {
-		if input.Model.Token == "" {
+	if action.Name == "" && action.Email == "" {
+		if action.Token == "" {
 			result.AddFieldFailure("token", "Please identify yourself before proceeding.")
 		} else {
-			if input.Model.UserClaims, err = jwt.DecodeOAuthClaims(input.Model.Token); err != nil {
+			if action.UserClaims, err = jwt.DecodeOAuthClaims(action.Token); err != nil {
 				return validate.Error(err)
 			}
 		}
 	} else {
-		if input.Model.Email == "" {
+		if action.Email == "" {
 			result.AddFieldFailure("email", "Email is required.")
 		} else {
-			messages := validate.Email(input.Model.Email)
+			messages := validate.Email(action.Email)
 			result.AddFieldFailure("email", messages...)
 		}
 
-		if input.Model.Name == "" {
+		if action.Name == "" {
 			result.AddFieldFailure("name", "Name is required.")
 		}
-		if len(input.Model.Name) > 60 {
+		if len(action.Name) > 60 {
 			result.AddFieldFailure("name", "Name must have less than 60 characters.")
 		}
 	}
 
 	if env.IsSingleHostMode() {
-		input.Model.Subdomain = "default"
+		action.Subdomain = "default"
 	}
 
-	if input.Model.TenantName == "" {
+	if action.TenantName == "" {
 		result.AddFieldFailure("tenantName", "Name is required.")
 	}
 
-	messages, err := validate.Subdomain(ctx, input.Model.Subdomain)
+	messages, err := validate.Subdomain(ctx, action.Subdomain)
 	if err != nil {
 		return validate.Error(err)
 	}
 
 	result.AddFieldFailure("subdomain", messages...)
 
-	if env.HasLegal() && !input.Model.LegalAgreement {
+	if env.HasLegal() && !action.LegalAgreement {
 		result.AddFieldFailure("legalAgreement", "You must agree before proceeding.")
 	}
 
 	return result
 }
 
-//UpdateTenantSettings is the input model used to update tenant settings
-type UpdateTenantSettings struct {
-	Model *models.UpdateTenantSettings
+//GetEmail returns the email being verified
+func (action *CreateTenant) GetEmail() string {
+	return action.Email
 }
 
-// Initialize the model
-func (input *UpdateTenantSettings) Initialize() interface{} {
-	input.Model = new(models.UpdateTenantSettings)
-	input.Model.Logo = &models.ImageUpload{}
-	return input.Model
+//GetName returns the name of the email owner
+func (action *CreateTenant) GetName() string {
+	return action.Name
+}
+
+//GetUser returns the current user performing this action
+func (action *CreateTenant) GetUser() *entity.User {
+	return nil
+}
+
+//GetKind returns EmailVerificationKindSignUp
+func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignUp
+}
+
+//UpdateTenantSettings is the input model used to update tenant settings
+type UpdateTenantSettings struct {
+	Logo           *dto.ImageUpload `json:"logo"`
+	Title          string           `json:"title"`
+	Invitation     string           `json:"invitation"`
+	WelcomeMessage string           `json:"welcomeMessage"`
+	CNAME          string           `json:"cname" format:"lower"`
+}
+
+func NewUpdateTenantSettings() *UpdateTenantSettings {
+	return &UpdateTenantSettings{
+		Logo: &dto.ImageUpload{},
+	}
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateTenantSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdateTenantSettings) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (input *UpdateTenantSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if hasTenant {
-		input.Model.Logo.BlobKey = tenant.LogoBlobKey
+		action.Logo.BlobKey = tenant.LogoBlobKey
 	}
 
-	messages, err := validate.ImageUpload(input.Model.Logo, validate.ImageUploadOpts{
+	messages, err := validate.ImageUpload(action.Logo, validate.ImageUploadOpts{
 		IsRequired:   false,
 		MinHeight:    200,
 		MinWidth:     200,
@@ -117,20 +147,20 @@ func (input *UpdateTenantSettings) Validate(ctx context.Context, user *models.Us
 	}
 	result.AddFieldFailure("logo", messages...)
 
-	if input.Model.Title == "" {
+	if action.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
 	}
 
-	if len(input.Model.Title) > 60 {
+	if len(action.Title) > 60 {
 		result.AddFieldFailure("title", "Title must have less than 60 characters.")
 	}
 
-	if len(input.Model.Invitation) > 60 {
+	if len(action.Invitation) > 60 {
 		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
 	}
 
-	if input.Model.CNAME != "" {
-		messages := validate.CNAME(ctx, input.Model.CNAME)
+	if action.CNAME != "" {
+		messages := validate.CNAME(ctx, action.CNAME)
 		result.AddFieldFailure("cname", messages...)
 	}
 
@@ -139,42 +169,30 @@ func (input *UpdateTenantSettings) Validate(ctx context.Context, user *models.Us
 
 //UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
 type UpdateTenantAdvancedSettings struct {
-	Model *models.UpdateTenantAdvancedSettings
-}
-
-// Initialize the model
-func (input *UpdateTenantAdvancedSettings) Initialize() interface{} {
-	input.Model = new(models.UpdateTenantAdvancedSettings)
-	return input.Model
+	CustomCSS string `json:"customCSS"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateTenantAdvancedSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdateTenantAdvancedSettings) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (input *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	return validate.Success()
 }
 
 //UpdateTenantPrivacy is the input model used to update tenant privacy settings
 type UpdateTenantPrivacy struct {
-	Model *models.UpdateTenantPrivacy
-}
-
-// Initialize the model
-func (input *UpdateTenantPrivacy) Initialize() interface{} {
-	input.Model = new(models.UpdateTenantPrivacy)
-	return input.Model
+	IsPrivate bool `json:"isPrivate"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateTenantPrivacy) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdateTenantPrivacy) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (input *UpdateTenantPrivacy) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdateTenantPrivacy) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	return validate.Success()
 }

@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -12,7 +14,6 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -105,11 +106,11 @@ func TestUserStorage_Register(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user := &models.User{
+	user := &entity.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
 		Role:  enum.RoleCollaborator,
-		Providers: []*models.UserProvider{
+		Providers: []*entity.UserProvider{
 			{
 				UID:  "123123123",
 				Name: app.FacebookProvider,
@@ -134,7 +135,7 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user := &models.User{
+	user := &entity.User{
 		Name:  "Rob Stark",
 		Email: "   ",
 		Role:  enum.RoleCollaborator,
@@ -164,13 +165,13 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	`)
 	Expect(err).IsNil()
 
-	newTenantCtx := context.WithValue(ctx, app.TenantCtxKey, &models.Tenant{ID: tenantID})
+	newTenantCtx := context.WithValue(ctx, app.TenantCtxKey, &entity.Tenant{ID: tenantID})
 
-	user := &models.User{
+	user := &entity.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
 		Role:  enum.RoleCollaborator,
-		Providers: []*models.UserProvider{
+		Providers: []*entity.UserProvider{
 			{
 				UID:  "123123123",
 				Name: app.FacebookProvider,
@@ -224,7 +225,7 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 
 	err := bus.Dispatch(jonSnowCtx, &cmd.UpdateCurrentUser{
 		Name: "Jon Stark",
-		Avatar: &models.ImageUpload{
+		Avatar: &dto.ImageUpload{
 			BlobKey: "jon.png",
 		},
 	})

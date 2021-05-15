@@ -7,10 +7,10 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -29,12 +29,12 @@ type dbTenant struct {
 	CustomCSS      string `db:"custom_css"`
 }
 
-func (t *dbTenant) toModel() *models.Tenant {
+func (t *dbTenant) toModel() *entity.Tenant {
 	if t == nil {
 		return nil
 	}
 
-	tenant := &models.Tenant{
+	tenant := &entity.Tenant{
 		ID:             t.ID,
 		Name:           t.Name,
 		Subdomain:      t.Subdomain,
@@ -62,8 +62,8 @@ type dbEmailVerification struct {
 	VerifiedAt dbx.NullTime               `db:"verified_at"`
 }
 
-func (t *dbEmailVerification) toModel() *models.EmailVerification {
-	model := &models.EmailVerification{
+func (t *dbEmailVerification) toModel() *entity.EmailVerification {
+	model := &entity.EmailVerification{
 		Name:       t.Name,
 		Email:      t.Email,
 		Key:        t.Key,
@@ -85,7 +85,7 @@ func (t *dbEmailVerification) toModel() *models.EmailVerification {
 }
 
 func isCNAMEAvailable(ctx context.Context, q *query.IsCNAMEAvailable) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		exists, err := trx.Exists("SELECT id FROM tenants WHERE cname = $1 AND id <> $2", q.CNAME, tenant.ID)
 		if err != nil {
 			q.Result = false
@@ -97,7 +97,7 @@ func isCNAMEAvailable(ctx context.Context, q *query.IsCNAMEAvailable) error {
 }
 
 func isSubdomainAvailable(ctx context.Context, q *query.IsSubdomainAvailable) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		exists, err := trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", q.Subdomain)
 		if err != nil {
 			q.Result = false
@@ -109,8 +109,8 @@ func isSubdomainAvailable(ctx context.Context, q *query.IsSubdomainAvailable) er
 }
 
 func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacySettings) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		_, err := trx.Execute("UPDATE tenants SET is_private = $1 WHERE id = $2", c.Settings.IsPrivate, tenant.ID)
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		_, err := trx.Execute("UPDATE tenants SET is_private = $1 WHERE id = $2", c.IsPrivate, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant privacy settings")
 		}
@@ -119,41 +119,41 @@ func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacy
 }
 
 func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		if c.Settings.Logo.Remove {
-			c.Settings.Logo.BlobKey = ""
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		if c.Logo.Remove {
+			c.Logo.BlobKey = ""
 		}
 
 		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5 WHERE id = $6"
-		_, err := trx.Execute(query, c.Settings.Title, c.Settings.Invitation, c.Settings.WelcomeMessage, c.Settings.CNAME, c.Settings.Logo.BlobKey, tenant.ID)
+		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.CNAME, c.Logo.BlobKey, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant settings")
 		}
 
-		tenant.Name = c.Settings.Title
-		tenant.Invitation = c.Settings.Invitation
-		tenant.CNAME = c.Settings.CNAME
-		tenant.WelcomeMessage = c.Settings.WelcomeMessage
+		tenant.Name = c.Title
+		tenant.Invitation = c.Invitation
+		tenant.CNAME = c.CNAME
+		tenant.WelcomeMessage = c.WelcomeMessage
 
 		return nil
 	})
 }
 
 func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvancedSettings) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		query := "UPDATE tenants SET custom_css = $1 WHERE id = $2"
-		_, err := trx.Execute(query, c.Settings.CustomCSS, tenant.ID)
+		_, err := trx.Execute(query, c.CustomCSS, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant advanced settings")
 		}
 
-		tenant.CustomCSS = c.Settings.CustomCSS
+		tenant.CustomCSS = c.CustomCSS
 		return nil
 	})
 }
 
 func activateTenant(ctx context.Context, c *cmd.ActivateTenant) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		query := "UPDATE tenants SET status = $1 WHERE id = $2"
 		_, err := trx.Execute(query, enum.TenantActive, c.TenantID)
 		if err != nil {
@@ -164,7 +164,7 @@ func activateTenant(ctx context.Context, c *cmd.ActivateTenant) error {
 }
 
 func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEmailVerification{}
 
 		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
@@ -179,7 +179,7 @@ func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) er
 }
 
 func saveVerificationKey(ctx context.Context, c *cmd.SaveVerificationKey) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var userID interface{}
 		if c.Request.GetUser() != nil {
 			userID = c.Request.GetUser().ID
@@ -195,7 +195,7 @@ func saveVerificationKey(ctx context.Context, c *cmd.SaveVerificationKey) error 
 }
 
 func setKeyAsVerified(ctx context.Context, c *cmd.SetKeyAsVerified) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		query := "UPDATE email_verifications SET verified_at = $1 WHERE tenant_id = $2 AND key = $3"
 		_, err := trx.Execute(query, time.Now(), tenant.ID, c.Key)
 		if err != nil {
@@ -206,7 +206,7 @@ func setKeyAsVerified(ctx context.Context, c *cmd.SetKeyAsVerified) error {
 }
 
 func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
-	return using(ctx, func(trx *dbx.Trx, _ *models.Tenant, _ *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		now := time.Now()
 
 		var id int
@@ -226,7 +226,7 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 }
 
 func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
-	return using(ctx, func(trx *dbx.Trx, _ *models.Tenant, _ *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
@@ -245,7 +245,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 }
 
 func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
-	return using(ctx, func(trx *dbx.Trx, _ *models.Tenant, _ *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `

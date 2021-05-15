@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -18,19 +18,19 @@ type CountPostPerStatus struct {
 type GetPostByID struct {
 	PostID int
 
-	Result *models.Post
+	Result *entity.Post
 }
 
 type GetPostBySlug struct {
 	Slug string
 
-	Result *models.Post
+	Result *entity.Post
 }
 
 type GetPostByNumber struct {
 	Number int
 
-	Result *models.Post
+	Result *entity.Post
 }
 
 type SearchPosts struct {
@@ -39,9 +39,9 @@ type SearchPosts struct {
 	Limit string
 	Tags  []string
 
-	Result []*models.Post
+	Result []*entity.Post
 }
 
 type GetAllPosts struct {
-	Result []*models.Post
+	Result []*entity.Post
 }

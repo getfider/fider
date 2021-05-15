@@ -7,7 +7,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -16,7 +16,7 @@ import (
 func TestInviteUsers_Empty(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{}}
+	action := &actions.InviteUsers{}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subject", "message", "recipients")
 	Expect(action.Invitations).IsNil()
@@ -25,11 +25,11 @@ func TestInviteUsers_Empty(t *testing.T) {
 func TestInviteUsers_Oversized(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{
 		Subject:    "Join us and share your ideas. Because we have a cool website and this subject needs to be very long",
 		Message:    "Use this link to join %invite%",
 		Recipients: []string{"jon.snow@got.com"},
-	}}
+	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subject")
 	Expect(action.Invitations).IsNil()
@@ -38,11 +38,11 @@ func TestInviteUsers_Oversized(t *testing.T) {
 func TestInviteUsers_MissingInvite(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{
 		Subject:    "Share your feedback.",
 		Message:    "Please!",
 		Recipients: []string{"jon.snow@got.com"},
-	}}
+	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "message")
 	Expect(action.Invitations).IsNil()
@@ -56,11 +56,11 @@ func TestInviteUsers_TooManyRecipients(t *testing.T) {
 		recipients[i] = fmt.Sprintf("jon.snow%d@got.com", i)
 	}
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{
 		Subject:    "Share your feedback.",
 		Message:    "Use this link to join %invite%",
 		Recipients: recipients,
-	}}
+	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "recipients")
 	Expect(action.Invitations).IsNil()
@@ -69,14 +69,14 @@ func TestInviteUsers_TooManyRecipients(t *testing.T) {
 func TestInviteUsers_InvalidRecipient(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
 			"jon.snow",
 			"@got.com",
 		},
-	}}
+	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "recipients")
 	Expect(action.Invitations).IsNil()
@@ -89,7 +89,7 @@ func TestInviteUsers_Valid(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
@@ -97,7 +97,7 @@ func TestInviteUsers_Valid(t *testing.T) {
 			"jon.snow@got.com",
 			"arya.stark@got.com",
 		},
-	}}
+	}
 
 	ExpectSuccess(action.Validate(context.Background(), nil))
 
@@ -115,13 +115,13 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		if q.Email == "tony.stark@avengers.com" {
-			q.Result = &models.User{Email: q.Email}
+			q.Result = &entity.User{Email: q.Email}
 			return nil
 		}
 		return app.ErrNotFound
 	})
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
@@ -129,7 +129,7 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 			"jon.snow@got.com",
 			"arya.stark@got.com",
 		},
-	}}
+	}
 
 	ExpectSuccess(action.Validate(context.Background(), nil))
 
@@ -146,17 +146,17 @@ func TestInviteUsers_ShouldFail_WhenAllRecipientsIgnored(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
-		q.Result = &models.User{Email: q.Email}
+		q.Result = &entity.User{Email: q.Email}
 		return nil
 	})
 
-	action := &actions.InviteUsers{Model: &models.InviteUsers{
+	action := &actions.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
 			"tony.stark@avengers.com",
 		},
-	}}
+	}
 
 	ExpectFailed(action.Validate(context.Background(), nil), "recipients")
 }
@@ -166,10 +166,8 @@ func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {
 
 	action := &actions.InviteUsers{
 		IsSampleInvite: true,
-		Model: &models.InviteUsers{
-			Subject: "Share your feedback.",
-			Message: "Use this link to join our community: %invite%",
-		},
+		Subject:        "Share your feedback.",
+		Message:        "Use this link to join our community: %invite%",
 	}
 
 	ExpectSuccess(action.Validate(context.Background(), nil))

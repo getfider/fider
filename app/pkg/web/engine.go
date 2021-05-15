@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -71,7 +70,7 @@ type Engine struct {
 }
 
 //New creates a new Engine
-func New(settings *models.SystemSettings) *Engine {
+func New() *Engine {
 	ctx := context.Background()
 	ctx = log.WithProperties(ctx, dto.Props{
 		log.PropertyKeyContextID: rand.String(32),
@@ -81,7 +80,7 @@ func New(settings *models.SystemSettings) *Engine {
 	router := &Engine{
 		Context:     ctx,
 		mux:         httprouter.New(),
-		renderer:    NewRenderer(settings),
+		renderer:    NewRenderer(),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
 		worker:      worker.New(),
@@ -95,7 +94,7 @@ func New(settings *models.SystemSettings) *Engine {
 func (e *Engine) Start(address string) {
 	log.Info(e, "Application is starting")
 	log.Infof(e, "Version: @{Version}", dto.Props{
-		"Version": e.renderer.settings.Version,
+		"Version": env.Version(),
 	})
 	log.Infof(e, "Environment: @{Env}", dto.Props{
 		"Env": env.Config.Environment,

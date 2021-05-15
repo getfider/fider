@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -24,10 +24,10 @@ type dbVote struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func (v *dbVote) toModel(ctx context.Context) *models.Vote {
-	vote := &models.Vote{
+func (v *dbVote) toModel(ctx context.Context) *entity.Vote {
+	vote := &entity.Vote{
 		CreatedAt: v.CreatedAt,
-		User: &models.VoteUser{
+		User: &entity.VoteUser{
 			ID:        v.User.ID,
 			Name:      v.User.Name,
 			Email:     v.User.Email,
@@ -38,7 +38,7 @@ func (v *dbVote) toModel(ctx context.Context) *models.Vote {
 }
 
 func addVote(ctx context.Context, c *cmd.AddVote) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if !c.Post.CanBeVoted() {
 			return nil
 		}
@@ -57,7 +57,7 @@ func addVote(ctx context.Context, c *cmd.AddVote) error {
 }
 
 func removeVote(ctx context.Context, c *cmd.RemoveVote) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if !c.Post.CanBeVoted() {
 			return nil
 		}
@@ -72,8 +72,8 @@ func removeVote(ctx context.Context, c *cmd.RemoveVote) error {
 }
 
 func listPostVotes(ctx context.Context, q *query.ListPostVotes) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		q.Result = make([]*models.Vote, 0)
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = make([]*entity.Vote, 0)
 		sqlLimit := "ALL"
 		if q.Limit > 0 {
 			sqlLimit = strconv.Itoa(q.Limit)
@@ -105,7 +105,7 @@ func listPostVotes(ctx context.Context, q *query.ListPostVotes) error {
 			return errors.Wrap(err, "failed to get votes of post")
 		}
 
-		q.Result = make([]*models.Vote, len(votes))
+		q.Result = make([]*entity.Vote, len(votes))
 		for i, vote := range votes {
 			q.Result[i] = vote.toModel(ctx)
 		}

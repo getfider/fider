@@ -8,9 +8,9 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/services/email"
@@ -35,7 +35,7 @@ func mockSend(localname, servername string, enableStartTLS bool, auth gosmtp.Aut
 }
 
 func reset() {
-	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{
+	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
 		Subdomain: "got",
 	})
 	smtp.Send = mockSend

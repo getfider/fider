@@ -8,7 +8,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -233,7 +233,7 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
-		q.Result = &models.Tenant{Name: "MyCompany", Subdomain: "mycompany", Status: enum.TenantActive}
+		q.Result = &entity.Tenant{Name: "MyCompany", Subdomain: "mycompany", Status: enum.TenantActive}
 		return nil
 	})
 
@@ -257,7 +257,7 @@ func TestSingleTenant_HostMismatch(t *testing.T) {
 	env.Config.HostDomain = "yoursite.com"
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
-		q.Result = &models.Tenant{Name: "MyCompany", Status: enum.TenantActive}
+		q.Result = &entity.Tenant{Name: "MyCompany", Status: enum.TenantActive}
 		return nil
 	})
 
