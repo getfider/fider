@@ -70,15 +70,19 @@ type UpdatePost struct {
 	Post *entity.Post
 }
 
-// IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
+// OnPreExecute prefetches Post for later use
+func (input *UpdatePost) OnPreExecute(ctx context.Context) error {
 	getPost := &query.GetPostByNumber{Number: input.Number}
 	if err := bus.Dispatch(ctx, getPost); err != nil {
-		return false
-	} else {
-		input.Post = getPost.Result
+		return err
 	}
 
+	input.Post = getPost.Result
+	return nil
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	if user.IsCollaborator() {
 		return true
 	}
