@@ -1,10 +1,10 @@
 {{define "head"}}
   {{ if .private.chunkAssets }}
     {{range .private.chunkAssets.CSS}}
-      <link rel="preload" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" as="style" />
+      <link rel="preload" href="{{ $.public.settings.assetsURL }}{{ . }}" as="style" />
     {{end}}
     {{range .private.chunkAssets.JS}}
-      <link rel="preload" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" as="script" />
+      <link rel="preload" href="{{ $.public.settings.assetsURL }}{{ . }}" as="script" />
     {{end}}
   {{end}}
 {{end}}
@@ -27,7 +27,7 @@
 {{define "end-of-body"}}
   {{ if .private.assets }}
     {{range .private.assets.JS}}
-    <script src="{{ $.public.settings.globalAssetsURL }}{{ . }}" crossorigin="anonymous"></script>
+    <script src="{{ $.public.settings.assetsURL }}{{ . }}" crossorigin="anonymous"></script>
     {{end}}
   {{end}}
 {{end}}

@@ -74,8 +74,8 @@ func buildAvatarURL(ctx context.Context, avatarType enum.AvatarType, id int, nam
 	}
 
 	if avatarType == enum.AvatarTypeCustom {
-		return web.TenantAssetsURL(ctx, "/images/%s", avatarBlobKey)
+		return web.AssetsURL(ctx, "/images/%s", avatarBlobKey)
 	} else {
-		return web.TenantAssetsURL(ctx, "/avatars/%s/%d/%s", avatarType.String(), id, url.PathEscape(name))
+		return web.AssetsURL(ctx, "/avatars/%s/%d/%s", avatarType.String(), id, url.PathEscape(name))
 	}
 }

@@ -36,7 +36,7 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   const fider = Fider.initialize()
 
   __webpack_nonce__ = fider.session.contextID
-  __webpack_public_path__ = `${fider.settings.globalAssetsURL}/assets/`
+  __webpack_public_path__ = `${fider.settings.assetsURL}/assets/`
 
   const config = resolveRootComponent(location.pathname)
   document.body.className = classSet({
