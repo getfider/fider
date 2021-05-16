@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"time"
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
@@ -70,8 +71,20 @@ type UpdatePost struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	return user != nil && user.IsCollaborator()
+func (input *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	getPost := &query.GetPostByNumber{Number: input.Number}
+	if err := bus.Dispatch(ctx, getPost); err != nil {
+		return false
+	} else {
+		input.Post = getPost.Result
+	}
+
+	if user.IsCollaborator() {
+		return true
+	}
+	
+	timeAgo := time.Now().UTC().Sub(input.Post.CreatedAt)
+	return input.Post.User.ID == user.ID && timeAgo <= 1 * time.Hour
 }
 
 // Validate if current model is valid
@@ -87,13 +100,6 @@ func (action *UpdatePost) Validate(ctx context.Context, user *entity.User) *vali
 	if len(action.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
-
-	postByNumber := &query.GetPostByNumber{Number: action.Number}
-	if err := bus.Dispatch(ctx, postByNumber); err != nil {
-		return validate.Error(err)
-	}
-
-	action.Post = postByNumber.Result
 
 	postBySlug := &query.GetPostBySlug{Slug: slug.Make(action.Title)}
 	err := bus.Dispatch(ctx, postBySlug)
