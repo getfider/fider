@@ -53,21 +53,21 @@ func TestMultiTenantDomain(t *testing.T) {
 func TestSubdomain(t *testing.T) {
 	RegisterT(t)
 
-	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("")
+	Expect(env.Subdomain("demo.test.fidercdn.com")).Equals("")
 
-	env.Config.CDN.Host = "test.assets-fider.io:3000"
+	env.Config.CDN.Host = "test.fidercdn.com:3000"
 
 	Expect(env.Subdomain("demo.test.fider.io")).Equals("demo")
-	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("demo")
+	Expect(env.Subdomain("demo.test.fidercdn.com")).Equals("demo")
 	Expect(env.Subdomain("test.fider.io")).Equals("")
-	Expect(env.Subdomain("test.assets-fider.io")).Equals("")
+	Expect(env.Subdomain("test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
 
 	env.Config.HostMode = "single"
 
 	Expect(env.Subdomain("demo.test.fider.io")).Equals("")
-	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("")
+	Expect(env.Subdomain("demo.test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("test.fider.io")).Equals("")
-	Expect(env.Subdomain("test.assets-fider.io")).Equals("")
+	Expect(env.Subdomain("test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
 }

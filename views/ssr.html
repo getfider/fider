@@ -1,7 +1,7 @@
 {{define "head"}}
   {{ if .private.chunkAssets }}
   {{range .private.chunkAssets.CSS}}
-    <link rel="stylesheet" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" />
+    <link rel="stylesheet" href="{{ $.public.settings.assetsURL }}{{ . }}" />
   {{end}}
   {{end}}
 {{end}}

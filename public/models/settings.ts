@@ -16,8 +16,7 @@ export interface SystemSettings {
   domain: string
   hasLegal: boolean
   baseURL: string
-  tenantAssetsURL: string
-  globalAssetsURL: string
+  assetsURL: string
   oauth: OAuthProviderOption[]
 }
 
