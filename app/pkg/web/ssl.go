@@ -72,13 +72,8 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 			return &m.cert, nil
 		}
 
-		if env.IsSingleHostMode() {
+		if env.IsSingleHostMode() || m.leaf.VerifyHostname(serverName) == nil {
 			return &m.cert, nil
-		} else if strings.HasSuffix(serverName, env.MultiTenantDomain()) {
-			if m.leaf.VerifyHostname(serverName) == nil {
-				return &m.cert, nil
-			}
-			return nil, errors.New(`ssl: invalid server name "%s"`, serverName)
 		}
 	}
 
