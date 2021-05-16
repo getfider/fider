@@ -190,9 +190,9 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	private["logo"] = LogoURL(ctx)
 
 	if tenant == nil || tenant.LogoBlobKey == "" {
-		private["favicon"] = GlobalAssetsURL(ctx, "/favicon")
+		private["favicon"] = AssetsURL(ctx, "/favicon")
 	} else {
-		private["favicon"] = TenantAssetsURL(ctx, "/favicon/%s", tenant.LogoBlobKey)
+		private["favicon"] = AssetsURL(ctx, "/favicon/%s", tenant.LogoBlobKey)
 	}
 
 	private["currentURL"] = ctx.Request.URL.String()
@@ -221,8 +221,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		"domain":          env.MultiTenantDomain(),
 		"hasLegal":        env.HasLegal(),
 		"baseURL":         ctx.BaseURL(),
-		"tenantAssetsURL": TenantAssetsURL(ctx, ""),
-		"globalAssetsURL": GlobalAssetsURL(ctx, ""),
+		"assetsURL": AssetsURL(ctx, ""),
 		"oauth":           oauthProviders.Result,
 	}
 

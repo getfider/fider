@@ -120,20 +120,25 @@ func TestTenantURL_SingleHostMode(t *testing.T) {
 	Expect(web.TenantBaseURL(ctx, tenant)).Equals("http://demo.test.fider.io:3000")
 }
 
-func TestGlobalAssetsURL_SingleHostMode(t *testing.T) {
+func TestAssetsURL_SingleHostMode(t *testing.T) {
 	RegisterT(t)
 
 	env.Config.HostMode = "single"
 	ctx := newGetContext("http://feedback.theavengers.com:3000", nil)
-	Expect(web.GlobalAssetsURL(ctx, "/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
-	Expect(web.GlobalAssetsURL(ctx, "/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
+	ctx.SetTenant(&entity.Tenant{
+		ID:        1,
+		Subdomain: "theavengers",
+	})
 
-	env.Config.CDN.Host = "assets-fider.io"
-	Expect(web.GlobalAssetsURL(ctx, "/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
-	Expect(web.GlobalAssetsURL(ctx, "/assets/main.css")).Equals("http://assets-fider.io/assets/main.css")
+	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
+	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
+
+	env.Config.CDN.Host = "fidercdn.com"
+	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("http://fidercdn.com/assets/main.js")
+	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("http://fidercdn.com/assets/main.css")
 }
 
-func TestGlobalAssetsURL_MultiHostMode(t *testing.T) {
+func TestAssetsURL_MultiHostMode(t *testing.T) {
 	RegisterT(t)
 
 	env.Config.HostMode = "multi"
@@ -144,49 +149,12 @@ func TestGlobalAssetsURL_MultiHostMode(t *testing.T) {
 		CNAME:     "feedback.theavengers.com",
 	})
 
-	Expect(web.GlobalAssetsURL(ctx, "/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
-	Expect(web.GlobalAssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
+	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
+	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
 
-	env.Config.CDN.Host = "assets-fider.io"
-	Expect(web.GlobalAssetsURL(ctx, "/assets/main.js")).Equals("http://cdn.assets-fider.io/assets/main.js")
-	Expect(web.GlobalAssetsURL(ctx, "/assets/main.css")).Equals("http://cdn.assets-fider.io/assets/main.css")
-}
-
-func TestTenantAssetsURL_SingleHostMode(t *testing.T) {
-	RegisterT(t)
-
-	env.Config.HostMode = "single"
-	ctx := newGetContext("http://feedback.theavengers.com:3000", nil)
-	ctx.SetTenant(&entity.Tenant{
-		ID:        1,
-		Subdomain: "theavengers",
-	})
-
-	Expect(web.TenantAssetsURL(ctx, "/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
-	Expect(web.TenantAssetsURL(ctx, "/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
-
-	env.Config.CDN.Host = "assets-fider.io"
-	Expect(web.TenantAssetsURL(ctx, "/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
-	Expect(web.TenantAssetsURL(ctx, "/assets/main.css")).Equals("http://assets-fider.io/assets/main.css")
-}
-
-func TestTenantAssetsURL_MultiHostMode(t *testing.T) {
-	RegisterT(t)
-
-	env.Config.HostMode = "multi"
-	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
-	ctx.SetTenant(&entity.Tenant{
-		ID:        1,
-		Subdomain: "theavengers",
-		CNAME:     "feedback.theavengers.com",
-	})
-
-	Expect(web.TenantAssetsURL(ctx, "/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
-	Expect(web.TenantAssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
-
-	env.Config.CDN.Host = "assets-fider.io"
-	Expect(web.TenantAssetsURL(ctx, "/assets/main.js")).Equals("http://theavengers.assets-fider.io/assets/main.js")
-	Expect(web.TenantAssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.assets-fider.io/assets/main.css")
+	env.Config.CDN.Host = "fidercdn.com"
+	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("http://theavengers.fidercdn.com/assets/main.js")
+	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.fidercdn.com/assets/main.css")
 }
 
 func TestCanonicalURL_SameDomain(t *testing.T) {

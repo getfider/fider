@@ -11,7 +11,7 @@
   {{ end }}
   {{ if .private.assets }}
     {{range .private.assets.CSS}}
-      <link rel="stylesheet" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" />
+      <link rel="stylesheet" href="{{ $.public.settings.assetsURL }}{{ . }}" />
     {{end}}
   {{end}}
   {{block "head" .}}{{end}}
@@ -52,7 +52,7 @@
   {{template "end-of-body" .}}
   {{ if .public.tenant }} 
     {{ if .public.tenant.CustomCSS }} 
-    <link rel="stylesheet" href="{{ .public.settings.tenantAssetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
+    <link rel="stylesheet" href="{{ .public.settings.assetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
     {{ end }}
   {{ end }}
 </body>

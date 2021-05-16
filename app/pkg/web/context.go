@@ -528,19 +528,6 @@ func (c *Context) SetCanonicalURL(rawurl string) {
 	}
 }
 
-// GlobalAssetsURL return the full URL to a globally shared static asset
-func GlobalAssetsURL(ctx context.Context, path string, a ...interface{}) string {
-	request := ctx.Value(app.RequestCtxKey).(Request)
-	path = fmt.Sprintf(path, a...)
-	if env.Config.CDN.Host != "" {
-		if env.IsSingleHostMode() {
-			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
-		}
-		return request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path
-	}
-	return request.BaseURL() + path
-}
-
 //TenantBaseURL returns base URL for a given tenant
 func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
@@ -563,8 +550,8 @@ func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
 	return address
 }
 
-// TenantAssetsURL return the full URL to a tenant-specific static asset
-func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string {
+// AssetsURL return the full URL to a tenant-specific static asset
+func AssetsURL(ctx context.Context, path string, a ...interface{}) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
 	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	path = fmt.Sprintf(path, a...)
@@ -581,7 +568,7 @@ func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string 
 func LogoURL(ctx context.Context) string {
 	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if hasTenant && tenant.LogoBlobKey != "" {
-		return TenantAssetsURL(ctx, "/images/%s?size=200", tenant.LogoBlobKey)
+		return AssetsURL(ctx, "/images/%s?size=200", tenant.LogoBlobKey)
 	}
 	return "https://getfider.com/images/logo-100x100.png"
 }
