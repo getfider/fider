@@ -20,6 +20,7 @@ body {
   padding: 0px;
   overflow-x: hidden;
   min-width: 320px;
+  background: #F6F7FA;
   font-family: $font-site;
   color: $gray-900;
   font-size: $font-size;
@@ -158,7 +159,6 @@ a:hover {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #F6F7FA;
 }
 
 .center {
