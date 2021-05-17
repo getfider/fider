@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/entity"
@@ -122,7 +123,20 @@ func TestUpdatePostHandler_TenantStaff(t *testing.T) {
 func TestUpdatePostHandler_NonAuthorized(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
+	post := &entity.Post{
+		ID: 5,
+		Number: 5,
+		Title: "My First Post",
+		Description: "Such an amazing description",
+		User: mock.JonSnow,
+	}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
@@ -131,6 +145,67 @@ func TestUpdatePostHandler_NonAuthorized(t *testing.T) {
 		ExecutePost(apiv1.UpdatePost(), `{ "title": "the new title", "description": "new description" }`)
 
 	Expect(code).Equals(http.StatusForbidden)
+}
+
+func TestUpdatePostHandler_IsOwner_AfterGracePeriod(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID: 5,
+		Number: 5,
+		Title: "My First Post",
+		Description: "Such an amazing description",
+		User: mock.AryaStark,
+		CreatedAt: time.Now().UTC().Add(-2 * time.Hour),
+	}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", "5").
+		ExecutePost(apiv1.UpdatePost(), `{ "title": "the new title", "description": "new description" }`)
+
+	Expect(code).Equals(http.StatusForbidden)
+}
+
+
+func TestUpdatePostHandler_IsOwner_WithinGracePeriod(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID: 5,
+		Number: 5,
+		Title: "My First Post",
+		Description: "Such an amazing description",
+		User: mock.AryaStark,
+		CreatedAt: time.Now().UTC(),
+	}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
+	bus.AddHandler(func(ctx context.Context, cmd *cmd.UploadImages) error { return nil })
+	bus.AddHandler(func(ctx context.Context, cmd *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, cmd *cmd.UpdatePost) error { return nil })
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", "5").
+		ExecutePost(apiv1.UpdatePost(), `{ "title": "the new title", "description": "new description" }`)
+
+	Expect(code).Equals(http.StatusOK)
 }
 
 func TestUpdatePostHandler_InvalidTitle(t *testing.T) {

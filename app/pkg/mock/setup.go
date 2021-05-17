@@ -13,11 +13,15 @@ var DemoTenant *entity.Tenant
 // AvengersTenant is a mocked tenant
 var AvengersTenant *entity.Tenant
 
-// JonSnow is a mocked user
+// JonSnow is a mocked user (administrator)
 var JonSnow *entity.User
 
-// AryaStark is a mocked user
+// AryaStark is a mocked user (visitor)
 var AryaStark *entity.User
+
+func init() {
+	seed()
+}
 
 // NewSingleTenantServer creates a new multitenant test server
 func NewSingleTenantServer() *Server {

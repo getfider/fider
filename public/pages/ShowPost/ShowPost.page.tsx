@@ -2,8 +2,8 @@ import "./ShowPost.page.scss"
 
 import React from "react"
 
-import { Comment, Post, Tag, Vote, ImageUpload } from "@fider/models"
-import { actions, Failure, Fider } from "@fider/services"
+import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser } from "@fider/models"
+import { actions, Failure, Fider, timeAgo } from "@fider/services"
 
 import {
   VoteCounter,
@@ -46,6 +46,15 @@ interface ShowPostPageState {
   attachments: ImageUpload[]
   newDescription: string
   error?: Failure
+}
+
+const oneHour = 3600
+const canEditPost = (user: CurrentUser, post: Post) => {
+  if (user.isCollaborator) {
+    return true
+  }
+
+  return user.id === post.user.id && timeAgo(post.createdAt) <= oneHour
 }
 
 export default class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
@@ -138,7 +147,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
           <VStack spacing={4} className="p-show-post__action-col">
             <VotesPanel post={this.props.post} votes={this.props.votes} />
 
-            {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
+            {Fider.session.isAuthenticated && canEditPost(Fider.session.user, this.props.post) && (
               <VStack>
                 <span key={0} className="text-category">
                   Actions
@@ -157,7 +166,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     <Button onClick={this.startEdit}>
                       <Icon sprite={IconPencilAlt} /> <span>Edit</span>
                     </Button>
-                    <ResponseForm post={this.props.post} />
+                    {Fider.session.user.isCollaborator && <ResponseForm post={this.props.post} />}
                   </VStack>
                 )}
               </VStack>

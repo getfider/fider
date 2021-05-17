@@ -188,9 +188,17 @@ func (c *Context) BindTo(i actions.Actionable) *validate.Result {
 		}
 		return validate.Error(errors.Wrap(err, "failed to bind request to action"))
 	}
+
+	if v, ok := i.(actions.PreExecuteAction); ok {
+		if err := v.OnPreExecute(c); err != nil {
+			return validate.Error(err)
+		}
+	}
+
 	if !i.IsAuthorized(c, c.User()) {
 		return validate.Unauthorized()
 	}
+
 	return i.Validate(c, c.User())
 }
 
