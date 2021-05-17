@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
@@ -63,8 +64,8 @@ const HomePage = (props: HomePageProps) => {
         <div className="l-welcome-col col-md-4">
           <MultiLineText className="welcome-message" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
           <PostInput placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."} onTitleChanged={setTitle} />
-          <PoweredByFider />
-          <a href='https://members.bcc.no/privacy-statement/'>privacy statement</a>
+          {/* <PoweredByFider /> */}
+          <a rel="noopener" href="https://members.bcc.no/privacy-statement/" target="_blank">Privacy statement</a>
         </div>
         <div className="l-posts-col col-md-8">
           {isLonely() ? (
