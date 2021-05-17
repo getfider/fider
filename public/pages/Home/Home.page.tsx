@@ -64,7 +64,7 @@ const HomePage = (props: HomePageProps) => {
         <div className="l-welcome-col col-md-4">
           <MultiLineText className="welcome-message" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
           <PostInput placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."} onTitleChanged={setTitle} />
-          {/* <PoweredByFider /> */}
+          <PoweredByFider />
           <a rel="noopener" href="https://members.bcc.no/privacy-statement/" target="_blank">Privacy statement</a>
         </div>
         <div className="l-posts-col col-md-8">
