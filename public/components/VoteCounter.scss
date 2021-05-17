@@ -14,14 +14,14 @@
     // background-color: transparent;
     padding            : 8px 0;
     border-radius      : 8px;
-    background-color   : $gray-200;
+    background-color   : $gray-100;
     text-align         : center;
     margin             : 0 auto;
-    padding            : 0 0;
-    color              : $gray-900;
+    // padding            : 0 0;
+    color              : $gray-700;
 
     .icon {
-      color        : $gray-700;
+      color        : $gray-400;
       margin-bottom: -3px;
     }
   }

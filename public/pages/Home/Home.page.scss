@@ -39,6 +39,11 @@
     .c-form-field {
       > div {
         display: inline-block;
+        margin-right: 20px;
+        &:last-child {
+          margin-right: 0;
+        }
+
         .subtitle {
           display: inline-block;
           margin: 6px 0 0 0;
@@ -47,12 +52,14 @@
     }
     .c-dropdown {
       .c-dropdown-control {
-        background-color: transparent;
+        background-color: #fff;
+        margin-left: 8px;
         font-weight: bold;
         border: none;
         font-size: $font-size-tiny;
         text-transform: uppercase;
         padding: 5px 25px 5px 5px;
+        border-radius: 4px;
         &:hover {
           background-color: $gray-200;
         }
