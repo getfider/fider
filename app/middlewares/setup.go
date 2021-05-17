@@ -36,7 +36,9 @@ func WorkerSetup() worker.MiddlewareFunc {
 					return
 				}
 			
-				log.Error(c, err)
+				if err != nil {
+					log.Error(c, err)
+				}
 				log.Infof(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (@{State})", dto.Props{
 					"State":     state,
 					"TaskName":  c.TaskName(),
@@ -76,7 +78,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 			}
 
 			//Still no errors, everything is fine!
-			logFinish("committed", err)
+			logFinish("committed", nil)
 			return nil
 		}
 	}
@@ -149,7 +151,7 @@ func WebSetup() web.MiddlewareFunc {
 			}
 
 			//Still no errors, everything is fine!
-			logFinish("committed", err)
+			logFinish("committed", nil)
 			return nil
 		}
 	}

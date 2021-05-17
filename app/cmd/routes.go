@@ -172,6 +172,7 @@ func routes(r *web.Engine) *web.Engine {
 		api.Use(middlewares.IsAuthenticated())
 
 		api.Post("/api/v1/posts", apiv1.CreatePost())
+		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
 		api.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		api.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
 		api.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())
@@ -184,7 +185,6 @@ func routes(r *web.Engine) *web.Engine {
 		api.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
 
 		api.Get("/api/v1/users", apiv1.ListUsers())
-		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
 		api.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
 		api.Post("/api/v1/invitations/send", apiv1.SendInvites())
 		api.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
