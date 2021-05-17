@@ -6,19 +6,22 @@
   button,
   button.m-voted,
   button.m-disabled {
-    font-size: 18px;
-    border: none;
-    width: 45px;
-    font-weight: 700;
-    cursor: pointer;
-    background-color: transparent;
-    text-align: center;
-    margin: 0 auto;
-    padding: 0 0;
-    color: $gray-700;
+    font-size          : 18px;
+    border             : none;
+    width              : 45px;
+    font-weight        : 700;
+    cursor             : pointer;
+    // background-color: transparent;
+    padding            : 8px 0;
+    border-radius      : 8px;
+    background-color   : $gray-200;
+    text-align         : center;
+    margin             : 0 auto;
+    padding            : 0 0;
+    color              : $gray-900;
 
     .icon {
-      color: $gray-400;
+      color        : $gray-700;
       margin-bottom: -3px;
     }
   }
@@ -38,7 +41,7 @@
   }
 
   .icon {
-    margin: 0 auto;
+    margin : 0 auto;
     display: block;
   }
 }
