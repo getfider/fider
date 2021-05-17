@@ -64,6 +64,7 @@ const HomePage = (props: HomePageProps) => {
           <MultiLineText className="welcome-message" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
           <PostInput placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."} onTitleChanged={setTitle} />
           <PoweredByFider />
+          <a href='https://members.bcc.no/privacy-statement/'>privacy statement</a>
         </div>
         <div className="l-posts-col col-md-8">
           {isLonely() ? (
