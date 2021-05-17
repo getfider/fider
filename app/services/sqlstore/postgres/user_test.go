@@ -29,7 +29,7 @@ func TestUserStorage_GetByID(t *testing.T) {
 	Expect(userByID.Result.Tenant.ID).Equals(1)
 	Expect(userByID.Result.Name).Equals("Jon Snow")
 	Expect(userByID.Result.Email).Equals("jon.snow@got.com")
-	Expect(userByID.Result.AvatarURL).Equals("http://cdn.test.fider.io/avatars/gravatar/1/Jon%20Snow")
+	Expect(userByID.Result.AvatarURL).Equals("http://cdn.test.fider.io/static/avatars/gravatar/1/Jon%20Snow")
 	Expect(userByID.Result.Providers).HasLen(1)
 	Expect(userByID.Result.Providers[0].UID).Equals("FB1234")
 	Expect(userByID.Result.Providers[0].Name).Equals("facebook")

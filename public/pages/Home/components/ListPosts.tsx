@@ -12,8 +12,10 @@ interface ListPostsProps {
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
-    <HStack center={false}>
-      <VoteCounter post={props.post} />
+    <HStack center={true}>
+      <div className="align-self-start">
+        <VoteCounter post={props.post} />
+      </div>
       <VStack className="w-full" spacing={2}>
         <HStack justify="between">
           <a className="text-title hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
@@ -49,7 +51,7 @@ export const ListPosts = (props: ListPostsProps) => {
   }
 
   return (
-    <VStack spacing={4} divide={true}>
+    <VStack spacing={4} divide={true} center={true} className="test">
       {props.posts.map((post) => (
         <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
       ))}
