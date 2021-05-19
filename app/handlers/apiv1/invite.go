@@ -51,9 +51,9 @@ func SendInvites() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		log.Warnf(c, "Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", dto.Props{
+		log.Warnf(c, "@{Tenant:magenta} sent @{TotalInvites:magenta} invites", dto.Props{
+			"Tenant": c.Tenant().Subdomain,
 			"TotalInvites": len(action.Invitations),
-			"ClientIP":     c.Request.ClientIP,
 		})
 		c.Enqueue(tasks.SendInvites(action.Subject, action.Message, action.Invitations))
 

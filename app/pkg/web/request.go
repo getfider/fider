@@ -2,7 +2,6 @@ package web
 
 import (
 	"io/ioutil"
-	"net"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -16,7 +15,6 @@ import (
 type Request struct {
 	instance      *http.Request
 	Method        string
-	ClientIP      string
 	ContentLength int64
 	Body          string
 	IsSecure      bool
@@ -50,28 +48,15 @@ func WrapRequest(request *http.Request) Request {
 		}
 	}
 
-	clientIP := getClientIP(request)
-
 	return Request{
 		instance:      request,
 		Method:        request.Method,
-		ClientIP:      strings.TrimSpace(clientIP),
 		ContentLength: request.ContentLength,
 		Body:          string(bodyBytes),
 		URL:           u,
 		IsSecure:      protocol == "https",
 		StartTime:     time.Now(),
 	}
-}
-
-// getClientIP returns the IP of the original requestor.
-func getClientIP(request *http.Request) (clientIP string) {
-	if forwardedHosts := request.Header.Get("X-Forwarded-For"); forwardedHosts != "" {
-		clientIP = strings.Split(forwardedHosts, ",")[0]
-	} else {
-		clientIP, _, _ = net.SplitHostPort(request.RemoteAddr)
-	}
-	return
 }
 
 // GetHeader returns the value of HTTP header from given key

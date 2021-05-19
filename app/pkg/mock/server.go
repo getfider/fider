@@ -83,12 +83,6 @@ func (s *Server) AddCookie(name string, value string) *Server {
 	return s
 }
 
-// WithClientIP set current ClientIP address
-func (s *Server) WithClientIP(clientIP string) *Server {
-	s.context.Request.ClientIP = clientIP
-	return s
-}
-
 // WithURL set current context Request URL
 func (s *Server) WithURL(fullURL string) *Server {
 	u, _ := url.Parse(fullURL)

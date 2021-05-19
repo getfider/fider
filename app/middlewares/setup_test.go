@@ -81,7 +81,7 @@ func TestWebSetup_Logging_Success(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 
 	Expect(infoLogs).HasLen(2)
-	Expect(infoLogs[0].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}")
+	Expect(infoLogs[0].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} started")
 	Expect(infoLogs[1].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (@{State})")
 	Expect(infoLogs[1].Props["StatusCode"]).Equals(200)
 	Expect(infoLogs[1].Props["State"]).Equals("committed")
@@ -113,7 +113,7 @@ func TestWebSetup_Logging_RequestCanceled(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 
 	Expect(infoLogs).HasLen(2)
-	Expect(infoLogs[0].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}")
+	Expect(infoLogs[0].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} started")
 	Expect(infoLogs[1].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} was canceled after @{ElapsedMs:magenta}ms")
 
 	Expect(errorLogs).HasLen(0)
@@ -143,7 +143,7 @@ func TestWebSetup_Logging_Error(t *testing.T) {
 	Expect(status).Equals(http.StatusInternalServerError)
 
 	Expect(infoLogs).HasLen(2)
-	Expect(infoLogs[0].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}")
+	Expect(infoLogs[0].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} started")
 	Expect(infoLogs[1].Message).Equals("@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (@{State})")
 	Expect(infoLogs[1].Props["StatusCode"]).Equals(500)
 	Expect(infoLogs[1].Props["State"]).Equals("next_error")

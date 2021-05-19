@@ -88,10 +88,9 @@ func WorkerSetup() worker.MiddlewareFunc {
 func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}", dto.Props{
+			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} started", dto.Props{
 				"HttpMethod": c.Request.Method,
 				"URL":        c.Request.URL.String(),
-				"ClientIP":   c.Request.ClientIP,
 			})
 
 			logFinish := func(state string, err error) {
