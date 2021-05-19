@@ -83,6 +83,10 @@
   flex-wrap: wrap;
 }
 
+.align-self-start {
+  align-self: start;
+}
+
 .flex-items-center {
   align-items: center;
 }
@@ -108,7 +112,7 @@
   }
 }
 
-@each $i in 2, 4 {
+@each $i in 2, 4, 6 {
   .flex-x.flex--divide-#{$i} > *:first-child {
     padding-right: spacing($i);
   }

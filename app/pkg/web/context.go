@@ -568,7 +568,7 @@ func AssetsURL(ctx context.Context, path string, a ...interface{}) string {
 func LogoURL(ctx context.Context) string {
 	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if hasTenant && tenant.LogoBlobKey != "" {
-		return AssetsURL(ctx, "/images/%s?size=200", tenant.LogoBlobKey)
+		return AssetsURL(ctx, "/static/images/%s?size=200", tenant.LogoBlobKey)
 	}
 	return "https://getfider.com/images/logo-100x100.png"
 }

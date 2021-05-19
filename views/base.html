@@ -52,7 +52,7 @@
   {{template "end-of-body" .}}
   {{ if .public.tenant }} 
     {{ if .public.tenant.CustomCSS }} 
-    <link rel="stylesheet" href="{{ .public.settings.assetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
+    <link rel="stylesheet" href="{{ .public.settings.assetsURL }}/static/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
     {{ end }}
   {{ end }}
 </body>

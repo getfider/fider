@@ -16,16 +16,13 @@ func Test_GetCertificate(t *testing.T) {
 		mode       string
 		cert       string
 		serverName string
-		valid      bool
 	}{
-		{"multi", "all-test-fider-io", "", true},
-		{"multi", "all-test-fider-io", "fider", true},
-		{"multi", "all-test-fider-io", "feedback.test.fider.io", true},
-		{"multi", "all-test-fider-io", "FEEDBACK.test.fider.io", true},
-		{"multi", "all-test-fider-io", "app.feedback.test.fider.io", false},
-		{"multi", "all-test-fider-io", "my.app.feedback.test.fider.io", false},
-		{"single", "test-fider-io", "test.fider.io", true},
-		{"single", "test-fider-io", "fider.io", true},
+		{"multi", "all-test-fider-io", ""},
+		{"multi", "all-test-fider-io", "fider"},
+		{"multi", "all-test-fider-io", "feedback.test.fider.io"},
+		{"multi", "all-test-fider-io", "FEEDBACK.test.fider.io"},
+		{"single", "test-fider-io", "test.fider.io"},
+		{"single", "test-fider-io", "fider.io"},
 	}
 
 	for _, testCase := range testCases {
@@ -40,12 +37,7 @@ func Test_GetCertificate(t *testing.T) {
 			ServerName: testCase.serverName,
 		})
 
-		if testCase.valid {
-			Expect(err).IsNil()
-			Expect(cert.Certificate).Equals(wildcardCert.Certificate)
-		} else {
-			Expect(cert).IsNil()
-			Expect(err.Error()).ContainsSubstring(`ssl: invalid server name "` + testCase.serverName + `"`)
-		}
+		Expect(err).IsNil()
+		Expect(cert.Certificate).Equals(wildcardCert.Certificate)
 	}
 }
