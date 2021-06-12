@@ -4,7 +4,7 @@ import React, { Suspense } from "react"
 import ReactDOM from "react-dom"
 import { resolveRootComponent } from "@fider/router"
 import { Header, ErrorBoundary, Loader } from "@fider/components"
-import { classSet, Fider, FiderContext, actions } from "@fider/services"
+import { classSet, Fider, FiderContext, actions, i18n } from "@fider/services"
 
 const Loading = () => (
   <div className="page">
@@ -32,9 +32,9 @@ window.addEventListener("error", (evt: ErrorEvent) => {
     actions.logError(`window.error: ${evt.message}`, evt.error)
   }
 })
-;(() => {
-  const fider = Fider.initialize()
 
+const fider = Fider.initialize()
+const bootstrapApp = () => {
   __webpack_nonce__ = fider.session.contextID
   __webpack_public_path__ = `${fider.settings.assetsURL}/assets/`
 
@@ -54,4 +54,5 @@ window.addEventListener("error", (evt: ErrorEvent) => {
     </React.StrictMode>,
     document.getElementById("root")
   )
-})()
+}
+i18n.activate(fider.settings.locale).then(bootstrapApp).catch(bootstrapApp)

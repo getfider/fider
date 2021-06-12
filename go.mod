@@ -13,6 +13,8 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golangci/golangci-lint v1.38.0
 	github.com/gosimple/slug v1.9.0
+	github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976 // indirect
+	github.com/gotnospirit/messageformat v0.0.0-20190719172517-c1d0bdacdea2
 	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
 	github.com/joho/godotenv v1.3.0
 	github.com/julienschmidt/httprouter v1.3.0

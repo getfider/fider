@@ -3,6 +3,7 @@ import React from "react"
 import { Button, TextArea, Form, Input, Field } from "@fider/components"
 import { actions, notify, Failure, Fider } from "@fider/services"
 import { AdminBasePage } from "../components/AdminBasePage"
+import { t } from "@fider/services/i18n"
 
 interface InvitationsPageState {
   subject: string
@@ -127,7 +128,7 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
         <Field label="Confirmation">
           <p className="text-muted">Whenever you&apos;re ready, click the following button to send out these invites.</p>
           <Button onClick={this.sendInvites} variant="primary" disabled={this.state.numOfRecipients === 0}>
-            Send {this.state.numOfRecipients} {this.state.numOfRecipients === 1 ? "invite" : "invites"}
+            {t("{count, plural, one {Send # invite} other {Send # invites}}", { count: this.state.numOfRecipients })}
           </Button>
         </Field>
       </Form>

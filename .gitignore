@@ -6,6 +6,7 @@ node_modules/
 .vscode/
 .idea/
 logs/
+locale/*.js
 
 fider
 fider.exe

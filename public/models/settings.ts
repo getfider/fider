@@ -11,6 +11,7 @@ export interface OAuthProviderOption {
 
 export interface SystemSettings {
   mode: string
+  locale: string
   version: string
   environment: string
   domain: string

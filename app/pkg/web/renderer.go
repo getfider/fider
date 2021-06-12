@@ -13,6 +13,7 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/log"
 
 	"io/ioutil"
@@ -26,6 +27,9 @@ import (
 var templateFunctions = template.FuncMap{
 	"md5": func(input string) string {
 		return crypto.MD5(input)
+	},
+	"translate": func(input string) string {
+		return "This is overwritten later on..."
 	},
 	"markdown": func(input string) template.HTML {
 		return markdown.Full(input)
@@ -216,6 +220,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	public["props"] = props.Data
 	public["settings"] = &Map{
 		"mode":            env.Config.HostMode,
+		"locale":          env.Config.Locale,
 		"environment":     env.Config.Environment,
 		"googleAnalytics": env.Config.GoogleAnalytics,
 		"domain":          env.MultiTenantDomain(),
@@ -260,7 +265,13 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		tmpl = r.add(templateName)
 	}
 
-	err = tmpl.Execute(w, Map{
+	tmpl, _ = tmpl.Clone()
+
+	err = tmpl.Funcs(template.FuncMap{
+		"translate": func(key string) string {
+			return i18n.T(ctx, key)
+		},
+	}).Execute(w, Map{
 		"public":  public,
 		"private": private,
 	})

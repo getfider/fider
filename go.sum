@@ -250,6 +250,10 @@ github.com/gostaticanalysis/forcetypeassert v0.0.0-20200621232751-01d4955beaa5 h
 github.com/gostaticanalysis/forcetypeassert v0.0.0-20200621232751-01d4955beaa5/go.mod h1:qZEedyP/sY1lTGV1uJ3VhWZ2mqag3IkWsDHVbplHXak=
 github.com/gostaticanalysis/nilerr v0.1.1 h1:ThE+hJP0fEp4zWLkWHWcRyI2Od0p7DlgYG3Uqrmrcpk=
 github.com/gostaticanalysis/nilerr v0.1.1/go.mod h1:wZYb6YI5YAxxq0i1+VJbY0s2YONW0HU0GPE3+5PWN4A=
+github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976 h1:b70jEaX2iaJSPZULSUxKtm73LBfsCrMsIlYCUgNGSIs=
+github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976/go.mod h1:ZGQeOwybjD8lkCjIyJfqR5LD2wMVHJ31d6GdPxoTsWY=
+github.com/gotnospirit/messageformat v0.0.0-20190719172517-c1d0bdacdea2 h1:yUr520KXfjzq/QTGZ2h+DvEydkyBfvifw6ksyDW3Lpg=
+github.com/gotnospirit/messageformat v0.0.0-20190719172517-c1d0bdacdea2/go.mod h1:NO9UUa4C4cSmRsYSfZMAKhI5ifCRzOjSGe/pi7TKRvs=
 github.com/grpc-ecosystem/go-grpc-middleware v1.0.0/go.mod h1:FiyG127CGDf3tlThmgyCl78X/SZQqEOJBCDaAfeWzPs=
 github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0/go.mod h1:8NvIoxWQoOIhqOTXgfV/d3M/q6VIi02HzZEHgUlZvzk=
 github.com/grpc-ecosystem/grpc-gateway v1.9.0/go.mod h1:vNeuVxBJEsws4ogUvrchl83t/GYV9WGTSLVdBhOQFDY=

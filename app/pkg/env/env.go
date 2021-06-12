@@ -36,6 +36,7 @@ type config struct {
 	Port           string `env:"PORT,default=3000"`
 	HostMode       string `env:"HOST_MODE,default=single"`
 	HostDomain     string `env:"HOST_DOMAIN,required"`
+	Locale         string `env:"LOCALE,default=en"`
 	JWTSecret      string `env:"JWT_SECRET,required"`
 	Rendergun      struct {
 		URL string `env:"RENDERGUN_URL"`

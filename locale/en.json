@@ -1,0 +1,6 @@
+{
+  "PAGE NOT FOUND": "PAGE NOT FOUND",
+  "Search": "Search",
+  "Title needs to be more descriptive.": "Title needs to be more descriptive.",
+  "{count, plural, one {Send # invite} other {Send # invites}}": "{count, plural, one {Send # invite} other {Send # invites}}"
+}
