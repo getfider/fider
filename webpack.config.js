@@ -74,10 +74,7 @@ module.exports = {
       {
         test: /\.(ts|tsx)$/,
         include: publicFolder,
-        loader: "ts-loader",
-        options: {
-          transpileOnly: true,
-        },
+        loader: "babel-loader",
       },
       {
         test: /\.svg$/,
