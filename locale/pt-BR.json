@@ -2,6 +2,7 @@
   "PAGE NOT FOUND": "PÁGINA NÃO ENCONTRADA",
   "Search": "Pesquisa",
   "Similar posts": "Postagem Similares",
+  "No posts have been created yet.": "Nenhuma postagem foi criada ainda.",
   "Title needs to be more descriptive.": "O título precisa ser mais descritivo.",
   "No similar posts matched '{title}'.": "Nenhuma postagem semelhante à ''{title}''.",
   "{count, plural, one {Send # invite} other {Send # invites}}": "{count, plural, one {Enviar # convite} other {Enviar # convites}}",

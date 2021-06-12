@@ -9,6 +9,7 @@ import { PostInput } from "./components/PostInput"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
+import { t } from "@fider/services/i18n"
 
 export interface HomePageProps {
   posts: Post[]
@@ -32,7 +33,7 @@ const Lonely = () => {
         </p>
       </Hint>
       <Icon sprite={NoDataIllustration} height="120" className="mt-6 mb-2" />
-      <p className="text-muted">No posts have been created yet.</p>
+      <p className="text-muted">{t("No posts have been created yet.")}</p>
     </div>
   )
 }
