@@ -19,7 +19,8 @@
     "noEmitHelpers": true,
     "noUnusedLocals": true,
     "paths": {
-      "@fider/*": ["*"]
+      "@fider/*": ["*"],
+      "@locale/*": ["*"]
     }
   },
   "include": ["./public/**/*", "index.d.ts"]

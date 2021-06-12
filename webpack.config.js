@@ -9,6 +9,7 @@ const SpriteLoaderPlugin = require("svg-sprite-loader/plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
 const publicFolder = path.resolve(__dirname, "public")
+const localeFolder = path.resolve(__dirname, "locale")
 
 const isProduction = process.env.NODE_ENV === "production"
 
@@ -58,6 +59,7 @@ module.exports = {
     extensions: [".mjs", ".ts", ".tsx", ".js", ".svg"],
     alias: {
       "@fider": publicFolder,
+      "@locale": localeFolder,
     },
   },
   performance: {
@@ -78,6 +80,12 @@ module.exports = {
         options: {
           transpileOnly: true,
         },
+      },
+      {
+        test: /\.(json)$/,
+        include: localeFolder,
+        loader: "@lingui/loader",
+        type: "javascript/auto",
       },
       {
         test: /\.svg$/,
