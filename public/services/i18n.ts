@@ -1,10 +1,14 @@
-import { i18n } from "@lingui/core"
+import { I18n, setupI18n } from "@lingui/core"
 import { en, pt } from "make-plural/plurals"
 
-i18n.loadLocaleData("en", { plurals: en })
-i18n.loadLocaleData("pt-BR", { plurals: pt })
+let instance: I18n
+
+export function reset() {
+  instance = setupI18n()
+}
 
 export async function activate(locale: string, messages?: any) {
+  locale = locale || "en"
   try {
     if (!messages) {
       const content = await import(
@@ -14,8 +18,11 @@ export async function activate(locale: string, messages?: any) {
       messages = content.messages
     }
 
-    i18n.load(locale, messages)
-    i18n.activate(locale)
+    instance = setupI18n({ missing: (_, key) => `⚠️ Missing Translation: ${key}` })
+    instance.loadLocaleData("en", { plurals: en })
+    instance.loadLocaleData("pt-BR", { plurals: pt })
+    instance.load(locale, messages)
+    instance.activate(locale)
   } catch (err) {
     console.error(err)
     throw err
@@ -23,5 +30,5 @@ export async function activate(locale: string, messages?: any) {
 }
 
 export function t(message: string, values?: Record<string, any>): string {
-  return i18n._(message, values)
+  return instance._(message, values)
 }

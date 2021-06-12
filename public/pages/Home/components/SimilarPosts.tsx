@@ -63,7 +63,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
         {this.state.loading ? (
           <Loader />
         ) : (
-          <ListPosts posts={this.state.posts} tags={this.props.tags} emptyText={`No similar posts matched '${this.props.title}'.`} />
+          <ListPosts posts={this.state.posts} tags={this.props.tags} emptyText={t(`No similar posts matched '{title}'.`, { title: this.props.title })} />
         )}
       </>
     )

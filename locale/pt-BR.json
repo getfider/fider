@@ -2,6 +2,7 @@
   "PAGE NOT FOUND": "PÁGINA NÃO ENCONTRADA",
   "Search": "Pesquisa",
   "Title needs to be more descriptive.": "O título precisa ser mais descritivo.",
+  "No similar posts matched '{title}'.": "Nenhuma postagem semelhante à ''{title}''.",
   "{count, plural, one {Send # invite} other {Send # invites}}": "{count, plural, one {Enviar # convite} other {Enviar # convites}}",
   "This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.": "Este email foi enviado através de uma caixa postal que não pode receber emails. Favor não responder esta mensagem."
 }
