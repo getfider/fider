@@ -12,8 +12,6 @@ run: ## Run Fider
 migrate: ## Run all database migrations
 	godotenv -f .env ./fider migrate
 
-
-
 ##@ Building
 
 build: build-server build-ssr build-ui ## Build server and ui
@@ -24,9 +22,9 @@ build-server: ## Build server
 build-ui: ## Build all UI assets
 	NODE_ENV=production npx webpack-cli
 
-build-ssr: ## Build SSR script
+build-ssr: ## Build SSR script and locales
+	npx lingui compile
 	NODE_ENV=production node esbuild.config.js
-
 
 ##@ Testing
 

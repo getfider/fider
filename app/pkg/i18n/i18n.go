@@ -71,12 +71,12 @@ func getLocaleData(locale string) localeData {
 // If given key is not found, it'll fallback to english
 func getMessage(locale, key string) (string, *messageformat.Parser) {
 	localeData := getLocaleData(locale)
-	if str, ok := localeData.file[key]; ok {
+	if str, ok := localeData.file[key]; ok && str != "" {
 		return str, localeData.parser
 	}
 
 	enData := getLocaleData("en")
-	if str, ok := enData.file[key]; ok {
+	if str, ok := enData.file[key]; ok && str != "" {
 		return str, enData.parser
 	}
 

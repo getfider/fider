@@ -14,6 +14,7 @@
     "tslib": "2.2.0"
   },
   "devDependencies": {
+    "@lingui/cli": "3.10.2",
     "@lingui/loader": "3.10.2",
     "@types/dompurify": "2.2.1",
     "@types/enzyme": "3.10.8",
@@ -67,7 +68,6 @@
     "fallbackLocales": {
       "default": "en"
     },
-    "sourceLocale": "en",
     "format": "minimal",
     "locales": [
       "pt-BR",

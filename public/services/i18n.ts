@@ -7,19 +7,15 @@ export function reset() {
   instance = setupI18n()
 }
 
-async function getMessages(locale: string): Promise<any> {
-  const content = await import(
-    /* webpackChunkName: "locale-[request]" */
-    `@locale/${locale}.json`
-  )
-  return content.messages
-}
-
 export async function activate(locale: string, messages?: any) {
   locale = locale || "en"
   try {
     if (!messages) {
-      messages = { ...(await getMessages("en")), ...(await getMessages(locale)) }
+      const content = await import(
+        /* webpackChunkName: "locale-[request]" */
+        `@locale/${locale}.json`
+      )
+      messages = content.messages
     }
 
     instance = setupI18n({ missing: (_, key) => `⚠️ Missing Translation: ${key}` })
