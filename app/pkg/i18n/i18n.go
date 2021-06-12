@@ -13,6 +13,11 @@ import (
 
 var Locales embed.FS
 
+var localeToPlurals = map[string]string{
+	"en": "en",
+	"pt_BR": "pt",
+}
+
 type localeData struct {
 	file   map[string]string
 	parser *messageformat.Parser
@@ -44,7 +49,7 @@ func getLocaleData(locale string) localeData {
 		panic(err)
 	}
 
-	parser, err := messageformat.NewWithCulture(locale)
+	parser, err := messageformat.NewWithCulture(localeToPlurals[locale])
 	if err != nil {
 		panic(err)
 	}

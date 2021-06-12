@@ -1,15 +1,19 @@
 import { i18n } from "@lingui/core"
-import { en, pt_PT } from "make-plural/plurals"
+import { en, pt } from "make-plural/plurals"
 
 i18n.loadLocaleData("en", { plurals: en })
-i18n.loadLocaleData("pt", { plurals: pt_PT })
+i18n.loadLocaleData("pt_BR", { plurals: pt })
 
-export async function activate(locale: string) {
+export async function activate(locale: string, messages?: any) {
   try {
-    const { messages } = await import(
-      /* webpackChunkName: "locale-[request]" */
-      `@fider/../locale/${locale}.js`
-    )
+    if (!messages) {
+      const content = await import(
+        /* webpackChunkName: "locale-[request]" */
+        `@fider/../locale/${locale}.js`
+      )
+      messages = content.messages
+    }
+
     i18n.load(locale, messages)
     i18n.activate(locale)
   } catch (err) {

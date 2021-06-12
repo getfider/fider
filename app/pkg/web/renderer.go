@@ -31,6 +31,9 @@ var templateFunctions = template.FuncMap{
 	"translate": func(input string) string {
 		return "This is overwritten later on..."
 	},
+	"replace": func(from, to, input string) string {
+		return strings.Replace(input, from, to, -1)
+	},
 	"markdown": func(input string) template.HTML {
 		return markdown.Full(input)
 	},
@@ -265,9 +268,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		tmpl = r.add(templateName)
 	}
 
-	tmpl, _ = tmpl.Clone()
-
-	err = tmpl.Funcs(template.FuncMap{
+	err = template.Must(tmpl.Clone()).Funcs(template.FuncMap{
 		"translate": func(key string) string {
 			return i18n.T(ctx, key)
 		},

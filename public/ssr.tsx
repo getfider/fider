@@ -10,6 +10,12 @@ import SignInPage from "./pages/SignIn/SignIn.page"
 import SignUpPage from "./pages/SignUp/SignUp.page"
 import DesignSystemPage from "./pages/DesignSystem/DesignSystem.page"
 import LegalPage from "./pages/Legal/Legal.page"
+import { i18n } from "./services"
+
+const messages: { [key: string]: any } = {
+  en: require(`../locale/en`),
+  pt_BR: require(`../locale/pt_BR`),
+}
 
 // Only public routes should be here
 // Routes behind authentication are not crawled
@@ -25,6 +31,7 @@ const routes = [
 
 function ssrRender(url: string, pathname: string, args: any) {
   const fider = Fider.initialize({ ...args })
+  i18n.activate(fider.settings.locale, messages[fider.settings.locale].messages)
   const config = resolveRootComponent(pathname, routes)
   window.location.href = url
 
