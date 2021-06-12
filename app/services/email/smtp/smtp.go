@@ -74,7 +74,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 			"Props":        to.Props,
 		})
 
-		message := email.RenderMessage(c.TemplateName, c.Props.Merge(to.Props))
+		message := email.RenderMessage(ctx, c.TemplateName, c.Props.Merge(to.Props))
 		b := builder{}
 		b.Set("From", dto.NewRecipient(c.From, email.NoReply, dto.Props{}).String())
 		b.Set("Reply-To", email.NoReply)

@@ -3,5 +3,6 @@
   "Search": "Search",
   "Similar posts": "Similar posts",
   "Title needs to be more descriptive.": "Title needs to be more descriptive.",
-  "{count, plural, one {Send # invite} other {Send # invites}}": "{count, plural, one {Send # invite} other {Send # invites}}"
+  "{count, plural, one {Send # invite} other {Send # invites}}": "{count, plural, one {Send # invite} other {Send # invites}}",
+  "This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.": "This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message."
 }

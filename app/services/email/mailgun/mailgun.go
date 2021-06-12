@@ -92,9 +92,9 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 				c.Props[k] = fmt.Sprintf("%%recipient.%s%%", k)
 			}
 		}
-		message = email.RenderMessage(c.TemplateName, c.Props)
+		message = email.RenderMessage(ctx, c.TemplateName, c.Props)
 	} else {
-		message = email.RenderMessage(c.TemplateName, c.Props.Merge(c.To[0].Props))
+		message = email.RenderMessage(ctx, c.TemplateName, c.Props.Merge(c.To[0].Props))
 	}
 
 	form := url.Values{}
