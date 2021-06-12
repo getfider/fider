@@ -26,7 +26,9 @@ func TestReactRenderer_RenderEmptyHomeHTML(t *testing.T) {
 	u, _ := url.Parse("https://demo.test.fider.io")
 	html, err := r.Render(u, web.Map{
 		"tenant":   &entity.Tenant{},
-		"settings": web.Map{},
+		"settings": web.Map{
+			"locale": "en",
+		},
 		"props": web.Map{
 			"posts":          make([]web.Map, 0),
 			"tags":           make([]web.Map, 0),

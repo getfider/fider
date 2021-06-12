@@ -37,6 +37,7 @@ WORKDIR /app
 
 COPY --from=server-builder /server/migrations /app/migrations
 COPY --from=server-builder /server/views /app/views
+COPY --from=server-builder /server/locale /app/locale
 COPY --from=server-builder /server/LICENSE /app
 COPY --from=server-builder /server/fider /app
 

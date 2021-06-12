@@ -2,16 +2,14 @@ package i18n
 
 import (
 	"context"
-	"embed"
 	"encoding/json"
+	"io/ioutil"
 	"sync"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/gotnospirit/messageformat"
 )
-
-var Locales embed.FS
 
 var localeToPlurals = map[string]string{
 	"en": "en",
@@ -38,7 +36,7 @@ func getLocaleData(locale string) localeData {
 		return item
 	}
 
-	content, err := Locales.ReadFile("locale/" + locale + ".json")
+	content, err := ioutil.ReadFile(env.Path("locale/" + locale + ".json"))
 	if err != nil {
 		panic(err)
 	}
