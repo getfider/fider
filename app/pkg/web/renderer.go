@@ -31,9 +31,6 @@ var templateFunctions = template.FuncMap{
 	"translate": func(input string) string {
 		return "This is overwritten later on..."
 	},
-	"replace": func(from, to, input string) string {
-		return strings.Replace(input, from, to, -1)
-	},
 	"markdown": func(input string) template.HTML {
 		return markdown.Full(input)
 	},

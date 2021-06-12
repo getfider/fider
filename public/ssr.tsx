@@ -12,9 +12,10 @@ import DesignSystemPage from "./pages/DesignSystem/DesignSystem.page"
 import LegalPage from "./pages/Legal/Legal.page"
 import { i18n } from "./services"
 
+// Locale files must be bundled for SSR to work synchronously
 const messages: { [key: string]: any } = {
   en: require(`../locale/en`),
-  pt_BR: require(`../locale/pt_BR`),
+  "pt-BR": require(`../locale/pt-BR`),
 }
 
 // Only public routes should be here

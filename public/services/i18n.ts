@@ -2,7 +2,7 @@ import { i18n } from "@lingui/core"
 import { en, pt } from "make-plural/plurals"
 
 i18n.loadLocaleData("en", { plurals: en })
-i18n.loadLocaleData("pt_BR", { plurals: pt })
+i18n.loadLocaleData("pt-BR", { plurals: pt })
 
 export async function activate(locale: string, messages?: any) {
   try {

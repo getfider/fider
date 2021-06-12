@@ -3,6 +3,7 @@ import { Post, Tag, CurrentUser } from "@fider/models"
 import { PageTitle, Loader } from "@fider/components"
 import { ListPosts } from "./ListPosts"
 import { actions } from "@fider/services"
+import { t } from "@fider/services/i18n"
 
 interface SimilarPostsProps {
   title: string
@@ -58,7 +59,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   public render() {
     return (
       <>
-        <PageTitle title="Similar posts" subtitle="Consider voting on existing posts instead." />
+        <PageTitle title={t("Similar posts")} subtitle="Consider voting on existing posts instead." />
         {this.state.loading ? (
           <Loader />
         ) : (

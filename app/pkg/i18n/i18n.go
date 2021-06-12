@@ -15,7 +15,7 @@ var Locales embed.FS
 
 var localeToPlurals = map[string]string{
 	"en": "en",
-	"pt_BR": "pt",
+	"pt-BR": "pt",
 }
 
 type localeData struct {
@@ -63,23 +63,33 @@ func getLocaleData(locale string) localeData {
 	return data
 }
 
+func getMessage(locale, key string) (string, *messageformat.Parser) {
+	localeData := getLocaleData(locale)
+	if str, ok := localeData.file[key]; ok {
+		return str, localeData.parser
+	}
+
+	enData := getLocaleData("en")
+	return enData.file[key], enData.parser
+}
+
 func T(ctx context.Context, key string, params ...map[string]interface{}) string {
 	locale, ok := ctx.Value(app.LocaleCtxKey).(string)
 	if !ok {
 		locale = env.Config.Locale
 	}
 
-	data := getLocaleData(locale)
+	msg, parser := getMessage(locale, key)
 	if len(params) == 0 {
-		return data.file[key]
+		return msg
 	}
 
-	msg, err := data.parser.Parse(data.file[key])
+	parsedMsg, err := parser.Parse(msg)
 	if err != nil {
 		panic(err)
 	}
 
-	str, err := msg.FormatMap(params[0])
+	str, err := parsedMsg.FormatMap(params[0])
 	if err != nil {
 		panic(err)
 	}

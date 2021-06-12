@@ -4,7 +4,7 @@
   "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
-    "@lingui/core": "3.8.10",
+    "@lingui/core": "3.10.2",
     "dompurify": "2.2.7",
     "marked": "2.0.1",
     "react": "17.0.2",
@@ -14,7 +14,7 @@
     "tslib": "2.2.0"
   },
   "devDependencies": {
-    "@lingui/cli": "3.8.10",
+    "@lingui/cli": "3.10.2",
     "@types/dompurify": "2.2.1",
     "@types/enzyme": "3.10.8",
     "@types/jest": "26.0.22",
@@ -64,9 +64,13 @@
         ]
       }
     ],
+    "fallbackLocales": {
+      "default": "en"
+    },
+    "sourceLocale": "en",
     "format": "minimal",
     "locales": [
-      "pt_BR",
+      "pt-BR",
       "en"
     ]
   },
