@@ -5,6 +5,7 @@ const fs = require("fs")
 const esbuild = require("esbuild")
 const babel = require("@babel/core")
 
+// Replace with NPM package when this is resolved: https://github.com/nativew/esbuild-plugin-babel/issues/7
 const babelPlugin = (options = {}) => ({
   name: "babel",
   setup(build, { transform } = {}) {
