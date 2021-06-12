@@ -79,7 +79,7 @@ module.exports = {
         loader: "babel-loader",
       },
       {
-        test: /\.(json)$/,
+        test: /\.(po)$/,
         include: localeFolder,
         loader: "@lingui/loader",
         type: "javascript/auto",

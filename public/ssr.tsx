@@ -10,12 +10,14 @@ import SignInPage from "./pages/SignIn/SignIn.page"
 import SignUpPage from "./pages/SignUp/SignUp.page"
 import DesignSystemPage from "./pages/DesignSystem/DesignSystem.page"
 import LegalPage from "./pages/Legal/Legal.page"
-import { i18n } from "./services"
+
+import { activateI18NSync } from "./services"
+import { I18nProvider } from "@lingui/react"
 
 // Locale files must be bundled for SSR to work synchronously
 const messages: { [key: string]: any } = {
-  en: require(`../locale/en`),
-  "pt-BR": require(`../locale/pt-BR`),
+  en: require(`../locale/client/en`),
+  "pt-BR": require(`../locale/client/pt-BR`),
 }
 
 // Only public routes should be here
@@ -32,15 +34,17 @@ const routes = [
 
 function ssrRender(url: string, pathname: string, args: any) {
   const fider = Fider.initialize({ ...args })
-  i18n.activate(fider.settings.locale, messages[fider.settings.locale].messages)
+  const i18n = activateI18NSync(fider.settings.locale, messages[fider.settings.locale].messages)
   const config = resolveRootComponent(pathname, routes)
   window.location.href = url
 
   return renderToStaticMarkup(
-    <FiderContext.Provider value={fider}>
-      {config.showHeader && <Header />}
-      {React.createElement(config.component, args.props)}
-    </FiderContext.Provider>
+    <I18nProvider i18n={i18n}>
+      <FiderContext.Provider value={fider}>
+        {config.showHeader && <Header />}
+        {React.createElement(config.component, args.props)}
+      </FiderContext.Provider>
+    </I18nProvider>
   )
 }
 

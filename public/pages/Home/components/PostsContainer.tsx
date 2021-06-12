@@ -10,7 +10,6 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
 import { TagsFilter } from "./TagsFilter"
-import { t } from "@fider/services/i18n"
 
 interface PostsContainerProps {
   user?: CurrentUser
@@ -115,7 +114,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
               field="query"
               icon={this.state.query ? IconX : IconSearch}
               onIconClick={this.state.query ? this.clearSearch : undefined}
-              placeholder={t("Search")}
+              placeholder="Search"
               value={this.state.query}
               onChange={this.handleSearchFilterChanged}
             />

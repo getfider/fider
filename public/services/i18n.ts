@@ -1,34 +1,31 @@
 import { I18n, setupI18n } from "@lingui/core"
 import { en, pt } from "make-plural/plurals"
 
-let instance: I18n
-
-export function reset() {
-  instance = setupI18n()
+export function activateI18NSync(locale: string, messages: any): I18n {
+  const i18n = setupI18n({ missing: (_, key) => `⚠️ Missing Translation: ${key}` })
+  locale = locale || "en"
+  i18n.loadLocaleData("en", { plurals: en })
+  i18n.loadLocaleData("pt-BR", { plurals: pt })
+  i18n.load(locale, messages)
+  i18n.activate(locale)
+  return i18n
 }
 
-export async function activate(locale: string, messages?: any) {
+export async function activateI18N(locale: string): Promise<I18n> {
+  const i18n = setupI18n({ missing: (_, key) => `⚠️ Missing Translation: ${key}` })
   locale = locale || "en"
   try {
-    if (!messages) {
-      const content = await import(
-        /* webpackChunkName: "locale-[request]" */
-        `@locale/${locale}.json`
-      )
-      messages = content.messages
-    }
+    const content = await import(
+      /* webpackChunkName: "locale-[request]" */
+      `@locale/client/${locale}.po`
+    )
 
-    instance = setupI18n({ missing: (_, key) => `⚠️ Missing Translation: ${key}` })
-    instance.loadLocaleData("en", { plurals: en })
-    instance.loadLocaleData("pt-BR", { plurals: pt })
-    instance.load(locale, messages)
-    instance.activate(locale)
+    i18n.loadLocaleData("en", { plurals: en })
+    i18n.loadLocaleData("pt-BR", { plurals: pt })
+    i18n.load(locale, content.messages)
+    i18n.activate(locale)
   } catch (err) {
     console.error(err)
-    throw err
   }
-}
-
-export function t(message: string, values?: Record<string, any>): string {
-  return instance._(message, values)
+  return i18n
 }

@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@lingui/core": "3.10.2",
+    "@lingui/react": "^3.10.2",
     "dompurify": "2.2.7",
     "marked": "2.0.1",
     "react": "17.0.2",
@@ -14,12 +15,13 @@
     "tslib": "2.2.0"
   },
   "devDependencies": {
-    "@lingui/cli": "3.10.2",
-    "@lingui/loader": "3.10.2",
     "@babel/core": "7.14.5",
     "@babel/preset-env": "7.14.5",
     "@babel/preset-react": "7.14.5",
     "@babel/preset-typescript": "7.14.5",
+    "@lingui/cli": "3.10.2",
+    "@lingui/loader": "3.10.2",
+    "@lingui/macro": "^3.10.2",
     "@types/dompurify": "2.2.1",
     "@types/enzyme": "3.10.8",
     "@types/jest": "26.0.22",
@@ -40,6 +42,7 @@
     "dotenv": "8.2.0",
     "enzyme": "3.11.0",
     "esbuild": "0.11.6",
+    "esbuild-plugin-babel": "^0.2.3",
     "eslint": "7.23.0",
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-prettier": "3.3.1",
@@ -64,7 +67,7 @@
   "lingui": {
     "catalogs": [
       {
-        "path": "<rootDir>/locale/{locale}",
+        "path": "<rootDir>/locale/client/{locale}",
         "include": [
           "<rootDir>"
         ]
@@ -73,7 +76,8 @@
     "fallbackLocales": {
       "default": "en"
     },
-    "format": "minimal",
+    "sourceLocale": "en",
+    "format": "po",
     "locales": [
       "pt-BR",
       "en"

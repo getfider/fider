@@ -5,7 +5,7 @@ export const delay = (ms: number) => {
 }
 
 export function findBy(selector: string) {
-  return (target: unknown, propertyKey: string) => {
+  return (target: any, propertyKey: string) => {
     const type = Reflect.getMetadata("design:type", target, propertyKey)
     Object.defineProperty(target, propertyKey, {
       configurable: true,

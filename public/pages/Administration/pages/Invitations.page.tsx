@@ -3,7 +3,8 @@ import React from "react"
 import { Button, TextArea, Form, Input, Field } from "@fider/components"
 import { actions, notify, Failure, Fider } from "@fider/services"
 import { AdminBasePage } from "../components/AdminBasePage"
-import { t } from "@fider/services/i18n"
+
+import { Plural } from "@lingui/macro"
 
 interface InvitationsPageState {
   subject: string
@@ -128,7 +129,7 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
         <Field label="Confirmation">
           <p className="text-muted">Whenever you&apos;re ready, click the following button to send out these invites.</p>
           <Button onClick={this.sendInvites} variant="primary" disabled={this.state.numOfRecipients === 0}>
-            {t("{count, plural, one {Send # invite} other {Send # invites}}", { count: this.state.numOfRecipients })}
+            <Plural id="invitations.submit" value={this.state.numOfRecipients} one="Send # invite" other="Send # invites" />
           </Button>
         </Field>
       </Form>
