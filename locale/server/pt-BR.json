@@ -1,6 +1,6 @@
 {
-  "error.pagenotfound.title": "Página não encontrada",
-  "error.backhome": "Me leve de volta para a página inicial <a class=\"{className}\" href=\"{url}\">{url}</a>.",
-  "email.footer.noreply": "Este email foi enviado de uma caixa postal que não pode receber emails. Favor não responder este email.",
-  "validation.settings.unknown": "Configuração '{name}' é desconhecida."
+  "error.pagenotfound.title": "Page not found",
+  "error.backhome": "Take me back to <a class=\"{className}\" href=\"{url}\">{url}</a> home page.",
+  "email.footer.noreply": "This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.",
+  "validation.settings.unknown": "Unknown settings named '{name}'"
 }
