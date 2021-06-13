@@ -1,5 +1,0 @@
-files:
-  - source: /locale/client/en.json
-    translation: /locale/client/%locale%.json
-  - source: /locale/server/en.json
-    translation: /locale/server/%locale%.json

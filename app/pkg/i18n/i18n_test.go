@@ -41,7 +41,7 @@ func TestEnglish_ValidMessage_WithParams(t *testing.T) {
 	Expect(translated).Equals("Unknown settings named 'Notification'")
 
 	translated = i18n.T(ptBRContext, key, i18n.Params{"name": "Notification"})
-	Expect(translated).Equals("Configuração 'Notification' é desconhecida.")
+	Expect(translated).Equals("Configuração 'Notification' é desconhecida")
 }
 
 func TestEnglish_InvalidMessage(t *testing.T) {

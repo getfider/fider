@@ -16,8 +16,8 @@ import { I18nProvider } from "@lingui/react"
 
 // Locale files must be bundled for SSR to work synchronously
 const messages: { [key: string]: any } = {
-  en: require(`../locale/client/en`),
-  "pt-BR": require(`../locale/client/pt-BR`),
+  en: require(`../locale/en/client`),
+  "pt-BR": require(`../locale/pt-BR/client`),
 }
 
 // Only public routes should be here

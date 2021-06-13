@@ -67,7 +67,7 @@
   "lingui": {
     "catalogs": [
       {
-        "path": "<rootDir>/locale/client/{locale}",
+        "path": "<rootDir>/locale/{locale}/client",
         "include": [
           "<rootDir>"
         ]
