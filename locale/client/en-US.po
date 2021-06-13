@@ -1,0 +1,40 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2021-06-12 19:52+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: en\n"
+"Project-Id-Version: fider\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2021-06-13 13:14\n"
+"Last-Translator: \n"
+"Language-Team: English\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: fider\n"
+"X-Crowdin-Project-ID: 460734\n"
+"X-Crowdin-Language: en\n"
+"X-Crowdin-File: /[getfider.fider] go.poc-i18n/locale/client/en.po\n"
+"X-Crowdin-File-ID: 10\n"
+
+#: public/pages/Home/Home.page.tsx:32
+msgid "home.lonely.suggestion"
+msgstr ""
+
+#: public/pages/Home/Home.page.tsx:40
+msgid "home.lonely.text"
+msgstr ""
+
+#: public/pages/Home/components/SimilarPosts.tsx:62
+msgid "home.similar.subtitle"
+msgstr ""
+
+#: public/pages/Home/components/SimilarPosts.tsx:61
+msgid "home.similar.title"
+msgstr ""
+
+#: public/pages/Administration/pages/Invitations.page.tsx:132
+msgid "invitations.submit"
+msgstr ""
+
