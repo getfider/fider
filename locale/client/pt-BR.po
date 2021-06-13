@@ -21,6 +21,14 @@ msgstr "É recomendável que você crie <0>pelo menos 3</0> postagens anter de c
 msgid "home.lonely.text"
 msgstr "Nenhuma postagem foi criada ainda."
 
+#: public/pages/Home/components/SimilarPosts.tsx:63
+msgid "home.similar.subtitle"
+msgstr "Considere votar em postagens existentes."
+
+#: public/pages/Home/components/SimilarPosts.tsx:63
+msgid "home.similar.title"
+msgstr "Postagens similares"
+
 #: public/pages/Administration/pages/Invitations.page.tsx:132
 msgid "invitations.submit"
 msgstr "{0, plural, one {Enviar # convite} other {Enviar # convites}}"

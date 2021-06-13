@@ -21,6 +21,14 @@ msgstr "It's recommended that you create <0>at least 3</0> suggestions here befo
 msgid "home.lonely.text"
 msgstr "No posts have been created yet."
 
+#: public/pages/Home/components/SimilarPosts.tsx:63
+msgid "home.similar.subtitle"
+msgstr "Consider voting on existing posts instead."
+
+#: public/pages/Home/components/SimilarPosts.tsx:63
+msgid "home.similar.title"
+msgstr "Similar posts"
+
 #: public/pages/Administration/pages/Invitations.page.tsx:132
 msgid "invitations.submit"
 msgstr "{0, plural, one {Send # invite} other {Send # invites}}"
