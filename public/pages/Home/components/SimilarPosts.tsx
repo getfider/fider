@@ -58,9 +58,12 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   }
 
   public render() {
+    const title = t({ id: "home.similar.title", message: "Similar posts" })
+    const subtitle = t({ id: "home.similar.subtitle", message: "Consider voting on existing posts instead." })
+
     return (
       <>
-        <PageTitle title={t`home.similar.title`} subtitle={t`home.similar.subtitle`} />
+        <PageTitle title={title} subtitle={subtitle} />
         {this.state.loading ? (
           <Loader />
         ) : (
