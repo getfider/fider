@@ -1,0 +1,7 @@
+{
+  "home.lonely.suggestion": "It's recommended that you create <0>at least 3</0> suggestions here before sharing this site. The initial content is important to start engaging your audience.",
+  "home.lonely.text": "No posts have been created yet.",
+  "home.similar.subtitle": "Consider voting on existing posts instead.",
+  "home.similar.title": "Similar posts",
+  "invitations.submit": "{0, plural, one {Send # invite} other {Send # invites}}"
+}

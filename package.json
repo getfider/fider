@@ -77,7 +77,7 @@
       "default": "en"
     },
     "sourceLocale": "en",
-    "format": "po",
+    "format": "minimal",
     "locales": [
       "pt-BR",
       "en"

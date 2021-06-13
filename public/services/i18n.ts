@@ -19,7 +19,7 @@ export async function activateI18N(locale: string): Promise<I18n> {
     try {
       const content = await import(
         /* webpackChunkName: "locale-[request]" */
-        `@locale/client/${locale}.po`
+        `@locale/client/${locale}.json`
       )
       return activateI18NSync(locale, content.messages)
     } catch (err) {
