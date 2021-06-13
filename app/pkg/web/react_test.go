@@ -62,7 +62,7 @@ func TestReactRenderer_RenderEmptyHomeHTML_Portuguese(t *testing.T) {
 	Expect(html).ContainsSubstring(`<div class="c-dev-banner">DEV</div>`)
 	Expect(html).ContainsSubstring(`<input type="text" class="c-input" id="input-title"`)
 	Expect(html).ContainsSubstring(`What can we do better? This is the place for you to vote, discuss and share ideas.`)
-	Expect(html).ContainsSubstring(`Nenhuma postagem foi criada ainda.`)
+	Expect(html).ContainsSubstring(`Nenhum post foi criado ainda.`)
 	Expect(html).ContainsSubstring(`Powered by Fider`)
 	Expect(err).IsNil()
 }

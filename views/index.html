@@ -1,10 +1,8 @@
 {{define "head"}}
-  {{ if .private.chunkAssets }}
-    {{range .private.chunkAssets.CSS}}
-      <link rel="preload" href="{{ $.public.settings.assetsURL }}{{ . }}" as="style" />
-    {{end}}
-    {{range .private.chunkAssets.JS}}
-      <link rel="preload" href="{{ $.public.settings.assetsURL }}{{ . }}" as="script" />
+  {{range $asset := .private.preloadAssets}}
+    {{if $asset}}
+      {{range $asset.CSS}}<link rel="preload" href="{{ $.public.settings.assetsURL }}{{ . }}" as="style" />{{end}}
+      {{range $asset.JS}}<link rel="preload" href="{{ $.public.settings.assetsURL }}{{ . }}" as="script" />{{end}}
     {{end}}
   {{end}}
 {{end}}

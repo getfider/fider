@@ -210,12 +210,14 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		public["description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	if props.ChunkName != "" {
-		private["chunkAssets"] = r.chunkedAssets[props.ChunkName]
-	}
-
 	private["assets"] = r.assets
 	private["logo"] = LogoURL(ctx)
+	
+	localeChunkName := fmt.Sprintf("locale-%s-client-json", env.Config.Locale)
+	private["preloadAssets"] = []*clientAssets{
+		r.chunkedAssets[localeChunkName],
+		r.chunkedAssets[props.ChunkName],
+	}
 
 	if tenant == nil || tenant.LogoBlobKey == "" {
 		private["favicon"] = AssetsURL(ctx, "/static/favicon")
