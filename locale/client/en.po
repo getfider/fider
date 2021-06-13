@@ -17,6 +17,10 @@ msgstr ""
 msgid "home.lonely.suggestion"
 msgstr "It's recommended that you create <0>at least 3</0> suggestions here before sharing this site. The initial content is important to start engaging your audience."
 
+#: public/pages/Home/Home.page.tsx:40
+msgid "home.lonely.text"
+msgstr "No posts have been created yet."
+
 #: public/pages/Administration/pages/Invitations.page.tsx:132
 msgid "invitations.submit"
 msgstr "{0, plural, one {Send # invite} other {Send # invites}}"

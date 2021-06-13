@@ -17,52 +17,31 @@ var ptBRContext = context.WithValue(emptyContext, app.LocaleCtxKey, "pt-BR")
 func TestValidMessage(t *testing.T) {
 	RegisterT(t)
 
-	key := "Search"
+	key := "error.pagenotfound.title"
 
 	translated := i18n.T(emptyContext, key)
-	Expect(translated).Equals("Search")
+	Expect(translated).Equals("Page not found")
 
 	translated = i18n.T(enContext, key)
-	Expect(translated).Equals("Search")
+	Expect(translated).Equals("Page not found")
 
 	translated = i18n.T(ptBRContext, key)
-	Expect(translated).Equals("Pesquisa")
+	Expect(translated).Equals("Página não encontrada")
 }
 
 func TestEnglish_ValidMessage_WithParams(t *testing.T) {
 	RegisterT(t)
 
-	key := "No similar posts matched '{title}'."
+	key := "validation.settings.unknown"
 
-	translated := i18n.T(emptyContext, key, i18n.Params{"title": "Hello World"})
-	Expect(translated).Equals("No similar posts matched 'Hello World'.")
+	translated := i18n.T(emptyContext, key, i18n.Params{"name": "Notification"})
+	Expect(translated).Equals("Unknown settings named 'Notification'")
 
-	translated = i18n.T(enContext, key, i18n.Params{"title": "Hello World"})
-	Expect(translated).Equals("No similar posts matched 'Hello World'.")
+	translated = i18n.T(enContext, key, i18n.Params{"name": "Notification"})
+	Expect(translated).Equals("Unknown settings named 'Notification'")
 
-	translated = i18n.T(ptBRContext, key, i18n.Params{"title": "Olá Mundo"})
-	Expect(translated).Equals("Nenhuma postagem semelhante à 'Olá Mundo'.")
-}
-
-func TestEnglish_ValidMessage_Plurals(t *testing.T) {
-	RegisterT(t)
-
-	key := "{count, plural, one {Send # invite} other {Send # invites}}"
-
-	translated := i18n.T(emptyContext, key, i18n.Params{"count": 1})
-	Expect(translated).Equals("Send 1 invite")
-	translated = i18n.T(emptyContext, key, i18n.Params{"count": 2})
-	Expect(translated).Equals("Send 2 invites")
-
-	translated = i18n.T(enContext, key, i18n.Params{"count": 1})
-	Expect(translated).Equals("Send 1 invite")
-	translated = i18n.T(enContext, key, i18n.Params{"count": 2})
-	Expect(translated).Equals("Send 2 invites")
-
-	translated = i18n.T(ptBRContext, key, i18n.Params{"count": 1})
-	Expect(translated).Equals("Enviar 1 convite")
-	translated = i18n.T(ptBRContext, key, i18n.Params{"count": 2})
-	Expect(translated).Equals("Enviar 2 convites")
+	translated = i18n.T(ptBRContext, key, i18n.Params{"name": "Notification"})
+	Expect(translated).Equals("Configuração 'Notification' é desconhecida.")
 }
 
 func TestEnglish_InvalidMessage(t *testing.T) {

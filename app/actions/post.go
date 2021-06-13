@@ -9,7 +9,6 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/gosimple/slug"
 
 	"github.com/getfider/fider/app"
@@ -36,7 +35,7 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *v
 	if action.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
 	} else if len(action.Title) < 10 {
-		result.AddFieldFailure("title", i18n.T(ctx, "Title needs to be more descriptive."))
+		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	} else if len(action.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	} else {

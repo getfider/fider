@@ -25,14 +25,38 @@ import (
 )
 
 var templateFunctions = template.FuncMap{
+	"html": func(input string) template.HTML {
+		return template.HTML(input)
+	},
 	"md5": func(input string) string {
 		return crypto.MD5(input)
 	},
-	"translate": func(input string) string {
+	"upper": func(input string) string {
+		return strings.ToUpper(input)
+	},
+	"translate": func(input string, params ...i18n.Params) string {
 		return "This is overwritten later on..."
 	},
 	"markdown": func(input string) template.HTML {
 		return markdown.Full(input)
+	},
+	"dict": func(values ...interface{}) map[string]interface{} {
+		if len(values)%2 != 0 {
+			panic(errors.New("invalid dictionary call"))
+		}
+
+		dict := make(map[string]interface{})
+		for i := 0; i < len(values); i += 2 {
+			var key string
+			switch v := values[i].(type) {
+			case string:
+				key = v
+			default:
+				panic(errors.New("invalid dictionary key"))
+			}
+			dict[key] = values[i+1]
+		}
+		return dict
 	},
 }
 
@@ -266,8 +290,8 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	}
 
 	err = template.Must(tmpl.Clone()).Funcs(template.FuncMap{
-		"translate": func(key string) string {
-			return i18n.T(ctx, key)
+		"translate": func(key string, params ...i18n.Params) string {
+			return i18n.T(ctx, key, params...)
 		},
 	}).Execute(w, Map{
 		"public":  public,

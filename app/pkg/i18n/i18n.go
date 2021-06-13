@@ -42,7 +42,7 @@ func getLocaleData(locale string) localeData {
 		return item
 	}
 
-	content, err := ioutil.ReadFile(env.Path("locale/" + locale + ".json"))
+	content, err := ioutil.ReadFile(env.Path(fmt.Sprintf("locale/server/%s.json", locale)))
 	if err != nil {
 		panic(errors.Wrap(err, "failed to read locale file"))
 	}

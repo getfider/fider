@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -70,7 +71,7 @@ func (action *UpdateUserSettings) Validate(ctx context.Context, user *entity.Use
 				}
 			}
 			if !ok {
-				result.AddFieldFailure("settings", fmt.Sprintf("Unknown settings named %s.", k))
+				result.AddFieldFailure("settings", i18n.T(ctx, "validation.settings.unknown", i18n.Params{"name": k}))
 			}
 		}
 	}

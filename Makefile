@@ -23,6 +23,7 @@ build-ui: ## Build all UI assets
 	NODE_ENV=production npx webpack-cli
 
 build-ssr: ## Build SSR script and locales
+	npx lingui extract public
 	npx lingui compile
 	NODE_ENV=production node esbuild.config.js
 

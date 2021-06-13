@@ -36,7 +36,9 @@ const Lonely = () => {
         </p>
       </Hint>
       <Icon sprite={NoDataIllustration} height="120" className="mt-6 mb-2" />
-      <p className="text-muted">No posts have been created yet.</p>
+      <p className="text-muted">
+        <Trans id="home.lonely.text">No posts have been created yet.</Trans>
+      </p>
     </div>
   )
 }
