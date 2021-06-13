@@ -21,12 +21,10 @@ msgstr "É recomendável que você crie <0>pelo menos 3</0> postagens anter de c
 msgid "home.lonely.text"
 msgstr "Nenhuma postagem foi criada ainda."
 
-#: dist/js/public_pages_Home_Home_page_tsx.3c65aa443c17ec61b855.js:636
 #: public/pages/Home/components/SimilarPosts.tsx:62
 msgid "home.similar.subtitle"
 msgstr "Considere votar em postagens existentes."
 
-#: dist/js/public_pages_Home_Home_page_tsx.3c65aa443c17ec61b855.js:629
 #: public/pages/Home/components/SimilarPosts.tsx:61
 msgid "home.similar.title"
 msgstr "Postagens similares"

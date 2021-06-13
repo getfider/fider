@@ -36,11 +36,7 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   }
 })
 
-const fider = Fider.initialize()
 const bootstrapApp = (i18n: I18n) => {
-  __webpack_nonce__ = fider.session.contextID
-  __webpack_public_path__ = `${fider.settings.assetsURL}/assets/`
-
   const config = resolveRootComponent(location.pathname)
   document.body.className = classSet({
     "is-authenticated": fider.session.isAuthenticated,
@@ -60,4 +56,8 @@ const bootstrapApp = (i18n: I18n) => {
     document.getElementById("root")
   )
 }
+
+const fider = Fider.initialize()
+__webpack_nonce__ = fider.session.contextID
+__webpack_public_path__ = `${fider.settings.assetsURL}/assets/`
 activateI18N(fider.settings.locale).then(bootstrapApp).catch(bootstrapApp)
