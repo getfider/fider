@@ -1,7 +1,7 @@
 {
-  "home.lonely.suggestion": "É recomendável que você crie <0>pelo menos 3</0> postagens anter de comparilhar este website. O conteúdo inicial é importante para criar um engajamento com seu público.",
-  "home.lonely.text": "Nenhuma postagem foi criada ainda.",
-  "home.similar.subtitle": "Considere votar em postagens existentes.",
-  "home.similar.title": "Postagens similares",
-  "invitations.submit": "{0, plural, one {Enviar # convite} other {Enviar # convites}}"
+  "home.lonely.suggestion": "É recomendável que você crie <0>pelo menos 3</0> sugestões aqui antes de compartilhar este site. O conteúdo inicial é importante para começar a engajar seu público.",
+  "home.lonely.text": "Nenhum post foi criado ainda.",
+  "home.similar.subtitle": "Considere votar em posts existentes.",
+  "home.similar.title": "Posts similares",
+  "invitations.submit": "{0, plural, one {Envie # convite} other {Envie # convites}}"
 }
