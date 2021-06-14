@@ -4,6 +4,8 @@
 
 LDFLAGS += -X github.com/getfider/fider/app/pkg/env.buildnumber=${BUILDNUMBER}
 
+
+
 ##@ Running
 
 run: ## Run Fider
@@ -11,6 +13,8 @@ run: ## Run Fider
 
 migrate: ## Run all database migrations
 	godotenv -f .env ./fider migrate
+
+
 
 ##@ Building
 
@@ -26,6 +30,8 @@ build-ssr: ## Build SSR script and locales
 	npx lingui extract public/
 	npx lingui compile
 	NODE_ENV=production node esbuild.config.js
+
+
 
 ##@ Testing
 
@@ -45,6 +51,9 @@ coverage-server: build-server build-ssr ## Run all server tests (with code cover
 
 
 ##@ Running (Watch Mode)
+
+watch:
+	make -j4 watch-server watch-ui
 
 watch-server: build-server migrate ## Build and run server in watch mode
 	air -c air.conf
