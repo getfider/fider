@@ -1,6 +1,7 @@
 package email_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/getfider/fider/app/models/dto"
@@ -12,7 +13,7 @@ import (
 func TestRenderMessage(t *testing.T) {
 	RegisterT(t)
 
-	message := email.RenderMessage("echo_test", dto.Props{
+	message := email.RenderMessage(context.Background(), "echo_test", dto.Props{
 		"name": "Fider",
 	})
 	Expect(message.Subject).Equals("Message to: Fider")

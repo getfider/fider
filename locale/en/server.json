@@ -1,0 +1,6 @@
+{
+  "error.pagenotfound.title": "Page not found",
+  "error.backhome": "Take me back to <a class=\"{className}\" href=\"{url}\">{url}</a> home page.",
+  "email.footer.noreply": "This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.",
+  "validation.settings.unknown": "Unknown settings named '{name}'"
+}

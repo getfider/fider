@@ -13,6 +13,7 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/log"
 
 	"io/ioutil"
@@ -24,11 +25,38 @@ import (
 )
 
 var templateFunctions = template.FuncMap{
+	"html": func(input string) template.HTML {
+		return template.HTML(input)
+	},
 	"md5": func(input string) string {
 		return crypto.MD5(input)
 	},
+	"upper": func(input string) string {
+		return strings.ToUpper(input)
+	},
+	"translate": func(input string, params ...i18n.Params) string {
+		return "This is overwritten later on..."
+	},
 	"markdown": func(input string) template.HTML {
 		return markdown.Full(input)
+	},
+	"dict": func(values ...interface{}) map[string]interface{} {
+		if len(values)%2 != 0 {
+			panic(errors.New("invalid dictionary call"))
+		}
+
+		dict := make(map[string]interface{})
+		for i := 0; i < len(values); i += 2 {
+			var key string
+			switch v := values[i].(type) {
+			case string:
+				key = v
+			default:
+				panic(errors.New("invalid dictionary key"))
+			}
+			dict[key] = values[i+1]
+		}
+		return dict
 	},
 }
 
@@ -182,12 +210,14 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		public["description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	if props.ChunkName != "" {
-		private["chunkAssets"] = r.chunkedAssets[props.ChunkName]
-	}
-
 	private["assets"] = r.assets
 	private["logo"] = LogoURL(ctx)
+	
+	localeChunkName := fmt.Sprintf("locale-%s-client-json", env.Config.Locale)
+	private["preloadAssets"] = []*clientAssets{
+		r.chunkedAssets[localeChunkName],
+		r.chunkedAssets[props.ChunkName],
+	}
 
 	if tenant == nil || tenant.LogoBlobKey == "" {
 		private["favicon"] = AssetsURL(ctx, "/static/favicon")
@@ -216,6 +246,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	public["props"] = props.Data
 	public["settings"] = &Map{
 		"mode":            env.Config.HostMode,
+		"locale":          env.Config.Locale,
 		"environment":     env.Config.Environment,
 		"googleAnalytics": env.Config.GoogleAnalytics,
 		"domain":          env.MultiTenantDomain(),
@@ -260,7 +291,11 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		tmpl = r.add(templateName)
 	}
 
-	err = tmpl.Execute(w, Map{
+	err = template.Must(tmpl.Clone()).Funcs(template.FuncMap{
+		"translate": func(key string, params ...i18n.Params) string {
+			return i18n.T(ctx, key, params...)
+		},
+	}).Execute(w, Map{
 		"public":  public,
 		"private": private,
 	})

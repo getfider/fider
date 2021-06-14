@@ -30,6 +30,7 @@ var (
 	RequestCtxKey     = createKey("REQUEST")
 	TransactionCtxKey = createKey("TRANSACTION")
 	TenantCtxKey      = createKey("TENANT")
+	LocaleCtxKey      = createKey("LOCALE")
 	UserCtxKey        = createKey("USER")
 	LogPropsCtxKey    = createKey("LOG_PROPS")
 )

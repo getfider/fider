@@ -29,7 +29,7 @@
 			</tr>
 			<tr>
 				<td>
-					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
+					<span style="color:#666;font-size:12px">{{ "email.footer.noreply" | translate }}</span>
 				</td>
 			</tr>
 			<tr>

@@ -18,8 +18,11 @@
         { "name": "css/Test.page.css", "size": 100 },
         { "name": "css/Test.page.css.map", "size": 100 },
         { "name": "js/Test.page.js", "size": 100 },
-        { "name": "js/Test.page.js.map","size": 100 }
+        { "name": "js/Test.page.js.map", "size": 100 }
       ]
+    },
+    "locale-en-client-json": {
+      "assets": [{ "name": "locale-en.js", "size": 100 }]
     }
   }
 }

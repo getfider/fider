@@ -2,11 +2,13 @@ package email
 
 import (
 	"bytes"
+	"context"
 	"html/template"
 	"strings"
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/i18n"
 )
 
 var cache = make(map[string]*template.Template)
@@ -17,10 +19,14 @@ type Message struct {
 	Body    string
 }
 
-var baseTpl, _ = template.ParseFiles(env.Path("/views/templates/base_email.tpl"))
+var baseTpl = template.Must(template.New("base_email.tpl").Funcs(template.FuncMap{
+	"translate": func(input string) string {
+		return "This is overwritten later on..."
+	},
+}).ParseFiles(env.Path("/views/templates/base_email.tpl")))
 
 // RenderMessage returns the HTML of an email based on template and params
-func RenderMessage(templateName string, params dto.Props) *Message {
+func RenderMessage(ctx context.Context, templateName string, params dto.Props) *Message {
 	tpl, ok := cache[templateName]
 	if !ok || env.IsDevelopment() {
 		var err error
@@ -41,7 +47,11 @@ func RenderMessage(templateName string, params dto.Props) *Message {
 	body := strings.TrimLeft(strings.Join(lines[2:], "\n"), " ")
 
 	bf.Reset()
-	if err := baseTpl.Execute(&bf, dto.Props{
+	if err := template.Must( baseTpl.Clone()).Funcs(template.FuncMap{
+		"translate": func(key string) string {
+			return i18n.T(ctx, key)
+		},
+	}).Execute(&bf, dto.Props{
 		"logo": params["logo"],
 		"body": template.HTML(body),
 	}); err != nil {

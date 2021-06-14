@@ -10,6 +10,8 @@ import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
 
+import { Trans } from "@lingui/macro"
+
 export interface HomePageProps {
   posts: Post[]
   tags: Tag[]
@@ -27,12 +29,16 @@ const Lonely = () => {
     <div className="text-center">
       <Hint permanentCloseKey="at-least-3-posts" condition={fider.session.isAuthenticated && fider.session.user.isAdministrator}>
         <p>
-          It&apos;s recommended that you create <strong>at least 3</strong> suggestions here before sharing this site. The initial content is important to start
-          engaging your audience.
+          <Trans id="home.lonely.suggestion">
+            It&apos;s recommended that you create <strong>at least 3</strong> suggestions here before sharing this site. The initial content is important to
+            start engaging your audience.
+          </Trans>
         </p>
       </Hint>
       <Icon sprite={NoDataIllustration} height="120" className="mt-6 mb-2" />
-      <p className="text-muted">No posts have been created yet.</p>
+      <p className="text-muted">
+        <Trans id="home.lonely.text">No posts have been created yet.</Trans>
+      </p>
     </div>
   )
 }

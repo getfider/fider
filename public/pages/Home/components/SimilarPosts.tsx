@@ -4,6 +4,8 @@ import { PageTitle, Loader } from "@fider/components"
 import { ListPosts } from "./ListPosts"
 import { actions } from "@fider/services"
 
+import { t } from "@lingui/macro"
+
 interface SimilarPostsProps {
   title: string
   tags: Tag[]
@@ -56,9 +58,12 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   }
 
   public render() {
+    const title = t({ id: "home.similar.title", message: "Similar posts" })
+    const subtitle = t({ id: "home.similar.subtitle", message: "Consider voting on existing posts instead." })
+
     return (
       <>
-        <PageTitle title="Similar posts" subtitle="Consider voting on existing posts instead." />
+        <PageTitle title={title} subtitle={subtitle} />
         {this.state.loading ? (
           <Loader />
         ) : (

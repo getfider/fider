@@ -86,9 +86,9 @@ func (input *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bo
 	if user.IsCollaborator() {
 		return true
 	}
-	
+
 	timeAgo := time.Now().UTC().Sub(input.Post.CreatedAt)
-	return input.Post.User.ID == user.ID && timeAgo <= 1 * time.Hour
+	return input.Post.User.ID == user.ID && timeAgo <= 1*time.Hour
 }
 
 // Validate if current model is valid

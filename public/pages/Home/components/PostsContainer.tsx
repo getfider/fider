@@ -114,7 +114,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
               field="query"
               icon={this.state.query ? IconX : IconSearch}
               onIconClick={this.state.query ? this.clearSearch : undefined}
-              placeholder="Search..."
+              placeholder="Search"
               value={this.state.query}
               onChange={this.handleSearchFilterChanged}
             />

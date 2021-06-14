@@ -6,6 +6,7 @@ node_modules/
 .vscode/
 .idea/
 logs/
+locale/**/*.js
 
 fider
 fider.exe
@@ -19,3 +20,4 @@ debug.test
 .DS_Store
 cover.out
 coverage.tmp
+tsconfig.tsbuildinfo

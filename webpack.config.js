@@ -9,6 +9,7 @@ const SpriteLoaderPlugin = require("svg-sprite-loader/plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
 const publicFolder = path.resolve(__dirname, "public")
+const localeFolder = path.resolve(__dirname, "locale")
 
 const isProduction = process.env.NODE_ENV === "production"
 
@@ -58,6 +59,7 @@ module.exports = {
     extensions: [".mjs", ".ts", ".tsx", ".js", ".svg"],
     alias: {
       "@fider": publicFolder,
+      "@locale": localeFolder,
     },
   },
   performance: {
@@ -74,10 +76,13 @@ module.exports = {
       {
         test: /\.(ts|tsx)$/,
         include: publicFolder,
-        loader: "ts-loader",
-        options: {
-          transpileOnly: true,
-        },
+        loader: "babel-loader",
+      },
+      {
+        test: /\.(json)$/,
+        include: localeFolder,
+        loader: "@lingui/loader",
+        type: "javascript/auto",
       },
       {
         test: /\.svg$/,
@@ -111,7 +116,7 @@ module.exports = {
         vendor: {
           chunks: "all",
           name: "vendor",
-          test: /(react($|\/)|react-dom|tslib|react-textarea-autosize)/,
+          test: /(react($|\/)|react-dom|tslib|react-textarea-autosize|@lingui\/core)/,
         },
       },
     },
