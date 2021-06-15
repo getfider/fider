@@ -17,20 +17,30 @@ type ReactRenderer struct {
 	ctx           *v8go.Context
 }
 
-func NewReactRenderer(scriptPath string) *ReactRenderer {
-	bytes, _ := os.ReadFile(env.Path(scriptPath))
+func NewReactRenderer(scriptPath string) (*ReactRenderer, error) {
 	isolate, err := v8go.NewIsolate()
 	if err != nil {
-		return &ReactRenderer{scriptPath: scriptPath}
+		return nil, errors.Wrap(err, "unable to initialize v8 isolate.")
 	}
 
-	v8ctx, _ := v8go.NewContext(isolate)
-	_, err = v8ctx.RunScript(string(bytes), scriptPath)
+	v8ctx, err := v8go.NewContext(isolate)
 	if err != nil {
-		return &ReactRenderer{scriptPath: scriptPath}
+		return nil, errors.Wrap(err, "unable to initialize v8 context.")
 	}
 
-	return &ReactRenderer{ctx: v8ctx, scriptPath: scriptPath, scriptContent: bytes}
+	bytes, err := os.ReadFile(env.Path(scriptPath))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read SSR script.")
+	}
+
+	if len(bytes) > 0 {
+		_, err = v8ctx.RunScript(string(bytes), scriptPath)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to execute SSR script.")
+		}
+	}
+
+	return &ReactRenderer{ctx: v8ctx, scriptPath: scriptPath, scriptContent: bytes}, nil
 }
 
 func (r *ReactRenderer) Render(u *url.URL, props Map) (string, error) {

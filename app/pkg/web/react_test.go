@@ -12,7 +12,18 @@ import (
 func TestReactRenderer_FileNotFound(t *testing.T) {
 	RegisterT(t)
 
-	r := web.NewReactRenderer("unknown.js")
+	r, err := web.NewReactRenderer("unknown.js")
+	Expect(err).IsNotNil()
+	Expect(r).IsNil()
+}
+
+func TestReactRenderer_EmptyFile(t *testing.T) {
+	RegisterT(t)
+
+	r, err := web.NewReactRenderer("/app/pkg/web/testdata/empty.js")
+	Expect(err).IsNil()
+	Expect(r).IsNotNil()
+
 	u, _ := url.Parse("https://github.com")
 	html, err := r.Render(u, web.Map{})
 	Expect(html).Equals("")
@@ -22,7 +33,9 @@ func TestReactRenderer_FileNotFound(t *testing.T) {
 func TestReactRenderer_RenderEmptyHomeHTML(t *testing.T) {
 	RegisterT(t)
 
-	r := web.NewReactRenderer("ssr.js")
+	r, err := web.NewReactRenderer("ssr.js")
+	Expect(err).IsNil()
+
 	u, _ := url.Parse("https://demo.test.fider.io")
 	html, err := r.Render(u, web.Map{
 		"tenant":   &entity.Tenant{},
@@ -46,7 +59,9 @@ func TestReactRenderer_RenderEmptyHomeHTML(t *testing.T) {
 func TestReactRenderer_RenderEmptyHomeHTML_Portuguese(t *testing.T) {
 	RegisterT(t)
 
-	r := web.NewReactRenderer("ssr.js")
+	r, err := web.NewReactRenderer("ssr.js")
+	Expect(err).IsNil()
+	
 	u, _ := url.Parse("https://demo.test.fider.io")
 	html, err := r.Render(u, web.Map{
 		"tenant":   &entity.Tenant{},

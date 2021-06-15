@@ -1,7 +1,7 @@
 {{define "head"}}
   {{range $asset := .private.preloadAssets}}
     {{if $asset}}
-      {{range $asset.CSS}}<link rel="preload" href="{{ $.public.settings.assetsURL }}{{ . }}" as="style" />{{end}}
+      {{range $asset.CSS}}<link href="{{ $.public.settings.assetsURL }}{{ . }}" rel="stylesheet" />{{end}}
     {{end}}
   {{end}}
 {{end}}
