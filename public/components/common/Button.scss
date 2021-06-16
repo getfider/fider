@@ -1,24 +1,23 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-button {
-  -webkit-appearance: none;
-  appearance: none;
   line-height: 1.15;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
-  font-size: $font-size;
-  border-radius: 3px;
+  font-size: get("font.size.base");
+  border-radius: 4px;
   border: none;
-  margin: 0 4px 0 0;
   padding: 8px 16px;
-  text-align: left;
-  font-weight: 600;
+  font-weight: 500;
+  white-space: nowrap;
 
-  .icon {
-    margin-top: -3px;
+  svg + *,
+  img + * {
+    margin-left: spacing(1);
   }
 
-  &.m-cancel {
+  &--tertiary {
     background-color: transparent;
 
     &:hover {
@@ -26,31 +25,43 @@
     }
   }
 
-  &.m-default {
-    color: $gray-900;
-    background-color: $gray-100;
-    border: 1px solid $gray-300;
+  &--secondary {
+    color: get("colors.gray.900");
+    background-color: get("colors.gray.50");
+    border: 1px solid get("colors.gray.300");
 
     &:hover {
-      border: 1px solid $gray-500;
+      background-color: get("colors.gray.100");
     }
   }
 
   &.m-positive {
     color: $white;
-    background-color: $green-500;
-    border: 1px solid $green-500;
+    background-color: $main-color;
+    border: 1px solid $main-color;
 
     &:hover {
-      background-color: $green-700;
-      border-color: $green-700;
+      background-color: $main-color;
+      border-color: $main-color;
     }
   }
 
-  &.m-danger {
-    color: $red-500;
-    border: 1px solid $gray-300;
-    background-color: $white;
+  &--danger {
+    color: get("colors.red.600");
+    border: 1px solid get("colors.gray.300");
+    background-color: get("colors.white");
+
+    &:hover {
+      color: get("colors.white");
+      border: 1px solid get("colors.red.600");
+      background-color: get("colors.red.600");
+    }
+  }
+
+  &.m-main {
+    color: $white;
+    border: 1px solid rgba($white,.5);
+    background-color: $main-color;
 
     &:hover {
       color: $white;

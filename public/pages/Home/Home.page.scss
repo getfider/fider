@@ -1,100 +1,215 @@
 @import "~@fider/assets/styles/variables.scss";
 
 #p-home {
-  .welcome-message {
-    margin-bottom: 10px;
-  }
+  padding-bottom: 50px;
 
   .l-lonely {
     .c-hint {
-      max-width: 500px;
+      max-width : 500px;
       text-align: left;
-      margin: 0 auto 10px auto;
+      margin    : 0 auto 10px auto;
     }
   }
 
-  .l-posts-col {
-    padding: 0 15px 15px;
-    .row {
-      align-items: center;
+}
+
+.hero {
+  position: relative;
+
+  .col-image {
+    display        : flex;
+    justify-content: center;
+  }
+
+  .col-caption {
+    position: relative;
+    z-index : 1;
+  }
+
+  .welcome-message {
+    padding-right: 3em;
+
+    p {
+      color: #fff;
+    }
+
+    p:first-child {
+      font-size  : $font-size-h3Mobile;
+      font-weight: bold;
     }
   }
 
-  .l-welcome-col {
-    padding: 15px;
-    background: #fff;
-    border-radius: 8px;
+  svg {
+    position: absolute;
+    top     : 0;
+    left    : 0;
+    width   : 100%;
+    height  : 100%;
+    z-index : -1;
+  }
 
-    @include media("sm") {
-      // background-color: $gray-100;
-      box-shadow: 1px 2px 5px 1px $gray-300;
-      border-radius: 3px;
-      margin: 0px 10px 30px 10px;
+  img {
+    display      : inline-block;
+    margin-bottom: -50px;
+  }
+
+  @include media(">=md") {
+    min-height: 302px;
+    padding   : 32px 16px;
+
+    .col-image {
+      align-self: flex-end;
     }
 
-    a {
-      margin-top: 20px;
-      display: inline-block;
-      padding: 4px 0;
-      text-transform: capitalize;
+    img {
+      width     : 350px;
+      min-height: 300px;
+    }
+
+    .welcome-message p:first-child {
+      font-size: $font-size-xlarge;
     }
   }
 
-  .l-filter-col {
-    display: flex;
-    align-items: center;
-    @include media(">=md") {
-      padding-left: 25px;
+  @include media(">=lg") {
+    padding: 48px 16px;
+  }
+}
+
+.suggestions {
+  position     : relative;
+  margin-top   : 2em;
+  margin-bottom: 1em;
+
+  .c-form {
+    display    : flex;
+    flex-wrap  : wrap;
+    align-items: flex-start;
+
+    .c-form-field:not(.c-multi-image-uploader) {
+      width: 100%;
     }
+
     .c-form-field {
-      > div {
-        display: inline-block;
+      margin-bottom: 0;
+    }
+
+    >.c-button {
+      margin-top : 20px;
+      margin-left: auto;
+    }
+
+    .c-button-icon {
+      display: block;
+    }
+
+    input:focus~button {
+      opacity: 0;
+    }
+
+  }
+
+  .c-form.visible {
+
+    #input-title {
+      border-radius: 24px 24px 0 0;
+    }
+
+    #input-description {
+      border-radius: 0 0 24px 24px;
+    }
+
+    .c-button-icon {
+      opacity: 0;
+      display: block;
+    }
+  }
+
+  @include media(">=md") {
+    margin-top: -90px;
+  }
+
+  @include media(">=lg") {
+    margin-top: -140px;
+  }
+}
+
+.posts {
+  .col-search {
+    display: none;
+  }
+
+  .col-posts {
+    padding: 0 15px 15px;
+
+    .row {
+      align-items: right;
+    }
+  }
+
+  .col-filter {
+    display      : flex;
+    margin-bottom: 24px;
+
+    .c-form-field {
+      margin-left: auto;
+
+      >div {
+        display     : inline-block;
         margin-right: 20px;
+
         &:last-child {
           margin-right: 0;
         }
+      }
 
-        .subtitle {
-          display: inline-block;
-          margin: 6px 0 0 0;
-        }
+      .subtitle {
+        display    : inline-block;
+        margin     : 6px 0 0 0;
+        font-weight: normal;
+        font-size  : $font-size-small;
       }
     }
+
     .c-dropdown {
       .c-dropdown-control {
-        background-color: #fff;
-        margin-left: 8px;
-        font-weight: bold;
-        border: none;
-        font-size: $font-size-tiny;
-        text-transform: uppercase;
-        padding: 5px 25px 5px 5px;
+        min-width    : 125px;
+        margin-left  : 8px;
+        font-weight  : bold;
+        border       : 1px solid $gray-300;
+        font-size    : $font-size-small;
+        padding      : 7px 24px 7px 10px;
         border-radius: 4px;
+
         &:hover {
           background-color: $gray-200;
         }
       }
     }
-  }
 
-  .l-tags-filter {
-    .selected.item {
-      background-color: transparent;
-      font-weight: normal;
-    }
-    .c-tag {
-      margin: 0 5px 0 0;
-    }
-    .icon {
-      height: 12px;
-      margin-right: 2px;
-      vertical-align: top;
-      color: transparent;
-    }
-    .selected-tag {
-      .icon {
-        color: $green-400;
+    @include media("sm") {
+      .c-form-field {
+        display: flex;
+        width  : 100%;
+
+        >div {
+          width         : 50%;
+          display       : flex;
+          flex-direction: column;
+        }
+
+        .subtitle {
+          margin-bottom: 6px;
+        }
+      }
+
+      .c-dropdown .c-dropdown-control {
+        margin-left: 0;
       }
     }
+  }
+
+  @include media(">=md") {
+    margin-top: 4em;
   }
 }

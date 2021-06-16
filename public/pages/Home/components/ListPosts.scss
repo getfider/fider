@@ -2,22 +2,23 @@
 
 .c-post-list {
   .c-list-item {
-    display: flex;
-    border-top-width: 0.1px !important;
+    display   : flex;
+    border-top: 1px solid $gray-300;
 
     .c-list-item-title {
-      color: $gray-900;
-      font-weight: 700;
+      color        : $gray-900;
+      font-weight  : 700;
       margin-bottom: 10px;
-      font-size: $font-size-large;
+      font-size    : $font-size-large;
+
       &:hover {
         color: $main-color;
       }
     }
 
     .c-list-item-content {
-      flex-grow: 1;
-      align-self: center;
+      flex-grow   : 1;
+      margin-right: 24px;
 
       .c-tag {
         margin: 0 3px 3px 0;
@@ -29,15 +30,22 @@
     }
 
     .c-list-item-description {
-      color: $gray-700;
+      color     : $gray-700;
       margin-top: 10px;
     }
+
+    @include media(">md") {
+      .c-list-item-content {
+        margin-right: 0;
+      }
+    }
+
   }
 }
 
 .c-post-list-show-more {
-  cursor: pointer;
+  cursor     : pointer;
   font-weight: 500;
-  color: $main-color;
+  color      : $main-color;
   margin-left: 55px;
 }

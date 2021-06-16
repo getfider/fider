@@ -5,10 +5,11 @@
 
   &.is-inline {
     display: inline-block;
+
     .c-dropdown-menu {
-      width: auto;
+      width        : auto;
       border-radius: 5px;
-      margin-top: 5px;
+      margin-top   : 5px;
     }
   }
 
@@ -36,20 +37,24 @@
   }
 
   .c-dropdown-control {
-    position: relative;
-    cursor: pointer;
-    overflow: hidden;
+    position        : relative;
+    cursor          : pointer;
+    overflow        : hidden;
     background-color: transparent;
-    border-radius: 3px;
-    box-sizing: border-box;
-    color: $gray-900;
-    outline: none;
-    padding: 8px 52px 8px 10px;
-    transition: all 200ms ease;
+    border-radius   : 3px;
+    box-sizing      : border-box;
+    color           : $gray-900;
+    outline         : none;
+    padding         : 8px 52px 8px 10px;
+    transition      : all 200ms ease;
+
+    &::first-letter {
+      text-transform: capitalize;
+    }
 
     input {
       border: none;
-      width: 100%;
+      width : 100%;
     }
 
     .c-dropdown-placeholder {
@@ -118,14 +123,23 @@
       &.is-selected {
         font-weight: 700;
       }
+
+
+      svg {
+        display: none;
+      }
+
+      .c-tag {
+        margin-right: 6px;
+      }
     }
 
     .c-dropdown-noresults {
       box-sizing: border-box;
-      color: $gray-400;
-      cursor: default;
-      display: block;
-      padding: 8px 10px;
+      color     : $gray-400;
+      cursor    : default;
+      display   : block;
+      padding   : 8px 10px;
     }
   }
 }

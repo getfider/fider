@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { useState, useEffect, useRef } from "react"
 import { Button, ButtonClickEvent, Input, Form, TextArea, MultiImageUploader } from "@fider/components"
 import { SignInModal } from "@fider/components"
@@ -12,6 +13,7 @@ interface PostInputProps {
 
 const CACHE_TITLE_KEY = "PostInput-Title"
 const CACHE_DESCRIPTION_KEY = "PostInput-Description"
+
 
 export const PostInput = (props: PostInputProps) => {
   const getCachedValue = (key: string): string => {
@@ -46,6 +48,8 @@ export const PostInput = (props: PostInputProps) => {
     props.onTitleChanged(value)
   }
 
+  
+
   const hideModal = () => setIsSignInModalOpen(false)
   const clearError = () => setError(undefined)
 
@@ -72,16 +76,14 @@ export const PostInput = (props: PostInputProps) => {
     <>
       <TextArea field="description" onChange={handleDescriptionChange} value={description} minRows={5} placeholder="Describe your suggestion (optional)" />
       <MultiImageUploader field="attachments" maxUploads={3} previewMaxWidth={100} onChange={setAttachments} />
-      <Button type="submit" color="positive" onClick={submit}>
-        Submit
-      </Button>
+      <Button type="submit" color="positive" onClick={submit}>Submit</Button>
     </>
   )
 
   return (
     <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <Form error={error}>
+      <Form error={error} className={title.length > 0 ? 'visible' : 'hidden'}>
         <Input
           field="title"
           noTabFocus={!fider.session.isAuthenticated}

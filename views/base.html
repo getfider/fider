@@ -22,33 +22,50 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ .private.currentURL }}" />
   <meta property="og:image" content="{{ .private.logo }}">
+
+  <!-- stylesheet link (common for all widgets) -->
+  <link href="https://widgets.bcc.no/styles/widgets.css" rel="stylesheet" type="text/css">
+  <!-- end stylesheet link -->
 </head>
+
 <body>
+
+  <!-- topbar widget -->
+  <script id="script-bcc-topbar" data-authentication-type="TYPE" data-authentication-location="LOCATION"
+    src="https://widgets.bcc.no/widgets/TopbarJs"></script>
+  <!-- end topbar widget -->
+
   {{block "noscript" .}}{{end}}
-
-  {{ if ne .public.settings.googleAnalytics "" }}
-  <script type="text/javascript" nonce="{{ .public.contextID }}">
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-    ga('create', '{{ .public.settings.googleAnalytics }}', 'auto');
-    {{ if .public.tenant }}ga('set', 'dimension1', '{{ .public.tenant.Subdomain }}');{{ end }}
-    ga('send', 'pageview');
-  </script>
-  {{ end }}
 
   {{template "content" .}}
 
   <script id="server-data" type="application/json">
     {{template "server-data" .}}
   </script>
-  {{template "end-of-body" .}}
-  {{ if .public.tenant }} 
-    {{ if .public.tenant.CustomCSS }} 
-    <link rel="stylesheet" href="{{ .public.settings.tenantAssetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
-    {{ end }}
+
+  {{ if ne .public.settings.googleAnalytics "" }}
+  <script type="text/javascript" nonce="{{ .public.contextID }}">
+    (function (i, s, o, g, r, a, m) {
+      i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+      }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', '{{ .public.settings.googleAnalytics }}', 'auto');
+    { { if .public.tenant } } ga('set', 'dimension1', '{{ .public.tenant.Subdomain }}'); { { end } }
+    ga('send', 'pageview');
+  </script>
   {{ end }}
+
+  {{template "end-of-body" .}}
+  {{ if .public.tenant }}
+  {{ if .public.tenant.CustomCSS }}
+  <link rel="stylesheet"
+    href="{{ .public.settings.tenantAssetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
+  {{ end }}
+  {{ end }}
+
 </body>
+
 </html>

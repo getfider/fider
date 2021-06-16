@@ -1,35 +1,60 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-image-upload {
+  display    : flex;
+  flex-wrap  : wrap;
+  align-items: center;
+
   input[type="file"] {
     display: none;
   }
 
+  label {
+    order        : 1;
+    margin-left  : 10px;
+    margin-bottom: 0;
+    color        : $gray-500;
+    font-size    : $font-size-small;
+    font-weight  : normal;
+  }
+
   .c-form-field-wrapper {
     .c-button {
-      font-size: $font-size-big;
-      padding: 4px 8px;
+      background  : $gray-300;
+      font-size   : $font-size-big;
+      padding     : 8px;
+      margin-right: 0;
     }
+
+    .c-button svg path {
+      fill: $gray-700;
+    }
+  }
+
+  .info {
+    order: 1;
   }
 
   .preview {
     position: relative;
-    display: inline-block;
+    display : inline-block;
+
     img {
-      padding: 5px;
-      min-width: 50px;
+      padding   : 5px;
+      min-width : 50px;
       min-height: 50px;
-      border: 1px solid $gray-300;
-      cursor: pointer;
+      border    : 1px solid $gray-300;
+      cursor    : pointer;
     }
+
     .c-button {
-      font-weight: 600;
-      position: absolute;
-      border-color: $red-400;
-      top: 4px;
-      right: 0px;
+      font-weight  : 600;
+      position     : absolute;
+      border-color : $red-400;
+      top          : 4px;
+      right        : 0px;
       border-radius: 50%;
-      padding: 4px 6px;
+      padding      : 4px 6px;
     }
   }
 }

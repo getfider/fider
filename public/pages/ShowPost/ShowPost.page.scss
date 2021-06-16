@@ -1,29 +1,36 @@
 @import "~@fider/assets/styles/variables.scss";
 
 #p-show-post {
+  margin-top: 1em;
+
   .post-header {
     width: 100%;
+
     h1 {
-      font-weight: 400;
-      margin: 0px;
-      font-size: $font-size-xlarge;
+      font-weight  : 400;
+      margin       : 0px;
+      font-size    : $font-size-xlarge;
       margin-bottom: 2px;
+
       @include media("sm") {
         font-size: $font-size-big;
       }
     }
+
     .c-avatar {
-      width: 24px;
+      width : 24px;
       height: 24px;
     }
   }
 
   @include media(">=md") {
+
     .header-col,
     .comments-col {
       float: left;
       width: calc(100% - 300px);
     }
+
     .action-col {
       float: right;
     }
@@ -31,6 +38,7 @@
 
   .header-col {
     margin-bottom: 20px;
+
     .c-list-item {
       display: flex;
     }
@@ -38,11 +46,12 @@
 
   .action-col {
     margin-bottom: 20px;
+
     @include media(">=md") {
       width: 240px;
     }
 
-    .subtitle + .c-list {
+    .subtitle+.c-list {
       margin-bottom: 10px;
     }
   }
@@ -50,11 +59,12 @@
   .c-tag-list {
     .m-selectable {
       .icon {
-        height: 12px;
+        height      : 12px;
         margin-right: 2px;
-        color: $green-400;
+        color       : $green-400;
       }
     }
+
     span {
       margin-left: 5px;
     }

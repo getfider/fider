@@ -1,9 +1,10 @@
+/* eslint-disable prettier/prettier */
 import "./Header.scss"
 
 import React, { useState, useEffect } from "react"
-import { SignInModal, EnvironmentInfo, Avatar, TenantLogo } from "@fider/components"
+import { SignInModal, EnvironmentInfo, TenantLogo } from "@fider/components"
 import { actions } from "@fider/services"
-import { FaUser, FaCog, FaCaretDown } from "react-icons/fa"
+import { FaUser, FaCog, FaBars, FaBell, FaSignOutAlt } from "react-icons/fa"
 import { useFider } from "@fider/hooks"
 
 export const Header = () => {
@@ -31,28 +32,30 @@ export const Header = () => {
 
   const items = fider.session.isAuthenticated && (
     <div className="c-menu-user">
-      <div className="c-menu-user-heading">
-        <FaUser /> <span>{fider.session.user.name}</span>
-      </div>
+      {/* <div className="c-menu-user-heading">
+        <span>{fider.session.user.name}</span>
+      </div> */}
       <a href="/settings" className="c-menu-user-item">
-        Settings
+        <FaUser /> Settings
       </a>
+      <div className="c-menu-user-divider" />
+
       <a href="/notifications" className="c-menu-user-item">
-        Notifications
+        <FaBell /> Notifications
         {unreadNotifications > 0 && <div className="c-unread-count">{unreadNotifications}</div>}
       </a>
       <div className="c-menu-user-divider" />
       {fider.session.user.isCollaborator && [
-        <div key={1} className="c-menu-user-heading">
-          <FaCog /> <span>Administration</span>
-        </div>,
+        // <div key={1} className="c-menu-user-heading">
+        //    <span>Administration</span>
+        // </div>,
         <a key={2} href="/admin" className="c-menu-user-item">
-          Site Settings
+          <FaCog /> Site Settings
         </a>,
         <div key={5} className="c-menu-user-divider" />,
       ]}
       <a href="/signout?redirect=/" className="c-menu-user-item signout">
-        Sign out
+        <FaSignOutAlt /> Sign out
       </a>
     </div>
   )
@@ -70,10 +73,11 @@ export const Header = () => {
           </a>
           {showRightMenu && (
             <div onClick={showModal} className="c-menu-item-signin">
-              {fider.session.isAuthenticated && <Avatar user={fider.session.user} />}
+              {/* {fider.session.isAuthenticated && <Avatar user={fider.session.user} />}
               {unreadNotifications > 0 && <div className="c-unread-dot" />}
               {!fider.session.isAuthenticated && <span>Sign in</span>}
-              {fider.session.isAuthenticated && <FaCaretDown />}
+              {fider.session.isAuthenticated && <FaCaretDown />} */}
+              <FaBars/>
               {items}
             </div>
           )}

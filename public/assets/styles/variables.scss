@@ -1,11 +1,13 @@
 $font-size-micro: 9px;
 $font-size-mini: 11px;
 $font-size-tiny: 12px;
-$font-size-small: 13px;
+$font-size-small: 14px;
 $font-size: 16px;
 $font-size-large: 18px;
 $font-size-big: 20px;
-$font-size-xlarge: 24px;
+$font-size-xlarge: 32px;
+
+$font-size-h3Mobile: 22px;
 
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
@@ -15,13 +17,14 @@ $font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monos
 
 $white: #fff;
 
-$gray-900: #111827;
-$gray-700: #374151;
-$gray-500: #6b7280;
-$gray-400: #9ca3af;
-$gray-300: #d1d5db;
+
+$gray-900: #16171A;
+$gray-700: #5A617D;
+$gray-500: #838CA8;
+$gray-400: #C1C7DA;
+$gray-300: #E6E9F2;
 $gray-200: #e5e7eb;
-$gray-100: #f3f4f6;
+$gray-100: #F5F6FA;
 $gray-50: #f9fafb;
 
 $gray-scale: (
@@ -115,13 +118,16 @@ $blue-scale: (
   50: $blue-50,
 );
 
-$main-color: #4338ca;
-$admin-color: #4338ca;
-$link-color: #3b82f6;
+$main-color: #6291EB;
+$admin-color: #6291EB;
+$link-color: #6291EB;
 
 $orange: #f59e0b;
 
+$basic-shadow: 0px 1px 0px rgba(0, 35, 140, 0.06), 0px 2px 6px -1px rgba(0, 7, 26, 0.1);
+
 // Queries
+$medias: "sm", "md", "lg", "xl";
 $sm-width: 576px;
 $md-width: 768px;
 $lg-width: 992px;

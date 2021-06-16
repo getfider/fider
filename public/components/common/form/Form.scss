@@ -1,41 +1,78 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-form {
-  position: relative;
+  position : relative;
   max-width: 100%;
 
   &.m-mini {
     font-size: 80%;
+
     input[type="text"],
     textarea,
     select {
       padding: 8px;
     }
   }
+
+
+}
+
+.c-button-icon {
+  position     : absolute;
+  width        : 40px;
+  height       : 40px;
+  background   : $main-color;
+  right        : 4px;
+  top          : 4px;
+  border       : none;
+  border-radius: 50%;
+  margin       : 0;
+  padding      : 0;
+  transition   : .3s cubic-bezier(0.075, 0.82, 0.165, 1);
+  display      : none;
+
+  &::after {
+    content    : '';
+    position   : absolute;
+    top        : 50%;
+    left       : 50%;
+    margin-top : -10px;
+    margin-left: -10px;
+    width      : 20px;
+    height     : 20px;
+    background : url("../../../assets/images/arrow-narrow-right.svg") no-repeat;
+  }
 }
 
 .c-form-field {
-  clear: both;
-  margin: 0 0 10px;
+  clear        : both;
+  margin-bottom: 1.5em;
 
   &.m-checkbox {
     label {
       font-weight: initial;
     }
+
     input[type="checkbox"] {
       vertical-align: middle;
-      margin: 0 5px 3px 0;
+      margin        : 0 5px 3px 0;
     }
   }
 
+  .info {
+    margin-top: 12px;
+  }
+
   label {
-    display: block;
-    margin: 0 0 5px;
-    font-weight: 600;
+    display       : block;
+    margin        : 0 0 5px;
+    font-weight   : 600;
+    text-transform: capitalize;
 
     .info {
       padding: 5px 0px 0px 5px;
     }
+
     .info.clickable {
       color: $link-color;
     }
@@ -43,49 +80,49 @@
 
   .c-form-field-wrapper {
     position: relative;
-    margin: 0 0 5px;
   }
 
   input[type="text"],
   textarea,
   select {
-    background-color: $white;
+    background-color  : $white;
     -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    padding: 8px;
-    margin: 0;
-    resize: none !important;
-    border: 1px solid $gray-300;
-    border-radius: 4px;
-
+    appearance        : none;
+    width             : 100%;
+    padding           : 14px 48px 14px 16px;
+    margin            : 0;
+    resize            : none !important;
+    border            : 1px solid $main-color;
+    border-radius     : 24px;
+    box-shadow        : $basic-shadow;
 
     &:disabled {
       opacity: 0.45;
-      cursor: not-allowed;
+      cursor : not-allowed;
     }
 
-    & + .icon {
+    &+.icon {
       pointer-events: none;
-      cursor: default;
-      position: absolute;
-      opacity: 0.5;
-      width: 35px;
-      height: 100%;
-      padding: 12px 0px;
-      margin: 0;
-      top: 0;
-      right: 0;
-      position: absolute;
+      cursor        : default;
+      position      : absolute;
+      opacity       : 0.5;
+      width         : 35px;
+      height        : 100%;
+      padding       : 12px 0px;
+      margin        : 0;
+      top           : 0;
+      right         : 0;
+      position      : absolute;
 
       &.link {
-        cursor: pointer;
+        cursor        : pointer;
         pointer-events: inherit;
       }
     }
   }
 
   &.m-error {
+
     input[type="text"],
     textarea,
     select {
@@ -106,55 +143,60 @@
   &.m-suffix {
     .c-form-field-wrapper {
       display: inline-flex;
-      width: 100%;
+      width  : 100%;
     }
+
     .c-button {
-      border-top-left-radius: 0;
+      border-top-left-radius   : 0;
       border-bottom-left-radius: 0;
     }
+
     input[type="text"] {
-      max-width: 100%;
-      width: auto;
-      flex: 1 0 auto;
-      border-top-right-radius: 0px;
+      max-width                 : 100%;
+      width                     : auto;
+      flex                      : 1 0 auto;
+      border-top-right-radius   : 0px;
       border-bottom-right-radius: 0px;
     }
+
     .c-form-input-suffix {
-      line-height: 20px;
-      flex: 0 0 auto;
-      padding: 8px 10px 9px 10px;
-      font-weight: 600;
-      background-color: $gray-200;
-      border-top-right-radius: 3px;
+      line-height               : 20px;
+      flex                      : 0 0 auto;
+      padding                   : 8px 10px 9px 10px;
+      font-weight               : 600;
+      background-color          : $gray-200;
+      border-top-right-radius   : 3px;
       border-bottom-right-radius: 3px;
     }
   }
 
   .c-form-radio-option {
     label {
-      display: inline-block;
+      display    : inline-block;
       margin-left: 5px;
-      font-size: $font-size-small;
+      font-size  : $font-size-small;
       font-weight: 500;
-      cursor: pointer;
+      cursor     : pointer;
     }
   }
+
 }
 
 .c-form-field-error {
-  color: $red-400;
+  color      : $red-400;
   font-weight: bold;
-  font-size: $font-size-small;
-  margin: 0 0 10px 0;
+  font-size  : $font-size-small;
+  margin     : 0 0 10px 0;
+
   ul {
-    list-style: none;
+    list-style  : none;
     padding-left: 5px;
-    margin: 0;
+    margin      : 0;
   }
 }
 
 ::placeholder {
-  color: $gray-500;
+  color  : $gray-500;
   opacity: 1;
 }
 
