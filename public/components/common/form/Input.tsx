@@ -75,6 +75,8 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
             />
             {icon}
             {suffix}
+            
+            <button className="c-button-icon"></button>
           </div>
           <DisplayError fields={[props.field]} error={ctx.error} />
           {props.children}

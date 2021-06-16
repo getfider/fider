@@ -2,10 +2,9 @@
 import React from "react"
 
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { Loader, Input } from "@fider/components"
+import { Loader, Field, Input } from "@fider/components"
 import { actions, navigator, querystring } from "@fider/services"
-import IconSearch from "@fider/assets/images/heroicons-search.svg"
-import IconX from "@fider/assets/images/heroicons-x.svg"
+import { FaTimes, FaSearch } from "react-icons/fa"
 import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
 import { TagsFilter } from "./TagsFilter"
@@ -113,7 +112,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           <div className={!this.state.query ? `col-search col-5 col-md-4 col-lg-3 mb-2` : "col-sm-12 mb-2"}>
             <Input
               field="query"
-              icon={this.state.query ? IconX : IconSearch}
+              icon={this.state.query ? FaTimes  : FaSearch }
               onIconClick={this.state.query ? this.clearSearch : undefined}
               placeholder="Search..."
               value={this.state.query}

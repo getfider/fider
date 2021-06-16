@@ -3,12 +3,10 @@ import "./VoteCounter.scss"
 
 import React, { useState } from "react"
 import { Post, PostStatus } from "@fider/models"
-import { actions, device, classSet } from "@fider/services"
+import { actions, classSet } from "@fider/services"
 import { SignInModal } from "@fider/components"
 import { FaHeart } from "react-icons/fa"
 import { useFider } from "@fider/hooks"
-import FaCaretUp from "@fider/assets/images/fa-caretup.svg"
-
 interface VoteCounterProps {
   post: Post
 }

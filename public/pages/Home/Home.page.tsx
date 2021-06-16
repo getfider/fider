@@ -5,12 +5,11 @@ import HeroIllustration from "@fider/assets/images/Illustration.svg"
 
 import React, { useState } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
-import { Markdown, Hint, PoweredByFider, Icon } from "@fider/components"
+import { MultiLineText, Hint, PoweredByFider } from "@fider/components"
 import { SimilarPosts } from "./components/SimilarPosts"
 import { PostInput } from "./components/PostInput"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
-import { VStack } from "@fider/components/layout"
 
 export interface HomePageProps {
   posts: Post[]
@@ -33,7 +32,9 @@ const Lonely = () => {
           engaging your audience.
         </p>
       </Hint>
-      <Icon sprite={NoDataIllustration} height="120" className="mt-6 mb-2" />
+      <p>
+        <img alt="No Posts" height="100" src={NoDataIllustration} />
+      </p>
       <p className="text-muted">No posts have been created yet.</p>
     </div>
   )
