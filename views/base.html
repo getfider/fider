@@ -22,18 +22,9 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ .private.currentURL }}" />
   <meta property="og:image" content="{{ .private.logo }}">
-
-  <!-- stylesheet link (common for all widgets) -->
-  <link href="https://widgets.bcc.no/styles/widgets.css" rel="stylesheet" type="text/css">
-  <!-- end stylesheet link -->
 </head>
 
 <body>
-
-  <!-- topbar widget -->
-  <script id="script-bcc-topbar" data-authentication-type="TYPE" data-authentication-location="LOCATION"
-    src="https://widgets.bcc.no/widgets/TopbarJs"></script>
-  <!-- end topbar widget -->
 
   {{block "noscript" .}}{{end}}
 
