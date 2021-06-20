@@ -3,7 +3,6 @@ package s3
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io/ioutil"
 	"path"
 	"sort"
@@ -74,12 +73,11 @@ func (s Service) Init() {
 }
 
 func listBlobs(ctx context.Context, q *query.ListBlobs) error {
-	tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
-	basePath := fmt.Sprintf("tenants/%d/", tenant.ID)
+	prefix := basePath(ctx, q.Prefix)
 	response, err := DefaultClient.ListObjectsWithContext(ctx, &s3.ListObjectsInput{
 		Bucket:  aws.String(env.Config.BlobStorage.S3.BucketName),
 		MaxKeys: aws.Int64(3000),
-		Prefix:  aws.String(basePath),
+		Prefix:  aws.String(prefix),
 	})
 	if err != nil {
 		return wrap(err, "failed to list blobs from S3")
@@ -88,7 +86,14 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 	files := make([]string, 0)
 	for _, item := range response.Contents {
 		key := *item.Key
-		files = append(files, key[len(basePath):])
+
+		// if it ends with '/' it's not an actual blob
+		if strings.HasSuffix(key, "/") {
+			continue
+		}
+
+		fullKey := q.Prefix + key[len(prefix):]
+		files = append(files, strings.TrimLeft(fullKey, "/"))
 	}
 
 	sort.Strings(files)
@@ -153,11 +158,17 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 }
 
 func keyFullPathURL(ctx context.Context, key string) string {
+	return path.Join(basePath(ctx, ""), key)
+}
+
+func basePath(ctx context.Context, segment string) string {
+	blob.EnsureAuthorizedPrefix(ctx, segment)
+
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
-		return path.Join("tenants", strconv.Itoa(tenant.ID), key)
+		return path.Join("tenants", strconv.Itoa(tenant.ID), segment) 
 	}
-	return key
+	return segment
 }
 
 func isNotFound(err error) bool {

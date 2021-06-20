@@ -1,10 +1,12 @@
 package blob
 
 import (
+	"context"
 	"errors"
 	"path/filepath"
 	"strings"
 
+	"github.com/getfider/fider/app"
 	"github.com/gosimple/slug"
 )
 
@@ -33,4 +35,17 @@ func ValidateKey(key string) error {
 		return ErrInvalidKeyFormat
 	}
 	return nil
+}
+
+// EnsureAuthorizedPrefix panics if the path is invalid under the given context
+func EnsureAuthorizedPrefix(ctx context.Context, path string) {
+	// if it's running under the context of a tenant, any prefix is valid
+	if ctx.Value(app.TenantCtxKey) != nil {
+		return
+	}
+
+	// 'tenants' prefix is not valid when running outside a tenant context
+	if strings.HasPrefix(path, "tenants") {
+		panic(errors.New("Unauthorized access to 'tenants' path."))
+	}
 }

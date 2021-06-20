@@ -69,6 +69,8 @@ var tests = []struct {
 	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
 	{"SameKey_DifferentTenant_Delete", SameKey_DifferentTenant_Delete},
 	{"ListBlobsFromTenant", ListBlobsFromTenant},
+	{"ListBlobsOutsideTenant", ListBlobsOutsideTenant},
+	{"ListUnauthorizedBlobs", ListUnauthorizedBlobs},
 }
 
 func TestBlobStorage(t *testing.T) {
@@ -258,6 +260,48 @@ func ListBlobsFromTenant(ctx context.Context) {
 	Expect(err).IsNil()
 	Expect(tenant2Files.Result).HasLen(1)
 	Expect(tenant2Files.Result).Equals([]string{"texts/hello.txt"})
+}
+
+func ListBlobsOutsideTenant(ctx context.Context) {
+	err := bus.Dispatch(ctx, &cmd.StoreBlob{
+		Key:         "texts/hello.txt",
+		Content:     make([]byte, 0),
+		ContentType: "text/plain; charset=utf-8",
+	})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(ctx, &cmd.StoreBlob{
+		Key:         "texts/world.txt",
+		Content:     make([]byte, 0),
+		ContentType: "text/plain; charset=utf-8",
+	})
+	Expect(err).IsNil()
+
+	textFiles := &query.ListBlobs{Prefix: "texts/"}
+	err = bus.Dispatch(ctx, textFiles)
+	Expect(err).IsNil()
+	Expect(textFiles.Result).HasLen(2)
+	Expect(textFiles.Result).Equals([]string{"texts/hello.txt", "texts/world.txt"})
+
+	imageFiles := &query.ListBlobs{Prefix: "images/"}
+	err = bus.Dispatch(ctx, imageFiles)
+	Expect(err).IsNil()
+	Expect(imageFiles.Result).HasLen(0)
+	Expect(imageFiles.Result).Equals([]string{})
+}
+
+func ListUnauthorizedBlobs(ctx context.Context) {
+	Expect(func() {
+		_ = bus.Dispatch(ctx, &query.ListBlobs{Prefix: "tenants/"})
+	}).Panics()
+
+	Expect(func() {
+		_ = bus.Dispatch(ctx, &query.ListBlobs{Prefix: "tenants"})
+	}).Panics()
+
+	ctxWithTenant := context.WithValue(ctx, app.TenantCtxKey, tenant1)
+	err := bus.Dispatch(ctxWithTenant, &query.ListBlobs{Prefix: "tenants"})
+	Expect(err).IsNil()
 }
 
 func KeyFormats(ctx context.Context) {
