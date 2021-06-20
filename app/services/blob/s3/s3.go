@@ -86,6 +86,12 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 	files := make([]string, 0)
 	for _, item := range response.Contents {
 		key := *item.Key
+
+		// if it ends with '/' it's not an actual blob
+		if strings.HasSuffix(key, "/") {
+			continue
+		}
+
 		fullKey := q.Prefix + key[len(prefix):]
 		files = append(files, strings.TrimLeft(fullKey, "/"))
 	}
