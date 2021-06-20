@@ -2,6 +2,7 @@ package console
 
 import (
 	"context"
+	"encoding/json"
 	stdLog "log"
 	"os"
 	"time"
@@ -69,18 +70,19 @@ func writeLog(ctx context.Context, level log.Level, message string, props dto.Pr
 	}
 
 	props = log.GetProperties(ctx).Merge(props)
-	message = log.Parse(message, props, true)
-	tag := props[log.PropertyKeyTag]
-	if tag == nil {
-		tag = "???"
+	props["Level"] = level.String()
+	props["Message"] = log.Parse(message, props, !env.Config.Log.Structured)
+	props["Timestamp"] = time.Now().Format(time.RFC3339)
+	if props[log.PropertyKeyTag] == nil {
+		props[log.PropertyKeyTag] = "???"
 	}
 
-	contextID := props[log.PropertyKeyContextID]
-	if contextID == nil {
-		stdOut.Printf("%s [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), tag, message)
-	} else {
-		stdOut.Printf("%s [%s] [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), tag, contextID, message)
+	if env.Config.Log.Structured {
+		_ = json.NewEncoder(stdOut.Writer()).Encode(props)
+		return
 	}
+
+	stdOut.Printf("%s [%s] [%s] %s\n", colorizeLevel(level), props["Timestamp"], props[log.PropertyKeyTag], props["Message"])
 }
 
 func colorizeLevel(level log.Level) string {

@@ -51,7 +51,8 @@ type config struct {
 		Host string `env:"CDN_HOST"`
 	}
 	Log struct {
-		Level string `env:"LOG_LEVEL,default=INFO"`
+		Level      string `env:"LOG_LEVEL,default=INFO"`
+		Structured bool   `env:"LOG_STRUCTURED,default=false"`
 	}
 	OAuth struct {
 		Google struct {
