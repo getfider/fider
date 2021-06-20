@@ -46,6 +46,6 @@ func EnsureAuthorizedPrefix(ctx context.Context, path string) {
 
 	// 'tenants' prefix is not valid when running outside a tenant context
 	if strings.HasPrefix(path, "tenants") {
-		panic(errors.New("Unauthozied access to 'tenants' path."))
+		panic(errors.New("Unauthorized access to 'tenants' path."))
 	}
 }
