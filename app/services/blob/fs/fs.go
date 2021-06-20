@@ -51,7 +51,7 @@ func (s Service) Init() {
 }
 
 func listBlobs(ctx context.Context, q *query.ListBlobs) error {
-	basePath := basePath(ctx)
+	basePath := basePath(ctx, q.Prefix)
 	files := make([]string, 0)
 
 	err := filepath.Walk(basePath,
@@ -60,11 +60,11 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 				return err
 			}
 			if !info.IsDir() {
-				files = append(files, path[len(basePath)+1:])
+				files = append(files, q.Prefix+path[len(basePath)+1:])
 			}
 			return nil
 		})
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return errors.Wrap(err, "failed to read dir '%s'", basePath)
 	}
 
@@ -126,14 +126,16 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 }
 
 func keyFullPath(ctx context.Context, key string) string {
-	return path.Join(basePath(ctx), key)
+	return basePath(ctx, key)
 }
 
-func basePath(ctx context.Context) string {
+func basePath(ctx context.Context, segment string) string {
+	blob.EnsureAuthorizedPrefix(ctx, segment)
+
 	startPath := env.Config.BlobStorage.FS.Path
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
-		return path.Join(startPath, "tenants", strconv.Itoa(tenant.ID))
+		return path.Join(startPath, "tenants", strconv.Itoa(tenant.ID), segment)
 	}
-	return path.Join(startPath)
+	return path.Join(startPath, segment)
 }
