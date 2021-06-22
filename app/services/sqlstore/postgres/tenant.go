@@ -86,7 +86,12 @@ func (t *dbEmailVerification) toModel() *entity.EmailVerification {
 
 func isCNAMEAvailable(ctx context.Context, q *query.IsCNAMEAvailable) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		exists, err := trx.Exists("SELECT id FROM tenants WHERE cname = $1 AND id <> $2", q.CNAME, tenant.ID)
+		tenantID := 0
+		if tenant != nil {
+			tenantID = tenant.ID
+		}
+
+		exists, err := trx.Exists("SELECT id FROM tenants WHERE cname = $1 AND id <> $2", q.CNAME, tenantID)
 		if err != nil {
 			q.Result = false
 			return errors.Wrap(err, "failed to check if tenant exists with CNAME '%s'", q.CNAME)

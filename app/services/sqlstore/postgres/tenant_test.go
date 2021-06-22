@@ -139,6 +139,36 @@ func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
 	Expect(getByDomain.Result.Status).Equals(enum.TenantActive)
 }
 
+func TestTenantStorage_IsCNAMEAvailable_ExistingCNAME(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{
+		Title: "My Domain Inc.",
+		CNAME: "feedback.mycompany.com",
+		Logo:  &dto.ImageUpload{},
+	})
+	Expect(err).IsNil()
+
+	// when ctx doesn't have a tenant, CNAME is unavailable
+	isAvailable := &query.IsCNAMEAvailable{CNAME: "feedback.mycompany.com"}
+	err = bus.Dispatch(ctx, isAvailable)
+	Expect(err).IsNil()
+	Expect(isAvailable.Result).IsFalse()
+
+	// when CNAME belongs to tenant in context, it's still available
+	isAvailable = &query.IsCNAMEAvailable{CNAME: "feedback.mycompany.com"}
+	err = bus.Dispatch(demoTenantCtx, isAvailable)
+	Expect(err).IsNil()
+	Expect(isAvailable.Result).IsTrue()
+
+	// unused CNAMES are always available
+	isAvailable = &query.IsCNAMEAvailable{CNAME: "ideas.mycompany.com"}
+	err = bus.Dispatch(ctx, isAvailable)
+	Expect(err).IsNil()
+	Expect(isAvailable.Result).IsTrue()
+}
+
 func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
 	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

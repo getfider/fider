@@ -55,10 +55,10 @@ coverage-server: build-server build-ssr ## Run all server tests (with code cover
 watch:
 	make -j4 watch-server watch-ui
 
-watch-server: build-server migrate ## Build and run server in watch mode
+watch-server: migrate ## Build and run server in watch mode
 	air -c air.conf
 
-watch-ui: clean ## Build and run server in watch mode
+watch-ui: ## Build and run server in watch mode
 	npx webpack-cli -w
 
 
