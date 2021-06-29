@@ -8,9 +8,15 @@ import (
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/markdown"
+	"github.com/microcosm-cc/bluemonday"
 )
 
+var strictHtmlPolicy = bluemonday.NewPolicy()
+
 var templateFunctions = template.FuncMap{
+	"stripHtml": func(input string) string {
+		return strictHtmlPolicy.Sanitize(input)
+	},
 	"html": func(input string) template.HTML {
 		return template.HTML(input)
 	},

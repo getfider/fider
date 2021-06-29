@@ -1,0 +1,5 @@
+{{define "head"}}This goes on the head.{{end}}
+
+{{define "body"}}
+  {{ translate "email.greetings_name" (dict "name" .name) | html }}
+{{end}}
