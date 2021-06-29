@@ -19,18 +19,18 @@ type Message struct {
 	Body    string
 }
 
-var baseTpl = template.Must(template.New("base_email.tpl").Funcs(template.FuncMap{
+var baseTpl = template.Must(template.New("base_email.html").Funcs(template.FuncMap{
 	"translate": func(input string) string {
 		return "This is overwritten later on..."
 	},
-}).ParseFiles(env.Path("/views/templates/base_email.tpl")))
+}).ParseFiles(env.Path("/views/templates/base_email.html")))
 
 // RenderMessage returns the HTML of an email based on template and params
 func RenderMessage(ctx context.Context, templateName string, params dto.Props) *Message {
 	tpl, ok := cache[templateName]
 	if !ok || env.IsDevelopment() {
 		var err error
-		file := env.Path("/views/templates", templateName+".tpl")
+		file := env.Path("/views/templates", templateName+".html")
 		tpl, err = template.ParseFiles(file)
 		if err != nil {
 			panic(err)
@@ -47,7 +47,7 @@ func RenderMessage(ctx context.Context, templateName string, params dto.Props) *
 	body := strings.TrimLeft(strings.Join(lines[2:], "\n"), " ")
 
 	bf.Reset()
-	if err := template.Must( baseTpl.Clone()).Funcs(template.FuncMap{
+	if err := template.Must(baseTpl.Clone()).Funcs(template.FuncMap{
 		"translate": func(key string) string {
 			return i18n.T(ctx, key)
 		},
