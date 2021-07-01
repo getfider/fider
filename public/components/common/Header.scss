@@ -39,14 +39,13 @@
 
     .backToPortal {
       padding   : 15px;
-      background: $gray-100;
 
       svg {
         font-size: 1.25em;
       }
 
       svg path {
-        color: $main-color;
+        color: $gray-900;
       }
     }
 

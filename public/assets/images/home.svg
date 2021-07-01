@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 53.2 (72643) - https://sketchapp.com -->
+    <title>icon_portal</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icon/24/Portal-Dark" stroke="#132836" stroke-width="2">
+            <g id="Group" transform="translate(3.250000, 3.250000)">
+                <polyline id="Rectangle-4" points="14.75 6.75 14.75 14.75 2.75 14.75 2.75 6.75"></polyline>
+                <polyline id="Rectangle-4" transform="translate(8.712643, 9.409394) rotate(45.000000) translate(-8.712643, -9.409394) " points="2.72277812 15.4043263 2.71264348 3.42459556 14.7126435 3.41446093"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

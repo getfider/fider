@@ -4,8 +4,10 @@ import "./Header.scss"
 import React, { useState, useEffect } from "react"
 import { SignInModal, EnvironmentInfo, TenantLogo, Avatar } from "@fider/components"
 import { actions } from "@fider/services"
-import { FaUser, FaCog, FaBell, FaSignOutAlt, FaCaretDown, FaHome } from "react-icons/fa"
+import { FaUser, FaCog, FaBell, FaSignOutAlt, FaCaretDown } from "react-icons/fa"
 import { useFider } from "@fider/hooks"
+
+import BCCPortal from "@fider/assets/images/home.svg"
 
 export const Header = () => {
   const fider = useFider()
@@ -67,7 +69,7 @@ export const Header = () => {
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
       <div className="c-menu">
         <div className="container">
-          <a href="https://portal.bcc.no/" className="backToPortal" aria-label="go to portal.bcc.no" title="go to portal.bcc.no"><FaHome /></a>
+          <a href="https://portal.bcc.no/" className="backToPortal" aria-label="go to portal.bcc.no" title="go to portal.bcc.no"><img src={BCCPortal} alt="" /></a>
           <a href="/" className="c-menu-item-title">
             <TenantLogo size={100} />
             <h1>{fider.session.tenant.name}</h1>
