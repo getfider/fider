@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
@@ -24,7 +25,14 @@ func NewSignInByEmail() *SignInByEmail {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *SignInByEmail) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	return true
+	tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+	getUser := &query.GetUserByEmail{
+		Email: action.Email,
+	}
+	if err := bus.Dispatch(ctx, getUser); err != nil {
+		return false
+	}
+	return tenant.IsAllowingEmailAuth || (getUser.Result != nil && getUser.Result.IsAdministrator())
 }
 
 // Validate if current model is valid
