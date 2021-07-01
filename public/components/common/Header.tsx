@@ -2,9 +2,9 @@
 import "./Header.scss"
 
 import React, { useState, useEffect } from "react"
-import { SignInModal, EnvironmentInfo, TenantLogo } from "@fider/components"
+import { SignInModal, EnvironmentInfo, TenantLogo, Avatar } from "@fider/components"
 import { actions } from "@fider/services"
-import { FaUser, FaCog, FaBars, FaBell, FaSignOutAlt } from "react-icons/fa"
+import { FaUser, FaCog, FaBell, FaSignOutAlt, FaCaretDown, FaHome } from "react-icons/fa"
 import { useFider } from "@fider/hooks"
 
 export const Header = () => {
@@ -32,9 +32,9 @@ export const Header = () => {
 
   const items = fider.session.isAuthenticated && (
     <div className="c-menu-user">
-      {/* <div className="c-menu-user-heading">
+      <div className="c-menu-user-heading">
         <span>{fider.session.user.name}</span>
-      </div> */}
+      </div>
       <a href="/settings" className="c-menu-user-item">
         <FaUser /> Settings
       </a>
@@ -67,17 +67,17 @@ export const Header = () => {
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
       <div className="c-menu">
         <div className="container">
+          <a href="https://portal.bcc.no/" className="backToPortal" aria-label="go to portal.bcc.no" title="go to portal.bcc.no"><FaHome /></a>
           <a href="/" className="c-menu-item-title">
             <TenantLogo size={100} />
             <h1>{fider.session.tenant.name}</h1>
           </a>
           {showRightMenu && (
             <div onClick={showModal} className="c-menu-item-signin">
-              {/* {fider.session.isAuthenticated && <Avatar user={fider.session.user} />}
+              {fider.session.isAuthenticated && <Avatar user={fider.session.user} />}
               {unreadNotifications > 0 && <div className="c-unread-dot" />}
               {!fider.session.isAuthenticated && <span>Sign in</span>}
-              {fider.session.isAuthenticated && <FaCaretDown />} */}
-              <FaBars/>
+              {fider.session.isAuthenticated && <FaCaretDown />}
               {items}
             </div>
           )}

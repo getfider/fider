@@ -65,55 +65,59 @@
       border-color: $gray-500 transparent transparent;
       border-style: solid;
       border-width: 5px 5px 0;
-      content: " ";
-      display: block;
-      height: 0;
-      margin-top: -ceil(2.5);
-      position: absolute;
-      right: 10px;
-      top: 40%;
-      width: 0;
+      content     : " ";
+      display     : block;
+      height      : 0;
+      margin-top  : -ceil(2.5);
+      position    : absolute;
+      right       : 10px;
+      top         : 40%;
+      width       : 0;
     }
   }
 
   .c-dropdown-menu {
-    background-color: $white;
-    border: 1px solid $gray-300;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
-    box-sizing: border-box;
-    margin-top: -1px;
-    overflow-y: auto;
-    position: absolute;
-    width: 100%;
-    top: 100%;
-    z-index: 1000;
-    min-width: -webkit-min-content;
-    min-width: -moz-min-content;
-    min-width: min-content;
-    max-height: 300px;
+    background-color          : $white;
+    border                    : 1px solid $gray-300;
+    box-shadow                : 0 1px 0 rgba(0, 0, 0, 0.06);
+    box-sizing                : border-box;
+    margin-top                : -1px;
+    overflow-y                : auto;
+    position                  : absolute;
+    width                     : 100%;
+    top                       : 100%;
+    z-index                   : 1000;
+    min-width                 : -webkit-min-content;
+    min-width                 : -moz-min-content;
+    min-width                 : min-content;
+    max-height                : 300px;
     -webkit-overflow-scrolling: touch;
 
-    > * {
+    >* {
       white-space: nowrap;
     }
 
     .c-dropdown-menu-header {
-      padding: 12px 10px;
+      padding       : 12px 10px;
       text-transform: uppercase;
-      font-weight: 700;
-      font-size: 0.78571429em;
+      font-weight   : 700;
+      font-size     : 0.78571429em;
     }
 
+
+
     .c-dropdown-item {
-      box-sizing: border-box;
-      cursor: pointer;
-      display: block;
-      padding: 12px 10px;
+      box-sizing : border-box;
+      cursor     : pointer;
+      display    : block;
+      padding    : 12px 10px;
       line-height: $font-size;
+      color      : $gray-500;
+
 
       &:last-child {
         border-bottom-right-radius: 3px;
-        border-bottom-left-radius: 3px;
+        border-bottom-left-radius : 3px;
       }
 
       &:hover {
@@ -121,17 +125,30 @@
       }
 
       &.is-selected {
+        color      : $gray-900;
         font-weight: 700;
-      }
-
-
-      svg {
-        display: none;
       }
 
       .c-tag {
         margin-right: 6px;
       }
+
+      svg {
+        display     : none;
+        margin-right: 6px;
+
+
+        path {
+          fill: $main-color;
+        }
+      }
+
+      .selected-tag {
+        color      : $gray-900;
+        font-weight: 700;
+      }
+
+
     }
 
     .c-dropdown-noresults {
