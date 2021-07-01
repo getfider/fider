@@ -74,8 +74,8 @@ func TestSendSignInEmailTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Address: "jon@got.com",
 		Props: dto.Props{
-			"tenantName": mock.DemoTenant.Name,
-			"link":       "<a href='http://domain.com/signin/verify?k=9876'>http://domain.com/signin/verify?k=9876</a>",
+			"siteName": mock.DemoTenant.Name,
+			"link":     "<a href='http://domain.com/signin/verify?k=9876'>http://domain.com/signin/verify?k=9876</a>",
 		},
 	})
 }
@@ -156,14 +156,14 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("new_post")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
-		"title":      "Add support for TypeScript",
-		"postLink":   "<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>",
-		"tenantName": "Demonstration",
-		"userName":   "Jon Snow",
-		"content":    template.HTML("<p>TypeScript is great, please add support for it</p>"),
-		"view":       "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
-		"change":     "<a href='http://domain.com/settings'>change your notification preferences</a>",
-		"logo":       "https://getfider.com/images/logo-100x100.png",
+		"title":    "Add support for TypeScript",
+		"postLink": "<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>",
+		"siteName": "Demonstration",
+		"userName": "Jon Snow",
+		"content":  template.HTML("<p>TypeScript is great, please add support for it</p>"),
+		"view":     "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
+		"change":   "<a href='http://domain.com/settings'>change your notification preferences</a>",
+		"logo":     "https://getfider.com/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
@@ -220,7 +220,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"title":       "Add support for TypeScript",
 		"postLink":    "<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>",
-		"tenantName":  "Demonstration",
+		"siteName":    "Demonstration",
 		"userName":    "Arya Stark",
 		"content":     template.HTML("<p>I agree</p>"),
 		"view":        "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
@@ -290,10 +290,10 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"title":       "Add support for TypeScript",
 		"postLink":    "<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>",
-		"tenantName":  "Demonstration",
+		"siteName":    "Demonstration",
 		"content":     template.HTML("<p>Planned for next release.</p>"),
 		"duplicate":   "",
-		"status":      "planned",
+		"status":      "Planned",
 		"view":        "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
 		"change":      "<a href='http://domain.com/settings'>change your notification preferences</a>",
 		"unsubscribe": "<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>",
@@ -359,11 +359,11 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("delete_post")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
-		"title":      "Add support for TypeScript",
-		"tenantName": "Demonstration",
-		"content":    template.HTML("<p>Invalid post!</p>"),
-		"change":     "<a href='http://domain.com/settings'>change your notification preferences</a>",
-		"logo":       "https://getfider.com/images/logo-100x100.png",
+		"title":    "Add support for TypeScript",
+		"siteName": "Demonstration",
+		"content":  template.HTML("<p>Invalid post!</p>"),
+		"change":   "<a href='http://domain.com/settings'>change your notification preferences</a>",
+		"logo":     "https://getfider.com/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
@@ -431,10 +431,10 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"title":       "I need TypeScript",
 		"postLink":    "<a href='http://domain.com/posts/2/i-need-typescript'>#2</a>",
-		"tenantName":  "Demonstration",
+		"siteName":    "Demonstration",
 		"content":     template.HTML(""),
 		"duplicate":   "<a href='http://domain.com/posts/1/add-support-for-typescript'>Add support for TypeScript</a>",
-		"status":      "duplicate",
+		"status":      "Duplicate",
 		"view":        "<a href='http://domain.com/posts/2/i-need-typescript'>view it on your browser</a>",
 		"change":      "<a href='http://domain.com/settings'>change your notification preferences</a>",
 		"unsubscribe": "<a href='http://domain.com/posts/2/i-need-typescript'>unsubscribe from it</a>",

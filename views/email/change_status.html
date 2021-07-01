@@ -1,4 +1,4 @@
-{{define "subject"}}[{{ .tenantName }}] {{ .title }}{{end}}
+{{define "subject"}}[{{ .siteName }}] {{ .title }}{{end}}
 
 {{define "body"}}
 <tr>
@@ -7,7 +7,7 @@
       {{ if .duplicate }}
         {{ translate "email.change_status.duplicate" (dict "title" (.title | stripHtml) "postLink" .postLink "duplicate" .duplicate) | html }}
       {{ else }}
-        {{ translate "email.change_status.others" (dict "title" (.title | stripHtml) "postLink" .postLink "status" .status) | html }}
+        {{ translate "email.change_status.others" (dict "title" (.title | stripHtml) "postLink" .postLink "status" (.status | lower)) | html }}
       {{ end }}
     </p>
     {{ .content }}

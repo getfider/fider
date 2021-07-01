@@ -56,8 +56,8 @@ func SendSignUpEmail(action *actions.CreateTenant, baseURL string) worker.Task {
 func SendSignInEmail(email, verificationKey string) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
 		to := dto.NewRecipient("", email, dto.Props{
-			"tenantName": c.Tenant().Name,
-			"link":       link(web.BaseURL(c), "/signin/verify?k=%s", verificationKey),
+			"siteName": c.Tenant().Name,
+			"link":     link(web.BaseURL(c), "/signin/verify?k=%s", verificationKey),
 		})
 
 		bus.Publish(c, &cmd.SendMail{
@@ -141,14 +141,14 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 		}
 
 		props := dto.Props{
-			"title":      post.Title,
-			"tenantName": c.Tenant().Name,
-			"userName":   c.User().Name,
-			"content":    markdown.Full(post.Description),
-			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"view":       linkWithText(i18n.T(c, "email.subscription.view"), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"change":     linkWithText(i18n.T(c, "email.subscription.change"), web.BaseURL(c), "/settings"),
-			"logo":       web.LogoURL(c),
+			"title":    post.Title,
+			"siteName": c.Tenant().Name,
+			"userName": c.User().Name,
+			"content":  markdown.Full(post.Description),
+			"postLink": linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"view":     linkWithText(i18n.T(c, "email.subscription.view"), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":   linkWithText(i18n.T(c, "email.subscription.change"), web.BaseURL(c), "/settings"),
+			"logo":     web.LogoURL(c),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -202,7 +202,7 @@ func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 
 		props := dto.Props{
 			"title":       post.Title,
-			"tenantName":  c.Tenant().Name,
+			"siteName":    c.Tenant().Name,
 			"userName":    c.User().Name,
 			"content":     markdown.Full(comment),
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
@@ -274,7 +274,7 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 		props := dto.Props{
 			"title":       post.Title,
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"tenantName":  c.Tenant().Name,
+			"siteName":    c.Tenant().Name,
 			"content":     markdown.Full(post.Response.Text),
 			"status":      i18n.T(c, fmt.Sprintf("post_status.%s", post.Status.Name())),
 			"duplicate":   duplicate,
@@ -333,11 +333,11 @@ func NotifyAboutDeletedPost(post *entity.Post) worker.Task {
 		}
 
 		props := dto.Props{
-			"title":      post.Title,
-			"tenantName": c.Tenant().Name,
-			"content":    markdown.Full(post.Response.Text),
-			"change":     linkWithText(i18n.T(c, "email.subscription.change"), web.BaseURL(c), "/settings"),
-			"logo":       web.LogoURL(c),
+			"title":    post.Title,
+			"siteName": c.Tenant().Name,
+			"content":  markdown.Full(post.Response.Text),
+			"change":   linkWithText(i18n.T(c, "email.subscription.change"), web.BaseURL(c), "/settings"),
+			"logo":     web.LogoURL(c),
 		}
 
 		bus.Publish(c, &cmd.SendMail{

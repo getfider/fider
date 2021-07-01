@@ -23,6 +23,9 @@ var templateFunctions = template.FuncMap{
 	"md5": func(input string) string {
 		return crypto.MD5(input)
 	},
+	"lower": func(input string) string {
+		return strings.ToLower(input)
+	},
 	"upper": func(input string) string {
 		return strings.ToUpper(input)
 	},
