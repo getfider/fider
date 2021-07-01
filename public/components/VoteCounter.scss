@@ -22,7 +22,7 @@
   }
 
   button.m-voted {
-    color: $main-color;
+    color : $main-color;
     border: 1px solid $main-color;
   }
 
@@ -31,8 +31,12 @@
     cursor: not-allowed;
   }
 
+  button svg {
+    margin-right: 6px;
+  }
+
   @include media(">=md") {
-    margin-right : 24px;
-    order: unset;
+    margin-right: 24px;
+    order       : unset;
   }
 }
