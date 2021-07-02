@@ -33,8 +33,6 @@ func Email(email string) []string {
 
 //URL validates given URL
 func URL(rawurl string) []string {
-	rawurl = strings.ToLower(rawurl)
-
 	if len(rawurl) > 300 {
 		return []string{"URL address must have less than 300 characters."}
 	}

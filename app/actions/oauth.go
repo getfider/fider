@@ -23,10 +23,10 @@ type CreateEditOAuthConfig struct {
 	DisplayName       string           `json:"displayName"`
 	ClientID          string           `json:"clientID"`
 	ClientSecret      string           `json:"clientSecret"`
-	AuthorizeURL      string           `json:"authorizeURL" format:"lower"`
-	TokenURL          string           `json:"tokenURL" format:"lower"`
+	AuthorizeURL      string           `json:"authorizeURL"`
+	TokenURL          string           `json:"tokenURL"`
 	Scope             string           `json:"scope"`
-	ProfileURL        string           `json:"profileURL" format:"lower"`
+	ProfileURL        string           `json:"profileURL"`
 	JSONUserIDPath    string           `json:"jsonUserIDPath"`
 	JSONUserNamePath  string           `json:"jsonUserNamePath"`
 	JSONUserEmailPath string           `json:"jsonUserEmailPath"`
