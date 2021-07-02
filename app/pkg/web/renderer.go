@@ -13,52 +13,14 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/tpl"
 
 	"io/ioutil"
 
-	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/markdown"
 )
-
-var templateFunctions = template.FuncMap{
-	"html": func(input string) template.HTML {
-		return template.HTML(input)
-	},
-	"md5": func(input string) string {
-		return crypto.MD5(input)
-	},
-	"upper": func(input string) string {
-		return strings.ToUpper(input)
-	},
-	"translate": func(input string, params ...i18n.Params) string {
-		return "This is overwritten later on..."
-	},
-	"markdown": func(input string) template.HTML {
-		return markdown.Full(input)
-	},
-	"dict": func(values ...interface{}) map[string]interface{} {
-		if len(values)%2 != 0 {
-			panic(errors.New("invalid dictionary call"))
-		}
-
-		dict := make(map[string]interface{})
-		for i := 0; i < len(values); i += 2 {
-			var key string
-			switch v := values[i].(type) {
-			case string:
-				key = v
-			default:
-				panic(errors.New("invalid dictionary key"))
-			}
-			dict[key] = values[i+1]
-		}
-		return dict
-	},
-}
 
 type clientAssets struct {
 	CSS []string
@@ -102,19 +64,6 @@ func NewRenderer() *Renderer {
 		mutex:         sync.RWMutex{},
 		reactRenderer: reactRenderer,
 	}
-}
-
-//Render a template based on parameters
-func (r *Renderer) add(name string) *template.Template {
-	base := env.Path("/views/base.html")
-	file := env.Path("/views", name)
-	tpl, err := template.New("base.html").Funcs(templateFunctions).ParseFiles(base, file)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to parse template %s", file))
-	}
-
-	r.templates[name] = tpl
-	return tpl
 }
 
 func (r *Renderer) loadAssets() error {
@@ -217,7 +166,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 
 	private["assets"] = r.assets
 	private["logo"] = LogoURL(ctx)
-	
+
 	localeChunkName := fmt.Sprintf("locale-%s-client-json", env.Config.Locale)
 	private["preloadAssets"] = []*clientAssets{
 		r.chunkedAssets[localeChunkName],
@@ -291,16 +240,8 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		}
 	}
 
-	tmpl, ok := r.templates[templateName]
-	if !ok || env.IsDevelopment() {
-		tmpl = r.add(templateName)
-	}
-
-	err = template.Must(tmpl.Clone()).Funcs(template.FuncMap{
-		"translate": func(key string, params ...i18n.Params) string {
-			return i18n.T(ctx, key, params...)
-		},
-	}).Execute(w, Map{
+	tmpl := tpl.GetTemplate("/views/base.html", "/views/"+templateName)
+	err = tpl.Render(ctx, tmpl, w, Map{
 		"public":  public,
 		"private": private,
 	})

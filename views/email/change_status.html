@@ -1,0 +1,21 @@
+{{define "subject"}}[{{ .siteName }}] {{ .title }}{{end}}
+
+{{define "body"}}
+<tr>
+  <td>
+    <p style="padding-bottom:10px;border-bottom:1px solid #efefef;color:#1c262d">
+      {{ if .duplicate }}
+        {{ translate "email.change_status.duplicate" (dict "title" (.title | stripHtml) "postLink" .postLink "duplicate" .duplicate) | html }}
+      {{ else }}
+        {{ translate "email.change_status.others" (dict "title" (.title | stripHtml) "postLink" .postLink "status" (.status | lower)) | html }}
+      {{ end }}
+    </p>
+    {{ .content }}
+    <p style="color:#666;font-size:14px">
+      — <br />
+      {{ translate "email.footer.subscription_notice" (dict "view" .view "unsubscribe" .unsubscribe "change" .change) | html }}
+    </p>
+  </td>
+</tr>
+{{end}}
+
