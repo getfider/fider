@@ -9,6 +9,7 @@ type Tenant struct {
 	WelcomeMessage string `json:"welcomeMessage"`
 	CNAME          string `json:"cname"`
 	Status         int    `json:"status"`
+	Locale         string    `json:"locale"`
 	IsPrivate      bool   `json:"isPrivate"`
 	LogoBlobKey    string `json:"logoBlobKey"`
 	CustomCSS      string `json:"-"`

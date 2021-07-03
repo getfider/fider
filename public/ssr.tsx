@@ -34,7 +34,7 @@ const routes = [
 
 function ssrRender(url: string, pathname: string, args: any) {
   const fider = Fider.initialize({ ...args })
-  const i18n = activateI18NSync(fider.settings.locale, messages[fider.settings.locale].messages)
+  const i18n = activateI18NSync(fider.currentLocale, messages[fider.currentLocale].messages)
   const config = resolveRootComponent(pathname, routes)
   window.location.href = url
 

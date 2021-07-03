@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"sync"
 
 	"github.com/getfider/fider/app"
@@ -83,15 +84,29 @@ func getMessage(locale, key string) (string, *messageformat.Parser) {
 	return fmt.Sprintf("⚠️ Missing Translation: %s", key), enData.parser
 }
 
-// T translates a given key to current context locale
-// If Locale is not set in context, the environment locale is used
+// IsValidLocale returns true if given locale is valid
+func IsValidLocale(locale string) bool {
+	filePath := env.Path(fmt.Sprintf("locale/%s/server.json", locale))
+	if _, err := os.Stat(filePath); err != nil {
+		return false
+	}
+	return true
+}
+
+// GetLocale returns the locale defined in context
+// If it is not defined, the environment locale is used
+func GetLocale(ctx context.Context) string {
+	locale, ok := ctx.Value(app.LocaleCtxKey).(string)
+	if ok {
+		return locale
+	}
+	return env.Config.Locale
+}
+
+// T translates a given key to current locale
 // Params is used to replace variables and pluralize
 func T(ctx context.Context, key string, params ...Params) string {
-	locale, ok := ctx.Value(app.LocaleCtxKey).(string)
-	if !ok {
-		locale = env.Config.Locale
-	}
-
+	locale := GetLocale(ctx)
 	msg, parser := getMessage(locale, key)
 	if len(params) == 0 {
 		return msg

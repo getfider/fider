@@ -54,6 +54,13 @@ export class FiderImpl {
     return this
   }
 
+  public get currentLocale(): string {
+    if (this.session.tenant) {
+      return this.session.tenant.locale
+    }
+    return this.settings.locale
+  }
+
   public get session(): FiderSession {
     return this.pSession
   }

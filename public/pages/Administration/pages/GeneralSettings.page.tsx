@@ -13,11 +13,11 @@ const GeneralSettingsPage = () => {
   const [invitation, setInvitation] = useState<string>(fider.session.tenant.invitation)
   const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
   const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
-  const [locale, setLocale] = useState<string>("en")
+  const [locale, setLocale] = useState<string>(fider.session.tenant.locale)
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, invitation, logo })
+    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, invitation, logo, locale })
     if (result.ok) {
       e.preventEnable()
       location.href = `/`
@@ -117,7 +117,7 @@ const GeneralSettingsPage = () => {
           defaultValue={locale}
           options={[
             { value: "en", label: "🇺🇸 English" },
-            { value: "pt_BR", label: "🇧🇷 Portuguese (Brazilian)" },
+            { value: "pt-BR", label: "🇧🇷 Portuguese (Brazilian)" },
           ]}
           onChange={(o) => setLocale(o?.value || "en")}
         />

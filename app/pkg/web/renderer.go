@@ -13,6 +13,7 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/tpl"
 
@@ -200,7 +201,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	public["props"] = props.Data
 	public["settings"] = &Map{
 		"mode":            env.Config.HostMode,
-		"locale":          env.Config.Locale,
+		"locale":          i18n.GetLocale(ctx),
 		"environment":     env.Config.Environment,
 		"googleAnalytics": env.Config.GoogleAnalytics,
 		"domain":          env.MultiTenantDomain(),
