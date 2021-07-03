@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 
-import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components"
+import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader, Select } from "@fider/components"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { actions, Failure, Fider } from "@fider/services"
 import { ImageUpload } from "@fider/models"
@@ -9,10 +9,11 @@ import { useFider } from "@fider/hooks"
 const GeneralSettingsPage = () => {
   const fider = useFider()
   const [title, setTitle] = useState<string>(fider.session.tenant.name)
-  const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
   const [welcomeMessage, setWelcomeMessage] = useState<string>(fider.session.tenant.welcomeMessage)
   const [invitation, setInvitation] = useState<string>(fider.session.tenant.invitation)
   const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
+  const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
+  const [locale, setLocale] = useState<string>("en")
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const handleSave = async (e: ButtonClickEvent) => {
@@ -109,6 +110,17 @@ const GeneralSettingsPage = () => {
             </div>
           </Input>
         )}
+
+        <Select
+          label="Locale"
+          field="locale"
+          defaultValue={locale}
+          options={[
+            { value: "en", label: "🇺🇸 English" },
+            { value: "pt_BR", label: "🇧🇷 Portuguese (Brazilian)" },
+          ]}
+          onChange={(o) => setLocale(o?.value || "en")}
+        />
 
         <div className="field">
           <Button disabled={!fider.session.user.isAdministrator} variant="primary" onClick={handleSave}>
