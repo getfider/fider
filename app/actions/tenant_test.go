@@ -168,6 +168,7 @@ func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
 	action := actions.NewUpdateTenantSettings()
 	action.Title = "OK"
 	action.Invitation = "Share your ideas!"
+	action.Locale = "en"
 	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
 	Expect(action.Logo.BlobKey).Equals("hello-world.png")

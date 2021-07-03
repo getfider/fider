@@ -97,7 +97,7 @@ func IsValidLocale(locale string) bool {
 // If it is not defined, the environment locale is used
 func GetLocale(ctx context.Context) string {
 	locale, ok := ctx.Value(app.LocaleCtxKey).(string)
-	if ok {
+	if ok && locale != "" {
 		return locale
 	}
 	return env.Config.Locale

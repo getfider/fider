@@ -113,7 +113,7 @@ type UpdateTenantSettings struct {
 	Title          string           `json:"title"`
 	Invitation     string           `json:"invitation"`
 	WelcomeMessage string           `json:"welcomeMessage"`
-	Locale string           `json:"locale"`
+	Locale 				 string           `json:"locale"`
 	CNAME          string           `json:"cname" format:"lower"`
 }
 
