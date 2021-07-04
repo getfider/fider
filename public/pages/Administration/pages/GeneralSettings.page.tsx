@@ -5,6 +5,7 @@ import { AdminPageContainer } from "../components/AdminBasePage"
 import { actions, Failure, Fider } from "@fider/services"
 import { ImageUpload } from "@fider/models"
 import { useFider } from "@fider/hooks"
+import locales from "@locale/locales"
 
 const GeneralSettingsPage = () => {
   const fider = useFider()
@@ -115,12 +116,25 @@ const GeneralSettingsPage = () => {
           label="Locale"
           field="locale"
           defaultValue={locale}
-          options={[
-            { value: "en", label: "🇺🇸 English" },
-            { value: "pt-BR", label: "🇧🇷 Portuguese (Brazilian)" },
-          ]}
+          options={Object.entries(locales).map(([k, v]) => ({
+            value: k,
+            label: v.text,
+          }))}
           onChange={(o) => setLocale(o?.value || "en")}
-        />
+        >
+          {locale !== "en" && (
+            <>
+              <p className="text-muted">
+                This language is currently <strong>{locales[locale].translated}%</strong> translated by the Open Source community. If you find a mistake or
+                would like to improve its quality, visit{" "}
+                <a className="text-link" target="_blank" rel="noopener" href="https://crowdin.com/project/fider">
+                  Crowdin
+                </a>{" "}
+                and contribute with your own translations.
+              </p>
+            </>
+          )}
+        </Select>
 
         <div className="field">
           <Button disabled={!fider.session.user.isAdministrator} variant="primary" onClick={handleSave}>

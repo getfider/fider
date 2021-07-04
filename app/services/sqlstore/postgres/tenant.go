@@ -24,7 +24,7 @@ type dbTenant struct {
 	Invitation     string `db:"invitation"`
 	WelcomeMessage string `db:"welcome_message"`
 	Status         int    `db:"status"`
-	Locale         string    `db:"locale"`
+	Locale         string `db:"locale"`
 	IsPrivate      bool   `db:"is_private"`
 	LogoBlobKey    string `db:"logo_bkey"`
 	CustomCSS      string `db:"custom_css"`
@@ -219,8 +219,8 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 		var id int
 		err := trx.Get(&id,
 			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale) 
-			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', 'en') 
-			 RETURNING id`, c.Name, c.Subdomain, now, c.Status)
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5) 
+			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
 			return err
 		}

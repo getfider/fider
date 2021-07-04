@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"sync"
 
 	"github.com/getfider/fider/app"
@@ -16,7 +15,7 @@ import (
 
 // localeToPlurals maps between Fider locale and gotnospirit/messageformat culture
 var localeToPlurals = map[string]string{
-	"en": "en",
+	"en":    "en",
 	"pt-BR": "pt",
 }
 
@@ -25,6 +24,7 @@ type Params map[string]interface{}
 // cache for locale parser and file content to prevent excessive disk IO
 var cache = make(map[string]localeData)
 var mu sync.RWMutex
+
 type localeData struct {
 	file   map[string]string
 	parser *messageformat.Parser
@@ -86,11 +86,10 @@ func getMessage(locale, key string) (string, *messageformat.Parser) {
 
 // IsValidLocale returns true if given locale is valid
 func IsValidLocale(locale string) bool {
-	filePath := env.Path(fmt.Sprintf("locale/%s/server.json", locale))
-	if _, err := os.Stat(filePath); err != nil {
-		return false
+	if _, ok := localeToPlurals[locale]; ok {
+		return true
 	}
-	return true
+	return false
 }
 
 // GetLocale returns the locale defined in context

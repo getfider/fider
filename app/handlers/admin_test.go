@@ -119,6 +119,7 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 			handlers.UpdateSettings(), `{ 
 				"title": "GoT", 
 				"invitation": "Join us!", 
+				"locale": "en", 
 				"welcomeMessage": "Welcome to GoT Feedback Forum",
 				"logo": {
 					"remove": true
@@ -130,6 +131,7 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 	Expect(updateCmd.Invitation).Equals("Join us!")
 	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
 	Expect(updateCmd.Logo.Remove).IsTrue()
+	Expect(updateCmd.Locale).Equals("en")
 }
 
 func TestUpdatePrivacyHandler(t *testing.T) {
