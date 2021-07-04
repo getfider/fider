@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -112,6 +113,7 @@ type UpdateTenantSettings struct {
 	Title          string           `json:"title"`
 	Invitation     string           `json:"invitation"`
 	WelcomeMessage string           `json:"welcomeMessage"`
+	Locale 				 string           `json:"locale"`
 	CNAME          string           `json:"cname" format:"lower"`
 }
 
@@ -157,6 +159,10 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 
 	if len(action.Invitation) > 60 {
 		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
+	}
+
+	if !i18n.IsValidLocale(action.Locale) {
+		result.AddFieldFailure("locale", "Locale is invalid.")
 	}
 
 	if action.CNAME != "" {

@@ -165,7 +165,8 @@ func (c *Context) Tenant() *entity.Tenant {
 //SetTenant update HTTP context with current tenant
 func (c *Context) SetTenant(tenant *entity.Tenant) {
 	if tenant != nil {
-		c.Context = log.WithProperty(c.Context, log.PropertyKeyTenantID, tenant.ID)
+		c.Set(log.PropertyKeyTenantID, tenant.ID)
+		c.Set(app.LocaleCtxKey, tenant.Locale)
 	}
 	c.Set(app.TenantCtxKey, tenant)
 }

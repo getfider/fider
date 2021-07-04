@@ -128,7 +128,7 @@ func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.NewUpdateTenantSettings()
+	action := actions.UpdateTenantSettings{Locale: "en"}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "title")
 }
@@ -136,7 +136,7 @@ func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 func TestUpdateTenantSettings_InvalidCNAME(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.UpdateTenantSettings{Title: "Ok", CNAME: "bla"}
+	action := actions.UpdateTenantSettings{Title: "Ok", CNAME: "bla", Locale: "en"}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "cname")
 }
@@ -144,7 +144,7 @@ func TestUpdateTenantSettings_InvalidCNAME(t *testing.T) {
 func TestUpdateTenantSettings_LargeTitle(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.UpdateTenantSettings{Title: "123456789012345678901234567890123456789012345678901234567890123"}
+	action := actions.UpdateTenantSettings{Title: "123456789012345678901234567890123456789012345678901234567890123", Locale: "en"}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "title")
 }
@@ -152,9 +152,17 @@ func TestUpdateTenantSettings_LargeTitle(t *testing.T) {
 func TestUpdateTenantSettings_LargeInvitation(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.UpdateTenantSettings{Title: "Ok", Invitation: "123456789012345678901234567890123456789012345678901234567890123"}
+	action := actions.UpdateTenantSettings{Title: "Ok", Invitation: "123456789012345678901234567890123456789012345678901234567890123", Locale: "en"}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "invitation")
+}
+
+func TestUpdateTenantSettings_InvalidLocale(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.UpdateTenantSettings{Title: "Some Name", Locale: "xx"}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "locale")
 }
 
 func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
@@ -168,6 +176,7 @@ func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
 	action := actions.NewUpdateTenantSettings()
 	action.Title = "OK"
 	action.Invitation = "Share your ideas!"
+	action.Locale = "en"
 	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
 	Expect(action.Logo.BlobKey).Equals("hello-world.png")

@@ -15,7 +15,7 @@ import (
 
 // localeToPlurals maps between Fider locale and gotnospirit/messageformat culture
 var localeToPlurals = map[string]string{
-	"en": "en",
+	"en":    "en",
 	"pt-BR": "pt",
 }
 
@@ -24,6 +24,7 @@ type Params map[string]interface{}
 // cache for locale parser and file content to prevent excessive disk IO
 var cache = make(map[string]localeData)
 var mu sync.RWMutex
+
 type localeData struct {
 	file   map[string]string
 	parser *messageformat.Parser
@@ -83,15 +84,28 @@ func getMessage(locale, key string) (string, *messageformat.Parser) {
 	return fmt.Sprintf("⚠️ Missing Translation: %s", key), enData.parser
 }
 
-// T translates a given key to current context locale
-// If Locale is not set in context, the environment locale is used
+// IsValidLocale returns true if given locale is valid
+func IsValidLocale(locale string) bool {
+	if _, ok := localeToPlurals[locale]; ok {
+		return true
+	}
+	return false
+}
+
+// GetLocale returns the locale defined in context
+// If it is not defined, the environment locale is used
+func GetLocale(ctx context.Context) string {
+	locale, ok := ctx.Value(app.LocaleCtxKey).(string)
+	if ok && locale != "" {
+		return locale
+	}
+	return env.Config.Locale
+}
+
+// T translates a given key to current locale
 // Params is used to replace variables and pluralize
 func T(ctx context.Context, key string, params ...Params) string {
-	locale, ok := ctx.Value(app.LocaleCtxKey).(string)
-	if !ok {
-		locale = env.Config.Locale
-	}
-
+	locale := GetLocale(ctx)
 	msg, parser := getMessage(locale, key)
 	if len(params) == 0 {
 		return msg
