@@ -60,4 +60,4 @@ const bootstrapApp = (i18n: I18n) => {
 const fider = Fider.initialize()
 __webpack_nonce__ = fider.session.contextID
 __webpack_public_path__ = `${fider.settings.assetsURL}/assets/`
-activateI18N(fider.settings.locale).then(bootstrapApp).catch(bootstrapApp)
+activateI18N(fider.currentLocale).then(bootstrapApp).catch(bootstrapApp)

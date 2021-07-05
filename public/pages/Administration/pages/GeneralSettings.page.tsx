@@ -1,84 +1,50 @@
-import React from "react"
+import React, { useState } from "react"
 
 import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components"
+import { AdminPageContainer } from "../components/AdminBasePage"
 import { actions, Failure, Fider } from "@fider/services"
-import { AdminBasePage } from "../components/AdminBasePage"
 import { ImageUpload } from "@fider/models"
+import { useFider } from "@fider/hooks"
+// import locales from "@locale/locales"
 
-interface GeneralSettingsPageState {
-  logo?: ImageUpload
-  title: string
-  invitation: string
-  welcomeMessage: string
-  cname: string
-  error?: Failure
-}
+const GeneralSettingsPage = () => {
+  const fider = useFider()
+  const [title, setTitle] = useState<string>(fider.session.tenant.name)
+  const [welcomeMessage, setWelcomeMessage] = useState<string>(fider.session.tenant.welcomeMessage)
+  const [invitation, setInvitation] = useState<string>(fider.session.tenant.invitation)
+  const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
+  const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
+  const [locale] = useState<string>(fider.session.tenant.locale)
+  const [error, setError] = useState<Failure | undefined>(undefined)
 
-export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSettingsPageState> {
-  public id = "p-admin-general"
-  public name = "general"
-  public title = "General"
-  public subtitle = "Manage your site settings"
-
-  constructor(props: any) {
-    super(props)
-
-    this.state = {
-      title: Fider.session.tenant.name,
-      cname: Fider.session.tenant.cname,
-      welcomeMessage: Fider.session.tenant.welcomeMessage,
-      invitation: Fider.session.tenant.invitation,
-    }
-  }
-
-  private handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings(this.state)
+  const handleSave = async (e: ButtonClickEvent) => {
+    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, invitation, logo, locale })
     if (result.ok) {
       e.preventEnable()
       location.href = `/`
     } else if (result.error) {
-      this.setState({ error: result.error })
+      setError(result.error)
     }
   }
 
-  public dnsInstructions(): JSX.Element {
-    const isApex = this.state.cname.split(".").length <= 2
+  const dnsInstructions = (): JSX.Element => {
+    const isApex = cname.split(".").length <= 2
     const recordType = isApex ? "ALIAS" : "CNAME"
     return (
       <>
-        <strong>{this.state.cname}</strong> {recordType}{" "}
+        <strong>{cname}</strong> {recordType}{" "}
         <strong>
-          {Fider.session.tenant.subdomain}
-          {Fider.settings.domain}
+          {fider.session.tenant.subdomain}
+          {fider.settings.domain}
         </strong>
       </>
     )
   }
 
-  private setTitle = (title: string): void => {
-    this.setState({ title })
-  }
-
-  private setWelcomeMessage = (welcomeMessage: string): void => {
-    this.setState({ welcomeMessage })
-  }
-
-  private setInvitation = (invitation: string): void => {
-    this.setState({ invitation })
-  }
-
-  private setLogo = (logo: ImageUpload): void => {
-    this.setState({ logo })
-  }
-
-  private setCNAME = (cname: string): void => {
-    this.setState({ cname })
-  }
-
-  public content() {
-    return (
-      <Form error={this.state.error}>
-        <Input field="title" label="Title" maxLength={60} value={this.state.title} disabled={!Fider.session.user.isAdministrator} onChange={this.setTitle}>
+  return (
+    <AdminPageContainer id="p-admin-general" name="general" title="General" subtitle="Manage your site settings">
+      <Form error={error}>
+        <Input field="title" label="Title" maxLength={60} value={title} disabled={!fider.session.user.isAdministrator} onChange={setTitle}>
           <p className="text-muted">
             The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The product/service name is usually the best
             choice.
@@ -88,9 +54,9 @@ export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSetti
         <TextArea
           field="welcomeMessage"
           label="Welcome Message"
-          value={this.state.welcomeMessage}
-          disabled={!Fider.session.user.isAdministrator}
-          onChange={this.setWelcomeMessage}
+          value={welcomeMessage}
+          disabled={!fider.session.user.isAdministrator}
+          onChange={setWelcomeMessage}
         >
           <p className="text-muted">
             The message is shown on this site&apos;s home page. Use it to help visitors understad what this space is about and the importance of their feedback.
@@ -102,10 +68,10 @@ export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSetti
           field="invitation"
           label="Invitation"
           maxLength={60}
-          value={this.state.invitation}
-          disabled={!Fider.session.user.isAdministrator}
+          value={invitation}
+          disabled={!fider.session.user.isAdministrator}
           placeholder="Enter your suggestion here..."
-          onChange={this.setInvitation}
+          onChange={setInvitation}
         >
           <p className="text-muted">
             This text is used as a placeholder for the suggestion&apos;s text box. Use it to invite your visitors into sharing their suggestions and feedback.
@@ -113,7 +79,7 @@ export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSetti
           </p>
         </Input>
 
-        <ImageUploader label="Logo" field="logo" bkey={Fider.session.tenant.logoBlobKey} disabled={!Fider.session.user.isAdministrator} onChange={this.setLogo}>
+        <ImageUploader label="Logo" field="logo" bkey={fider.session.tenant.logoBlobKey} disabled={!fider.session.user.isAdministrator} onChange={setLogo}>
           <p className="text-muted">
             We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 200x200 pixels.
           </p>
@@ -125,15 +91,15 @@ export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSetti
             label="Custom Domain"
             maxLength={100}
             placeholder="feedback.yourcompany.com"
-            value={this.state.cname}
-            disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setCNAME}
+            value={cname}
+            disabled={!fider.session.user.isAdministrator}
+            onChange={setCNAME}
           >
             <div className="text-muted">
-              {this.state.cname ? (
+              {cname ? (
                 [
                   <p key={0}>Enter the following record into your DNS zone records:</p>,
-                  <p key={1}>{this.dnsInstructions()}</p>,
+                  <p key={1}>{dnsInstructions()}</p>,
                   <p key={2}>Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS propagation.</p>,
                 ]
               ) : (
@@ -146,12 +112,38 @@ export default class GeneralSettingsPage extends AdminBasePage<any, GeneralSetti
           </Input>
         )}
 
+        {/* <Select
+          label="Locale"
+          field="locale"
+          defaultValue={locale}
+          options={Object.entries(locales).map(([k, v]) => ({
+            value: k,
+            label: v.text,
+          }))}
+          onChange={(o) => setLocale(o?.value || "en")}
+        >
+          {locale !== "en" && (
+            <>
+              <p className="text-muted">
+                This language is currently <strong>{locales[locale].translated}%</strong> translated by the Open Source community. If you find a mistake or
+                would like to improve its quality, visit{" "}
+                <a className="text-link" target="_blank" rel="noopener" href="https://crowdin.com/project/fider">
+                  Crowdin
+                </a>{" "}
+                and contribute with your own translations.
+              </p>
+            </>
+          )}
+        </Select> */}
+
         <div className="field">
-          <Button disabled={!Fider.session.user.isAdministrator} variant="primary" onClick={this.handleSave}>
+          <Button disabled={!fider.session.user.isAdministrator} variant="primary" onClick={handleSave}>
             Save
           </Button>
         </div>
       </Form>
-    )
-  }
+    </AdminPageContainer>
+  )
 }
+
+export default GeneralSettingsPage

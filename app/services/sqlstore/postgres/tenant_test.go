@@ -200,6 +200,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 		Title:          "New Demonstration",
 		Invitation:     "Leave us your suggestion",
 		WelcomeMessage: "Welcome!",
+		Locale:         "pt-BR",
 		CNAME:          "demo.company.com",
 	})
 	Expect(err).IsNil()
@@ -212,6 +213,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	Expect(getByDomain.Result.Invitation).Equals("Leave us your suggestion")
 	Expect(getByDomain.Result.WelcomeMessage).Equals("Welcome!")
 	Expect(getByDomain.Result.CNAME).Equals("demo.company.com")
+	Expect(getByDomain.Result.Locale).Equals("pt-BR")
 	Expect(getByDomain.Result.LogoBlobKey).Equals("some-logo-key.png")
 }
 

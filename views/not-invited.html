@@ -4,11 +4,11 @@
     <div class="h-20 mb-4">
       <img src="{{ .private.logo }}" />
     </div>
-    <h1 class="text-display">NOT INVITED</h1>
-    <p>We couldn't find your account for your email address.</p>
+    <h1 class="text-display">{{ "page.notinvited.title" | translate | upper }}</h1>
+    <p>{{ "page.notinvited.text" | translate }}</p>
 
     {{ if .public.tenant }}
-    <span>Take me back to <a class="text-link" href="{{ .public.settings.baseURL }}/signin">{{ .public.settings.baseURL }}/signin</a>.</span>
+    <span>{{ translate "page.backhome" (dict "className" "text-link" "url" .public.settings.baseURL) | html }}</span>
     {{ end }}
   </div>
 </div>

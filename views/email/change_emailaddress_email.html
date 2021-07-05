@@ -1,0 +1,13 @@
+{{define "subject"}}{{ "email.change_emailaddress.subject" | translate }}{{end}}
+
+{{define "body"}}
+<tr>
+  <td>
+    <h2 style="color:#1c262d">{{ translate "email.greetings_name" (dict "name" .name) }}</h2>
+    <p style="color:#1c262d">{{ translate "email.change_emailaddress.request" (dict "oldEmail" .oldEmail  "newEmail" .newEmail) }}</p>
+    <p style="color:#1c262d">{{ "email.operation_confirmation" | translate }}</p>
+    <p>{{ .link | html }}</p>
+    <p style="color:#666;font-size:14px">{{ translate "email.expire_note_hours" (dict "hours" 24) }}</p>
+  </td>
+</tr>
+{{end}}

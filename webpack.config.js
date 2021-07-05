@@ -75,7 +75,7 @@ module.exports = {
       },
       {
         test: /\.(ts|tsx)$/,
-        include: publicFolder,
+        include: [publicFolder, localeFolder],
         loader: "babel-loader",
       },
       {
