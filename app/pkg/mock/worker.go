@@ -49,6 +49,7 @@ func (w *Worker) Execute(task worker.Task) error {
 
 	if w.tenant != nil {
 		task.OriginContext = context.WithValue(task.OriginContext, app.TenantCtxKey, w.tenant)
+		task.OriginContext = context.WithValue(task.OriginContext, app.LocaleCtxKey, w.tenant.Locale)
 	}
 
 	u, _ := url.Parse(w.baseURL)

@@ -58,3 +58,26 @@ func TestEnglish_InvalidMessage(t *testing.T) {
 	translated = i18n.T(ptBRContext, key)
 	Expect(translated).Equals("⚠️ Missing Translation: This message does not exist")
 }
+
+func TestGetLocale(t *testing.T) {
+	RegisterT(t)
+
+	Expect(i18n.GetLocale(emptyContext)).Equals("en")
+	Expect(i18n.GetLocale(enContext)).Equals("en")
+	Expect(i18n.GetLocale(ptBRContext)).Equals("pt-BR")
+}
+
+func TestIsValidLocale(t *testing.T) {
+	RegisterT(t)
+
+	//Valid locales
+	Expect(i18n.IsValidLocale("en")).IsTrue()
+	Expect(i18n.IsValidLocale("pt-BR")).IsTrue()
+
+	//Invalid locales
+	Expect(i18n.IsValidLocale("EN")).IsFalse()
+	Expect(i18n.IsValidLocale("PT-BR")).IsFalse()
+	Expect(i18n.IsValidLocale("pt_BR")).IsFalse()
+	Expect(i18n.IsValidLocale("")).IsFalse()
+	Expect(i18n.IsValidLocale("xx")).IsFalse()
+}

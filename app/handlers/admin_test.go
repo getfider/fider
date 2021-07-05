@@ -40,13 +40,14 @@ func TestUpdateSettingsHandler(t *testing.T) {
 		AsUser(mock.JonSnow).
 		ExecutePost(
 			handlers.UpdateSettings(),
-			`{ "title": "GoT", "invitation": "Join us!", "welcomeMessage": "Welcome to GoT Feedback Forum" }`,
+			`{ "title": "GoT", "invitation": "Join us!", "welcomeMessage": "Welcome to GoT Feedback Forum", "locale": "pt-BR" }`,
 		)
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(updateCmd.Title).Equals("GoT")
 	Expect(updateCmd.Invitation).Equals("Join us!")
 	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Locale).Equals("pt-BR")
 	Expect(updateCmd.Logo.BlobKey).Equals("logos/hello-world.png")
 }
 
@@ -77,6 +78,7 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 				"title": "GoT", 
 				"invitation": "Join us!", 
 				"welcomeMessage": "Welcome to GoT Feedback Forum",
+				"locale": "pt-BR",
 				"logo": {
 					"upload": {
 						"fileName": "picture.png",
@@ -90,6 +92,7 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 	Expect(updateCmd.Title).Equals("GoT")
 	Expect(updateCmd.Invitation).Equals("Join us!")
 	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Locale).Equals("pt-BR")
 	Expect(updateCmd.Logo.BlobKey).Equals("logos/picture.png")
 }
 
@@ -116,6 +119,7 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 			handlers.UpdateSettings(), `{ 
 				"title": "GoT", 
 				"invitation": "Join us!", 
+				"locale": "en", 
 				"welcomeMessage": "Welcome to GoT Feedback Forum",
 				"logo": {
 					"remove": true
@@ -127,6 +131,7 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 	Expect(updateCmd.Invitation).Equals("Join us!")
 	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
 	Expect(updateCmd.Logo.Remove).IsTrue()
+	Expect(updateCmd.Locale).Equals("en")
 }
 
 func TestUpdatePrivacyHandler(t *testing.T) {

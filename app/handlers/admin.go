@@ -50,6 +50,7 @@ func UpdateSettings() web.HandlerFunc {
 				Invitation:     action.Invitation,
 				WelcomeMessage: action.WelcomeMessage,
 				CNAME:          action.CNAME,
+				Locale:          action.Locale,
 			},
 		); err != nil {
 			return c.Failure(err)

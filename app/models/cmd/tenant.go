@@ -30,6 +30,7 @@ type UpdateTenantSettings struct {
 	Invitation     string
 	WelcomeMessage string
 	CNAME          string
+	Locale          string
 }
 
 type UpdateTenantAdvancedSettings struct {

@@ -24,6 +24,7 @@ type dbTenant struct {
 	Invitation          string `db:"invitation"`
 	WelcomeMessage      string `db:"welcome_message"`
 	Status              int    `db:"status"`
+	Locale              string `db:"locale"`
 	IsPrivate           bool   `db:"is_private"`
 	LogoBlobKey         string `db:"logo_bkey"`
 	CustomCSS           string `db:"custom_css"`
@@ -43,6 +44,7 @@ func (t *dbTenant) toModel() *entity.Tenant {
 		Invitation:          t.Invitation,
 		WelcomeMessage:      t.WelcomeMessage,
 		Status:              t.Status,
+		Locale:              t.Locale,
 		IsPrivate:           t.IsPrivate,
 		LogoBlobKey:         t.LogoBlobKey,
 		CustomCSS:           t.CustomCSS,
@@ -141,8 +143,8 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 			c.Logo.BlobKey = ""
 		}
 
-		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5 WHERE id = $6"
-		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.CNAME, c.Logo.BlobKey, tenant.ID)
+		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5, locale = $6 WHERE id = $7"
+		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.CNAME, c.Logo.BlobKey, c.Locale, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant settings")
 		}
@@ -228,9 +230,9 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, is_allowing_email_auth) 
-			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', true) 
-			 RETURNING id`, c.Name, c.Subdomain, now, c.Status)
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_allowing_email_auth) 
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true) 
+			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
 			return err
 		}
@@ -247,7 +249,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_bkey, custom_css, is_allowing_email_auth
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_allowing_email_auth
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
@@ -266,7 +268,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_bkey, custom_css, is_allowing_email_auth
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_allowing_email_auth
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 
 			ORDER BY cname DESC

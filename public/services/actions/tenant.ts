@@ -28,6 +28,7 @@ export interface UpdateTenantSettingsRequest {
   invitation: string
   welcomeMessage: string
   cname: string
+  locale: string
 }
 
 export const updateTenantSettings = async (request: UpdateTenantSettingsRequest): Promise<Result> => {

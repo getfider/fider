@@ -3,6 +3,7 @@ export interface Tenant {
   name: string
   cname: string
   subdomain: string
+  locale: string
   invitation: string
   welcomeMessage: string
   status: TenantStatus

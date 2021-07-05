@@ -1,0 +1,13 @@
+{{define "subject"}}{{ "email.signup_email.subject" | translate }}{{end}}
+
+{{define "body"}}
+<tr>
+  <td>
+    <h2 style="color:#1c262d">{{ "email.greetings" | translate }}</h2>
+    <p style="color:#1c262d">{{ "email.signup_email.text" | translate }}</p>
+    <p style="color:#1c262d">{{ "email.signup_email.confirmation" | translate }}</p>
+    <p>{{ .link | html }}</p>
+    <p style="color:#666;font-size:14px">{{ translate "email.expire_note_hours" (dict "hours" 48) }}</p>
+  </td>
+</tr>
+{{end}}

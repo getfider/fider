@@ -1,0 +1,13 @@
+{{define "subject"}}{{ translate "email.signin_email.subject" (dict "siteName" .siteName) }}{{end}}
+
+{{define "body"}}
+<tr>
+  <td>
+    <h2 style="color:#1c262d">{{ "email.greetings" | translate }}</h2>
+    <p style="color:#1c262d">{{ "email.signin_email.text" | translate }}</p>
+    <p style="color:#1c262d">{{ translate "email.signin_email.confirmation" (dict "siteName" (.siteName | stripHtml)) | html }}</p>
+    <p>{{ .link | html }}</p>
+    <p style="color:#666;font-size:14px">{{ translate "email.expire_note_minutes" (dict "minutes" 30) }}</p>
+  </td>
+</tr>
+{{end}}
