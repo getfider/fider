@@ -4,9 +4,9 @@
     <div class="h-20 mb-4">
       <img src="{{ .private.logo }}" />
     </div>
-    <h1 class="text-display">YOUR ACCOUNT IS PENDING ACTIVATION</h1>
-    <p>We sent you a confirmation email with a link to activate your site.</p>
-    <p>Please check your inbox to activate it.</p>
+    <h1 class="text-display">{{ "page.pendingactivation.title" | translate | upper }}</h1>
+    <p>{{ "page.pendingactivation.text" | translate }}</p>
+    <p>{{ "page.pendingactivation.text2" | translate }}</p>
   </div>
 </div>
 {{end}} {{define "end-of-body"}}{{end}}

@@ -1,18 +1,19 @@
-{{define "server-data"}}{{end}} {{define "content"}}
+{{define "server-data"}}{{end}}
+
+{{define "content"}}
 <div class="container page">
   <div class="w-max-7xl mx-auto text-center mt-8">
     <div class="h-20 mb-4">
       <img src="{{ .private.logo }}" />
     </div>
     <h1 class="text-display">{{ "error.pagenotfound.title" | translate | upper }}</h1>
-    <p>
-      The link you clicked may be broken or <br />
-      the page may have been removed.
-    </p>
+    <p>{{ "error.pagenotfound.text" | translate }}</p>
 
     {{ if .public.tenant }}
-    <span>{{ translate "error.backhome" (dict "className" "text-link" "url" .public.settings.baseURL) | html }}</span>
+    <span>{{ translate "page.backhome" (dict "className" "text-link" "url" .public.settings.baseURL) | html }}</span>
     {{ end }}
   </div>
 </div>
-{{end}} {{define "end-of-body"}}{{end}}
+{{end}}
+
+{{define "end-of-body"}}{{end}}

@@ -3,7 +3,6 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"strings"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
@@ -24,12 +24,12 @@ func describe(name string, job worker.Job) worker.Task {
 	return worker.Task{Name: name, Job: job}
 }
 
-func link(baseURL, path string, args ...interface{}) template.HTML {
-	return template.HTML(fmt.Sprintf("<a href='%[1]s%[2]s'>%[1]s%[2]s</a>", baseURL, fmt.Sprintf(path, args...)))
+func link(baseURL, path string, args ...interface{}) string {
+	return fmt.Sprintf("<a href='%[1]s%[2]s'>%[1]s%[2]s</a>", baseURL, fmt.Sprintf(path, args...))
 }
 
-func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML {
-	return template.HTML(fmt.Sprintf("<a href='%s%s'>%s</a>", baseURL, fmt.Sprintf(path, args...), text))
+func linkWithText(text, baseURL, path string, args ...interface{}) string {
+	return fmt.Sprintf("<a href='%s%s'>%s</a>", baseURL, fmt.Sprintf(path, args...), text)
 }
 
 //SendSignUpEmail is used to send the sign up email to requestor
@@ -56,8 +56,8 @@ func SendSignUpEmail(action *actions.CreateTenant, baseURL string) worker.Task {
 func SendSignInEmail(email, verificationKey string) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
 		to := dto.NewRecipient("", email, dto.Props{
-			"tenantName": c.Tenant().Name,
-			"link":       link(web.BaseURL(c), "/signin/verify?k=%s", verificationKey),
+			"siteName": c.Tenant().Name,
+			"link":     link(web.BaseURL(c), "/signin/verify?k=%s", verificationKey),
 		})
 
 		bus.Publish(c, &cmd.SendMail{
@@ -141,14 +141,14 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 		}
 
 		props := dto.Props{
-			"title":      post.Title,
-			"tenantName": c.Tenant().Name,
-			"userName":   c.User().Name,
-			"content":    markdown.Full(post.Description),
-			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"view":       linkWithText("view it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"change":     linkWithText("change your notification preferences", web.BaseURL(c), "/settings"),
-			"logo":       web.LogoURL(c),
+			"title":    post.Title,
+			"siteName": c.Tenant().Name,
+			"userName": c.User().Name,
+			"content":  markdown.Full(post.Description),
+			"postLink": linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"view":     linkWithText(i18n.T(c, "email.subscription.view"), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":   linkWithText(i18n.T(c, "email.subscription.change"), web.BaseURL(c), "/settings"),
+			"logo":     web.LogoURL(c),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -202,13 +202,13 @@ func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 
 		props := dto.Props{
 			"title":       post.Title,
-			"tenantName":  c.Tenant().Name,
+			"siteName":    c.Tenant().Name,
 			"userName":    c.User().Name,
 			"content":     markdown.Full(comment),
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"view":        linkWithText("view it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"unsubscribe": linkWithText("unsubscribe from it", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"change":      linkWithText("change your notification preferences", web.BaseURL(c), "/settings"),
+			"view":        linkWithText(i18n.T(c, "email.subscription.view"), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"unsubscribe": linkWithText(i18n.T(c, "email.subscription.unsubscribe"), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":      linkWithText(i18n.T(c, "email.subscription.change"), web.BaseURL(c), "/settings"),
 			"logo":        web.LogoURL(c),
 		}
 
@@ -259,7 +259,7 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 			return c.Failure(err)
 		}
 
-		var duplicate template.HTML
+		var duplicate string
 		if post.Status == enum.PostDuplicate {
 			duplicate = linkWithText(post.Response.Original.Title, web.BaseURL(c), "/posts/%d/%s", post.Response.Original.Number, post.Response.Original.Slug)
 		}
@@ -274,13 +274,13 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 		props := dto.Props{
 			"title":       post.Title,
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"tenantName":  c.Tenant().Name,
+			"siteName":    c.Tenant().Name,
 			"content":     markdown.Full(post.Response.Text),
-			"status":      post.Status.Name(),
+			"status":      i18n.T(c, fmt.Sprintf("post_status.%s", post.Status.Name())),
 			"duplicate":   duplicate,
-			"view":        linkWithText("view it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"unsubscribe": linkWithText("unsubscribe from it", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
-			"change":      linkWithText("change your notification preferences", web.BaseURL(c), "/settings"),
+			"view":        linkWithText(i18n.T(c, "email.subscription.view"), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"unsubscribe": linkWithText(i18n.T(c, "email.subscription.unsubscribe"), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":      linkWithText(i18n.T(c, "email.subscription.change"), web.BaseURL(c), "/settings"),
 			"logo":        web.LogoURL(c),
 		}
 
@@ -333,11 +333,11 @@ func NotifyAboutDeletedPost(post *entity.Post) worker.Task {
 		}
 
 		props := dto.Props{
-			"title":      post.Title,
-			"tenantName": c.Tenant().Name,
-			"content":    markdown.Full(post.Response.Text),
-			"change":     linkWithText("change your notification preferences", web.BaseURL(c), "/settings"),
-			"logo":       web.LogoURL(c),
+			"title":    post.Title,
+			"siteName": c.Tenant().Name,
+			"content":  markdown.Full(post.Response.Text),
+			"change":   linkWithText(i18n.T(c, "email.subscription.change"), web.BaseURL(c), "/settings"),
+			"logo":     web.LogoURL(c),
 		}
 
 		bus.Publish(c, &cmd.SendMail{

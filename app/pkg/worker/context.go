@@ -25,6 +25,7 @@ func NewContext(ctx context.Context, workerID string, task Task) *Context {
 	if task.OriginContext != nil {
 		ctx = context.WithValue(ctx, app.RequestCtxKey, task.OriginContext.Value(app.RequestCtxKey))
 		ctx = context.WithValue(ctx, app.TenantCtxKey, task.OriginContext.Value(app.TenantCtxKey))
+		ctx = context.WithValue(ctx, app.LocaleCtxKey, task.OriginContext.Value(app.LocaleCtxKey))
 		ctx = context.WithValue(ctx, app.UserCtxKey, task.OriginContext.Value(app.UserCtxKey))
 
 		ctx = log.WithProperties(ctx, dto.Props{
