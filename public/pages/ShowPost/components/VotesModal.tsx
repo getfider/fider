@@ -1,7 +1,7 @@
 import React from "react"
 import { Post, Vote } from "@fider/models"
 import { Modal, Button, Loader, Avatar, UserName, Moment, Input } from "@fider/components"
-import { actions } from "@fider/services"
+import { actions, Fider } from "@fider/services"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import { HStack, VStack } from "@fider/components/layout"
@@ -87,7 +87,7 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
                       </VStack>
                     </HStack>
                     <span className="text-muted">
-                      <Moment date={x.createdAt} />
+                      <Moment locale={Fider.currentLocale} date={x.createdAt} />
                     </span>
                   </HStack>
                 ))}

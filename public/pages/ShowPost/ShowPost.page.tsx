@@ -119,7 +119,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   )}
 
                   <span className="text-muted">
-                    Posted by <UserName user={this.props.post.user} /> &middot; <Moment date={this.props.post.createdAt} />
+                    Posted by <UserName user={this.props.post.user} /> &middot; <Moment locale={Fider.currentLocale} date={this.props.post.createdAt} />
                   </span>
                 </div>
               </HStack>

@@ -2,7 +2,7 @@ import React from "react"
 
 import { Notification } from "@fider/models"
 import { Markdown, Moment, PageTitle } from "@fider/components"
-import { actions } from "@fider/services"
+import { actions, Fider } from "@fider/services"
 import { HStack, VStack } from "@fider/components/layout"
 
 interface MyNotificationsPageProps {
@@ -40,7 +40,7 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
             <Markdown text={n.title} style="full" />
           </a>
           <span className="text-muted">
-            <Moment date={n.createdAt} />
+            <Moment locale={Fider.currentLocale} date={n.createdAt} />
           </span>
         </div>
       )
