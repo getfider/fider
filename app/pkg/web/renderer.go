@@ -168,7 +168,8 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	private["assets"] = r.assets
 	private["logo"] = LogoURL(ctx)
 
-	localeChunkName := fmt.Sprintf("locale-%s-client-json", env.Config.Locale)
+	locale := i18n.GetLocale(ctx)
+	localeChunkName := fmt.Sprintf("locale-%s-client-json", locale)
 	private["preloadAssets"] = []*clientAssets{
 		r.chunkedAssets[localeChunkName],
 		r.chunkedAssets[props.ChunkName],
@@ -201,7 +202,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	public["props"] = props.Data
 	public["settings"] = &Map{
 		"mode":            env.Config.HostMode,
-		"locale":          i18n.GetLocale(ctx),
+		"locale":          locale,
 		"environment":     env.Config.Environment,
 		"googleAnalytics": env.Config.GoogleAnalytics,
 		"domain":          env.MultiTenantDomain(),

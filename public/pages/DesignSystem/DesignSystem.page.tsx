@@ -33,6 +33,7 @@ import { notify, Failure } from "@fider/services"
 import { HStack, VStack } from "@fider/components/layout"
 import IconLightBulb from "@fider/assets/images/heroicons-light-bulb.svg"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
+import { useFider } from "@fider/hooks"
 
 const jonSnow: User = {
   id: 0,
@@ -68,6 +69,7 @@ const visibilityPublic = { label: "Public", value: "public" }
 const visibilityPrivate = { label: "Private", value: "private" }
 
 const DesignSystemPage = () => {
+  const fider = useFider()
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const notifyError = async () => {
@@ -87,6 +89,9 @@ const DesignSystemPage = () => {
   const showLoading = (e: ButtonClickEvent): void => {
     return e.preventEnable()
   }
+
+  const threeHoursAgo = new Date()
+  threeHoursAgo.setHours(threeHoursAgo.getHours() - 3)
 
   const forceError = async () => {
     setError({
@@ -366,13 +371,13 @@ const DesignSystemPage = () => {
 
       <VStack>
         <div>
-          Relative: <Moment date="2017-06-03T16:55:06.815042Z" format="relative" />
+          Relative: <Moment locale={fider.currentLocale} date={threeHoursAgo} format="relative" />
         </div>
         <div>
-          Short: <Moment date="2017-06-03T16:55:06.815042Z" format="short" />
+          Short: <Moment locale={fider.currentLocale} date="2017-06-03T16:55:06.815042Z" format="short" />
         </div>
         <div>
-          Full: <Moment date="2017-06-03T16:55:06.815042Z" format="full" />
+          Full: <Moment locale={fider.currentLocale} date="2017-06-03T16:55:06.815042Z" format="full" />
         </div>
       </VStack>
 

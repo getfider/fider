@@ -89,7 +89,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   const comment = props.comment
 
   const editedMetadata = !!comment.editedAt && !!comment.editedBy && (
-    <span data-tooltip={`This comment has been edited by ${comment.editedBy.name} on ${formatDate(comment.editedAt)}`}>· edited</span>
+    <span data-tooltip={`This comment has been edited by ${comment.editedBy.name} on ${formatDate(fider.currentLocale, comment.editedAt)}`}>· edited</span>
   )
 
   return (
@@ -104,7 +104,7 @@ export const ShowComment = (props: ShowCommentProps) => {
             <HStack>
               <UserName user={comment.user} />{" "}
               <div className="text-xs">
-                · <Moment date={comment.createdAt} /> {editedMetadata}
+                · <Moment locale={fider.currentLocale} date={comment.createdAt} /> {editedMetadata}
               </div>
             </HStack>
             {!isEditing && canEditComment() && (
