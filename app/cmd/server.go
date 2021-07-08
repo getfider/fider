@@ -23,6 +23,7 @@ import (
 	_ "github.com/getfider/fider/app/services/email/smtp"
 	_ "github.com/getfider/fider/app/services/httpclient"
 	_ "github.com/getfider/fider/app/services/log/console"
+	_ "github.com/getfider/fider/app/services/log/file"
 	_ "github.com/getfider/fider/app/services/log/sql"
 	_ "github.com/getfider/fider/app/services/oauth"
 	_ "github.com/getfider/fider/app/services/sqlstore/postgres"
