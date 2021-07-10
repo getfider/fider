@@ -12,6 +12,10 @@ const locales: { [key: string]: Locale } = {
     text: "🇧🇷 Portuguese (Brazilian)",
     translated: 100,
   },
+  fr: {
+    text: "🇫🇷 French",
+    translated: 100,
+  },
 }
 
 export default locales

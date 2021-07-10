@@ -171,14 +171,18 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     </Button>
                     <Button onClick={this.cancelEdit}>
                       <Icon sprite={IconX} />
-                      <Trans id="action.cancel">Cancel</Trans>
+                      <span>
+                        <Trans id="action.cancel">Cancel</Trans>
+                      </span>
                     </Button>
                   </VStack>
                 ) : (
                   <VStack>
                     <Button onClick={this.startEdit}>
                       <Icon sprite={IconPencilAlt} />
-                      <Trans id="action.edit">Edit</Trans>
+                      <span>
+                        <Trans id="action.edit">Edit</Trans>
+                      </span>
                     </Button>
                     {Fider.session.user.isCollaborator && <ResponseForm post={this.props.post} />}
                   </VStack>

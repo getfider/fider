@@ -43,21 +43,21 @@ const Lonely = () => {
   )
 }
 
-const defaultWelcomeMessage = t({
-  id: "home.form.defaultwelcomemessage",
-  message: `We'd love to hear what you're thinking about.
-
-What can we do better? This is the place for you to vote, discuss and share ideas.`,
-})
-
-const defaultInvitation = t({
-  id: "home.form.defaultinvitation",
-  message: "Enter your suggestion here...",
-})
-
 const HomePage = (props: HomePageProps) => {
   const fider = useFider()
   const [title, setTitle] = useState("")
+
+  const defaultWelcomeMessage = t({
+    id: "home.form.defaultwelcomemessage",
+    message: `We'd love to hear what you're thinking about.
+
+What can we do better? This is the place for you to vote, discuss and share ideas.`,
+  })
+
+  const defaultInvitation = t({
+    id: "home.form.defaultinvitation",
+    message: "Enter your suggestion here...",
+  })
 
   const isLonely = () => {
     const len = Object.keys(props.countPerStatus).length
