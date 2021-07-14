@@ -21,6 +21,10 @@
     align-items     : center;
   }
 
+  button.c-vote-counter__button--voted {
+    color: $red-500;
+  }
+
   button.m-voted {
     color : $main-color;
     border: 1px solid $main-color;
