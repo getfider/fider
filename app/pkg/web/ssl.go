@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"net/http"
 	"strings"
 
 	"golang.org/x/crypto/acme"
@@ -16,11 +15,18 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"golang.org/x/crypto/acme/autocert"
 )
 
-func getDefaultTLSConfig() *tls.Config {
+func getDefaultTLSConfig(autoSSL bool) *tls.Config {
+	nextProtos := []string{"h2","http/1.1"}
+	if autoSSL {
+		nextProtos = append(nextProtos, acme.ALPNProto)
+	}
+
 	return &tls.Config{
+		NextProtos: nextProtos,
 		MinVersion: tls.VersionTLS12,
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
@@ -125,15 +131,12 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 		}
 	}
 
-	return m.autossl.GetCertificate(hello)
-}
-
-//StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
-func (m *CertificateManager) StartHTTPServer() {
-	err := http.ListenAndServe(":80", m.autossl.HTTPHandler(nil))
+	cert, err := m.autossl.GetCertificate(hello)
 	if err != nil {
-		panic(err)
+		log.Error(context.Background(), errors.Wrap(err, "unable to get certificate from acme client"))
 	}
+
+	return cert, err
 }
 
 func acmeClient() *acme.Client {
