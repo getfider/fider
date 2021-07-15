@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"testing"
-	"time"
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -54,7 +53,7 @@ func TestGetCertificate_WhenCNAMEAreInvalid(t *testing.T) {
 	manager, err := NewCertificateManager(context.Background(), "", "")
 	Expect(err).IsNil()
 
-	invalidServerNames := []string{"feedback.heyworld.com"}
+	invalidServerNames := []string{"feedback.heyworld.com", "2.2.2.2"}
 
 	for _, serverName := range invalidServerNames {
 		cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
@@ -63,9 +62,6 @@ func TestGetCertificate_WhenCNAMEAreInvalid(t *testing.T) {
 		Expect(err.Error()).ContainsSubstring(`no tenants found with cname ` + serverName)
 		Expect(cert).IsNil()
 	}
-
-	// GetCertificate starts a fire and forget go routine to delete items from cache, give it 2sec to complete it
-	time.Sleep(2 * time.Second)
 }
 
 func TestGetCertificate_ServerNameMatchesCertificate_ShouldReturnIt(t *testing.T) {
