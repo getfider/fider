@@ -20,7 +20,7 @@ import (
 )
 
 func getDefaultTLSConfig(autoSSL bool) *tls.Config {
-	nextProtos := []string{"h2","http/1.1"}
+	nextProtos := []string{"h2", "http/1.1"}
 	if autoSSL {
 		nextProtos = append(nextProtos, acme.ALPNProto)
 	}
@@ -71,14 +71,16 @@ func isValidHostName(ctx context.Context, host string) error {
 
 //CertificateManager is used to manage SSL certificates
 type CertificateManager struct {
+	ctx     context.Context
 	cert    tls.Certificate
 	leaf    *x509.Certificate
 	autossl autocert.Manager
 }
 
 //NewCertificateManager creates a new CertificateManager
-func NewCertificateManager(certFile, keyFile string) (*CertificateManager, error) {
+func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*CertificateManager, error) {
 	manager := &CertificateManager{
+		ctx: ctx,
 		autossl: autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
 			Cache:      NewAutoCertCache(),
@@ -133,7 +135,7 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 
 	cert, err := m.autossl.GetCertificate(hello)
 	if err != nil {
-		log.Error(context.Background(), errors.Wrap(err, "unable to get certificate from acme client"))
+		log.Error(m.ctx, errors.Wrap(err, "unable to get certificate from acme client"))
 	}
 
 	return cert, err

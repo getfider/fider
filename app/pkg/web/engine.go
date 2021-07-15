@@ -132,7 +132,7 @@ func (e *Engine) Start(address string) {
 	//TODO: use another var to decide if port 80 should be and redirect to 443
 
 	if env.Config.AutoSSL {
-		certManager, err = NewCertificateManager(certFilePath, keyFilePath)
+		certManager, err = NewCertificateManager(e, certFilePath, keyFilePath)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
