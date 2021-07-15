@@ -53,6 +53,10 @@ type config struct {
 	Log struct {
 		Level      string `env:"LOG_LEVEL,default=INFO"`
 		Structured bool   `env:"LOG_STRUCTURED,default=false"`
+		Console    bool   `env:"LOG_CONSOLE,default=true"`
+		Sql        bool   `env:"LOG_SQL,default=true"`
+		File       bool   `env:"LOG_FILE,default=false"`
+		OutputFile string `env:"LOG_FILE_OUTPUT,default=logs/output.log"`
 	}
 	OAuth struct {
 		Google struct {
