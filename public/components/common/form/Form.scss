@@ -1,8 +1,11 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-form {
-  position : relative;
-  max-width: 100%;
+  position   : relative;
+  max-width  : 100%;
+  display    : flex;
+  flex-wrap  : wrap;
+  align-items: flex-start;
 
   &.m-mini {
     font-size: 80%;
@@ -15,6 +18,26 @@
   }
 
 
+  >.c-button {
+    margin-top : 20px;
+    margin-left: auto;
+  }
+
+  span {
+    margin-top: 10px;
+    width     : 100%;
+    color     : $gray-500;
+  }
+
+  .c-button-icon {
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+  }
+
+  input:focus~button {
+    opacity: 0;
+  }
 }
 
 .c-button-icon {
@@ -31,22 +54,15 @@
   transition   : .3s cubic-bezier(0.075, 0.82, 0.165, 1);
   display      : none;
 
-  &::after {
-    content    : '';
-    position   : absolute;
-    top        : 50%;
-    left       : 50%;
-    margin-top : -10px;
-    margin-left: -10px;
-    width      : 20px;
-    height     : 20px;
-    background : url("../../../assets/images/arrow-narrow-right.svg") no-repeat;
-  }
 }
 
 .c-form-field {
   clear        : both;
-  margin-bottom: 1.5em;
+  margin-bottom: 0;
+
+  &:not(.c-multi-image-uploader) {
+    width: 100%;
+  }
 
   &.m-checkbox {
     label {

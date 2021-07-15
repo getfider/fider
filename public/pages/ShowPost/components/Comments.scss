@@ -77,6 +77,16 @@
     margin-right: 8px;
   }
 
+  form span {
+    display: block;
+    color: $gray-500;
+    width: 100%;
+  }
+
+  .c-image-upload {
+    margin-bottom: 0;
+  }
+
   .c-form {
     padding: 8px;
     flex-grow: 1;

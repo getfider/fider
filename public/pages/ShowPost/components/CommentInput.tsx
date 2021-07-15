@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { useState, useRef } from "react"
 
 import { Post, ImageUpload } from "@fider/models"
@@ -68,6 +69,7 @@ export const CommentInput = (props: CommentInputProps) => {
           />
           {content && (
             <>
+              <span>Your comments will be visible to other users</span>
               <MultiImageUploader field="attachments" maxUploads={2} previewMaxWidth={100} onChange={setAttachments} />
               <Button color="positive" onClick={submit}>
                 Submit

@@ -80,41 +80,7 @@
   position     : relative;
   margin-top   : 2em;
   margin-bottom: 1em;
-
-  .c-form {
-    display    : flex;
-    flex-wrap  : wrap;
-    align-items: flex-start;
-
-    .c-form-field:not(.c-multi-image-uploader) {
-      width: 100%;
-    }
-
-    .c-form-field {
-      margin-bottom: 0;
-    }
-
-    >.c-button {
-      margin-top : 20px;
-      margin-left: auto;
-    }
-
-    span {
-      margin-top: 10px;
-      width: 100%;
-      color: $gray-500;
-    }
-
-    .c-button-icon {
-      display: block;
-    }
-
-    input:focus~button {
-      opacity: 0;
-    }
-
-  }
-
+  
   .c-form.visible {
 
     #input-title {
