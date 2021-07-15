@@ -129,8 +129,6 @@ func (e *Engine) Start(address string) {
 		certManager *CertificateManager
 	)
 
-	//TODO: use another var to decide if port 80 should be and redirect to 443
-
 	if env.Config.AutoSSL {
 		certManager, err = NewCertificateManager(e, certFilePath, keyFilePath)
 		if err != nil {
@@ -139,6 +137,7 @@ func (e *Engine) Start(address string) {
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
 		log.Infof(e, "https (auto ssl) server started on @{Address}", dto.Props{"Address": address})
+		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFilePath == "" && keyFilePath == "" {
 		log.Infof(e, "http server started on @{Address}", dto.Props{"Address": address})

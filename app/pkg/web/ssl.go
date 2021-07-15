@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"net/http"
 	"strings"
 
 	"golang.org/x/crypto/acme"
@@ -139,6 +140,14 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 	}
 
 	return cert, err
+}
+
+//StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
+func (m *CertificateManager) StartHTTPServer() {
+	err := http.ListenAndServe(":80", m.autossl.HTTPHandler(nil))
+	if err != nil {
+		panic(err)
+	}
 }
 
 func acmeClient() *acme.Client {
