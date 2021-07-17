@@ -40,7 +40,8 @@ func getDefaultTLSConfig(autoSSL bool) *tls.Config {
 	}
 }
 
-var errInvalidHostName = errors.New("autossl: invalid hostname")
+var errInvalidHostName = errors.New("autotls: invalid hostname")
+
 func isValidHostName(ctx context.Context, host string) error {
 	if host == "" {
 		return errors.Wrap(errInvalidHostName, "host cannot be empty.")
@@ -76,14 +77,14 @@ type CertificateManager struct {
 	ctx     context.Context
 	cert    tls.Certificate
 	leaf    *x509.Certificate
-	autossl autocert.Manager
+	autotls autocert.Manager
 }
 
 //NewCertificateManager creates a new CertificateManager
 func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*CertificateManager, error) {
 	manager := &CertificateManager{
 		ctx: ctx,
-		autossl: autocert.Manager{
+		autotls: autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
 			Cache:      NewAutoCertCache(),
 			Client:     acmeClient(),
@@ -135,7 +136,7 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 		}
 	}
 
-	cert, err := m.autossl.GetCertificate(hello)
+	cert, err := m.autotls.GetCertificate(hello)
 	if err != nil && errors.Cause(err) != errInvalidHostName {
 		log.Error(m.ctx, err)
 	}
@@ -145,7 +146,7 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 
 //StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
 func (m *CertificateManager) StartHTTPServer() {
-	err := http.ListenAndServe(":80", m.autossl.HTTPHandler(nil))
+	err := http.ListenAndServe(":80", m.autotls.HTTPHandler(nil))
 	if err != nil {
 		panic(err)
 	}
