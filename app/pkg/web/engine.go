@@ -136,7 +136,7 @@ func (e *Engine) Start(address string) {
 		}
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		log.Infof(e, "https (auto ssl) server started on @{Address}", dto.Props{"Address": address})
+		log.Infof(e, "https (auto tls) server started on @{Address}", dto.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFilePath == "" && keyFilePath == "" {
