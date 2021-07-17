@@ -40,16 +40,17 @@ func getDefaultTLSConfig(autoSSL bool) *tls.Config {
 	}
 }
 
+var errInvalidHostName = errors.New("autossl: invalid hostname")
 func isValidHostName(ctx context.Context, host string) error {
 	if host == "" {
-		return errors.New("host cannot be empty.")
+		return errors.Wrap(errInvalidHostName, "host cannot be empty.")
 	}
 
 	if env.IsSingleHostMode() {
 		if env.Config.HostDomain == host {
 			return nil
 		}
-		return errors.New("server name mismatch")
+		return errors.Wrap(errInvalidHostName, "server name mismatch")
 	}
 
 	trx, err := dbx.BeginTx(ctx)
@@ -65,7 +66,7 @@ func isValidHostName(ctx context.Context, host string) error {
 	}
 
 	if isAvailable.Result {
-		return errors.New("no tenants found with cname %s", host)
+		return errors.Wrap(errInvalidHostName, "no tenants found with cname %s", host)
 	}
 	return nil
 }
@@ -135,8 +136,8 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 	}
 
 	cert, err := m.autossl.GetCertificate(hello)
-	if err != nil {
-		log.Error(m.ctx, errors.Wrap(err, "unable to get certificate from acme client"))
+	if err != nil && errors.Cause(err) != errInvalidHostName {
+		log.Error(m.ctx, err)
 	}
 
 	return cert, err
