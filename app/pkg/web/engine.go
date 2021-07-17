@@ -105,9 +105,9 @@ func (e *Engine) Start(address string) {
 		keyFilePath  = ""
 	)
 
-	if env.Config.SSLCert != "" {
-		certFilePath = env.Etc(env.Config.SSLCert)
-		keyFilePath = env.Etc(env.Config.SSLCertKey)
+	if env.Config.TLS.Certificate != "" {
+		certFilePath = env.Etc(env.Config.TLS.Certificate)
+		keyFilePath = env.Etc(env.Config.TLS.CertificateKey)
 	}
 
 	stdLog.SetOutput(ioutil.Discard)
@@ -117,7 +117,7 @@ func (e *Engine) Start(address string) {
 		IdleTimeout:  120 * time.Second,
 		Addr:         address,
 		Handler:      e.mux,
-		TLSConfig:    getDefaultTLSConfig(),
+		TLSConfig:    getDefaultTLSConfig(env.Config.TLS.Automatic),
 	}
 
 	for i := 0; i < runtime.NumCPU()*2; i++ {
@@ -128,14 +128,15 @@ func (e *Engine) Start(address string) {
 		err         error
 		certManager *CertificateManager
 	)
-	if env.Config.AutoSSL {
-		certManager, err = NewCertificateManager(certFilePath, keyFilePath)
+
+	if env.Config.TLS.Automatic {
+		certManager, err = NewCertificateManager(e, certFilePath, keyFilePath)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		log.Infof(e, "https (auto ssl) server started on @{Address}", dto.Props{"Address": address})
+		log.Infof(e, "https (auto tls) server started on @{Address}", dto.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFilePath == "" && keyFilePath == "" {
