@@ -86,6 +86,7 @@ func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*Cert
 			Prompt:     autocert.AcceptTOS,
 			Cache:      NewAutoCertCache(),
 			Client:     acmeClient(),
+			HostPolicy: isValidHostName,
 		},
 	}
 
