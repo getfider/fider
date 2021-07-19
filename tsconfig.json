@@ -8,7 +8,7 @@
     "target": "es6",
     "strict": true,
     "jsx": "react",
-    "lib": ["dom", "es2015.promise", "es6"],
+    "lib": ["dom", "es2015.promise", "es6", "ES2020.Intl"],
     "baseUrl": ".",
     "noEmit": true,
     "noUnusedLocals": true,

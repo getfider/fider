@@ -1,10 +1,11 @@
 import React from "react"
 import { Post, Vote } from "@fider/models"
 import { Modal, Button, Loader, Avatar, UserName, Moment, Input } from "@fider/components"
-import { actions } from "@fider/services"
+import { actions, Fider } from "@fider/services"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import { HStack, VStack } from "@fider/components/layout"
+import { t, Trans } from "@lingui/macro"
 
 interface VotesModalProps {
   isOpen: boolean
@@ -72,7 +73,7 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
                 field="query"
                 icon={this.state.query ? IconX : IconSearch}
                 onIconClick={this.state.query ? this.clearSearch : undefined}
-                placeholder="Search for users by name..."
+                placeholder={t({ id: "modal.showvotes.query.placeholder", message: "Search for users by name..." })}
                 value={this.state.query}
                 onChange={this.handleSearchFilterChanged}
               />
@@ -87,11 +88,15 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
                       </VStack>
                     </HStack>
                     <span className="text-muted">
-                      <Moment date={x.createdAt} />
+                      <Moment locale={Fider.currentLocale} date={x.createdAt} />
                     </span>
                   </HStack>
                 ))}
-                {this.state.filteredVotes.length === 0 && <p className="text-muted">No users found matching &apos;{this.state.query}&apos;.</p>}
+                {this.state.filteredVotes.length === 0 && (
+                  <p className="text-muted">
+                    <Trans id="modal.showvotes.message.zeromatches">No users found matching &apos;{this.state.query}&apos;.</Trans>
+                  </p>
+                )}
               </VStack>
             </>
           )}
@@ -99,7 +104,7 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
 
         <Modal.Footer>
           <Button variant="tertiary" onClick={this.closeModal}>
-            Close
+            <Trans id="action.close">Close</Trans>
           </Button>
         </Modal.Footer>
       </Modal.Window>

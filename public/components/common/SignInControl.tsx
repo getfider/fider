@@ -5,6 +5,7 @@ import { SocialSignInButton, Form, Button, Input, Message } from "@fider/compone
 import { Divider } from "@fider/components/layout"
 import { device, actions, Failure, isCookieEnabled } from "@fider/services"
 import { useFider } from "@fider/hooks"
+import { Trans } from "@lingui/macro"
 
 interface SignInControlProps {
   useEmail: boolean
@@ -53,7 +54,6 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
               </React.Fragment>
             ))}
           </div>
-          <p className="text-muted">We will never post to these accounts on your behalf.</p>
         </>
       )}
 
@@ -61,7 +61,9 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
 
       {useEmail ? (
         <div>
-          <p>Enter your email address to sign in</p>
+          <p>
+            <Trans id="signin.message.email">Enter your email address to sign in</Trans>
+          </p>
           <Form error={error}>
             <Input
               field="email"
@@ -71,7 +73,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
               placeholder="yourname@example.com"
               suffix={
                 <Button type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                  Sign in
+                  <Trans id="action.signin">Sign in</Trans>
                 </Button>
               }
             />
