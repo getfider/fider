@@ -16,11 +16,18 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"golang.org/x/crypto/acme/autocert"
 )
 
-func getDefaultTLSConfig() *tls.Config {
+func getDefaultTLSConfig(autoSSL bool) *tls.Config {
+	nextProtos := []string{"h2", "http/1.1"}
+	if autoSSL {
+		nextProtos = append(nextProtos, acme.ALPNProto)
+	}
+
 	return &tls.Config{
+		NextProtos: nextProtos,
 		MinVersion: tls.VersionTLS12,
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
@@ -33,16 +40,18 @@ func getDefaultTLSConfig() *tls.Config {
 	}
 }
 
+var errInvalidHostName = errors.New("autotls: invalid hostname")
+
 func isValidHostName(ctx context.Context, host string) error {
 	if host == "" {
-		return errors.New("host cannot be empty.")
+		return errors.Wrap(errInvalidHostName, "host cannot be empty.")
 	}
 
 	if env.IsSingleHostMode() {
 		if env.Config.HostDomain == host {
 			return nil
 		}
-		return errors.New("server name mismatch")
+		return errors.Wrap(errInvalidHostName, "server name mismatch")
 	}
 
 	trx, err := dbx.BeginTx(ctx)
@@ -58,22 +67,24 @@ func isValidHostName(ctx context.Context, host string) error {
 	}
 
 	if isAvailable.Result {
-		return errors.New("no tenants found with cname %s", host)
+		return errors.Wrap(errInvalidHostName, "no tenants found with cname %s", host)
 	}
 	return nil
 }
 
 //CertificateManager is used to manage SSL certificates
 type CertificateManager struct {
+	ctx     context.Context
 	cert    tls.Certificate
 	leaf    *x509.Certificate
-	autossl autocert.Manager
+	autotls autocert.Manager
 }
 
 //NewCertificateManager creates a new CertificateManager
-func NewCertificateManager(certFile, keyFile string) (*CertificateManager, error) {
+func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*CertificateManager, error) {
 	manager := &CertificateManager{
-		autossl: autocert.Manager{
+		ctx: ctx,
+		autotls: autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
 			Cache:      NewAutoCertCache(),
 			Client:     acmeClient(),
@@ -125,12 +136,17 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 		}
 	}
 
-	return m.autossl.GetCertificate(hello)
+	cert, err := m.autotls.GetCertificate(hello)
+	if err != nil && errors.Cause(err) != errInvalidHostName {
+		log.Error(m.ctx, err)
+	}
+
+	return cert, err
 }
 
 //StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
 func (m *CertificateManager) StartHTTPServer() {
-	err := http.ListenAndServe(":80", m.autossl.HTTPHandler(nil))
+	err := http.ListenAndServe(":80", m.autotls.HTTPHandler(nil))
 	if err != nil {
 		panic(err)
 	}

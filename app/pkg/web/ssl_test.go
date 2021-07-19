@@ -1,9 +1,9 @@
 package web
 
 import (
+	"context"
 	"crypto/tls"
 	"testing"
-	"time"
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -34,7 +34,7 @@ func TestGetCertificate(t *testing.T) {
 		keyFile := env.Path("/app/pkg/web/testdata/" + testCase.cert + ".key")
 		wildcardCert, _ := tls.LoadX509KeyPair(certFile, keyFile)
 
-		manager, err := NewCertificateManager(certFile, keyFile)
+		manager, err := NewCertificateManager(context.Background(), certFile, keyFile)
 		Expect(err).IsNil()
 		cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
 			ServerName: testCase.serverName,
@@ -50,10 +50,10 @@ func TestGetCertificate_WhenCNAMEAreInvalid(t *testing.T) {
 	bus.Init(fs.Service{})
 	bus.AddHandler(mockIsCNAMEAvailable)
 
-	manager, err := NewCertificateManager("", "")
+	manager, err := NewCertificateManager(context.Background(), "", "")
 	Expect(err).IsNil()
 
-	invalidServerNames := []string{"feedback.heyworld.com"}
+	invalidServerNames := []string{"feedback.heyworld.com", "2.2.2.2"}
 
 	for _, serverName := range invalidServerNames {
 		cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
@@ -62,9 +62,6 @@ func TestGetCertificate_WhenCNAMEAreInvalid(t *testing.T) {
 		Expect(err.Error()).ContainsSubstring(`no tenants found with cname ` + serverName)
 		Expect(cert).IsNil()
 	}
-
-	// GetCertificate starts a fire and forget go routine to delete items from cache, give it 2sec to complete it
-	time.Sleep(2 * time.Second)
 }
 
 func TestGetCertificate_ServerNameMatchesCertificate_ShouldReturnIt(t *testing.T) {
@@ -74,7 +71,7 @@ func TestGetCertificate_ServerNameMatchesCertificate_ShouldReturnIt(t *testing.T
 
 	certFile := env.Etc("dev-fider-io.crt")
 	certKey := env.Etc("dev-fider-io.key")
-	manager, err := NewCertificateManager(certFile, certKey)
+	manager, err := NewCertificateManager(context.Background(), certFile, certKey)
 	Expect(err).IsNil()
 
 	serverNames := []string{"dev.fider.io", "feedback.dev.fider.io", "anything.dev.fider.io", "IDEAS.DEV.fider.io", ".feedback.DEV.fider.io"}
@@ -96,7 +93,7 @@ func TestGetCertificate_ServerNameDoesntMatchCertificate_ButEndsWithHostName_Sho
 	env.Config.HostDomain = "dev.fider.io"
 	certFile := env.Etc("dev-fider-io.crt")
 	certKey := env.Etc("dev-fider-io.key")
-	manager, err := NewCertificateManager(certFile, certKey)
+	manager, err := NewCertificateManager(context.Background(), certFile, certKey)
 	Expect(err).IsNil()
 
 	serverNames := []string{"sub.feedback.dev.fider.io"}
