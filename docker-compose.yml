@@ -2,6 +2,7 @@ version: "3"
 services:
   smtp:
     image: mailhog/mailhog:latest
+    restart: always
     ports:
       - "8026:8025"
       - "1026:1025"

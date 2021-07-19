@@ -9,10 +9,25 @@ jobs:
   test-e2e:
     name: test-e2e
     runs-on: ubuntu-latest
+    services:
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - "8026:8025"
+          - "1026:1025"
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: fider_ci
+          POSTGRES_PASSWORD: fider_ci_pw
+          POSTGRES_DB: fider_ci
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js 14.x
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
-      - run: make e2e
+      - run: make test-e2e
