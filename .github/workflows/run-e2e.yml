@@ -30,4 +30,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
+      - run: docker build -t getfider/fider .
+      - run: docker run getfider/fider -p 3000:3000 -d --env-file .e2e.env
+      - run: npm ci
       - run: make test-e2e
