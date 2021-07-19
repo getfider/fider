@@ -78,16 +78,22 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
               }
             />
           </Form>
-          {!props.useEmail && <p className="text-red-700 mt-1">Currently only allowed to sign in to an administrator account</p>}
+          {!props.useEmail && (
+            <p className="text-red-700 mt-1">
+              <Trans id="signin.message.onlyadmins">Currently only allowed to sign in to an administrator account</Trans>
+            </p>
+          )}
         </div>
       ) : (
         <div>
           <p className="text-muted">
-            Email authentication has been disabled by an administrator. If you have an administrator account and need to bypass this restriction, please{" "}
-            <span className="text-bold clickable" onClick={() => setUseEmail(true)}>
-              click here
-            </span>
-            .
+            <Trans id="signin.message.emaildisabled">
+              Email authentication has been disabled by an administrator. If you have an administrator account and need to bypass this restriction, please{" "}
+              <span className="text-bold clickable" onClick={() => setUseEmail(true)}>
+                click here
+              </span>
+              .
+            </Trans>
           </p>
         </div>
       )}
