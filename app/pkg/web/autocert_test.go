@@ -28,7 +28,7 @@ func TestUseAutoCert_WhenCNAMEAreRegistered(t *testing.T) {
 	bus.Init(fs.Service{})
 	bus.AddHandler(mockIsCNAMEAvailable)
 
-	manager, err := NewCertificateManager("", "")
+	manager, err := NewCertificateManager(context.Background(), "", "")
 	Expect(err).IsNil()
 
 	invalidServerNames := []string{"ideas.app.com", "FEEDBACK.mysite.COM"}
