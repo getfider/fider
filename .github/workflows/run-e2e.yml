@@ -31,6 +31,13 @@ jobs:
         with:
           node-version: 14.x
       # - run: docker build -t getfider/fider .
-      - run: docker run -p 3000:3000 --env-file .e2e.env -d --network "${{ job.container.network }}" -v "$PWD"/etc:/app/etc getfider/fider:main
+      - run: |
+          docker run \
+            -p 3000:3000 \
+            --env-file .e2e.env \
+            -d --network "${{ job.container.network }}" \
+            -v "$PWD"/etc:/app/etc \
+            getfider/fider:main
       - run: npm ci
+      - run: npx playwright install-deps
       - run: make test-e2e
