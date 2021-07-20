@@ -31,6 +31,7 @@ jobs:
         with:
           node-version: 14.x
       - run: docker build -t getfider/fider .
-      - run: docker run -p 3000:3000 -d --env-file .e2e.env getfider/fider
+      - run: docker run -p 3000:3000 -d --env-file .e2e.env -v ./etc:/app/etc getfider/fider
       - run: npm ci
+      - run: docker ps
       - run: make test-e2e
