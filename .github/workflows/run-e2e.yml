@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 14.x
       # - run: docker build -t getfider/fider .
-      - run: docker run -p 3000:3000 --env-file .e2e.env --network host -v "$PWD"/etc:/app/etc getfider/fider:main
+      - run: docker run -p 3000:3000 --env-file .e2e.env --network "${{ job.services.network }}" -v "$PWD"/etc:/app/etc getfider/fider:main
       - run: npm ci
       - run: docker ps
       - run: make test-e2e
