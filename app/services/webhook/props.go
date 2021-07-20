@@ -53,25 +53,24 @@ func dummyTriggerProps(c context.Context, webhookType enum.WebhookType) dto.Prop
 	switch webhookType {
 	case enum.WebhookNewPost:
 		DescribePost(props, dummyPost, "post", baseURL, false, false)
-		break
 	case enum.WebhookNewComment:
 		DescribePost(props, dummyPost, "post", baseURL, true, true)
 		props["comment"] = "An example **comment** on a post."
-		break
 	case enum.WebhookChangeStatus:
 		DescribePost(props, dummyPost, "post", baseURL, true, true)
 		props["post_old_status"] = enum.PostOpen
-		break
 	case enum.WebhookDeletePost:
 		DescribePost(props, dummyPost, "post", baseURL, true, true)
 		props["post_status"] = enum.PostDeleted
 		props["post_response_text"] = "The reason _why_ this post was deleted."
-		break
 	}
 	return props
 }
 
 func DescribeUser(props dto.Props, user *entity.User, keyPrefix string) {
+	if user == nil {
+		return
+	}
 	role, _ := user.Role.MarshalText()
 	props.Append(dto.Props{
 		keyPrefix + "_id":     user.ID,
@@ -83,6 +82,9 @@ func DescribeUser(props dto.Props, user *entity.User, keyPrefix string) {
 }
 
 func DescribePost(props dto.Props, post *entity.Post, keyPrefix, baseURL string, complete, author bool) {
+	if post == nil {
+		return
+	}
 	props.Append(dto.Props{
 		keyPrefix + "_id":          post.ID,
 		keyPrefix + "_number":      post.Number,
@@ -111,9 +113,9 @@ func DescribePost(props dto.Props, post *entity.Post, keyPrefix, baseURL string,
 				keyPrefix + "_responded_at": postResponse.RespondedAt,
 			})
 			DescribeUser(props, postResponse.User, keyPrefix+"_author")
-			if post.Status == enum.PostDuplicate {
+			originalPost := postResponse.Original
+			if post.Status == enum.PostDuplicate && originalPost != nil {
 				keyPrefix := keyPrefix + "_original"
-				originalPost := postResponse.Original
 				props.Append(dto.Props{
 					keyPrefix + "_number": originalPost.Number,
 					keyPrefix + "_title":  originalPost.Title,
@@ -127,6 +129,9 @@ func DescribePost(props dto.Props, post *entity.Post, keyPrefix, baseURL string,
 }
 
 func DescribeTenant(props dto.Props, tenant *entity.Tenant, keyPrefix, baseURL, logoURL string) {
+	if tenant == nil {
+		return
+	}
 	props.Append(dto.Props{
 		keyPrefix + "_id":              tenant.ID,
 		keyPrefix + "_name":            tenant.Name,
