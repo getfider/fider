@@ -23,7 +23,7 @@ func (action *CreateEditWebhook) IsAuthorized(_ context.Context, user *entity.Us
 }
 
 // Validate if current model is valid
-func (action *CreateEditWebhook) Validate(context.Context, *entity.User) *validate.Result {
+func (action *CreateEditWebhook) Validate(ctx context.Context, _ *entity.User) *validate.Result {
 	result := validate.Success()
 
 	if action.Name == "" {
@@ -47,7 +47,7 @@ func (action *CreateEditWebhook) Validate(context.Context, *entity.User) *valida
 
 	if action.Url == "" {
 		result.AddFieldFailure("url", "URL is required.")
-	} else if messages := validate.URL(action.Url); len(messages) > 0 {
+	} else if messages := validate.URL(ctx, action.Url); len(messages) > 0 {
 		result.AddFieldFailure("url", messages...)
 	}
 
