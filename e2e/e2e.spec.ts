@@ -24,7 +24,7 @@ test("create a new site using email", async ({ page }) => {
   expect(await page.innerText("h1")).toBe("YOUR ACCOUNT IS PENDING ACTIVATION")
 
   // Find activation link
-  const response = await fetch(`http://localhost:8026/api/v2/search?kind=to&query=${tenantName}@fider.io`)
+  const response = await fetch(`http://localhost:8025/api/v2/search?kind=to&query=${tenantName}@fider.io`)
   const responseBody = await response.json()
   const emailHtml = responseBody.items[0].Content.Body
   const reg = /https:\/\/feedback\d+\.dev\.fider\.io:3000\/signup\/verify\?k=.+?(?=')/gim
