@@ -45,7 +45,7 @@ test-ui: ## Run all UI tests
 	TZ=GMT npx jest ./public
 
 test-e2e: ## Run all E2E tests
-	npx playwright test --browser=all --config=playwright.config.ts
+	npx cucumber-js e2e/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts'
 
 coverage-server: build-server build-ssr ## Run all server tests (with code coverage)
 	godotenv -f .test.env ./fider migrate
