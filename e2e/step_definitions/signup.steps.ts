@@ -1,6 +1,6 @@
 import { Given } from "@cucumber/cucumber"
 import { FiderWorld } from "../world"
-import { delay } from "./fns/delay"
+import { delay } from "./fns"
 
 Given("I go to the signup page", async function (this: FiderWorld) {
   await this.page.goto("https://login.dev.fider.io:3000/signup")

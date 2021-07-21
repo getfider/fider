@@ -115,6 +115,9 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    strategy:
+      matrix:
+        browser: ["chromium", "webkit", "firefox"]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js 14.x
@@ -144,5 +147,9 @@ jobs:
             -v "$PWD"/etc:/app/etc \
             fider-image
       - run: npm ci
-      - run: npx playwright install-deps
+      - run: npx playwright install-deps $BROWSER
+        env:
+          BROWSER: ${{ matrix.browser }}
       - run: make test-e2e
+        env:
+          BROWSER: ${{ matrix.browser }}

@@ -9,7 +9,7 @@ BeforeAll(async function () {
   const name = (process.env.BROWSER || "chromium") as BrowserName
   browser = await playwright[name].launch({
     headless: true,
-    slowMo: 10,
+    slowMo: 50,
   })
 })
 
