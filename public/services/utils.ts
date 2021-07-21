@@ -121,3 +121,32 @@ export const truncate = (input: string, maxLength: number): string => {
 export type StringObject<T = any> = {
   [key: string]: T
 }
+
+export const copyToClipboard = (text: string): Promise<void> => {
+  if (window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
+    return window.navigator.clipboard.writeText(text)
+  }
+  return Promise.reject(new Error("Clipboard API not available"))
+}
+
+export const clearUrlHash = (replace?: boolean) => {
+  const oldURL = window.location.href
+  const newURL = window.location.pathname + window.location.search
+  if (replace) {
+    window.history.replaceState("", document.title, newURL)
+  } else {
+    window.history.pushState("", document.title, newURL)
+  }
+  // Trigger event manually
+  const hashChangeEvent = new HashChangeEvent("hashchange", {
+    oldURL,
+    newURL,
+    cancelable: true,
+    bubbles: true,
+    composed: false,
+  })
+  if (!window.dispatchEvent(hashChangeEvent)) {
+    // Event got cancelled
+    window.history.replaceState("", document.title, oldURL)
+  }
+}
