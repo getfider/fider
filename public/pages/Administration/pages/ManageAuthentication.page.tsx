@@ -17,7 +17,7 @@ interface ManageAuthenticationPageProps {
 
 interface ManageAuthenticationPageState {
   isAdding: boolean
-  isAllowingEmailAuth: boolean
+  isEmailAuthAllowed: boolean
   canDisableEmailAuth: boolean
   editing?: OAuthConfig
   error?: Failure
@@ -33,7 +33,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
     super(props)
     this.state = {
       isAdding: false,
-      isAllowingEmailAuth: Fider.session.tenant.isAllowingEmailAuth,
+      isEmailAuthAllowed: Fider.session.tenant.isEmailAuthAllowed,
       canDisableEmailAuth: props.providers.map((o) => o.isEnabled).reduce((a, b) => a || b, false),
     }
   }
@@ -63,16 +63,16 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
   private toggleEmailAuth = async (active: boolean) => {
     this.setState(
       () => ({
-        isAllowingEmailAuth: active,
+        isEmailAuthAllowed: active,
       }),
       async () => {
-        const response = await actions.updateTenantAllowingEmailAuth(this.state.isAllowingEmailAuth)
+        const response = await actions.updateTenantEmailAuthAllowed(this.state.isEmailAuthAllowed)
         if (response.ok) {
-          notify.success(`You successfully ${this.state.isAllowingEmailAuth ? "allowed" : "disallowed"} email authentication.`)
+          notify.success(`You successfully ${this.state.isEmailAuthAllowed ? "allowed" : "disallowed"} email authentication.`)
         } else {
           this.setState(
             () => ({
-              isAllowingEmailAuth: !active,
+              isEmailAuthAllowed: !active,
               error: response.error,
             }),
             () => notify.error("Unable to save this setting.")
@@ -89,7 +89,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
         enabledProvidersCount++
       }
     }
-    const cantDisable = !this.state.isAllowingEmailAuth && enabledProvidersCount == 1
+    const cantDisable = !this.state.isEmailAuthAllowed && enabledProvidersCount == 1
 
     if (this.state.isAdding) {
       return <OAuthForm cantDisable={cantDisable} onCancel={this.cancel} />
@@ -107,19 +107,17 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
         <div>
           <h2 className="text-display">General Authentication</h2>
           <Form error={this.state.error}>
-            {this.state.isAllowingEmailAuth &&
-              (this.state.canDisableEmailAuth ? (
-                <p className="text-green-700">You can disable email auth because you have at least one authentication provider enabled</p>
-              ) : (
-                <p className="text-red-700">You cannot disable email auth because you do not have any authentication provider enabled</p>
-              ))}
             <Field label="Allow Email Authentication">
               <Toggle
-                field="isAllowingEmailAuth"
+                field="isEmailAuthAllowed"
+                label={this.state.isEmailAuthAllowed ? "Allowed" : "Disallowed"}
                 disabled={!Fider.session.user.isAdministrator || !this.state.canDisableEmailAuth}
-                active={this.state.isAllowingEmailAuth}
+                active={this.state.isEmailAuthAllowed}
                 onToggle={this.toggleEmailAuth}
               />
+              {!this.state.canDisableEmailAuth && (
+                <p className="text-muted my-1">You need to configure another authentication provider before disabling email authentication.</p>
+              )}
               <p className="text-muted my-1">
                 When email-based authentication is disabled, users will not be allowed to sign in using their email. Thus, they will be forced to use another
                 authentication provider, such as your prefered OAuth provider. <strong>Be sure to enable and test one before you turn this setting off!</strong>

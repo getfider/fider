@@ -49,7 +49,7 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 		},
 	}
 	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
-		IsAllowingEmailAuth: true,
+		IsEmailAuthAllowed: true,
 	})
 
 	for _, testCase := range testCases {
@@ -87,7 +87,7 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 		JSONUserEmailPath: "user.email",
 	}
 	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
-		IsAllowingEmailAuth: true,
+		IsEmailAuthAllowed: true,
 	})
 
 	result := action.Validate(ctx, nil)
@@ -131,7 +131,7 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 	action.JSONUserNamePath = "user.name"
 	action.JSONUserEmailPath = "user.email"
 	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
-		IsAllowingEmailAuth: true,
+		IsEmailAuthAllowed: true,
 	})
 
 	result := action.Validate(ctx, nil)
@@ -175,7 +175,7 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 	action.JSONUserNamePath = "user.name"
 	action.JSONUserEmailPath = "user.email"
 	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
-		IsAllowingEmailAuth: true,
+		IsEmailAuthAllowed: true,
 	})
 
 	result := action.Validate(ctx, nil)
@@ -209,7 +209,7 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	action.JSONUserNamePath = "user.name"
 	action.JSONUserEmailPath = "user.email"
 	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
-		IsAllowingEmailAuth: true,
+		IsEmailAuthAllowed: true,
 	})
 
 	result := action.Validate(ctx, nil)

@@ -17,18 +17,18 @@ import (
 )
 
 type dbTenant struct {
-	ID                  int    `db:"id"`
-	Name                string `db:"name"`
-	Subdomain           string `db:"subdomain"`
-	CNAME               string `db:"cname"`
-	Invitation          string `db:"invitation"`
-	WelcomeMessage      string `db:"welcome_message"`
-	Status              int    `db:"status"`
-	Locale              string `db:"locale"`
-	IsPrivate           bool   `db:"is_private"`
-	LogoBlobKey         string `db:"logo_bkey"`
-	CustomCSS           string `db:"custom_css"`
-	IsAllowingEmailAuth bool   `db:"is_allowing_email_auth"`
+	ID                 int    `db:"id"`
+	Name               string `db:"name"`
+	Subdomain          string `db:"subdomain"`
+	CNAME              string `db:"cname"`
+	Invitation         string `db:"invitation"`
+	WelcomeMessage     string `db:"welcome_message"`
+	Status             int    `db:"status"`
+	Locale             string `db:"locale"`
+	IsPrivate          bool   `db:"is_private"`
+	LogoBlobKey        string `db:"logo_bkey"`
+	CustomCSS          string `db:"custom_css"`
+	IsEmailAuthAllowed bool   `db:"is_email_auth_allowed"`
 }
 
 func (t *dbTenant) toModel() *entity.Tenant {
@@ -37,18 +37,18 @@ func (t *dbTenant) toModel() *entity.Tenant {
 	}
 
 	tenant := &entity.Tenant{
-		ID:                  t.ID,
-		Name:                t.Name,
-		Subdomain:           t.Subdomain,
-		CNAME:               t.CNAME,
-		Invitation:          t.Invitation,
-		WelcomeMessage:      t.WelcomeMessage,
-		Status:              t.Status,
-		Locale:              t.Locale,
-		IsPrivate:           t.IsPrivate,
-		LogoBlobKey:         t.LogoBlobKey,
-		CustomCSS:           t.CustomCSS,
-		IsAllowingEmailAuth: t.IsAllowingEmailAuth,
+		ID:                 t.ID,
+		Name:               t.Name,
+		Subdomain:          t.Subdomain,
+		CNAME:              t.CNAME,
+		Invitation:         t.Invitation,
+		WelcomeMessage:     t.WelcomeMessage,
+		Status:             t.Status,
+		Locale:             t.Locale,
+		IsPrivate:          t.IsPrivate,
+		LogoBlobKey:        t.LogoBlobKey,
+		CustomCSS:          t.CustomCSS,
+		IsEmailAuthAllowed: t.IsEmailAuthAllowed,
 	}
 
 	return tenant
@@ -127,9 +127,9 @@ func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacy
 	})
 }
 
-func updateTenantAllowingEmailAuthSettings(ctx context.Context, c *cmd.UpdateTenantAllowingEmailAuthSettings) error {
+func updateTenantEmailAuthAllowedSettings(ctx context.Context, c *cmd.UpdateTenantEmailAuthAllowedSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute("UPDATE tenants SET is_allowing_email_auth = $1 WHERE id = $2", c.IsAllowingEmailAuth, tenant.ID)
+		_, err := trx.Execute("UPDATE tenants SET is_email_auth_allowed = $1 WHERE id = $2", c.IsEmailAuthAllowed, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant allowing email auth settings")
 		}
@@ -230,7 +230,7 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_allowing_email_auth) 
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed) 
 			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true) 
 			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
@@ -249,7 +249,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_allowing_email_auth
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
@@ -268,7 +268,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_allowing_email_auth
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 
 			ORDER BY cname DESC

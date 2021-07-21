@@ -47,11 +47,11 @@ func NewWorker() *Worker {
 
 func seed() {
 	DemoTenant = &entity.Tenant{
-		ID:                  1,
-		Name:                "Demonstration",
-		Subdomain:           "demo",
-		Status:              enum.TenantActive,
-		IsAllowingEmailAuth: true,
+		ID:                 1,
+		Name:               "Demonstration",
+		Subdomain:          "demo",
+		Status:             enum.TenantActive,
+		IsEmailAuthAllowed: true,
 	}
 	AvengersTenant = &entity.Tenant{
 		ID:        2,

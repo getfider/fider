@@ -207,17 +207,17 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
           `}
         </pre>
 
-        {enabled && props.cantDisable && (
-          <p className="text-red-700">You cannot disable this OAuth provider because this is your only one enabled and email auth is disabled</p>
-        )}
         <Field label="Status">
           <Toggle field="status" disabled={props.cantDisable} active={enabled} onToggle={setEnabled} label={enabled ? "Enabled" : "Disabled"} />
           <div className="mt-1">
             {enabled ? (
-              <p className="text-muted mt-1">
-                This provider will be available for everyone to use during the sign in process. It is recommended that you keep it disable and test it before
-                enabling it. The Test button is available after saving this configuration.
-              </p>
+              <>
+                {props.cantDisable && <p className="text-muted my-1">You need to enable email authentication if you want to disable all OAuth providers</p>}
+                <p className="text-muted mt-1">
+                  This provider will be available for everyone to use during the sign in process. It is recommended that you keep it disable and test it before
+                  enabling it. The Test button is available after saving this configuration.
+                </p>
+              </>
             ) : (
               <p className="text-muted">Users won&apos;t be able to sign in with this Provider.</p>
             )}

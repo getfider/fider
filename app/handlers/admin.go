@@ -50,7 +50,7 @@ func UpdateSettings() web.HandlerFunc {
 				Invitation:     action.Invitation,
 				WelcomeMessage: action.WelcomeMessage,
 				CNAME:          action.CNAME,
-				Locale:          action.Locale,
+				Locale:         action.Locale,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -97,16 +97,16 @@ func UpdatePrivacy() web.HandlerFunc {
 	}
 }
 
-// UpdateAllowingEmailAuth update current tenant's allow email auth settings
-func UpdateAllowingEmailAuth() web.HandlerFunc {
+// UpdateEmailAuthAllowed update current tenant's allow email auth settings
+func UpdateEmailAuthAllowed() web.HandlerFunc {
 	return func(c *web.Context) error {
-		action := new(actions.UpdateTenantAllowingEmailAuth)
+		action := new(actions.UpdateTenantEmailAuthAllowed)
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		updateSettings := &cmd.UpdateTenantAllowingEmailAuthSettings{
-			IsAllowingEmailAuth: action.IsAllowingEmailAuth,
+		updateSettings := &cmd.UpdateTenantEmailAuthAllowedSettings{
+			IsEmailAuthAllowed: action.IsEmailAuthAllowed,
 		}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react"
 import { Modal, SignInControl, LegalFooter } from "@fider/components"
 import { Button } from "./common"
 import { Trans } from "@lingui/macro"
-import { Fider } from "@fider/services"
 
 interface SignInModalProps {
   isOpen: boolean
@@ -41,7 +40,7 @@ export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) =
       </p>
     </>
   ) : (
-    <SignInControl useEmail={Fider.session.tenant.isAllowingEmailAuth} onEmailSent={onEmailSent} />
+    <SignInControl useEmail={true} onEmailSent={onEmailSent} />
   )
 
   return (

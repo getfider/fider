@@ -26,7 +26,7 @@ func NewSignInByEmail() *SignInByEmail {
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *SignInByEmail) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
-	if tenant.IsAllowingEmailAuth {
+	if tenant.IsEmailAuthAllowed {
 		return true
 	}
 	getUser := &query.GetUserByEmail{

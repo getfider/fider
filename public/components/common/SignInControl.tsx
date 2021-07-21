@@ -15,9 +15,14 @@ interface SignInControlProps {
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
   const fider = useFider()
-  const [useEmail, setUseEmail] = useState(props.useEmail)
+  const [showEmailForm, setShowEmailForm] = useState(fider.session.tenant.isEmailAuthAllowed)
   const [email, setEmail] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
+
+  const forceShowEmailForm = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    setShowEmailForm(true)
+  }
 
   const signIn = async () => {
     const result = await actions.signIn(email)
@@ -54,49 +59,49 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
               </React.Fragment>
             ))}
           </div>
+          {props.useEmail && <Divider />}
         </>
       )}
 
-      {providersLen > 0 && <Divider />}
-
-      {useEmail ? (
-        <div>
-          <p>
-            <Trans id="signin.message.email">Enter your email address to sign in</Trans>
-          </p>
-          <Form error={error}>
-            <Input
-              field="email"
-              value={email}
-              autoFocus={!device.isTouch()}
-              onChange={setEmail}
-              placeholder="yourname@example.com"
-              suffix={
-                <Button type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                  <Trans id="action.signin">Sign in</Trans>
-                </Button>
-              }
-            />
-          </Form>
-          {!props.useEmail && (
-            <p className="text-red-700 mt-1">
-              <Trans id="signin.message.onlyadmins">Currently only allowed to sign in to an administrator account</Trans>
+      {props.useEmail &&
+        (showEmailForm ? (
+          <div>
+            <p>
+              <Trans id="signin.message.email">Enter your email address to sign in</Trans>
             </p>
-          )}
-        </div>
-      ) : (
-        <div>
-          <p className="text-muted">
-            <Trans id="signin.message.emaildisabled">
-              Email authentication has been disabled by an administrator. If you have an administrator account and need to bypass this restriction, please{" "}
-              <span className="text-bold clickable" onClick={() => setUseEmail(true)}>
-                click here
-              </span>
-              .
-            </Trans>
-          </p>
-        </div>
-      )}
+            <Form error={error}>
+              <Input
+                field="email"
+                value={email}
+                autoFocus={!device.isTouch()}
+                onChange={setEmail}
+                placeholder="yourname@example.com"
+                suffix={
+                  <Button type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
+                    <Trans id="action.signin">Sign in</Trans>
+                  </Button>
+                }
+              />
+            </Form>
+            {!fider.session.tenant.isEmailAuthAllowed && (
+              <p className="text-red-700 mt-1">
+                <Trans id="signin.message.onlyadmins">Currently only allowed to sign in to an administrator account</Trans>
+              </p>
+            )}
+          </div>
+        ) : (
+          <div>
+            <p className="text-muted">
+              <Trans id="signin.message.emaildisabled">
+                Email authentication has been disabled by an administrator. If you have an administrator account and need to bypass this restriction, please{" "}
+                <a href="#" className="text-bold" onClick={forceShowEmailForm}>
+                  click here
+                </a>
+                .
+              </Trans>
+            </p>
+          </div>
+        ))}
     </div>
   )
 }

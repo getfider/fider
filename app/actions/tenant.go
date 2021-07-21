@@ -205,18 +205,18 @@ func (action *UpdateTenantPrivacy) Validate(ctx context.Context, user *entity.Us
 	return validate.Success()
 }
 
-// UpdateTenantAllowingEmailAuth is the input model used to update tenant privacy settings
-type UpdateTenantAllowingEmailAuth struct {
-	IsAllowingEmailAuth bool `json:"isAllowingEmailAuth"`
+// UpdateTenantEmailAuthAllowed is the input model used to update tenant privacy settings
+type UpdateTenantEmailAuthAllowed struct {
+	IsEmailAuthAllowed bool `json:"isEmailAuthAllowed"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *UpdateTenantAllowingEmailAuth) IsAuthorized(ctx context.Context, user *entity.User) bool {
+func (action *UpdateTenantEmailAuthAllowed) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (action *UpdateTenantAllowingEmailAuth) Validate(ctx context.Context, user *entity.User) *validate.Result {
+func (action *UpdateTenantEmailAuthAllowed) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
 	activeProviders := &query.ListActiveOAuthProviders{}
@@ -225,7 +225,7 @@ func (action *UpdateTenantAllowingEmailAuth) Validate(ctx context.Context, user 
 	}
 
 	if len(activeProviders.Result) == 0 {
-		result.AddFieldFailure("isAllowingEmailAuth", "You cannot disable email authentication without any other provider enabled.")
+		result.AddFieldFailure("isEmailAuthAllowed", "You cannot disable email authentication without any other provider enabled.")
 	}
 
 	return result

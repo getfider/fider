@@ -55,7 +55,7 @@ func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entity.
 			return validate.Failed("Cannot retrieve OAuth providers")
 		}
 
-		if !tenant.IsAllowingEmailAuth && len(activeProviders.Result) == 1 {
+		if !tenant.IsEmailAuthAllowed && len(activeProviders.Result) == 1 {
 			result.AddFieldFailure("status", "You cannot disable this provider with neither email auth nor any other provider enabled.")
 		}
 	}

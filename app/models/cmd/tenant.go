@@ -20,8 +20,8 @@ type UpdateTenantPrivacySettings struct {
 	IsPrivate bool
 }
 
-type UpdateTenantAllowingEmailAuthSettings struct {
-	IsAllowingEmailAuth bool
+type UpdateTenantEmailAuthAllowedSettings struct {
+	IsEmailAuthAllowed bool
 }
 
 type UpdateTenantSettings struct {
@@ -30,7 +30,7 @@ type UpdateTenantSettings struct {
 	Invitation     string
 	WelcomeMessage string
 	CNAME          string
-	Locale          string
+	Locale         string
 }
 
 type UpdateTenantAdvancedSettings struct {
