@@ -1,19 +1,22 @@
-import { Given, Then } from "@cucumber/cucumber"
-import { expect } from "@playwright/test"
-import { FiderWorld } from "../world"
+import { Given } from "@cucumber/cucumber"
+import { FiderWorld } from "e2e/world"
+import { getLatestLinkSentTo, isAuthenticated, isAuthenticatedAsUser } from "./fns"
 
-Given("I expand the user menu", async function (this: FiderWorld) {
-  await this.page.click(".c-menu-user .c-dropdown__handle")
-})
+Given("I sign in as {string}", async function (this: FiderWorld, userName: string) {
+  if (await isAuthenticatedAsUser(this.page, userName)) {
+    return
+  }
 
-Given("I click on sign out", async function (this: FiderWorld) {
-  await this.page.click("a[href='/signout?redirect=/']")
-})
+  if (await isAuthenticated(this.page)) {
+    await this.page.click(".c-menu-user .c-dropdown__handle")
+    await this.page.click("a[href='/signout?redirect=/']")
+  }
 
-Then("I should be logged in", async function (this: FiderWorld) {
-  expect(await this.page.isVisible(".c-notification-indicator")).toBe(true)
-})
+  const userEmail = `${userName}-${this.tenantName}@fider.io`
+  await this.page.click(".c-menu .uppercase.text-sm")
+  await this.page.type(".c-signin-control #input-email", userEmail)
+  await this.page.click(".c-signin-control .c-button--primary")
 
-Then("I should not be logged in", async function (this: FiderWorld) {
-  expect(await this.page.isVisible(".c-notification-indicator")).toBe(false)
+  const activationLink = await getLatestLinkSentTo(userEmail)
+  await this.page.goto(activationLink)
 })
