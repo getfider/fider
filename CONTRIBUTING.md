@@ -37,7 +37,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 8. run `cp .example.env .env` to create a local environment configuration file.
 
 - **Important:** Fider has a strong dependency on an email delivery service. For easier local development, the docker-compose file already provides
-  a fake SMTP server running at port **1026** and a UI (to check sent emails) at http://localhost:8026. The `.example.env` is already
+  a fake SMTP server running at port **1025** and a UI (to check sent emails) at http://localhost:8025. The `.example.env` is already
   configured to use it. If you want to, you can edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server
   details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign
   up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep
