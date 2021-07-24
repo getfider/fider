@@ -1,4 +1,4 @@
-import { Given, Then, When } from "@cucumber/cucumber"
+import { Given, Then } from "@cucumber/cucumber"
 import { expect } from "@playwright/test"
 import { FiderWorld } from "../world"
 
