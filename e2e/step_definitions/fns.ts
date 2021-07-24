@@ -16,7 +16,8 @@ export async function isAuthenticatedAsUser(page: Page, userName: string): Promi
 }
 
 export async function getLatestLinkSentTo(address: string): Promise<string> {
-  await delay(200)
+  await delay(1000)
+
   const response = await fetch(`http://localhost:8025/api/v2/search?kind=to&query=${address}`)
   const responseBody = await response.json()
   const emailHtml = responseBody.items[0].Content.Body
