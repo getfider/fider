@@ -1,6 +1,7 @@
 import React from "react"
 import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components"
 import { jwt, actions, Failure, querystring, Fider } from "@fider/services"
+import { Divider } from "@fider/components/layout"
 
 interface OAuthUser {
   token: string
@@ -156,6 +157,7 @@ export default class SignUpPage extends React.Component<any, SignUpPageState> {
           <>
             <p>We need to identify you to setup your new Fider account.</p>
             <SignInControl useEmail={false} />
+            <Divider />
             <Form error={this.state.error}>
               <Input field="name" maxLength={100} onChange={this.setName} placeholder="Name" />
               <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
