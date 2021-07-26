@@ -51,7 +51,7 @@ export const ListPosts = (props: ListPostsProps) => {
   }
 
   return (
-    <VStack spacing={4} divide={true} center={true} className="test">
+    <VStack spacing={4} divide={true} center={true}>
       {props.posts.map((post) => (
         <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
       ))}

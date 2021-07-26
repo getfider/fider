@@ -44,6 +44,9 @@ test-server: build-server build-ssr ## Run all server tests
 test-ui: ## Run all UI tests
 	TZ=GMT npx jest ./public
 
+test-e2e: ## Run all E2E tests
+	npx cucumber-js e2e/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet
+
 coverage-server: build-server build-ssr ## Run all server tests (with code coverage)
 	godotenv -f .test.env ./fider migrate
 	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all -p=8 -race
