@@ -17,5 +17,5 @@
       "@locale/*": ["./locale/*"]
     }
   },
-  "include": ["./public/**/*", "./locale/**/*", "index.d.ts"]
+  "include": ["./public/**/*", "./locale/**/*", "index.d.ts", "./e2e/**/*"]
 }
