@@ -10,15 +10,15 @@ const locales: { [key: string]: Locale } = {
   },
   "pt-BR": {
     text: "🇧🇷 Portuguese (Brazilian)",
-    translated: 100,
+    translated: 98,
   },
   de: {
     text: "🇩🇪 German",
-    translated: 100,
+    translated: 98,
   },
   fr: {
     text: "🇫🇷 French",
-    translated: 100,
+    translated: 98,
   },
 }
 
