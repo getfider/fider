@@ -94,7 +94,9 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
                 ))}
                 {this.state.filteredVotes.length === 0 && (
                   <p className="text-muted">
-                    <Trans id="modal.showvotes.message.zeromatches">No users found matching &apos;{this.state.query}&apos;.</Trans>
+                    <Trans id="modal.showvotes.message.zeromatches">
+                      No users found matching <strong>{this.state.query}</strong>.
+                    </Trans>
                   </p>
                 )}
               </VStack>
