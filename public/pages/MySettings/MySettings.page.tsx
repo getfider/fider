@@ -105,7 +105,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
   public render() {
     const changeEmail = (
       <Button variant="tertiary" size="small" onClick={this.startChangeEmail}>
-        change
+        <Trans id="action.change">change</Trans>
       </Button>
     )
 
@@ -139,7 +139,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
         <div className="w-max-7xl">
           <Form error={this.state.error}>
             <Input
-              label="Email"
+              label={t({ id: "label.email", message: "Email" })}
               field="email"
               value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
               maxLength={200}

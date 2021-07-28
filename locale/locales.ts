@@ -14,11 +14,11 @@ const locales: { [key: string]: Locale } = {
   },
   de: {
     text: "🇩🇪 German",
-    translated: 100,
+    translated: 96,
   },
   fr: {
     text: "🇫🇷 French",
-    translated: 100,
+    translated: 96,
   },
 }
 

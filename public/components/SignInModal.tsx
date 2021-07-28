@@ -35,7 +35,7 @@ export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) =
       </p>
       <p>
         <Button variant="tertiary" onClick={closeModal}>
-          OK
+          <Trans id="action.ok">OK</Trans>
         </Button>
       </p>
     </>
@@ -45,7 +45,9 @@ export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) =
 
   return (
     <Modal.Window isOpen={props.isOpen} onClose={closeModal}>
-      <Modal.Header>Sign in to post and vote</Modal.Header>
+      <Modal.Header>
+        <Trans id="modal.signin.header">Sign in to post and vote</Trans>
+      </Modal.Header>
       <Modal.Content>{content}</Modal.Content>
       <LegalFooter />
     </Modal.Window>

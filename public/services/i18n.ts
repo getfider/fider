@@ -2,7 +2,6 @@ import { i18n, I18n } from "@lingui/core"
 import { en, pt, fr, de } from "make-plural/plurals"
 
 export function activateI18NSync(locale: string, messages?: any): I18n {
-  i18n._missing = (_, key) => `⚠️ Missing Translation: ${key}`
   i18n.loadLocaleData("en", { plurals: en })
   i18n.loadLocaleData("pt-BR", { plurals: pt })
   i18n.loadLocaleData("de", { plurals: de })
