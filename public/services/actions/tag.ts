@@ -2,15 +2,11 @@ import { http, Result } from "@fider/services/http"
 import { Tag } from "@fider/models"
 
 export const createTag = async (name: string, color: string, isPublic: boolean): Promise<Result<Tag>> => {
-  return http
-    .post<Tag>(`/api/v1/tags`, { name, color, isPublic })
-    .then(http.event("tag", "create"))
+  return http.post<Tag>(`/api/v1/tags`, { name, color, isPublic }).then(http.event("tag", "create"))
 }
 
 export const updateTag = async (slug: string, name: string, color: string, isPublic: boolean): Promise<Result<Tag>> => {
-  return http
-    .put<Tag>(`/api/v1/tags/${slug}`, { name, color, isPublic })
-    .then(http.event("tag", "update"))
+  return http.put<Tag>(`/api/v1/tags/${slug}`, { name, color, isPublic }).then(http.event("tag", "update"))
 }
 
 export const deleteTag = async (slug: string): Promise<Result> => {
