@@ -296,6 +296,7 @@ func (g *Group) Static(prefix, root string) {
 				http.ServeFile(c.Response, c.Request.instance, filePath)
 				return nil
 			}
+			c.Response.Header().Del("Cache-Control")
 			return c.NotFound()
 		}
 	} else {

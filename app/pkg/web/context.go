@@ -476,7 +476,11 @@ func (c *Context) Image(contentType string, b []byte) error {
 
 // Blob sends a blob response with status code and content type.
 func (c *Context) Blob(code int, contentType string, b []byte) error {
+	if code >= 400 {
+		c.Response.Header().Del("Cache-Control")
+	}
 	c.Response.Header().Set("Content-Type", contentType)
+
 	c.ResponseStatusCode = code
 	c.Response.WriteHeader(code)
 	_, err := c.Response.Write(b)
@@ -485,6 +489,10 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 
 // NoContent sends a response with no body and a status code.
 func (c *Context) NoContent(code int) error {
+	if code >= 400 {
+		c.Response.Header().Del("Cache-Control")
+	}
+
 	c.ResponseStatusCode = code
 	c.Response.WriteHeader(code)
 	return nil
