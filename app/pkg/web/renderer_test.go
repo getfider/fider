@@ -111,7 +111,6 @@ func TestRenderer_Home(t *testing.T) {
 func TestRenderer_Home_SSR(t *testing.T) {
 	RegisterT(t)
 
-	env.Config.Experimental_SSR_SEO = true
 	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
 		return nil
 	})
