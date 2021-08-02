@@ -6,6 +6,7 @@ import { actions, Failure } from "@fider/services"
 import { useFider } from "@fider/hooks"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
+import IconEye from "@fider/assets/images/heroicons-eye.svg"
 import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
 import { HStack, VStack } from "@fider/components/layout"
 
@@ -70,11 +71,15 @@ export const TagListItem = (props: TagListItemProps) => {
 
   const renderViewMode = () => {
     const buttons = fider.session.user.isAdministrator && [
-      <Button size="small" key={0} onClick={startEdit}>
+      <Button size="small" key={0} href={`/?tags=${tag.slug}`} disabled={!tag.slug}>
+        <Icon sprite={IconEye} />
+        <span>View tagged posts</span>
+      </Button>,
+      <Button size="small" key={1} onClick={startEdit}>
         <Icon sprite={IconPencilAlt} />
         <span>Edit</span>
       </Button>,
-      <Button size="small" key={1} onClick={startDelete}>
+      <Button size="small" key={2} onClick={startDelete}>
         <Icon sprite={IconX} />
         <span>Delete</span>
       </Button>,

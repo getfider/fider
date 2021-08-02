@@ -7,6 +7,7 @@ import { classSet } from "@fider/services"
 interface TagProps {
   tag: Tag
   circular?: boolean
+  link?: boolean
 }
 
 const getRGB = (color: string) => {
@@ -35,7 +36,7 @@ export const ShowTag = (props: TagProps) => {
 
   return (
     <a
-      href={props.tag.slug ? `/?tags=${props.tag.slug}` : undefined}
+      href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : undefined}
       title={`${props.tag.name}${props.tag.isPublic ? "" : " (Private)"}`}
       className={className}
       style={{
