@@ -11,7 +11,7 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-func TestCache(t *testing.T) {
+func TestCache_StatusOK(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
@@ -24,4 +24,19 @@ func TestCache(t *testing.T) {
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Cache-Control")).Equals("public, max-age=300")
+}
+
+func TestCache_StatusNotFound(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	server.Use(middlewares.ClientCache(5 * time.Minute))
+	handler := func(c *web.Context) error {
+		return c.NotFound()
+	}
+
+	status, response := server.Execute(handler)
+
+	Expect(status).Equals(http.StatusNotFound)
+	Expect(response.Header().Get("Cache-Control")).Equals("no-cache, no-store")
 }

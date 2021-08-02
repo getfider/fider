@@ -40,10 +40,6 @@ type config struct {
 	HostDomain string `env:"HOST_DOMAIN,required"`
 	Locale     string `env:"LOCALE,default=en"`
 	JWTSecret  string `env:"JWT_SECRET,required"`
-	Rendergun  struct {
-		URL string `env:"RENDERGUN_URL"`
-	}
-	Experimental_SSR_SEO bool `env:"EXPERIMENTAL_SSR_SEO,default=false"`
 	Database             struct {
 		URL          string `env:"DATABASE_URL,required"`
 		MaxIdleConns int    `env:"DATABASE_MAX_IDLE_CONNS,default=2,strict"`

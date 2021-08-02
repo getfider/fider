@@ -56,7 +56,7 @@ type Renderer struct {
 // NewRenderer creates a new Renderer
 func NewRenderer() *Renderer {
 	reactRenderer, err := NewReactRenderer("ssr.js")
-	if err != nil && env.Config.Experimental_SSR_SEO {
+	if err != nil {
 		panic(errors.Wrap(err, "failed to initialize SSR renderer"))
 	}
 
@@ -229,7 +229,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	}
 
 	// Only index.html template uses React, other templates are already SSR
-	if env.Config.Experimental_SSR_SEO && ctx.Request.IsCrawler() && templateName == "index.html" {
+	if ctx.Request.IsCrawler() && templateName == "index.html" {
 		html, err := r.reactRenderer.Render(ctx.Request.URL, public)
 		if err != nil {
 			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{

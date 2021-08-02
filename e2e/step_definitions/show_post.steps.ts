@@ -1,6 +1,6 @@
 import { Then } from "@cucumber/cucumber"
-import { expect } from "@playwright/test"
 import { FiderWorld } from "../world"
+import expect from "expect"
 
 Then("I should be on the show post page", async function (this: FiderWorld) {
   const container = await this.page.$$("#p-show-post")
