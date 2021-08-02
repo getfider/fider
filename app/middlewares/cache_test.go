@@ -38,5 +38,5 @@ func TestCache_StatusNotFound(t *testing.T) {
 	status, response := server.Execute(handler)
 
 	Expect(status).Equals(http.StatusNotFound)
-	Expect(response.Header().Get("Cache-Control")).Equals("")
+	Expect(response.Header().Get("Cache-Control")).Equals("no-cache, no-store")
 }

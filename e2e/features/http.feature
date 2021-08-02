@@ -8,4 +8,4 @@ Feature: HTTP
   Scenario: Cache Control is not set on invalid resources
     Given I send a "GET" request to "/assets/invalid.js"
     Then I should see http status 404
-    And I should not see a "Cache-Control" header
+    And I should see a "Cache-Control" header with value "no-cache, no-store"
