@@ -4,6 +4,7 @@ import React from "react"
 import { Icon } from "./Icon"
 
 import IconInformationCircle from "@fider/assets/images/heroicons-information-circle.svg"
+import { classSet } from "@fider/services"
 
 interface InfoProps {
   text: string
@@ -14,8 +15,12 @@ interface InfoProps {
 
 export const HoverInfo = (props: InfoProps) => {
   const Elem = props.href ? "a" : "span"
+  const classList = classSet({
+    "c-hoverinfo": true,
+    clickable: props.onClick !== undefined,
+  })
   return (
-    <Elem className="c-hoverinfo" data-tooltip={props.text} onClick={props.onClick} href={props.href} target={props.target}>
+    <Elem className={classList} data-tooltip={props.text} onClick={props.onClick} href={props.href} target={props.target}>
       <Icon width="15" height="15" className="c-hoverinfo__icon" sprite={IconInformationCircle} />
     </Elem>
   )
