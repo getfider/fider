@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -77,9 +78,12 @@ func New() *Engine {
 		log.PropertyKeyTag:       "WEB",
 	})
 
+	mux := httprouter.New()
+	mux.SaveMatchedRoutePath = true
+
 	router := &Engine{
 		Context:     ctx,
-		mux:         httprouter.New(),
+		mux:         mux,
 		renderer:    NewRenderer(),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
@@ -122,6 +126,12 @@ func (e *Engine) Start(address string) {
 
 	for i := 0; i < runtime.NumCPU()*2; i++ {
 		go e.Worker().Run(strconv.Itoa(i))
+	}
+
+	if env.Config.Metrics.Enabled {
+		metricsAddress := ":" + env.Config.Metrics.Port
+		log.Infof(e, "metrics server started on @{Address}", dto.Props{"Address": ":" + metricsAddress})
+		go metrics.StartHTTPServer(metricsAddress)
 	}
 
 	var (
