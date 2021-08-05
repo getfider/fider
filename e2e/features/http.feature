@@ -9,3 +9,8 @@ Feature: HTTP
     Given I send a "GET" request to "/assets/invalid.js"
     Then I should see http status 404
     And I should see a "Cache-Control" header with value "no-cache, no-store"
+
+  Scenario: Cache Control is not set on invalid resources
+    Given I send a "GET" request to metrics endpoint
+    Then I should see http status 200
+    And I should see "TYPE fider_info gauge" on the response body
