@@ -73,8 +73,9 @@ const HttpHeader = (props: HttpHeaderProps) => {
   )
 
   return (
-    <div className="grid gap-4 grid-cols-2">
+    <HStack justify="full" spacing={4}>
       <Input
+        className="mb-0"
         field={`header-${header}`}
         value={header}
         onChange={setHeader}
@@ -83,7 +84,7 @@ const HttpHeader = (props: HttpHeaderProps) => {
         suffix={duplicate ? "Duplicate" : undefined}
       />
       <Input field={`value-${header}`} value={value} onChange={setValue} placeholder="Value" disabled={!editing} suffix={suffix} />
-    </div>
+    </HStack>
   )
 }
 

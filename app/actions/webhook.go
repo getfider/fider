@@ -2,8 +2,10 @@ package actions
 
 import (
 	"context"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -45,10 +47,39 @@ func (action *CreateEditWebhook) Validate(ctx context.Context, _ *entity.User) *
 		result.AddFieldFailure("status", "Status is required.")
 	}
 
+	runCompileCheck := true
 	if action.Url == "" {
-		result.AddFieldFailure("url", "URL is required.")
-	} else if messages := validate.URL(ctx, action.Url); len(messages) > 0 {
-		result.AddFieldFailure("url", messages...)
+		result.AddFieldFailure("url", "URL template is required.")
+		runCompileCheck = false
+	} else if len(action.Url) > 1_000 {
+		result.AddFieldFailure("url", "URL template must have less than 1 000 characters.")
+		runCompileCheck = false
+	}
+
+	if len(action.Content) > 100_000 {
+		result.AddFieldFailure("content", "Content template must have less than 100 000 characters.")
+		runCompileCheck = false
+	}
+
+	if runCompileCheck && action.Status == enum.WebhookEnabled {
+		previewWebhook := &cmd.PreviewWebhook{
+			Type:    action.Type,
+			Url:     action.Url,
+			Content: action.Content,
+		}
+		if err := bus.Dispatch(ctx, previewWebhook); err != nil {
+			return validate.Error(err)
+		}
+
+		if previewWebhook.Result.Url.Error != "" {
+			result.AddFieldFailure("url", "URL template must compile to enable the Webhook.")
+		} else if messages := validate.URL(ctx, previewWebhook.Result.Url.Value); len(messages) > 0 {
+			result.AddFieldFailure("url", messages...)
+		}
+
+		if previewWebhook.Result.Content.Error != "" {
+			result.AddFieldFailure("content", "Content template must compile to enable the Webhook.")
+		}
 	}
 
 	if action.HttpMethod == "" {
