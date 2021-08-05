@@ -203,6 +203,10 @@ func (e *Engine) Group() *Group {
 
 //Use adds a middleware to the root engine
 func (e *Engine) Use(middleware MiddlewareFunc) {
+	if middleware == nil {
+		return
+	}
+
 	e.middlewares = append(e.middlewares, middleware)
 }
 
