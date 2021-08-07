@@ -7,6 +7,7 @@ import { classSet } from "@fider/services"
 interface TagProps {
   tag: Tag
   circular?: boolean
+  link?: boolean
 }
 
 const getRGB = (color: string) => {
@@ -34,8 +35,9 @@ export const ShowTag = (props: TagProps) => {
   })
 
   return (
-    <div
-      title={`${props.tag.name}${!props.tag.isPublic ? " (Private)" : ""}`}
+    <a
+      href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : undefined}
+      title={`${props.tag.name}${props.tag.isPublic ? "" : " (Private)"}`}
       className={className}
       style={{
         backgroundColor: `#${props.tag.color}`,
@@ -52,6 +54,6 @@ export const ShowTag = (props: TagProps) => {
         </svg>
       )}
       {props.circular ? "" : props.tag.name || "Tag"}
-    </div>
+    </a>
   )
 }

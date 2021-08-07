@@ -2,12 +2,10 @@ package web_test
 
 import (
 	"crypto/tls"
-	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/getfider/fider/app/models/entity"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -191,19 +189,6 @@ func TestCanonicalURL_DifferentDomain(t *testing.T) {
 
 	ctx.SetCanonicalURL("page-b/abc.html")
 	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com/page-b/abc.html`)
-}
-
-func TestTryAgainLater(t *testing.T) {
-	RegisterT(t)
-
-	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
-	err := ctx.TryAgainLater(24 * time.Hour)
-	Expect(err).IsNil()
-	resp := ctx.Response.(*httptest.ResponseRecorder)
-	Expect(ctx.ResponseStatusCode).Equals(http.StatusServiceUnavailable)
-	Expect(resp.Code).Equals(http.StatusServiceUnavailable)
-	Expect(resp.Header().Get("Cache-Control")).Equals("no-cache, no-store")
-	Expect(resp.Header().Get("Retry-After")).Equals("86400")
 }
 
 func TestGetOAuthBaseURL(t *testing.T) {
