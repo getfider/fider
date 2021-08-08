@@ -187,10 +187,12 @@ jobs:
           docker run \
             --pull never \
             -p 3000:3000 \
+            -p 4000:4000 \
             --env DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable \
             --env JWT_SECRET=not_so_secret \
             --env HOST_MODE=multi \
             --env HOST_DOMAIN=dev.fider.io \
+            --env METRICS_ENABLED=true \
             --env SSL_CERT=dev-fider-io.crt \
             --env SSL_CERT_KEY=dev-fider-io.key \
             --env EMAIL_NOREPLY=noreply@fider.io \

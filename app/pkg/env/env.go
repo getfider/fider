@@ -16,7 +16,7 @@ import (
 var (
 	// these values are replaced during CI build
 	buildnumber = ""
-	version     = "0.18.1"
+	version     = "0.19.0-dev"
 )
 
 func Version() string {
@@ -40,7 +40,11 @@ type config struct {
 	HostDomain string `env:"HOST_DOMAIN,required"`
 	Locale     string `env:"LOCALE,default=en"`
 	JWTSecret  string `env:"JWT_SECRET,required"`
-	Database             struct {
+	Metrics    struct {
+		Enabled bool   `env:"METRICS_ENABLED,default=false"`
+		Port    string `env:"METRICS_PORT,default=4000"`
+	}
+	Database struct {
 		URL          string `env:"DATABASE_URL,required"`
 		MaxIdleConns int    `env:"DATABASE_MAX_IDLE_CONNS,default=2,strict"`
 		MaxOpenConns int    `env:"DATABASE_MAX_OPEN_CONNS,default=4,strict"`
