@@ -36,10 +36,6 @@ When("I send the request", async function () {
   responseBody = await response.text()
 })
 
-Given("I send a {string} request to metrics endpoint", async function (method: string) {
-  response = await fetch(`http://127.0.0.1:4000/metrics`, { method })
-})
-
 Then("I should see http status {int}", async function (code: number) {
   expect(response.status).toEqual(code)
 })
