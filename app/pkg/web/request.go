@@ -59,10 +59,6 @@ func WrapRequest(request *http.Request) Request {
 	}
 }
 
-func (r *Request) GetRaw() *http.Request {
-	return r.instance
-}
-
 // GetHeader returns the value of HTTP header from given key
 func (r *Request) GetHeader(key string) string {
 	return r.instance.Header.Get(key)
