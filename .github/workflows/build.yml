@@ -96,8 +96,8 @@ jobs:
           name: fider-image
           path: out/
 
-  test-e2e:
-    name: test-e2e
+  test-e2e-ui:
+    name: test-e2e-ui
     runs-on: ubuntu-latest
     needs: [build]
     services:
@@ -118,6 +118,33 @@ jobs:
     strategy:
       matrix:
         browser: ["chromium", "webkit", "firefox"]
+    steps:
+      - run: npx playwright install-deps $BROWSER
+        env:
+          BROWSER: ${{ matrix.browser }}
+      - run: make test-e2e-ui
+        env:
+          BROWSER: ${{ matrix.browser }}
+
+  test-e2e-server:
+    name: test-e2e-server
+    runs-on: ubuntu-latest
+    needs: [build]
+    services:
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - "8025:8025"
+          - "1025:1025"
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: fider_ci
+          POSTGRES_PASSWORD: fider_ci_pw
+          POSTGRES_DB: fider_ci
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js 16.x
@@ -146,9 +173,9 @@ jobs:
             -v "$PWD"/etc:/app/etc \
             fider-image
       - run: npm ci
-      - run: npx playwright install-deps $BROWSER
+      - run: npx playwright install-deps chromium
         env:
-          BROWSER: ${{ matrix.browser }}
-      - run: make test-e2e
+          BROWSER: chromium
+      - run: make test-e2e-server
         env:
-          BROWSER: ${{ matrix.browser }}
+          BROWSER: chromium
