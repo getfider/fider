@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/julienschmidt/httprouter"
 )
 
 // Server is a HTTP server wrapper for testing purpose
@@ -32,7 +33,10 @@ func createServer() *Server {
 
 	request, _ := http.NewRequest("GET", "/", nil)
 	recorder := httptest.NewRecorder()
-	context := web.NewContext(engine, request, recorder, make(web.StringMap))
+	params := make(web.StringMap)
+	params[httprouter.MatchedRoutePathParam] = "/"
+
+	context := web.NewContext(engine, request, recorder, params)
 
 	return &Server{
 		engine:     engine,

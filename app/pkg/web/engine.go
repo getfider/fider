@@ -324,7 +324,7 @@ func (g *Group) Static(prefix, root string) {
 			filePath := path.Join(root, c.Param("filepath"))
 			fi, err := os.Stat(filePath)
 			if err == nil && !fi.IsDir() {
-				http.ServeFile(c.Response, c.Request.instance, filePath)
+				http.ServeFile(&c.Response, c.Request.instance, filePath)
 				return nil
 			}
 			c.Response.Header().Set("Cache-Control", "no-cache, no-store")
@@ -332,7 +332,7 @@ func (g *Group) Static(prefix, root string) {
 		}
 	} else {
 		h = func(c *Context) error {
-			http.ServeFile(c.Response, c.Request.instance, root)
+			http.ServeFile(&c.Response, c.Request.instance, root)
 			return nil
 		}
 	}

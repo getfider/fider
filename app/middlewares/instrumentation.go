@@ -23,8 +23,13 @@ func Instrumentation() web.MiddlewareFunc {
 
 			err := next(c)
 
-			operation := fmt.Sprintf("%s /%s", c.Request.Method, c.Param(httprouter.MatchedRoutePathParam))
-			code := strconv.Itoa(c.ResponseStatusCode)
+			routeName := c.Param(httprouter.MatchedRoutePathParam)
+			operation := fmt.Sprintf("%s %s", c.Request.Method, routeName)
+			if routeName == "" && c.Request.URL.Path != "/" {
+				operation = "No Route Matched"
+			}
+
+			code := strconv.Itoa(c.Response.StatusCode)
 			metrics.HttpRequests.WithLabelValues(code, operation).Inc()
 			metrics.HttpDuration.WithLabelValues(operation).Observe(time.Since(begin).Seconds())
 
