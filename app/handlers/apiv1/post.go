@@ -2,6 +2,7 @@ package apiv1
 
 import (
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
@@ -57,6 +58,7 @@ func CreatePost() web.HandlerFunc {
 
 		c.Enqueue(tasks.NotifyAboutNewPost(newPost.Result))
 
+		metrics.TotalPosts.Inc()
 		return c.Ok(web.Map{
 			"id":     newPost.Result.ID,
 			"number": newPost.Result.Number,
@@ -250,6 +252,7 @@ func PostComment() web.HandlerFunc {
 
 		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Content))
 
+		metrics.TotalComments.Inc()
 		return c.Ok(web.Map{
 			"id": addNewComment.Result.ID,
 		})
@@ -309,9 +312,15 @@ func DeleteComment() web.HandlerFunc {
 // AddVote adds current user to given post list of votes
 func AddVote() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, func(post *entity.Post, user *entity.User) bus.Msg {
+		err := addOrRemove(c, func(post *entity.Post, user *entity.User) bus.Msg {
 			return &cmd.AddVote{Post: post, User: user}
 		})
+
+		if err == nil {
+			metrics.TotalVotes.Inc()
+		}
+
+		return err
 	}
 }
 

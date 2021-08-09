@@ -3,6 +3,7 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -69,6 +70,7 @@ func CreateTenant() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		metrics.TotalTenants.Inc()
 		c.SetTenant(createTenant.Result)
 
 		user := &entity.User{

@@ -12,6 +12,15 @@
   padding: 0 8px;
   border: 0;
 
+  &[href] {
+    opacity: 0.9;
+    transition: opacity 0.1s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
   svg {
     height: 8px;
     margin-right: 2px;

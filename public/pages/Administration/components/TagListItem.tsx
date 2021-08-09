@@ -82,7 +82,7 @@ export const TagListItem = (props: TagListItemProps) => {
 
     return (
       <HStack justify="between">
-        <ShowTag tag={tag} />
+        <ShowTag tag={tag} link />
         <HStack>{buttons}</HStack>
       </HStack>
     )
