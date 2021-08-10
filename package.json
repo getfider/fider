@@ -25,7 +25,6 @@
     "@testing-library/react": "^12.0.0",
     "@types/debug": "4.1.7",
     "@types/dompurify": "2.2.3",
-    "@types/jest": "27.0.0",
     "@types/jsdom": "16.2.13",
     "@types/marked": "2.0.4",
     "@types/node": "16.4.13",
@@ -56,7 +55,6 @@
     "sass": "1.37.5",
     "sass-loader": "12.1.0",
     "svg-sprite-loader": "6.0.9",
-    "ts-jest": "27.0.4",
     "typescript": "4.3.5",
     "webpack": "5.50.0",
     "webpack-bundle-analyzer": "4.4.2",
@@ -85,21 +83,12 @@
   },
   "browserslist": ">1%, not dead",
   "jest": {
-    "globals": {
-      "ts-jest": {
-        "diagnostics": {
-          "ignoreCodes": [
-            "TS6133"
-          ]
-        }
-      }
-    },
     "testEnvironment": "jsdom",
     "transform": {
-      ".+\\.(tsx|ts)?$": "ts-jest"
+      ".+\\.(tsx|ts)?$": "babel-jest"
     },
     "setupFilesAfterEnv": [
-      "<rootDir>/public/jest.setup.ts"
+      "<rootDir>/public/jest.setup.tsx"
     ],
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts|tsx|js|jsx)$",
     "moduleFileExtensions": [

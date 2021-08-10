@@ -1,10 +1,12 @@
+import React from "react"
+
 // defines DOM related expect methods
 import "@testing-library/jest-dom/extend-expect"
 
-// Mock for LinguiJS macros so we don't need to setup i18n on each test
-jest.mock("@lingui/macro", () => ({
+// Mock for LinguiJS so we don't need to setup i18n on each test
+jest.mock("@lingui/react", () => ({
   Trans: function TransMock({ children }: { children: React.ReactNode }) {
-    return children
+    return <>{children}</>
   },
 
   t: function tMock(id: string): string {
@@ -12,6 +14,6 @@ jest.mock("@lingui/macro", () => ({
   },
 
   Plural: function PluralMock({ value, one, other }: { value: number; one: React.ReactNode; other: React.ReactNode }) {
-    return value > 1 ? other : one
+    return <>{value > 1 ? other : one}</>
   },
 }))
