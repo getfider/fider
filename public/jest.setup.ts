@@ -1,24 +1,17 @@
-import { configure } from "enzyme"
-import Adapter from "@wojtekmaj/enzyme-adapter-react-17"
+// defines DOM related expect methods
+import "@testing-library/jest-dom/extend-expect"
 
-configure({ adapter: new Adapter() })
+// Mock for LinguiJS macros so we don't need to setup i18n on each test
+jest.mock("@lingui/macro", () => ({
+  Trans: function TransMock({ children }: { children: React.ReactNode }) {
+    return children
+  },
 
-let localStorageCache: {
-  [key: string]: string | undefined
-}
+  t: function tMock(id: string): string {
+    return id
+  },
 
-beforeEach(() => {
-  localStorageCache = {}
-})
-;(window as any).localStorage = {
-  getItem: (key: string) => {
-    const value = localStorageCache[key]
-    return typeof value === "undefined" ? null : value
+  Plural: function PluralMock({ value, one, other }: { value: number; one: React.ReactNode; other: React.ReactNode }) {
+    return value > 1 ? other : one
   },
-  setItem: (key: string, value: string) => {
-    localStorageCache[key] = value
-  },
-  removeItem: (key: string) => {
-    return delete localStorageCache[key]
-  },
-}
+}))
