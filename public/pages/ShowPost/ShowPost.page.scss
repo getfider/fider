@@ -21,6 +21,10 @@
       width : 24px;
       height: 24px;
     }
+
+    .c-button-icon {
+      display: none;
+    }
   }
 
   @include media(">=md") {
@@ -75,16 +79,18 @@
   .c-post-search {
     .votes {
       text-align: center;
-      width: 50px;
-      display: inline-block;
+      width     : 50px;
+      display   : inline-block;
+
       .icon {
         margin: 0;
       }
     }
+
     .status-label {
-      width: 65px;
+      width       : 65px;
       margin-right: 5px;
-      text-align: center;
+      text-align  : center;
     }
   }
 }
