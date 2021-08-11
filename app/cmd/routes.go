@@ -16,13 +16,17 @@ func routes(r *web.Engine) *web.Engine {
 	r.Worker().Use(middlewares.WorkerSetup())
 
 	r.Use(middlewares.CatchPanic())
+	r.Use(middlewares.Instrumentation())
 
 	r.NotFound(func(c *web.Context) error {
-		next := func(c *web.Context) error {
+		mw := middlewares.Chain(
+			middlewares.WebSetup(),
+			middlewares.Tenant(),
+			middlewares.Instrumentation(),
+		)
+		next := mw(func(c *web.Context) error {
 			return c.NotFound()
-		}
-		next = middlewares.Tenant()(next)
-		next = middlewares.WebSetup()(next)
+		})
 		return next(c)
 	})
 

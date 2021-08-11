@@ -42,7 +42,7 @@ func AddAuthTokenCookie(ctx *web.Context, token string) {
 
 //SetSignUpAuthCookie sets a temporary domain-wide Auth Token
 func SetSignUpAuthCookie(ctx *web.Context, user *entity.User) {
-	http.SetCookie(ctx.Response, &http.Cookie{
+	http.SetCookie(&ctx.Response, &http.Cookie{
 		Name:     web.CookieSignUpAuthName,
 		Domain:   env.MultiTenantDomain(),
 		Value:    encode(user),
@@ -57,7 +57,7 @@ func SetSignUpAuthCookie(ctx *web.Context, user *entity.User) {
 func GetSignUpAuthCookie(ctx *web.Context) string {
 	cookie, err := ctx.Request.Cookie(web.CookieSignUpAuthName)
 	if err == nil {
-		http.SetCookie(ctx.Response, &http.Cookie{
+		http.SetCookie(&ctx.Response, &http.Cookie{
 			Name:     web.CookieSignUpAuthName,
 			Domain:   env.MultiTenantDomain(),
 			Path:     "/",
