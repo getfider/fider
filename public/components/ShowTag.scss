@@ -1,32 +1,33 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-tag {
-  display: inline-flex;
+  display        : inline-flex;
   justify-content: center;
-  align-items: center;
-  font-size: $font-size-small;
-  color: $white;
-  font-weight: 500;
-  border-radius: 13px;
-  line-height: 18px;
-  padding: 4px 10px;
-  border: 0;
+  align-items    : center;
+  font-size      : $font-size-small;
+  color          : $white !important;
+  font-weight    : 600;
+  border-radius  : 13px;
+  line-height    : 18px;
+  padding        : 4px 10px;
+  border         : 0;
+  letter-spacing : 0.01em;
 
   svg {
-    height: 8px;
+    height      : 8px;
     margin-right: 2px;
   }
 
   &:last-child {
-    margin-top: 0;
+    margin-top   : 0;
     margin-bottom: 0;
   }
 
   &.m-circular {
-    min-height: 0;
-    min-width: 0;
-    overflow: hidden;
+    min-height   : 0;
+    min-width    : 0;
+    overflow     : hidden;
     border-radius: 50%;
-    padding: 6px;
+    padding      : 6px;
   }
 }

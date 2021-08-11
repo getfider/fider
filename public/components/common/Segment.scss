@@ -6,12 +6,7 @@
   margin: 10px 0;
   background-color: $white;
   border-radius: 5px;
-  box-shadow: 0px 2px 5px 0px $gray-300;
   transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: 0px 5px 10px 0px $gray-300;
-  }
 
   &:first-child {
     margin-top: 0em;

@@ -223,3 +223,21 @@
 ::-ms-input-placeholder {
   color: $gray-500;
 }
+
+
+#p-admin-invitations .c-form-field {
+  margin-bottom: 1em;
+}
+
+#p-admin-general .c-form-field-wrapper {
+  margin-top: 1em;
+}
+
+#p-admin-general .info {
+  width        : 100%;
+  margin-bottom: 1em;
+}
+
+#p-admin-export .c-form-field .c-button {
+  margin-top: 1em;
+}
