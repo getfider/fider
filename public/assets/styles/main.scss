@@ -189,8 +189,11 @@ html [type="button"] {
 }
 
 .page {
-  flex      : 1 0 auto;
-  overflow  : hidden;
+  flex    : 1 0 auto;
+  overflow: hidden;
+}
+
+.page.container {
   margin-top: 1em;
 }
 
@@ -507,4 +510,3 @@ svg.icon {
     color: $orange;
   }
 }
-
