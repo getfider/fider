@@ -21,25 +21,7 @@ var tenantStatusIDs = map[TenantStatus]string{
 	TenantDisabled: "disabled",
 }
 
-var tenantStatusName = map[string]TenantStatus{
-	"active":   TenantActive,
-	"pending":  TenantPending,
-	"locked":   TenantLocked,
-	"disabled": TenantDisabled,
-}
-
 // String returns the string version of the tenant status
 func (status TenantStatus) String() string {
 	return tenantStatusIDs[status]
-}
-
-// MarshalText returns the Text version of the tenant status
-func (status TenantStatus) MarshalText() ([]byte, error) {
-	return []byte(tenantStatusIDs[status]), nil
-}
-
-// UnmarshalText parse string into a tenant status
-func (status *TenantStatus) UnmarshalText(text []byte) error {
-	*status = tenantStatusName[string(text)]
-	return nil
 }

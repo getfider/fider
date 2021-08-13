@@ -2,6 +2,7 @@ package tasks_test
 
 import (
 	"context"
+	"github.com/getfider/fider/app/pkg/webhook"
 	"html/template"
 	"testing"
 	"time"
@@ -187,7 +188,7 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookNewPost)
-	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
 		"post_id":          post.ID,
 		"post_number":      post.Number,
 		"post_title":       post.Title,
@@ -277,7 +278,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookNewComment)
-	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
 		"comment":           "I agree",
 		"post_id":           post.ID,
 		"post_number":       post.Number,
@@ -380,7 +381,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
-	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
 		"post_old_status":            enum.PostOpen,
 		"post_id":                    post.ID,
 		"post_number":                post.Number,
@@ -486,7 +487,7 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookDeletePost)
-	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
 		"post_id":                    post.ID,
 		"post_number":                post.Number,
 		"post_title":                 post.Title,
@@ -600,7 +601,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
-	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
 		"post_old_status":               enum.PostOpen,
 		"post_id":                       post.ID,
 		"post_number":                   post.Number,

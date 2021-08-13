@@ -229,11 +229,16 @@ func (a *AnyAssertions) TemporarilySimilar(other time.Time, diff time.Duration) 
 	return false
 }
 
-func (a AnyAssertions) ContainsProps(props dto.Props) bool {
-	actualProps, ok := a.actual.(dto.Props)
-	if !ok {
-		panic("Value is not a dto.Props")
+func (a AnyAssertions) ContainsProps(props map[string]interface{}) bool {
+	actualValue := reflect.ValueOf(a.actual)
+	actualType := actualValue.Type()
+	if actualType.Kind() != reflect.Map ||
+		actualType.Key().Kind() != reflect.String ||
+		actualType.Elem().Kind() != reflect.Interface {
+		panic("Value is not a Props")
 	}
+
+	actualProps := reflect.ValueOf(a.actual).Convert(reflect.TypeOf(map[string]interface{}{})).Interface().(map[string]interface{})
 	for key, expected := range props {
 		actual, ok := actualProps[key]
 		if !ok {
