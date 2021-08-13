@@ -28,14 +28,14 @@ type ListActiveWebhooksByType struct {
 }
 
 type CreateEditWebhook struct {
-	ID                    int
-	Name                  string
-	Type                  enum.WebhookType
-	Status                enum.WebhookStatus
-	Url                   string
-	Content               string
-	HttpMethod            string
-	AdditionalHttpHeaders entity.HttpHeaders
+	ID          int
+	Name        string
+	Type        enum.WebhookType
+	Status      enum.WebhookStatus
+	Url         string
+	Content     string
+	HttpMethod  string
+	HttpHeaders entity.HttpHeaders
 
 	Result int
 }

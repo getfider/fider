@@ -81,7 +81,7 @@ const jsonExample = `{
   "user": {{ quote .author_name }}
 }`
 
-export const WebhookTemplateInfo = (props: WebhookTemplateInfoProps) => {
+export const WebhookTemplateInfoModal = (props: WebhookTemplateInfoProps) => {
   const [properties, setProperties] = useState<StringObject | null>()
 
   useEffect(() => {

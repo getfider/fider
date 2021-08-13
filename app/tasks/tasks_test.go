@@ -2,7 +2,6 @@ package tasks_test
 
 import (
 	"context"
-	"github.com/getfider/fider/app/services/webhook"
 	"html/template"
 	"testing"
 	"time"
@@ -136,9 +135,9 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 		return nil
 	})
 
-	var triggerWebhooksByType *cmd.TriggerWebhooksByType
-	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooksByType) error {
-		triggerWebhooksByType = c
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
 		return nil
 	})
 
@@ -186,10 +185,9 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	Expect(addNewNotification.Title).Equals("New post: **Add support for TypeScript**")
 	Expect(addNewNotification.User).Equals(mock.AryaStark)
 
-	Expect(triggerWebhooksByType).IsNotNil()
-	Expect(triggerWebhooksByType.Type).Equals(enum.WebhookNewPost)
-	role, _ := mock.JonSnow.Role.MarshalText()
-	Expect(triggerWebhooksByType.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookNewPost)
+	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
 		"post_id":          post.ID,
 		"post_number":      post.Number,
 		"post_title":       post.Title,
@@ -199,11 +197,11 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 		"author_id":        mock.JonSnow.ID,
 		"author_name":      mock.JonSnow.Name,
 		"author_email":     mock.JonSnow.Email,
-		"author_role":      string(role),
+		"author_role":      mock.JonSnow.Role.String(),
 		"tenant_id":        mock.DemoTenant.ID,
 		"tenant_name":      mock.DemoTenant.Name,
 		"tenant_subdomain": mock.DemoTenant.Subdomain,
-		"tenant_status":    webhook.TenantStatus(mock.DemoTenant.Status),
+		"tenant_status":    mock.DemoTenant.Status.String(),
 		"tenant_url":       "http://domain.com",
 	})
 }
@@ -225,9 +223,9 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		return nil
 	})
 
-	var triggerWebhooksByType *cmd.TriggerWebhooksByType
-	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooksByType) error {
-		triggerWebhooksByType = c
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
 		return nil
 	})
 
@@ -277,11 +275,9 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	Expect(addNewNotification.Title).Equals("**Arya Stark** left a comment on **Add support for TypeScript**")
 	Expect(addNewNotification.User).Equals(mock.JonSnow)
 
-	Expect(triggerWebhooksByType).IsNotNil()
-	Expect(triggerWebhooksByType.Type).Equals(enum.WebhookNewComment)
-	roleArya, _ := mock.AryaStark.Role.MarshalText()
-	roleJon, _ := mock.JonSnow.Role.MarshalText()
-	Expect(triggerWebhooksByType.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookNewComment)
+	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
 		"comment":           "I agree",
 		"post_id":           post.ID,
 		"post_number":       post.Number,
@@ -292,15 +288,15 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		"post_author_id":    mock.JonSnow.ID,
 		"post_author_name":  mock.JonSnow.Name,
 		"post_author_email": mock.JonSnow.Email,
-		"post_author_role":  string(roleJon),
+		"post_author_role":  mock.JonSnow.Role.String(),
 		"author_id":         mock.AryaStark.ID,
 		"author_name":       mock.AryaStark.Name,
 		"author_email":      mock.AryaStark.Email,
-		"author_role":       string(roleArya),
+		"author_role":       mock.AryaStark.Role.String(),
 		"tenant_id":         mock.DemoTenant.ID,
 		"tenant_name":       mock.DemoTenant.Name,
 		"tenant_subdomain":  mock.DemoTenant.Subdomain,
-		"tenant_status":     webhook.TenantStatus(mock.DemoTenant.Status),
+		"tenant_status":     mock.DemoTenant.Status.String(),
 		"tenant_url":        "http://domain.com",
 	})
 }
@@ -322,9 +318,9 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		return nil
 	})
 
-	var triggerWebhooksByType *cmd.TriggerWebhooksByType
-	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooksByType) error {
-		triggerWebhooksByType = c
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
 		return nil
 	})
 
@@ -382,11 +378,9 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(addNewNotification.Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **planned**")
 	Expect(addNewNotification.User).Equals(mock.AryaStark)
 
-	Expect(triggerWebhooksByType).IsNotNil()
-	Expect(triggerWebhooksByType.Type).Equals(enum.WebhookChangeStatus)
-	roleJon, _ := mock.JonSnow.Role.MarshalText()
-	roleArya, _ := mock.AryaStark.Role.MarshalText()
-	Expect(triggerWebhooksByType.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
+	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
 		"post_old_status":            enum.PostOpen,
 		"post_id":                    post.ID,
 		"post_number":                post.Number,
@@ -398,22 +392,22 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		"post_author_id":             mock.AryaStark.ID,
 		"post_author_name":           mock.AryaStark.Name,
 		"post_author_email":          mock.AryaStark.Email,
-		"post_author_role":           string(roleArya),
+		"post_author_role":           mock.AryaStark.Role.String(),
 		"post_response":              true,
 		"post_response_text":         post.Response.Text,
 		"post_response_responded_at": post.Response.RespondedAt,
 		"post_response_author_id":    mock.JonSnow.ID,
 		"post_response_author_name":  mock.JonSnow.Name,
 		"post_response_author_email": mock.JonSnow.Email,
-		"post_response_author_role":  string(roleJon),
+		"post_response_author_role":  mock.JonSnow.Role.String(),
 		"author_id":                  mock.JonSnow.ID,
 		"author_name":                mock.JonSnow.Name,
 		"author_email":               mock.JonSnow.Email,
-		"author_role":                string(roleJon),
+		"author_role":                mock.JonSnow.Role.String(),
 		"tenant_id":                  mock.DemoTenant.ID,
 		"tenant_name":                mock.DemoTenant.Name,
 		"tenant_subdomain":           mock.DemoTenant.Subdomain,
-		"tenant_status":              webhook.TenantStatus(mock.DemoTenant.Status),
+		"tenant_status":              mock.DemoTenant.Status.String(),
 		"tenant_url":                 "http://domain.com",
 	})
 }
@@ -435,9 +429,9 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 		return nil
 	})
 
-	var triggerWebhooksByType *cmd.TriggerWebhooksByType
-	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooksByType) error {
-		triggerWebhooksByType = c
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
 		return nil
 	})
 
@@ -490,11 +484,9 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	Expect(addNewNotification.Title).Equals("**Jon Snow** deleted **Add support for TypeScript**")
 	Expect(addNewNotification.User).Equals(mock.AryaStark)
 
-	Expect(triggerWebhooksByType).IsNotNil()
-	Expect(triggerWebhooksByType.Type).Equals(enum.WebhookDeletePost)
-	roleJon, _ := mock.JonSnow.Role.MarshalText()
-	roleArya, _ := mock.AryaStark.Role.MarshalText()
-	Expect(triggerWebhooksByType.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookDeletePost)
+	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
 		"post_id":                    post.ID,
 		"post_number":                post.Number,
 		"post_title":                 post.Title,
@@ -505,22 +497,22 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 		"post_author_id":             mock.AryaStark.ID,
 		"post_author_name":           mock.AryaStark.Name,
 		"post_author_email":          mock.AryaStark.Email,
-		"post_author_role":           string(roleArya),
+		"post_author_role":           mock.AryaStark.Role.String(),
 		"post_response":              true,
 		"post_response_text":         post.Response.Text,
 		"post_response_responded_at": post.Response.RespondedAt,
 		"post_response_author_id":    mock.JonSnow.ID,
 		"post_response_author_name":  mock.JonSnow.Name,
 		"post_response_author_email": mock.JonSnow.Email,
-		"post_response_author_role":  string(roleJon),
+		"post_response_author_role":  mock.JonSnow.Role.String(),
 		"author_id":                  mock.JonSnow.ID,
 		"author_name":                mock.JonSnow.Name,
 		"author_email":               mock.JonSnow.Email,
-		"author_role":                string(roleJon),
+		"author_role":                mock.JonSnow.Role.String(),
 		"tenant_id":                  mock.DemoTenant.ID,
 		"tenant_name":                mock.DemoTenant.Name,
 		"tenant_subdomain":           mock.DemoTenant.Subdomain,
-		"tenant_status":              webhook.TenantStatus(mock.DemoTenant.Status),
+		"tenant_status":              mock.DemoTenant.Status.String(),
 		"tenant_url":                 "http://domain.com",
 	})
 }
@@ -542,9 +534,9 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		return nil
 	})
 
-	var triggerWebhooksByType *cmd.TriggerWebhooksByType
-	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooksByType) error {
-		triggerWebhooksByType = c
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
 		return nil
 	})
 
@@ -606,11 +598,9 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(addNewNotification.Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **duplicate**")
 	Expect(addNewNotification.User).Equals(mock.AryaStark)
 
-	Expect(triggerWebhooksByType).IsNotNil()
-	Expect(triggerWebhooksByType.Type).Equals(enum.WebhookChangeStatus)
-	roleJon, _ := mock.JonSnow.Role.MarshalText()
-	roleArya, _ := mock.AryaStark.Role.MarshalText()
-	Expect(triggerWebhooksByType.Props).ContainsProps(dto.Props{
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
+	Expect(triggerWebhooks.Props).ContainsProps(dto.Props{
 		"post_old_status":               enum.PostOpen,
 		"post_id":                       post.ID,
 		"post_number":                   post.Number,
@@ -622,14 +612,14 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		"post_author_id":                mock.AryaStark.ID,
 		"post_author_name":              mock.AryaStark.Name,
 		"post_author_email":             mock.AryaStark.Email,
-		"post_author_role":              string(roleArya),
+		"post_author_role":              mock.AryaStark.Role.String(),
 		"post_response":                 true,
 		"post_response_text":            post.Response.Text,
 		"post_response_responded_at":    post.Response.RespondedAt,
 		"post_response_author_id":       mock.JonSnow.ID,
 		"post_response_author_name":     mock.JonSnow.Name,
 		"post_response_author_email":    mock.JonSnow.Email,
-		"post_response_author_role":     string(roleJon),
+		"post_response_author_role":     mock.JonSnow.Role.String(),
 		"post_response_original_number": post.Response.Original.Number,
 		"post_response_original_title":  post.Response.Original.Title,
 		"post_response_original_slug":   post.Response.Original.Slug,
@@ -638,11 +628,11 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		"author_id":                     mock.JonSnow.ID,
 		"author_name":                   mock.JonSnow.Name,
 		"author_email":                  mock.JonSnow.Email,
-		"author_role":                   string(roleJon),
+		"author_role":                   mock.JonSnow.Role.String(),
 		"tenant_id":                     mock.DemoTenant.ID,
 		"tenant_name":                   mock.DemoTenant.Name,
 		"tenant_subdomain":              mock.DemoTenant.Subdomain,
-		"tenant_status":                 webhook.TenantStatus(mock.DemoTenant.Status),
+		"tenant_status":                 mock.DemoTenant.Status.String(),
 		"tenant_url":                    "http://domain.com",
 	})
 }

@@ -11,7 +11,7 @@ import (
 type CreateTenant struct {
 	Name      string
 	Subdomain string
-	Status    int
+	Status    enum.TenantStatus
 
 	Result *entity.Tenant
 }

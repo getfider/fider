@@ -36,14 +36,14 @@ func CreateWebhook() web.HandlerFunc {
 		}
 
 		createWebhook := &query.CreateEditWebhook{
-			ID:                    0,
-			Name:                  action.Name,
-			Type:                  action.Type,
-			Status:                action.Status,
-			Url:                   action.Url,
-			Content:               action.Content,
-			HttpMethod:            action.HttpMethod,
-			AdditionalHttpHeaders: action.AdditionalHttpHeaders,
+			ID:          0,
+			Name:        action.Name,
+			Type:        action.Type,
+			Status:      action.Status,
+			Url:         action.Url,
+			Content:     action.Content,
+			HttpMethod:  action.HttpMethod,
+			HttpHeaders: action.HttpHeaders,
 		}
 		if err := bus.Dispatch(c, createWebhook); err != nil {
 			return c.Failure(err)
@@ -67,14 +67,14 @@ func UpdateWebhook() web.HandlerFunc {
 		}
 
 		updateWebhook := &query.CreateEditWebhook{
-			ID:                    id,
-			Name:                  action.Name,
-			Type:                  action.Type,
-			Status:                action.Status,
-			Url:                   action.Url,
-			Content:               action.Content,
-			HttpMethod:            action.HttpMethod,
-			AdditionalHttpHeaders: action.AdditionalHttpHeaders,
+			ID:          id,
+			Name:        action.Name,
+			Type:        action.Type,
+			Status:      action.Status,
+			Url:         action.Url,
+			Content:     action.Content,
+			HttpMethod:  action.HttpMethod,
+			HttpHeaders: action.HttpHeaders,
 		}
 		if action.Status == enum.WebhookFailed {
 			updateWebhook.Status = enum.WebhookDisabled
@@ -104,7 +104,7 @@ func DeleteWebhook() web.HandlerFunc {
 	}
 }
 
-func TriggerWebhook() web.HandlerFunc {
+func TestWebhook() web.HandlerFunc {
 	return func(c *web.Context) error {
 		_id := c.Param("id")
 		id, err := strconv.Atoi(_id)
@@ -112,7 +112,7 @@ func TriggerWebhook() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		triggerWebhook := &cmd.TriggerWebhook{ID: id}
+		triggerWebhook := &cmd.TestWebhook{ID: id}
 		if err = bus.Dispatch(c, triggerWebhook); err != nil {
 			return c.Failure(err)
 		}

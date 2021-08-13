@@ -1,37 +1,20 @@
 import { http, Result, StringObject } from "@fider/services"
-import { HttpHeaders, WebhookPreviewResult, WebhookStatus, WebhookTriggerResult, WebhookType } from "@fider/models"
+import { WebhookData, WebhookPreviewResult, WebhookTriggerResult, WebhookType } from "@fider/models"
 
-export const createWebhook = async (
-  name: string,
-  type: WebhookType,
-  status: WebhookStatus,
-  url: string,
-  content: string,
-  http_method: string,
-  additional_http_headers: HttpHeaders
-): Promise<Result<{ id: number }>> => {
-  return await http.post(`/_api/admin/webhook`, { name, type, status, url, content, http_method, additional_http_headers })
+export const createWebhook = async (data: WebhookData): Promise<Result<{ id: number }>> => {
+  return await http.post(`/_api/admin/webhook`, data)
 }
 
-export const updateWebhook = async (
-  id: number,
-  name: string,
-  type: WebhookType,
-  status: WebhookStatus,
-  url: string,
-  content: string,
-  http_method: string,
-  additional_http_headers: HttpHeaders
-): Promise<Result> => {
-  return await http.put(`/_api/admin/webhook/${id}`, { name, type, status, url, content, http_method, additional_http_headers })
+export const updateWebhook = async (id: number, data: WebhookData): Promise<Result> => {
+  return await http.put(`/_api/admin/webhook/${id}`, data)
 }
 
 export const deleteWebhook = async (id: number): Promise<Result> => {
   return await http.delete(`/_api/admin/webhook/${id}`)
 }
 
-export const triggerWebhook = async (id: number): Promise<Result<WebhookTriggerResult>> => {
-  return await http.get(`/_api/admin/webhook/trigger/${id}`)
+export const testWebhook = async (id: number): Promise<Result<WebhookTriggerResult>> => {
+  return await http.get(`/_api/admin/webhook/test/${id}`)
 }
 
 export const previewWebhook = async (type: WebhookType, url: string, content: string): Promise<Result<WebhookPreviewResult>> => {

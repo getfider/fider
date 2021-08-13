@@ -24,6 +24,11 @@ var roleNames = map[string]Role{
 	"administrator": RoleAdministrator,
 }
 
+// String returns the string version of the user role
+func (role Role) String() string {
+	return roleIDs[role]
+}
+
 // MarshalText returns the Text version of the user role
 func (role Role) MarshalText() ([]byte, error) {
 	return []byte(roleIDs[role]), nil

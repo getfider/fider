@@ -1,14 +1,17 @@
 import { StringObject } from "@fider/services"
 
-export interface Webhook {
-  id: number
+export interface WebhookData {
   name: string
   type: WebhookType
   status: WebhookStatus
   url: string
   content: string
   http_method: string
-  additional_http_headers: HttpHeaders
+  http_headers: HttpHeaders
+}
+
+export interface Webhook extends WebhookData {
+  id: number
 }
 
 export enum WebhookType {

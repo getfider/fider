@@ -2,19 +2,19 @@ package cmd
 
 import (
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/pkg/webhook"
 )
 
-type TriggerWebhook struct {
+type TestWebhook struct {
 	ID int
 
-	Result *entity.WebhookTriggerResult
+	Result *dto.WebhookTriggerResult
 }
 
-type TriggerWebhooksByType struct {
+type TriggerWebhooks struct {
 	Type  enum.WebhookType
-	Props dto.Props
+	Props webhook.Props
 }
 
 type PreviewWebhook struct {
@@ -22,11 +22,11 @@ type PreviewWebhook struct {
 	Url     string
 	Content string
 
-	Result *entity.WebhookPreviewResult
+	Result *dto.WebhookPreviewResult
 }
 
 type GetWebhookProps struct {
 	Type enum.WebhookType
 
-	Result dto.Props
+	Result webhook.Props
 }

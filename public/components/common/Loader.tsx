@@ -2,6 +2,7 @@ import "./Loader.scss"
 
 import React, { useState } from "react"
 import { useTimeout } from "@fider/hooks"
+import { classSet } from "@fider/services"
 
 interface LoaderProps {
   text?: string
@@ -15,10 +16,15 @@ export function Loader(props: LoaderProps) {
     setShow(true)
   }, 500)
 
+  const className = classSet({
+    "c-loader": true,
+    [props.className || ""]: props.className,
+  })
+
   return show ? (
-    <div className={props.className}>
-      <div className="c-loader" />
-      {props.text && <span className="text-muted">{props.text}</span>}
+    <div className={className}>
+      <div className="c-loader__spinner" />
+      {props.text && <span className="c-loader__text">{props.text}</span>}
     </div>
   ) : null
 }

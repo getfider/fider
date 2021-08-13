@@ -63,8 +63,8 @@ export const WebhookListItem = (props: WebhookListItemProps) => {
     }
   }
 
-  const triggerWebhook = async () => {
-    const result = await actions.triggerWebhook(props.webhook.id)
+  const testWebhook = async () => {
+    const result = await actions.testWebhook(props.webhook.id)
     setTriggerResult(result.data)
     if (result.ok && result.data.success) {
       notify.success("Successfully triggered webhook")
@@ -108,9 +108,9 @@ export const WebhookListItem = (props: WebhookListItemProps) => {
           )}
         </HStack>
         <HStack>
-          <Button size="small" onClick={triggerWebhook}>
+          <Button size="small" onClick={testWebhook}>
             <Icon sprite={IconPlay} />
-            <span>Trigger</span>
+            <span>Test</span>
           </Button>
           <Button size="small" onClick={() => props.editWebhook(props.webhook)}>
             <Icon sprite={IconPencilAlt} />

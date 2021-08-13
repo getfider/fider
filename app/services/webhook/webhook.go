@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/tpl"
+	"github.com/getfider/fider/app/pkg/webhook"
 	"net/http"
 	"strings"
 )
@@ -33,20 +34,20 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddHandler(triggerWebhook)
-	bus.AddHandler(triggerWebhooksByType)
+	bus.AddHandler(testWebhook)
+	bus.AddHandler(triggerWebhooks)
 	bus.AddHandler(previewWebhook)
 	bus.AddHandler(getWebhookProps)
 }
 
-func triggerWebhook(ctx context.Context, c *cmd.TriggerWebhook) error {
-	webhook := &query.GetWebhook{ID: c.ID}
-	err := bus.Dispatch(ctx, webhook)
+func testWebhook(ctx context.Context, c *cmd.TestWebhook) error {
+	webhook_ := &query.GetWebhook{ID: c.ID}
+	err := bus.Dispatch(ctx, webhook_)
 	if err != nil {
 		return err
 	}
 
-	c.Result, err = runTriggerWebhook(ctx, webhook.Result, dummyTriggerProps(ctx, webhook.Result.Type))
+	c.Result, err = triggerWebhook(ctx, webhook_.Result, dummyTriggerProps(ctx, webhook_.Result.Type))
 	if err != nil {
 		return err
 	}
@@ -54,15 +55,15 @@ func triggerWebhook(ctx context.Context, c *cmd.TriggerWebhook) error {
 	return nil
 }
 
-func triggerWebhooksByType(ctx context.Context, c *cmd.TriggerWebhooksByType) error {
+func triggerWebhooks(ctx context.Context, c *cmd.TriggerWebhooks) error {
 	webhooks := &query.ListActiveWebhooksByType{Type: c.Type}
 	err := bus.Dispatch(ctx, webhooks)
 	if err != nil {
 		return err
 	}
 
-	for _, webhook := range webhooks.Result {
-		_, err = runTriggerWebhook(ctx, webhook, c.Props)
+	for _, webhook_ := range webhooks.Result {
+		_, err = triggerWebhook(ctx, webhook_, c.Props)
 		if err != nil {
 			return err
 		}
@@ -71,8 +72,8 @@ func triggerWebhooksByType(ctx context.Context, c *cmd.TriggerWebhooksByType) er
 	return nil
 }
 
-func runTriggerWebhook(ctx context.Context, webhook *entity.Webhook, props dto.Props) (*entity.WebhookTriggerResult, error) {
-	result := &entity.WebhookTriggerResult{Webhook: webhook, Props: props}
+func triggerWebhook(ctx context.Context, webhook *entity.Webhook, props webhook.Props) (*dto.WebhookTriggerResult, error) {
+	result := &dto.WebhookTriggerResult{Webhook: webhook, Props: props}
 	var err error
 
 	fullName := fmt.Sprintf("%d-%s", webhook.ID, webhook.Name)
@@ -89,7 +90,7 @@ func runTriggerWebhook(ctx context.Context, webhook *entity.Webhook, props dto.P
 		URL:       result.Url,
 		Body:      strings.NewReader(result.Content),
 		Method:    webhook.HttpMethod,
-		Headers:   webhook.AdditionalHttpHeaders,
+		Headers:   webhook.HttpHeaders,
 		BasicAuth: nil,
 	}
 	err = bus.Dispatch(ctx, httpRequest)
@@ -112,7 +113,7 @@ func runTriggerWebhook(ctx context.Context, webhook *entity.Webhook, props dto.P
 }
 
 func previewWebhook(ctx context.Context, c *cmd.PreviewWebhook) error {
-	c.Result = &entity.WebhookPreviewResult{}
+	c.Result = &dto.WebhookPreviewResult{}
 	var err error
 	props := dummyTriggerProps(ctx, c.Type)
 
@@ -132,7 +133,7 @@ func previewWebhook(ctx context.Context, c *cmd.PreviewWebhook) error {
 	return nil
 }
 
-func executeTemplate(name, text string, props dto.Props) (string, error) {
+func executeTemplate(name, text string, props webhook.Props) (string, error) {
 	tmpl, err := tpl.GetTextTemplate(name, text)
 	if err != nil {
 		return "", err
@@ -146,7 +147,7 @@ func executeTemplate(name, text string, props dto.Props) (string, error) {
 	return replacedText, nil
 }
 
-func resultWithError(ctx context.Context, message, error string, result *entity.WebhookTriggerResult) (*entity.WebhookTriggerResult, error) {
+func resultWithError(ctx context.Context, message, error string, result *dto.WebhookTriggerResult) (*dto.WebhookTriggerResult, error) {
 	result.Success = false
 	result.Message = message
 	result.Error = error

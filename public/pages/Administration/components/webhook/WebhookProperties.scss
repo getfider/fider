@@ -13,7 +13,7 @@
   }
 
   &__prop {
-    font-family: $font-code;
+    font-family: get("font.family.code");
     font-size: get("font.size.sm");
   }
 
@@ -21,7 +21,7 @@
     font-size: get("font.size.sm");
     @each $color in ("gray", "blue", "green", "red") {
       &--#{$color} {
-        font-family: $font-code;
+        font-family: get("font.family.code");
         color: get("colors.#{$color}.600");
       }
     }

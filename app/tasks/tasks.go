@@ -3,7 +3,7 @@ package tasks
 import (
 	"context"
 	"fmt"
-	"github.com/getfider/fider/app/services/webhook"
+	"github.com/getfider/fider/app/pkg/webhook"
 	"strings"
 	"time"
 
@@ -163,12 +163,12 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 			Props:        mailProps,
 		})
 
-		webhookProps := dto.Props{}
-		webhook.DescribePost(webhookProps, post, "post", baseURL, false, false)
-		webhook.DescribeUser(webhookProps, author, "author")
-		webhook.DescribeTenant(webhookProps, tenant, "tenant", baseURL, logoURL)
+		webhookProps := webhook.Props{}
+		webhookProps.SetPost(post, "post", baseURL, false, false)
+		webhookProps.SetUser(author, "author")
+		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
 
-		err = bus.Dispatch(c, &cmd.TriggerWebhooksByType{
+		err = bus.Dispatch(c, &cmd.TriggerWebhooks{
 			Type:  enum.WebhookNewPost,
 			Props: webhookProps,
 		})
@@ -241,12 +241,12 @@ func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 			Props:        mailProps,
 		})
 
-		webhookProps := dto.Props{"comment": comment}
-		webhook.DescribePost(webhookProps, post, "post", baseURL, true, true)
-		webhook.DescribeUser(webhookProps, author, "author")
-		webhook.DescribeTenant(webhookProps, tenant, "tenant", baseURL, logoURL)
+		webhookProps := webhook.Props{"comment": comment}
+		webhookProps.SetPost(post, "post", baseURL, true, true)
+		webhookProps.SetUser(author, "author")
+		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
 
-		err = bus.Dispatch(c, &cmd.TriggerWebhooksByType{
+		err = bus.Dispatch(c, &cmd.TriggerWebhooks{
 			Type:  enum.WebhookNewComment,
 			Props: webhookProps,
 		})
@@ -331,12 +331,12 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 			Props:        props,
 		})
 
-		webhookProps := dto.Props{"post_old_status": prevStatus}
-		webhook.DescribePost(webhookProps, post, "post", baseURL, true, true)
-		webhook.DescribeUser(webhookProps, author, "author")
-		webhook.DescribeTenant(webhookProps, tenant, "tenant", baseURL, logoURL)
+		webhookProps := webhook.Props{"post_old_status": prevStatus}
+		webhookProps.SetPost(post, "post", baseURL, true, true)
+		webhookProps.SetUser(author, "author")
+		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
 
-		err = bus.Dispatch(c, &cmd.TriggerWebhooksByType{
+		err = bus.Dispatch(c, &cmd.TriggerWebhooks{
 			Type:  enum.WebhookChangeStatus,
 			Props: webhookProps,
 		})
@@ -404,12 +404,12 @@ func NotifyAboutDeletedPost(post *entity.Post) worker.Task {
 			Props:        props,
 		})
 
-		webhookProps := dto.Props{}
-		webhook.DescribePost(webhookProps, post, "post", baseURL, true, true)
-		webhook.DescribeUser(webhookProps, author, "author")
-		webhook.DescribeTenant(webhookProps, tenant, "tenant", baseURL, logoURL)
+		webhookProps := webhook.Props{}
+		webhookProps.SetPost(post, "post", baseURL, true, true)
+		webhookProps.SetUser(author, "author")
+		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
 
-		err = bus.Dispatch(c, &cmd.TriggerWebhooksByType{
+		err = bus.Dispatch(c, &cmd.TriggerWebhooks{
 			Type:  enum.WebhookDeletePost,
 			Props: webhookProps,
 		})

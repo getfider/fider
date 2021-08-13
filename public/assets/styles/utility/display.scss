@@ -104,7 +104,7 @@
 }
 
 .justify-full > * {
-  flex: 1 1 0px; // px unit is required to support IE
+  flex: 1 1 0;
 }
 
 @each $i in 0, 1, 2, 4, 6, 8 {

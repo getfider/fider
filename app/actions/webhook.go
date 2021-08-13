@@ -10,13 +10,13 @@ import (
 )
 
 type CreateEditWebhook struct {
-	Name                  string             `json:"name"`
-	Type                  enum.WebhookType   `json:"type"`
-	Status                enum.WebhookStatus `json:"status"`
-	Url                   string             `json:"url"`
-	Content               string             `json:"content"`
-	HttpMethod            string             `json:"http_method"`
-	AdditionalHttpHeaders entity.HttpHeaders `json:"additional_http_headers"`
+	Name        string             `json:"name"`
+	Type        enum.WebhookType   `json:"type"`
+	Status      enum.WebhookStatus `json:"status"`
+	Url         string             `json:"url"`
+	Content     string             `json:"content"`
+	HttpMethod  string             `json:"http_method"`
+	HttpHeaders entity.HttpHeaders `json:"http_headers"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -30,7 +30,7 @@ func (action *CreateEditWebhook) Validate(ctx context.Context, _ *entity.User) *
 
 	if action.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
-	} else if len(action.Name) > 100 {
+	} else if len(action.Name) > 60 {
 		result.AddFieldFailure("name", "Name must have less than 100 characters.")
 	}
 
@@ -92,7 +92,7 @@ func (action *CreateEditWebhook) Validate(ctx context.Context, _ *entity.User) *
 		result.AddFieldFailure("content", "Content must have less than 10 000 characters.")
 	}
 
-	for header, value := range action.AdditionalHttpHeaders {
+	for header, value := range action.HttpHeaders {
 		if header == "" {
 			result.AddFieldFailure("header-"+header, "HTTP Header Name is required.")
 		} else if len(header) > 200 {

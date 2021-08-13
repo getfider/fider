@@ -112,10 +112,6 @@ export const truncate = (input: string, maxLength: number): string => {
   return input
 }
 
-export type Optional<T> = {
-  [P in keyof T]?: T[P]
-}
-
 export type StringObject<T = any> = {
   [key: string]: T
 }
