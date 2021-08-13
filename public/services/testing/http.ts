@@ -1,17 +1,20 @@
 import { http } from "@fider/services"
 
+const createOkMock = () => {
+  return jest.fn(() => {
+    return Promise.resolve({
+      ok: true,
+      data: null as any,
+    })
+  })
+}
+
 export const httpMock = {
   alwaysOk: () => {
-    const fn = jest.fn(() => {
-      return Promise.resolve({
-        ok: true,
-        data: null as any,
-      })
-    })
-    http.get = fn
-    http.post = fn
-    http.put = fn
-    http.delete = fn
+    http.get = createOkMock()
+    http.post = createOkMock()
+    http.put = createOkMock()
+    http.delete = createOkMock()
     return http
   },
 }

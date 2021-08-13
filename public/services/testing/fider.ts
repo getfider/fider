@@ -1,19 +1,26 @@
 import { Fider } from "@fider/services"
+import { FiderImpl } from "../fider"
 
 export const fiderMock = {
-  notAuthenticated: () => {
-    Fider.initialize()
-    Object.defineProperty(Fider.session, "isAuthenticated", {
-      get() {
-        return false
+  notAuthenticated: (): FiderImpl => {
+    return Fider.initialize({
+      settings: {
+        environment: "development",
+        oauth: [],
       },
+      tenant: {},
+      user: undefined,
     })
   },
-  authenticated: () => {
-    Fider.initialize()
-    Object.defineProperty(Fider.session, "isAuthenticated", {
-      get() {
-        return true
+  authenticated: (): FiderImpl => {
+    return Fider.initialize({
+      settings: {
+        environment: "development",
+        oauth: [],
+      },
+      tenant: {},
+      user: {
+        name: "Jon Snow",
       },
     })
   },
