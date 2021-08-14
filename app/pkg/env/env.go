@@ -16,7 +16,7 @@ import (
 var (
 	// these values are replaced during CI build
 	buildnumber = ""
-	version     = "0.19.0-dev"
+	version     = "0.19.0"
 )
 
 func Version() string {
