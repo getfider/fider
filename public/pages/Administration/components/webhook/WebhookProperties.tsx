@@ -2,7 +2,7 @@ import "./WebhookProperties.scss"
 
 import React from "react"
 
-import { VStack } from "@fider/components/layout"
+import { HStack, VStack } from "@fider/components/layout"
 import { StringObject } from "@fider/services"
 
 interface WebhookPropertiesProps {
@@ -49,23 +49,19 @@ const Property = (props: PropertyProps) => {
 
 export const WebhookProperties = (props: WebhookPropertiesProps) => {
   return (
-    <table className="c-webhook-properties">
-      <thead>
-        <tr>
-          <th>{props.propsName}</th>
-          <th>{props.valueName}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {Object.entries(props.properties).map(([prop, val]) => (
-          <tr key={prop}>
-            <td className="c-webhook-properties__prop">{prop}</td>
-            <td className="c-webhook-properties__val">
-              <Property value={val} />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <VStack className="c-webhook-properties" spacing={2} divide>
+      <HStack className="flex-wrap" spacing={0}>
+        <div className="c-webhook-properties__header">{props.propsName}</div>
+        <div className="c-webhook-properties__header">{props.valueName}</div>
+      </HStack>
+      {Object.entries(props.properties).map(([prop, val]) => (
+        <HStack key={prop} className="flex-wrap" spacing={0}>
+          <div className="c-webhook-properties__prop">{prop}</div>
+          <div className="c-webhook-properties__val">
+            <Property value={val} />
+          </div>
+        </HStack>
+      ))}
+    </VStack>
   )
 }

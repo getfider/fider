@@ -26,8 +26,6 @@ func (p Props) SetTenant(tenant *entity.Tenant, keyPrefix, baseURL, logoURL stri
 		p[keyPrefix+"_id"] = tenant.ID
 		p[keyPrefix+"_name"] = tenant.Name
 		p[keyPrefix+"_subdomain"] = tenant.Subdomain
-		p[keyPrefix+"_invitation"] = tenant.Invitation
-		p[keyPrefix+"_welcome_message"] = tenant.WelcomeMessage
 		p[keyPrefix+"_status"] = tenant.Status.String()
 		p[keyPrefix+"_locale"] = tenant.Locale
 		p[keyPrefix+"_url"] = baseURL

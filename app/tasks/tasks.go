@@ -331,7 +331,7 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 			Props:        props,
 		})
 
-		webhookProps := webhook.Props{"post_old_status": prevStatus}
+		webhookProps := webhook.Props{"post_old_status": prevStatus.Name()}
 		webhookProps.SetPost(post, "post", baseURL, true, true)
 		webhookProps.SetUser(author, "author")
 		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)

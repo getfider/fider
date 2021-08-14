@@ -1,11 +1,11 @@
-import "./WebhookTemplateInfo.scss"
+import "./WebhookTemplateInfoModal.scss"
 
 import { Button, Loader, Modal } from "@fider/components"
 import { WebhookProperties } from "@fider/pages/Administration/components/webhook/WebhookProperties"
 import React, { useEffect, useState } from "react"
 import { WebhookType } from "@fider/models"
 import { actions, StringObject } from "@fider/services"
-import { VStack } from "@fider/components/layout"
+import { HStack, VStack } from "@fider/components/layout"
 import { HoverInfo } from "@fider/components/common/HoverInfo"
 
 interface WebhookTemplateInfoProps {
@@ -68,6 +68,11 @@ const functions: StringObject<FunctionSpecification> = {
     description: "Enquote a string and escape inner special characters",
     info: "You should use this function when using a value as a JSON field",
   },
+  escape: {
+    params: [{ type: "string", desc: "The input string to escape" }],
+    description: "Escape inner special characters of a string, without enquoting it",
+    info: "You should use this function when using a value within an enquoted string",
+  },
   urlquery: {
     params: [{ type: "string", desc: "The input string to encode as URL query value" }],
     description: "Encode a string into a valid URL query element",
@@ -76,9 +81,10 @@ const functions: StringObject<FunctionSpecification> = {
 }
 const textExample = 'A new post entitled "{{ .post_title }}" has been created by {{ .author_name }}.'
 const jsonExample = `{
-  "title": {{ quote .post_title }},
+  "title": "New post: {{ escape .post_title }}",
   "content": {{ quote .post_description }},
-  "user": {{ quote .author_name }}
+  "user": {{ quote .author_name }},
+  "date": {{ format "2006-01-02T15:04:05-0700" .post_created_at | quote }}
 }`
 
 export const WebhookTemplateInfoModal = (props: WebhookTemplateInfoProps) => {
@@ -111,7 +117,7 @@ export const WebhookTemplateInfoModal = (props: WebhookTemplateInfoProps) => {
             </p>
             <pre className="text-left">{jsonExample}</pre>
             <Button href="https://pkg.go.dev/text/template" target="_blank" variant="primary">
-              Open official Go documentation about templates
+              Official Go templates documentation
             </Button>
           </div>
           {properties === undefined ? (
@@ -126,43 +132,39 @@ export const WebhookTemplateInfoModal = (props: WebhookTemplateInfoProps) => {
               </div>
               <div>
                 <h3 className="text-title mb-1">Functions</h3>
-                <table className="c-webhook-properties">
-                  <thead>
-                    <tr>
-                      <th rowSpan={2}>Function</th>
-                      <th rowSpan={2}>Description</th>
-                      <th colSpan={2}>Parameters</th>
-                    </tr>
-                    <tr>
-                      <th className="text-xs">Type</th>
-                      <th className="text-xs">Description</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(functions).map(([func, spec]) =>
-                      spec.params.map((param, j) => (
-                        <tr key={func}>
-                          {j === 0 && (
-                            <>
-                              <td rowSpan={spec.params.length} className="c-webhook-properties__prop">
-                                {func}
-                              </td>
-                              <td rowSpan={spec.params.length} className="c-webhook-properties__val">
-                                {spec.description}
-                                {spec.info && <HoverInfo text={spec.info} href={spec.link} target="_blank" />}
-                              </td>
-                            </>
-                          )}
-                          <td className="c-webhook-properties__prop">{param.type}</td>
-                          <td className="c-webhook-properties__val">
-                            {param.desc}
-                            {param.info && <HoverInfo text={param.info} href={param.link} target="_blank" />}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                <VStack spacing={2} divide>
+                  <HStack className="c-webhook-templateinfo__header flex-wrap" spacing={0}>
+                    <div className="c-webhook-templateinfo__header-func">Function</div>
+                    <div className="c-webhook-templateinfo__header-desc">Description</div>
+                    <VStack className="c-webhook-templateinfo__params">
+                      <div className="c-webhook-templateinfo__header-params">Parameters</div>
+                      <HStack>
+                        <div className="c-webhook-templateinfo__header-param">Type</div>
+                        <div className="c-webhook-templateinfo__header-param-desc">Description</div>
+                      </HStack>
+                    </VStack>
+                  </HStack>
+                  {Object.entries(functions).map(([func, spec]) => (
+                    <HStack key={func} className="flex-wrap" spacing={0}>
+                      <div className="c-webhook-templateinfo__func">{func}</div>
+                      <div className="c-webhook-templateinfo__desc">
+                        {spec.description}
+                        {spec.info && <HoverInfo text={spec.info} href={spec.link} target="_blank" />}
+                      </div>
+                      <VStack className="c-webhook-templateinfo__params" spacing={2} divide>
+                        {spec.params.map((param, j) => (
+                          <HStack key={j} className="flex-wrap" spacing={0}>
+                            <div className="c-webhook-templateinfo__param">{param.type}</div>
+                            <div className="c-webhook-templateinfo__param-desc">
+                              {param.desc}
+                              {param.info && <HoverInfo text={param.info} href={param.link} target="_blank" />}
+                            </div>
+                          </HStack>
+                        ))}
+                      </VStack>
+                    </HStack>
+                  ))}
+                </VStack>
               </div>
             </>
           )}

@@ -2,6 +2,7 @@ package tpl
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"strconv"
 	"strings"
@@ -58,7 +59,15 @@ var templateFunctions = map[string]interface{}{
 	"format": func(format string, date time.Time) string {
 		return date.Format(format)
 	},
-	"quote": func(text string) string {
-		return strconv.Quote(text)
+	"quote": func(text interface{}) string {
+		return quote(text)
 	},
+	"escape": func(text interface{}) string {
+		quoted := quote(text)
+		return quoted[1 : len(quoted)-1]
+	},
+}
+
+func quote(text interface{}) string {
+	return strconv.Quote(fmt.Sprintf("%v", text))
 }

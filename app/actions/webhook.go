@@ -31,7 +31,7 @@ func (action *CreateEditWebhook) Validate(ctx context.Context, _ *entity.User) *
 	if action.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
 	} else if len(action.Name) > 60 {
-		result.AddFieldFailure("name", "Name must have less than 100 characters.")
+		result.AddFieldFailure("name", "Name must have less than 60 characters.")
 	}
 
 	if action.Type == 0 {
@@ -47,7 +47,7 @@ func (action *CreateEditWebhook) Validate(ctx context.Context, _ *entity.User) *
 		result.AddFieldFailure("status", "Status is required.")
 	}
 
-	runCompileCheck := true
+	runCompileCheck := action.Status == enum.WebhookEnabled
 	if action.Url == "" {
 		result.AddFieldFailure("url", "URL template is required.")
 		runCompileCheck = false
@@ -61,7 +61,7 @@ func (action *CreateEditWebhook) Validate(ctx context.Context, _ *entity.User) *
 		runCompileCheck = false
 	}
 
-	if runCompileCheck && action.Status == enum.WebhookEnabled {
+	if runCompileCheck {
 		previewWebhook := &cmd.PreviewWebhook{
 			Type:    action.Type,
 			Url:     action.Url,
