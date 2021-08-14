@@ -382,7 +382,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
 	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
-		"post_old_status":            enum.PostOpen,
+		"post_old_status":            enum.PostOpen.Name(),
 		"post_id":                    post.ID,
 		"post_number":                post.Number,
 		"post_title":                 post.Title,
@@ -602,7 +602,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
 	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
-		"post_old_status":               enum.PostOpen,
+		"post_old_status":               enum.PostOpen.Name(),
 		"post_id":                       post.ID,
 		"post_number":                   post.Number,
 		"post_title":                    post.Title,
