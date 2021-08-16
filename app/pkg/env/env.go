@@ -89,6 +89,7 @@ type config struct {
 			Username       string `env:"EMAIL_SMTP_USERNAME"`
 			Password       string `env:"EMAIL_SMTP_PASSWORD"`
 			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			HostTLS        string `env:"EMAIL_SMTP_HOST_TLS"`
 		}
 	}
 	BlobStorage struct {

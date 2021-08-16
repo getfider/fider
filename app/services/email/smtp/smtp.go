@@ -89,7 +89,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		smtpConfig := env.Config.Email.SMTP
 		servername := fmt.Sprintf("%s:%s", smtpConfig.Host, smtpConfig.Port)
 		auth := authenticate(smtpConfig.Username, smtpConfig.Password, smtpConfig.Host)
-		err = Send(localname, servername, smtpConfig.EnableStartTLS, auth, email.NoReply, []string{to.Address}, b.Bytes())
+		err = Send(localname, servername, smtpConfig.HostTLS, smtpConfig.EnableStartTLS, auth, email.NoReply, []string{to.Address}, b.Bytes())
 		if err != nil {
 			panic(errors.Wrap(err, "failed to send email with template %s", c.TemplateName))
 		}
@@ -97,8 +97,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 	}
 }
 
-var Send = func(localName, serverAddress string, enableStartTLS bool, a gosmtp.Auth, from string, to []string, msg []byte) error {
-	host, _, _ := net.SplitHostPort(serverAddress)
+var Send = func(localName, serverAddress, hostTLS string, enableStartTLS bool, a gosmtp.Auth, from string, to []string, msg []byte) error {
 	c, err := gosmtp.Dial(serverAddress)
 	if err != nil {
 		return err
@@ -108,8 +107,15 @@ var Send = func(localName, serverAddress string, enableStartTLS bool, a gosmtp.A
 		return err
 	}
 	if enableStartTLS {
+		if hostTLS == "" {
+			hostTLS, _, err = net.SplitHostPort(serverAddress)
+			if err != nil {
+				return err
+			}
+		}
+
 		if ok, _ := c.Extension("STARTTLS"); ok {
-			config := &tls.Config{ServerName: host}
+			config := &tls.Config{ServerName: hostTLS}
 			if err = c.StartTLS(config); err != nil {
 				return err
 			}
