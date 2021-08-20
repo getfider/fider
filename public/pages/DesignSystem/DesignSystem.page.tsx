@@ -387,6 +387,7 @@ const DesignSystemPage = () => {
       <h2 className="text-display2 mb-3 mt-6">11. Loader</h2>
 
       <Loader />
+      <Loader text="Loader with text" />
 
       <h2 className="text-display2 mb-3 mt-6">12. Message</h2>
 

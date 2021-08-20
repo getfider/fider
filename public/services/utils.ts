@@ -111,3 +111,7 @@ export const truncate = (input: string, maxLength: number): string => {
   }
   return input
 }
+
+export type StringObject<T = any> = {
+  [key: string]: T
+}
