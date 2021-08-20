@@ -33,6 +33,7 @@
 
   &__val {
     font-size: get("font.size.sm");
+    overflow-wrap: break-word;
     width: 50%;
     padding: 0 spacing(1);
 
