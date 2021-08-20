@@ -45,19 +45,9 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 #### 3. To start the application
 
-1. run `make watch-ui` and `make watch-server` to start both the server and ui on watch mode. The application will be reloaded every time a file is changed. Alternatively, it's also possible to start Fider by running `make build` and `make run`.
+1. run `make watch` to start both the server and ui on watch mode. The application will be reloaded every time a file is changed. Alternatively, it's also possible to start Fider by running `make build` and `make run`.
 2. Navigate to `http://localhost:3000/` and 🎉! You should see the sign up page of Fider!
 
 #### 4. To run the unit tests:
 
 1. run `make test` to run both UI and Server unit tests.
-
-## Common Issues
-
-#### 1. It doesn't work on Windows
-
-This is a known [Issue #434](https://github.com/getfider/fider/issues/434). If you're a Windows user and want to contribute to Fider, please help us resolve this.
-
-#### 2. godotenv: not found
-
-This happens when godotenv was not (or incorrectly) installed. Install it by running `go get github.com/joho/godotenv/cmd/godotenv/`.
