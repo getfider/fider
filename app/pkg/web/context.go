@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/julienschmidt/httprouter"
 
 	"strings"
 
@@ -18,6 +18,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -391,7 +392,9 @@ func (c *Context) Param(name string) string {
 	if c.params == nil {
 		return ""
 	}
-	return c.params[name]
+
+	// The leading slash is removed because of https://github.com/julienschmidt/httprouter/issues/77
+	return strings.TrimLeft(c.params[name], "/")
 }
 
 //ParamAsInt returns parameter as int
@@ -402,6 +405,11 @@ func (c *Context) ParamAsInt(name string) (int, error) {
 		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
 	}
 	return intValue, nil
+}
+
+//GetMatchedRoutePath returns the Matched Route name
+func (c *Context) GetMatchedRoutePath() string {
+	return "/" + c.Param(httprouter.MatchedRoutePathParam)
 }
 
 // Set saves data in the context.
