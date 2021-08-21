@@ -8,7 +8,6 @@ import (
 	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/julienschmidt/httprouter"
 )
 
 // Instrumentation adds Prometheus HTTP Middlewares
@@ -23,7 +22,7 @@ func Instrumentation() web.MiddlewareFunc {
 
 			err := next(c)
 
-			routeName := c.Param(httprouter.MatchedRoutePathParam)
+			routeName := c.GetMatchedRoutePath()
 			operation := fmt.Sprintf("%s %s", c.Request.Method, routeName)
 			if routeName == "" && c.Request.URL.Path != "/" {
 				operation = "No Route Matched"

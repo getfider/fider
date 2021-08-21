@@ -22,7 +22,6 @@ func routes(r *web.Engine) *web.Engine {
 		mw := middlewares.Chain(
 			middlewares.WebSetup(),
 			middlewares.Tenant(),
-			middlewares.Instrumentation(),
 		)
 		next := mw(func(c *web.Context) error {
 			return c.NotFound()

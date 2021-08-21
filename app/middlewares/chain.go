@@ -9,7 +9,10 @@ func Chain(mws ...web.MiddlewareFunc) web.MiddlewareFunc {
 	return func(handler web.HandlerFunc) web.HandlerFunc {
 		next := handler
 		for i := len(mws) - 1; i >= 0; i-- {
-			next = mws[i](next)
+			mw := mws[i]
+			if mw != nil {
+				next = mw(next)
+			}
 		}
 		return next
 	}

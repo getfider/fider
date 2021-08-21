@@ -31,11 +31,14 @@ func createServer() *Server {
 
 	engine := web.New()
 
+	// Create a new request and set matched routed into context
 	request, _ := http.NewRequest("GET", "/", nil)
+	request = request.WithContext(context.WithValue(request.Context(), httprouter.ParamsKey, httprouter.Params{
+		httprouter.Param{Key: httprouter.MatchedRoutePathParam, Value: "/"},
+	}))
+
 	recorder := httptest.NewRecorder()
 	params := make(web.StringMap)
-	params[httprouter.MatchedRoutePathParam] = "/"
-
 	context := web.NewContext(engine, request, recorder, params)
 
 	return &Server{
