@@ -120,7 +120,8 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
               )}
               <p className="text-muted my-1">
                 When email-based authentication is disabled, users will not be allowed to sign in using their email. Thus, they will be forced to use another
-                authentication provider, such as your prefered OAuth provider. <strong>Be sure to enable and test one before you turn this setting off!</strong>
+                authentication provider, such as your preferred OAuth provider.{" "}
+                <strong>Be sure to enable and test one before you turn this setting off!</strong>
               </p>
               <p className="text-muted mt-1">Note: Administrator accounts will still be allowed to sign in using their email.</p>
             </Field>
