@@ -7,9 +7,9 @@ go 1.16
 require (
 	github.com/aws/aws-sdk-go v1.40.9
 	github.com/cosmtrek/air v1.27.3
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/goenning/imagic v0.0.1
 	github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055
+	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golangci/golangci-lint v1.41.1
 	github.com/gosimple/slug v1.10.0

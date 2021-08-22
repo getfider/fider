@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	jwtgo "github.com/dgrijalva/jwt-go"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
+	jwtgo "github.com/golang-jwt/jwt/v4"
 )
 
 func TestJWT_Encode(t *testing.T) {

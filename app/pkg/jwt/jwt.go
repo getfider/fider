@@ -3,10 +3,9 @@ package jwt
 import (
 	"fmt"
 
-	"github.com/dgrijalva/jwt-go"
-	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	jwtgo "github.com/golang-jwt/jwt/v4"
 )
 
 var jwtSecret = env.Config.JWTSecret
@@ -71,7 +70,7 @@ func DecodeOAuthClaims(token string) (*OAuthClaims, error) {
 
 func decode(token string, claims jwtgo.Claims) error {
 	jwtToken, err := jwtgo.ParseWithClaims(token, claims, func(t *jwtgo.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+		if _, ok := t.Method.(*jwtgo.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
 		}
 
