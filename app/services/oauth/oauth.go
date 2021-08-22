@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/url"
 	"strings"
@@ -18,7 +19,6 @@ import (
 	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/github"
@@ -213,7 +213,7 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 			return errors.New("AccessToken is not JWT")
 		}
 
-		body, _ := jwt.DecodeSegment(parts[1])
+		body, _ := base64.RawURLEncoding.DecodeString(parts[1])
 		q.Result = string(body)
 		return nil
 	}
