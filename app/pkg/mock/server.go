@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/julienschmidt/httprouter"
 )
 
 // Server is a HTTP server wrapper for testing purpose
@@ -30,9 +31,15 @@ func createServer() *Server {
 
 	engine := web.New()
 
+	// Create a new request and set matched routed into context
 	request, _ := http.NewRequest("GET", "/", nil)
+	request = request.WithContext(context.WithValue(request.Context(), httprouter.ParamsKey, httprouter.Params{
+		httprouter.Param{Key: httprouter.MatchedRoutePathParam, Value: "/"},
+	}))
+
 	recorder := httptest.NewRecorder()
-	context := web.NewContext(engine, request, recorder, make(web.StringMap))
+	params := make(web.StringMap)
+	context := web.NewContext(engine, request, recorder, params)
 
 	return &Server{
 		engine:     engine,
@@ -49,7 +56,9 @@ func (s *Server) Engine() *web.Engine {
 
 // Use adds a new middleware to pipeline
 func (s *Server) Use(middleware web.MiddlewareFunc) *Server {
-	s.middleware = append(s.middleware, middleware)
+	if middleware != nil {
+		s.middleware = append(s.middleware, middleware)
+	}
 	return s
 }
 

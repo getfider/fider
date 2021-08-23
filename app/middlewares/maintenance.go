@@ -9,11 +9,12 @@ import (
 
 // Maintenance returns a maintenance page when system is under maintenance
 func Maintenance() web.MiddlewareFunc {
+	if !env.Config.Maintenance.Enabled {
+		return nil
+	}
+
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if !env.Config.Maintenance.Enabled {
-				return next(c)
-			}
 
 			c.Response.Header().Set("Retry-After", "3600")
 

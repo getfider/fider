@@ -64,6 +64,7 @@ const robStark: User = {
 const easyTag: Tag = { id: 1, slug: "easy", name: "Easy", color: "82c460", isPublic: true }
 const normalTag: Tag = { id: 2, slug: "normal", name: "Normal", color: "ebb134", isPublic: false }
 const hardTag: Tag = { id: 3, slug: "hard", name: "Hard", color: "9c3630", isPublic: false }
+const linkTag: Tag = { id: 4, slug: "link", name: "Link", color: "0991db", isPublic: true }
 
 const visibilityPublic = { label: "Public", value: "public" }
 const visibilityPrivate = { label: "Private", value: "private" }
@@ -352,11 +353,13 @@ const DesignSystemPage = () => {
           <ShowTag tag={easyTag} />
           <ShowTag tag={normalTag} />
           <ShowTag tag={hardTag} />
+          <ShowTag tag={linkTag} link />
         </HStack>
         <HStack>
-          <ShowTag tag={easyTag} circular={true} />
-          <ShowTag tag={normalTag} circular={true} />
-          <ShowTag tag={hardTag} circular={true} />
+          <ShowTag tag={easyTag} circular />
+          <ShowTag tag={normalTag} circular />
+          <ShowTag tag={hardTag} circular />
+          <ShowTag tag={linkTag} circular link />
         </HStack>
       </VStack>
 
@@ -384,6 +387,7 @@ const DesignSystemPage = () => {
       <h2 className="text-display2 mb-3 mt-6">11. Loader</h2>
 
       <Loader />
+      <Loader text="Loader with text" />
 
       <h2 className="text-display2 mb-3 mt-6">12. Message</h2>
 

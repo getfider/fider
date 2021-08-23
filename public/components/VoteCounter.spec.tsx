@@ -1,12 +1,16 @@
 import React from "react"
-import { shallow } from "enzyme"
 import { Post, UserRole, PostStatus, UserStatus } from "@fider/models"
-import { VoteCounter, SignInModal } from "@fider/components"
-import { httpMock, fiderMock, rerender } from "@fider/services/testing"
+import { VoteCounter } from "@fider/components"
+import { screen, fireEvent, render } from "@testing-library/react"
+import { fiderMock, httpMock, setupModalRoot } from "@fider/services/testing"
+import { FiderContext } from "@fider/services"
+import { act } from "react-dom/test-utils"
 
 let post: Post
 
 beforeEach(() => {
+  setupModalRoot()
+
   post = {
     id: 1,
     number: 10,
@@ -34,41 +38,46 @@ describe("<VoteCounter />", () => {
   test("when hasVoted === true", () => {
     post.hasVoted = true
     post.votesCount = 9
-    const wrapper = shallow(<VoteCounter post={post} />)
-    const button = wrapper.find("button")
-    expect(button.text()).toBe("<Icon />9")
-    expect(button.hasClass("c-vote-counter__button--voted")).toBe(true)
-    expect(button.hasClass("c-vote-counter__button--disabled")).toBe(false)
+
+    const { container } = render(<VoteCounter post={post} />)
+    const button = container.querySelector("button")
+
+    expect(button).toHaveTextContent("9")
+    expect(button).toHaveClass("c-vote-counter__button--voted")
+    expect(button).not.toHaveClass("c-vote-counter__button--disabled")
   })
 
   test("when hasVoted === false", () => {
     post.hasVoted = false
     post.votesCount = 2
-    const wrapper = shallow(<VoteCounter post={post} />)
-    const button = wrapper.find("button")
-    expect(button.text()).toBe("<Icon />2")
-    expect(button.hasClass("c-vote-counter__button--voted")).toBe(false)
-    expect(button.hasClass("c-vote-counter__button--disabled")).toBe(false)
+    const { container } = render(<VoteCounter post={post} />)
+    const button = container.querySelector("button")
+    expect(button).toHaveTextContent("2")
+    expect(button).not.toHaveClass("c-vote-counter__button--voted")
+    expect(button).not.toHaveClass("c-vote-counter__button--disabled")
   })
 
   test("when post is closed", () => {
     post.status = PostStatus.Completed.value
-    const wrapper = shallow(<VoteCounter post={post} />)
-    const button = wrapper.find("button")
-    expect(button.text()).toBe("<Icon />5")
-    expect(button.hasClass("c-vote-counter__button--voted")).toBe(false)
-    expect(button.hasClass("c-vote-counter__button--disabled")).toBe(true)
+    const { container } = render(<VoteCounter post={post} />)
+    const button = container.querySelector("button")
+    expect(button).toHaveTextContent("5")
+    expect(button).toHaveClass("c-vote-counter__button--disabled")
+    expect(button).not.toHaveClass("c-vote-counter__button--voted")
   })
 
   test("click when unauthenticated", async () => {
-    fiderMock.notAuthenticated()
-
     const mock = httpMock.alwaysOk()
 
-    const wrapper = shallow(<VoteCounter post={post} />)
-    wrapper.find("button").simulate("click")
-    await rerender(wrapper)
-    expect(wrapper.find(SignInModal).length).toBe(1)
+    const { container } = render(
+      <FiderContext.Provider value={fiderMock.notAuthenticated()}>
+        <VoteCounter post={post} />
+      </FiderContext.Provider>
+    )
+    const button = container.querySelector("button") || fail("button not found")
+    fireEvent.click(button)
+
+    expect(screen.queryByTestId("modal")).toBeInTheDocument()
     expect(mock.post).toHaveBeenCalledTimes(0)
     expect(mock.delete).toHaveBeenCalledTimes(0)
   })
@@ -78,13 +87,21 @@ describe("<VoteCounter />", () => {
 
     const mock = httpMock.alwaysOk()
 
-    const wrapper = shallow(<VoteCounter post={post} />)
-    wrapper.find("button").simulate("click")
+    const { container } = render(
+      <FiderContext.Provider value={fiderMock.authenticated()}>
+        <VoteCounter post={post} />
+      </FiderContext.Provider>
+    )
+
+    const button = container.querySelector("button") || fail("button not found")
+    expect(button).toHaveTextContent("5")
+    await act(async () => {
+      fireEvent.click(button)
+    })
+
     expect(mock.post).toHaveBeenCalledWith("/api/v1/posts/10/votes")
     expect(mock.post).toHaveBeenCalledTimes(1)
-
-    await rerender(wrapper)
-    expect(wrapper.find("button").text()).toBe("<Icon />6")
+    expect(button).toHaveTextContent("6")
   })
 
   test("click when authenticated and hasVoted === true", async () => {
@@ -93,12 +110,20 @@ describe("<VoteCounter />", () => {
 
     const mock = httpMock.alwaysOk()
 
-    const wrapper = shallow(<VoteCounter post={post} />)
-    wrapper.find("button").simulate("click")
+    const { container } = render(
+      <FiderContext.Provider value={fiderMock.authenticated()}>
+        <VoteCounter post={post} />
+      </FiderContext.Provider>
+    )
+
+    const button = container.querySelector("button") || fail("button not found")
+    expect(button).toHaveTextContent("5")
+    await act(async () => {
+      fireEvent.click(button)
+    })
+
     expect(mock.delete).toHaveBeenCalledWith("/api/v1/posts/10/votes")
     expect(mock.delete).toHaveBeenCalledTimes(1)
-
-    await rerender(wrapper)
-    expect(wrapper.find("button").text()).toBe("<Icon />4")
+    expect(button).toHaveTextContent("4")
   })
 })

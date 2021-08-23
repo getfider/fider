@@ -56,7 +56,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
     assignedTags.length > 0 ? (
       <VStack spacing={2} className="flex-items-baseline">
         {assignedTags.map((tag) => (
-          <ShowTag key={tag.id} tag={tag} />
+          <ShowTag key={tag.id} tag={tag} link />
         ))}
       </VStack>
     ) : (

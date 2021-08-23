@@ -96,8 +96,8 @@ jobs:
           name: fider-image
           path: out/
 
-  test-e2e:
-    name: test-e2e
+  test-e2e-ui:
+    name: test-e2e-ui
     runs-on: ubuntu-latest
     needs: [build]
     services:
@@ -149,6 +149,62 @@ jobs:
       - run: npx playwright install-deps $BROWSER
         env:
           BROWSER: ${{ matrix.browser }}
-      - run: make test-e2e
+      - run: make test-e2e-ui
         env:
           BROWSER: ${{ matrix.browser }}
+
+  test-e2e-server:
+    name: test-e2e-server
+    runs-on: ubuntu-latest
+    needs: [build]
+    services:
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - "8025:8025"
+          - "1025:1025"
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: fider_ci
+          POSTGRES_PASSWORD: fider_ci_pw
+          POSTGRES_DB: fider_ci
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - uses: actions/download-artifact@v2
+        with:
+          name: fider-image
+          path: ./out
+      - run: docker load --input ./out/fider-image.tar
+      - run: |
+          docker run \
+            --pull never \
+            -p 3000:3000 \
+            -p 4000:4000 \
+            --env DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable \
+            --env JWT_SECRET=not_so_secret \
+            --env HOST_MODE=multi \
+            --env HOST_DOMAIN=dev.fider.io \
+            --env METRICS_ENABLED=true \
+            --env SSL_CERT=dev-fider-io.crt \
+            --env SSL_CERT_KEY=dev-fider-io.key \
+            --env EMAIL_NOREPLY=noreply@fider.io \
+            --env EMAIL_SMTP_HOST=mailhog \
+            --env EMAIL_SMTP_PORT=1025 \
+            -d --network "${{ job.container.network }}" \
+            -v "$PWD"/etc:/app/etc \
+            fider-image
+      - run: npm ci
+      - run: npx playwright install-deps chromium
+        env:
+          BROWSER: chromium
+      - run: make test-e2e-server
+        env:
+          BROWSER: chromium

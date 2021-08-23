@@ -1,0 +1,55 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-webhook-properties {
+  border-spacing: 0;
+
+  &__header {
+    font-weight: get("font.weight.semibold");
+    width: 50%;
+    padding: 0 spacing(1);
+
+    @include media("sm") {
+      width: 100%;
+
+      &:last-child {
+        font-weight: get("font.weight.medium");
+        padding-top: spacing(2);
+      }
+    }
+  }
+
+  &__prop {
+    font-family: get("font.family.code");
+    font-size: get("font.size.sm");
+    width: 50%;
+    padding: 0 spacing(1);
+
+    @include media("sm") {
+      width: 100%;
+      font-size: get("font.size.base");
+      padding-bottom: spacing(2);
+    }
+  }
+
+  &__val {
+    font-size: get("font.size.sm");
+    overflow-wrap: break-word;
+    width: 50%;
+    padding: 0 spacing(1);
+
+    @include media("sm") {
+      width: 100%;
+    }
+
+    @each $color in ("gray", "blue", "green", "red") {
+      &--#{$color} {
+        font-family: get("font.family.code");
+        color: get("colors.#{$color}.600");
+      }
+    }
+
+    &--italic {
+      font-style: italic;
+    }
+  }
+}

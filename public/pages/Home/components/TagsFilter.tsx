@@ -38,7 +38,7 @@ export const TagsFilter = (props: TagsFilterProps) => {
           <Dropdown.ListItem onClick={toggle(t)} key={t.id}>
             <HStack spacing={2}>
               <Icon sprite={IconCheck} className={`h-4 text-green-600 ${!selected.includes(t.slug) && "invisible"}`} />
-              <ShowTag tag={t} circular={true} />
+              <ShowTag tag={t} circular />
               <span>{t.name}</span>
             </HStack>
           </Dropdown.ListItem>

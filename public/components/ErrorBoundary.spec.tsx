@@ -1,6 +1,8 @@
 import React from "react"
-import { shallow } from "enzyme"
+import { render } from "@testing-library/react"
 import { ErrorBoundary } from "@fider/components"
+import { FiderContext } from "@fider/services"
+import { fiderMock } from "@fider/services/testing"
 
 describe("<ErrorBoundary />", () => {
   let errorMethod: () => void
@@ -17,7 +19,7 @@ describe("<ErrorBoundary />", () => {
 
   test("when no error caught", () => {
     const errorSpy = jest.fn()
-    shallow(
+    render(
       <ErrorBoundary onError={errorSpy}>
         <div id="no-error">No Error!</div>
       </ErrorBoundary>
@@ -28,14 +30,19 @@ describe("<ErrorBoundary />", () => {
 
   describe("when error caught", () => {
     test("error should be passed to onError", () => {
-      const error = new Error("Whoops!")
       const errorSpy = jest.fn()
-      const wrapper = shallow(<ErrorBoundary onError={errorSpy} />)
-
-      const componentDidCatch = wrapper.instance().componentDidCatch
-      if (componentDidCatch) {
-        componentDidCatch.bind(wrapper.instance())(error, {} as React.ErrorInfo)
+      const error = new Error("Whoops!")
+      const ThrowError = () => {
+        throw error
       }
+
+      render(
+        <FiderContext.Provider value={fiderMock.notAuthenticated()}>
+          <ErrorBoundary onError={errorSpy}>
+            <ThrowError />
+          </ErrorBoundary>
+        </FiderContext.Provider>
+      )
 
       expect(errorSpy).toHaveBeenCalledWith(error)
     })

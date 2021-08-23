@@ -43,7 +43,7 @@ func (t *dbTenant) toModel() *entity.Tenant {
 		CNAME:              t.CNAME,
 		Invitation:         t.Invitation,
 		WelcomeMessage:     t.WelcomeMessage,
-		Status:             t.Status,
+		Status:             enum.TenantStatus(t.Status),
 		Locale:             t.Locale,
 		IsPrivate:          t.IsPrivate,
 		LogoBlobKey:        t.LogoBlobKey,
