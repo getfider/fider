@@ -133,6 +133,13 @@ const ManageWebhooksPage = (props: ManageWebhooksPageProps) => {
 
   return render(
     <VStack spacing={8}>
+      <p>
+        Use webhooks to integrate Fider with other applications like Slack, Discord, Zapier and many others.{" "}
+        <a className="text-link" href="https://getfider.com/docs/using-webhooks" target="_blank" rel="noopener">
+          Learn more in our documentation
+        </a>
+        .
+      </p>
       <WebhooksList title="New Post" description="a new post is created on this site" list={newPostList} />
       <WebhooksList title="New Comment" description="a new comment is created on any post" list={newCommentList} />
       <WebhooksList title="Change Status" description="the status of a post is changed" list={changeStatusList} />
