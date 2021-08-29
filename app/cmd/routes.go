@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app/handlers/apiv1"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -173,6 +174,10 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
+
+		if env.IsBillingEnabled() {
+			ui.Get("/admin/billing", handlers.ManageBilling())
+		}
 	}
 
 	api := r.Group()

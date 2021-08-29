@@ -16,7 +16,7 @@ import (
 var (
 	// these values are replaced during CI build
 	buildnumber = ""
-	version     = "0.19.0"
+	version     = "0.20.0-dev"
 )
 
 func Version() string {
@@ -40,7 +40,11 @@ type config struct {
 	HostDomain string `env:"HOST_DOMAIN,required"`
 	Locale     string `env:"LOCALE,default=en"`
 	JWTSecret  string `env:"JWT_SECRET,required"`
-	Metrics    struct {
+	Paddle     struct {
+		VendorID       string `env:"PADDLE_VENDOR_ID"`
+		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`
+	}
+	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
 		Port    string `env:"METRICS_PORT,default=4000"`
 	}
@@ -173,6 +177,11 @@ func MultiTenantDomain() string {
 		return "." + Config.HostDomain
 	}
 	return ""
+}
+
+// IsBillingEnabled returns true if Paddle is configured
+func IsBillingEnabled() bool {
+	return Config.Paddle.VendorID != "" && Config.Paddle.VendorAuthCode != ""
 }
 
 // IsProduction returns true on Fider production environment
