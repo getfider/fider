@@ -17,10 +17,6 @@ import (
 func TestInstrumentation_Disabled(t *testing.T) {
 	RegisterT(t)
 
-	defer func() {
-		env.Config.Metrics.Enabled = true
-	}()
-
 	server := mock.NewServer()
 	env.Config.Metrics.Enabled = false
 	server.Use(middlewares.Instrumentation())
