@@ -23,7 +23,7 @@ func SendSampleInvite() web.HandlerFunc {
 		}
 
 		if c.User().Email != "" {
-			action.Message = strings.Replace(action.Message, app.InvitePlaceholder, "*the link to accept invitation will be here*", -1)
+			action.Message = strings.Replace(action.Message, app.InvitePlaceholder, "*[the link to join will be here]*", -1)
 			to := dto.NewRecipient(c.User().Name, c.User().Email, dto.Props{
 				"subject": action.Subject,
 				"message": markdown.Full(action.Message),

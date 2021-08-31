@@ -23,14 +23,12 @@ export default class InvitationsPage extends AdminBasePage<any, InvitationsPageS
     super(props)
 
     this.state = {
-      subject: `Share your ideas and thoughts about ${Fider.session.tenant.name}`,
+      subject: `[${Fider.session.tenant.name}] We would like to hear from you!`,
       message: `Hi,
 
-At **${Fider.session.tenant.name}** we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
+We are inviting you to join the ${Fider.session.tenant.name} feedback site, a place where you can vote, discuss and share your ideas and thoughts on how to improve our services!
 
-We'd like to extend an invite for you to join this community and raise awareness on topics you care about!
-
-To join, click on the link below.
+Click the link below to join!
 
 %invite%
 
@@ -114,9 +112,6 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
         </TextArea>
 
         <Field label="Sample Invite">
-          <p className="text-muted">
-            We highly recommend to send yourself a sample email for you to verify if everything is correct before inviting your list of contacts.
-          </p>
           {Fider.session.user.email ? (
             <Button onClick={this.sendSample}>Send a sample email to {Fider.session.user.email}</Button>
           ) : (
