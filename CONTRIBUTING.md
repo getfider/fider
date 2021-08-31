@@ -21,7 +21,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 | Software    | How to install                                                 | What is it used for                                       |
 | ----------- | -------------------------------------------------------------- | --------------------------------------------------------- |
-| Go 1.16+    | https://golang.org/                                            | To compile server side code                               |
+| Go 1.17+    | https://golang.org/                                            | To compile server side code                               |
 | Node.js 16+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
 | Docker      | https://www.docker.com/                                        | To start local PostgreSQL instances                       |
 
