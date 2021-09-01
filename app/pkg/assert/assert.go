@@ -3,6 +3,7 @@ package assert
 import (
 	"context"
 	"fmt"
+	"github.com/getfider/fider/app/models/dto"
 	"os"
 	"reflect"
 	"strings"
@@ -28,6 +29,14 @@ func describe(v interface{}) string {
 	}
 
 	return fmt.Sprintf("[%s] %v", value.Type(), v)
+}
+
+func describeProps(props dto.Props) string {
+	str := ""
+	for k, v := range props {
+		str += "\n\t\t" + k + " = " + describe(v)
+	}
+	return str
 }
 
 //Fail the current test case with given message
@@ -218,4 +227,30 @@ func (a *AnyAssertions) TemporarilySimilar(other time.Time, diff time.Duration) 
 	err := fmt.Errorf("time.Similar assertion failed. \n Range: \n\t\t %s ~ %s \n Actual: \n\t\t %s", lowerBound, upperBound, actual)
 	currentT.Error(errors.StackN(err, 1))
 	return false
+}
+
+func (a AnyAssertions) ContainsProps(props map[string]interface{}) bool {
+	actualValue := reflect.ValueOf(a.actual)
+	actualType := actualValue.Type()
+	if actualType.Kind() != reflect.Map ||
+		actualType.Key().Kind() != reflect.String ||
+		actualType.Elem().Kind() != reflect.Interface {
+		panic("Value is not a Props")
+	}
+
+	actualProps := reflect.ValueOf(a.actual).Convert(reflect.TypeOf(map[string]interface{}{})).Interface().(map[string]interface{})
+	for key, expected := range props {
+		actual, ok := actualProps[key]
+		if !ok {
+			err := fmt.Errorf("props.Contains assertion failed.\nMissing expected key:\n\t\t%s = %s\nActual props: %s", key, describe(expected), describeProps(actualProps))
+			currentT.Error(errors.StackN(err, 1))
+			return false
+		}
+		if !reflect.DeepEqual(expected, actual) {
+			err := fmt.Errorf("props.Contains assertion failed.\nFor key:\n\t\t%s\nExpected value:\n\t\t%s\nActual value:\n\t\t%s", key, describe(expected), describe(actual))
+			currentT.Error(errors.StackN(err, 1))
+			return false
+		}
+	}
+	return true
 }

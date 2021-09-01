@@ -12,12 +12,17 @@
   font-weight: 500;
   white-space: nowrap;
 
+  &:active {
+    transform: scale(0.99);
+  }
+
   svg + *,
   img + * {
     margin-left: spacing(1);
   }
 
   &--tertiary {
+    color: get("colors.gray.900");
     background-color: transparent;
 
     &:hover {

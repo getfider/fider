@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app/handlers/apiv1"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -16,13 +17,16 @@ func routes(r *web.Engine) *web.Engine {
 	r.Worker().Use(middlewares.WorkerSetup())
 
 	r.Use(middlewares.CatchPanic())
+	r.Use(middlewares.Instrumentation())
 
 	r.NotFound(func(c *web.Context) error {
-		next := func(c *web.Context) error {
+		mw := middlewares.Chain(
+			middlewares.WebSetup(),
+			middlewares.Tenant(),
+		)
+		next := mw(func(c *web.Context) error {
 			return c.NotFound()
-		}
-		next = middlewares.Tenant()(next)
-		next = middlewares.WebSetup()(next)
+		})
 		return next(c)
 	})
 
@@ -155,6 +159,13 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
 		ui.Get("/admin/export/backup.zip", handlers.ExportBackupZip())
+		ui.Get("/admin/webhooks", handlers.ManageWebhooks())
+		ui.Post("/_api/admin/webhook", handlers.CreateWebhook())
+		ui.Put("/_api/admin/webhook/:id", handlers.UpdateWebhook())
+		ui.Delete("/_api/admin/webhook/:id", handlers.DeleteWebhook())
+		ui.Get("/_api/admin/webhook/test/:id", handlers.TestWebhook())
+		ui.Post("/_api/admin/webhook/preview", handlers.PreviewWebhook())
+		ui.Get("/_api/admin/webhook/props/:type", handlers.GetWebhookProps())
 		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
@@ -163,6 +174,10 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
+
+		if env.IsBillingEnabled() {
+			ui.Get("/admin/billing", handlers.ManageBilling())
+		}
 	}
 
 	api := r.Group()

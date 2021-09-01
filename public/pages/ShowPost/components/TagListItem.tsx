@@ -18,7 +18,7 @@ export const TagListItem = (props: TagListItemProps) => {
   return (
     <HStack className="clickable hover:bg-gray-100 rounded py-1" onClick={onClick}>
       <Icon sprite={IconCheck} className={`h-4 text-green-600 ${!props.assigned && "invisible"}`} />
-      <ShowTag tag={props.tag} circular={true} />
+      <ShowTag tag={props.tag} circular />
       <span>{props.tag.name}</span>
     </HStack>
   )

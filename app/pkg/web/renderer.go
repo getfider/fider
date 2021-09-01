@@ -201,15 +201,16 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
-		"mode":            env.Config.HostMode,
-		"locale":          locale,
-		"environment":     env.Config.Environment,
-		"googleAnalytics": env.Config.GoogleAnalytics,
-		"domain":          env.MultiTenantDomain(),
-		"hasLegal":        env.HasLegal(),
-		"baseURL":         ctx.BaseURL(),
-		"assetsURL":       AssetsURL(ctx, ""),
-		"oauth":           oauthProviders.Result,
+		"mode":             env.Config.HostMode,
+		"locale":           locale,
+		"environment":      env.Config.Environment,
+		"googleAnalytics":  env.Config.GoogleAnalytics,
+		"domain":           env.MultiTenantDomain(),
+		"hasLegal":         env.HasLegal(),
+		"isBillingEnabled": env.IsBillingEnabled(),
+		"baseURL":          ctx.BaseURL(),
+		"assetsURL":        AssetsURL(ctx, ""),
+		"oauth":            oauthProviders.Result,
 	}
 
 	if ctx.IsAuthenticated() {

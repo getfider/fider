@@ -112,6 +112,10 @@ export const truncate = (input: string, maxLength: number): string => {
   return input
 }
 
+export type StringObject<T = any> = {
+  [key: string]: T
+}
+
 export const copyToClipboard = (text: string): Promise<void> => {
   if (window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
     return window.navigator.clipboard.writeText(text)

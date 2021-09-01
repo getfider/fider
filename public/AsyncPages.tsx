@@ -95,6 +95,22 @@ export const AsyncAdvancedSettingsPage = load(
     )
 )
 
+export const AsyncManageBillingPage = load(
+  () =>
+    import(
+      /* webpackChunkName: "ManageBilling.page" */
+      "@fider/pages/Administration/pages/ManageBilling.page"
+    )
+)
+
+export const AsyncManageWebhooksPage = load(
+  () =>
+    import(
+      /* webpackChunkName: "ManageWebhooks.page" */
+      "@fider/pages/Administration/pages/ManageWebhooks.page"
+    )
+)
+
 export const AsyncGeneralSettingsPage = load(
   () =>
     import(

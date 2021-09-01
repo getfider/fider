@@ -17,7 +17,18 @@ const window = {
 }
 
 const navigator = {}
-
 global.navigator = navigator
 global.window = window
 global.document = document
+
+// Intl polyfill is required until v8go supports Intl
+class NoopFormat {
+  format(arg0) {
+    return arg0 ? arg0.toString() : ""
+  }
+}
+
+global.Intl = {
+  NumberFormat: NoopFormat,
+  DateTimeFormat: NoopFormat,
+}

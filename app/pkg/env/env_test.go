@@ -21,11 +21,6 @@ var envs = []struct {
 func TestIsEnvironment(t *testing.T) {
 	RegisterT(t)
 
-	current := env.Config.Environment
-	defer func() {
-		env.Config.Environment = current
-	}()
-
 	for _, testCase := range envs {
 		env.Config.Environment = testCase.go_env
 		actual := testCase.isEnv()

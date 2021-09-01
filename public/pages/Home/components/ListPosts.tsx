@@ -32,7 +32,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         {props.tags.length >= 1 && (
           <HStack className="flex-wrap">
             {props.tags.map((tag) => (
-              <ShowTag key={tag.id} tag={tag} />
+              <ShowTag key={tag.id} tag={tag} link />
             ))}
           </HStack>
         )}

@@ -1,7 +1,7 @@
 #####################
 ### Server Build Step
 #####################
-FROM golang:1.16.6-buster AS server-builder 
+FROM golang:1.17-buster AS server-builder 
 
 ARG buildnumber=local
 

@@ -1,6 +1,8 @@
 import React from "react"
-import { shallow } from "enzyme"
+import { render } from "@testing-library/react"
 import { ErrorPage } from "./Error.page"
+import { FiderContext } from "@fider/services"
+import { fiderMock } from "@fider/services/testing"
 
 describe("<ErrorPage />", () => {
   const createFakeErrorInfo = () => ({ componentStack: "" } as React.ErrorInfo)
@@ -8,17 +10,27 @@ describe("<ErrorPage />", () => {
   test("it should show the error when showError returns true", () => {
     const error = new Error("Hello")
     const errorInfo = createFakeErrorInfo()
+    const { container } = render(
+      <FiderContext.Provider value={fiderMock.notAuthenticated()}>
+        <ErrorPage error={error} errorInfo={errorInfo} showDetails={true} />
+      </FiderContext.Provider>
+    )
 
-    const wrapper = shallow(<ErrorPage error={error} errorInfo={errorInfo} showDetails={true} />)
-    expect(wrapper.find("pre")).toHaveLength(1)
+    const pre = container.querySelector("pre")
+    expect(pre).not.toBeNull()
+    expect(pre).toHaveTextContent("Error: Hello")
   })
 
   test("it should not show the error when showError returns false", () => {
     const error = new Error("Hello")
     const errorInfo = createFakeErrorInfo()
 
-    const wrapper = shallow(<ErrorPage error={error} errorInfo={errorInfo} showDetails={false} />)
+    const { container } = render(
+      <FiderContext.Provider value={fiderMock.notAuthenticated()}>
+        <ErrorPage error={error} errorInfo={errorInfo} showDetails={false} />
+      </FiderContext.Provider>
+    )
 
-    expect(wrapper.find("pre")).toHaveLength(0)
+    expect(container.querySelector("pre")).toBeNull()
   })
 })

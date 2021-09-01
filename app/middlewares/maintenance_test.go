@@ -29,10 +29,6 @@ func TestMaintenance_Disabled(t *testing.T) {
 func TestMaintenance_Enabled(t *testing.T) {
 	RegisterT(t)
 
-	defer func() {
-		env.Config.Maintenance.Enabled = false
-	}()
-
 	server := mock.NewServer()
 	env.Config.Maintenance.Enabled = true
 	server.Use(middlewares.ClientCache(30 * time.Hour))

@@ -35,7 +35,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 					})
 					return
 				}
-			
+
 				if err != nil {
 					log.Error(c, err)
 				}
@@ -104,7 +104,7 @@ func WebSetup() web.MiddlewareFunc {
 					})
 					return
 				}
-			
+
 				if err != nil {
 					log.Error(c, err)
 				}
@@ -112,7 +112,7 @@ func WebSetup() web.MiddlewareFunc {
 				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (@{State})", dto.Props{
 					"State":      state,
 					"HttpMethod": c.Request.Method,
-					"StatusCode": c.ResponseStatusCode,
+					"StatusCode": c.Response.StatusCode,
 					"URL":        c.Request.URL.String(),
 					"ElapsedMs":  elapsedMs,
 				})

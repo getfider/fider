@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/julienschmidt/httprouter"
 
 	"strings"
 
@@ -18,6 +18,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -65,18 +66,17 @@ const CookieSignUpAuthName = "__signup_auth"
 //Context shared between http pipeline
 type Context struct {
 	context.Context
-	Response           http.ResponseWriter
-	Request            Request
-	ResponseStatusCode int
-	id                 string
-	sessionID          string
-	engine             *Engine
-	params             StringMap
-	tasks              []worker.Task
+	Response  Response
+	Request   Request
+	id        string
+	sessionID string
+	engine    *Engine
+	params    StringMap
+	tasks     []worker.Task
 }
 
 //NewContext creates a new web Context
-func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, params StringMap) *Context {
+func NewContext(engine *Engine, req *http.Request, rw http.ResponseWriter, params StringMap) *Context {
 	contextID := rand.String(32)
 
 	wrappedRequest := WrapRequest(req)
@@ -93,7 +93,7 @@ func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, para
 		id:       contextID,
 		engine:   engine,
 		Request:  wrappedRequest,
-		Response: res,
+		Response: Response{Writer: rw},
 		params:   params,
 		tasks:    make([]worker.Task, 0),
 	}
@@ -339,13 +339,13 @@ func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie 
 		Expires:  expires,
 		Secure:   c.Request.IsSecure,
 	}
-	http.SetCookie(c.Response, cookie)
+	http.SetCookie(&c.Response, cookie)
 	return cookie
 }
 
 //RemoveCookie removes a cookie
 func (c *Context) RemoveCookie(name string) {
-	http.SetCookie(c.Response, &http.Cookie{
+	http.SetCookie(&c.Response, &http.Cookie{
 		Name:     name,
 		Path:     "/",
 		HttpOnly: true,
@@ -392,7 +392,9 @@ func (c *Context) Param(name string) string {
 	if c.params == nil {
 		return ""
 	}
-	return strings.TrimPrefix(c.params[name], "/")
+
+	// The leading slash is removed because of https://github.com/julienschmidt/httprouter/issues/77
+	return strings.TrimLeft(c.params[name], "/")
 }
 
 //ParamAsInt returns parameter as int
@@ -403,6 +405,11 @@ func (c *Context) ParamAsInt(name string) (int, error) {
 		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
 	}
 	return intValue, nil
+}
+
+//GetMatchedRoutePath returns the Matched Route name
+func (c *Context) GetMatchedRoutePath() string {
+	return "/" + c.Param(httprouter.MatchedRoutePathParam)
 }
 
 // Set saves data in the context.
@@ -444,7 +451,6 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 	}
 	c.Response.Header().Set("Content-Type", contentType)
 
-	c.ResponseStatusCode = code
 	c.Response.WriteHeader(code)
 	_, err := c.Response.Write(b)
 	return err
@@ -456,7 +462,6 @@ func (c *Context) NoContent(code int) error {
 		c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	}
 
-	c.ResponseStatusCode = code
 	c.Response.WriteHeader(code)
 	return nil
 }
@@ -465,7 +470,6 @@ func (c *Context) NoContent(code int) error {
 func (c *Context) Redirect(url string) error {
 	c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	c.Response.Header().Set("Location", url)
-	c.ResponseStatusCode = http.StatusTemporaryRedirect
 	c.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
 }
@@ -474,7 +478,6 @@ func (c *Context) Redirect(url string) error {
 func (c *Context) PermanentRedirect(url string) error {
 	c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	c.Response.Header().Set("Location", url)
-	c.ResponseStatusCode = http.StatusMovedPermanently
 	c.Response.WriteHeader(http.StatusMovedPermanently)
 	return nil
 }

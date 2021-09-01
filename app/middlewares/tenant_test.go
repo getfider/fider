@@ -250,10 +250,6 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 
 func TestSingleTenant_HostMismatch(t *testing.T) {
 	RegisterT(t)
-	host := env.Config.HostDomain
-	defer func() {
-		env.Config.HostDomain = host
-	}()
 	env.Config.HostDomain = "yoursite.com"
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
