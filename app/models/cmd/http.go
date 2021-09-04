@@ -13,6 +13,7 @@ type HTTPRequest struct {
 	Headers   map[string]string
 	BasicAuth *dto.BasicAuth
 
+	//Output
 	ResponseBody       []byte
 	ResponseStatusCode int
 }

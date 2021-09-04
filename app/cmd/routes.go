@@ -224,6 +224,10 @@ func routes(r *web.Engine) *web.Engine {
 		api.Post("/api/v1/tags", apiv1.CreateEditTag())
 		api.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		api.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
+
+		if env.IsBillingEnabled() {
+			api.Post("/_api/billing/checkout-link", handlers.GenerateCheckoutLink())
+		}
 	}
 
 	return r
