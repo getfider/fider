@@ -24,7 +24,7 @@ All other locale files are sourced from [Crowdin](https://crowdin.com/project/fi
 ## Sync other locales from Crowdin to Git
 
 1. Review and approve translations
-2. Visit https://crowdin.com/project/fider/settings#translations
+2. Visit https://crowdin.com/project/fider
 3. Select build and download
 4. Copy files to locale folder 
 5. Update percentages on `locales.ts` based on Crowdin numbers

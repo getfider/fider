@@ -17,7 +17,8 @@ import (
 var localeToPlurals = map[string]string{
 	"en":    "en",
 	"pt-BR": "pt",
-	"de": 	 "de",
+	"sv-SE": "se",
+	"de":    "de",
 	"fr":    "fr",
 }
 
