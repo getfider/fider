@@ -11,9 +11,9 @@ type PurgeExpiredNotificationsJobHandler struct {
 }
 
 func (e PurgeExpiredNotificationsJobHandler) Schedule() string {
-	return "0 0 * * * *" // every hour
+	return "0 0 * * * *" // every hour at minute 0
 }
 
-func (e PurgeExpiredNotificationsJobHandler) Run(ctx context.Context) {
-	bus.Publish(ctx, &cmd.PurgeExpiredNotifications{})
+func (e PurgeExpiredNotificationsJobHandler) Run(ctx context.Context) error {
+	return bus.Dispatch(ctx, &cmd.PurgeExpiredNotifications{})
 }
