@@ -29,7 +29,7 @@ func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotificat
 		return errors.Wrap(err, "failed to delete expired notifications")
 	}
 
-	log.Debugf(ctx, "a total of @{RowsDeleted} notifications were deleted", dto.Props{
+	log.Debugf(ctx, "@{RowsDeleted} notifications were deleted", dto.Props{
 		"RowsDeleted": count,
 	})
 
