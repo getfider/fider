@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 )
 
@@ -42,6 +43,12 @@ func (s Service) Enabled() bool {
 func (s Service) Init() {
 	MessageHistory = make([]*HistoryItem, 0)
 	bus.AddListener(sendMail)
+	bus.AddHandler(fetchRecentSupressions)
+}
+
+func fetchRecentSupressions(ctx context.Context, c *query.FetchRecentSupressions) error {
+	// not implemented for Email Mock
+	return nil
 }
 
 func sendMail(ctx context.Context, c *cmd.SendMail) {

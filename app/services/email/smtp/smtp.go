@@ -14,6 +14,7 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -42,6 +43,12 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	bus.AddListener(sendMail)
+	bus.AddHandler(fetchRecentSupressions)
+}
+
+func fetchRecentSupressions(ctx context.Context, c *query.FetchRecentSupressions) error {
+	//not implemented for SMTP
+	return nil
 }
 
 func sendMail(ctx context.Context, c *cmd.SendMail) {
