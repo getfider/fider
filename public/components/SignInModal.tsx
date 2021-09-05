@@ -9,28 +9,28 @@ interface SignInModalProps {
 }
 
 export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) => {
-  const [confirmationAddress, setConfirmationAddress] = useState("")
+  const [email, setEmail] = useState("")
 
   useEffect(() => {
-    if (confirmationAddress) {
-      setTimeout(() => setConfirmationAddress(""), 5000)
+    if (email) {
+      setTimeout(() => setEmail(""), 5000)
     }
-  }, [confirmationAddress])
+  }, [email])
 
-  const onEmailSent = (email: string): void => {
-    setConfirmationAddress(email)
+  const onEmailSent = (value: string): void => {
+    setEmail(value)
   }
 
   const closeModal = () => {
-    setConfirmationAddress("")
+    setEmail("")
     props.onClose()
   }
 
-  const content = confirmationAddress ? (
+  const content = email ? (
     <>
       <p>
         <Trans id="signin.message.emailsent">
-          We have just sent a confirmation link to <b>{confirmationAddress}</b>. <br /> Click the link and you’ll be signed in.
+          We have just sent a confirmation link to <b>{email}</b>. Click the link and you’ll be signed in.
         </Trans>
       </p>
       <p>
