@@ -41,6 +41,7 @@ func (s Service) Init() {
 	bus.AddHandler(addNewNotification)
 	bus.AddHandler(addSubscriber)
 	bus.AddHandler(removeSubscriber)
+	bus.AddHandler(supressEmail)
 	bus.AddHandler(getActiveSubscribers)
 
 	bus.AddHandler(getTagBySlug)

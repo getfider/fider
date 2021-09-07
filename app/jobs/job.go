@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -42,6 +43,14 @@ func (j fiderJob) Run() {
 		log.PropertyKeyTag:       "JOBS",
 	})
 
+	trx, err := dbx.BeginTx(ctx)
+	if err != nil {
+		log.Error(ctx, errors.Wrap(err, "failed to open transaction while acquiring advisory lock"))
+		return
+	}
+
+	ctx = context.WithValue(ctx, app.TransactionCtxKey, trx)
+
 	defer func() {
 		if r := recover(); r != nil {
 			log.Error(ctx, errors.Panicked(r))
@@ -53,7 +62,7 @@ func (j fiderJob) Run() {
 		"JobName": j.Name,
 	})
 
-	locked, unlock := dbx.TryLock(ctx, j.Name)
+	locked, unlock := dbx.TryLock(ctx, trx, j.Name)
 	if !locked {
 		log.Debugf(ctx, "Job '@{JobName}' skipped, could not acquire lock", dto.Props{
 			"JobName": j.Name,

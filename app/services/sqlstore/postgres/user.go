@@ -214,7 +214,7 @@ func changeUserRole(ctx context.Context, c *cmd.ChangeUserRole) error {
 
 func changeUserEmail(ctx context.Context, c *cmd.ChangeUserEmail) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		cmd := "UPDATE users SET email = $3 WHERE id = $1 AND tenant_id = $2"
+		cmd := "UPDATE users SET email = $3, email_supressed_at = NULL WHERE id = $1 AND tenant_id = $2"
 		_, err := trx.Execute(cmd, c.UserID, tenant.ID, strings.ToLower(c.Email))
 		if err != nil {
 			return errors.Wrap(err, "failed to update user's email")

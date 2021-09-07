@@ -16,13 +16,7 @@ func hash(s string) uint32 {
 
 // Try to obtain an advisory lock
 // returns true and an unlock function if lock was aquired
-func TryLock(ctx context.Context, key string) (bool, func()) {
-	trx, err := BeginTx(ctx)
-	if err != nil {
-		log.Error(ctx, errors.Wrap(err, "failed to open transaction while acquiring advisory lock"))
-		return false, nil
-	}
-
+func TryLock(ctx context.Context, trx *Trx, key string) (bool, func()) {
 	var locked bool
 	if err := trx.Scalar(&locked, "SELECT pg_try_advisory_xact_lock($1)", hash(key)); err != nil {
 		log.Error(ctx, errors.Wrap(err, "failed to acquire advisory lock"))
