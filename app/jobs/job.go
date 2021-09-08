@@ -45,7 +45,7 @@ func (j fiderJob) Run() {
 
 	trx, err := dbx.BeginTx(ctx)
 	if err != nil {
-		log.Error(ctx, errors.Wrap(err, "failed to open transaction while acquiring advisory lock"))
+		log.Error(ctx, errors.Wrap(err, "failed to open transaction"))
 		return
 	}
 
@@ -54,6 +54,7 @@ func (j fiderJob) Run() {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Error(ctx, errors.Panicked(r))
+			trx.MustRollback()
 		}
 	}()
 
@@ -67,6 +68,7 @@ func (j fiderJob) Run() {
 		log.Debugf(ctx, "Job '@{JobName}' skipped, could not acquire lock", dto.Props{
 			"JobName": j.Name,
 		})
+		trx.MustCommit()
 		return
 	}
 
@@ -87,5 +89,8 @@ func (j fiderJob) Run() {
 
 	if err := j.Handler.Run(ctx); err != nil {
 		log.Error(ctx, err)
+		trx.MustRollback()
+	} else {
+		trx.MustCommit()
 	}
 }
