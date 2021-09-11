@@ -20,6 +20,7 @@ var localeToPlurals = map[string]string{
 	"sv-SE": "se",
 	"de":    "de",
 	"fr":    "fr",
+	"ru":    "ru",
 }
 
 type Params map[string]interface{}
