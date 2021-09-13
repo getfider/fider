@@ -22,6 +22,7 @@ const messages: { [key: string]: any } = {
   de: require(`../locale/de/client`),
   fr: require(`../locale/fr/client`),
   ru: require(`../locale/ru/client`),
+  sk: require(`../locale/sk/client`),
 }
 
 // Only public routes should be here
