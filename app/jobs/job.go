@@ -7,7 +7,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/rand"
@@ -25,10 +24,6 @@ type fiderJob struct {
 
 func NewJob(ctx context.Context, name string, handler Handler) (string, fiderJob) {
 	schedule := handler.Schedule()
-	if env.IsDevelopment() {
-		// job runs every 1 minute during development mode
-		schedule = "0 * * * * *"
-	}
 	log.Debugf(ctx, "Job '@{JobName}' scheduled to run '@{Schedule}'", dto.Props{
 		"JobName":  name,
 		"Schedule": schedule,

@@ -237,6 +237,16 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 			return err
 		}
 
+		if env.IsBillingEnabled() {
+			trialEndsAt := time.Now().AddDate(0, 0, 30) // 30 days
+			_, err := trx.Execute(
+				`INSERT INTO tenants_billing (tenant_id, trial_ends_at, status, paddle_subscription_id, paddle_plan_id) 
+				 VALUES ($1, $2, $3, '', '')`, id, trialEndsAt, enum.BillingTrial)
+			if err != nil {
+				return err
+			}
+		}
+
 		byDomain := &query.GetTenantByDomain{Domain: c.Subdomain}
 		err = bus.Dispatch(ctx, byDomain)
 		c.Result = byDomain.Result

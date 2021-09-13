@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -9,9 +10,18 @@ import (
 // ManageBilling is the page used by administrators for billing settings
 func ManageBilling() web.HandlerFunc {
 	return func(c *web.Context) error {
+		getState := &query.GetBillingState{}
+		if err := bus.Dispatch(c, getState); err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Props{
 			Title:     "Manage Billing · Site Settings",
 			ChunkName: "ManageBilling.page",
+			Data: web.Map{
+				"status":      getState.Result.Status,
+				"trialEndsAt": getState.Result.TrialEndsAt,
+			},
 		})
 	}
 }
