@@ -3,10 +3,12 @@ package postgres
 import (
 	"context"
 
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 type dbBillingState struct {
@@ -55,6 +57,34 @@ func getBillingState(ctx context.Context, q *query.GetBillingState) error {
 		}
 
 		q.Result = state.toModel(ctx)
+		return nil
+	})
+}
+
+func activateBillingSubscription(ctx context.Context, c *cmd.ActivateBillingSubscription) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
+		_, err := trx.Execute(`
+			UPDATE tenants_billing
+			SET subscription_ends_at = null, paddle_subscription_id = $2, paddle_plan_id = $3, status = $4
+			WHERE tenant_id = $1
+		`, c.TenantID, c.SubscriptionID, c.PlanID, enum.BillingActive)
+		if err != nil {
+			return errors.Wrap(err, "failed activate billing subscription")
+		}
+		return nil
+	})
+}
+
+func cancelBillingSubscription(ctx context.Context, c *cmd.CancelBillingSubscription) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
+		_, err := trx.Execute(`
+			UPDATE tenants_billing
+			SET subscription_ends_at = $2, status = $3
+			WHERE tenant_id = $1
+		`, c.TenantID, c.SubscriptionEndsAt, enum.BillingCancelled)
+		if err != nil {
+			return errors.Wrap(err, "failed cancel billing subscription")
+		}
 		return nil
 	})
 }

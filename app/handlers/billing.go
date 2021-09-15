@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
@@ -19,8 +20,9 @@ func ManageBilling() web.HandlerFunc {
 			Title:     "Manage Billing · Site Settings",
 			ChunkName: "ManageBilling.page",
 			Data: web.Map{
-				"status":      getState.Result.Status,
-				"trialEndsAt": getState.Result.TrialEndsAt,
+				"status":             getState.Result.Status,
+				"trialEndsAt":        getState.Result.TrialEndsAt,
+				"subscriptionEndsAt": getState.Result.SubscriptionEndsAt,
 			},
 		})
 	}
@@ -29,7 +31,14 @@ func ManageBilling() web.HandlerFunc {
 // GenerateCheckoutLink generates a Paddle-hosted checkout link for the service subscription
 func GenerateCheckoutLink() web.HandlerFunc {
 	return func(c *web.Context) error {
-		generateLink := &cmd.GenerateCheckoutLink{}
+		generateLink := &cmd.GenerateCheckoutLink{
+			Email:     c.User().Email,
+			ReturnURL: c.BaseURL() + "/admin/billing",
+			Passthrough: dto.PaddlePassthrough{
+				TenantID: c.Tenant().ID,
+			},
+		}
+
 		if err := bus.Dispatch(c, generateLink); err != nil {
 			return c.Failure(err)
 		}

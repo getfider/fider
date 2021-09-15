@@ -24,8 +24,10 @@ export const Moment = (props: MomentText) => {
       ? timeSince(props.locale, now, date)
       : formatDate(props.locale, props.date, format)
 
+  const tooltip = props.format === "full" ? undefined : formatDate(props.locale, props.date, "full")
+
   return (
-    <span className="date" data-tooltip={formatDate(props.locale, props.date, "full")}>
+    <span className="date" data-tooltip={tooltip}>
       {display}
     </span>
   )

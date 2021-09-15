@@ -7,6 +7,7 @@ import (
 
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/handlers/apiv1"
+	"github.com/getfider/fider/app/handlers/webhooks"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
@@ -60,6 +61,11 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/signup", handlers.SignUp())
 	r.Get("/oauth/:provider", handlers.SignInByOAuth())
 	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
+
+	wh := r.Group()
+	{
+		wh.Post("/webhooks/paddle", webhooks.IncomingPaddleWebhook())
+	}
 
 	//Starting from this step, a Tenant is required
 	r.Use(middlewares.RequireTenant())
@@ -177,6 +183,7 @@ func routes(r *web.Engine) *web.Engine {
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())
+			ui.Post("/_api/billing/checkout-link", handlers.GenerateCheckoutLink())
 		}
 	}
 
@@ -224,10 +231,6 @@ func routes(r *web.Engine) *web.Engine {
 		api.Post("/api/v1/tags", apiv1.CreateEditTag())
 		api.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		api.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
-
-		if env.IsBillingEnabled() {
-			api.Post("/_api/billing/checkout-link", handlers.GenerateCheckoutLink())
-		}
 	}
 
 	return r

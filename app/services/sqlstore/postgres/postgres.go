@@ -127,6 +127,8 @@ func (s Service) Init() {
 	bus.AddHandler(markWebhookAsFailed)
 
 	bus.AddHandler(getBillingState)
+	bus.AddHandler(activateBillingSubscription)
+	bus.AddHandler(cancelBillingSubscription)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error

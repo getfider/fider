@@ -45,10 +45,18 @@ func getApiBasePath() string {
 }
 
 func generateCheckoutLink(ctx context.Context, c *cmd.GenerateCheckoutLink) error {
+	passthrough, err := json.Marshal(c.Passthrough)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal Passthrough object")
+	}
+
 	params := url.Values{}
 	params.Set("vendor_id", env.Config.Paddle.VendorID)
 	params.Set("vendor_auth_code", env.Config.Paddle.VendorAuthCode)
 	params.Set("product_id", env.Config.Paddle.PlanID)
+	params.Set("customer_email", c.Email)
+	params.Set("return_url", c.ReturnURL)
+	params.Set("passthrough", string(passthrough))
 
 	req := &cmd.HTTPRequest{
 		URL:    fmt.Sprintf("%s/api/2.0/product/generate_pay_link", getApiBasePath()),
