@@ -24,6 +24,10 @@ const locales: { [key: string]: Locale } = {
     text: "🇸🇪 Swedish",
     translated: 100,
   },
+  nl: {
+    text: "🇳🇱 Dutch",
+    translated: 100,
+  },
   ru: {
     text: "🇷🇺 Russian",
     translated: 100,

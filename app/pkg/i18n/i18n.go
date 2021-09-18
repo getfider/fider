@@ -18,6 +18,7 @@ var localeToPlurals = map[string]string{
 	"en":    "en",
 	"pt-BR": "pt",
 	"sv-SE": "se",
+	"nl":    "nl",
 	"de":    "de",
 	"fr":    "fr",
 	"ru":    "ru",
