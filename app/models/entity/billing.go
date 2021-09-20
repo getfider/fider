@@ -13,3 +13,24 @@ type BillingState struct {
 	TrialEndsAt        *time.Time         `json:"trialEndsAt"`
 	SubscriptionEndsAt *time.Time         `json:"subscriptionEndsAt"`
 }
+
+type BillingSubscription struct {
+	SignupAt           string                    `json:"signupAt"`
+	UpdateURL          string                    `json:"updateURL"`
+	CancelURL          string                    `json:"cancelURL"`
+	PaymentInformation BillingPaymentInformation `json:"paymentInformation"`
+	LastPayment        BillingLastPayment        `json:"lastPayment"`
+}
+
+type BillingPaymentInformation struct {
+	PaymentMethod  string `json:"paymentMethod"`
+	CardType       string `json:"cardType"`
+	LastFourDigits string `json:"lastFourDigits"`
+	ExpiryDate     string `json:"expiryDate"`
+}
+
+type BillingLastPayment struct {
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
+	Date     string  `json:"date"`
+}

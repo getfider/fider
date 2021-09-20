@@ -4,7 +4,7 @@ import { formatDate, timeSince } from "@fider/services"
 interface MomentText {
   locale: string
   date: Date | string
-  format?: "relative" | "full" | "short"
+  format?: "relative" | "full" | "short" | "date"
 }
 
 export const Moment = (props: MomentText) => {
@@ -22,9 +22,11 @@ export const Moment = (props: MomentText) => {
       ? formatDate(props.locale, props.date, "short")
       : format === "relative"
       ? timeSince(props.locale, now, date)
+      : format === "date"
+      ? formatDate(props.locale, props.date, "date")
       : formatDate(props.locale, props.date, format)
 
-  const tooltip = props.format === "full" ? undefined : formatDate(props.locale, props.date, "full")
+  const tooltip = props.format === "short" ? formatDate(props.locale, props.date, "full") : undefined
 
   return (
     <span className="date" data-tooltip={tooltip}>

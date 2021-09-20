@@ -17,16 +17,22 @@ export const classSet = (input?: any): string => {
   return ""
 }
 
-type DateFormat = "full" | "short"
-const shortOpts: Intl.DateTimeFormatOptions = { month: "short", year: "2-digit" }
-const fullOpts: Intl.DateTimeFormatOptions = { day: "2-digit", month: "long", year: "numeric", hour: "numeric", minute: "numeric" }
+type DateFormat = "full" | "short" | "date"
+type DateOptsMap = {
+  [key in DateFormat]: Intl.DateTimeFormatOptions
+}
+
+const dateOpts: DateOptsMap = {
+  date: { day: "numeric", month: "short", year: "numeric" },
+  short: { month: "short", year: "numeric" },
+  full: { day: "2-digit", month: "long", year: "numeric", hour: "numeric", minute: "numeric" },
+}
 
 export const formatDate = (locale: string, input: Date | string, format: DateFormat = "full"): string => {
   const date = input instanceof Date ? input : new Date(input)
 
   try {
-    const opts = format === "short" ? shortOpts : fullOpts
-    return new Intl.DateTimeFormat(locale, opts).format(date)
+    return new Intl.DateTimeFormat(locale, dateOpts[format]).format(date)
   } catch {
     return date.toLocaleString(locale)
   }

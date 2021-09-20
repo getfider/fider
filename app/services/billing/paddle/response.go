@@ -17,7 +17,7 @@ type PaddleSubscriptionItem struct {
 	CancelURL          string `json:"cancel_url"`
 	PaymentInformation struct {
 		PaymentMethod  string `json:"payment_method"`
-		Currency       string `json:"card_type"`
+		CardType       string `json:"card_type"`
 		LastFourDigits string `json:"last_four_digits"`
 		ExpiryDate     string `json:"expiry_date"`
 	} `json:"payment_information"`
