@@ -1,7 +1,6 @@
 package jobs
 
 import (
-	"context"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -19,11 +18,15 @@ func (e EmailSupressionJobHandler) Schedule() string {
 	return "0 5 * * * *" // every hour at minute 5
 }
 
-func (e EmailSupressionJobHandler) Run(ctx context.Context) error {
-	twoDaysAgo := time.Now().AddDate(0, 0, -2)
+func (e EmailSupressionJobHandler) Run(ctx Context) error {
+	startTime := ctx.LastSuccessfulRun
+	if startTime == nil {
+		twoDaysAgo := time.Now().AddDate(0, 0, -2)
+		startTime = &twoDaysAgo
+	}
 
 	q := &query.FetchRecentSupressions{
-		StartTime: twoDaysAgo,
+		StartTime: *startTime,
 	}
 
 	if err := bus.Dispatch(ctx, q); err != nil {

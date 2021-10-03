@@ -13,7 +13,7 @@ import (
 )
 
 type Handler interface {
-	Run(ctx context.Context) error
+	Run(ctx Context) error
 	Schedule() string
 }
 
@@ -32,28 +32,23 @@ func NewJob(ctx context.Context, name string, handler Handler) (string, fiderJob
 }
 
 func (j fiderJob) Run() {
-	ctx := context.Background()
-	ctx = log.WithProperties(ctx, dto.Props{
-		log.PropertyKeyContextID: rand.String(32),
-		log.PropertyKeyTag:       "JOBS",
-	})
-
-	trx, err := dbx.BeginTx(ctx)
+	ctx, trx, err := newJobContext()
 	if err != nil {
-		log.Error(ctx, errors.Wrap(err, "failed to open transaction"))
+		log.Error(ctx, err)
 		return
 	}
 
-	ctx = context.WithValue(ctx, app.TransactionCtxKey, trx)
+	start := time.Now()
+	ctx.LastSuccessfulRun = getLastSuccessfulRun(ctx, j.Name)
 
 	defer func() {
 		if r := recover(); r != nil {
 			log.Error(ctx, errors.Panicked(r))
+			setLastFailedRun(j.Name, start)
 			trx.MustRollback()
 		}
 	}()
 
-	start := time.Now()
 	log.Debugf(ctx, "Job '@{JobName}' started", dto.Props{
 		"JobName": j.Name,
 	})
@@ -84,8 +79,27 @@ func (j fiderJob) Run() {
 
 	if err := j.Handler.Run(ctx); err != nil {
 		log.Error(ctx, err)
+		setLastFailedRun(j.Name, start)
 		trx.MustRollback()
 	} else {
+		setLastSuccessfulRun(j.Name, start)
 		trx.MustCommit()
 	}
+}
+
+func newJobContext() (Context, *dbx.Trx, error) {
+	ctx := context.Background()
+	ctx = log.WithProperties(ctx, dto.Props{
+		log.PropertyKeyContextID: rand.String(32),
+		log.PropertyKeyTag:       "JOBS",
+	})
+
+	trx, err := dbx.BeginTx(ctx)
+	if err != nil {
+		log.Error(ctx, err)
+		return Context{Context: ctx}, nil, err
+	}
+
+	ctx = context.WithValue(ctx, app.TransactionCtxKey, trx)
+	return Context{Context: ctx}, trx, nil
 }
