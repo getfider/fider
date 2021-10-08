@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
@@ -85,6 +86,25 @@ func cancelBillingSubscription(ctx context.Context, c *cmd.CancelBillingSubscrip
 		if err != nil {
 			return errors.Wrap(err, "failed cancel billing subscription")
 		}
+		return nil
+	})
+}
+
+func lockExpiredTrialTenants(ctx context.Context, c *cmd.LockExpiredTrialTenants) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
+		now := time.Now()
+
+		count, err := trx.Execute(`
+			UPDATE tenants
+			SET status = $1
+			WHERE id IN (SELECT tenant_id FROM tenants_billing WHERE status = $2 AND trial_ends_at <= $3)
+			AND status <> $1
+		`, enum.TenantLocked, enum.BillingTrial, now)
+		if err != nil {
+			return errors.Wrap(err, "failed to lock expired trial tenants")
+		}
+
+		c.NumOfTenantsLocked = count
 		return nil
 	})
 }

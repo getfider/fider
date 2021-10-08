@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
@@ -15,7 +16,7 @@ func getSystemSettings(ctx context.Context, q *query.GetSystemSettings) error {
 
 		var value string
 		err := trx.Scalar(&value, `SELECT value FROM system_settings WHERE key = $1`, q.Key)
-		if err != nil {
+		if err != nil && err != app.ErrNotFound {
 			return errors.Wrap(err, "failed to query system_settings with key '%s'", q.Key)
 		}
 
