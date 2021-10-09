@@ -26,7 +26,7 @@ type CancelBillingSubscription struct {
 	SubscriptionEndsAt time.Time
 }
 
-type LockExpiredTrialTenants struct {
+type LockExpiredTenants struct {
 	//Output
 	NumOfTenantsLocked int64
 }

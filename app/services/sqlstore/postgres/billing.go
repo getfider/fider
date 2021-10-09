@@ -90,11 +90,12 @@ func cancelBillingSubscription(ctx context.Context, c *cmd.CancelBillingSubscrip
 	})
 }
 
-func lockExpiredTrialTenants(ctx context.Context, c *cmd.LockExpiredTrialTenants) error {
+func lockExpiredTenants(ctx context.Context, c *cmd.LockExpiredTenants) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		now := time.Now()
 
-		count, err := trx.Execute(`
+		//Lock expired tenants in trial
+		countTrialLocked, err := trx.Execute(`
 			UPDATE tenants
 			SET status = $1
 			WHERE id IN (SELECT tenant_id FROM tenants_billing WHERE status = $2 AND trial_ends_at <= $3)
@@ -104,7 +105,18 @@ func lockExpiredTrialTenants(ctx context.Context, c *cmd.LockExpiredTrialTenants
 			return errors.Wrap(err, "failed to lock expired trial tenants")
 		}
 
-		c.NumOfTenantsLocked = count
+		//Lock tenants with expired cancelled subscription
+		countCancelledLocked, err := trx.Execute(`
+			UPDATE tenants
+			SET status = $1
+			WHERE id IN (SELECT tenant_id FROM tenants_billing WHERE status = $2 AND subscription_ends_at <= $3)
+			AND status <> $1
+		`, enum.TenantLocked, enum.BillingCancelled, now)
+		if err != nil {
+			return errors.Wrap(err, "failed to lock expired cancelled tenants")
+		}
+
+		c.NumOfTenantsLocked = countTrialLocked + countCancelledLocked
 		return nil
 	})
 }

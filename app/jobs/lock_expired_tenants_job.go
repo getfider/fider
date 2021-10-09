@@ -7,15 +7,15 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 )
 
-type LockExpiredTrialTenantsJobHandler struct {
+type LockExpiredTenantsJobHandler struct {
 }
 
-func (e LockExpiredTrialTenantsJobHandler) Schedule() string {
-	return "0 0 0 * * *" // every day at minute 0
+func (e LockExpiredTenantsJobHandler) Schedule() string {
+	return "0 0 0 * * *" // every day at 0:00
 }
 
-func (e LockExpiredTrialTenantsJobHandler) Run(ctx Context) error {
-	c := &cmd.LockExpiredTrialTenants{}
+func (e LockExpiredTenantsJobHandler) Run(ctx Context) error {
+	c := &cmd.LockExpiredTenants{}
 	err := bus.Dispatch(ctx, c)
 	if err != nil {
 		return err
