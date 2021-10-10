@@ -17,3 +17,12 @@ type Tenant struct {
 	CustomCSS          string            `json:"-"`
 	IsEmailAuthAllowed bool              `json:"isEmailAuthAllowed"`
 }
+
+func (t *Tenant) IsDisabled() bool {
+	//TODO: remove this when locked tenant status is implemented
+	if t.Status == enum.TenantLocked {
+		return true
+	}
+
+	return t.Status == enum.TenantDisabled
+}
