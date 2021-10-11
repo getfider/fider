@@ -7,7 +7,7 @@ import (
 	"path"
 	"syscall"
 
-	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/jobs"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -15,7 +15,9 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/robfig/cron"
 
+	_ "github.com/getfider/fider/app/services/billing/paddle"
 	_ "github.com/getfider/fider/app/services/blob/fs"
 	_ "github.com/getfider/fider/app/services/blob/s3"
 	_ "github.com/getfider/fider/app/services/blob/sql"
@@ -42,13 +44,20 @@ func RunServer() int {
 		})
 	}
 
-	bus.Publish(ctx, &cmd.PurgeExpiredNotifications{})
 	copyEtcFiles(ctx)
+	startJobs(ctx)
 
 	e := routes(web.New())
-
 	go e.Start(":" + env.Config.Port)
 	return listenSignals(e)
+}
+
+// Starts all scheduled jobs
+func startJobs(ctx context.Context) {
+	c := cron.New()
+	_ = c.AddJob(jobs.NewJob(ctx, "PurgeExpiredNotificationsJob", jobs.PurgeExpiredNotificationsJobHandler{}))
+	_ = c.AddJob(jobs.NewJob(ctx, "EmailSupressionJob", jobs.EmailSupressionJobHandler{}))
+	c.Start()
 }
 
 // on startup, copy all etc/ files from configured blob storage into local etc/ folder

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -29,7 +30,7 @@ func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotificat
 		return errors.Wrap(err, "failed to delete expired notifications")
 	}
 
-	log.Debugf(ctx, "a total of @{RowsDeleted} notifications were deleted", dto.Props{
+	log.Debugf(ctx, "@{RowsDeleted} notifications were deleted", dto.Props{
 		"RowsDeleted": count,
 	})
 
@@ -181,8 +182,15 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 			err   error
 		)
 
+		// When searching for email subscrivers, skip users with email supressed
+		supressionCondition := ""
+		if q.Channel == enum.NotificationChannelEmail {
+			supressionCondition = "AND u.email_supressed_at IS NULL"
+		}
+
+		// If the event doesn't require a subscription, notify everyone
 		if len(q.Event.RequiresSubscriptionUserRoles) == 0 {
-			err = trx.Select(&users, `
+			err = trx.Select(&users, fmt.Sprintf(`
 				SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 				FROM users u
 				LEFT JOIN user_settings set
@@ -191,11 +199,12 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 				AND set.key = $1
 				WHERE u.tenant_id = $2
 				AND u.status = $5
+				%s
 				AND (
 					(set.value IS NULL AND u.role = ANY($3))
 					OR CAST(set.value AS integer) & $4 > 0
 				)
-				ORDER by u.id`,
+				ORDER by u.id`, supressionCondition),
 				q.Event.UserSettingsKeyName,
 				tenant.ID,
 				pq.Array(q.Event.DefaultEnabledUserRoles),
@@ -203,7 +212,8 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 				enum.UserActive,
 			)
 		} else {
-			err = trx.Select(&users, `
+			// If the event requires a subscription, notify only those who subscribed
+			err = trx.Select(&users, fmt.Sprintf(`
 				SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 				FROM users u
 				LEFT JOIN post_subscribers sub
@@ -216,12 +226,13 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 				AND set.tenant_id = u.tenant_id
 				WHERE u.tenant_id = $4
 				AND u.status = $8
+				%s
 				AND ( sub.status = $2 OR (sub.status IS NULL AND NOT u.role = ANY($7)) )
 				AND (
 					(set.value IS NULL AND u.role = ANY($5))
 					OR CAST(set.value AS integer) & $6 > 0
 				)
-				ORDER by u.id`,
+				ORDER by u.id`, supressionCondition),
 				q.Number,
 				enum.SubscriberActive,
 				q.Event.UserSettingsKeyName,
@@ -260,4 +271,16 @@ func internalAddSubscriber(trx *dbx.Trx, post *entity.Post, tenant *entity.Tenan
 		return errors.Wrap(err, "failed insert post subscriber")
 	}
 	return nil
+}
+
+func supressEmail(ctx context.Context, c *cmd.SupressEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		cmd := "UPDATE users SET email_supressed_at = $1 WHERE email = ANY($2) AND email_supressed_at IS NULL"
+		rowsCount, err := trx.Execute(cmd, time.Now(), pq.Array(c.EmailAddresses))
+		if err != nil {
+			return errors.Wrap(err, "failed to update supress email: %s", strings.Join(c.EmailAddresses, ","))
+		}
+		c.NumOfSupressedEmailAddresses = int(rowsCount)
+		return nil
+	})
 }

@@ -124,7 +124,7 @@ func (e *Engine) Start(address string) {
 		TLSConfig:    getDefaultTLSConfig(env.Config.TLS.Automatic),
 	}
 
-	for i := 0; i < runtime.NumCPU()*2; i++ {
+	for i := 0; i < runtime.NumCPU(); i++ {
 		go e.Worker().Run(strconv.Itoa(i))
 	}
 

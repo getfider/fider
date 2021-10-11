@@ -18,8 +18,12 @@ import { I18nProvider } from "@lingui/react"
 const messages: { [key: string]: any } = {
   en: require(`../locale/en/client`),
   "pt-BR": require(`../locale/pt-BR/client`),
+  "sv-SE": require(`../locale/sv-SE/client`),
+  nl: require(`../locale/nl/client`),
   de: require(`../locale/de/client`),
   fr: require(`../locale/fr/client`),
+  ru: require(`../locale/ru/client`),
+  sk: require(`../locale/sk/client`),
 }
 
 // Only public routes should be here

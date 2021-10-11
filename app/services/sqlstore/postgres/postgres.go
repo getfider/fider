@@ -31,7 +31,7 @@ func (s Service) Enabled() bool {
 func (s Service) Init() {
 	bus.AddHandler(storeEvent)
 
-	bus.AddListener(purgeExpiredNotifications)
+	bus.AddHandler(purgeExpiredNotifications)
 
 	bus.AddHandler(markAllNotificationsAsRead)
 	bus.AddHandler(markNotificationAsRead)
@@ -41,6 +41,7 @@ func (s Service) Init() {
 	bus.AddHandler(addNewNotification)
 	bus.AddHandler(addSubscriber)
 	bus.AddHandler(removeSubscriber)
+	bus.AddHandler(supressEmail)
 	bus.AddHandler(getActiveSubscribers)
 
 	bus.AddHandler(getTagBySlug)
@@ -124,6 +125,13 @@ func (s Service) Init() {
 	bus.AddHandler(createEditWebhook)
 	bus.AddHandler(deleteWebhook)
 	bus.AddHandler(markWebhookAsFailed)
+
+	bus.AddHandler(getBillingState)
+	bus.AddHandler(activateBillingSubscription)
+	bus.AddHandler(cancelBillingSubscription)
+
+	bus.AddHandler(setSystemSettings)
+	bus.AddHandler(getSystemSettings)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error

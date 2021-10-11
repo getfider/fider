@@ -40,10 +40,10 @@ import { readFileSync } from "fs"
   })
 })
 ;[
-  { input: new Date(2018, 4, 27, 10, 12, 59), expectedEn: "May 18", expectedPtBr: "mai. de 18" },
-  { input: new Date(2058, 12, 12, 23, 21, 53), expectedEn: "Jan 59", expectedPtBr: "jan. de 59" },
-  { input: "2018-04-11T18:13:33.128082", expectedEn: "Apr 18", expectedPtBr: "abr. de 18" },
-  { input: "2017-11-20T07:47:42.158142", expectedEn: "Nov 17", expectedPtBr: "nov. de 17" },
+  { input: new Date(2018, 4, 27, 10, 12, 59), expectedEn: "May 2018", expectedPtBr: "mai. de 2018" },
+  { input: new Date(2058, 12, 12, 23, 21, 53), expectedEn: "Jan 2059", expectedPtBr: "jan. de 2059" },
+  { input: "2018-04-11T18:13:33.128082", expectedEn: "Apr 2018", expectedPtBr: "abr. de 2018" },
+  { input: "2017-11-20T07:47:42.158142", expectedEn: "Nov 2017", expectedPtBr: "nov. de 2017" },
 ].forEach((x) => {
   test(`[English] formatDate (short) of ${x.input} should be ${x.expectedEn}`, () => {
     const result = formatDate("en", x.input, "short")
@@ -51,6 +51,21 @@ import { readFileSync } from "fs"
   })
   test(`[Brazilian Portuguese] formatDate (short) of ${x.input} should be ${x.expectedPtBr}`, () => {
     const result = formatDate("pt-BR", x.input, "short")
+    expect(result).toEqual(x.expectedPtBr)
+  })
+})
+;[
+  { input: new Date(2018, 4, 27, 10, 12, 59), expectedEn: "May 27, 2018", expectedPtBr: "27 de mai. de 2018" },
+  { input: new Date(2058, 12, 12, 23, 21, 53), expectedEn: "Jan 12, 2059", expectedPtBr: "12 de jan. de 2059" },
+  { input: "2018-04-11T18:13:33.128082", expectedEn: "Apr 11, 2018", expectedPtBr: "11 de abr. de 2018" },
+  { input: "2017-11-20T07:47:42.158142", expectedEn: "Nov 20, 2017", expectedPtBr: "20 de nov. de 2017" },
+].forEach((x) => {
+  test(`[English] formatDate (date) of ${x.input} should be ${x.expectedEn}`, () => {
+    const result = formatDate("en", x.input, "date")
+    expect(result).toEqual(x.expectedEn)
+  })
+  test(`[Brazilian Portuguese] formatDate (date) of ${x.input} should be ${x.expectedPtBr}`, () => {
+    const result = formatDate("pt-BR", x.input, "date")
     expect(result).toEqual(x.expectedPtBr)
   })
 })

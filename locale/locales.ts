@@ -14,11 +14,27 @@ const locales: { [key: string]: Locale } = {
   },
   de: {
     text: "🇩🇪 German",
-    translated: 96,
+    translated: 100,
   },
   fr: {
     text: "🇫🇷 French",
-    translated: 96,
+    translated: 100,
+  },
+  "sv-SE": {
+    text: "🇸🇪 Swedish",
+    translated: 100,
+  },
+  nl: {
+    text: "🇳🇱 Dutch",
+    translated: 100,
+  },
+  ru: {
+    text: "🇷🇺 Russian",
+    translated: 100,
+  },
+  sk: {
+    text: "🇸🇰 Slovak",
+    translated: 100,
   },
 }
 

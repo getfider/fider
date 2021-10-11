@@ -41,8 +41,11 @@ type config struct {
 	Locale     string `env:"LOCALE,default=en"`
 	JWTSecret  string `env:"JWT_SECRET,required"`
 	Paddle     struct {
+		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=true"`
 		VendorID       string `env:"PADDLE_VENDOR_ID"`
 		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`
+		PlanID         string `env:"PADDLE_PLAN_ID"`
+		PublicKey      string `env:"PADDLE_PUBLIC_KEY"`
 	}
 	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
