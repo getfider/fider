@@ -111,7 +111,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     this.setState({ editMode: true })
   }
 
-  private handleHashChange = (e?: HashChangeEvent) => {
+  private handleHashChange = (e?: Event) => {
     const hash = window.location.hash
     const result = /#comment-([0-9]+)/.exec(hash)
 
