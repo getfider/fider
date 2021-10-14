@@ -120,7 +120,7 @@ jobs:
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
-          gcloud run deploy uservoice --image $IMAGE_ID:$VERSION \
+          gcloud run deploy $GCP_INSTANCE_NAME --image $IMAGE_ID:$VERSION \
           --project ${{ secrets.GCLOUD_PROJECT }} \
           --region europe-west1 \
           --allow-unauthenticated \
