@@ -28,6 +28,10 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		c.Props = dto.Props{}
 	}
 
+	if c.From.Address == "" {
+		c.From.Address = email.NoReply
+	}
+
 	isBatch := len(c.To) > 1
 
 	var message *email.Message
@@ -38,14 +42,14 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 				c.Props[k] = fmt.Sprintf("%%recipient.%s%%", k)
 			}
 		}
-		message = email.RenderMessage(ctx, c.TemplateName, c.Props)
+		message = email.RenderMessage(ctx, c.TemplateName, c.From.Address, c.Props)
 	} else {
-		message = email.RenderMessage(ctx, c.TemplateName, c.Props.Merge(c.To[0].Props))
+		message = email.RenderMessage(ctx, c.TemplateName, c.From.Address, c.Props.Merge(c.To[0].Props))
 	}
 
 	form := url.Values{}
-	form.Add("from", dto.NewRecipient(c.From, email.NoReply, dto.Props{}).String())
-	form.Add("h:Reply-To", email.NoReply)
+	form.Add("from", c.From.String())
+	form.Add("h:Reply-To", c.From.Address)
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
 	form.Add("o:tag", fmt.Sprintf("template:%s", c.TemplateName))

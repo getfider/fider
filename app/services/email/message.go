@@ -16,11 +16,17 @@ type Message struct {
 }
 
 // RenderMessage returns the HTML of an email based on template and params
-func RenderMessage(ctx context.Context, templateName string, params dto.Props) *Message {
+func RenderMessage(ctx context.Context, templateName string, fromAddress string, params dto.Props) *Message {
+	noreply := false
+	if fromAddress == NoReply {
+		noreply = true
+	}
+
 	tmpl := tpl.GetTemplate("/views/email/base_email.html", "/views/email/"+templateName+".html")
 	var bf bytes.Buffer
 	if err := tpl.Render(ctx, tmpl, &bf, params.Merge(dto.Props{
-		"logo": params["logo"],
+		"logo":    params["logo"],
+		"noreply": noreply,
 	})); err != nil {
 		panic(err)
 	}

@@ -37,7 +37,9 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"logo": "https://getfider.com/images/logo-100x100.png",
 	})
-	Expect(emailmock.MessageHistory[0].From).Equals(mock.DemoTenant.Name)
+	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
+		Name: mock.DemoTenant.Name,
+	})
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Jon Snow",

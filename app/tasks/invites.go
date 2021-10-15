@@ -37,7 +37,9 @@ func SendInvites(subject, message string, invitations []*actions.UserInvitation)
 		}
 
 		bus.Publish(c, &cmd.SendMail{
-			From:         c.User().Name,
+			From: dto.Recipient{
+				Name: c.User().Name,
+			},
 			To:           to,
 			TemplateName: "invite_email",
 			Props: dto.Props{

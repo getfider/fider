@@ -35,7 +35,7 @@ func TestSend_Success(t *testing.T) {
 	reset()
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
 			{
 				Name:    "Jon Sow",
@@ -86,11 +86,13 @@ Hello World Hello!
 					</table>
 				</td>
 			</tr>
+			
 			<tr>
 				<td>
 					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
 				</td>
 			</tr>
+			
 			<tr>
 				<td height="40">&nbsp;</td>
 			</tr>
@@ -104,7 +106,7 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 	reset()
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
 			{
 				Name:    "Jon Sow",
@@ -126,7 +128,7 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 	email.SetAllowlist("^.*@gmail.com$")
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
 			{
 				Name:    "Jon Sow",
@@ -148,7 +150,7 @@ func TestBatch_Success(t *testing.T) {
 	email.SetAllowlist("")
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
 			{
 				Name:    "Jon Sow",
@@ -210,11 +212,13 @@ Hello World %recipient.name%!
 					</table>
 				</td>
 			</tr>
+			
 			<tr>
 				<td>
 					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
 				</td>
 			</tr>
+			
 			<tr>
 				<td height="40">&nbsp;</td>
 			</tr>
@@ -228,7 +232,7 @@ func TestGetBaseURL(t *testing.T) {
 	reset()
 
 	sendMail := &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
 			{
 				Name:    "Jon Sow",

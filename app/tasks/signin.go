@@ -17,7 +17,7 @@ func SendSignInEmail(email, verificationKey string) worker.Task {
 		})
 
 		bus.Publish(c, &cmd.SendMail{
-			From:         c.Tenant().Name,
+			From:         dto.Recipient{Name: c.Tenant().Name},
 			To:           []dto.Recipient{to},
 			TemplateName: "signin_email",
 			Props: dto.Props{

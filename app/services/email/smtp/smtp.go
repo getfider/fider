@@ -56,6 +56,10 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		c.Props = dto.Props{}
 	}
 
+	if c.From.Address == "" {
+		c.From.Address = email.NoReply
+	}
+
 	for _, to := range c.To {
 		if to.Address == "" {
 			return
@@ -81,10 +85,10 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 			"Props":        to.Props,
 		})
 
-		message := email.RenderMessage(ctx, c.TemplateName, c.Props.Merge(to.Props))
+		message := email.RenderMessage(ctx, c.TemplateName, c.From.Address, c.Props.Merge(to.Props))
 		b := builder{}
-		b.Set("From", dto.NewRecipient(c.From, email.NoReply, dto.Props{}).String())
-		b.Set("Reply-To", email.NoReply)
+		b.Set("From", c.From.String())
+		b.Set("Reply-To", c.From.Address)
 		b.Set("To", to.String())
 		b.Set("Subject", message.Subject)
 		b.Set("MIME-version", "1.0")

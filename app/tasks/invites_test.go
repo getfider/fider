@@ -46,7 +46,9 @@ func TestSendInvites(t *testing.T) {
 		"subject": "My Subject",
 		"logo":    "https://getfider.com/images/logo-100x100.png",
 	})
-	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
+	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
+		Name: "Jon Snow",
+	})
 	Expect(emailmock.MessageHistory[0].To).HasLen(2)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Address: "user1@domain.com",

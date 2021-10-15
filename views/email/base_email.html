@@ -29,11 +29,13 @@ body:
 					</table>
 				</td>
 			</tr>
+			{{ if .noreply }}
 			<tr>
 				<td>
 					<span style="color:#666;font-size:12px">{{ "email.footer.noreply" | translate }}</span>
 				</td>
 			</tr>
+			{{ end }}
 			<tr>
 				<td height="40">&nbsp;</td>
 			</tr>
