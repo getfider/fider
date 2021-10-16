@@ -1,0 +1,16 @@
+{{define "subject"}}{{ .url }} expires in 7 days!{{end}}
+
+{{define "body"}}
+<tr>
+  <td>
+    <h2 style="color:#1c262d">Hey {{ .name }},</h2>
+    <p style="color:#1c262d">It’s been a fun journey, but unfortunately, we’re coming to the end of your trial period. We’d love to keep this going!</p>
+    <p style="color:#1c262d">In order to keep <a href="{{ .url }}">{{ .url }}</a> online, you’ll need to subscribe to our paid plan.</p>
+    <p style="color:#1c262d">Otherwise, your trial will end in 7 days and you won’t be able to access your site anymore.</p>
+    <p style="color:#1c262d">You can subscribe from the <a href="{{ .url }}/billing">Billing</a> page of your site.</p>
+    <p style="color:#1c262d">Let me know if you have any questions or need any assistance!</p>
+    <p></p>
+    <p style="color:#1c262d"> - Guilherme</p>
+  </td>
+</tr>
+{{end}}

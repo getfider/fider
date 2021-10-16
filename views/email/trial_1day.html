@@ -1,0 +1,14 @@
+{{define "subject"}}{{ .url }} is about to expire: Update Now!{{end}}
+
+{{define "body"}}
+<tr>
+  <td>
+    <h2 style="color:#1c262d">Hey {{ .name }},</h2>
+    <p style="color:#1c262d">Just a gently reminder that your Fider site  <a href="{{ .url }}">{{ .url }}</a> will expire tomorrow and you won’t be able to access your site anymore.</p>
+    <p style="color:#1c262d">You can subscribe from the <a href="{{ .url }}/billing">Billing</a> page of your site.</p>
+    <p style="color:#1c262d">Let me know if you have any questions or need any assistance!</p>
+    <p></p>
+    <p style="color:#1c262d"> - Guilherme</p>
+  </td>
+</tr>
+{{end}}

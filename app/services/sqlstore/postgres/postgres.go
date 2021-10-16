@@ -130,6 +130,7 @@ func (s Service) Init() {
 	bus.AddHandler(activateBillingSubscription)
 	bus.AddHandler(cancelBillingSubscription)
 	bus.AddHandler(lockExpiredTenants)
+	bus.AddHandler(getTrialingTenantContacts)
 
 	bus.AddHandler(setSystemSettings)
 	bus.AddHandler(getSystemSettings)

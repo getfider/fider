@@ -2,7 +2,7 @@ package entity
 
 import "github.com/getfider/fider/app/models/enum"
 
-//Tenant represents a tenant
+// Tenant represents a tenant
 type Tenant struct {
 	ID                 int               `json:"id"`
 	Name               string            `json:"name"`
@@ -25,4 +25,11 @@ func (t *Tenant) IsDisabled() bool {
 	}
 
 	return t.Status == enum.TenantDisabled
+}
+
+// TenantContact is a reference to an administrator account
+type TenantContact struct {
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Subdomain string `json:"subdomain"`
 }

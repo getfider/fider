@@ -120,3 +120,33 @@ func lockExpiredTenants(ctx context.Context, c *cmd.LockExpiredTenants) error {
 		return nil
 	})
 }
+
+func getTrialingTenantContacts(ctx context.Context, q *query.GetTrialingTenantContacts) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
+		var users []*dbUser
+		err := trx.Select(&users, `
+			SELECT
+				u.name,
+				u.email,
+				u.role,
+				u.status,
+				t.subdomain as tenant_subdomain
+			FROM tenants_billing tb
+			INNER JOIN tenants t
+			ON t.id = tb.tenant_id
+			INNER JOIN users u
+			ON u.tenant_id = tb.tenant_id
+			AND u.role = $1
+			WHERE date(trial_ends_at) = date($2)
+			AND tb.status = $3`, enum.RoleAdministrator, q.TrialExpiresOn, enum.BillingTrial)
+		if err != nil {
+			return errors.Wrap(err, "failed to get trialing tenant contacts")
+		}
+
+		q.Contacts = make([]*entity.User, len(users))
+		for i, user := range users {
+			q.Contacts[i] = user.toModel(ctx)
+		}
+		return nil
+	})
+}
