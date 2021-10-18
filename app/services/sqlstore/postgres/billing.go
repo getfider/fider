@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
@@ -84,6 +85,67 @@ func cancelBillingSubscription(ctx context.Context, c *cmd.CancelBillingSubscrip
 		`, c.TenantID, c.SubscriptionEndsAt, enum.BillingCancelled)
 		if err != nil {
 			return errors.Wrap(err, "failed cancel billing subscription")
+		}
+		return nil
+	})
+}
+
+func lockExpiredTenants(ctx context.Context, c *cmd.LockExpiredTenants) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
+		now := time.Now()
+
+		//Lock expired tenants in trial
+		countTrialLocked, err := trx.Execute(`
+			UPDATE tenants
+			SET status = $1
+			WHERE id IN (SELECT tenant_id FROM tenants_billing WHERE status = $2 AND trial_ends_at <= $3)
+			AND status <> $1
+		`, enum.TenantLocked, enum.BillingTrial, now)
+		if err != nil {
+			return errors.Wrap(err, "failed to lock expired trial tenants")
+		}
+
+		//Lock tenants with expired cancelled subscription
+		countCancelledLocked, err := trx.Execute(`
+			UPDATE tenants
+			SET status = $1
+			WHERE id IN (SELECT tenant_id FROM tenants_billing WHERE status = $2 AND subscription_ends_at <= $3)
+			AND status <> $1
+		`, enum.TenantLocked, enum.BillingCancelled, now)
+		if err != nil {
+			return errors.Wrap(err, "failed to lock expired cancelled tenants")
+		}
+
+		c.NumOfTenantsLocked = countTrialLocked + countCancelledLocked
+		return nil
+	})
+}
+
+func getTrialingTenantContacts(ctx context.Context, q *query.GetTrialingTenantContacts) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
+		var users []*dbUser
+		err := trx.Select(&users, `
+			SELECT
+				u.name,
+				u.email,
+				u.role,
+				u.status,
+				t.subdomain as tenant_subdomain
+			FROM tenants_billing tb
+			INNER JOIN tenants t
+			ON t.id = tb.tenant_id
+			INNER JOIN users u
+			ON u.tenant_id = tb.tenant_id
+			AND u.role = $1
+			WHERE date(trial_ends_at) = date($2)
+			AND tb.status = $3`, enum.RoleAdministrator, q.TrialExpiresOn, enum.BillingTrial)
+		if err != nil {
+			return errors.Wrap(err, "failed to get trialing tenant contacts")
+		}
+
+		q.Contacts = make([]*entity.User, len(users))
+		for i, user := range users {
+			q.Contacts[i] = user.toModel(ctx)
 		}
 		return nil
 	})

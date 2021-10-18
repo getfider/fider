@@ -97,7 +97,7 @@ const TrialInformation = (props: ManageBillingPageProps) => {
       <p>
         Your account is currently on a trial until{" "}
         <strong>
-          <Moment locale={fider.currentLocale} format="full" date={props.trialEndsAt} />
+          <Moment locale={fider.currentLocale} format="date" date={props.trialEndsAt} />
         </strong>
         . <br />
         Subscribe before the end of your trial to avoid a service interruption.

@@ -238,7 +238,7 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 		}
 
 		if env.IsBillingEnabled() {
-			trialEndsAt := time.Now().AddDate(0, 0, 30) // 30 days
+			trialEndsAt := time.Now().AddDate(0, 0, 15) // 15 days
 			_, err := trx.Execute(
 				`INSERT INTO tenants_billing (tenant_id, trial_ends_at, status, paddle_subscription_id, paddle_plan_id) 
 				 VALUES ($1, $2, $3, '', '')`, id, trialEndsAt, enum.BillingTrial)

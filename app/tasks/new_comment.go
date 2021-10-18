@@ -70,7 +70,7 @@ func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 		}
 
 		bus.Publish(c, &cmd.SendMail{
-			From:         author.Name,
+			From:         dto.Recipient{Name: author.Name},
 			To:           to,
 			TemplateName: "new_comment",
 			Props:        mailProps,

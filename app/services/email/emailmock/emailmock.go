@@ -15,7 +15,7 @@ import (
 var MessageHistory = make([]*HistoryItem, 0)
 
 type HistoryItem struct {
-	From         string
+	From         dto.Recipient
 	To           []dto.Recipient
 	TemplateName string
 	Props        dto.Props

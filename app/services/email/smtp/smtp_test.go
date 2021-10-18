@@ -48,9 +48,9 @@ func TestSend_Success(t *testing.T) {
 	reset()
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
-			dto.Recipient{
+			{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
 			},
@@ -78,9 +78,9 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 	reset()
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
-			dto.Recipient{
+			{
 				Name:    "Jon Sow",
 				Address: "",
 			},
@@ -100,9 +100,9 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 	email.SetAllowlist("^.*@gmail.com$")
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
-			dto.Recipient{
+			{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
 			},
@@ -122,16 +122,16 @@ func TestBatch_Success(t *testing.T) {
 	email.SetAllowlist("")
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
-			dto.Recipient{
+			{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
 				Props: dto.Props{
 					"name": "Jon",
 				},
 			},
-			dto.Recipient{
+			{
 				Name:    "Arya Stark",
 				Address: "arya.start@got.com",
 				Props: dto.Props{

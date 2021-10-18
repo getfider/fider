@@ -82,7 +82,7 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 		}
 
 		bus.Publish(c, &cmd.SendMail{
-			From:         author.Name,
+			From:         dto.Recipient{Name: author.Name},
 			To:           to,
 			TemplateName: "change_status",
 			Props:        props,

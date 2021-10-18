@@ -65,7 +65,7 @@ func NotifyAboutDeletedPost(post *entity.Post) worker.Task {
 		}
 
 		bus.Publish(c, &cmd.SendMail{
-			From:         c.User().Name,
+			From:         dto.Recipient{Name: c.User().Name},
 			To:           to,
 			TemplateName: "delete_post",
 			Props:        props,

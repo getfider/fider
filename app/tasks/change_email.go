@@ -26,7 +26,7 @@ func SendChangeEmailConfirmation(action *actions.ChangeUserEmail) worker.Task {
 		})
 
 		bus.Publish(c, &cmd.SendMail{
-			From:         c.Tenant().Name,
+			From:         dto.Recipient{Name: c.Tenant().Name},
 			To:           []dto.Recipient{to},
 			TemplateName: "change_emailaddress_email",
 			Props: dto.Props{

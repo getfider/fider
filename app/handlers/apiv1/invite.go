@@ -30,7 +30,7 @@ func SendSampleInvite() web.HandlerFunc {
 			})
 
 			bus.Publish(c, &cmd.SendMail{
-				From:         c.Tenant().Name,
+				From:         dto.Recipient{Name: c.Tenant().Name},
 				To:           []dto.Recipient{to},
 				TemplateName: "invite_email",
 				Props: dto.Props{

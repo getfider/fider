@@ -13,7 +13,7 @@ import (
 func TestRenderMessage(t *testing.T) {
 	RegisterT(t)
 
-	message := email.RenderMessage(context.Background(), "echo_test", dto.Props{
+	message := email.RenderMessage(context.Background(), "echo_test", email.NoReply, dto.Props{
 		"name": "Fider",
 	})
 	Expect(message.Subject).Equals("Message to: Fider")
@@ -39,11 +39,13 @@ Hello World Fider!
 					</table>
 				</td>
 			</tr>
+			
 			<tr>
 				<td>
 					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
 				</td>
 			</tr>
+			
 			<tr>
 				<td height="40">&nbsp;</td>
 			</tr>

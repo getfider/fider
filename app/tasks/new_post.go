@@ -69,7 +69,7 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 		}
 
 		bus.Publish(c, &cmd.SendMail{
-			From:         author.Name,
+			From:         dto.Recipient{Name: author.Name},
 			To:           to,
 			TemplateName: "new_post",
 			Props:        mailProps,

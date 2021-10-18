@@ -84,7 +84,9 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		"unsubscribe": "<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>",
 		"logo":        "https://getfider.com/images/logo-100x100.png",
 	})
-	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
+	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
+		Name: "Jon Snow",
+	})
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Arya Stark",
@@ -199,7 +201,9 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		"unsubscribe": "<a href='http://domain.com/posts/2/i-need-typescript'>unsubscribe from it</a>",
 		"logo":        "https://getfider.com/images/logo-100x100.png",
 	})
-	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
+	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
+		Name: "Jon Snow",
+	})
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Arya Stark",
