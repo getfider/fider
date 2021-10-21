@@ -95,8 +95,7 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 
 			if logo.Width < opts.MinWidth || logo.Height < opts.MinHeight {
 				messages = append(messages, i18n.T(ctx, "validation.custom.minimagedimensions",
-					i18n.Params{"width": opts.MinWidth},
-					i18n.Params{"height": opts.MinHeight},
+					i18n.Params{"width": opts.MinWidth, "height": opts.MinHeight},
 				))
 			}
 
