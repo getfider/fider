@@ -4,21 +4,26 @@
   padding: spacing(4);
   margin-bottom: spacing(2);
 
+  &--icon {
+    border-left-width: 2px;
+    border-left-style: solid;
+  }
+
   &--success {
     color: get("colors.green.800");
-    border-left: 2px solid get("colors.green.800");
+    border-color: get("colors.green.800");
     background-color: get("colors.green.50");
   }
 
   &--warning {
     color: get("colors.yellow.800");
-    border-left: 2px solid get("colors.yellow.800");
+    border-color: get("colors.yellow.800");
     background-color: get("colors.yellow.50");
   }
 
   &--error {
     color: get("colors.red.800");
-    border-left: 2px solid get("colors.red.800");
+    border-color: get("colors.red.800");
     background-color: get("colors.red.50");
   }
 }

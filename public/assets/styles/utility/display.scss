@@ -103,6 +103,10 @@
   justify-content: space-evenly;
 }
 
+.justify-center {
+  justify-content: center;
+}
+
 .justify-full > * {
   flex: 1 1 0;
 }

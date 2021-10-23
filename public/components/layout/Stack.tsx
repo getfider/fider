@@ -7,7 +7,7 @@ interface StackProps {
   onClick?: () => void
   center?: boolean
   divide?: boolean
-  justify?: "between" | "evenly" | "full"
+  justify?: "between" | "evenly" | "full" | "center"
   spacing?: 0 | 1 | 2 | 4 | 6 | 8
 }
 
@@ -21,9 +21,7 @@ const Stack = (props: StackProps, dir: "x" | "y") => {
     [`flex--spacing-${spacing}`]: spacing > 0 && !props.divide,
     [`flex--divide-${spacing}`]: spacing > 0 && !!props.divide,
     "flex-items-center": dir === "x" && props.center !== false,
-    "justify-between": props.justify === "between",
-    "justify-evenly": props.justify === "evenly",
-    "justify-full": props.justify === "full",
+    [`justify-${props.justify}`]: props.justify,
   })
 
   return (

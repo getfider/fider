@@ -125,22 +125,3 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 		}
 	}
 }
-
-// BlockLockedTenants blocks requests of non-administrator users on locked tenants
-func BlockLockedTenants() web.MiddlewareFunc {
-	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c *web.Context) error {
-			if c.Tenant().Status == enum.TenantLocked {
-				if c.Request.IsAPI() {
-					return c.JSON(http.StatusLocked, web.Map{})
-				}
-
-				isAdmin := c.IsAuthenticated() && c.User().Role == enum.RoleAdministrator
-				if !isAdmin {
-					return c.Redirect("/signin")
-				}
-			}
-			return next(c)
-		}
-	}
-}
