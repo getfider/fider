@@ -75,6 +75,17 @@ export const TagsPanel = (props: TagsPanelProps) => {
 
   const icon = canEdit && (isEditing ? <Icon sprite={IconCheckCircle} className="h-4" /> : <Icon sprite={IconPencilAlt} className="h-4" />)
 
+  if (fider.isReadOnly) {
+    return (
+      <VStack>
+        <HStack spacing={2} className="text-category">
+          <Trans id="label.tags">Tags</Trans>
+        </HStack>
+        {tagsList}
+      </VStack>
+    )
+  }
+
   return (
     <VStack>
       <HStack spacing={2} className="text-category clickable" onClick={onSubtitleClick}>

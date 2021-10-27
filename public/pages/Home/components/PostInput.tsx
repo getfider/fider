@@ -91,6 +91,7 @@ export const PostInput = (props: PostInputProps) => {
       <Form error={error}>
         <Input
           field="title"
+          disabled={fider.isReadOnly}
           noTabFocus={!fider.session.isAuthenticated}
           inputRef={titleRef}
           onFocus={handleTitleFocus}

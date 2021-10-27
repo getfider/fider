@@ -35,11 +35,12 @@ export const VoteCounter = (props: VoteCounterProps) => {
   const hideModal = () => setIsSignInModalOpen(false)
 
   const status = PostStatus.Get(props.post.status)
+  const isDisabled = status.closed || fider.isReadOnly
 
   const className = classSet({
     "c-vote-counter__button": true,
     "c-vote-counter__button--voted": !status.closed && hasVoted,
-    "c-vote-counter__button--disabled": status.closed,
+    "c-vote-counter__button--disabled": isDisabled,
   })
 
   const vote = (
@@ -59,7 +60,7 @@ export const VoteCounter = (props: VoteCounterProps) => {
   return (
     <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <div className="c-vote-counter">{status.closed ? disabled : vote}</div>
+      <div className="c-vote-counter">{isDisabled ? disabled : vote}</div>
     </>
   )
 }
