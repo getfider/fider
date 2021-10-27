@@ -45,37 +45,48 @@ export const Button: React.FC<ButtonProps> = (props) => {
     "shadow-sm": props.variant !== "tertiary",
   })
 
-  const click = async (e?: React.SyntheticEvent<HTMLElement>) => {
-    if (e) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
+  let buttonContent: JSX.Element
+  const onClickProp = props.onClick
 
-    if (clicked) {
-      return
-    }
+  if (props.href) {
+    buttonContent = (
+      <a href={props.href} rel={props.rel} target={props.target} className={className}>
+        {props.children}
+      </a>
+    )
+  } else if (onClickProp) {
+    const onClick = async (e?: React.SyntheticEvent<HTMLElement>) => {
+      if (e) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
 
-    const event = new ButtonClickEvent()
-    setClicked(true)
+      if (clicked) {
+        return
+      }
 
-    if (props.onClick) {
-      await props.onClick(event)
+      const event = new ButtonClickEvent()
+      setClicked(true)
+
+      await onClickProp(event)
 
       if (!unmountedContainer.current && event.canEnable()) {
         setClicked(false)
       }
     }
-  }
 
-  const buttonContent = props.href ? (
-    <a href={props.href} rel={props.rel} target={props.target} className={className}>
-      {props.children}
-    </a>
-  ) : (
-    <button type={props.type} className={className} onClick={click}>
-      {props.children}
-    </button>
-  )
+    buttonContent = (
+      <button type={props.type} className={className} onClick={onClick}>
+        {props.children}
+      </button>
+    )
+  } else {
+    buttonContent = (
+      <button type={props.type} className={className}>
+        {props.children}
+      </button>
+    )
+  }
 
   return buttonContent
 }
