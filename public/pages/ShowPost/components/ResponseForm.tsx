@@ -3,7 +3,7 @@ import React from "react"
 import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption, Icon } from "@fider/components"
 import { Post, PostStatus } from "@fider/models"
 
-import { actions, Failure } from "@fider/services"
+import { actions, Failure, Fider } from "@fider/services"
 import { PostSearch } from "./PostSearch"
 import IconSpeakerPhone from "@fider/assets/images/heroicons-speakerphone.svg"
 import { t, Trans } from "@lingui/macro"
@@ -67,7 +67,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
   public render() {
     const button = (
-      <Button className="w-full" onClick={this.showModal}>
+      <Button className="w-full" onClick={this.showModal} disabled={Fider.isReadOnly}>
         <Icon sprite={IconSpeakerPhone} />{" "}
         <span>
           <Trans id="action.respond">Respond</Trans>

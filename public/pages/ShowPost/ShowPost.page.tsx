@@ -163,13 +163,13 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 </span>
                 {this.state.editMode ? (
                   <VStack>
-                    <Button variant="primary" onClick={this.saveChanges}>
+                    <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
                       <Icon sprite={IconCheck} />{" "}
                       <span>
                         <Trans id="action.save">Save</Trans>
                       </span>
                     </Button>
-                    <Button onClick={this.cancelEdit}>
+                    <Button onClick={this.cancelEdit} disabled={Fider.isReadOnly}>
                       <Icon sprite={IconX} />
                       <span>
                         <Trans id="action.cancel">Cancel</Trans>
@@ -178,7 +178,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   </VStack>
                 ) : (
                   <VStack>
-                    <Button onClick={this.startEdit}>
+                    <Button onClick={this.startEdit} disabled={Fider.isReadOnly}>
                       <Icon sprite={IconPencilAlt} />
                       <span>
                         <Trans id="action.edit">Edit</Trans>

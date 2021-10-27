@@ -70,7 +70,7 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
       <span className="text-category">
         <Trans id="label.moderation">Moderation</Trans>
       </span>
-      <Button variant="danger" size="small" className="w-full" onClick={showModal}>
+      <Button disabled={fider.isReadOnly} variant="danger" size="small" className="w-full" onClick={showModal}>
         <Trans id="action.delete">Delete</Trans>
       </Button>
     </VStack>

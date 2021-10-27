@@ -125,3 +125,17 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 		}
 	}
 }
+
+// BlockLockedTenants blocks requests on locked tenants as they are in read-only mode
+func BlockLockedTenants() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c *web.Context) error {
+			if c.Tenant().Status == enum.TenantLocked {
+
+				// Only API operations are blocked, so it's ok to always return a JSON
+				return c.JSON(http.StatusPaymentRequired, web.Map{})
+			}
+			return next(c)
+		}
+	}
+}

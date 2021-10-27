@@ -422,3 +422,35 @@ func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Body.String()).Equals("Demonstration")
 }
+
+func TestBlockLockedTenants_ActiveTenant(t *testing.T) {
+	RegisterT(t)
+	server := mock.NewServer()
+	server.Use(middlewares.BlockLockedTenants())
+
+	status, response := server.
+		WithURL("http://demo.test.fider.io").
+		OnTenant(mock.DemoTenant).
+		Execute(func(c *web.Context) error {
+			return c.String(http.StatusOK, c.Tenant().Name)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Demonstration")
+}
+
+func TestBlockLockedTenants_LockedTenant(t *testing.T) {
+	RegisterT(t)
+	server := mock.NewServer()
+	server.Use(middlewares.BlockLockedTenants())
+	mock.DemoTenant.Status = enum.TenantLocked
+
+	status, _ := server.
+		WithURL("http://demo.test.fider.io/api/v1/posts").
+		OnTenant(mock.DemoTenant).
+		Execute(func(c *web.Context) error {
+			return c.String(http.StatusOK, c.Tenant().Name)
+		})
+
+	Expect(status).Equals(http.StatusPaymentRequired)
+}
