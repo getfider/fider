@@ -21,7 +21,10 @@ const Stack = (props: StackProps, dir: "x" | "y") => {
     [`flex--spacing-${spacing}`]: spacing > 0 && !props.divide,
     [`flex--divide-${spacing}`]: spacing > 0 && !!props.divide,
     "flex-items-center": dir === "x" && props.center !== false,
-    [`justify-${props.justify}`]: props.justify,
+    "justify-between": props.justify === "between",
+    "justify-evenly": props.justify === "evenly",
+    "justify-full": props.justify === "full",
+    "justify-center": props.justify === "center",
   })
 
   return (
