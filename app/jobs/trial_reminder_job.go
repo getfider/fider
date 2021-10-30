@@ -12,17 +12,16 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-type TrialNotificationJobHandler struct {
+type TrialReminderJobHandler struct {
 	Days         int
 	TemplateName string
 }
 
-func (e TrialNotificationJobHandler) Schedule() string {
+func (e TrialReminderJobHandler) Schedule() string {
 	return "0 0 7 * * *" // every day at 7:00 AM
 }
 
-func (e TrialNotificationJobHandler) Run(ctx Context) error {
-
+func (e TrialReminderJobHandler) Run(ctx Context) error {
 	if ctx.LastSuccessfulRun == nil {
 		// this is the first run, we can skip it
 		return nil
