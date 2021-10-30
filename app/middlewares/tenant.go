@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -35,6 +37,10 @@ func SingleTenant() web.MiddlewareFunc {
 				c.SetTenant(firstTenant.Result)
 
 				if c.Request.URL.Hostname() != env.Config.HostDomain {
+					log.Errorf(c, "Requested hostname '@{URLHostname}' does not match environment HOST_DOMAIN '@{HostDomain}'.", dto.Props{
+						"URLHostname": c.Request.URL.Hostname(),
+						"HostDomain":  env.Config.HostDomain,
+					})
 					return c.NotFound()
 				}
 			}
