@@ -30,7 +30,7 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { Trans } from "@lingui/macro"
 
 interface ShowPostPageProps {
   post: Post
@@ -131,7 +131,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
         } else {
           clearUrlHash(true)
         }
-        notify.error(t({ id: "showpost.comment.unknownhighlighted", message: `Unknown comment ID #${id}` }, id))
+        notify.error(<Trans id="showpost.comment.unknownhighlighted">Unknown comment ID #{id}</Trans>)
         highlightedComment = undefined
       }
     }
