@@ -3,7 +3,7 @@ import "@fider/assets/styles/index.scss"
 import React, { Suspense } from "react"
 import ReactDOM from "react-dom"
 import { resolveRootComponent } from "@fider/router"
-import { Header, ErrorBoundary, Loader } from "@fider/components"
+import { Header, ErrorBoundary, Loader, ReadOnlyNotice, DevBanner } from "@fider/components"
 import { classSet, Fider, FiderContext, actions, activateI18N } from "@fider/services"
 
 import { I18n } from "@lingui/core"
@@ -47,7 +47,9 @@ const bootstrapApp = (i18n: I18n) => {
       <ErrorBoundary onError={logProductionError}>
         <I18nProvider i18n={i18n}>
           <FiderContext.Provider value={fider}>
+            <DevBanner />
             {config.showHeader && <Header />}
+            <ReadOnlyNotice />
             <Suspense fallback={<Loading />}>{React.createElement(config.component, fider.session.props)}</Suspense>
           </FiderContext.Provider>
         </I18nProvider>

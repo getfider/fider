@@ -445,23 +445,6 @@ func TestBlockLockedTenants_LockedTenant(t *testing.T) {
 	server.Use(middlewares.BlockLockedTenants())
 	mock.DemoTenant.Status = enum.TenantLocked
 
-	status, response := server.
-		WithURL("http://demo.test.fider.io").
-		OnTenant(mock.DemoTenant).
-		Execute(func(c *web.Context) error {
-			return c.String(http.StatusOK, c.Tenant().Name)
-		})
-
-	Expect(status).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("/signin")
-}
-
-func TestBlockLockedTenants_LockedTenant_APICall(t *testing.T) {
-	RegisterT(t)
-	server := mock.NewServer()
-	server.Use(middlewares.BlockLockedTenants())
-	mock.DemoTenant.Status = enum.TenantLocked
-
 	status, _ := server.
 		WithURL("http://demo.test.fider.io/api/v1/posts").
 		OnTenant(mock.DemoTenant).
@@ -469,5 +452,5 @@ func TestBlockLockedTenants_LockedTenant_APICall(t *testing.T) {
 			return c.String(http.StatusOK, c.Tenant().Name)
 		})
 
-	Expect(status).Equals(http.StatusLocked)
+	Expect(status).Equals(http.StatusPaymentRequired)
 }

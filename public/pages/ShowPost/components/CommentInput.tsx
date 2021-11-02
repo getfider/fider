@@ -67,6 +67,7 @@ export const CommentInput = (props: CommentInputProps) => {
             <TextArea
               placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
               field="content"
+              disabled={fider.isReadOnly}
               value={content}
               minRows={1}
               onChange={commentChanged}

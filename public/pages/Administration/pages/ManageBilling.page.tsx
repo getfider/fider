@@ -72,15 +72,27 @@ const ActiveSubscriptionInformation = (props: ManageBillingPageProps) => {
 const CancelledSubscriptionInformation = (props: ManageBillingPageProps) => {
   const fider = useFider()
 
+  const isExpired = new Date(props.trialEndsAt) <= new Date()
+
   return (
     <>
-      <p>
-        Your Fider subscription is currently cancelled. This site will stay active until{" "}
-        <strong>
-          <Moment locale={fider.currentLocale} format="date" date={props.subscriptionEndsAt} />
-        </strong>
-        . <br /> Resubscribe to avoid a service interruption.
-      </p>
+      {isExpired ? (
+        <p>
+          Your subscription expired on{" "}
+          <strong>
+            <Moment locale={fider.currentLocale} format="date" date={props.subscriptionEndsAt} />
+          </strong>
+          . Resubscribe to remove the read-only constraint from this site.
+        </p>
+      ) : (
+        <p>
+          Your subscription is currently cancelled. This site will stay active until{" "}
+          <strong>
+            <Moment locale={fider.currentLocale} format="date" date={props.subscriptionEndsAt} />
+          </strong>
+          . <br /> Resubscribe to avoid a service interruption.
+        </p>
+      )}
 
       <Button variant="primary" onClick={subscribe}>
         Resubscribe for $30/mo + Tax
@@ -92,16 +104,28 @@ const CancelledSubscriptionInformation = (props: ManageBillingPageProps) => {
 const TrialInformation = (props: ManageBillingPageProps) => {
   const fider = useFider()
 
+  const isExpired = new Date(props.trialEndsAt) <= new Date()
+
   return (
     <>
-      <p>
-        Your account is currently on a trial until{" "}
-        <strong>
-          <Moment locale={fider.currentLocale} format="date" date={props.trialEndsAt} />
-        </strong>
-        . <br />
-        Subscribe before the end of your trial to avoid a service interruption.
-      </p>
+      {isExpired ? (
+        <p>
+          Your trial expired on{" "}
+          <strong>
+            <Moment locale={fider.currentLocale} format="date" date={props.trialEndsAt} />
+          </strong>
+          . Subscribe to remove the read-only constraint from this site.
+        </p>
+      ) : (
+        <p>
+          Your account is currently on a trial until{" "}
+          <strong>
+            <Moment locale={fider.currentLocale} format="date" date={props.trialEndsAt} />
+          </strong>
+          . <br />
+          Subscribe before the end of your trial to avoid a service interruption.
+        </p>
+      )}
 
       <Button variant="primary" onClick={subscribe}>
         Subscribe for $30/mo + Tax

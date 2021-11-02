@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/handlers"
@@ -102,29 +101,12 @@ func routes(r *web.Engine) *web.Engine {
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
 
-	//Block if it's a locked tenant with a non-administrator user
-	r.Use(middlewares.BlockLockedTenants())
-
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 
 	r.Get("/", handlers.Index())
 	r.Get("/posts/:number", handlers.PostDetails())
 	r.Get("/posts/:number/:slug", handlers.PostDetails())
-
-	/*
-	** This is a temporary redirect and should be removed in the future
-	** START
-	 */
-	r.Get("/ideas/:number", func(c *web.Context) error {
-		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
-	})
-	r.Get("/ideas/:number/*all", func(c *web.Context) error {
-		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
-	})
-	/*
-	** END
-	 */
 
 	ui := r.Group()
 	{
@@ -187,50 +169,71 @@ func routes(r *web.Engine) *web.Engine {
 		}
 	}
 
-	api := r.Group()
+	// Public operations
+	// Does not require authentication
+	publicApi := r.Group()
 	{
-		api.Get("/api/v1/posts", apiv1.SearchPosts())
-		api.Get("/api/v1/tags", apiv1.ListTags())
-		api.Get("/api/v1/posts/:number", apiv1.GetPost())
-		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
-		api.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
+		publicApi.Get("/api/v1/posts", apiv1.SearchPosts())
+		publicApi.Get("/api/v1/tags", apiv1.ListTags())
+		publicApi.Get("/api/v1/posts/:number", apiv1.GetPost())
+		publicApi.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
+		publicApi.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
+	}
 
-		//From this step, a User is required
-		api.Use(middlewares.IsAuthenticated())
+	// Operations used to manage the content of a site
+	// Available to any authenticated user
+	membersApi := r.Group()
+	{
+		membersApi.Use(middlewares.IsAuthenticated())
+		membersApi.Use(middlewares.BlockLockedTenants())
 
-		api.Post("/api/v1/posts", apiv1.CreatePost())
-		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
-		api.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
-		api.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
-		api.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())
-		api.Post("/api/v1/posts/:number/votes", apiv1.AddVote())
-		api.Delete("/api/v1/posts/:number/votes", apiv1.RemoveVote())
-		api.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
-		api.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
+		membersApi.Post("/api/v1/posts", apiv1.CreatePost())
+		membersApi.Put("/api/v1/posts/:number", apiv1.UpdatePost())
+		membersApi.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
+		membersApi.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
+		membersApi.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())
+		membersApi.Post("/api/v1/posts/:number/votes", apiv1.AddVote())
+		membersApi.Delete("/api/v1/posts/:number/votes", apiv1.RemoveVote())
+		membersApi.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
+		membersApi.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
 
-		//From this step, only Collaborators and Administrators are allowed
-		api.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
+		membersApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
+		membersApi.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
+	}
 
-		// locale is forced to English for administrative API.
-		// This is meant to be removed when all API are translated.
-		ui.Use(middlewares.SetLocale("en"))
+	// Operations used to manage a site
+	// Available to both collaborators and administrators
+	staffApi := r.Group()
+	{
+		staffApi.Use(middlewares.SetLocale("en"))
+		staffApi.Use(middlewares.IsAuthenticated())
+		staffApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
 
-		api.Get("/api/v1/users", apiv1.ListUsers())
-		api.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
-		api.Post("/api/v1/invitations/send", apiv1.SendInvites())
-		api.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
-		api.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
-		api.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
-		api.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
+		staffApi.Get("/api/v1/users", apiv1.ListUsers())
+		staffApi.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
+		staffApi.Post("/api/v1/invitations/send", apiv1.SendInvites())
+		staffApi.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 
-		//From this step, only Administrators are allowed
-		api.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
+		staffApi.Use(middlewares.BlockLockedTenants())
+		staffApi.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
+		staffApi.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
+	}
 
-		api.Post("/api/v1/users", apiv1.CreateUser())
-		api.Delete("/api/v1/posts/:number", apiv1.DeletePost())
-		api.Post("/api/v1/tags", apiv1.CreateEditTag())
-		api.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
-		api.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
+	// Operations used to manage a site
+	// Only available to administrators
+	adminApi := r.Group()
+	{
+		adminApi.Use(middlewares.SetLocale("en"))
+		adminApi.Use(middlewares.IsAuthenticated())
+		adminApi.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
+
+		adminApi.Post("/api/v1/users", apiv1.CreateUser())
+		adminApi.Post("/api/v1/tags", apiv1.CreateEditTag())
+		adminApi.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
+		adminApi.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
+
+		adminApi.Use(middlewares.BlockLockedTenants())
+		adminApi.Delete("/api/v1/posts/:number", apiv1.DeletePost())
 	}
 
 	return r

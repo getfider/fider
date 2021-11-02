@@ -1,7 +1,7 @@
 import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { Fider, FiderContext } from "./services/fider"
-import { Header } from "./components"
+import { DevBanner, Header, ReadOnlyNotice } from "./components"
 import { resolveRootComponent, route } from "./router"
 
 import HomePage from "./pages/Home/Home.page"
@@ -47,7 +47,9 @@ function ssrRender(url: string, pathname: string, args: any) {
   return renderToStaticMarkup(
     <I18nProvider i18n={i18n}>
       <FiderContext.Provider value={fider}>
+        <DevBanner />
         {config.showHeader && <Header />}
+        <ReadOnlyNotice />
         {React.createElement(config.component, args.props)}
       </FiderContext.Provider>
     </I18nProvider>

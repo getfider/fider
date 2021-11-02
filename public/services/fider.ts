@@ -1,5 +1,5 @@
 import { createContext } from "react"
-import { CurrentUser, SystemSettings, Tenant } from "@fider/models"
+import { CurrentUser, SystemSettings, Tenant, TenantStatus } from "@fider/models"
 
 export class FiderSession {
   private pContextID: string
@@ -67,6 +67,10 @@ export class FiderImpl {
 
   public get settings(): SystemSettings {
     return this.pSettings
+  }
+
+  public get isReadOnly(): boolean {
+    return this.session.tenant && this.session.tenant.status === TenantStatus.Locked
   }
 
   public isProduction(): boolean {

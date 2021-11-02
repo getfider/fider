@@ -22,7 +22,7 @@ import (
 func SignInPage() web.HandlerFunc {
 	return func(c *web.Context) error {
 
-		if c.Tenant().IsPrivate || c.Tenant().Status == enum.TenantLocked {
+		if c.Tenant().IsPrivate {
 			return c.Page(web.Props{
 				Title:     "Sign in",
 				ChunkName: "SignIn.page",
