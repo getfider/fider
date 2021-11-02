@@ -11,6 +11,7 @@ interface DiscussionPanelProps {
   user?: CurrentUser
   post: Post
   comments: Comment[]
+  highlightedComment?: number
 }
 
 export const DiscussionPanel = (props: DiscussionPanelProps) => {
@@ -22,7 +23,7 @@ export const DiscussionPanel = (props: DiscussionPanelProps) => {
         </span>
         <VStack spacing={4} className="c-comment-list">
           {props.comments.map((c) => (
-            <ShowComment key={c.id} post={props.post} comment={c} />
+            <ShowComment key={c.id} post={props.post} comment={c} highlighted={props.highlightedComment === c.id} />
           ))}
           <CommentInput post={props.post} />
         </VStack>
