@@ -11,7 +11,7 @@ services:
     restart: always
     image: postgres:12
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - pgdev-data:/var/lib/postgresql/data
     ports:
       - "5555:5432"
     environment:
@@ -34,8 +34,12 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./data/s3:/data
+      - s3test-data:/data
     environment:
       MINIO_ACCESS_KEY: s3user
       MINIO_SECRET_KEY: s3user-s3cr3t
     command: server /data --console-address ":9001"
+
+volumes:
+  pgdev-data:
+  s3test-data:

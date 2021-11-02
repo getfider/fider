@@ -184,7 +184,7 @@ func OAuthCallback() web.HandlerFunc {
 				OAuthName:     oauthUser.Result.Name,
 				OAuthEmail:    oauthUser.Result.Email,
 				Metadata: jwt.Metadata{
-					ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+					ExpiresAt: jwt.Time(time.Now().Add(10 * time.Minute)),
 				},
 			}
 

@@ -7,19 +7,15 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
 	"github.com/lib/pq"
 )
 
 func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotifications) error {
-	log.Debug(ctx, "deleting notifications more than 1 year old")
-
 	trx, err := dbx.BeginTx(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to open transaction")
@@ -29,10 +25,6 @@ func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotificat
 	if err != nil {
 		return errors.Wrap(err, "failed to delete expired notifications")
 	}
-
-	log.Debugf(ctx, "@{RowsDeleted} notifications were deleted", dto.Props{
-		"RowsDeleted": count,
-	})
 
 	if err = trx.Commit(); err != nil {
 		return errors.Wrap(err, "failed commit transaction")

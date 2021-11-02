@@ -52,7 +52,7 @@ func addVote(ctx context.Context, c *cmd.AddVote) error {
 			return errors.Wrap(err, "failed add vote to post")
 		}
 
-		return internalAddSubscriber(trx, c.Post, tenant, c.User, false)
+		return nil
 	})
 }
 
@@ -67,7 +67,7 @@ func removeVote(ctx context.Context, c *cmd.RemoveVote) error {
 			return errors.Wrap(err, "failed to remove vote from post")
 		}
 
-		return err
+		return nil
 	})
 }
 
