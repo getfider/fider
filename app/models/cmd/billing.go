@@ -7,7 +7,6 @@ import (
 )
 
 type GenerateCheckoutLink struct {
-	Email       string
 	ReturnURL   string
 	Passthrough dto.PaddlePassthrough
 

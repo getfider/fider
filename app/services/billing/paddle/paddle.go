@@ -57,7 +57,6 @@ func generateCheckoutLink(ctx context.Context, c *cmd.GenerateCheckoutLink) erro
 	params.Set("vendor_id", env.Config.Paddle.VendorID)
 	params.Set("vendor_auth_code", env.Config.Paddle.VendorAuthCode)
 	params.Set("product_id", env.Config.Paddle.PlanID)
-	params.Set("customer_email", c.Email)
 	params.Set("return_url", c.ReturnURL)
 	params.Set("passthrough", string(passthrough))
 

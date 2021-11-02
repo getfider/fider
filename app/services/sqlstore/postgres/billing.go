@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/lib/pq"
 )
 
 type dbBillingState struct {
@@ -72,6 +73,16 @@ func activateBillingSubscription(ctx context.Context, c *cmd.ActivateBillingSubs
 		if err != nil {
 			return errors.Wrap(err, "failed activate billing subscription")
 		}
+
+		_, err = trx.Execute(`
+			UPDATE tenants
+			SET status = $2
+			WHERE id = $1
+		`, c.TenantID, enum.TenantActive)
+		if err != nil {
+			return errors.Wrap(err, "failed activate tenant")
+		}
+
 		return nil
 	})
 }
@@ -94,29 +105,43 @@ func lockExpiredTenants(ctx context.Context, c *cmd.LockExpiredTenants) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		now := time.Now()
 
-		//Lock expired tenants in trial
-		countTrialLocked, err := trx.Execute(`
-			UPDATE tenants
-			SET status = $1
-			WHERE id IN (SELECT tenant_id FROM tenants_billing WHERE status = $2 AND trial_ends_at <= $3)
-			AND status <> $1
-		`, enum.TenantLocked, enum.BillingTrial, now)
-		if err != nil {
-			return errors.Wrap(err, "failed to lock expired trial tenants")
+		type tenant struct {
+			Id int `db:"id"`
 		}
 
-		//Lock tenants with expired cancelled subscription
-		countCancelledLocked, err := trx.Execute(`
-			UPDATE tenants
-			SET status = $1
-			WHERE id IN (SELECT tenant_id FROM tenants_billing WHERE status = $2 AND subscription_ends_at <= $3)
-			AND status <> $1
-		`, enum.TenantLocked, enum.BillingCancelled, now)
+		tenants := []*tenant{}
+		err := trx.Select(&tenants, `
+			SELECT id
+			FROM tenants t
+			INNER JOIN tenants_billing tb
+			ON t.id = tb.tenant_id
+			WHERE t.status <> $1
+			AND (
+				(tb.status = $2 AND trial_ends_at <= $4)
+				OR (tb.status = $3 AND subscription_ends_at <= $4)
+			)`, enum.TenantLocked, enum.BillingTrial, enum.BillingCancelled, now)
 		if err != nil {
-			return errors.Wrap(err, "failed to lock expired cancelled tenants")
+			return errors.Wrap(err, "failed to get expired trial/cancelled tenants")
 		}
 
-		c.NumOfTenantsLocked = countTrialLocked + countCancelledLocked
+		if len(tenants) > 0 {
+			ids := make([]int, 0)
+			for _, tenant := range tenants {
+				ids = append(ids, tenant.Id)
+			}
+
+			count, err := trx.Execute(`
+				UPDATE tenants
+				SET status = $1
+				WHERE id = ANY($2)
+			`, enum.TenantLocked, pq.Array(ids))
+			if err != nil {
+				return errors.Wrap(err, "failed to lock trial/cancelled tenants")
+			}
+
+			c.NumOfTenantsLocked = count
+		}
+
 		return nil
 	})
 }

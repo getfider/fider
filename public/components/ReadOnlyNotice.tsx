@@ -12,7 +12,7 @@ export const ReadOnlyNotice = () => {
     return (
       <Message alignment="center" type="warning">
         This website is currently in read-only mode because there is no active subscription. Visit{" "}
-        <a className="text-link" href="/billing">
+        <a className="text-link" href="/admin/billing">
           Billing
         </a>{" "}
         to subscribe.

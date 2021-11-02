@@ -41,7 +41,6 @@ func ManageBilling() web.HandlerFunc {
 func GenerateCheckoutLink() web.HandlerFunc {
 	return func(c *web.Context) error {
 		generateLink := &cmd.GenerateCheckoutLink{
-			Email:     c.User().Email,
 			ReturnURL: c.BaseURL() + "/admin/billing",
 			Passthrough: dto.PaddlePassthrough{
 				TenantID: c.Tenant().ID,

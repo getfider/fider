@@ -32,6 +32,9 @@ func NewJob(ctx context.Context, name string, handler Handler) (string, fiderJob
 }
 
 func (j fiderJob) Run() {
+	locked := false
+	unlock := func() {}
+
 	ctx, trx, err := newJobContext()
 	if err != nil {
 		log.Error(ctx, err)
@@ -41,28 +44,7 @@ func (j fiderJob) Run() {
 	start := time.Now()
 	ctx.LastSuccessfulRun = getLastSuccessfulRun(ctx, j.Name)
 
-	defer func() {
-		if r := recover(); r != nil {
-			log.Error(ctx, errors.Panicked(r))
-			setLastFailedRun(j.Name, start)
-			trx.MustRollback()
-		}
-	}()
-
-	log.Debugf(ctx, "Job '@{JobName}' started", dto.Props{
-		"JobName": j.Name,
-	})
-
-	locked, unlock := dbx.TryLock(ctx, trx, j.Name)
-	if !locked {
-		log.Debugf(ctx, "Job '@{JobName}' skipped, could not acquire lock", dto.Props{
-			"JobName": j.Name,
-		})
-		trx.MustCommit()
-		return
-	}
-
-	defer func() {
+	logFinish := func() {
 		elapsedMs := time.Since(start).Nanoseconds() / int64(time.Millisecond)
 		log.Debugf(ctx, "Job '@{JobName}' finished in @{ElapsedMs:magenta}ms", dto.Props{
 			"ElapsedMs": elapsedMs,
@@ -75,7 +57,31 @@ func (j fiderJob) Run() {
 			time.Sleep(waitMs * time.Millisecond)
 		}
 		unlock()
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			logFinish()
+			log.Error(ctx, errors.Panicked(r))
+			setLastFailedRun(j.Name, start)
+			trx.MustRollback()
+		}
 	}()
+
+	log.Debugf(ctx, "Job '@{JobName}' started", dto.Props{
+		"JobName": j.Name,
+	})
+
+	locked, unlock = dbx.TryLock(ctx, trx, j.Name)
+	if !locked {
+		log.Debugf(ctx, "Job '@{JobName}' skipped, could not acquire lock", dto.Props{
+			"JobName": j.Name,
+		})
+		trx.MustCommit()
+		return
+	}
+
+	defer logFinish()
 
 	if err := j.Handler.Run(ctx); err != nil {
 		log.Error(ctx, err)
