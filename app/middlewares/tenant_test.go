@@ -13,7 +13,6 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -246,25 +245,6 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Body.String()).Equals("MyCompany")
-}
-
-func TestSingleTenant_HostMismatch(t *testing.T) {
-	RegisterT(t)
-	env.Config.HostDomain = "yoursite.com"
-
-	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
-		q.Result = &entity.Tenant{Name: "MyCompany", Status: enum.TenantActive}
-		return nil
-	})
-
-	server := mock.NewSingleTenantServer()
-	server.Use(middlewares.SingleTenant())
-
-	status, _ := server.WithURL("http://someothersite.com").Execute(func(c *web.Context) error {
-		return c.String(http.StatusOK, c.Tenant().Name)
-	})
-
-	Expect(status).Equals(http.StatusNotFound)
 }
 
 func TestBlockPendingTenants_Active(t *testing.T) {
