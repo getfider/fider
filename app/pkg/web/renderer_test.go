@@ -37,7 +37,7 @@ func TestRenderer_Basic(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{}, ctx)
+	renderer.Render(buf, http.StatusOK, web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/basic.html", ctx)
 }
 
@@ -51,7 +51,7 @@ func TestRenderer_WithChunkPreload(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{Page: "Test.page"}, ctx)
+	renderer.Render(buf, http.StatusOK, web.Props{Page: "Test.page"}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/chunk.html", ctx)
 }
 
@@ -66,7 +66,7 @@ func TestRenderer_Tenant(t *testing.T) {
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	ctx.SetTenant(&entity.Tenant{Name: "Game of Thrones"})
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{}, ctx)
+	renderer.Render(buf, http.StatusOK, web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/tenant.html", ctx)
 }
 
@@ -81,7 +81,7 @@ func TestRenderer_WithCanonicalURL(t *testing.T) {
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	ctx.SetCanonicalURL("http://feedback.demo.org")
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{}, ctx)
+	renderer.Render(buf, http.StatusOK, web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/canonical.html", ctx)
 }
 
@@ -95,7 +95,7 @@ func TestRenderer_Home(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{
+	renderer.Render(buf, http.StatusOK, web.Props{
 		Title:       "My Page Title",
 		Description: "My Page Description",
 		Data: web.Map{
@@ -123,7 +123,7 @@ func TestRenderer_Home_SSR(t *testing.T) {
 		Locale: "en",
 	})
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{
+	renderer.Render(buf, http.StatusOK, web.Props{
 		Page:        "Test.page",
 		Title:       "My Page Title",
 		Description: "My Page Description",
@@ -156,7 +156,7 @@ func TestRenderer_AuthenticatedUser(t *testing.T) {
 		AvatarURL:  "https://demo.test.fider.io:3000/static/avatars/gravatar/5/Jon%20Snow",
 	})
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{
+	renderer.Render(buf, http.StatusOK, web.Props{
 		Title:       "My Page Title",
 		Description: "My Page Description",
 	}, ctx)
@@ -186,7 +186,7 @@ func TestRenderer_WithOAuth(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{}, ctx)
+	renderer.Render(buf, http.StatusOK, web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/oauth.html", ctx)
 }
 
@@ -197,7 +197,7 @@ func TestRenderer_NonOK(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusNotFound, "index.html", web.Props{}, ctx)
-	renderer.Render(buf, http.StatusBadRequest, "index.html", web.Props{}, ctx)
-	renderer.Render(buf, http.StatusTemporaryRedirect, "index.html", web.Props{}, ctx)
+	renderer.Render(buf, http.StatusNotFound, web.Props{}, ctx)
+	renderer.Render(buf, http.StatusBadRequest, web.Props{}, ctx)
+	renderer.Render(buf, http.StatusTemporaryRedirect, web.Props{}, ctx)
 }

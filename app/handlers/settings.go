@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app/models/enum"
@@ -74,7 +75,7 @@ func UserSettings() web.HandlerFunc {
 			return err
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "MySettings/MySettings.page",
 			Title: "Settings",
 			Data: web.Map{

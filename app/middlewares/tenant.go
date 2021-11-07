@@ -100,7 +100,8 @@ func BlockPendingTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			if c.Tenant().Status == enum.TenantPending {
-				return c.Render(http.StatusOK, "pending-activation.html", web.Props{
+				return c.Page(http.StatusOK, web.Props{
+					Page:        "SignUp/PendingActivation.page",
 					Title:       "Pending Activation",
 					Description: "We sent you a confirmation email with a link to activate your site. Please check your inbox to activate it.",
 				})

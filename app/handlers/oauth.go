@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -40,7 +41,7 @@ func OAuthEcho() web.HandlerFunc {
 		rawProfile := &query.GetOAuthRawProfile{Provider: provider, Code: code}
 		err := bus.Dispatch(c, rawProfile)
 		if err != nil {
-			return c.Page(web.Props{
+			return c.Page(http.StatusOK, web.Props{
 				Page:  "OAuthEcho/OAuthEcho.page",
 				Title: "OAuth Test Page",
 				Data: web.Map{
@@ -52,7 +53,7 @@ func OAuthEcho() web.HandlerFunc {
 		parseRawProfile := &cmd.ParseOAuthRawProfile{Provider: provider, Body: rawProfile.Result}
 		_ = bus.Dispatch(c, parseRawProfile)
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "OAuthEcho/OAuthEcho.page",
 			Title: "OAuth Test Page",
 			Data: web.Map{

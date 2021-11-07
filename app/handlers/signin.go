@@ -23,7 +23,7 @@ func SignInPage(page string) web.HandlerFunc {
 	return func(c *web.Context) error {
 
 		if c.Tenant().IsPrivate {
-			return c.Page(web.Props{
+			return c.Page(http.StatusOK, web.Props{
 				Page:  page,
 				Title: "Sign in",
 			})
@@ -36,9 +36,10 @@ func SignInPage(page string) web.HandlerFunc {
 // NotInvitedPage renders the not invited page
 func NotInvitedPage() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return c.Render(http.StatusForbidden, "not-invited.html", web.Props{
+		return c.Page(http.StatusForbidden, web.Props{
+			Page:        "Error/NotInvited.page",
 			Title:       "Not Invited",
-			Description: "We couldn't find your account for your email address.",
+			Description: "We couldn't find an account for your email address.",
 		})
 	}
 }

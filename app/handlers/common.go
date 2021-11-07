@@ -42,7 +42,7 @@ func LegalPage(title, file string) web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "Legal/Legal.page",
 			Title: title,
 			Data: web.Map{
@@ -95,7 +95,7 @@ func RobotsTXT() web.HandlerFunc {
 //Page returns a page without properties
 func Page(title, description, page string) web.HandlerFunc {
 	return func(c *web.Context) error {
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:        page,
 			Title:       title,
 			Description: description,

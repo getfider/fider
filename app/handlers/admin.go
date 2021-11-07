@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
@@ -11,7 +13,7 @@ import (
 // GeneralSettingsPage is the general settings page
 func GeneralSettingsPage() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/GeneralSettings.page",
 			Title: "General · Site Settings",
 		})
@@ -21,7 +23,7 @@ func GeneralSettingsPage() web.HandlerFunc {
 // AdvancedSettingsPage is the advanced settings page
 func AdvancedSettingsPage() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/AdvancedSettings.page",
 			Title: "Advanced · Site Settings",
 			Data: web.Map{
@@ -124,7 +126,7 @@ func ManageMembers() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/ManageMembers.page",
 			Title: "Manage Members · Site Settings",
 			Data: web.Map{
@@ -142,7 +144,7 @@ func ManageAuthentication() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/ManageAuthentication.page",
 			Title: "Authentication · Site Settings",
 			Data: web.Map{

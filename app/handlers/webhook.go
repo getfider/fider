@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/getfider/fider/app/actions"
@@ -19,7 +20,7 @@ func ManageWebhooks() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/ManageWebhooks.page",
 			Title: "Manage Webhooks · Site Settings",
 			Data: web.Map{

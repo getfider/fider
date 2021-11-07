@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
@@ -24,7 +26,7 @@ func ManageBilling() web.HandlerFunc {
 			}
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/ManageBilling.page",
 			Title: "Manage Billing · Site Settings",
 			Data: web.Map{

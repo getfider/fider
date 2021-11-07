@@ -132,7 +132,7 @@ func getClientAssets(assets []distAsset) *clientAssets {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, props Props, ctx *Context) {
+func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
@@ -233,8 +233,9 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		}
 	}
 
-	// Only index.html template uses React, other templates are already SSR
-	if ctx.Request.IsCrawler() && templateName == "index.html" {
+	templateName := "index.html"
+
+	if ctx.Request.IsCrawler() {
 		html, err := r.reactRenderer.Render(ctx.Request.URL, public)
 		if err != nil {
 			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{

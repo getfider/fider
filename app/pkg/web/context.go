@@ -212,25 +212,28 @@ func (c *Context) IsAjax() bool {
 	return strings.Contains(accept, JSONContentType) || strings.Contains(contentType, JSONContentType)
 }
 
-//Unauthorized returns a 403 response
+//Unauthorized returns a 403 error response
 func (c *Context) Unauthorized() error {
-	return c.Render(http.StatusForbidden, "403.html", Props{
+	return c.Page(http.StatusForbidden, Props{
+		Page:        "Error/Error403.page",
 		Title:       "Not Authorized",
 		Description: "You are not authorized to view this page.",
 	})
 }
 
-//NotFound returns a 404 page
+//NotFound returns a 404 error page
 func (c *Context) NotFound() error {
-	return c.Render(http.StatusNotFound, "404.html", Props{
-		Title:       "Page not found",
+	return c.Page(http.StatusNotFound, Props{
+		Page:        "Error/Error404.page",
+		Title:       "Page Not Found",
 		Description: "The link you clicked may be broken or the page may have been removed.",
 	})
 }
 
-//Gone returns a 410 page
+//Gone returns a 410 error page
 func (c *Context) Gone() error {
-	return c.Render(http.StatusGone, "410.html", Props{
+	return c.Page(http.StatusGone, Props{
+		Page:        "Error/Error410.page",
 		Title:       "Expired",
 		Description: "The link you clicked has expired.",
 	})
@@ -249,7 +252,8 @@ func (c *Context) Failure(err error) error {
 		return c.NotFound()
 	}
 
-	if renderErr := c.Render(http.StatusInternalServerError, "500.html", Props{
+	if renderErr := c.Page(http.StatusInternalServerError, Props{
+		Page:        "Error/Error500.page",
 		Title:       "Shoot! Well, this is unexpected…",
 		Description: "An error has occurred and we're working to fix the problem!",
 	}); renderErr != nil {
@@ -291,18 +295,13 @@ func (c *Context) BadRequest(dict Map) error {
 }
 
 //Page returns a page with given variables
-func (c *Context) Page(props Props) error {
-	return c.Render(http.StatusOK, "index.html", props)
-}
-
-// Render renders a template with data and sends a text/html response with status
-func (c *Context) Render(code int, template string, props Props) error {
+func (c *Context) Page(code int, props Props) error {
 	if c.IsAjax() {
 		return c.JSON(code, Map{})
 	}
 
 	buf := new(bytes.Buffer)
-	c.engine.renderer.Render(buf, code, template, props, c)
+	c.engine.renderer.Render(buf, code, props, c)
 
 	return c.Blob(code, UTF8HTMLContentType, buf.Bytes())
 }
