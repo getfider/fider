@@ -75,8 +75,8 @@ func UserSettings() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title:     "Settings",
-			ChunkName: "MySettings.page",
+			Page:  "MySettings/MySettings.page",
+			Title: "Settings",
 			Data: web.Map{
 				"userSettings": settings.Result,
 			},

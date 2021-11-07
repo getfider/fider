@@ -43,8 +43,8 @@ func LegalPage(title, file string) web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title:     title,
-			ChunkName: "Legal.page",
+			Page:  "Legal/Legal.page",
+			Title: title,
 			Data: web.Map{
 				"content": string(bytes),
 			},
@@ -93,12 +93,12 @@ func RobotsTXT() web.HandlerFunc {
 }
 
 //Page returns a page without properties
-func Page(title, description, chunkName string) web.HandlerFunc {
+func Page(title, description, page string) web.HandlerFunc {
 	return func(c *web.Context) error {
 		return c.Page(web.Props{
+			Page:        page,
 			Title:       title,
 			Description: description,
-			ChunkName:   chunkName,
 		})
 	}
 }

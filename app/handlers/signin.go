@@ -19,13 +19,13 @@ import (
 )
 
 // SignInPage renders the sign in page
-func SignInPage() web.HandlerFunc {
+func SignInPage(page string) web.HandlerFunc {
 	return func(c *web.Context) error {
 
 		if c.Tenant().IsPrivate {
 			return c.Page(web.Props{
-				Title:     "Sign in",
-				ChunkName: "SignIn.page",
+				Page:  page,
+				Title: "Sign in",
 			})
 		}
 
@@ -99,7 +99,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 					if c.Tenant().IsPrivate {
 						return NotInvitedPage()(c)
 					}
-					return Index()(c)
+					return Index("CompleteSignInProfile/CompleteSignInProfile.page")(c)
 				}
 				return c.Failure(err)
 			}
@@ -110,9 +110,9 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
 					if c.Tenant().IsPrivate {
-						return SignInPage()(c)
+						return SignInPage("CompleteSignInProfile/CompleteSignInProfile.page")(c)
 					}
-					return Index()(c)
+					return Index("CompleteSignInProfile/CompleteSignInProfile.page")(c)
 				}
 				return c.Failure(err)
 			}

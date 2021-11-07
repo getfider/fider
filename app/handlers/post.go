@@ -11,7 +11,7 @@ import (
 )
 
 // Index is the default home page
-func Index() web.HandlerFunc {
+func Index(page string) web.HandlerFunc {
 	return func(c *web.Context) error {
 		c.SetCanonicalURL("")
 
@@ -37,7 +37,7 @@ func Index() web.HandlerFunc {
 
 		return c.Page(web.Props{
 			Description: description,
-			ChunkName:   "Home.page",
+			Page:        page,
 			Data: web.Map{
 				"posts":          searchPosts.Result,
 				"tags":           getAllTags.Result,
@@ -74,9 +74,9 @@ func PostDetails() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
+			Page:        "ShowPost/ShowPost.page",
 			Title:       getPost.Result.Title,
 			Description: markdown.PlainText(getPost.Result.Description),
-			ChunkName:   "ShowPost.page",
 			Data: web.Map{
 				"comments":    getComments.Result,
 				"subscribed":  isSubscribed.Result,

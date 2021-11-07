@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Modal, Form, Button, PageTitle, Input, Select, SelectOption, ImageUploader } from "@fider/components"
+import { Modal, Form, Button, PageTitle, Input, Select, SelectOption, ImageUploader, Header } from "@fider/components"
 
 import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models"
 import { Failure, actions, Fider } from "@fider/services"
@@ -110,115 +110,118 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
     )
 
     return (
-      <div id="p-my-settings" className="page container">
-        <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal}>
-          <Modal.Header>
-            <Trans id="modal.changeemail.header">Confirm your new email</Trans>
-          </Modal.Header>
-          <Modal.Content>
-            <div>
-              <p>
-                <Trans id="modal.changeemail.text">
-                  We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update your email.
-                </Trans>
-              </p>
-              <p>
-                <a href="#" onClick={this.closeModal}>
-                  <Trans id="action.ok">OK</Trans>
-                </a>
-              </p>
-            </div>
-          </Modal.Content>
-        </Modal.Window>
-
-        <PageTitle
-          title={t({ id: "mysettings.page.title", message: "Settings" })}
-          subtitle={t({ id: "mysettings.page.subtitle", message: "Manage your profile settings" })}
-        />
-
-        <div className="w-max-7xl">
-          <Form error={this.state.error}>
-            <Input
-              label={t({ id: "label.email", message: "Email" })}
-              field="email"
-              value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
-              maxLength={200}
-              disabled={!this.state.changingEmail}
-              afterLabel={this.state.changingEmail ? undefined : changeEmail}
-              onChange={this.setNewEmail}
-            >
-              <p className="text-muted">
-                {Fider.session.user.email || this.state.changingEmail ? (
-                  <Trans id="mysettings.message.privateemail">Your email is private and will never be publicly displayed.</Trans>
-                ) : (
-                  <Trans id="mysettings.message.noemail">Your account doesn&apos;t have an email.</Trans>
-                )}
-              </p>
-              {this.state.changingEmail && (
-                <>
-                  <Button variant="primary" size="small" onClick={this.submitNewEmail}>
-                    <Trans id="action.confirm">Confirm</Trans>
-                  </Button>
-                  <Button variant="tertiary" size="small" onClick={this.cancelChangeEmail}>
-                    <Trans id="action.cancel">Cancel</Trans>
-                  </Button>
-                </>
-              )}
-            </Input>
-
-            <Input label={t({ id: "label.name", message: "Name" })} field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
-
-            <Select
-              label={t({ id: "label.avatar", message: "Avatar" })}
-              field="avatarType"
-              defaultValue={this.state.avatarType}
-              options={[
-                { label: t({ id: "label.letter", message: "Letter" }), value: UserAvatarType.Letter },
-                { label: t({ id: "label.gravatar", message: "Gravatar" }), value: UserAvatarType.Gravatar },
-                { label: t({ id: "label.custom", message: "Custom" }), value: UserAvatarType.Custom },
-              ]}
-              onChange={this.avatarTypeChanged}
-            >
-              {this.state.avatarType === UserAvatarType.Gravatar && (
-                <p className="text-muted mt-1">
-                  <Trans id="mysettings.message.avatar.gravatar">
-                    A{" "}
-                    <a className="text-link" rel="noopener" href="https://en.gravatar.com" target="_blank">
-                      Gravatar
-                    </a>{" "}
-                    will be used based on your email. If you don&apos;t have a Gravatar, a letter avatar based on your initials is generated for you.
+      <>
+        <Header />
+        <div id="p-my-settings" className="page container">
+          <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal}>
+            <Modal.Header>
+              <Trans id="modal.changeemail.header">Confirm your new email</Trans>
+            </Modal.Header>
+            <Modal.Content>
+              <div>
+                <p>
+                  <Trans id="modal.changeemail.text">
+                    We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update your email.
                   </Trans>
                 </p>
-              )}
-              {this.state.avatarType === UserAvatarType.Letter && (
-                <p className="text-muted">
-                  <Trans id="mysettings.message.avatar.letter">A letter avatar based on your initials is generated for you.</Trans>
+                <p>
+                  <a href="#" onClick={this.closeModal}>
+                    <Trans id="action.ok">OK</Trans>
+                  </a>
                 </p>
-              )}
-              {this.state.avatarType === UserAvatarType.Custom && (
-                <ImageUploader field="avatar" onChange={this.setAvatar} bkey={Fider.session.user.avatarBlobKey}>
-                  <p className="text-muted">
-                    <Trans id="mysettings.message.avatar.custom">
-                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.
+              </div>
+            </Modal.Content>
+          </Modal.Window>
+
+          <PageTitle
+            title={t({ id: "mysettings.page.title", message: "Settings" })}
+            subtitle={t({ id: "mysettings.page.subtitle", message: "Manage your profile settings" })}
+          />
+
+          <div className="w-max-7xl">
+            <Form error={this.state.error}>
+              <Input
+                label={t({ id: "label.email", message: "Email" })}
+                field="email"
+                value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
+                maxLength={200}
+                disabled={!this.state.changingEmail}
+                afterLabel={this.state.changingEmail ? undefined : changeEmail}
+                onChange={this.setNewEmail}
+              >
+                <p className="text-muted">
+                  {Fider.session.user.email || this.state.changingEmail ? (
+                    <Trans id="mysettings.message.privateemail">Your email is private and will never be publicly displayed.</Trans>
+                  ) : (
+                    <Trans id="mysettings.message.noemail">Your account doesn&apos;t have an email.</Trans>
+                  )}
+                </p>
+                {this.state.changingEmail && (
+                  <>
+                    <Button variant="primary" size="small" onClick={this.submitNewEmail}>
+                      <Trans id="action.confirm">Confirm</Trans>
+                    </Button>
+                    <Button variant="tertiary" size="small" onClick={this.cancelChangeEmail}>
+                      <Trans id="action.cancel">Cancel</Trans>
+                    </Button>
+                  </>
+                )}
+              </Input>
+
+              <Input label={t({ id: "label.name", message: "Name" })} field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
+
+              <Select
+                label={t({ id: "label.avatar", message: "Avatar" })}
+                field="avatarType"
+                defaultValue={this.state.avatarType}
+                options={[
+                  { label: t({ id: "label.letter", message: "Letter" }), value: UserAvatarType.Letter },
+                  { label: t({ id: "label.gravatar", message: "Gravatar" }), value: UserAvatarType.Gravatar },
+                  { label: t({ id: "label.custom", message: "Custom" }), value: UserAvatarType.Custom },
+                ]}
+                onChange={this.avatarTypeChanged}
+              >
+                {this.state.avatarType === UserAvatarType.Gravatar && (
+                  <p className="text-muted mt-1">
+                    <Trans id="mysettings.message.avatar.gravatar">
+                      A{" "}
+                      <a className="text-link" rel="noopener" href="https://en.gravatar.com" target="_blank">
+                        Gravatar
+                      </a>{" "}
+                      will be used based on your email. If you don&apos;t have a Gravatar, a letter avatar based on your initials is generated for you.
                     </Trans>
                   </p>
-                </ImageUploader>
-              )}
-            </Select>
+                )}
+                {this.state.avatarType === UserAvatarType.Letter && (
+                  <p className="text-muted">
+                    <Trans id="mysettings.message.avatar.letter">A letter avatar based on your initials is generated for you.</Trans>
+                  </p>
+                )}
+                {this.state.avatarType === UserAvatarType.Custom && (
+                  <ImageUploader field="avatar" onChange={this.setAvatar} bkey={Fider.session.user.avatarBlobKey}>
+                    <p className="text-muted">
+                      <Trans id="mysettings.message.avatar.custom">
+                        We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.
+                      </Trans>
+                    </p>
+                  </ImageUploader>
+                )}
+              </Select>
 
-            <NotificationSettings userSettings={this.props.userSettings} settingsChanged={this.setNotificationSettings} />
+              <NotificationSettings userSettings={this.props.userSettings} settingsChanged={this.setNotificationSettings} />
 
-            <Button variant="primary" onClick={this.confirm}>
-              <Trans id="action.save">Save</Trans>
-            </Button>
-          </Form>
+              <Button variant="primary" onClick={this.confirm}>
+                <Trans id="action.save">Save</Trans>
+              </Button>
+            </Form>
 
-          <div className="mt-8">{Fider.session.user.isCollaborator && <APIKeyForm />}</div>
-          <div className="mt-8">
-            <DangerZone />
+            <div className="mt-8">{Fider.session.user.isCollaborator && <APIKeyForm />}</div>
+            <div className="mt-8">
+              <DangerZone />
+            </div>
           </div>
         </div>
-      </div>
+      </>
     )
   }
 }

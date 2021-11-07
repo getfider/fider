@@ -76,7 +76,7 @@ func (r *ReactRenderer) Render(u *url.URL, props Map) (string, error) {
 		return "", errors.Wrap(err, "failed to marshal props")
 	}
 
-	renderCmd := fmt.Sprintf(`ssrRender("%s", "%s", %s)`, u.String(), u.Path, string(jsonArg))
+	renderCmd := fmt.Sprintf(`ssrRender("%s", %s)`, u.String(), string(jsonArg))
 	val, err := v8ctx.RunScript(renderCmd, r.scriptPath)
 	if err != nil {
 		if jsErr, ok := err.(*v8go.JSError); ok {

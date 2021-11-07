@@ -85,7 +85,7 @@ func routes(r *web.Engine) *web.Engine {
 		})
 	}
 
-	r.Get("/_design", handlers.Page("Design System", "A preview of Fider UI elements", "DesignSystem.page"))
+	r.Get("/_design", handlers.Page("Design System", "A preview of Fider UI elements", "DesignSystem/DesignSystem.page"))
 	r.Get("/signup/verify", handlers.VerifySignUpKey())
 	r.Get("/signout", handlers.SignOut())
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
@@ -94,7 +94,7 @@ func routes(r *web.Engine) *web.Engine {
 	//If tenant is pending, block it from using any other route
 	r.Use(middlewares.BlockPendingTenants())
 
-	r.Get("/signin", handlers.SignInPage())
+	r.Get("/signin", handlers.SignInPage("SignIn/SignIn.page"))
 	r.Get("/not-invited", handlers.NotInvitedPage())
 	r.Get("/signin/verify", handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
 	r.Get("/invite/verify", handlers.VerifySignInKey(enum.EmailVerificationKindUserInvitation))
@@ -104,7 +104,7 @@ func routes(r *web.Engine) *web.Engine {
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 
-	r.Get("/", handlers.Index())
+	r.Get("/", handlers.Index("Home/Home.page"))
 	r.Get("/posts/:number", handlers.PostDetails())
 	r.Get("/posts/:number/:slug", handlers.PostDetails())
 
@@ -134,8 +134,8 @@ func routes(r *web.Engine) *web.Engine {
 
 		ui.Get("/admin", handlers.GeneralSettingsPage())
 		ui.Get("/admin/advanced", handlers.AdvancedSettingsPage())
-		ui.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", "", "PrivacySettings.page"))
-		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", "", "Invitations.page"))
+		ui.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", "", "Administration/pages/PrivacySettings.page"))
+		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", "", "Administration/pages/Invitations.page"))
 		ui.Get("/admin/members", handlers.ManageMembers())
 		ui.Get("/admin/tags", handlers.ManageTags())
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
@@ -144,7 +144,7 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
 
-		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
+		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Administration/pages/Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
 		ui.Get("/admin/export/backup.zip", handlers.ExportBackupZip())
 		ui.Get("/admin/webhooks", handlers.ManageWebhooks())

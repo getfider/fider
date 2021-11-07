@@ -41,8 +41,8 @@ func OAuthEcho() web.HandlerFunc {
 		err := bus.Dispatch(c, rawProfile)
 		if err != nil {
 			return c.Page(web.Props{
-				Title:     "OAuth Test Page",
-				ChunkName: "OAuthEcho.page",
+				Page:  "OAuthEcho/OAuthEcho.page",
+				Title: "OAuth Test Page",
 				Data: web.Map{
 					"err": errors.Cause(err).Error(),
 				},
@@ -53,8 +53,8 @@ func OAuthEcho() web.HandlerFunc {
 		_ = bus.Dispatch(c, parseRawProfile)
 
 		return c.Page(web.Props{
-			Title:     "OAuth Test Page",
-			ChunkName: "OAuthEcho.page",
+			Page:  "OAuthEcho/OAuthEcho.page",
+			Title: "OAuth Test Page",
 			Data: web.Map{
 				"body":    rawProfile.Result,
 				"profile": parseRawProfile.Result,

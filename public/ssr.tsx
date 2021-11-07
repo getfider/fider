@@ -1,15 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { Fider, FiderContext } from "./services/fider"
-import { DevBanner, Header, ReadOnlyNotice } from "./components"
-import { resolveRootComponent, route } from "./router"
-
-import HomePage from "./pages/Home/Home.page"
-import ShowPostPage from "./pages/ShowPost/ShowPost.page"
-import SignInPage from "./pages/SignIn/SignIn.page"
-import SignUpPage from "./pages/SignUp/SignUp.page"
-import DesignSystemPage from "./pages/DesignSystem/DesignSystem.page"
-import LegalPage from "./pages/Legal/Legal.page"
+import { DevBanner, ReadOnlyNotice } from "./components"
 
 import { activateI18NSync } from "./services"
 import { I18nProvider } from "@lingui/react"
@@ -26,31 +19,33 @@ const messages: { [key: string]: any } = {
   sk: require(`../locale/sk/client`),
 }
 
-// Only public routes should be here
-// Routes behind authentication are not crawled
-const routes = [
-  route("", HomePage),
-  route("/posts/:number*", ShowPostPage),
-  route("/signin", SignInPage, false),
-  route("/signup", SignUpPage, false),
-  route("/terms", LegalPage, false),
-  route("/privacy", LegalPage, false),
-  route("/_design", DesignSystemPage),
-]
+// ESBuild doesn't support Dynamic Imports, so we need to map them statically
+// But at least only public routes will be here, as routes behind authentication won't be crawled anyway
+const pages: { [key: string]: any } = {
+  "Home/Home.page": require(`./pages/Home/Home.page`),
+  "ShowPost/ShowPost.page": require(`./pages/ShowPost/ShowPost.page`),
+  "SignIn/SignIn.page": require(`./pages/SignIn/SignIn.page`),
+  "SignUp/SignUp.page": require(`./pages/SignUp/SignUp.page`),
+  "Legal/Legal.page": require(`./pages/Legal/Legal.page`),
+  "DesignSystem/DesignSystem.page": require(`./pages/DesignSystem/DesignSystem.page`),
+}
 
-function ssrRender(url: string, pathname: string, args: any) {
+function ssrRender(url: string, args: any) {
   const fider = Fider.initialize({ ...args })
   const i18n = activateI18NSync(fider.currentLocale, messages[fider.currentLocale].messages)
-  const config = resolveRootComponent(pathname, routes)
+  const component = pages[fider.session.page]?.default
+  if (!component) {
+    throw new Error(`Page not found: ${fider.session.page}`)
+  }
+
   window.location.href = url
 
   return renderToStaticMarkup(
     <I18nProvider i18n={i18n}>
       <FiderContext.Provider value={fider}>
         <DevBanner />
-        {config.showHeader && <Header />}
         <ReadOnlyNotice />
-        {React.createElement(config.component, args.props)}
+        {React.createElement(component, args.props)}
       </FiderContext.Provider>
     </I18nProvider>
   )

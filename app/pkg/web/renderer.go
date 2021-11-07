@@ -170,9 +170,12 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 
 	locale := i18n.GetLocale(ctx)
 	localeChunkName := fmt.Sprintf("locale-%s-client-json", locale)
+
+	// webpack replaces "/" and "." with "-", so we do the same here
+	pageChunkName := strings.ReplaceAll(strings.ReplaceAll(props.Page, ".", "-"), "/", "-")
 	private["preloadAssets"] = []*clientAssets{
 		r.chunkedAssets[localeChunkName],
-		r.chunkedAssets[props.ChunkName],
+		r.chunkedAssets[pageChunkName],
 	}
 
 	if tenant == nil || tenant.LogoBlobKey == "" {
@@ -196,6 +199,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		}
 	}
 
+	public["page"] = props.Page
 	public["contextID"] = ctx.ContextID()
 	public["sessionID"] = ctx.SessionID()
 	public["tenant"] = tenant

@@ -3,7 +3,7 @@ import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
 import React, { useState } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
-import { Markdown, Hint, PoweredByFider, Icon } from "@fider/components"
+import { Markdown, Hint, PoweredByFider, Icon, Header } from "@fider/components"
 import { SimilarPosts } from "./components/SimilarPosts"
 import { PostInput } from "./components/PostInput"
 import { PostsContainer } from "./components/PostsContainer"
@@ -73,25 +73,28 @@ What can we do better? This is the place for you to vote, discuss and share idea
   }
 
   return (
-    <div id="p-home" className="page container">
-      <div className="p-home__welcome-col">
-        <VStack spacing={2}>
-          <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
-          <PostInput placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} />
-          <PoweredByFider className="sm:hidden md:hidden lg:block" />
-        </VStack>
+    <>
+      <Header />
+      <div id="p-home" className="page container">
+        <div className="p-home__welcome-col">
+          <VStack spacing={2}>
+            <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
+            <PostInput placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} />
+            <PoweredByFider className="sm:hidden md:hidden lg:block" />
+          </VStack>
+        </div>
+        <div className="p-home__posts-col">
+          {isLonely() ? (
+            <Lonely />
+          ) : title ? (
+            <SimilarPosts title={title} tags={props.tags} />
+          ) : (
+            <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
+          )}
+          <PoweredByFider className="lg:hidden xl:hidden mt-8" />
+        </div>
       </div>
-      <div className="p-home__posts-col">
-        {isLonely() ? (
-          <Lonely />
-        ) : title ? (
-          <SimilarPosts title={title} tags={props.tags} />
-        ) : (
-          <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
-        )}
-        <PoweredByFider className="lg:hidden xl:hidden mt-8" />
-      </div>
-    </div>
+    </>
   )
 }
 

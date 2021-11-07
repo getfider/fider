@@ -25,8 +25,8 @@ func ManageBilling() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title:     "Manage Billing · Site Settings",
-			ChunkName: "ManageBilling.page",
+			Page:  "Administration/pages/ManageBilling.page",
+			Title: "Manage Billing · Site Settings",
 			Data: web.Map{
 				"status":             billingState.Result.Status,
 				"trialEndsAt":        billingState.Result.TrialEndsAt,

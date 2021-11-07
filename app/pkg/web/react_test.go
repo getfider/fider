@@ -38,6 +38,7 @@ func TestReactRenderer_RenderEmptyHomeHTML(t *testing.T) {
 
 	u, _ := url.Parse("https://demo.test.fider.io")
 	html, err := r.Render(u, web.Map{
+		"page": "Home/Home.page",
 		"tenant": &entity.Tenant{
 			Locale: "en",
 		},
@@ -66,6 +67,7 @@ func TestReactRenderer_RenderEmptyHomeHTML_Portuguese(t *testing.T) {
 
 	u, _ := url.Parse("https://demo.test.fider.io")
 	html, err := r.Render(u, web.Map{
+		"page": "Home/Home.page",
 		"tenant": &entity.Tenant{
 			Locale: "pt-BR",
 		},

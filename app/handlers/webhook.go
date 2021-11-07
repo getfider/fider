@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
-	"strconv"
 )
 
 // ManageWebhooks is the page used by administrators to configure webhooks
@@ -19,8 +20,8 @@ func ManageWebhooks() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title:     "Manage Webhooks · Site Settings",
-			ChunkName: "ManageWebhooks.page",
+			Page:  "Administration/pages/ManageWebhooks.page",
+			Title: "Manage Webhooks · Site Settings",
 			Data: web.Map{
 				"webhooks": allWebhooks.Result,
 			},

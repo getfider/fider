@@ -51,7 +51,7 @@ func TestRenderer_WithChunkPreload(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusOK, "index.html", web.Props{ChunkName: "Test.page"}, ctx)
+	renderer.Render(buf, http.StatusOK, "index.html", web.Props{Page: "Test.page"}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/chunk.html", ctx)
 }
 
@@ -124,9 +124,9 @@ func TestRenderer_Home_SSR(t *testing.T) {
 	})
 	renderer := web.NewRenderer()
 	renderer.Render(buf, http.StatusOK, "index.html", web.Props{
+		Page:        "Test.page",
 		Title:       "My Page Title",
 		Description: "My Page Description",
-		ChunkName:   "Test.page",
 		Data: web.Map{
 			"posts":          make([]web.Map, 0),
 			"tags":           make([]web.Map, 0),

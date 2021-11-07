@@ -2,16 +2,22 @@ import { createContext } from "react"
 import { CurrentUser, SystemSettings, Tenant, TenantStatus } from "@fider/models"
 
 export class FiderSession {
+  private pPage: string
   private pContextID: string
   private pTenant: Tenant
   private pUser: CurrentUser | undefined
   private pProps: { [key: string]: any } = {}
 
   constructor(data: any) {
+    this.pPage = data.page
     this.pContextID = data.contextID
     this.pProps = data.props
     this.pUser = data.user
     this.pTenant = data.tenant
+  }
+
+  public get page(): string {
+    return this.pPage
   }
 
   public get contextID(): string {

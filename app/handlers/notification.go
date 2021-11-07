@@ -30,8 +30,8 @@ func Notifications() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title:     "Notifications",
-			ChunkName: "MyNotifications.page",
+			Page:  "MyNotifications/MyNotifications.page",
+			Title: "Notifications",
 			Data: web.Map{
 				"notifications": q.Result,
 			},
