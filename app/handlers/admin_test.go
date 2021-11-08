@@ -22,9 +22,12 @@ import (
 func TestUpdateSettingsHandler(t *testing.T) {
 	RegisterT(t)
 
-	var updateCmd *cmd.UpdateTenantSettings
 	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
-		updateCmd = c
+		Expect(c.Title).Equals("GoT")
+		Expect(c.Invitation).Equals("Join us!")
+		Expect(c.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+		Expect(c.Locale).Equals("pt-BR")
+		Expect(c.Logo.BlobKey).Equals("logos/hello-world.png")
 		return nil
 	})
 
@@ -44,20 +47,20 @@ func TestUpdateSettingsHandler(t *testing.T) {
 		)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(updateCmd.Title).Equals("GoT")
-	Expect(updateCmd.Invitation).Equals("Join us!")
-	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(updateCmd.Locale).Equals("pt-BR")
-	Expect(updateCmd.Logo.BlobKey).Equals("logos/hello-world.png")
+	ExpectHandler(&cmd.UpdateTenantSettings{}).CalledOnce()
+	ExpectHandler(&cmd.UploadImage{}).CalledOnce()
 }
 
 func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 	RegisterT(t)
 	bus.Init(fs.Service{})
 
-	var updateCmd *cmd.UpdateTenantSettings
 	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
-		updateCmd = c
+		Expect(c.Title).Equals("GoT")
+		Expect(c.Invitation).Equals("Join us!")
+		Expect(c.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+		Expect(c.Locale).Equals("pt-BR")
+		Expect(c.Logo.BlobKey).Equals("logos/picture.png")
 		return nil
 	})
 
@@ -89,19 +92,19 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 			}`)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(updateCmd.Title).Equals("GoT")
-	Expect(updateCmd.Invitation).Equals("Join us!")
-	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(updateCmd.Locale).Equals("pt-BR")
-	Expect(updateCmd.Logo.BlobKey).Equals("logos/picture.png")
+	ExpectHandler(&cmd.UpdateTenantSettings{}).CalledOnce()
+	ExpectHandler(&cmd.UploadImage{}).CalledOnce()
 }
 
 func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 	RegisterT(t)
 
-	var updateCmd *cmd.UpdateTenantSettings
 	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
-		updateCmd = c
+		Expect(c.Title).Equals("GoT")
+		Expect(c.Invitation).Equals("Join us!")
+		Expect(c.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+		Expect(c.Logo.Remove).IsTrue()
+		Expect(c.Locale).Equals("en")
 		return nil
 	})
 
@@ -127,11 +130,8 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 			}`)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(updateCmd.Title).Equals("GoT")
-	Expect(updateCmd.Invitation).Equals("Join us!")
-	Expect(updateCmd.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(updateCmd.Logo.Remove).IsTrue()
-	Expect(updateCmd.Locale).Equals("en")
+	ExpectHandler(&cmd.UpdateTenantSettings{}).CalledOnce()
+	ExpectHandler(&cmd.UploadImage{}).CalledOnce()
 }
 
 func TestUpdatePrivacyHandler(t *testing.T) {
