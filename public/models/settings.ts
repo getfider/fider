@@ -56,3 +56,10 @@ export interface ImageUpload {
   }
   remove: boolean
 }
+
+export enum EmailVerificationKind {
+  SignIn = 1,
+  SignUp = 2,
+  ChangeEmail = 3,
+  UserInvitation = 4,
+}

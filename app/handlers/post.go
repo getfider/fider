@@ -12,7 +12,7 @@ import (
 )
 
 // Index is the default home page
-func Index(page string) web.HandlerFunc {
+func Index() web.HandlerFunc {
 	return func(c *web.Context) error {
 		c.SetCanonicalURL("")
 
@@ -37,8 +37,8 @@ func Index(page string) web.HandlerFunc {
 		}
 
 		return c.Page(http.StatusOK, web.Props{
+			Page:        "Home/Home.page",
 			Description: description,
-			Page:        page,
 			Data: web.Map{
 				"posts":          searchPosts.Result,
 				"tags":           getAllTags.Result,

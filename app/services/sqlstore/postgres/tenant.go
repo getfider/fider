@@ -215,7 +215,7 @@ func saveVerificationKey(ctx context.Context, c *cmd.SaveVerificationKey) error 
 
 func setKeyAsVerified(ctx context.Context, c *cmd.SetKeyAsVerified) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		query := "UPDATE email_verifications SET verified_at = $1 WHERE tenant_id = $2 AND key = $3"
+		query := "UPDATE email_verifications SET verified_at = $1 WHERE tenant_id = $2 AND key = $3 AND verified_at IS NULL"
 		_, err := trx.Execute(query, time.Now(), tenant.ID, c.Key)
 		if err != nil {
 			return errors.Wrap(err, "failed to update verified date of email verification request")

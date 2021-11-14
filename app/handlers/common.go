@@ -124,9 +124,7 @@ func LogError() web.HandlerFunc {
 	}
 }
 
-func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*entity.EmailVerification, error) {
-	key := c.QueryParam("k")
-
+func validateKey(kind enum.EmailVerificationKind, key string, c *web.Context) (*entity.EmailVerification, error) {
 	//If key has been used, return NotFound
 	findByKey := &query.GetVerificationByKey{Kind: kind, Key: key}
 	err := bus.Dispatch(c, findByKey)
@@ -137,13 +135,18 @@ func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*entity.Email
 		return nil, c.Failure(err)
 	}
 
-	//If key has been used, return Gone
-	if findByKey.Result.VerifiedAt != nil {
+	now := time.Now()
+	res := findByKey.Result
+
+	// If key has been used more than 5 minutes ago, deny usage
+	// The 5 minutes grace period is to avoid issues with email clients that preview the link
+	// Examples: Outlook Smart Preview, corporate email protection software
+	if res.VerifiedAt != nil && now.Sub(*res.VerifiedAt) > 5*time.Minute {
 		return nil, c.Gone()
 	}
 
-	//If key expired, return Gone
-	if time.Now().After(findByKey.Result.ExpiresAt) {
+	//If key expired, deny usage
+	if now.After(res.ExpiresAt) {
 		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
 		if err != nil {
 			return nil, c.Failure(err)
@@ -151,7 +154,7 @@ func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*entity.Email
 		return nil, c.Gone()
 	}
 
-	return findByKey.Result, nil
+	return res, nil
 }
 
 func between(n, min, max int) int {

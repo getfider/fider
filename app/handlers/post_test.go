@@ -34,7 +34,7 @@ func TestIndexHandler(t *testing.T) {
 	server := mock.NewServer()
 	code, _ := server.OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		Execute(handlers.Index("Home/Home.page"))
+		Execute(handlers.Index())
 
 	Expect(code).Equals(http.StatusOK)
 }

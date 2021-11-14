@@ -44,8 +44,6 @@
   "email.greetings": "Hello!",
   "email.greetings_name": "Hello, {name}!",
   "email.operation_confirmation": "Click the link below to confirm this operation.",
-  "email.expire_note_hours": "Note: This link will expire in {hours} hours and can only be used one time.",
-  "email.expire_note_minutes": "Note: This link will expire in {minutes} minutes and can only be used one time.",
   "email.footer.noreply": "This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.",
   "email.change_status.duplicate": "<strong>{title} ({postLink})</strong> has been closed as a <strong>duplicate</strong> of {duplicate}.",
   "email.change_status.others": "Status of <strong>{title} ({postLink})</strong> has changed to <strong>{status}</strong>.",

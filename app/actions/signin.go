@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models/entity"
@@ -75,9 +76,9 @@ func (action *SignInByEmail) GetKind() enum.EmailVerificationKind {
 
 // CompleteProfile happens when users completes their profile during first time sign in
 type CompleteProfile struct {
-	Key   string `json:"key"`
-	Name  string `json:"name"`
-	Email string
+	Kind enum.EmailVerificationKind `json:"kind"`
+	Key  string                     `json:"key"`
+	Name string                     `json:"name"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -97,20 +98,6 @@ func (action *CompleteProfile) Validate(ctx context.Context, user *entity.User) 
 
 	if action.Key == "" {
 		result.AddFieldFailure("key", propertyIsRequired(ctx, "key"))
-	} else {
-		findBySignIn := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignIn, Key: action.Key}
-		err1 := bus.Dispatch(ctx, findBySignIn)
-
-		findByUserInvitation := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindUserInvitation, Key: action.Key}
-		err2 := bus.Dispatch(ctx, findByUserInvitation)
-
-		if err1 == nil {
-			action.Email = findBySignIn.Result.Email
-		} else if err2 == nil {
-			action.Email = findByUserInvitation.Result.Email
-		} else {
-			result.AddFieldFailure("key", propertyIsInvalid(ctx, "key"))
-		}
 	}
 
 	return result

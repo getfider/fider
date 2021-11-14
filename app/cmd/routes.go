@@ -95,7 +95,7 @@ func routes(r *web.Engine) *web.Engine {
 	//If tenant is pending, block it from using any other route
 	r.Use(middlewares.BlockPendingTenants())
 
-	r.Get("/signin", handlers.SignInPage("SignIn/SignIn.page"))
+	r.Get("/signin", handlers.SignInPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
 	r.Get("/signin/verify", handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
 	r.Get("/invite/verify", handlers.VerifySignInKey(enum.EmailVerificationKindUserInvitation))
@@ -105,7 +105,7 @@ func routes(r *web.Engine) *web.Engine {
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 
-	r.Get("/", handlers.Index("Home/Home.page"))
+	r.Get("/", handlers.Index())
 	r.Get("/posts/:number", handlers.PostDetails())
 	r.Get("/posts/:number/:slug", handlers.PostDetails())
 

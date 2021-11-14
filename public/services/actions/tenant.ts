@@ -1,5 +1,5 @@
 import { http, Result } from "@fider/services/http"
-import { UserRole, OAuthConfig, ImageUpload } from "@fider/models"
+import { UserRole, OAuthConfig, ImageUpload, EmailVerificationKind } from "@fider/models"
 
 export interface CheckAvailabilityResponse {
   message: string
@@ -61,8 +61,9 @@ export const signIn = async (email: string): Promise<Result> => {
   })
 }
 
-export const completeProfile = async (key: string, name: string): Promise<Result> => {
+export const completeProfile = async (kind: EmailVerificationKind, key: string, name: string): Promise<Result> => {
   return await http.post("/_api/signin/complete", {
+    kind,
     key,
     name,
   })

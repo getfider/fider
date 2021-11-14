@@ -42,7 +42,8 @@ func ChangeUserEmail() web.HandlerFunc {
 // VerifyChangeEmailKey checks if key is correct and update user's email
 func VerifyChangeEmailKey() web.HandlerFunc {
 	return func(c *web.Context) error {
-		result, err := validateKey(enum.EmailVerificationKindChangeEmail, c)
+		key := c.QueryParam("k")
+		result, err := validateKey(enum.EmailVerificationKindChangeEmail, key, c)
 		if result == nil {
 			return err
 		}
@@ -59,10 +60,11 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
 		if err != nil {
 			return c.Failure(err)
 		}
+
 		return c.Redirect(c.BaseURL() + "/settings")
 	}
 }

@@ -16,6 +16,7 @@ export enum TenantStatus {
   Active = 1,
   Pending = 2,
   Locked = 3,
+  Disabled = 4,
 }
 
 export interface User {

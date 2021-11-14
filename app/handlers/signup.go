@@ -154,9 +154,38 @@ func SignUp() web.HandlerFunc {
 // VerifySignUpKey checks if verify key is correct, activate the tenant and sign in user
 func VerifySignUpKey() web.HandlerFunc {
 	return func(c *web.Context) error {
-		if c.Tenant().Status == enum.TenantPending {
-			return VerifySignInKey(enum.EmailVerificationKindSignUp)(c)
+		if c.Tenant().Status != enum.TenantPending {
+			return c.NotFound()
 		}
-		return c.NotFound()
+
+		key := c.QueryParam("k")
+		result, err := validateKey(enum.EmailVerificationKindSignUp, key, c)
+		if result == nil {
+			return err
+		}
+
+		if err = bus.Dispatch(c, &cmd.ActivateTenant{TenantID: c.Tenant().ID}); err != nil {
+			return c.Failure(err)
+		}
+
+		user := &entity.User{
+			Name:   result.Name,
+			Email:  result.Email,
+			Tenant: c.Tenant(),
+			Role:   enum.RoleAdministrator,
+		}
+
+		if err = bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
+			return c.Failure(err)
+		}
+
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		webutil.AddAuthUserCookie(c, user)
+
+		return c.Redirect(c.BaseURL())
 	}
 }
