@@ -4,69 +4,96 @@
   "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
-    "dompurify": "2.0.6",
-    "marked": "0.7.0",
-    "react": "16.10.2",
-    "react-dom": "16.10.2",
-    "react-icons": "3.7.0",
-    "react-stripe-elements": "2.0.3",
-    "react-textarea-autosize": "7.1.0",
-    "react-toastify": "5.4.0",
-    "tslib": "1.10.0"
+    "@lingui/react": "3.12.1",
+    "dompurify": "2.3.3",
+    "marked": "3.0.8",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-textarea-autosize": "8.3.3",
+    "react-toastify": "8.0.3"
   },
   "devDependencies": {
-    "@types/dompurify": "0.0.33",
-    "@types/enzyme": "3.10.3",
-    "@types/enzyme-adapter-react-16": "1.0.5",
-    "@types/jest": "24.0.18",
-    "@types/jsdom": "12.2.4",
-    "@types/marked": "0.6.5",
-    "@types/node": "12.7.12",
-    "@types/puppeteer": "1.20.2",
-    "@types/react": "16.9.5",
-    "@types/react-dom": "16.9.1",
-    "@types/react-stripe-elements": "1.1.10",
-    "@types/react-textarea-autosize": "4.3.4",
-    "css-loader": "3.2.0",
-    "dotenv": "8.1.0",
-    "enzyme": "3.10.0",
-    "enzyme-adapter-react-16": "1.15.1",
-    "file-loader": "4.2.0",
-    "fork-ts-checker-webpack-plugin": "1.5.0",
-    "jest": "24.9.0",
-    "mini-css-extract-plugin": "0.8.0",
-    "node-sass": "4.12.0",
-    "prettier": "1.18.2",
-    "puppeteer": "1.20.0",
-    "reflect-metadata": "0.1.13",
-    "sass-loader": "8.0.0",
-    "ts-jest": "24.1.0",
-    "ts-loader": "6.2.0",
-    "tslint": "5.20.0",
-    "tslint-config-prettier": "1.18.0",
-    "tslint-plugin-prettier": "2.0.1",
-    "tslint-react": "4.1.0",
-    "typescript": "3.6.4",
-    "webpack": "4.41.1",
-    "webpack-bundle-analyzer": "3.5.2",
-    "webpack-clean-obsolete-chunks": "0.4.0",
-    "webpack-cli": "3.3.9"
+    "@babel/core": "7.15.8",
+    "@babel/preset-env": "7.15.8",
+    "@babel/preset-react": "7.14.5",
+    "@babel/preset-typescript": "7.15.0",
+    "@cucumber/cucumber": "7.3.1",
+    "@lingui/cli": "3.12.1",
+    "@lingui/loader": "3.12.1",
+    "@lingui/macro": "3.12.1",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.1.2",
+    "@types/debug": "4.1.7",
+    "@types/dompurify": "2.3.1",
+    "@types/jsdom": "16.2.13",
+    "@types/marked": "3.0.2",
+    "@types/node": "16.11.6",
+    "@types/react": "17.0.33",
+    "@types/react-dom": "17.0.10",
+    "@types/react-textarea-autosize": "4.3.6",
+    "@typescript-eslint/eslint-plugin": "4.33.0",
+    "@typescript-eslint/parser": "4.33.0",
+    "autoprefixer": "10.4.0",
+    "babel-jest": "27.3.1",
+    "babel-loader": "8.2.3",
+    "babel-plugin-macros": "3.1.0",
+    "css-loader": "6.5.0",
+    "esbuild": "0.13.10",
+    "esbuild-plugin-babel": "0.2.3",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-react": "7.26.1",
+    "eslint-plugin-react-hooks": "4.2.0",
+    "fork-ts-checker-webpack-plugin": "6.4.0",
+    "isomorphic-fetch": "3.0.0",
+    "jest": "27.3.1",
+    "mini-css-extract-plugin": "2.4.3",
+    "playwright": "1.16.2",
+    "prettier": "2.4.1",
+    "purgecss-webpack-plugin": "4.0.3",
+    "sass": "1.43.4",
+    "sass-loader": "12.3.0",
+    "svg-sprite-loader": "6.0.11",
+    "typescript": "4.4.4",
+    "webpack": "5.60.0",
+    "webpack-bundle-analyzer": "4.5.0",
+    "webpack-cli": "4.9.1"
   },
-  "jest": {
-    "globals": {
-      "ts-jest": {
-        "diagnostics": {
-          "ignoreCodes": [
-            "TS6133"
-          ]
-        }
+  "lingui": {
+    "catalogs": [
+      {
+        "path": "<rootDir>/locale/{locale}/client",
+        "include": [
+          "<rootDir>"
+        ]
       }
+    ],
+    "fallbackLocales": {
+      "default": "en"
     },
+    "sourceLocale": "en",
+    "format": "minimal",
+    "locales": [
+      "pt-BR",
+      "es-ES",
+      "nl",
+      "sv-SE",
+      "fr",
+      "de",
+      "en",
+      "ru",
+      "sk"
+    ]
+  },
+  "browserslist": ">1%, not dead",
+  "jest": {
+    "testEnvironment": "jsdom",
     "transform": {
-      "^.+\\.(tsx|ts)?$": "ts-jest"
+      ".+\\.(tsx|ts)?$": "babel-jest"
     },
     "setupFilesAfterEnv": [
-      "<rootDir>/public/jest.setup.ts"
+      "<rootDir>/public/jest.setup.tsx"
     ],
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts|tsx|js|jsx)$",
     "moduleFileExtensions": [
@@ -78,11 +105,16 @@
       "node"
     ],
     "moduleNameMapper": {
-      "^.*\\.(png|scss|svg)$": "<rootDir>/public/jest.assets.ts",
-      "@fider/(.*)": "<rootDir>/public/$1"
+      ".*\\.(png|scss|svg)$": "<rootDir>/public/jest.assets.ts",
+      "@fider/(.*)": "<rootDir>/public/$1",
+      "@locale/(.*)": "<rootDir>/locale/$1"
     }
   },
+  "engines": {
+    "npm": "7.x",
+    "node": "16.x"
+  },
   "scripts": {
-    "heroku-postbuild": "npx webpack -p"
+    "heroku-postbuild": "make build-ssr && make build-ui"
   }
 }

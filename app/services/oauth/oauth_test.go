@@ -9,9 +9,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/pkg/bus"
@@ -24,7 +24,7 @@ import (
 
 func newGetContext(rawurl string) *web.Context {
 	u, _ := url.Parse(rawurl)
-	e := web.New(nil)
+	e := web.New()
 	res := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", u.RequestURI(), nil)
 	req.Host = u.Host
@@ -91,7 +91,7 @@ func TestGetAuthURL_Custom(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_custom" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:     q.Provider,
 				ClientID:     "CU_CL_ID",
 				Scope:        "profile email",
@@ -113,13 +113,41 @@ func TestGetAuthURL_Custom(t *testing.T) {
 	Expect(authURL.Result).Equals("https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state=http%3A%2F%2Fexample.org%7C456")
 }
 
+func TestGetAuthURL_Twitch(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_custom" {
+			q.Result = &entity.OAuthConfig{
+				Provider:     q.Provider,
+				ClientID:     "CU_CL_ID",
+				Scope:        "openid",
+				AuthorizeURL: "https://id.twitch.tv/oauth/authorize",
+			}
+		}
+		return nil
+	})
+
+	ctx := newGetContext("http://login.test.fider.io:3000")
+	authURL := &query.GetOAuthAuthorizationURL{
+		Provider:   "_custom",
+		Redirect:   "http://example.org",
+		Identifier: "456",
+	}
+
+	err := bus.Dispatch(ctx, authURL)
+	Expect(err).IsNil()
+	Expect(authURL.Result).Equals("https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state=http%3A%2F%2Fexample.org%7C456")
+}
+
 func TestParseProfileResponse_AllFields(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
@@ -149,7 +177,7 @@ func TestParseProfileResponse_WithoutEmail(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
@@ -178,7 +206,7 @@ func TestParseProfileResponse_NestedData(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "profile.name",
@@ -213,7 +241,7 @@ func TestParseProfileResponse_WithFallback(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "profile.name, profile.login",
@@ -248,7 +276,7 @@ func TestParseProfileResponse_UseEmailWhenNameIsEmpty(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "profile.name",
@@ -282,7 +310,7 @@ func TestParseProfileResponse_InvalidEmail(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "profile.name",
@@ -317,7 +345,7 @@ func TestParseProfileResponse_EmptyID(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
@@ -344,7 +372,7 @@ func TestParseProfileResponse_EmptyName(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
@@ -372,7 +400,7 @@ func TestCustomOAuth_Disabled(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",

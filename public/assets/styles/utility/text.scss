@@ -1,0 +1,91 @@
+p,
+pre {
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+p:last-child,
+pre:last-child {
+  margin-bottom: 0;
+}
+
+.text-display2 {
+  font-size: get("font.size.2xl");
+  font-weight: get("font.weight.bold");
+  letter-spacing: -1px;
+}
+
+.text-display {
+  font-size: get("font.size.xl");
+  font-weight: get("font.weight.semibold");
+}
+
+.text-title {
+  font-size: get("font.size.lg");
+  font-weight: get("font.weight.medium");
+}
+
+.text-body {
+  font-size: get("font.size.base");
+}
+
+.text-sm {
+  font-size: get("font.size.sm");
+}
+
+.text-category {
+  font-size: get("font.size.xs");
+  font-weight: get("font.weight.semibold");
+  color: get("colors.gray.600");
+  text-transform: uppercase;
+}
+
+.text-muted {
+  font-size: get("font.size.xs");
+  color: get("colors.gray.700");
+}
+
+.text-link {
+  color: get("colors.blue.600");
+}
+
+.text-link:hover {
+  color: get("colors.blue.800");
+  text-decoration: underline;
+}
+
+.text-sm {
+  font-size: get("font.size.sm");
+}
+
+.text-xs {
+  font-size: get("font.size.xs");
+}
+
+.text-2xs {
+  font-size: get("font.size.2xs");
+}
+
+.hover\:underline:hover {
+  text-decoration: underline;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-medium {
+  font-weight: get("font.weight.medium");
+}
+
+.text-semibold {
+  font-weight: get("font.weight.semibold");
+}
+
+.text-bold {
+  font-weight: get("font.weight.bold");
+}
+
+.uppercase {
+  text-transform: uppercase;
+}

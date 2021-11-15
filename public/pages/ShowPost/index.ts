@@ -1,1 +1,1 @@
-export * from "./ShowPost.page";
+export * from "./ShowPost.page"

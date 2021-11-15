@@ -1,0 +1,11 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-form-error {
+  color: get("colors.red.600");
+  font-size: get("font.size.sm");
+  ul {
+    list-style: none;
+    padding-left: sizing(1);
+    margin: 0;
+  }
+}

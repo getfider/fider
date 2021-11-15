@@ -2,49 +2,52 @@ package actions
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
 // UpdateUserSettings happens when users updates their settings
 type UpdateUserSettings struct {
-	Model *models.UpdateUserSettings
+	Name       string            `json:"name"`
+	AvatarType enum.AvatarType   `json:"avatarType"`
+	Avatar     *dto.ImageUpload  `json:"avatar"`
+	Settings   map[string]string `json:"settings"`
 }
 
-// Initialize the model
-func (input *UpdateUserSettings) Initialize() interface{} {
-	input.Model = new(models.UpdateUserSettings)
-	input.Model.Avatar = &models.ImageUpload{}
-	return input.Model
+func NewUpdateUserSettings() *UpdateUserSettings {
+	return &UpdateUserSettings{
+		Avatar: &dto.ImageUpload{},
+	}
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateUserSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
+func (action *UpdateUserSettings) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *UpdateUserSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
+func (action *UpdateUserSettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Name == "" {
-		result.AddFieldFailure("name", "Name is required.")
+	if action.Name == "" {
+		result.AddFieldFailure("name", propertyIsRequired(ctx, "name"))
 	}
 
-	if input.Model.AvatarType < 1 || input.Model.AvatarType > 3 {
-		result.AddFieldFailure("avatarType", "Invalid avatar type.")
+	if action.AvatarType < 1 || action.AvatarType > 3 {
+		result.AddFieldFailure("avatarType", propertyIsInvalid(ctx, "avatarType"))
 	}
 
-	if len(input.Model.Name) > 50 {
-		result.AddFieldFailure("name", "Name must have less than 50 characters.")
+	if len(action.Name) > 50 {
+		result.AddFieldFailure("name", propertyMaxStringLen(ctx, "name", 50))
 	}
 
-	input.Model.Avatar.BlobKey = user.AvatarBlobKey
-	messages, err := validate.ImageUpload(input.Model.Avatar, validate.ImageUploadOpts{
-		IsRequired:   input.Model.AvatarType == enum.AvatarTypeCustom,
+	action.Avatar.BlobKey = user.AvatarBlobKey
+	messages, err := validate.ImageUpload(ctx, action.Avatar, validate.ImageUploadOpts{
+		IsRequired:   action.AvatarType == enum.AvatarTypeCustom,
 		MinHeight:    50,
 		MinWidth:     50,
 		ExactRatio:   true,
@@ -55,19 +58,19 @@ func (input *UpdateUserSettings) Validate(ctx context.Context, user *models.User
 	}
 	result.AddFieldFailure("avatar", messages...)
 
-	if input.Model.Settings != nil {
-		for k, v := range input.Model.Settings {
+	if action.Settings != nil {
+		for k, v := range action.Settings {
 			ok := false
 			for _, e := range enum.AllNotificationEvents {
 				if e.UserSettingsKeyName == k {
 					ok = true
 					if !e.Validate(v) {
-						result.AddFieldFailure("settings", fmt.Sprintf("Settings %s has an invalid value %s.", k, v))
+						result.AddFieldFailure("settings", i18n.T(ctx, "validation.invalidvalue", i18n.Params{"name": k}, i18n.Params{"value": v}))
 					}
 				}
 			}
 			if !ok {
-				result.AddFieldFailure("settings", fmt.Sprintf("Unknown settings named %s.", k))
+				result.AddFieldFailure("settings", i18n.T(ctx, "validation.custom.unknownsettings", i18n.Params{"name": k}))
 			}
 		}
 	}

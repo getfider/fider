@@ -1,58 +1,58 @@
 const set = (storage: Storage, key: string, value: string): void => {
   if (storage) {
-    storage.setItem(key, value);
+    storage.setItem(key, value)
   }
-};
+}
 
 const get = (storage: Storage, key: string): string | null => {
   if (window.localStorage) {
-    return storage.getItem(key);
+    return storage.getItem(key)
   }
-  return null;
-};
+  return null
+}
 
 const has = (storage: Storage, key: string): boolean => {
   if (storage) {
-    return !!storage.getItem(key);
+    return !!storage.getItem(key)
   }
-  return false;
-};
+  return false
+}
 
 const remove = (storage: Storage, ...keys: string[]): void => {
   if (storage && keys) {
     for (const key of keys) {
-      storage.removeItem(key);
+      storage.removeItem(key)
     }
   }
-};
+}
 
 export const cache = {
   local: {
     set: (key: string, value: string): void => {
-      set(window.localStorage, key, value);
+      set(window.localStorage, key, value)
     },
     get: (key: string): string | null => {
-      return get(window.localStorage, key);
+      return get(window.localStorage, key)
     },
     has: (key: string): boolean => {
-      return has(window.localStorage, key);
+      return has(window.localStorage, key)
     },
     remove: (...keys: string[]): void => {
-      remove(window.localStorage, ...keys);
-    }
+      remove(window.localStorage, ...keys)
+    },
   },
   session: {
     set: (key: string, value: string): void => {
-      set(window.sessionStorage, key, value);
+      set(window.sessionStorage, key, value)
     },
     get: (key: string): string | null => {
-      return get(window.sessionStorage, key);
+      return get(window.sessionStorage, key)
     },
     has: (key: string): boolean => {
-      return has(window.sessionStorage, key);
+      return has(window.sessionStorage, key)
     },
     remove: (...keys: string[]): void => {
-      remove(window.sessionStorage, ...keys);
-    }
-  }
-};
+      remove(window.sessionStorage, ...keys)
+    },
+  },
+}

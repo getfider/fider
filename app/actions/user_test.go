@@ -6,7 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -20,23 +20,23 @@ func TestCreateUser_InvalidInput(t *testing.T) {
 	testCases := []struct {
 		expected []string
 		message  string
-		input    *models.CreateUser
+		action   *actions.CreateUser
 	}{
 		{
 			expected: []string{"name"},
 			message:  "Either email or reference is required",
-			input:    &models.CreateUser{},
+			action:   &actions.CreateUser{},
 		},
 		{
 			expected: []string{"email"},
-			input: &models.CreateUser{
+			action: &actions.CreateUser{
 				Name:  "Jon Snow",
 				Email: "helloworld",
 			},
 		},
 		{
 			expected: []string{"name", "email", "reference"},
-			input: &models.CreateUser{
+			action: &actions.CreateUser{
 				Name:      rand.String(101),
 				Email:     rand.String(201),
 				Reference: rand.String(101),
@@ -45,10 +45,7 @@ func TestCreateUser_InvalidInput(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		action := &actions.CreateUser{
-			Model: testCase.input,
-		}
-		result := action.Validate(context.Background(), nil)
+		result := testCase.action.Validate(context.Background(), nil)
 		ExpectFailed(result, testCase.expected...)
 		if testCase.message != "" {
 			for k, v := range result.Errors {
@@ -64,23 +61,23 @@ func TestCreateUser_ValidInput(t *testing.T) {
 	RegisterT(t)
 
 	testCases := []struct {
-		input *models.CreateUser
+		action *actions.CreateUser
 	}{
 		{
-			input: &models.CreateUser{
+			action: &actions.CreateUser{
 				Name:      "John Snow",
 				Email:     "jon.snow@got.com",
 				Reference: "812747824",
 			},
 		},
 		{
-			input: &models.CreateUser{
+			action: &actions.CreateUser{
 				Name:  "John Snow",
 				Email: "jon.snow@got.com",
 			},
 		},
 		{
-			input: &models.CreateUser{
+			action: &actions.CreateUser{
 				Name:      "John Snow",
 				Reference: "812747824",
 			},
@@ -88,10 +85,7 @@ func TestCreateUser_ValidInput(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		action := &actions.CreateUser{
-			Model: testCase.input,
-		}
-		result := action.Validate(context.Background(), nil)
+		result := testCase.action.Validate(context.Background(), nil)
 		ExpectSuccess(result)
 	}
 }
@@ -99,12 +93,12 @@ func TestCreateUser_ValidInput(t *testing.T) {
 func TestChangeUserRole_Unauthorized(t *testing.T) {
 	RegisterT(t)
 
-	for _, user := range []*models.User{
-		&models.User{ID: 1, Role: enum.RoleVisitor},
-		&models.User{ID: 1, Role: enum.RoleCollaborator},
-		&models.User{ID: 2, Role: enum.RoleAdministrator},
+	for _, user := range []*entity.User{
+		{ID: 1, Role: enum.RoleVisitor},
+		{ID: 1, Role: enum.RoleCollaborator},
+		{ID: 2, Role: enum.RoleAdministrator},
 	} {
-		action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 2}}
+		action := actions.ChangeUserRole{UserID: 2}
 		Expect(action.IsAuthorized(context.Background(), user)).IsFalse()
 	}
 }
@@ -112,18 +106,18 @@ func TestChangeUserRole_Unauthorized(t *testing.T) {
 func TestChangeUserRole_Authorized(t *testing.T) {
 	RegisterT(t)
 
-	user := &models.User{ID: 2, Role: enum.RoleAdministrator}
-	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 1}}
+	user := &entity.User{ID: 2, Role: enum.RoleAdministrator}
+	action := actions.ChangeUserRole{UserID: 1}
 	Expect(action.IsAuthorized(context.Background(), user)).IsTrue()
 }
 
 func TestChangeUserRole_InvalidRole(t *testing.T) {
 	RegisterT(t)
 
-	targetUser := &models.User{Role: enum.RoleVisitor}
-	currentUser := &models.User{Role: enum.RoleAdministrator}
+	targetUser := &entity.User{Role: enum.RoleVisitor}
+	currentUser := &entity.User{Role: enum.RoleAdministrator}
 
-	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: 4}}
+	action := actions.ChangeUserRole{UserID: targetUser.ID, Role: 4}
 	action.IsAuthorized(context.Background(), currentUser)
 	result := action.Validate(context.Background(), currentUser)
 	Expect(result.Err).Equals(app.ErrNotFound)
@@ -136,13 +130,13 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	currentUser := &models.User{
-		Tenant: &models.Tenant{ID: 1},
+	currentUser := &entity.User{
+		Tenant: &entity.Tenant{ID: 1},
 		Role:   enum.RoleAdministrator,
 	}
 
 	ctx := context.Background()
-	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 999, Role: enum.RoleAdministrator}}
+	action := actions.ChangeUserRole{UserID: 999, Role: enum.RoleAdministrator}
 	action.IsAuthorized(ctx, currentUser)
 	result := action.Validate(ctx, currentUser)
 	ExpectFailed(result, "userID")
@@ -151,12 +145,12 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 	RegisterT(t)
 
-	targetUser := &models.User{
-		Tenant: &models.Tenant{ID: 1},
+	targetUser := &entity.User{
+		Tenant: &entity.Tenant{ID: 1},
 	}
 
-	currentUser := &models.User{
-		Tenant: &models.Tenant{ID: 2},
+	currentUser := &entity.User{
+		Tenant: &entity.Tenant{ID: 2},
 		Role:   enum.RoleAdministrator,
 	}
 
@@ -168,7 +162,7 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: enum.RoleAdministrator}}
+	action := actions.ChangeUserRole{UserID: targetUser.ID, Role: enum.RoleAdministrator}
 	action.IsAuthorized(context.Background(), currentUser)
 	result := action.Validate(context.Background(), currentUser)
 	ExpectFailed(result, "userID")
@@ -177,8 +171,8 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 func TestChangeUserRole_CurrentUser(t *testing.T) {
 	RegisterT(t)
 
-	currentUser := &models.User{
-		Tenant: &models.Tenant{ID: 2},
+	currentUser := &entity.User{
+		Tenant: &entity.Tenant{ID: 2},
 		Role:   enum.RoleAdministrator,
 	}
 
@@ -190,7 +184,7 @@ func TestChangeUserRole_CurrentUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: currentUser.ID, Role: enum.RoleVisitor}}
+	action := actions.ChangeUserRole{UserID: currentUser.ID, Role: enum.RoleVisitor}
 	action.IsAuthorized(context.Background(), currentUser)
 	result := action.Validate(context.Background(), currentUser)
 	ExpectFailed(result, "userID")

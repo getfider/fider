@@ -1,19 +1,23 @@
 package query
 
 import (
-	"github.com/getfider/fider/app/models"
+	"time"
+
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
 
 type IsCNAMEAvailable struct {
 	CNAME string
 
+	// Output
 	Result bool
 }
 
 type IsSubdomainAvailable struct {
 	Subdomain string
 
+	// Output
 	Result bool
 }
 
@@ -21,15 +25,26 @@ type GetVerificationByKey struct {
 	Kind enum.EmailVerificationKind
 	Key  string
 
-	Result *models.EmailVerification
+	// Output
+	Result *entity.EmailVerification
 }
 
 type GetFirstTenant struct {
-	Result *models.Tenant
+
+	// Output
+	Result *entity.Tenant
 }
 
 type GetTenantByDomain struct {
 	Domain string
 
-	Result *models.Tenant
+	// Output
+	Result *entity.Tenant
+}
+
+type GetTrialingTenantContacts struct {
+	TrialExpiresOn time.Time
+
+	// Output
+	Contacts []*entity.User
 }

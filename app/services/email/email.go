@@ -10,21 +10,21 @@ import (
 // NoReply is the default 'from' address
 var NoReply = env.Config.Email.NoReply
 
-var whitelist = env.Config.Email.Whitelist
-var whitelistRegex = regexp.MustCompile(whitelist)
-var blacklist = env.Config.Email.Blacklist
-var blacklistRegex = regexp.MustCompile(blacklist)
+var allowlist = env.Config.Email.Allowlist
+var allowlistRegex = regexp.MustCompile(allowlist)
+var blocklist = env.Config.Email.Blocklist
+var blocklistRegex = regexp.MustCompile(blocklist)
 
-// SetWhitelist can be used to change email whitelist during runtime
-func SetWhitelist(s string) {
-	whitelist = s
-	whitelistRegex = regexp.MustCompile(whitelist)
+// SetAllowlist can be used to change email allowlist during runtime
+func SetAllowlist(s string) {
+	allowlist = s
+	allowlistRegex = regexp.MustCompile(allowlist)
 }
 
-// SetBlacklist can be used to change email blacklist during runtime
-func SetBlacklist(s string) {
-	blacklist = s
-	blacklistRegex = regexp.MustCompile(blacklist)
+// SetBlocklist can be used to change email blocklist during runtime
+func SetBlocklist(s string) {
+	blocklist = s
+	blocklistRegex = regexp.MustCompile(blocklist)
 }
 
 // CanSendTo returns true if Fider is allowed to send email to given address
@@ -33,12 +33,12 @@ func CanSendTo(address string) bool {
 		return false
 	}
 
-	if whitelist != "" {
-		return whitelistRegex.MatchString(address)
+	if allowlist != "" {
+		return allowlistRegex.MatchString(address)
 	}
 
-	if blacklist != "" {
-		return !blacklistRegex.MatchString(address)
+	if blocklist != "" {
+		return !blocklistRegex.MatchString(address)
 	}
 
 	return true

@@ -17,20 +17,20 @@ import (
 // SendSampleInvite to current user's email
 func SendSampleInvite() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := &actions.InviteUsers{IsSampleInvite: true}
-		if result := c.BindTo(input); !result.Ok {
+		action := &actions.InviteUsers{IsSampleInvite: true}
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if c.User().Email != "" {
-			input.Model.Message = strings.Replace(input.Model.Message, app.InvitePlaceholder, "*the link to accept invitation will be here*", -1)
+			action.Message = strings.Replace(action.Message, app.InvitePlaceholder, "*[the link to join will be here]*", -1)
 			to := dto.NewRecipient(c.User().Name, c.User().Email, dto.Props{
-				"subject": input.Model.Subject,
-				"message": markdown.Full(input.Model.Message),
+				"subject": action.Subject,
+				"message": markdown.Full(action.Message),
 			})
 
 			bus.Publish(c, &cmd.SendMail{
-				From:         c.Tenant().Name,
+				From:         dto.Recipient{Name: c.Tenant().Name},
 				To:           []dto.Recipient{to},
 				TemplateName: "invite_email",
 				Props: dto.Props{
@@ -46,16 +46,16 @@ func SendSampleInvite() web.HandlerFunc {
 // SendInvites sends an email to each recipient
 func SendInvites() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.InviteUsers)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.InviteUsers)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		log.Warnf(c, "Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", dto.Props{
-			"TotalInvites": len(input.Invitations),
-			"ClientIP":     c.Request.ClientIP,
+		log.Warnf(c, "@{Tenant:magenta} sent @{TotalInvites:magenta} invites", dto.Props{
+			"Tenant":       c.Tenant().Subdomain,
+			"TotalInvites": len(action.Invitations),
 		})
-		c.Enqueue(tasks.SendInvites(input.Model.Subject, input.Model.Message, input.Invitations))
+		c.Enqueue(tasks.SendInvites(action.Subject, action.Message, action.Invitations))
 
 		return c.Ok(web.Map{})
 	}

@@ -9,8 +9,8 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -62,7 +62,7 @@ func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
-		q.Result = &models.Tenant{ID: 2, Name: "MyCompany"}
+		q.Result = &entity.Tenant{ID: 2, Name: "MyCompany"}
 		return nil
 	})
 
@@ -124,7 +124,7 @@ func TestCreateTenantHandler_EmptyInput(t *testing.T) {
 func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	RegisterT(t)
 
-	var newUser *models.User
+	var newUser *entity.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		newUser = c.User
 		return nil
@@ -180,7 +180,7 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 	RegisterT(t)
 
-	var newUser *models.User
+	var newUser *entity.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		c.User.ID = 1
 		newUser = c.User
@@ -224,7 +224,7 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 	Expect(newUser.Email).Equals("jon.snow@got.com")
 	Expect(newUser.Role).Equals(enum.RoleAdministrator)
 
-	ExpectFiderAuthCookie(response, &models.User{
+	ExpectFiderAuthCookie(response, &entity.User{
 		ID:    1,
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
@@ -246,7 +246,7 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	var newTenant *cmd.CreateTenant
 	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
 		newTenant = c
-		c.Result = &models.Tenant{ID: 1, Name: c.Name, Subdomain: c.Subdomain, Status: c.Status}
+		c.Result = &entity.Tenant{ID: 1, Name: c.Name, Subdomain: c.Subdomain, Status: c.Status}
 		return nil
 	})
 

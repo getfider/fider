@@ -12,14 +12,14 @@ import (
 //Returns an exitcode, 0 for OK and 1 for ERROR
 func RunPing() int {
 	protocol := "http://"
-	if env.Config.SSLCert != "" || env.Config.AutoSSL {
+	if env.Config.TLS.Certificate != "" || env.Config.TLS.Automatic {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
 			InsecureSkipVerify: true,
 		}
 		protocol = "https://"
 	}
 
-	resp, err := http.Get(protocol + "localhost:3000/-/health")
+	resp, err := http.Get(protocol + "localhost:3000/_health")
 	if err != nil {
 		fmt.Printf("Request failed with: %s\n", err)
 		return 1

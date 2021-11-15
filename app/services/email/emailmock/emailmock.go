@@ -5,20 +5,21 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 )
 
 var MessageHistory = make([]*HistoryItem, 0)
 
 type HistoryItem struct {
-	From         string
+	From         dto.Recipient
 	To           []dto.Recipient
 	TemplateName string
 	Props        dto.Props
-	Tenant       *models.Tenant
+	Tenant       *entity.Tenant
 }
 
 func init() {
@@ -42,6 +43,12 @@ func (s Service) Enabled() bool {
 func (s Service) Init() {
 	MessageHistory = make([]*HistoryItem, 0)
 	bus.AddListener(sendMail)
+	bus.AddHandler(fetchRecentSupressions)
+}
+
+func fetchRecentSupressions(ctx context.Context, c *query.FetchRecentSupressions) error {
+	// not implemented for Email Mock
+	return nil
 }
 
 func sendMail(ctx context.Context, c *cmd.SendMail) {
@@ -55,7 +62,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		Props:        c.Props,
 	}
 
-	tenant, ok := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
 		item.Tenant = tenant
 	}

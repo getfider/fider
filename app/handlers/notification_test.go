@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -51,8 +51,8 @@ func TestNotificationsHandler(t *testing.T) {
 func TestReadNotificationHandler(t *testing.T) {
 	RegisterT(t)
 
-	not1 := &models.Notification{ID: 1, Link: "/abc"}
-	not2 := &models.Notification{ID: 2, Link: "/def"}
+	not1 := &entity.Notification{ID: 1, Link: "/abc"}
+	not2 := &entity.Notification{ID: 2, Link: "/def"}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetNotificationByID) error {
 		if q.ID == 1 {

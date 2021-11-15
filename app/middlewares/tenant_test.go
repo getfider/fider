@@ -8,7 +8,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -112,6 +112,29 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 }
 
+func TestMultiTenant_DisabledTenant_ShouldNotSetInContext(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
+		if q.Domain == "avengers.test.fider.io" {
+			q.Result = mock.AvengersTenant
+			q.Result.Status = enum.TenantDisabled
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	server.Use(middlewares.MultiTenant())
+	server.Use(middlewares.RequireTenant())
+
+	status, _ := server.WithURL("http://avengers.test.fider.io").Execute(func(c *web.Context) error {
+		return c.Ok(nil)
+	})
+
+	Expect(status).Equals(http.StatusNotFound)
+}
+
 func TestMultiTenant_CanonicalHeader(t *testing.T) {
 	RegisterT(t)
 
@@ -209,14 +232,14 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
-		q.Result = &models.Tenant{Name: "MyCompany", Subdomain: "mycompany", Status: enum.TenantActive}
+		q.Result = &entity.Tenant{Name: "MyCompany", Subdomain: "mycompany", Status: enum.TenantActive}
 		return nil
 	})
 
 	server := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 
-	status, response := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
+	status, response := server.WithURL("http://test.fider.io").Execute(func(c *web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
@@ -372,7 +395,7 @@ func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {
 	server.Use(middlewares.SingleTenant())
 	server.Use(middlewares.RequireTenant())
 
-	status, response := server.WithURL("http://demo.test.fider.io").Execute(func(c *web.Context) error {
+	status, response := server.WithURL("http://test.fider.io").Execute(func(c *web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
@@ -402,23 +425,6 @@ func TestBlockLockedTenants_LockedTenant(t *testing.T) {
 	server.Use(middlewares.BlockLockedTenants())
 	mock.DemoTenant.Status = enum.TenantLocked
 
-	status, response := server.
-		WithURL("http://demo.test.fider.io").
-		OnTenant(mock.DemoTenant).
-		Execute(func(c *web.Context) error {
-			return c.String(http.StatusOK, c.Tenant().Name)
-		})
-
-	Expect(status).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("/signin")
-}
-
-func TestBlockLockedTenants_LockedTenant_APICall(t *testing.T) {
-	RegisterT(t)
-	server := mock.NewServer()
-	server.Use(middlewares.BlockLockedTenants())
-	mock.DemoTenant.Status = enum.TenantLocked
-
 	status, _ := server.
 		WithURL("http://demo.test.fider.io/api/v1/posts").
 		OnTenant(mock.DemoTenant).
@@ -426,5 +432,5 @@ func TestBlockLockedTenants_LockedTenant_APICall(t *testing.T) {
 			return c.String(http.StatusOK, c.Tenant().Name)
 		})
 
-	Expect(status).Equals(http.StatusLocked)
+	Expect(status).Equals(http.StatusPaymentRequired)
 }

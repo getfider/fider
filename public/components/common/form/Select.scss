@@ -1,0 +1,25 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-select {
+  background-color: get("colors.white");
+  width: 100%;
+  line-height: get("font.size.xl");
+  padding: spacing(2);
+  border: 1px solid get("colors.gray.300");
+  border-radius: get("border.radius.medium");
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &:disabled {
+    @include disabled();
+  }
+
+  &--error {
+    border-color: get("colors.red.600");
+  }
+}

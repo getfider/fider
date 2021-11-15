@@ -1,4 +1,6 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
+
+$c-modal-dimmer-padding: 1em;
 
 .c-modal-dimmer {
   position: fixed;
@@ -8,14 +10,14 @@
   height: 100%;
   text-align: center;
   vertical-align: middle;
-  padding: 1em;
-  background-color: rgba(60, 60, 60, .8);
+  padding: $c-modal-dimmer-padding;
   z-index: 100;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow-y: hidden;
+  align-items: flex-start;
+  overflow-y: auto;
   animation: dimmerFadeIn 0.5s;
+  background-color: rgba(get("colors.gray.800"), 0.7);
 
   @media only screen and (max-height: 483px) {
     overflow-y: scroll;
@@ -24,20 +26,29 @@
 }
 
 @keyframes dimmerFadeIn {
-  from { background-color: rgba(60, 60, 60, .1); }
-  to { background-color: rgba(60, 60, 60, .8); }
+  from {
+    background-color: rgba(get("colors.gray.800"), 0.1);
+  }
+  to {
+    background-color: rgba(get("colors.gray.800"), 0.7);
+  }
 }
 
-
 @keyframes windowfadeIn {
-  from { 
+  from {
     transform: scale(0.7);
-    opacity: 0; 
+    opacity: 0;
   }
-  to { 
+  to {
     transform: scale(1);
-    opacity: 1; 
+    opacity: 1;
   }
+}
+
+.c-modal-scroller {
+  min-height: calc(100vh - #{2 * $c-modal-dimmer-padding});
+  display: flex;
+  align-items: center;
 }
 
 .c-modal-window {
@@ -46,33 +57,31 @@
   background: #fff;
   border: none;
   border-radius: 3px;
-  -webkit-box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
-  box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
   animation: windowfadeIn 0.5s;
 
-  &.m-small {
+  &--small {
     width: 100%;
-    @include media(">=md") {
+    @include media("md") {
       width: 500px;
     }
   }
 
-  &.m-large {
+  &--large {
     width: 100%;
-    @include media(">=md") {
+    @include media("md") {
       width: 750px;
     }
   }
 
-  &.m-center {
+  &--center {
     text-align: center;
   }
 
   .c-modal-header {
-    font-size: $font-size-large;
+    font-size: get("font.size.lg");
     font-weight: 600;
     padding: 15px 20px;
-    border-bottom: 1px solid $gray-lighter;
+    border-bottom: 1px solid get("colors.gray.200");
   }
 
   .c-modal-content {
@@ -80,18 +89,18 @@
   }
 
   .c-modal-footer {
-    background: $gray-lightest;
+    background: get("colors.gray.100");
     padding: 10px;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
-    border-top: 1px solid $gray-light;
-    &.m-right {
+    border-top: 1px solid get("colors.gray.300");
+    &--right {
       text-align: right;
     }
-    &.m-center {
+    &--center {
       text-align: center;
     }
-    &.m-left {
+    &--left {
       text-align: left;
     }
   }

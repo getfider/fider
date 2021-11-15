@@ -2,11 +2,12 @@ package actions_test
 
 import (
 	"context"
+	"github.com/getfider/fider/app/models/dto"
 	"testing"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -17,17 +18,22 @@ import (
 func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		q.Result = []*dto.OAuthProviderOption{}
+		return nil
+	})
+
 	testCases := []struct {
 		expected []string
-		input    *models.CreateEditOAuthConfig
+		action   *actions.CreateEditOAuthConfig
 	}{
 		{
 			expected: []string{"displayName", "status", "tokenURL", "clientID", "clientSecret", "scope", "authorizeURL", "tokenURL", "jsonUserIDPath"},
-			input:    &models.CreateEditOAuthConfig{},
+			action:   &actions.CreateEditOAuthConfig{},
 		},
 		{
 			expected: []string{"displayName", "status", "tokenURL", "clientID", "clientSecret", "scope", "authorizeURL", "tokenURL", "profileURL", "jsonUserIDPath", "jsonUserNamePath", "jsonUserEmailPath"},
-			input: &models.CreateEditOAuthConfig{
+			action: &actions.CreateEditOAuthConfig{
 				DisplayName:       rand.String(51),
 				ClientID:          rand.String(101),
 				Status:            0,
@@ -42,28 +48,32 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 			},
 		},
 	}
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
+		IsEmailAuthAllowed: true,
+	})
 
 	for _, testCase := range testCases {
-		action := &actions.CreateEditOAuthConfig{
-			Model: testCase.input,
-		}
-		result := action.Validate(context.Background(), nil)
+		result := testCase.action.Validate(ctx, nil)
 		ExpectFailed(result, testCase.expected...)
 	}
 }
 
-func TestCreateEditOAuthConfig_Initialize(t *testing.T) {
+func TestCreateEditOAuthConfig_DefaultValues(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.CreateEditOAuthConfig{}
-	action.Initialize()
-	Expect(action.Model.Logo.BlobKey).Equals("")
+	action := actions.NewCreateEditOAuthConfig()
+	Expect(action.Logo.BlobKey).Equals("")
 }
 
 func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 	RegisterT(t)
 
-	input := &models.CreateEditOAuthConfig{
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		q.Result = []*dto.OAuthProviderOption{}
+		return nil
+	})
+
+	action := &actions.CreateEditOAuthConfig{
 		DisplayName:       "My Provider",
 		Status:            enum.OAuthConfigEnabled,
 		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
@@ -76,14 +86,15 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 		JSONUserNamePath:  "user.name",
 		JSONUserEmailPath: "user.email",
 	}
-	action := &actions.CreateEditOAuthConfig{
-		Model: input,
-	}
-	result := action.Validate(context.Background(), nil)
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
+		IsEmailAuthAllowed: true,
+	})
+
+	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
-	Expect(input.ID).Equals(0)
-	Expect(input.Provider).HasLen(11)
-	Expect(string(input.Provider[0])).Equals("_")
+	Expect(action.ID).Equals(0)
+	Expect(action.Provider).HasLen(11)
+	Expect(string(action.Provider[0])).Equals("_")
 }
 
 func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
@@ -91,7 +102,7 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_NAME" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				ID:          4,
 				Provider:    q.Provider,
 				LogoBlobKey: "hello-world.png",
@@ -101,26 +112,33 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.CreateEditOAuthConfig{}
-	action.Initialize()
-	action.Model.Provider = "_NAME"
-	action.Model.DisplayName = "My Provider"
-	action.Model.Status = enum.OAuthConfigDisabled
-	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
-	action.Model.ClientSecret = "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij"
-	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
-	action.Model.TokenURL = "http://provider/oauth/token"
-	action.Model.Scope = "profile email"
-	action.Model.ProfileURL = "http://provider/profile/me"
-	action.Model.JSONUserIDPath = "user.id"
-	action.Model.JSONUserNamePath = "user.name"
-	action.Model.JSONUserEmailPath = "user.email"
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		q.Result = []*dto.OAuthProviderOption{}
+		return nil
+	})
 
-	result := action.Validate(context.Background(), nil)
+	action := actions.NewCreateEditOAuthConfig()
+	action.Provider = "_NAME"
+	action.DisplayName = "My Provider"
+	action.Status = enum.OAuthConfigDisabled
+	action.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
+	action.ClientSecret = "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij"
+	action.AuthorizeURL = "http://provider/oauth/authorize"
+	action.TokenURL = "http://provider/oauth/token"
+	action.Scope = "profile email"
+	action.ProfileURL = "http://provider/profile/me"
+	action.JSONUserIDPath = "user.id"
+	action.JSONUserNamePath = "user.name"
+	action.JSONUserEmailPath = "user.email"
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
+		IsEmailAuthAllowed: true,
+	})
+
+	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
-	Expect(action.Model.ID).Equals(4)
-	Expect(action.Model.Logo.BlobKey).Equals("hello-world.png")
-	Expect(action.Model.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
+	Expect(action.ID).Equals(4)
+	Expect(action.Logo.BlobKey).Equals("hello-world.png")
+	Expect(action.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
 }
 
 func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
@@ -128,7 +146,7 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_NAME2" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				ID:           5,
 				Provider:     q.Provider,
 				DisplayName:  "My Provider",
@@ -139,24 +157,31 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.CreateEditOAuthConfig{}
-	action.Initialize()
-	action.Model.Provider = "_NAME2"
-	action.Model.DisplayName = "My Provider"
-	action.Model.Status = enum.OAuthConfigDisabled
-	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
-	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
-	action.Model.TokenURL = "http://provider/oauth/token"
-	action.Model.Scope = "profile email"
-	action.Model.ProfileURL = "http://provider/profile/me"
-	action.Model.JSONUserIDPath = "user.id"
-	action.Model.JSONUserNamePath = "user.name"
-	action.Model.JSONUserEmailPath = "user.email"
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		q.Result = []*dto.OAuthProviderOption{}
+		return nil
+	})
 
-	result := action.Validate(context.Background(), nil)
+	action := actions.NewCreateEditOAuthConfig()
+	action.Provider = "_NAME2"
+	action.DisplayName = "My Provider"
+	action.Status = enum.OAuthConfigDisabled
+	action.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
+	action.AuthorizeURL = "http://provider/oauth/authorize"
+	action.TokenURL = "http://provider/oauth/token"
+	action.Scope = "profile email"
+	action.ProfileURL = "http://provider/profile/me"
+	action.JSONUserIDPath = "user.id"
+	action.JSONUserNamePath = "user.name"
+	action.JSONUserEmailPath = "user.email"
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
+		IsEmailAuthAllowed: true,
+	})
+
+	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
-	Expect(action.Model.ID).Equals(5)
-	Expect(action.Model.ClientSecret).Equals("MY_OLD_SECRET")
+	Expect(action.ID).Equals(5)
+	Expect(action.ClientSecret).Equals("MY_OLD_SECRET")
 }
 
 func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
@@ -166,20 +191,28 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := &actions.CreateEditOAuthConfig{}
-	action.Initialize()
-	action.Model.Provider = "_MY_NEW_PROVIDER"
-	action.Model.DisplayName = "My Provider"
-	action.Model.Status = enum.OAuthConfigDisabled
-	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
-	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
-	action.Model.TokenURL = "http://provider/oauth/token"
-	action.Model.Scope = "profile email"
-	action.Model.ProfileURL = "http://provider/profile/me"
-	action.Model.JSONUserIDPath = "user.id"
-	action.Model.JSONUserNamePath = "user.name"
-	action.Model.JSONUserEmailPath = "user.email"
-	result := action.Validate(context.Background(), nil)
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		q.Result = []*dto.OAuthProviderOption{}
+		return nil
+	})
+
+	action := actions.NewCreateEditOAuthConfig()
+	action.Provider = "_MY_NEW_PROVIDER"
+	action.DisplayName = "My Provider"
+	action.Status = enum.OAuthConfigDisabled
+	action.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
+	action.AuthorizeURL = "http://provider/oauth/authorize"
+	action.TokenURL = "http://provider/oauth/token"
+	action.Scope = "profile email"
+	action.ProfileURL = "http://provider/profile/me"
+	action.JSONUserIDPath = "user.id"
+	action.JSONUserNamePath = "user.name"
+	action.JSONUserEmailPath = "user.email"
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
+		IsEmailAuthAllowed: true,
+	})
+
+	result := action.Validate(ctx, nil)
 	Expect(result.Err).Equals(app.ErrNotFound)
 	Expect(result.Ok).IsFalse()
 }

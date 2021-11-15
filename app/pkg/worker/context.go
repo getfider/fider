@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/rand"
@@ -25,6 +25,7 @@ func NewContext(ctx context.Context, workerID string, task Task) *Context {
 	if task.OriginContext != nil {
 		ctx = context.WithValue(ctx, app.RequestCtxKey, task.OriginContext.Value(app.RequestCtxKey))
 		ctx = context.WithValue(ctx, app.TenantCtxKey, task.OriginContext.Value(app.TenantCtxKey))
+		ctx = context.WithValue(ctx, app.LocaleCtxKey, task.OriginContext.Value(app.LocaleCtxKey))
 		ctx = context.WithValue(ctx, app.UserCtxKey, task.OriginContext.Value(app.UserCtxKey))
 
 		ctx = log.WithProperties(ctx, dto.Props{
@@ -57,8 +58,8 @@ func (c *Context) Set(key interface{}, val interface{}) {
 }
 
 //User from current context
-func (c *Context) User() *models.User {
-	user, ok := c.Value(app.UserCtxKey).(*models.User)
+func (c *Context) User() *entity.User {
+	user, ok := c.Value(app.UserCtxKey).(*entity.User)
 	if ok {
 		return user
 	}
@@ -66,8 +67,8 @@ func (c *Context) User() *models.User {
 }
 
 //Tenant from current context
-func (c *Context) Tenant() *models.Tenant {
-	tenant, ok := c.Value(app.TenantCtxKey).(*models.Tenant)
+func (c *Context) Tenant() *entity.Tenant {
+	tenant, ok := c.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
 		return tenant
 	}

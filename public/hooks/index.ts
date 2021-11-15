@@ -1,2 +1,2 @@
-export * from "./use-timeout";
-export * from "./use-fider";
+export * from "./use-timeout"
+export * from "./use-fider"

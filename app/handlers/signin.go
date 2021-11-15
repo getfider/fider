@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -22,10 +22,10 @@ import (
 func SignInPage() web.HandlerFunc {
 	return func(c *web.Context) error {
 
-		if c.Tenant().IsPrivate || c.Tenant().Status == enum.TenantLocked {
-			return c.Page(web.Props{
-				Title:     "Sign in",
-				ChunkName: "SignIn.page",
+		if c.Tenant().IsPrivate {
+			return c.Page(http.StatusOK, web.Props{
+				Page:  "SignIn/SignIn.page",
+				Title: "Sign in",
 			})
 		}
 
@@ -36,9 +36,10 @@ func SignInPage() web.HandlerFunc {
 // NotInvitedPage renders the not invited page
 func NotInvitedPage() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return c.Render(http.StatusForbidden, "not-invited.html", web.Props{
+		return c.Page(http.StatusForbidden, web.Props{
+			Page:        "Error/NotInvited.page",
 			Title:       "Not Invited",
-			Description: "We couldn't find your account for your email address.",
+			Description: "We couldn't find an account for your email address.",
 		})
 	}
 }
@@ -46,21 +47,21 @@ func NotInvitedPage() web.HandlerFunc {
 // SignInByEmail sends a new email with verification key
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.SignInByEmail)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewSignInByEmail()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      input.Model.VerificationKey,
+			Key:      action.VerificationKey,
 			Duration: 30 * time.Minute,
-			Request:  input.Model,
+			Request:  action,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(input.Model))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationKey))
 
 		return c.Ok(web.Map{})
 	}
@@ -69,63 +70,38 @@ func SignInByEmail() web.HandlerFunc {
 // VerifySignInKey checks if verify key is correct and sign in user
 func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 	return func(c *web.Context) error {
-		result, err := validateKey(kind, c)
+		key := c.QueryParam("k")
+		result, err := validateKey(kind, key, c)
 		if result == nil {
 			return err
 		}
 
-		var user *models.User
-		if kind == enum.EmailVerificationKindSignUp && c.Tenant().Status == enum.TenantPending {
-			if err = bus.Dispatch(c, &cmd.ActivateTenant{TenantID: c.Tenant().ID}); err != nil {
-				return c.Failure(err)
-			}
-
-			user = &models.User{
-				Name:   result.Name,
-				Email:  result.Email,
-				Tenant: c.Tenant(),
-				Role:   enum.RoleAdministrator,
-			}
-
-			if err = bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
-				return c.Failure(err)
-			}
-		} else if kind == enum.EmailVerificationKindSignIn {
-			userByEmail := &query.GetUserByEmail{Email: result.Email}
-			err = bus.Dispatch(c, userByEmail)
-			user = userByEmail.Result
-			if err != nil {
-				if errors.Cause(err) == app.ErrNotFound {
-					if c.Tenant().IsPrivate {
-						return NotInvitedPage()(c)
-					}
-					return Index()(c)
+		userByEmail := &query.GetUserByEmail{Email: result.Email}
+		err = bus.Dispatch(c, userByEmail)
+		if err != nil {
+			if errors.Cause(err) == app.ErrNotFound {
+				if kind == enum.EmailVerificationKindSignIn && c.Tenant().IsPrivate {
+					return NotInvitedPage()(c)
 				}
-				return c.Failure(err)
+
+				return c.Page(http.StatusOK, web.Props{
+					Page:  "SignIn/CompleteSignInProfile.page",
+					Title: "Complete Sign In Profile",
+					Data: web.Map{
+						"kind": kind,
+						"k":    key,
+					},
+				})
 			}
-		} else if kind == enum.EmailVerificationKindUserInvitation {
-			userByEmail := &query.GetUserByEmail{Email: result.Email}
-			err = bus.Dispatch(c, userByEmail)
-			user = userByEmail.Result
-			if err != nil {
-				if errors.Cause(err) == app.ErrNotFound {
-					if c.Tenant().IsPrivate {
-						return SignInPage()(c)
-					}
-					return Index()(c)
-				}
-				return c.Failure(err)
-			}
-		} else {
-			return c.NotFound()
+			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		webutil.AddAuthUserCookie(c, user)
+		webutil.AddAuthUserCookie(c, userByEmail.Result)
 
 		return c.Redirect(c.BaseURL())
 	}
@@ -134,19 +110,25 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 // CompleteSignInProfile handles the action to update user profile
 func CompleteSignInProfile() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CompleteProfile)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.CompleteProfile)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := bus.Dispatch(c, &query.GetUserByEmail{Email: input.Model.Email})
-		if errors.Cause(err) != app.ErrNotFound {
-			return c.Ok(web.Map{})
+		result, err := validateKey(action.Kind, action.Key, c)
+		if result == nil {
+			return err
 		}
 
-		user := &models.User{
-			Name:   input.Model.Name,
-			Email:  input.Model.Email,
+		err = bus.Dispatch(c, &query.GetUserByEmail{Email: result.Email})
+		if errors.Cause(err) != app.ErrNotFound {
+			// Not possible to create user that already exists
+			return c.BadRequest(web.Map{})
+		}
+
+		user := &entity.User{
+			Name:   action.Name,
+			Email:  result.Email,
 			Tenant: c.Tenant(),
 			Role:   enum.RoleVisitor,
 		}
@@ -155,7 +137,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: input.Model.Key})
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Key})
 		if err != nil {
 			return c.Failure(err)
 		}

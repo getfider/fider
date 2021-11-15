@@ -5,22 +5,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/julienschmidt/httprouter"
 
 	"strings"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -40,7 +38,7 @@ type StringMap map[string]string
 type Props struct {
 	Title       string
 	Description string
-	ChunkName   string
+	Page        string
 	Data        Map
 }
 
@@ -68,18 +66,17 @@ const CookieSignUpAuthName = "__signup_auth"
 //Context shared between http pipeline
 type Context struct {
 	context.Context
-	Response           http.ResponseWriter
-	Request            Request
-	ResponseStatusCode int
-	id                 string
-	sessionID          string
-	engine             *Engine
-	params             StringMap
-	tasks              []worker.Task
+	Response  Response
+	Request   Request
+	id        string
+	sessionID string
+	engine    *Engine
+	params    StringMap
+	tasks     []worker.Task
 }
 
 //NewContext creates a new web Context
-func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, params StringMap) *Context {
+func NewContext(engine *Engine, req *http.Request, rw http.ResponseWriter, params StringMap) *Context {
 	contextID := rand.String(32)
 
 	wrappedRequest := WrapRequest(req)
@@ -96,7 +93,7 @@ func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, para
 		id:       contextID,
 		engine:   engine,
 		Request:  wrappedRequest,
-		Response: res,
+		Response: Response{Writer: rw},
 		params:   params,
 		tasks:    make([]worker.Task, 0),
 	}
@@ -154,8 +151,8 @@ func (c *Context) Enqueue(task worker.Task) {
 }
 
 //Tenant returns current tenant
-func (c *Context) Tenant() *models.Tenant {
-	tenant, ok := c.Value(app.TenantCtxKey).(*models.Tenant)
+func (c *Context) Tenant() *entity.Tenant {
+	tenant, ok := c.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
 		return tenant
 	}
@@ -163,9 +160,10 @@ func (c *Context) Tenant() *models.Tenant {
 }
 
 //SetTenant update HTTP context with current tenant
-func (c *Context) SetTenant(tenant *models.Tenant) {
+func (c *Context) SetTenant(tenant *entity.Tenant) {
 	if tenant != nil {
-		c.Context = log.WithProperty(c.Context, log.PropertyKeyTenantID, tenant.ID)
+		c.Set(log.PropertyKeyTenantID, tenant.ID)
+		c.Set(app.LocaleCtxKey, tenant.Locale)
 	}
 	c.Set(app.TenantCtxKey, tenant)
 }
@@ -181,16 +179,24 @@ func (c *Context) Bind(i interface{}) error {
 
 //BindTo context values into given model
 func (c *Context) BindTo(i actions.Actionable) *validate.Result {
-	err := c.engine.binder.Bind(i.Initialize(), c)
+	err := c.engine.binder.Bind(i, c)
 	if err != nil {
 		if err == ErrContentTypeNotAllowed {
 			return validate.Failed(err.Error())
 		}
 		return validate.Error(errors.Wrap(err, "failed to bind request to action"))
 	}
+
+	if v, ok := i.(actions.PreExecuteAction); ok {
+		if err := v.OnPreExecute(c); err != nil {
+			return validate.Error(err)
+		}
+	}
+
 	if !i.IsAuthorized(c, c.User()) {
 		return validate.Unauthorized()
 	}
+
 	return i.Validate(c, c.User())
 }
 
@@ -206,25 +212,28 @@ func (c *Context) IsAjax() bool {
 	return strings.Contains(accept, JSONContentType) || strings.Contains(contentType, JSONContentType)
 }
 
-//Unauthorized returns a 403 response
+//Unauthorized returns a 403 error response
 func (c *Context) Unauthorized() error {
-	return c.Render(http.StatusForbidden, "403.html", Props{
+	return c.Page(http.StatusForbidden, Props{
+		Page:        "Error/Error403.page",
 		Title:       "Not Authorized",
 		Description: "You are not authorized to view this page.",
 	})
 }
 
-//NotFound returns a 404 page
+//NotFound returns a 404 error page
 func (c *Context) NotFound() error {
-	return c.Render(http.StatusNotFound, "404.html", Props{
-		Title:       "Page not found",
+	return c.Page(http.StatusNotFound, Props{
+		Page:        "Error/Error404.page",
+		Title:       "Page Not Found",
 		Description: "The link you clicked may be broken or the page may have been removed.",
 	})
 }
 
-//Gone returns a 410 page
+//Gone returns a 410 error page
 func (c *Context) Gone() error {
-	return c.Render(http.StatusGone, "410.html", Props{
+	return c.Page(http.StatusGone, Props{
+		Page:        "Error/Error410.page",
 		Title:       "Expired",
 		Description: "The link you clicked has expired.",
 	})
@@ -243,13 +252,8 @@ func (c *Context) Failure(err error) error {
 		return c.NotFound()
 	}
 
-	log.Errorf(c, err.Error(), dto.Props{
-		"Body":       c.Request.Body,
-		"HttpMethod": c.Request.Method,
-		"URL":        c.Request.URL.String(),
-	})
-
-	if renderErr := c.Render(http.StatusInternalServerError, "500.html", Props{
+	if renderErr := c.Page(http.StatusInternalServerError, Props{
+		Page:        "Error/Error500.page",
 		Title:       "Shoot! Well, this is unexpected…",
 		Description: "An error has occurred and we're working to fix the problem!",
 	}); renderErr != nil {
@@ -291,54 +295,15 @@ func (c *Context) BadRequest(dict Map) error {
 }
 
 //Page returns a page with given variables
-func (c *Context) Page(props Props) error {
-	if len(env.Config.Rendergun.URL) > 0 && c.Request.IsCrawler() {
-		html := new(bytes.Buffer)
-		c.engine.renderer.Render(html, http.StatusOK, "index.html", props, c)
-		return c.prerender(http.StatusOK, html)
-	}
-
-	return c.Render(http.StatusOK, "index.html", props)
-}
-
-// Render renders a template with data and sends a text/html response with status
-func (c *Context) Render(code int, template string, props Props) error {
+func (c *Context) Page(code int, props Props) error {
 	if c.IsAjax() {
 		return c.JSON(code, Map{})
 	}
 
 	buf := new(bytes.Buffer)
-	c.engine.renderer.Render(buf, code, template, props, c)
+	c.engine.renderer.Render(buf, code, props, c)
 
 	return c.Blob(code, UTF8HTMLContentType, buf.Bytes())
-}
-
-func (c *Context) prerender(code int, html io.Reader) error {
-	req := &cmd.HTTPRequest{
-		Method: "POST",
-		URL:    fmt.Sprintf("%s/render?url=%s", env.Config.Rendergun.URL, c.Request.URL.String()),
-		Body:   html,
-		Headers: map[string]string{
-			"Content-Type":              "text/html",
-			"x-rendergun-wait-until":    "networkidle0",
-			"x-rendergun-block-ads":     "true",
-			"x-rendergun-abort-request": "assets\\/css\\/(common|vendor|main)\\.",
-		},
-	}
-	err := bus.Dispatch(c, req)
-	if err != nil {
-		log.Error(c, errors.Wrap(err, "failed to execute rendergun"))
-		return c.TryAgainLater(24 * time.Hour)
-	}
-
-	return c.Blob(code, UTF8HTMLContentType, req.ResponseBody)
-}
-
-//TryAgainLater returns a service unavailable response with Retry-After header
-func (c *Context) TryAgainLater(d time.Duration) error {
-	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	c.Response.Header().Set("Retry-After", fmt.Sprintf("%.0f", d.Seconds()))
-	return c.NoContent(http.StatusServiceUnavailable)
 }
 
 //AddParam add a single param to route parameters list
@@ -347,8 +312,8 @@ func (c *Context) AddParam(name, value string) {
 }
 
 //User returns authenticated user
-func (c *Context) User() *models.User {
-	user, ok := c.Value(app.UserCtxKey).(*models.User)
+func (c *Context) User() *entity.User {
+	user, ok := c.Value(app.UserCtxKey).(*entity.User)
 	if ok {
 		return user
 	}
@@ -356,7 +321,7 @@ func (c *Context) User() *models.User {
 }
 
 //SetUser update HTTP context with current user
-func (c *Context) SetUser(user *models.User) {
+func (c *Context) SetUser(user *entity.User) {
 	if user != nil {
 		c.Context = log.WithProperty(c.Context, log.PropertyKeyUserID, user.ID)
 	}
@@ -373,13 +338,13 @@ func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie 
 		Expires:  expires,
 		Secure:   c.Request.IsSecure,
 	}
-	http.SetCookie(c.Response, cookie)
+	http.SetCookie(&c.Response, cookie)
 	return cookie
 }
 
 //RemoveCookie removes a cookie
 func (c *Context) RemoveCookie(name string) {
-	http.SetCookie(c.Response, &http.Cookie{
+	http.SetCookie(&c.Response, &http.Cookie{
 		Name:     name,
 		Path:     "/",
 		HttpOnly: true,
@@ -426,7 +391,9 @@ func (c *Context) Param(name string) string {
 	if c.params == nil {
 		return ""
 	}
-	return strings.TrimPrefix(c.params[name], "/")
+
+	// The leading slash is removed because of https://github.com/julienschmidt/httprouter/issues/77
+	return strings.TrimLeft(c.params[name], "/")
 }
 
 //ParamAsInt returns parameter as int
@@ -437,6 +404,11 @@ func (c *Context) ParamAsInt(name string) (int, error) {
 		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
 	}
 	return intValue, nil
+}
+
+//GetMatchedRoutePath returns the Matched Route name
+func (c *Context) GetMatchedRoutePath() string {
+	return "/" + c.Param(httprouter.MatchedRoutePathParam)
 }
 
 // Set saves data in the context.
@@ -473,8 +445,11 @@ func (c *Context) Image(contentType string, b []byte) error {
 
 // Blob sends a blob response with status code and content type.
 func (c *Context) Blob(code int, contentType string, b []byte) error {
+	if code >= 400 {
+		c.Response.Header().Set("Cache-Control", "no-cache, no-store")
+	}
 	c.Response.Header().Set("Content-Type", contentType)
-	c.ResponseStatusCode = code
+
 	c.Response.WriteHeader(code)
 	_, err := c.Response.Write(b)
 	return err
@@ -482,25 +457,26 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 
 // NoContent sends a response with no body and a status code.
 func (c *Context) NoContent(code int) error {
-	c.ResponseStatusCode = code
+	if code >= 400 {
+		c.Response.Header().Set("Cache-Control", "no-cache, no-store")
+	}
+
 	c.Response.WriteHeader(code)
 	return nil
 }
 
 // Redirect the request to a provided URL
 func (c *Context) Redirect(url string) error {
-	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	c.Response.Header().Set("Location", url)
-	c.ResponseStatusCode = http.StatusTemporaryRedirect
 	c.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
 }
 
 // PermanentRedirect the request to a provided URL
 func (c *Context) PermanentRedirect(url string) error {
-	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	c.Response.Header().Set("Location", url)
-	c.ResponseStatusCode = http.StatusMovedPermanently
 	c.Response.WriteHeader(http.StatusMovedPermanently)
 	return nil
 }
@@ -526,21 +502,8 @@ func (c *Context) SetCanonicalURL(rawurl string) {
 	}
 }
 
-// GlobalAssetsURL return the full URL to a globally shared static asset
-func GlobalAssetsURL(ctx context.Context, path string, a ...interface{}) string {
-	request := ctx.Value(app.RequestCtxKey).(Request)
-	path = fmt.Sprintf(path, a...)
-	if env.Config.CDN.Host != "" {
-		if env.IsSingleHostMode() {
-			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
-		}
-		return request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path
-	}
-	return request.BaseURL() + path
-}
-
 //TenantBaseURL returns base URL for a given tenant
-func TenantBaseURL(ctx context.Context, tenant *models.Tenant) string {
+func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
 
 	if env.IsSingleHostMode() {
@@ -561,10 +524,10 @@ func TenantBaseURL(ctx context.Context, tenant *models.Tenant) string {
 	return address
 }
 
-// TenantAssetsURL return the full URL to a tenant-specific static asset
-func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string {
+// AssetsURL return the full URL to a tenant-specific static asset
+func AssetsURL(ctx context.Context, path string, a ...interface{}) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
-	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	path = fmt.Sprintf(path, a...)
 	if env.Config.CDN.Host != "" && hasTenant {
 		if env.IsSingleHostMode() {
@@ -577,9 +540,9 @@ func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string 
 
 // LogoURL return the full URL to the tenant-specific logo URL
 func LogoURL(ctx context.Context) string {
-	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if hasTenant && tenant.LogoBlobKey != "" {
-		return TenantAssetsURL(ctx, "/images/%s?size=200", tenant.LogoBlobKey)
+		return AssetsURL(ctx, "/static/images/%s?size=200", tenant.LogoBlobKey)
 	}
 	return "https://getfider.com/images/logo-100x100.png"
 }

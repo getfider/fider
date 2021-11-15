@@ -1,34 +1,17 @@
 package query
 
-import "github.com/getfider/fider/app/models/dto"
+import (
+	"github.com/getfider/fider/app/models/entity"
+)
 
-type ListBillingPlans struct {
-	CountryCode string
-
-	Result []*dto.BillingPlan
+type GetBillingState struct {
+	// Output
+	Result *entity.BillingState
 }
 
-type GetBillingPlanByID struct {
-	PlanID      string
-	CountryCode string
+type GetBillingSubscription struct {
+	SubscriptionID string
 
-	Result *dto.BillingPlan
-}
-
-type GetUpcomingInvoice struct {
-	Result *dto.UpcomingInvoice
-}
-
-type GetPaymentInfo struct {
-	Result *dto.PaymentInfo
-}
-
-type GetAllCountries struct {
-	Result []*dto.Country
-}
-
-type GetCountryByCode struct {
-	Code string
-
-	Result *dto.Country
+	// Output
+	Result *entity.BillingSubscription
 }

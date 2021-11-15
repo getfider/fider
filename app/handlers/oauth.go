@@ -2,18 +2,19 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
@@ -40,9 +41,9 @@ func OAuthEcho() web.HandlerFunc {
 		rawProfile := &query.GetOAuthRawProfile{Provider: provider, Code: code}
 		err := bus.Dispatch(c, rawProfile)
 		if err != nil {
-			return c.Page(web.Props{
-				Title:     "OAuth Test Page",
-				ChunkName: "OAuthEcho.page",
+			return c.Page(http.StatusOK, web.Props{
+				Page:  "OAuthEcho/OAuthEcho.page",
+				Title: "OAuth Test Page",
 				Data: web.Map{
 					"err": errors.Cause(err).Error(),
 				},
@@ -52,9 +53,9 @@ func OAuthEcho() web.HandlerFunc {
 		parseRawProfile := &cmd.ParseOAuthRawProfile{Provider: provider, Body: rawProfile.Result}
 		_ = bus.Dispatch(c, parseRawProfile)
 
-		return c.Page(web.Props{
-			Title:     "OAuth Test Page",
-			ChunkName: "OAuthEcho.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "OAuthEcho/OAuthEcho.page",
+			Title: "OAuth Test Page",
 			Data: web.Map{
 				"body":    rawProfile.Result,
 				"profile": parseRawProfile.Result,
@@ -88,7 +89,7 @@ func OAuthToken() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		var user *models.User
+		var user *entity.User
 
 		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.Result.ID}
 		err := bus.Dispatch(c, userByProvider)
@@ -105,13 +106,13 @@ func OAuthToken() web.HandlerFunc {
 					return c.Redirect("/not-invited")
 				}
 
-				user = &models.User{
+				user = &entity.User{
 					Name:   oauthUser.Result.Name,
 					Tenant: c.Tenant(),
 					Email:  oauthUser.Result.Email,
 					Role:   enum.RoleVisitor,
-					Providers: []*models.UserProvider{
-						&models.UserProvider{
+					Providers: []*entity.UserProvider{
+						{
 							UID:  oauthUser.Result.ID,
 							Name: provider,
 						},
@@ -184,7 +185,7 @@ func OAuthCallback() web.HandlerFunc {
 				OAuthName:     oauthUser.Result.Name,
 				OAuthEmail:    oauthUser.Result.Email,
 				Metadata: jwt.Metadata{
-					ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+					ExpiresAt: jwt.Time(time.Now().Add(10 * time.Minute)),
 				},
 			}
 

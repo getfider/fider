@@ -1,105 +1,101 @@
-import "./VotesModal.scss";
-
-import React from "react";
-import { Post, Vote } from "@fider/models";
-import { Modal, Button, Loader, List, ListItem, Avatar, UserName, Moment, Input } from "@fider/components";
-import { actions } from "@fider/services";
-import { FaTimes, FaSearch } from "react-icons/fa";
+import React, { useEffect, useState } from "react"
+import { Post, Vote } from "@fider/models"
+import { Modal, Button, Loader, Avatar, UserName, Moment, Input } from "@fider/components"
+import { actions } from "@fider/services"
+import { useFider } from "@fider/hooks"
+import IconSearch from "@fider/assets/images/heroicons-search.svg"
+import IconX from "@fider/assets/images/heroicons-x.svg"
+import { HStack, VStack } from "@fider/components/layout"
+import { t, Trans } from "@lingui/macro"
 
 interface VotesModalProps {
-  isOpen: boolean;
-  post: Post;
-  onClose?: () => void;
+  isOpen: boolean
+  post: Post
+  onClose?: () => void
 }
 
-interface VotesModalState {
-  searchText: string;
-  allVotes: Vote[];
-  filteredVotes: Vote[];
-  isLoading: boolean;
-  query: string;
-}
+export const VotesModal: React.FC<VotesModalProps> = (props) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [query, setQuery] = useState("")
+  const [allVotes, setAllVotes] = useState<Vote[]>([])
+  const [filteredVotes, setFilteredVotes] = useState<Vote[]>([])
 
-export class VotesModal extends React.Component<VotesModalProps, VotesModalState> {
-  constructor(props: VotesModalProps) {
-    super(props);
-    this.state = {
-      searchText: "",
-      query: "",
-      allVotes: [],
-      filteredVotes: [],
-      isLoading: true
-    };
-  }
+  const fider = useFider()
 
-  public componentDidUpdate(prevProps: VotesModalProps) {
-    if (this.props.isOpen && !prevProps.isOpen) {
-      actions.listVotes(this.props.post.number).then(response => {
+  useEffect(() => {
+    if (props.isOpen) {
+      actions.listVotes(props.post.number).then((response) => {
         if (response.ok) {
-          this.setState({
-            allVotes: response.data,
-            filteredVotes: response.data,
-            isLoading: false
-          });
+          setAllVotes(response.data)
+          setFilteredVotes(response.data)
+          setIsLoading(false)
         }
-      });
+      })
+    }
+  }, [props.isOpen])
+
+  const closeModal = async () => {
+    if (props.onClose) {
+      props.onClose()
     }
   }
 
-  private closeModal = async () => {
-    if (this.props.onClose) {
-      this.props.onClose();
-    }
-  };
+  const clearSearch = () => {
+    handleSearchFilterChanged("")
+  }
 
-  private clearSearch = () => {
-    this.handleSearchFilterChanged("");
-  };
+  const handleSearchFilterChanged = (query: string) => {
+    const votes = allVotes.filter((x) => x.user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0)
+    setQuery(query)
+    setFilteredVotes(votes)
+  }
 
-  private handleSearchFilterChanged = (query: string) => {
-    const votes = this.state.allVotes.filter(x => x.user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0);
-    this.setState({ query, filteredVotes: votes });
-  };
-
-  public render() {
-    return (
-      <Modal.Window className="c-votes-modal" isOpen={this.props.isOpen} center={false} onClose={this.closeModal}>
-        <Modal.Content>
-          {this.state.isLoading && <Loader />}
-          {!this.state.isLoading && (
-            <>
-              <Input
-                field="query"
-                icon={this.state.query ? FaTimes : FaSearch}
-                onIconClick={this.state.query ? this.clearSearch : undefined}
-                placeholder="Search for users by name..."
-                value={this.state.query}
-                onChange={this.handleSearchFilterChanged}
-              />
-              <List hover={true}>
-                {this.state.filteredVotes.map(x => (
-                  <ListItem key={x.user.id}>
+  return (
+    <Modal.Window isOpen={props.isOpen} center={false} onClose={closeModal}>
+      <Modal.Content>
+        {isLoading && <Loader />}
+        {!isLoading && (
+          <>
+            <Input
+              field="query"
+              icon={query ? IconX : IconSearch}
+              onIconClick={query ? clearSearch : undefined}
+              placeholder={t({ id: "modal.showvotes.query.placeholder", message: "Search for users by name..." })}
+              value={query}
+              onChange={handleSearchFilterChanged}
+            />
+            <VStack spacing={2} className="h-max-5xl overflow-scroll">
+              {filteredVotes.map((x) => (
+                <HStack key={x.user.id} justify="between">
+                  <HStack>
                     <Avatar user={x.user} />
-                    <span className="l-user">
+                    <VStack spacing={0}>
                       <UserName user={x.user} />
-                      <span className="info">{x.user.email}</span>
-                    </span>
-                    <span className="l-date info">
-                      <Moment date={x.createdAt} useRelative={false} format="short" />
-                    </span>
-                  </ListItem>
-                ))}
-              </List>
-            </>
-          )}
-        </Modal.Content>
+                      <span className="text-muted">{x.user.email}</span>
+                    </VStack>
+                  </HStack>
+                  <span className="text-muted">
+                    <Moment locale={fider.currentLocale} date={x.createdAt} />
+                  </span>
+                </HStack>
+              ))}
+              {filteredVotes.length === 0 && (
+                <p className="text-muted">
+                  <Trans id="modal.showvotes.message.zeromatches">
+                    No users found matching <strong>{query}</strong>.
+                  </Trans>
+                </p>
+              )}
+            </VStack>
+          </>
+        )}
+      </Modal.Content>
 
-        <Modal.Footer>
-          <Button color="cancel" onClick={this.closeModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal.Window>
-    );
-  }
+      <Modal.Footer>
+        <Button variant="tertiary" onClick={closeModal}>
+          <Trans id="action.close">Close</Trans>
+        </Button>
+      </Modal.Footer>
+    </Modal.Window>
+  )
 }

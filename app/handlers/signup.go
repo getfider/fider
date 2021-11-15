@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"net/http"
 	"time"
 
+	"github.com/getfider/fider/app/metrics"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -17,7 +20,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -47,12 +49,12 @@ func CreateTenant() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		input := new(actions.CreateTenant)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewCreateTenant()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		socialSignUp := input.Model.Token != ""
+		socialSignUp := action.Token != ""
 
 		status := enum.TenantPending
 		if socialSignUp {
@@ -60,8 +62,8 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		createTenant := &cmd.CreateTenant{
-			Name:      input.Model.TenantName,
-			Subdomain: input.Model.Subdomain,
+			Name:      action.TenantName,
+			Subdomain: action.Subdomain,
 			Status:    status,
 		}
 		err := bus.Dispatch(c, createTenant)
@@ -69,18 +71,22 @@ func CreateTenant() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		metrics.TotalTenants.Inc()
 		c.SetTenant(createTenant.Result)
 
-		user := &models.User{
+		user := &entity.User{
 			Tenant: createTenant.Result,
 			Role:   enum.RoleAdministrator,
 		}
 
 		if socialSignUp {
-			user.Name = input.Model.UserClaims.OAuthName
-			user.Email = input.Model.UserClaims.OAuthEmail
-			user.Providers = []*models.UserProvider{
-				{UID: input.Model.UserClaims.OAuthID, Name: input.Model.UserClaims.OAuthProvider},
+			user.Name = action.UserClaims.OAuthName
+			user.Email = action.UserClaims.OAuthEmail
+			user.Providers = []*entity.UserProvider{
+				{
+					UID:  action.UserClaims.OAuthID,
+					Name: action.UserClaims.OAuthProvider,
+				},
 			}
 
 			if err := bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
@@ -94,19 +100,19 @@ func CreateTenant() web.HandlerFunc {
 			}
 
 		} else {
-			user.Name = input.Model.Name
-			user.Email = input.Model.Email
+			user.Name = action.Name
+			user.Email = action.Email
 
 			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-				Key:      input.Model.VerificationKey,
+				Key:      action.VerificationKey,
 				Duration: 48 * time.Hour,
-				Request:  input.Model,
+				Request:  action,
 			})
 			if err != nil {
 				return c.Failure(err)
 			}
 
-			c.Enqueue(tasks.SendSignUpEmail(input.Model, web.TenantBaseURL(c, createTenant.Result)))
+			c.Enqueue(tasks.SendSignUpEmail(action, web.TenantBaseURL(c, createTenant.Result)))
 		}
 
 		return c.Ok(web.Map{})
@@ -137,10 +143,10 @@ func SignUp() web.HandlerFunc {
 			}
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
+			Page:        "SignUp/SignUp.page",
 			Title:       "Sign up",
 			Description: "Sign up for Fider and let your customers share, vote and discuss on suggestions they have to make your product even better.",
-			ChunkName:   "SignUp.page",
 		})
 	}
 }
@@ -148,9 +154,38 @@ func SignUp() web.HandlerFunc {
 // VerifySignUpKey checks if verify key is correct, activate the tenant and sign in user
 func VerifySignUpKey() web.HandlerFunc {
 	return func(c *web.Context) error {
-		if c.Tenant().Status == enum.TenantPending {
-			return VerifySignInKey(enum.EmailVerificationKindSignUp)(c)
+		if c.Tenant().Status != enum.TenantPending {
+			return c.NotFound()
 		}
-		return c.NotFound()
+
+		key := c.QueryParam("k")
+		result, err := validateKey(enum.EmailVerificationKindSignUp, key, c)
+		if result == nil {
+			return err
+		}
+
+		if err = bus.Dispatch(c, &cmd.ActivateTenant{TenantID: c.Tenant().ID}); err != nil {
+			return c.Failure(err)
+		}
+
+		user := &entity.User{
+			Name:   result.Name,
+			Email:  result.Email,
+			Tenant: c.Tenant(),
+			Role:   enum.RoleAdministrator,
+		}
+
+		if err = bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
+			return c.Failure(err)
+		}
+
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		webutil.AddAuthUserCookie(c, user)
+
+		return c.Redirect(c.BaseURL())
 	}
 }

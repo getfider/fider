@@ -56,5 +56,5 @@ func (status PostStatus) Name() string {
 	if ok {
 		return name
 	}
-	return "Unknown"
+	return "unknown"
 }

@@ -1,35 +1,37 @@
-import React, { useState } from "react";
-import { PostStatus, Post } from "@fider/models";
-import { actions, navigator, Failure } from "@fider/services";
-import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
-import { useFider } from "@fider/hooks";
+import React, { useState } from "react"
+import { PostStatus, Post } from "@fider/models"
+import { actions, navigator, Failure } from "@fider/services"
+import { Form, Modal, Button, TextArea } from "@fider/components"
+import { useFider } from "@fider/hooks"
+import { VStack } from "@fider/components/layout"
+import { t, Trans } from "@lingui/macro"
 
 interface ModerationPanelProps {
-  post: Post;
+  post: Post
 }
 
 export const ModerationPanel = (props: ModerationPanelProps) => {
-  const fider = useFider();
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [text, setText] = useState("");
-  const [error, setError] = useState<Failure>();
+  const fider = useFider()
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [text, setText] = useState("")
+  const [error, setError] = useState<Failure>()
 
-  const hideModal = async () => setShowConfirmation(false);
-  const showModal = async () => setShowConfirmation(true);
+  const hideModal = async () => setShowConfirmation(false)
+  const showModal = async () => setShowConfirmation(true)
 
   const handleDelete = async () => {
-    const response = await actions.deletePost(props.post.number, text);
+    const response = await actions.deletePost(props.post.number, text)
     if (response.ok) {
-      hideModal();
-      navigator.goHome();
+      hideModal()
+      navigator.goHome()
     } else if (response.error) {
-      setError(response.error);
+      setError(response.error)
     }
-  };
+  }
 
-  const status = PostStatus.Get(props.post.status);
+  const status = PostStatus.Get(props.post.status)
   if (!fider.session.isAuthenticated || !fider.session.user.isAdministrator || status.closed) {
-    return null;
+    return null
   }
 
   const modal = (
@@ -40,37 +42,37 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
             field="text"
             onChange={setText}
             value={text}
-            placeholder="Why are you deleting this post? (optional)"
+            placeholder={t({ id: "showpost.moderationpanel.text.placeholder", message: "Why are you deleting this post? (optional)" })}
           >
-            <span className="info">
-              This operation <strong>cannot</strong> be undone.
+            <span className="text-muted">
+              <Trans id="showpost.moderationpanel.text.help">
+                This operation <strong>cannot</strong> be undone.
+              </Trans>
             </span>
           </TextArea>
         </Form>
       </Modal.Content>
 
       <Modal.Footer>
-        <Button color="danger" onClick={handleDelete}>
-          Delete
+        <Button variant="danger" onClick={handleDelete}>
+          <Trans id="action.delete">Delete</Trans>
         </Button>
-        <Button color="cancel" onClick={hideModal}>
-          Cancel
+        <Button variant="tertiary" onClick={hideModal}>
+          <Trans id="action.cancel">Cancel</Trans>
         </Button>
       </Modal.Footer>
     </Modal.Window>
-  );
+  )
 
   return (
-    <>
+    <VStack>
       {modal}
-      <span className="subtitle">Moderation</span>
-      <List>
-        <ListItem>
-          <Button color="danger" size="tiny" fluid={true} onClick={showModal}>
-            Delete
-          </Button>
-        </ListItem>
-      </List>
-    </>
-  );
-};
+      <span className="text-category">
+        <Trans id="label.moderation">Moderation</Trans>
+      </span>
+      <Button disabled={fider.isReadOnly} variant="danger" size="small" className="w-full" onClick={showModal}>
+        <Trans id="action.delete">Delete</Trans>
+      </Button>
+    </VStack>
+  )
+}

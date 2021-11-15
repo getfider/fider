@@ -1,83 +1,49 @@
-import "./TagsFilter.scss";
-
-import React from "react";
-import { Tag } from "@fider/models";
-import { ShowTag } from "@fider/components/ShowTag";
-import { DropDown, DropDownItem } from "@fider/components";
-import { FaCheck } from "react-icons/fa";
+import React, { useState } from "react"
+import { Tag } from "@fider/models"
+import { Dropdown, Icon, ShowTag } from "@fider/components"
+import IconCheck from "@fider/assets/images/heroicons-check.svg"
+import { HStack } from "@fider/components/layout"
+import { plural, t, Trans } from "@lingui/macro"
 
 interface TagsFilterProps {
-  tags: Tag[];
-  defaultSelection: string[];
-  selectionChanged: (selected: string[]) => void;
+  tags: Tag[]
+  selected: string[]
+  selectionChanged: (selected: string[]) => void
 }
 
-interface TagsFilterState {
-  selected: string[];
-}
+export const TagsFilter = (props: TagsFilterProps) => {
+  const [selected, setSelected] = useState<string[]>(props.selected)
 
-export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
-  constructor(props: TagsFilterProps) {
-    super(props);
-    this.state = {
-      selected: props.defaultSelection
-    };
+  const toggle = (item: Tag) => () => {
+    const idx = selected.indexOf(item.slug)
+    const next = idx >= 0 ? selected.splice(idx, 1) && selected : selected.concat(item.slug)
+    setSelected(next)
+    props.selectionChanged(next)
   }
 
-  private onChange = (item: DropDownItem) => {
-    let selected = [];
-    const idx = this.state.selected.indexOf(item.value as string);
-    if (idx >= 0) {
-      selected = this.state.selected.splice(idx, 1) && this.state.selected;
-    } else {
-      selected = this.state.selected.concat(item.value as string);
-    }
-    this.setState({ selected });
-    this.props.selectionChanged(selected);
-  };
+  const count = selected.length
+  const label =
+    count >= 1
+      ? plural(count, {
+          one: `# tag`,
+          other: `# tags`,
+        })
+      : t({ id: "home.tagsfilter.selected.none", message: "Any tag" })
 
-  private renderText = () => {
-    const text =
-      this.state.selected.length === 0
-        ? "any tag"
-        : this.state.selected.length === 1
-        ? "1 tag"
-        : `${this.state.selected.length} tags`;
-    return <>{text}</>;
-  };
-
-  public render() {
-    if (this.props.tags.length === 0) {
-      return null;
-    }
-
-    const items = this.props.tags.map(t => {
-      return {
-        value: t.slug,
-        label: t.name,
-        render: (
-          <div className={this.state.selected.indexOf(t.slug) >= 0 ? "selected-tag" : ""}>
-            <FaCheck />
-            <ShowTag tag={t} size="mini" circular={true} />
-            {t.name}
-          </div>
-        )
-      };
-    });
-
-    return (
-      <div>
-        <span className="subtitle">with</span>
-        <DropDown
-          className="l-tags-filter"
-          inline={true}
-          style="simple"
-          highlightSelected={false}
-          items={items}
-          onChange={this.onChange}
-          renderText={this.renderText}
-        />
-      </div>
-    );
-  }
+  return (
+    <HStack>
+      <Trans id="home.tagsfilter.label.with">with</Trans>
+      <Dropdown renderHandle={<div className="text-medium text-xs uppercase rounded-md uppercase bg-gray-100 px-2 py-1">{label}</div>}>
+        {props.tags.map((t) => (
+          <Dropdown.ListItem onClick={toggle(t)} key={t.id}>
+            <HStack spacing={2}>
+              <Icon sprite={IconCheck} className={`h-4 text-green-600 ${!selected.includes(t.slug) && "invisible"}`} />
+              <ShowTag tag={t} circular />
+              <span>{t.name}</span>
+            </HStack>
+          </Dropdown.ListItem>
+        ))}
+      </Dropdown>
+    </HStack>
+  )
 }

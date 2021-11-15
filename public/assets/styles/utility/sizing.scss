@@ -1,0 +1,24 @@
+@for $i from 0 through 20 {
+  .w-#{$i} {
+    width: sizing($i);
+  }
+  .h-#{$i} {
+    height: sizing($i);
+  }
+  .w-min-#{$i} {
+    min-width: sizing($i);
+  }
+}
+
+@for $i from 0 through 20 {
+  .w-max-#{$i}xl {
+    max-width: sizing($i * 20);
+  }
+  .h-max-#{$i}xl {
+    max-height: sizing($i * 20);
+  }
+}
+
+.w-full {
+  width: 100%;
+}

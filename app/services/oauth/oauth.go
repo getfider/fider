@@ -2,15 +2,15 @@ package oauth
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/url"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -59,8 +59,8 @@ func getProviderStatus(key string) int {
 }
 
 var (
-	systemProviders = []*models.OAuthConfig{
-		&models.OAuthConfig{
+	systemProviders = []*entity.OAuthConfig{
+		{
 			Provider:          app.FacebookProvider,
 			DisplayName:       "Facebook",
 			ProfileURL:        "https://graph.facebook.com/me?fields=name,email",
@@ -74,7 +74,7 @@ var (
 			JSONUserNamePath:  "name",
 			JSONUserEmailPath: "email",
 		},
-		&models.OAuthConfig{
+		{
 			Provider:          app.GoogleProvider,
 			DisplayName:       "Google",
 			ProfileURL:        "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -88,7 +88,7 @@ var (
 			JSONUserNamePath:  "name",
 			JSONUserEmailPath: "email",
 		},
-		&models.OAuthConfig{
+		{
 			Provider:          app.GitHubProvider,
 			DisplayName:       "GitHub",
 			ProfileURL:        "https://api.github.com/user",
@@ -131,7 +131,7 @@ func parseOAuthRawProfile(ctx context.Context, c *cmd.ParseOAuthRawProfile) erro
 		profile.Name = "Anonymous"
 	}
 
-	if len(validate.Email(profile.Email)) != 0 {
+	if len(validate.Email(ctx, profile.Email)) != 0 {
 		profile.Email = ""
 	}
 
@@ -147,12 +147,13 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 
 	oauthBaseURL := web.OAuthBaseURL(ctx)
 	authURL, _ := url.Parse(config.AuthorizeURL)
-	parameters := url.Values{}
+	parameters := getProviderInitialParams(authURL)
 	parameters.Add("client_id", config.ClientID)
 	parameters.Add("scope", config.Scope)
 	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, q.Provider))
 	parameters.Add("response_type", "code")
 	parameters.Add("state", q.Redirect+"|"+q.Identifier)
+
 	authURL.RawQuery = parameters.Encode()
 	q.Result = authURL.String()
 	return nil
@@ -212,7 +213,7 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 			return errors.New("AccessToken is not JWT")
 		}
 
-		body, _ := jwt.DecodeSegment(parts[1])
+		body, _ := base64.RawURLEncoding.DecodeString(parts[1])
 		q.Result = string(body)
 		return nil
 	}
@@ -283,7 +284,7 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 	return nil
 }
 
-func getConfig(ctx context.Context, provider string) (*models.OAuthConfig, error) {
+func getConfig(ctx context.Context, provider string) (*entity.OAuthConfig, error) {
 	for _, config := range systemProviders {
 		if config.Status == enum.OAuthConfigEnabled && config.Provider == provider {
 			return config, nil

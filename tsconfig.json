@@ -5,33 +5,17 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es5",
+    "target": "es6",
     "strict": true,
-    "sourceMap": true,
-    "types": [
-        "marked", 
-        "react", 
-        "react-dom", 
-        "react-textarea-autosize",
-        "jest",
-        "node"
-    ],
-    "outDir": "./output/public",
     "jsx": "react",
-    "lib": ["dom", "es2015.promise", "es5"],
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "baseUrl": "./public",
-    "importHelpers": true,
-    "noEmitHelpers": true,
+    "lib": ["dom", "es2015.promise", "es6", "ES2020.Intl"],
+    "baseUrl": ".",
+    "noEmit": true,
     "noUnusedLocals": true,
     "paths": {
-      "@fider/*": [
-        "*"
-      ]
+      "@fider/*": ["./public/*"],
+      "@locale/*": ["./locale/*"]
     }
   },
-  "include": [
-    "./public/**/*"
-  ],
+  "include": ["./public/**/*", "./locale/**/*", "index.d.ts", "./e2e/**/*"]
 }

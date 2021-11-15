@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
@@ -14,9 +16,9 @@ func ManageTags() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Props{
-			Title:     "Manage Tags · Site Settings",
-			ChunkName: "ManageTags.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "Administration/pages/ManageTags.page",
+			Title: "Manage Tags · Site Settings",
 			Data: web.Map{
 				"tags": getAllTags.Result,
 			},

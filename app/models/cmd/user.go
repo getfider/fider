@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -35,7 +36,7 @@ type UpdateCurrentUserSettings struct {
 }
 
 type RegisterUser struct {
-	User *models.User
+	User *entity.User
 }
 
 type RegisterUserProvider struct {
@@ -47,5 +48,5 @@ type RegisterUserProvider struct {
 type UpdateCurrentUser struct {
 	Name       string
 	AvatarType enum.AvatarType
-	Avatar     *models.ImageUpload
+	Avatar     *dto.ImageUpload
 }

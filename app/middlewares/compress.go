@@ -1,8 +1,10 @@
 package middlewares
 
 import (
+	"bufio"
 	"compress/gzip"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 
@@ -12,38 +14,23 @@ import (
 type gzipResponseWriter struct {
 	io.Writer
 	http.ResponseWriter
-	http.Hijacker
-	http.Flusher
-	http.CloseNotifier
 }
 
 // Compress returns a middleware which compresses HTTP response using gzip compression
 func Compress() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			res := c.Response
 			if strings.Contains(c.Request.GetHeader("Accept-Encoding"), "gzip") {
-
+				res := c.Response
 				res.Header().Set("Content-Encoding", "gzip")
 				res.Header().Del("Accept-Encoding")
 				res.Header().Add("Vary", "Accept-Encoding")
 
-				h, hok := res.(http.Hijacker)
-				if !hok { /* w is not Hijacker... oh well... */
-					h = nil
-				}
+				gw, _ := gzip.NewWriterLevel(res.Writer, gzip.DefaultCompression)
 
-				f, fok := res.(http.Flusher)
-				if !fok {
-					f = nil
-				}
-
-				gw, _ := gzip.NewWriterLevel(res, gzip.DefaultCompression)
-				c.Response = &gzipResponseWriter{
+				c.Response.Writer = &gzipResponseWriter{
 					Writer:         gw,
-					ResponseWriter: res,
-					Hijacker:       h,
-					Flusher:        f,
+					ResponseWriter: c.Response.Writer,
 				}
 
 				err := next(c)
@@ -54,6 +41,7 @@ func Compress() web.MiddlewareFunc {
 		}
 	}
 }
+
 func (w *gzipResponseWriter) Header() http.Header {
 	return w.ResponseWriter.Header()
 }
@@ -74,22 +62,10 @@ func (w *gzipResponseWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 }
 
-type flusher interface {
-	Flush() error
+func (r gzipResponseWriter) Flush() {
+	r.Writer.(http.Flusher).Flush()
 }
 
-func (w *gzipResponseWriter) Flush() {
-	if f, ok := w.Writer.(flusher); ok {
-		f.Flush()
-	}
-	if w.Flusher != nil {
-		w.Flusher.Flush()
-	}
-}
-
-func (w *gzipResponseWriter) Close() error {
-	if c, ok := w.Writer.(io.Closer); ok {
-		return c.Close()
-	}
-	return nil
+func (r gzipResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return r.Writer.(http.Hijacker).Hijack()
 }

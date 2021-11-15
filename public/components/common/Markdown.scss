@@ -1,0 +1,70 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-markdown {
+  overflow-wrap: break-word;
+  word-break: break-word;
+
+  blockquote {
+    padding: 0 spacing(2);
+    color: get("colors.gray.900");
+    border-left: 4px solid get("colors.gray.300");
+    margin: spacing(1) 0;
+  }
+
+  h1 {
+    font-size: get("font.size.2xl");
+  }
+
+  h2 {
+    font-size: get("font.size.xl");
+  }
+
+  h3 {
+    font-size: get("font.size.lg");
+  }
+
+  ul,
+  ol {
+    padding-left: spacing(8);
+    margin: 0 0 spacing(3);
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  pre {
+    overflow-x: scroll;
+    padding: 16px;
+    line-height: 1.45;
+    background-color: get("colors.gray.100");
+    border-radius: 4px;
+    code {
+      display: inline;
+      max-width: auto;
+      padding: 0;
+      margin: 0;
+      overflow: visible;
+      line-height: inherit;
+      word-wrap: normal;
+      background-color: transparent;
+      border: 0;
+    }
+  }
+
+  code {
+    padding: 0.2em;
+    font-size: 85%;
+    margin: 0;
+    background-color: get("colors.gray.100");
+    border-radius: 4px;
+  }
+}
