@@ -40,6 +40,10 @@ const locales: { [key: string]: Locale } = {
     text: "🇸🇰 Slovak",
     translated: 100,
   },
+  tr: {
+    text: "🇹🇷 Turkish",
+    translated: 100,
+  },
 }
 
 export default locales

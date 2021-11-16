@@ -24,6 +24,7 @@ var localeToPlurals = map[string]string{
 	"fr":    "fr",
 	"ru":    "ru",
 	"sk":    "sk",
+	"tr":    "tr",
 }
 
 type Params map[string]interface{}

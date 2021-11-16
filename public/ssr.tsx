@@ -18,6 +18,7 @@ const messages: { [key: string]: any } = {
   fr: require(`../locale/fr/client`),
   ru: require(`../locale/ru/client`),
   sk: require(`../locale/sk/client`),
+  tr: require(`../locale/tr/client`),
 }
 
 // ESBuild doesn't support Dynamic Imports, so we need to map them statically
