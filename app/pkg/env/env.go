@@ -82,13 +82,19 @@ type config struct {
 		}
 	}
 	Email struct {
+		Type      string `env:"EMAIL"` // possible values: smtp, mailgun, awsses
 		NoReply   string `env:"EMAIL_NOREPLY,required"`
 		Allowlist string `env:"EMAIL_ALLOWLIST"`
 		Blocklist string `env:"EMAIL_BLOCKLIST"`
-		Mailgun   struct {
+		AWSSES    struct {
+			Region          string `env:"EMAIL_AWSSES_REGION"`
+			AccessKeyID     string `env:"EMAIL_AWSSES_ACCESS_KEY_ID"`
+			SecretAccessKey string `env:"EMAIL_AWSSES_SECRET_ACCESS_KEY"`
+		}
+		Mailgun struct {
 			APIKey string `env:"EMAIL_MAILGUN_API"`
 			Domain string `env:"EMAIL_MAILGUN_DOMAIN"`
-			Region string `env:"EMAIL_MAILGUN_REGION,default=US"`
+			Region string `env:"EMAIL_MAILGUN_REGION,default=US"` // possible values: US or EU
 		}
 		SMTP struct {
 			Host           string `env:"EMAIL_SMTP_HOST"`
@@ -99,7 +105,7 @@ type config struct {
 		}
 	}
 	BlobStorage struct {
-		Type string `env:"BLOB_STORAGE,default=sql"`
+		Type string `env:"BLOB_STORAGE,default=sql"` // possible values: sql, fs or s3
 		S3   struct {
 			EndpointURL     string `env:"BLOB_STORAGE_S3_ENDPOINT_URL"`
 			Region          string `env:"BLOB_STORAGE_S3_REGION"`
@@ -134,14 +140,31 @@ func Reload() {
 		panic(errors.Wrap(err, "failed to parse environment variables"))
 	}
 
-	if Config.Email.Mailgun.APIKey != "" {
+	// Email Type can be inferred if absense
+	if Config.Email.Type == "" {
+		if Config.Email.Mailgun.APIKey != "" {
+			Config.Email.Type = "mailgun"
+		} else if Config.Email.AWSSES.AccessKeyID != "" {
+			Config.Email.Type = "awsses"
+		} else {
+			Config.Email.Type = "smtp"
+		}
+	}
+
+	emailType := Config.Email.Type
+	if emailType == "mailgun" {
+		mustBeSet("EMAIL_MAILGUN_API")
 		mustBeSet("EMAIL_MAILGUN_DOMAIN")
-	} else {
+	} else if emailType == "awsses" {
+		mustBeSet("EMAIL_AWSSES_REGION")
+		mustBeSet("EMAIL_AWSSES_ACCESS_KEY_ID")
+		mustBeSet("EMAIL_AWSSES_SECRET_ACCESS_KEY")
+	} else if emailType == "smtp" {
 		mustBeSet("EMAIL_SMTP_HOST")
 		mustBeSet("EMAIL_SMTP_PORT")
 	}
 
-	bsType := strings.ToLower(Config.BlobStorage.Type)
+	bsType := Config.BlobStorage.Type
 	if bsType == "s3" {
 		mustBeSet("BLOB_STORAGE_S3_BUCKET")
 	} else if bsType == "fs" {

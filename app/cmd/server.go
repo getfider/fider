@@ -21,6 +21,7 @@ import (
 	_ "github.com/getfider/fider/app/services/blob/fs"
 	_ "github.com/getfider/fider/app/services/blob/s3"
 	_ "github.com/getfider/fider/app/services/blob/sql"
+	_ "github.com/getfider/fider/app/services/email/awsses"
 	_ "github.com/getfider/fider/app/services/email/mailgun"
 	_ "github.com/getfider/fider/app/services/email/smtp"
 	_ "github.com/getfider/fider/app/services/httpclient"

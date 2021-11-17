@@ -38,7 +38,7 @@ func (s Service) Category() string {
 }
 
 func (s Service) Enabled() bool {
-	return env.Config.Email.Mailgun.APIKey == ""
+	return env.Config.Email.Type == "smtp"
 }
 
 func (s Service) Init() {
