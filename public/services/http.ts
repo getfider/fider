@@ -27,6 +27,8 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
 
   if (response.status === 500) {
     notify.error("An unexpected error occurred while processing your request.")
+  } else if (response.status === 401) {
+    notify.error("You need to be authenticated to perform this operation.")
   } else if (response.status === 403) {
     notify.error("You are not authorized to perform this operation.")
   }

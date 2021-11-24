@@ -20,6 +20,8 @@
   "enum.poststatus.started": "Başlatıldı",
   "error.expired.text": "Tıkladığınız bağlantının süresi doldu.",
   "error.expired.title": "Süresi Bitmiş",
+  "error.forbidden.text": "",
+  "error.forbidden.title": "",
   "error.internalerror.text": "Bir hata oluştu ama biz çözmek için üzerinde çalışıyoruz! Çok yakında tekrar hizmet vereceğiz.",
   "error.internalerror.title": "Hay Allah! Bunu beklemiyorduk…",
   "error.pagenotfound.text": "Tıkladığınız bağlantı bozuk veya sayfa kaldırılmış olabilir.",

@@ -212,17 +212,38 @@ func (c *Context) IsAjax() bool {
 	return strings.Contains(accept, JSONContentType) || strings.Contains(contentType, JSONContentType)
 }
 
-//Unauthorized returns a 403 error response
+//Unauthorized returns a 401 error response
 func (c *Context) Unauthorized() error {
+	if c.IsAjax() {
+		return c.JSON(http.StatusUnauthorized, Map{})
+	}
+
+	return c.Page(http.StatusUnauthorized, Props{
+		Page:        "Error/Error401.page",
+		Title:       "Unauthorized",
+		Description: "You need to be authenticated to access this page.",
+	})
+}
+
+//Forbidden returns a 403 error response
+func (c *Context) Forbidden() error {
+	if c.IsAjax() {
+		return c.JSON(http.StatusForbidden, Map{})
+	}
+
 	return c.Page(http.StatusForbidden, Props{
 		Page:        "Error/Error403.page",
-		Title:       "Not Authorized",
-		Description: "You are not authorized to view this page.",
+		Title:       "Forbidden",
+		Description: "You do not have access to this page.",
 	})
 }
 
 //NotFound returns a 404 error page
 func (c *Context) NotFound() error {
+	if c.IsAjax() {
+		return c.JSON(http.StatusNotFound, Map{})
+	}
+
 	return c.Page(http.StatusNotFound, Props{
 		Page:        "Error/Error404.page",
 		Title:       "Page Not Found",
@@ -269,7 +290,7 @@ func (c *Context) HandleValidation(result *validate.Result) error {
 	}
 
 	if !result.Authorized {
-		return c.Unauthorized()
+		return c.Forbidden()
 	}
 
 	return c.BadRequest(Map{

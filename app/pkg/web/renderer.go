@@ -192,7 +192,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 	oauthProviders := &query.ListActiveOAuthProviders{
 		Result: make([]*dto.OAuthProviderOption, 0),
 	}
-	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 300 {
+	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 500 {
 		err = bus.Dispatch(ctx, oauthProviders)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to get list of providers"))

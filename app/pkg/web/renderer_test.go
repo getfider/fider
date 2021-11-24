@@ -189,15 +189,3 @@ func TestRenderer_WithOAuth(t *testing.T) {
 	renderer.Render(buf, http.StatusOK, web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/oauth.html", ctx)
 }
-
-func TestRenderer_NonOK(t *testing.T) {
-	RegisterT(t)
-
-	// it should not dispatch query.ListActiveOAuthProviders
-	buf := new(bytes.Buffer)
-	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
-	renderer := web.NewRenderer()
-	renderer.Render(buf, http.StatusNotFound, web.Props{}, ctx)
-	renderer.Render(buf, http.StatusBadRequest, web.Props{}, ctx)
-	renderer.Render(buf, http.StatusTemporaryRedirect, web.Props{}, ctx)
-}
