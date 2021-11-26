@@ -74,6 +74,10 @@ func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuth
 
 func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		if trx == nil || tenant == nil {
+			return nil
+		}
+
 		configs := []*dbOAuthConfig{}
 		if tenant != nil {
 			err := trx.Select(&configs, `
