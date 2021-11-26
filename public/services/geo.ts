@@ -1,21 +1,23 @@
 import { cache } from "./cache"
 
-const CACHE_COUNTRYCODE_KEY = "CountryCode"
+const CACHE_CURRENCYCODE_KEY = "CurrencyCode"
 
-export const getCountryCode = async (): Promise<string | undefined> => {
-  const countryCode = cache.session.get(CACHE_COUNTRYCODE_KEY)
-  if (countryCode) {
-    return countryCode
+export const getCurrencyCode = async (): Promise<string> => {
+  const currencyCode = cache.session.get(CACHE_CURRENCYCODE_KEY)
+  if (currencyCode) {
+    return currencyCode
   }
 
   try {
-    const response = await fetch("https://ipinfo.io/json")
+    const response = await fetch("https://mygeo.vercel.app")
     if (response.status === 200) {
       const data = await response.json()
-      cache.session.set(CACHE_COUNTRYCODE_KEY, data.country)
-      return data.country
+      cache.session.set(CACHE_CURRENCYCODE_KEY, data.currencyCode)
+      return data.currencyCode
     }
   } catch (err) {
     console.error(err)
   }
+
+  return "USD"
 }

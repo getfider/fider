@@ -139,7 +139,7 @@ func (s Service) Init() {
 type SqlHandler func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error
 
 func using(ctx context.Context, handler SqlHandler) error {
-	trx := ctx.Value(app.TransactionCtxKey).(*dbx.Trx)
+	trx, _ := ctx.Value(app.TransactionCtxKey).(*dbx.Trx)
 	tenant, _ := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	user, _ := ctx.Value(app.UserCtxKey).(*entity.User)
 	return handler(trx, tenant, user)
