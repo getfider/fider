@@ -6,7 +6,6 @@ declare interface Window {
 interface SpriteSymbol {
   id: string
   viewBox: string
-  url: string
 }
 
 declare let __webpack_nonce__: string

@@ -16,7 +16,7 @@ export const Icon = (props: IconProps) => {
 
   return (
     <svg onClick={props.onClick} height={props.height} width={props.width} className={props.className} viewBox={props.sprite.viewBox}>
-      <use href={props.sprite.url} />
+      <use xlinkHref={"#" + props.sprite.id} />
     </svg>
   )
 }
