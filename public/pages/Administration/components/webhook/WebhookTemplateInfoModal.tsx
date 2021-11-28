@@ -78,6 +78,13 @@ const functions: StringObject<FunctionSpecification> = {
     description: "Encode a string into a valid URL query element",
     info: "You should use this function when using a value in URL",
   },
+  truncate: {
+    params: [
+      { type: "string", desc: "The input string to truncate" },
+      { type: "number", desc: "Length of output string" },
+    ],
+    description: "Truncate the string",
+  },
 }
 const textExample = 'A new post entitled "{{ .post_title }}" has been created by {{ .author_name }}.'
 const jsonExample = `{

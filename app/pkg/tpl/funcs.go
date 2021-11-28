@@ -66,6 +66,12 @@ var templateFunctions = map[string]interface{}{
 		quoted := quote(text)
 		return quoted[1 : len(quoted)-1]
 	},
+	"truncate": func(input string, length int) string {
+		if len([]rune(input)) > length {
+			input = string([]rune(input)[:length-3]) + "..."
+		}
+		return input
+	},
 }
 
 func quote(text interface{}) string {
