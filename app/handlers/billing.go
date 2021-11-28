@@ -19,7 +19,9 @@ func ManageBilling() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		billingSubscription := &query.GetBillingSubscription{}
+		billingSubscription := &query.GetBillingSubscription{
+			SubscriptionID: billingState.Result.SubscriptionID,
+		}
 		if billingState.Result.Status == enum.BillingActive {
 			if err := bus.Dispatch(c, billingSubscription); err != nil {
 				return c.Failure(err)

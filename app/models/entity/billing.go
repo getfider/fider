@@ -15,7 +15,6 @@ type BillingState struct {
 }
 
 type BillingSubscription struct {
-	SignupAt           string                    `json:"signupAt"`
 	UpdateURL          string                    `json:"updateURL"`
 	CancelURL          string                    `json:"cancelURL"`
 	PaymentInformation BillingPaymentInformation `json:"paymentInformation"`

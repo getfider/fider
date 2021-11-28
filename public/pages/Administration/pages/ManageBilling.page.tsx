@@ -13,7 +13,6 @@ interface ManageBillingPageProps {
   trialEndsAt: string
   subscriptionEndsAt: string
   subscription: {
-    signupAt: string
     updateURL: string
     cancelURL: string
     paymentInformation: {

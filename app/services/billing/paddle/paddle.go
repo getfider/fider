@@ -129,7 +129,6 @@ func getBillingSubscription(ctx context.Context, q *query.GetBillingSubscription
 
 	if len(sub) > 0 {
 		q.Result = &entity.BillingSubscription{
-			SignupAt:  sub[0].SignupDate,
 			CancelURL: sub[0].CancelURL,
 			UpdateURL: sub[0].UpdateURL,
 			PaymentInformation: entity.BillingPaymentInformation{

@@ -62,9 +62,11 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/oauth/:provider", handlers.SignInByOAuth())
 	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 
-	wh := r.Group()
-	{
-		wh.Post("/webhooks/paddle", webhooks.IncomingPaddleWebhook())
+	if env.IsBillingEnabled() {
+		wh := r.Group()
+		{
+			wh.Post("/webhooks/paddle", webhooks.IncomingPaddleWebhook())
+		}
 	}
 
 	//Starting from this step, a Tenant is required

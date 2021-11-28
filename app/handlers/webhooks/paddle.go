@@ -76,7 +76,7 @@ func handlePaddleSubscriptionCancelled(c *web.Context, params url.Values) error 
 	}
 
 	cancellationEffectiveDate := params.Get("cancellation_effective_date")
-	subscriptionEndsAt, err := time.Parse("2006-01-02 15:04:05", cancellationEffectiveDate)
+	subscriptionEndsAt, err := time.Parse("2006-01-02", cancellationEffectiveDate)
 	if err != nil {
 		log.Error(c, errors.Wrap(err, "failed to parse date '%s'", cancellationEffectiveDate))
 		subscriptionEndsAt = time.Now().AddDate(0, 0, 30)

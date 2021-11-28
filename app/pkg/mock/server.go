@@ -2,15 +2,18 @@ package mock
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/julienschmidt/httprouter"
@@ -133,6 +136,38 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 func (s *Server) ExecutePostAsJSON(handler web.HandlerFunc, body string) (int, *jsonq.Query) {
 	code, response := s.ExecutePost(handler, body)
 	return code, toJSONQuery(response)
+}
+
+// ExecuteAsPage given handler and return page props
+func (s *Server) ExecuteAsPage(handler web.HandlerFunc) (int, *web.Props) {
+	code, response := s.Execute(handler)
+	bodyString := response.Body.String()
+
+	startTag := "<script id=\"server-data\" type=\"application/json\">"
+	endTag := "</script>"
+
+	startIndex := strings.Index(bodyString, startTag) + len(startTag)
+	endIndex := strings.Index(bodyString[startIndex:], endTag)
+
+	serverData := strings.TrimSpace(bodyString[startIndex : startIndex+endIndex])
+	serverDataJSON := map[string]interface{}{}
+
+	err := json.Unmarshal([]byte(serverData), &serverDataJSON)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to parse server data"))
+	}
+
+	title, _ := serverDataJSON["title"].(string)
+	description, _ := serverDataJSON["description"].(string)
+	page, _ := serverDataJSON["page"].(string)
+	props, _ := serverDataJSON["props"].(map[string]interface{})
+
+	return code, &web.Props{
+		Title:       title,
+		Description: description,
+		Page:        page,
+		Data:        props,
+	}
 }
 
 func toJSONQuery(response *httptest.ResponseRecorder) *jsonq.Query {
