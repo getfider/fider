@@ -44,8 +44,6 @@
   "email.greetings": "Hallo!",
   "email.greetings_name": "Hallo, {name}!",
   "email.operation_confirmation": "Klicken Sie auf den Link unten, um diesen Vorgang zu bestätigen.",
-  "email.expire_note_hours": "Hinweis: Dieser Link läuft in {hours} Stunden ab und kann nur einmal verwendet werden.",
-  "email.expire_note_minutes": "Hinweis: Dieser Link läuft in {minutes} Minuten ab und kann nur einmal verwendet werden.",
   "email.footer.noreply": "Diese E-Mail wurde von einer Benachrichtigungs-Adresse versendet, die eingehende E-Mails nicht akzeptieren kann. Bitte antworten Sie nicht auf diese Nachricht.",
   "email.change_status.duplicate": "<strong>{title} ({postLink})</strong> wurde als <strong>Duplikat</strong> von {duplicate} geschlossen.",
   "email.change_status.others": "Status von <strong>{title} ({postLink})</strong> wurde geändert zu <strong>{status}</strong>.",

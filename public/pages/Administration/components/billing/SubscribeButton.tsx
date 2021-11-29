@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Button } from "@fider/components"
+import { Button, Loader } from "@fider/components"
 import { getCurrencyCode } from "@fider/services"
 
 interface SubscribeButtonProps {
@@ -25,7 +25,7 @@ export const SubscribeButton = (props: SubscribeButtonProps) => {
   const price = usePricing()
 
   if (!price) {
-    return null
+    return <Loader className="w-12" />
   }
 
   return (

@@ -44,8 +44,6 @@
   "email.greetings": "¡Hola!",
   "email.greetings_name": "¡Hola, {name}!",
   "email.operation_confirmation": "Haga clic en el siguiente enlace para confirmar esta operación.",
-  "email.expire_note_hours": "Nota: Este enlace caducará en {hours} horas y solo puede utilizarse una vez.",
-  "email.expire_note_minutes": "Nota: Este enlace caducará en {minutes} minutos y solo se puede utilizar una vez.",
   "email.footer.noreply": "Este correo electrónico ha sido enviado desde una dirección de sólo notificación que no puede aceptar correos entrantes. Por favor, no responda a este mensaje.",
   "email.change_status.duplicate": "<strong>{title} ({postLink})</strong> ha sido cerrado como <strong>duplicado</strong> de {duplicate}.",
   "email.change_status.others": "El estado de <strong>{title} ({postLink})</strong> ha cambiado a <strong>{status}</strong>.",

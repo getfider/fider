@@ -44,8 +44,6 @@
   "email.greetings": "Hallo!",
   "email.greetings_name": "Hallo, {name}!",
   "email.operation_confirmation": "Klik op de link hieronder om deze actie te bevestigen.",
-  "email.expire_note_hours": "Let op: Deze link vervalt binnen {hours} uur en kan slechts één keer gebruikt worden.",
-  "email.expire_note_minutes": "Let op: Deze link vervalt binnen {minutes} minuten en kan slechts één keer gebruikt worden.",
   "email.footer.noreply": "Deze e-mail is verzonden vanuit een adres dat geen inkomende e-mail kan accepteren. Reageer niet op dit bericht.",
   "email.change_status.duplicate": "<strong>{title} ({postLink})</strong> is gesloten als <strong>kopie</strong> van {duplicate}.",
   "email.change_status.others": "Status van <strong>{title} ({postLink})</strong> is aangepast naar <strong>{status}</strong>.",

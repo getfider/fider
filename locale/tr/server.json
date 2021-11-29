@@ -44,8 +44,6 @@
   "email.greetings": "Merhaba!",
   "email.greetings_name": "Merhaba, {name}!",
   "email.operation_confirmation": "Bu işlemi onaylamak için aşağıdaki bağlantıyı tıklayın.",
-  "email.expire_note_hours": "Not: Bu bağlantı {hours} saat sonra geçersiz olacaktır ve yalnızca tek sefer kullanılabilir.",
-  "email.expire_note_minutes": "Not: Bu bağlantı {minutes} dakika sonra geçersiz olacaktır ve yalnızca tek sefer kullanılabilir.",
   "email.footer.noreply": "Bu e-posta yalnızca bildirim amaçlı tanımlanmış bir adresten gelmiştir. Lütfen bu mesaja cevap vermeyin.",
   "email.change_status.duplicate": "<strong>{title} ({postLink})</strong>,{duplicate} kaydının <strong>kopyası</strong> olduğu için kapatılmıştır.",
   "email.change_status.others": "<strong>{title} ({postLink})</strong> kaydının durumu <strong>{status}</strong> olarak değişmiştir.",

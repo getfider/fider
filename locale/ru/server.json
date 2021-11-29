@@ -44,8 +44,6 @@
   "email.greetings": "Привет!",
   "email.greetings_name": "Привет, {name}!",
   "email.operation_confirmation": "Перейдите по ссылке ниже, чтобы подтвердить это действие.",
-  "email.expire_note_hours": "Срок действия этой ссылки истечёт через {hours} часов. Она может быть использована только один раз.",
-  "email.expire_note_minutes": "Срок действия этой ссылки истечёт через {minutes} минут. Она может быть использована только один раз.",
   "email.footer.noreply": "Это письмо было отправлено с адреса, через который мы не принимаем входящие сообщения. Пожалуйста, не отвечайте на это сообщение.",
   "email.change_status.duplicate": "Мы закрыли пост <strong>{title} ({postLink})</strong>, т. к. это <strong>дубликат</strong> другого поста {duplicate}.",
   "email.change_status.others": "Статус предлжения <strong>{title} ({postLink})</strong> был изменён на <strong>{status}</strong>.",

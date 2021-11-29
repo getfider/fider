@@ -44,8 +44,6 @@
   "email.greetings": "Olá!",
   "email.greetings_name": "Olá, {name}!",
   "email.operation_confirmation": "Clique no link abaixo para confirmar esta operação.",
-  "email.expire_note_hours": "Importante: Este link é valido por {hours} horas e só pode ser utilizado uma vez.",
-  "email.expire_note_minutes": "Importante: Este link é valido por {minutes} minutos e só pode ser utilizado uma vez.",
   "email.footer.noreply": "Este email foi enviado de uma caixa postal que não pode receber e-mails. Favor não responder este e-mail.",
   "email.change_status.duplicate": "<strong>{title} ({postLink})</strong> foi fechado como um <strong>duplicado</strong> de {duplicate}.",
   "email.change_status.others": "O status de <strong>{title} ({postLink})</strong> foi alterado para <strong>{status}</strong>.",

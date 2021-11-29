@@ -44,8 +44,6 @@
   "email.greetings": "Ahoj!",
   "email.greetings_name": "Ahoj!, {name}!",
   "email.operation_confirmation": "Túto operáciu potvrďte kliknutím na odkaz nižšie.",
-  "email.expire_note_hours": "Poznámka: Platnosť tohto odkazu vyprší o {hours} hodiny a je možné ho použiť iba raz.",
-  "email.expire_note_minutes": "Poznámka: Platnosť tohto odkazu vyprší o {minutes} minút a je možné ho použiť iba raz.",
   "email.footer.noreply": "Tento email bol odoslaný z adresy, ktorá slúži iba na odosielanie upozornení a nemôže prijímať prichádzajúce emaily. Na túto správu neodpovedajte.",
   "email.change_status.duplicate": "Príspevok <strong>{title} ({postLink})</strong> bol uzavretý ako <strong>duplikát</strong> {duplicate}.",
   "email.change_status.others": "Stav príspevku <strong>{title} ({postLink})</strong> sa zmenil na <strong>{status}</strong>.",

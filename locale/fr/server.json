@@ -44,8 +44,6 @@
   "email.greetings": "Bonjour !",
   "email.greetings_name": "Bonjour, {name} !",
   "email.operation_confirmation": "Cliquez sur le lien ci-dessous pour confirmer cette action.",
-  "email.expire_note_hours": "Remarque : Ce lien expirera dans {hours} heures et ne peut être utilisé qu'une seule fois.",
-  "email.expire_note_minutes": "Remarque : Ce lien expirera dans {minutes} minutes et ne peut être utilisé qu'une seule fois.",
   "email.footer.noreply": "Cet e-mail a été envoyé à partir d'une adresse automatique qui ne peut pas recevoir d'e-mail. Veuillez ne pas répondre à ce message.",
   "email.change_status.duplicate": "<strong>{title} ({postLink})</strong> a été fermé en tant que <strong>doublon</strong> de {duplicate}.",
   "email.change_status.others": "Le statut de <strong>{title} ({postLink})</strong> a été changé à <strong>{status}</strong>.",

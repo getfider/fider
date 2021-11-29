@@ -44,8 +44,6 @@
   "email.greetings": "Hej!",
   "email.greetings_name": "Hej {name}!",
   "email.operation_confirmation": "Klicka på länken nedan för att bekräfta denna åtgärd.",
-  "email.expire_note_hours": "Obs: Denna länk kommer att löpa ut om {hours} timmar och kan endast användas en gång.",
-  "email.expire_note_minutes": "Obs: Denna länk kommer att löpa ut om {minutes} minuter och kan endast användas en gång.",
   "email.footer.noreply": "Detta e-postmeddelande har skickats från en adress som inte accepterar inkommande e-post. Du kan inte svara på detta meddelande.",
   "email.change_status.duplicate": "<strong>{title} ({postLink})</strong> har stängts som en <strong>kopia</strong> av {duplicate}.",
   "email.change_status.others": "Status för <strong>{title} ({postLink})</strong> har ändrats till <strong>{status}</strong>.",

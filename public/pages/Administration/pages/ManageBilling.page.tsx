@@ -184,7 +184,7 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
               Paddle
             </a>
           </strong>{" "}
-          as our billing partner. You may see {'"PADDLE.NET* FIDERIO"'} on your credit card.
+          as our billing partner. You may see {'"PADDLE.NET* FIDER"'} on your credit card.
         </p>
       )}
     </AdminPageContainer>
