@@ -34,7 +34,7 @@ export const SubscribeButton = (props: SubscribeButtonProps) => {
         Subscribe for {price}/mo
       </Button>
 
-      <span className="block text-muted">Taxes may be added during checkout.</span>
+      <span className="block text-muted">VAT/Tax may be added during checkout.</span>
     </p>
   )
 }

@@ -136,10 +136,10 @@ const FreeForeverInformation = () => {
     <VStack>
       <h3 className="text-display">Free!</h3>
       <p>
-        For some reason this site is under a <strong>Forever Free</strong> subscription, enjoy it! 🎉
+        This site is on a <strong>Forever Free</strong> subscription, enjoy it! 🎉
       </p>
-      <p>
-        You can still help us fund the developer of Fider by contribution to our{" "}
+      <p className="text-muted">
+        You can still help us fund the development of Fider by contribution to our{" "}
         <a rel="noopener" target="_blank" className="text-link" href="https://opencollective.com/fider">
           OpenCollective
         </a>
@@ -160,7 +160,7 @@ const OpenCollectiveInformation = () => {
         </a>{" "}
         donation.
       </p>
-      <p>Thanks for being a financial support! Keep your monthly donation active to avoid a service interruption.</p>
+      <p className="text-muted">Thanks for being a financial support! Keep your monthly donation active to avoid a service interruption.</p>
     </VStack>
   )
 }
