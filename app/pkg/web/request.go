@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
@@ -93,6 +94,11 @@ var crawlerRegex = regexp.MustCompile("(?i)(baidu)|(msnbot)|(bingbot)|(bingprevi
 // IsCrawler returns true if the request is coming from a crawler
 func (r *Request) IsCrawler() bool {
 	return crawlerRegex.MatchString(r.GetHeader("User-Agent"))
+}
+
+// IsCustomDomain returns true if the request was made using a custom domain (CNAME)
+func (r *Request) IsCustomDomain() bool {
+	return !strings.HasSuffix(r.URL.Hostname(), env.Config.HostDomain)
 }
 
 //BaseURL returns base URL

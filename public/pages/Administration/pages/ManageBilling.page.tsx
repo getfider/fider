@@ -1,14 +1,18 @@
-import { Moment, Money } from "@fider/components"
+import React from "react"
+import { Button, Moment, Money } from "@fider/components"
 import { VStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
 import { BillingStatus } from "@fider/models"
-import { actions } from "@fider/services"
-import React from "react"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { CardDetails } from "../components/billing/CardDetails"
-import { SubscribeButton } from "../components/billing/SubscribeButton"
+import { usePaddle } from "../hooks/use-paddle"
 
 interface ManageBillingPageProps {
+  paddle: {
+    isSandbox: boolean
+    vendorId: string
+    planId: string
+  }
   status: BillingStatus
   trialEndsAt: string
   subscriptionEndsAt: string
@@ -29,15 +33,27 @@ interface ManageBillingPageProps {
   }
 }
 
-const subscribe = async () => {
-  const result = await actions.generateCheckoutLink()
-  if (result.ok) {
-    location.href = result.data.url
-  }
+const SubscribeButton = (props: { price: string; onClick: () => void }) => {
+  return (
+    <p>
+      <Button variant="primary" onClick={props.onClick}>
+        Subscribe for {props.price}/mo
+      </Button>
+
+      <span className="block text-muted">VAT/Tax may be added during checkout.</span>
+    </p>
+  )
 }
 
 const ActiveSubscriptionInformation = (props: ManageBillingPageProps) => {
   const fider = useFider()
+  const { isReady, openUrl } = usePaddle({ ...props.paddle })
+
+  const open = (url: string) => () => {
+    if (isReady) {
+      openUrl(url)
+    }
+  }
 
   return (
     <VStack>
@@ -56,11 +72,11 @@ const ActiveSubscriptionInformation = (props: ManageBillingPageProps) => {
       </p>
       <p>
         You can{" "}
-        <a rel="noopener" target="_blank" className="text-link" href={props.subscription.updateURL}>
+        <a href="#" rel="noopener" className="text-link" onClick={open(props.subscription.updateURL)}>
           update
         </a>{" "}
         your payment information or{" "}
-        <a rel="noopener" target="_blank" className="text-link" href={props.subscription.cancelURL}>
+        <a href="#" rel="noopener" className="text-link" onClick={open(props.subscription.cancelURL)}>
           cancel
         </a>{" "}
         your subscription.
@@ -71,6 +87,7 @@ const ActiveSubscriptionInformation = (props: ManageBillingPageProps) => {
 
 const CancelledSubscriptionInformation = (props: ManageBillingPageProps) => {
   const fider = useFider()
+  const { price, openCheckoutUrl } = usePaddle({ ...props.paddle })
 
   const isExpired = new Date(props.subscriptionEndsAt) <= new Date()
 
@@ -94,13 +111,14 @@ const CancelledSubscriptionInformation = (props: ManageBillingPageProps) => {
           . <br /> Resubscribe to avoid a service interruption.
         </p>
       )}
-      <SubscribeButton onClick={subscribe} />
+      <SubscribeButton onClick={openCheckoutUrl} price={price} />
     </VStack>
   )
 }
 
 const TrialInformation = (props: ManageBillingPageProps) => {
   const fider = useFider()
+  const { price, openCheckoutUrl } = usePaddle({ ...props.paddle })
 
   const isExpired = new Date(props.trialEndsAt) <= new Date()
 
@@ -126,7 +144,7 @@ const TrialInformation = (props: ManageBillingPageProps) => {
         </p>
       )}
 
-      <SubscribeButton onClick={subscribe} />
+      <SubscribeButton onClick={openCheckoutUrl} price={price} />
     </VStack>
   )
 }
