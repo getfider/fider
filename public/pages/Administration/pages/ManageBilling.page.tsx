@@ -178,13 +178,12 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
 
       {showPaddleFooter && (
         <p className="text-muted mt-4">
-          We use{" "}
           <strong>
             <a href="https://paddle.com" target="_blank" rel="noopener" className="text-link">
               Paddle
             </a>
           </strong>{" "}
-          as our billing partner. You may see {'"PADDLE.NET* FIDER"'} on your credit card.
+          is our billing partner. You may see {'"PADDLE.NET* FIDER"'} on your credit card.
         </p>
       )}
     </AdminPageContainer>
