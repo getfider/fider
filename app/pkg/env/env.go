@@ -102,6 +102,7 @@ type config struct {
 			Username       string `env:"EMAIL_SMTP_USERNAME"`
 			Password       string `env:"EMAIL_SMTP_PASSWORD"`
 			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			SkipVerifyCert bool   `env:"EMAIL_SMTP_CERT_SKIPVERIFY,default=false"`
 		}
 	}
 	BlobStorage struct {
