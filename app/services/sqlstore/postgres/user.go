@@ -281,7 +281,7 @@ func registerUser(ctx context.Context, c *cmd.RegisterUser) error {
 		c.User.Email = strings.ToLower(strings.TrimSpace(c.User.Email))
 		if err := trx.Get(&c.User.ID,
 			"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7, '') RETURNING id",
-			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, enum.UserActive, enum.AvatarTypeGravatar); err != nil {
+			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, enum.UserActive, enum.AvatarTypeLetter); err != nil {
 			return errors.Wrap(err, "failed to register new user")
 		}
 
