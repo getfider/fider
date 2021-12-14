@@ -9,7 +9,8 @@ RUN mkdir /server
 WORKDIR /server
 
 COPY . .
-RUN BUILDNUMBER=${buildnumber} GOOS=linux GOARCH=amd64 make build-server
+RUN go env -w GOPROXY=https://goproxy.cn,direct \
+    && BUILDNUMBER=${buildnumber} GOOS=linux GOARCH=amd64 make build-server
 
 #################
 ### UI Build Step
@@ -20,7 +21,8 @@ RUN mkdir /ui
 WORKDIR /ui
 
 COPY . .
-RUN npm ci
+RUN npm config set registry http://registry.npm.taobao.org/ \
+    && npm ci
 RUN make build-ssr
 RUN make build-ui
 
