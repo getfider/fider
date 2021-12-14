@@ -7,7 +7,7 @@ var (
 	//AvatarTypeLetter is the default avatar type for users
 	AvatarTypeLetter AvatarType = 1
 	//AvatarTypeGravatar fetches avatar from gravatar (if available)
-	AvatarTypeGravatar AvatarType = 2
+	AvatarTypeGravatar AvatarType = 1
 	//AvatarTypeCustom uses a user uploaded avatar
 	AvatarTypeCustom AvatarType = 3
 )
