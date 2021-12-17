@@ -47,6 +47,10 @@ func getApiBasePath() string {
 	return "https://vendors.paddle.com"
 }
 
+// generateCheckoutLink generates a checkout link using Paddle API
+// It's a 2-steps process:
+// 1. Create a "Custom Checkout Create URL
+// 2. Use that URL to generate a Checkout Link and return it
 func generateCheckoutLink(ctx context.Context, c *cmd.GenerateCheckoutLink) error {
 	passthrough, err := json.Marshal(c.Passthrough)
 	if err != nil {
@@ -85,7 +89,35 @@ func generateCheckoutLink(ctx context.Context, c *cmd.GenerateCheckoutLink) erro
 		return errors.New("failed to generate paddle checkout link with '%s (%d)'", res.Error.Message, res.Error.Code)
 	}
 
-	c.URL = jsonq.New(string(res.Response)).String("url")
+	// the "url" here is the "Custom Checkout Create URL", we need to append some extra QueryString parameters
+	u, err := url.Parse(jsonq.New(string(res.Response)).String("url"))
+	if err != nil {
+		return errors.Wrap(err, "generated paddle checkout url is invalid")
+	}
+
+	// parent_url and parentURL must match one of the approved domains in Paddle.com
+	q := u.Query()
+	q.Set("parent_url", fmt.Sprintf("https://%s", env.Config.HostDomain))
+	q.Set("parentURL", fmt.Sprintf("https://%s", env.Config.HostDomain))
+	u.RawQuery = q.Encode()
+
+	req = &cmd.HTTPRequest{
+		URL:    u.String(),
+		Method: http.MethodGet,
+	}
+
+	if err := bus.Dispatch(ctx, req); err != nil {
+		return errors.Wrap(err, "failed to generate paddle checkout link")
+	}
+
+	if req.ResponseStatusCode <= 299 || req.ResponseStatusCode >= 400 {
+		return errors.New("unexpected status code while generating a paddle checkout link: %d", req.ResponseStatusCode)
+	}
+
+	c.URL = req.ResponseHeader.Get("location")
+	if c.URL == "" {
+		return errors.New("response is missing 'location' header")
+	}
 	return nil
 }
 

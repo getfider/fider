@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"io"
+	"net/http"
 
 	"github.com/getfider/fider/app/models/dto"
 )
@@ -16,4 +17,5 @@ type HTTPRequest struct {
 	//Output
 	ResponseBody       []byte
 	ResponseStatusCode int
+	ResponseHeader     http.Header
 }
