@@ -2,10 +2,10 @@ import { lazy, ComponentType } from "react"
 
 type LazyImport = () => Promise<{ default: ComponentType<any> }>
 
-const MAX_RETRIES = 10
-const INTERVAL = 500
+const MAX_RETRIES = 6
+const INTERVAL = 1000
 
-const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES): Promise<{ default: ComponentType<any> }> => {
+const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES, waitMs = INTERVAL): Promise<{ default: ComponentType<any> }> => {
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
@@ -15,8 +15,8 @@ const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES): Promise<{ default: Co
             reject(new Error(`${err} after ${MAX_RETRIES} retries`))
             return
           }
-          retry(fn, retriesLeft - 1).then(resolve, reject)
-        }, INTERVAL)
+          retry(fn, retriesLeft - 1, INTERVAL + INTERVAL).then(resolve, reject)
+        }, waitMs)
       })
   })
 }

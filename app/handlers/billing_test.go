@@ -19,6 +19,20 @@ import (
 	"github.com/getfider/fider/app/handlers"
 )
 
+func TestManageBillingHandler_RedirectWhenUsingCNAME(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithURL("https://feedback.demo.com/admin/billing").
+		Execute(handlers.ManageBilling())
+
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("https://demo.test.fider.io/admin/billing")
+}
+
 func TestManageBillingHandler_ReturnsCorrectBillingInformation(t *testing.T) {
 	RegisterT(t)
 
@@ -58,6 +72,7 @@ func TestManageBillingHandler_ReturnsCorrectBillingInformation(t *testing.T) {
 	code, page := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
+		WithURL("https://demo.test.fider.io/admin/billing").
 		ExecuteAsPage(handlers.ManageBilling())
 
 	Expect(code).Equals(http.StatusOK)
@@ -76,12 +91,10 @@ func TestManageBillingHandler_ReturnsCorrectBillingInformation(t *testing.T) {
 	ExpectHandler(&query.GetBillingSubscription{}).CalledOnce()
 }
 
-func TestGenerateCheckoutLinkHandler_SendsCorrectReturnUrl(t *testing.T) {
+func TestGenerateCheckoutLinkHandler(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.GenerateCheckoutLink) error {
-		Expect(c.ReturnURL).Equals("http://demo.test.fider.io/admin/billing")
-
 		c.URL = "https://paddle.com/fake-checkout-url"
 		return nil
 	})
