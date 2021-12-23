@@ -1,22 +1,24 @@
 #####################
 ### Server Build Step
 #####################
-FROM golang:1.17-buster AS server-builder 
+FROM --platform=${TARGETPLATFORM} golang:1.17-buster AS server-builder 
 
-ARG buildnumber=local
+ARG BUILDNUMBER=local
+ARG TARGETPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
 
 RUN mkdir /server
 WORKDIR /server
 
 COPY . .
-RUN BUILDNUMBER=${buildnumber} GOOS=linux GOARCH=amd64 make build-server
+RUN BUILDNUMBER=${BUILDNUMBER} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
 
 #################
 ### UI Build Step
 #################
-FROM node:16-buster AS ui-builder 
+FROM --platform=${TARGETPLATFORM} node:16-buster AS ui-builder 
 
-RUN mkdir /ui
 WORKDIR /ui
 
 COPY . .
@@ -27,12 +29,11 @@ RUN make build-ui
 ################
 ### Runtime Step
 ################
-FROM debian:buster-slim
+FROM --platform=${TARGETPLATFORM} debian:buster-slim
 
 RUN apt-get update
 RUN apt-get install -y ca-certificates
 
-RUN mkdir /app
 WORKDIR /app
 
 COPY --from=server-builder /server/migrations /app/migrations

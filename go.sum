@@ -1417,8 +1417,8 @@ mvdan.cc/lint v0.0.0-20170908181259-adc824a0674b/go.mod h1:2odslEg/xrtNQqCYg2/jC
 mvdan.cc/unparam v0.0.0-20210104141923-aac4ce9116a7/go.mod h1:hBpJkZE8H/sb+VRFvw2+rBpHNsTBcvSpk61hr8mzXZE=
 mvdan.cc/unparam v0.0.0-20211002134041-24922b6997ca h1:xzXXnoG5a3NUnKAcVMpE2cs3+RwR5/R+jtvLPFoNw7I=
 mvdan.cc/unparam v0.0.0-20211002134041-24922b6997ca/go.mod h1:Mb96j26qXgU/+SOj6MSgC36X30UgAlRYaxckYuYyEmo=
-rogchap.com/v8go v0.6.0 h1:wNn5Iu06+ke7HM511zXTVBBpRNYaauyZoPMTrLsGurU=
-rogchap.com/v8go v0.6.0/go.mod h1:IitZnaOtWSJadY/7qinKHIEHpxsilMWyLQ+Efdo4n4I=
+rogchap.com/v8go v0.7.1-0.20211222173054-943fcf9e74cc h1:rcoe6etpGGPcdMibCdCI38v0Th/oyxqTFAjnMQiDGnY=
+rogchap.com/v8go v0.7.1-0.20211222173054-943fcf9e74cc/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/quote/v3 v3.1.0/go.mod h1:yEA65RcK8LyAZtP9Kv3t0HmxON59tX3rD+tICJqUlj0=
 rsc.io/sampler v1.3.0/go.mod h1:T1hPZKmBbMNahiBKFy5HrXp6adAjACjK9JXDnKaTXpA=
