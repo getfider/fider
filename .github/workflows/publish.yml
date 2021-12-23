@@ -11,10 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: log origin event
+      - name: Dump GitHub context
+        run: echo "$GITHUB_CONTEXT"
         env:
-          ORIGIN: ${{ github.event.html_url }}
-        run: echo "$ORIGIN"
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+
       - name: download artifact
         uses: actions/github-script@v3.1.0
         with:
