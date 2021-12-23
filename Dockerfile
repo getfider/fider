@@ -3,12 +3,6 @@
 #####################
 FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.17-buster AS server-builder 
 
-RUN printf "I'm building for TARGETPLATFORM=${TARGETPLATFORM}" \
-    && printf ", TARGETARCH=${TARGETARCH}" \
-    && printf ", TARGETVARIANT=${TARGETVARIANT} \n" \
-    && printf "With uname -s : " && uname -s \
-    && printf "and  uname -m : " && uname -m
-
 ARG BUILDNUMBER=local
 ARG TARGETOS
 ARG TARGETARCH

@@ -16,6 +16,11 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
 
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -33,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          build-args: BUILDNUMBER=$(cat ./sha7)
+          build-args: BUILDNUMBER=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:PR_$(cat ./pr)
 
@@ -42,6 +47,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          build-args: BUILDNUMBER=$(cat ./sha7)
+          build-args: BUILDNUMBER=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
-          tags: getfider/fider:SHA_$(cat ./sha7),getfider/fider:main
+          tags: getfider/fider:SHA_${{ github.event.workflow_run.head_sha }},getfider/fider:main
