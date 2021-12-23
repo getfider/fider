@@ -84,7 +84,7 @@ jobs:
           echo sha7=${GITHUB_SHA::7}
         id: vars
 
-      - run: docker build -t fider-image .
+      - run: docker build --build-arg TARGETPLATFORM=linux/amd64 -t -t fider-image .
 
       - run: mkdir -p ./out
 
