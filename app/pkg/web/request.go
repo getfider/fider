@@ -2,13 +2,13 @@ package web
 
 import (
 	"io/ioutil"
-	"net"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
@@ -16,7 +16,6 @@ import (
 type Request struct {
 	instance      *http.Request
 	Method        string
-	ClientIP      string
 	ContentLength int64
 	Body          string
 	IsSecure      bool
@@ -50,28 +49,15 @@ func WrapRequest(request *http.Request) Request {
 		}
 	}
 
-	clientIP := getClientIP(request)
-
 	return Request{
 		instance:      request,
 		Method:        request.Method,
-		ClientIP:      strings.TrimSpace(clientIP),
 		ContentLength: request.ContentLength,
 		Body:          string(bodyBytes),
 		URL:           u,
 		IsSecure:      protocol == "https",
 		StartTime:     time.Now(),
 	}
-}
-
-// getClientIP returns the IP of the original requestor.
-func getClientIP(request *http.Request) (clientIP string) {
-	if forwardedHosts := request.Header.Get("X-Forwarded-For"); forwardedHosts != "" {
-		clientIP = strings.Split(forwardedHosts, ",")[0]
-	} else {
-		clientIP, _, _ = net.SplitHostPort(request.RemoteAddr)
-	}
-	return
 }
 
 // GetHeader returns the value of HTTP header from given key
@@ -108,6 +94,11 @@ var crawlerRegex = regexp.MustCompile("(?i)(baidu)|(msnbot)|(bingbot)|(bingprevi
 // IsCrawler returns true if the request is coming from a crawler
 func (r *Request) IsCrawler() bool {
 	return crawlerRegex.MatchString(r.GetHeader("User-Agent"))
+}
+
+// IsCustomDomain returns true if the request was made using a custom domain (CNAME)
+func (r *Request) IsCustomDomain() bool {
+	return !strings.HasSuffix(r.URL.Hostname(), env.Config.HostDomain)
 }
 
 //BaseURL returns base URL

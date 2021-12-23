@@ -1,0 +1,25 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-radiobutton input {
+  margin: 0px;
+  appearance: none;
+  border: 1px solid get("colors.gray.300");
+  height: sizing(4);
+  width: sizing(4);
+  color: get("colors.primary.base");
+  border-radius: get("border.radius.full");
+  -webkit-appearance: none;
+  appearance: none;
+
+  &:checked {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+  }
+
+  &:checked {
+    border-color: transparent;
+    background-color: currentColor;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+}

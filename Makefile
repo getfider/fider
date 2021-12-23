@@ -2,8 +2,9 @@
 ##
 ## For more information, refer to https://suva.sh/posts/well-documented-makefiles/
 
-LDFLAGS += -X main.buildtime=$(shell date -u "+%Y-%m-%dT%H:%M:%S")
-LDFLAGS += -X main.buildnumber=${BUILDNUMBER}
+LDFLAGS += -X github.com/getfider/fider/app/pkg/env.buildnumber=${BUILDNUMBER}
+
+
 
 ##@ Running
 
@@ -25,7 +26,9 @@ build-server: ## Build server
 build-ui: ## Build all UI assets
 	NODE_ENV=production npx webpack-cli
 
-build-ssr: ## Build SSR script
+build-ssr: ## Build SSR script and locales
+	npx lingui extract public/
+	npx lingui compile
 	NODE_ENV=production node esbuild.config.js
 
 
@@ -47,12 +50,25 @@ coverage-server: build-server build-ssr ## Run all server tests (with code cover
 
 
 
+##@ E2E Testing
+
+test-e2e-server: ## Run all E2E tests
+	npx cucumber-js e2e/features/server/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet
+
+test-e2e-ui: ## Run all E2E tests
+	npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet
+
+
+
 ##@ Running (Watch Mode)
 
-watch-server: build-server migrate ## Build and run server in watch mode
+watch:
+	make -j4 watch-server watch-ui
+
+watch-server: migrate ## Build and run server in watch mode
 	air -c air.conf
 
-watch-ui: clean ## Build and run server in watch mode
+watch-ui: ## Build and run server in watch mode
 	npx webpack-cli -w
 
 

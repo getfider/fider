@@ -3,22 +3,19 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
 	"github.com/lib/pq"
 )
 
 func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotifications) error {
-	log.Debug(ctx, "deleting notifications more than 1 year old")
-
 	trx, err := dbx.BeginTx(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to open transaction")
@@ -29,10 +26,6 @@ func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotificat
 		return errors.Wrap(err, "failed to delete expired notifications")
 	}
 
-	log.Debugf(ctx, "a total of @{RowsDeleted} notifications were deleted", dto.Props{
-		"RowsDeleted": count,
-	})
-
 	if err = trx.Commit(); err != nil {
 		return errors.Wrap(err, "failed commit transaction")
 	}
@@ -42,7 +35,7 @@ func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotificat
 }
 
 func markAllNotificationsAsRead(ctx context.Context, c *cmd.MarkAllNotificationsAsRead) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if user == nil {
 			return nil
 		}
@@ -58,7 +51,7 @@ func markAllNotificationsAsRead(ctx context.Context, c *cmd.MarkAllNotifications
 }
 
 func countUnreadNotifications(ctx context.Context, q *query.CountUnreadNotifications) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = 0
 
 		if user != nil {
@@ -72,7 +65,7 @@ func countUnreadNotifications(ctx context.Context, q *query.CountUnreadNotificat
 }
 
 func markNotificationAsRead(ctx context.Context, c *cmd.MarkNotificationAsRead) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if user == nil {
 			return nil
 		}
@@ -89,9 +82,9 @@ func markNotificationAsRead(ctx context.Context, c *cmd.MarkNotificationAsRead) 
 }
 
 func getNotificationByID(ctx context.Context, q *query.GetNotificationByID) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = nil
-		notification := &models.Notification{}
+		notification := &entity.Notification{}
 
 		err := trx.Get(notification, `
 			SELECT id, title, link, read, created_at 
@@ -108,8 +101,8 @@ func getNotificationByID(ctx context.Context, q *query.GetNotificationByID) erro
 }
 
 func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		q.Result = []*models.Notification{}
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = []*entity.Notification{}
 		err := trx.Select(&q.Result, `
 			SELECT id, title, link, read, created_at 
 			FROM notifications 
@@ -124,14 +117,14 @@ func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications
 }
 
 func addNewNotification(ctx context.Context, c *cmd.AddNewNotification) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		c.Result = nil
 		if user.ID == c.User.ID {
 			return nil
 		}
 
 		now := time.Now()
-		notification := &models.Notification{
+		notification := &entity.Notification{
 			Title:     c.Title,
 			Link:      c.Link,
 			CreatedAt: now,
@@ -152,13 +145,13 @@ func addNewNotification(ctx context.Context, c *cmd.AddNewNotification) error {
 }
 
 func addSubscriber(ctx context.Context, c *cmd.AddSubscriber) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		return internalAddSubscriber(trx, c.Post, tenant, c.User, true)
 	})
 }
 
 func removeSubscriber(ctx context.Context, c *cmd.RemoveSubscriber) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute(`
 			INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_at, updated_at, status)
 			VALUES ($1, $2, $3, $4, $4, $5) ON CONFLICT (user_id, post_id)
@@ -173,16 +166,23 @@ func removeSubscriber(ctx context.Context, c *cmd.RemoveSubscriber) error {
 }
 
 func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		q.Result = make([]*models.User, 0)
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = make([]*entity.User, 0)
 
 		var (
 			users []*dbUser
 			err   error
 		)
 
+		// When searching for email subscrivers, skip users with email supressed
+		supressionCondition := ""
+		if q.Channel == enum.NotificationChannelEmail {
+			supressionCondition = "AND u.email_supressed_at IS NULL"
+		}
+
+		// If the event doesn't require a subscription, notify everyone
 		if len(q.Event.RequiresSubscriptionUserRoles) == 0 {
-			err = trx.Select(&users, `
+			err = trx.Select(&users, fmt.Sprintf(`
 				SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 				FROM users u
 				LEFT JOIN user_settings set
@@ -191,11 +191,12 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 				AND set.key = $1
 				WHERE u.tenant_id = $2
 				AND u.status = $5
+				%s
 				AND (
 					(set.value IS NULL AND u.role = ANY($3))
 					OR CAST(set.value AS integer) & $4 > 0
 				)
-				ORDER by u.id`,
+				ORDER by u.id`, supressionCondition),
 				q.Event.UserSettingsKeyName,
 				tenant.ID,
 				pq.Array(q.Event.DefaultEnabledUserRoles),
@@ -203,7 +204,8 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 				enum.UserActive,
 			)
 		} else {
-			err = trx.Select(&users, `
+			// If the event requires a subscription, notify only those who subscribed
+			err = trx.Select(&users, fmt.Sprintf(`
 				SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 				FROM users u
 				LEFT JOIN post_subscribers sub
@@ -216,12 +218,13 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 				AND set.tenant_id = u.tenant_id
 				WHERE u.tenant_id = $4
 				AND u.status = $8
+				%s
 				AND ( sub.status = $2 OR (sub.status IS NULL AND NOT u.role = ANY($7)) )
 				AND (
 					(set.value IS NULL AND u.role = ANY($5))
 					OR CAST(set.value AS integer) & $6 > 0
 				)
-				ORDER by u.id`,
+				ORDER by u.id`, supressionCondition),
 				q.Number,
 				enum.SubscriberActive,
 				q.Event.UserSettingsKeyName,
@@ -237,7 +240,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 			return errors.Wrap(err, "failed to get post number '%d' subscribers", q.Number)
 		}
 
-		q.Result = make([]*models.User, len(users))
+		q.Result = make([]*entity.User, len(users))
 		for i, user := range users {
 			q.Result[i] = user.toModel(ctx)
 		}
@@ -245,7 +248,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 	})
 }
 
-func internalAddSubscriber(trx *dbx.Trx, post *models.Post, tenant *models.Tenant, user *models.User, force bool) error {
+func internalAddSubscriber(trx *dbx.Trx, post *entity.Post, tenant *entity.Tenant, user *entity.User, force bool) error {
 	conflict := " DO NOTHING"
 	if force {
 		conflict = "(user_id, post_id) DO UPDATE SET status = $5, updated_at = $4"
@@ -260,4 +263,16 @@ func internalAddSubscriber(trx *dbx.Trx, post *models.Post, tenant *models.Tenan
 		return errors.Wrap(err, "failed insert post subscriber")
 	}
 	return nil
+}
+
+func supressEmail(ctx context.Context, c *cmd.SupressEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		cmd := "UPDATE users SET email_supressed_at = $1 WHERE email = ANY($2) AND email_supressed_at IS NULL"
+		rowsCount, err := trx.Execute(cmd, time.Now(), pq.Array(c.EmailAddresses))
+		if err != nil {
+			return errors.Wrap(err, "failed to update supress email: %s", strings.Join(c.EmailAddresses, ","))
+		}
+		c.NumOfSupressedEmailAddresses = int(rowsCount)
+		return nil
+	})
 }

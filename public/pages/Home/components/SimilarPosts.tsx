@@ -1,9 +1,10 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { Heading, Loader } from "@fider/components"
+import { PageTitle, Loader } from "@fider/components"
 import { ListPosts } from "./ListPosts"
 import { actions } from "@fider/services"
-import { FaRegLightbulb } from "react-icons/fa"
+
+import { t } from "@lingui/macro"
 
 interface SimilarPostsProps {
   title: string
@@ -57,9 +58,12 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   }
 
   public render() {
+    const title = t({ id: "home.similar.title", message: "Similar posts" })
+    const subtitle = t({ id: "home.similar.subtitle", message: "Consider voting on existing posts instead." })
+
     return (
       <>
-        <Heading title="Similar posts" subtitle="Consider voting on existing posts instead." icon={FaRegLightbulb} size="small" dividing={true} />
+        <PageTitle title={title} subtitle={subtitle} />
         {this.state.loading ? (
           <Loader />
         ) : (

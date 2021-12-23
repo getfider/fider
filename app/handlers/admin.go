@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
@@ -11,9 +13,9 @@ import (
 // GeneralSettingsPage is the general settings page
 func GeneralSettingsPage() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return c.Page(web.Props{
-			Title:     "General · Site Settings",
-			ChunkName: "GeneralSettings.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "Administration/pages/GeneralSettings.page",
+			Title: "General · Site Settings",
 		})
 	}
 }
@@ -21,9 +23,9 @@ func GeneralSettingsPage() web.HandlerFunc {
 // AdvancedSettingsPage is the advanced settings page
 func AdvancedSettingsPage() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return c.Page(web.Props{
-			Title:     "Advanced · Site Settings",
-			ChunkName: "AdvancedSettings.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "Administration/pages/AdvancedSettings.page",
+			Title: "Advanced · Site Settings",
 			Data: web.Map{
 				"customCSS": c.Tenant().CustomCSS,
 			},
@@ -34,18 +36,23 @@ func AdvancedSettingsPage() web.HandlerFunc {
 // UpdateSettings update current tenant' settings
 func UpdateSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantSettings)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewUpdateTenantSettings()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Model.Logo,
+				Image:  action.Logo,
 				Folder: "logos",
 			},
 			&cmd.UpdateTenantSettings{
-				Settings: input.Model,
+				Logo:           action.Logo,
+				Title:          action.Title,
+				Invitation:     action.Invitation,
+				WelcomeMessage: action.WelcomeMessage,
+				CNAME:          action.CNAME,
+				Locale:         action.Locale,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -58,12 +65,14 @@ func UpdateSettings() web.HandlerFunc {
 // UpdateAdvancedSettings update current tenant' advanced settings
 func UpdateAdvancedSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantAdvancedSettings)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.UpdateTenantAdvancedSettings)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{Settings: input.Model}); err != nil {
+		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{
+			CustomCSS: action.CustomCSS,
+		}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -74,12 +83,33 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 // UpdatePrivacy update current tenant's privacy settings
 func UpdatePrivacy() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateTenantPrivacy)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.UpdateTenantPrivacy)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		updateSettings := &cmd.UpdateTenantPrivacySettings{Settings: input.Model}
+		updateSettings := &cmd.UpdateTenantPrivacySettings{
+			IsPrivate: action.IsPrivate,
+		}
+		if err := bus.Dispatch(c, updateSettings); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// UpdateEmailAuthAllowed update current tenant's allow email auth settings
+func UpdateEmailAuthAllowed() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.UpdateTenantEmailAuthAllowed)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		updateSettings := &cmd.UpdateTenantEmailAuthAllowedSettings{
+			IsEmailAuthAllowed: action.IsEmailAuthAllowed,
+		}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)
 		}
@@ -96,9 +126,9 @@ func ManageMembers() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Props{
-			Title:     "Manage Members · Site Settings",
-			ChunkName: "ManageMembers.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "Administration/pages/ManageMembers.page",
+			Title: "Manage Members · Site Settings",
 			Data: web.Map{
 				"users": allUsers.Result,
 			},
@@ -114,9 +144,9 @@ func ManageAuthentication() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Props{
-			Title:     "Authentication · Site Settings",
-			ChunkName: "ManageAuthentication.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "Administration/pages/ManageAuthentication.page",
+			Title: "Authentication · Site Settings",
 			Data: web.Map{
 				"providers": listProviders.Result,
 			},
@@ -141,18 +171,31 @@ func GetOAuthConfig() web.HandlerFunc {
 // SaveOAuthConfig is used to create/edit OAuth configurations
 func SaveOAuthConfig() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CreateEditOAuthConfig)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewCreateEditOAuthConfig()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Model.Logo,
+				Image:  action.Logo,
 				Folder: "logos",
 			},
 			&cmd.SaveCustomOAuthConfig{
-				Config: input.Model,
+				ID:                action.ID,
+				Logo:              action.Logo,
+				Provider:          action.Provider,
+				Status:            action.Status,
+				DisplayName:       action.DisplayName,
+				ClientID:          action.ClientID,
+				ClientSecret:      action.ClientSecret,
+				AuthorizeURL:      action.AuthorizeURL,
+				TokenURL:          action.TokenURL,
+				Scope:             action.Scope,
+				ProfileURL:        action.ProfileURL,
+				JSONUserIDPath:    action.JSONUserIDPath,
+				JSONUserNamePath:  action.JSONUserNamePath,
+				JSONUserEmailPath: action.JSONUserEmailPath,
 			},
 		); err != nil {
 			return c.Failure(err)

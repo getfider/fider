@@ -18,24 +18,6 @@ var mdExtns = 0 |
 	blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
 	blackfriday.EXTENSION_HARD_LINE_BREAK
 
-var simpleHTMLExtensions = 0 |
-	blackfriday.HTML_USE_XHTML |
-	blackfriday.HTML_USE_SMARTYPANTS |
-	blackfriday.HTML_SMARTYPANTS_FRACTIONS |
-	blackfriday.HTML_SMARTYPANTS_DASHES |
-	blackfriday.HTML_SKIP_IMAGES |
-	blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
-
-var simpleRenderer = SimpleRenderer(simpleHTMLExtensions)
-
-// Simple turns a markdown into HTML using few rules
-func Simple(input string) template.HTML {
-	sanitizedInput := html.EscapeString(input)
-	output := blackfriday.Markdown([]byte(sanitizedInput), simpleRenderer, mdExtns)
-
-	return template.HTML(strings.TrimSpace(string(output)))
-}
-
 var fullHTMLExtensions = 0 |
 	blackfriday.HTML_USE_XHTML |
 	blackfriday.HTML_USE_SMARTYPANTS |

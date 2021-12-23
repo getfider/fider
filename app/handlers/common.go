@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -42,10 +42,11 @@ func LegalPage(title, file string) web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		return c.Render(http.StatusOK, "legal.html", web.Props{
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "Legal/Legal.page",
 			Title: title,
 			Data: web.Map{
-				"Content": string(bytes),
+				"content": string(bytes),
 			},
 		})
 	}
@@ -92,22 +93,12 @@ func RobotsTXT() web.HandlerFunc {
 }
 
 //Page returns a page without properties
-func Page(title, description, chunkName string) web.HandlerFunc {
+func Page(title, description, page string) web.HandlerFunc {
 	return func(c *web.Context) error {
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
+			Page:        page,
 			Title:       title,
 			Description: description,
-			ChunkName:   chunkName,
-		})
-	}
-}
-
-//BrowserNotSupported returns an error page for browser that Fider dosn't support
-func BrowserNotSupported() web.HandlerFunc {
-	return func(c *web.Context) error {
-		return c.Render(http.StatusOK, "browser-not-supported.html", web.Props{
-			Title:       "Browser not supported",
-			Description: "We don't support this version of your browser",
 		})
 	}
 }
@@ -121,21 +112,19 @@ type NewLogError struct {
 //LogError logs an error coming from the UI
 func LogError() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(NewLogError)
-		err := c.Bind(input)
+		action := new(NewLogError)
+		err := c.Bind(action)
 		if err != nil {
 			return c.Failure(err)
 		}
-		log.Debugf(c, input.Message, dto.Props{
-			"Data": input.Data,
+		log.Warnf(c, action.Message, dto.Props{
+			"Data": action.Data,
 		})
 		return c.Ok(web.Map{})
 	}
 }
 
-func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*models.EmailVerification, error) {
-	key := c.QueryParam("k")
-
+func validateKey(kind enum.EmailVerificationKind, key string, c *web.Context) (*entity.EmailVerification, error) {
 	//If key has been used, return NotFound
 	findByKey := &query.GetVerificationByKey{Kind: kind, Key: key}
 	err := bus.Dispatch(c, findByKey)
@@ -146,13 +135,18 @@ func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*models.Email
 		return nil, c.Failure(err)
 	}
 
-	//If key has been used, return Gone
-	if findByKey.Result.VerifiedAt != nil {
+	now := time.Now()
+	res := findByKey.Result
+
+	// If key has been used more than 5 minutes ago, deny usage
+	// The 5 minutes grace period is to avoid issues with email clients that preview the link
+	// Examples: Outlook Smart Preview, corporate email protection software
+	if res.VerifiedAt != nil && now.Sub(*res.VerifiedAt) > 5*time.Minute {
 		return nil, c.Gone()
 	}
 
-	//If key expired, return Gone
-	if time.Now().After(findByKey.Result.ExpiresAt) {
+	//If key expired, deny usage
+	if now.After(res.ExpiresAt) {
 		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
 		if err != nil {
 			return nil, c.Failure(err)
@@ -160,7 +154,7 @@ func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*models.Email
 		return nil, c.Gone()
 	}
 
-	return findByKey.Result, nil
+	return res, nil
 }
 
 func between(n, min, max int) int {

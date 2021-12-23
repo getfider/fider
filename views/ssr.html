@@ -1,10 +1,11 @@
 {{define "head"}}
-  {{ if .private.chunkAssets }}
-  {{range .private.chunkAssets.CSS}}
-    <link rel="stylesheet" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" />
-  {{end}}
+  {{range $asset := .private.preloadAssets}}
+    {{if $asset}}
+      {{range $asset.CSS}}<link href="{{ $.public.settings.assetsURL }}{{ . }}" rel="stylesheet" />{{end}}
+    {{end}}
   {{end}}
 {{end}}
+
 {{define "server-data"}}{{end}}
 
 {{define "content"}}

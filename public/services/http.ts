@@ -27,6 +27,8 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
 
   if (response.status === 500) {
     notify.error("An unexpected error occurred while processing your request.")
+  } else if (response.status === 401) {
+    notify.error("You need to be authenticated to perform this operation.")
   } else if (response.status === 403) {
     notify.error("You are not authorized to perform this operation.")
   }
@@ -71,10 +73,12 @@ export const http = {
   delete: async <T = void>(url: string, body?: any): Promise<Result<T>> => {
     return await request<T>(url, "DELETE", body)
   },
-  event: (category: string, action: string) => <T>(result: Result<T>): Result<T> => {
-    if (result && result.ok) {
-      analytics.event(category, action)
-    }
-    return result
-  },
+  event:
+    (category: string, action: string) =>
+    <T>(result: Result<T>): Result<T> => {
+      if (result && result.ok) {
+        analytics.event(category, action)
+      }
+      return result
+    },
 }

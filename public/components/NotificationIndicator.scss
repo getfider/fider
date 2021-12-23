@@ -1,0 +1,15 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-notification-indicator {
+  position: relative;
+
+  .c-notification-indicator-unread-counter {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: get("colors.red.500");
+    height: sizing(2);
+    width: sizing(2);
+    border-radius: 100%;
+  }
+}

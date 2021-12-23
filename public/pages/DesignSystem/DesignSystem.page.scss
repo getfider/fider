@@ -1,0 +1,21 @@
+@import "~@fider/assets/styles/variables.scss";
+
+#p-ui-toolkit {
+  .color {
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    margin: 2px;
+    border-radius: 4px;
+
+    @each $name, $shades in $colors {
+      @if type-of($shades) == "map" {
+        @each $shade, $color in $shades {
+          &.#{$name}-#{$shade} {
+            background-color: $color;
+          }
+        }
+      }
+    }
+  }
+}

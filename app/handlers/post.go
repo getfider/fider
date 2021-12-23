@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -35,9 +36,9 @@ func Index() web.HandlerFunc {
 			description = "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share posts."
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
+			Page:        "Home/Home.page",
 			Description: description,
-			ChunkName:   "Home.page",
 			Data: web.Map{
 				"posts":          searchPosts.Result,
 				"tags":           getAllTags.Result,
@@ -73,10 +74,10 @@ func PostDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Props{
+		return c.Page(http.StatusOK, web.Props{
+			Page:        "ShowPost/ShowPost.page",
 			Title:       getPost.Result.Title,
 			Description: markdown.PlainText(getPost.Result.Description),
-			ChunkName:   "ShowPost.page",
 			Data: web.Map{
 				"comments":    getComments.Result,
 				"subscribed":  isSubscribed.Result,

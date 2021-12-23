@@ -1,18 +1,20 @@
 package cmd
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models/entity"
+)
 
 type AddVote struct {
-	Post *models.Post
-	User *models.User
+	Post *entity.Post
+	User *entity.User
 }
 
 type RemoveVote struct {
-	Post *models.Post
-	User *models.User
+	Post *entity.Post
+	User *entity.User
 }
 
 type MarkPostAsDuplicate struct {
-	Post     *models.Post
-	Original *models.Post
+	Post     *entity.Post
+	Original *entity.Post
 }

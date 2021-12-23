@@ -57,5 +57,5 @@ func TestIsAuthenticated_WithoutUser(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).Equals(http.StatusForbidden)
+	Expect(status).Equals(http.StatusUnauthorized)
 }

@@ -1,10 +1,7 @@
-import "./PrivacySettings.page.scss"
-
 import React from "react"
-import { Toggle, Form } from "@fider/components/common"
+import { Toggle, Form, Field } from "@fider/components"
 import { actions, notify, Fider } from "@fider/services"
 import { AdminBasePage } from "@fider/pages/Administration/components/AdminBasePage"
-import { FaKey } from "react-icons/fa"
 
 interface PrivacySettingsPageState {
   isPrivate: boolean
@@ -13,7 +10,6 @@ interface PrivacySettingsPageState {
 export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySettingsPageState> {
   public id = "p-admin-privacy"
   public name = "privacy"
-  public icon = FaKey
   public title = "Privacy"
   public subtitle = "Manage your site privacy"
 
@@ -42,14 +38,13 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
   public content() {
     return (
       <Form>
-        <div className="c-form-field">
-          <label htmlFor="private">Private site</label>
+        <Field label="Private Site">
           <Toggle disabled={!Fider.session.user.isAdministrator} active={this.state.isPrivate} onToggle={this.toggle} />
-          <p className="info">
+          <p className="text-muted mt-1">
             A private site prevents unauthenticated users from viewing or interacting with its content. <br /> If enabled, only already registered and invited
             users will be able to sign in to this site.
           </p>
-        </div>
+        </Field>
       </Form>
     )
   }

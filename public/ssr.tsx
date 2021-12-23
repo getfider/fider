@@ -1,39 +1,64 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { Fider, FiderContext } from "./services/fider"
-import { IconContext } from "react-icons"
-import { Footer, Header } from "./components"
-import { resolveRootComponent, route } from "./router"
+import { DevBanner, ReadOnlyNotice } from "./components"
 
-import HomePage from "./pages/Home/Home.page"
-import ShowPostPage from "./pages/ShowPost/ShowPost.page"
-import SignInPage from "./pages/SignIn/SignIn.page"
-import SignUpPage from "./pages/SignUp/SignUp.page"
-import UIToolkitPage from "./pages/UI/UIToolkit.page"
+import { activateI18NSync } from "./services"
+import { I18nProvider } from "@lingui/react"
 
-// Only public routes should be here
-// Routes behind authentication are not crawled
-const routes = [
-  route("", HomePage),
-  route("/posts/:number*", ShowPostPage),
-  route("/signin", SignInPage, false),
-  route("/signup", SignUpPage, false),
-  route("/-/ui", UIToolkitPage),
-]
+// Locale files must be bundled for SSR to work synchronously
+const messages: { [key: string]: any } = {
+  en: require(`../locale/en/client`),
+  "pt-BR": require(`../locale/pt-BR/client`),
+  "sv-SE": require(`../locale/sv-SE/client`),
+  "es-ES": require(`../locale/es-ES/client`),
+  nl: require(`../locale/nl/client`),
+  de: require(`../locale/de/client`),
+  fr: require(`../locale/fr/client`),
+  pl: require(`../locale/pl/client`),
+  ru: require(`../locale/ru/client`),
+  sk: require(`../locale/sk/client`),
+  tr: require(`../locale/tr/client`),
+}
 
-function ssrRender(url: string, pathname: string, args: any) {
+// ESBuild doesn't support Dynamic Imports, so we need to map them statically
+// But at least only public routes will be here, as routes behind authentication won't be crawled anyway
+const pages: { [key: string]: any } = {
+  "Home/Home.page": require(`./pages/Home/Home.page`),
+  "ShowPost/ShowPost.page": require(`./pages/ShowPost/ShowPost.page`),
+  "SignIn/SignIn.page": require(`./pages/SignIn/SignIn.page`),
+  "SignUp/SignUp.page": require(`./pages/SignUp/SignUp.page`),
+  "SignUp/PendingActivation.page": require(`./pages/SignUp/PendingActivation.page`),
+  "Legal/Legal.page": require(`./pages/Legal/Legal.page`),
+  "DesignSystem/DesignSystem.page": require(`./pages/DesignSystem/DesignSystem.page`),
+  "Error/Maintenance.page": require(`./pages/Error/Maintenance.page`),
+  "Error/Error401.page": require(`./pages/Error/Error401.page`),
+  "Error/Error403.page": require(`./pages/Error/Error403.page`),
+  "Error/Error404.page": require(`./pages/Error/Error404.page`),
+  "Error/Error410.page": require(`./pages/Error/Error410.page`),
+  "Error/Error500.page": require(`./pages/Error/Error500.page`),
+  "Error/NotInvited.page": require(`./pages/Error/NotInvited.page`),
+}
+
+function ssrRender(url: string, args: any) {
   const fider = Fider.initialize({ ...args })
-  const config = resolveRootComponent(pathname, routes)
+  const i18n = activateI18NSync(fider.currentLocale, messages[fider.currentLocale].messages)
+  const component = pages[fider.session.page]?.default
+  if (!component) {
+    throw new Error(`Page not found: ${fider.session.page}`)
+  }
+
   window.location.href = url
 
   return renderToStaticMarkup(
-    <FiderContext.Provider value={fider}>
-      <IconContext.Provider value={{ className: "icon" }}>
-        {config.showHeader && <Header />}
-        {React.createElement(config.component, args.props)}
-        {config.showHeader && <Footer />}
-      </IconContext.Provider>
-    </FiderContext.Provider>
+    <I18nProvider i18n={i18n}>
+      <FiderContext.Provider value={fider}>
+        <DevBanner />
+        <ReadOnlyNotice />
+        {React.createElement(component, args.props)}
+      </FiderContext.Provider>
+    </I18nProvider>
   )
 }
 

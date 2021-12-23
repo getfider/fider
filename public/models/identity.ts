@@ -3,17 +3,20 @@ export interface Tenant {
   name: string
   cname: string
   subdomain: string
+  locale: string
   invitation: string
   welcomeMessage: string
   status: TenantStatus
   isPrivate: boolean
   logoBlobKey: string
+  isEmailAuthAllowed: boolean
 }
 
 export enum TenantStatus {
   Active = 1,
   Pending = 2,
   Locked = 3,
+  Disabled = 4,
 }
 
 export interface User {

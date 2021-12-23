@@ -1,7 +1,7 @@
 #####################
 ### Server Build Step
 #####################
-FROM golang:1.16.2-buster AS server-builder 
+FROM golang:1.17-buster AS server-builder 
 
 ARG buildnumber=local
 
@@ -14,7 +14,7 @@ RUN BUILDNUMBER=${buildnumber} GOOS=linux GOARCH=amd64 make build-server
 #################
 ### UI Build Step
 #################
-FROM node:14-buster AS ui-builder 
+FROM node:16-buster AS ui-builder 
 
 RUN mkdir /ui
 WORKDIR /ui
@@ -37,6 +37,7 @@ WORKDIR /app
 
 COPY --from=server-builder /server/migrations /app/migrations
 COPY --from=server-builder /server/views /app/views
+COPY --from=server-builder /server/locale /app/locale
 COPY --from=server-builder /server/LICENSE /app
 COPY --from=server-builder /server/fider /app
 

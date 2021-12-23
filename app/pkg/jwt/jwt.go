@@ -2,17 +2,21 @@ package jwt
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/dgrijalva/jwt-go"
-	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	jwtgo "github.com/golang-jwt/jwt/v4"
 )
 
 var jwtSecret = env.Config.JWTSecret
 
 // Metadata is the basic JWT information
-type Metadata = jwtgo.StandardClaims
+type Metadata = jwtgo.RegisteredClaims
+
+func Time(t time.Time) *jwtgo.NumericDate {
+	return jwtgo.NewNumericDate(t)
+}
 
 const (
 	//FiderClaimsOriginUI is assigned to Fider claims when the Auth Token is generated through the UI
@@ -71,7 +75,7 @@ func DecodeOAuthClaims(token string) (*OAuthClaims, error) {
 
 func decode(token string, claims jwtgo.Claims) error {
 	jwtToken, err := jwtgo.ParseWithClaims(token, claims, func(t *jwtgo.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+		if _, ok := t.Method.(*jwtgo.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
 		}
 

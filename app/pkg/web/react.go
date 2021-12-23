@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"runtime"
+	"sync"
 
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -14,23 +16,36 @@ import (
 type ReactRenderer struct {
 	scriptPath    string
 	scriptContent []byte
-	ctx           *v8go.Context
+	pool          *sync.Pool
 }
 
-func NewReactRenderer(scriptPath string) *ReactRenderer {
-	bytes, _ := os.ReadFile(env.Path(scriptPath))
-	isolate, err := v8go.NewIsolate()
+func newIsolatePool() *sync.Pool {
+	return &sync.Pool{
+		New: func() interface{} {
+			isolate, err := v8go.NewIsolate()
+			if err != nil {
+				return errors.Wrap(err, "unable to initialize v8 isolate.")
+			}
+
+			runtime.SetFinalizer(isolate, func(iso *v8go.Isolate) {
+				if iso != nil {
+					iso.Dispose()
+				}
+			})
+
+			return isolate
+		},
+	}
+}
+
+func NewReactRenderer(scriptPath string) (*ReactRenderer, error) {
+	pool := newIsolatePool()
+	bytes, err := os.ReadFile(env.Path(scriptPath))
 	if err != nil {
-		return &ReactRenderer{scriptPath: scriptPath}
+		return nil, errors.Wrap(err, "failed to read SSR script.")
 	}
 
-	v8ctx, _ := v8go.NewContext(isolate)
-	_, err = v8ctx.RunScript(string(bytes), scriptPath)
-	if err != nil {
-		return &ReactRenderer{scriptPath: scriptPath}
-	}
-
-	return &ReactRenderer{ctx: v8ctx, scriptPath: scriptPath, scriptContent: bytes}
+	return &ReactRenderer{pool: pool, scriptPath: scriptPath, scriptContent: bytes}, nil
 }
 
 func (r *ReactRenderer) Render(u *url.URL, props Map) (string, error) {
@@ -38,12 +53,31 @@ func (r *ReactRenderer) Render(u *url.URL, props Map) (string, error) {
 		return "", nil
 	}
 
+	item := r.pool.Get()
+	isolate, ok := item.(*v8go.Isolate)
+	if !ok {
+		return "", item.(error)
+	}
+	defer r.pool.Put(isolate)
+
+	v8ctx, err := v8go.NewContext(isolate)
+	if err != nil {
+		return "", errors.Wrap(err, "unable to initialize v8 context.")
+	}
+	defer v8ctx.Close()
+
+	_, err = v8ctx.RunScript(string(r.scriptContent), r.scriptPath)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to execute SSR script.")
+	}
+
 	jsonArg, err := json.Marshal(props)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to marshal props")
 	}
 
-	val, err := r.ctx.RunScript(`ssrRender("`+u.String()+`", "`+u.Path+`", `+string(jsonArg)+`)`, r.scriptPath)
+	renderCmd := fmt.Sprintf(`ssrRender("%s", %s)`, u.String(), string(jsonArg))
+	val, err := v8ctx.RunScript(renderCmd, r.scriptPath)
 	if err != nil {
 		if jsErr, ok := err.(*v8go.JSError); ok {
 			err = fmt.Errorf("%v", jsErr.StackTrace)

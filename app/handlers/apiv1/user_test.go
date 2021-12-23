@@ -8,8 +8,8 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/handlers/apiv1"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -21,9 +21,9 @@ func TestListUsersHandler(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetAllUsers) error {
-		q.Result = []*models.User{
-			&models.User{ID: 1, Name: "User 1"},
-			&models.User{ID: 2, Name: "User 2"},
+		q.Result = []*entity.User{
+			{ID: 1, Name: "User 1"},
+			{ID: 2, Name: "User 2"},
 		}
 		return nil
 	})
@@ -115,7 +115,7 @@ func TestCreateUser_NewUser(t *testing.T) {
 
 	server := mock.NewServer()
 
-	var newUser *models.User
+	var newUser *entity.User
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
 		if newUser != nil {
@@ -143,7 +143,7 @@ func TestCreateUser_NewUser(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUserProvider) error {
 		if c.UserID == newUser.ID {
-			newUser.Providers = append(newUser.Providers, &models.UserProvider{
+			newUser.Providers = append(newUser.Providers, &entity.UserProvider{
 				Name: c.ProviderName,
 				UID:  c.ProviderUID,
 			})

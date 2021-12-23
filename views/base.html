@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ .public.settings.locale }}">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,7 @@
   {{ end }}
   {{ if .private.assets }}
     {{range .private.assets.CSS}}
-      <link rel="stylesheet" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" />
+      <link rel="stylesheet" href="{{ $.public.settings.assetsURL }}{{ . }}" />
     {{end}}
   {{end}}
   {{block "head" .}}{{end}}
@@ -26,6 +26,12 @@
 <body>
   {{block "noscript" .}}{{end}}
 
+  {{template "content" .}}
+
+  <script id="server-data" type="application/json">
+    {{template "server-data" .}}
+  </script>
+
   {{ if ne .public.settings.googleAnalytics "" }}
   <script type="text/javascript" nonce="{{ .public.contextID }}">
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -33,21 +39,20 @@
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-    ga('create', '{{ .public.settings.googleAnalytics }}', 'auto');
+    ga('create', '{{ .public.settings.googleAnalytics }}', {
+      'storage': 'none',
+      'clientId': '{{ .public.sessionID }}'
+    });
+    ga('set', 'anonymizeIp', true);
     {{ if .public.tenant }}ga('set', 'dimension1', '{{ .public.tenant.Subdomain }}');{{ end }}
     ga('send', 'pageview');
   </script>
   {{ end }}
 
-  {{template "content" .}}
-
-  <script id="server-data" type="application/json">
-    {{template "server-data" .}}
-  </script>
   {{template "end-of-body" .}}
   {{ if .public.tenant }} 
     {{ if .public.tenant.CustomCSS }} 
-    <link rel="stylesheet" href="{{ .public.settings.tenantAssetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
+    <link rel="stylesheet" href="{{ .public.settings.assetsURL }}/static/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
     {{ end }}
   {{ end }}
 </body>

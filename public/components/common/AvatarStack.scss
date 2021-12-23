@@ -1,0 +1,11 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-avatar-stack {
+  > * {
+    border: 2px solid white;
+  }
+
+  > * + * {
+    margin-left: spacing(-3);
+  }
+}

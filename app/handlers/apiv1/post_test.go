@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-
-	"github.com/getfider/fider/app/models"
+	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -26,7 +26,7 @@ func TestCreatePostHandler(t *testing.T) {
 	var newPost *cmd.AddNewPost
 	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
 		newPost = c
-		c.Result = &models.Post{
+		c.Result = &entity.Post{
 			ID:          1,
 			Title:       c.Title,
 			Description: c.Description,
@@ -66,7 +66,7 @@ func TestCreatePostHandler_WithoutTitle(t *testing.T) {
 func TestGetPostHandler(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 5, Number: 5, Title: "My First Post", Description: "Such an amazing description"}
+	post := &entity.Post{ID: 5, Number: 5, Title: "My First Post", Description: "Such an amazing description"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
 			q.Result = post
@@ -89,7 +89,7 @@ func TestGetPostHandler(t *testing.T) {
 func TestUpdatePostHandler_TenantStaff(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 5, Number: 5, Title: "My First Post", Description: "With a description"}
+	post := &entity.Post{ID: 5, Number: 5, Title: "My First Post", Description: "With a description"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
 			q.Result = post
@@ -123,7 +123,20 @@ func TestUpdatePostHandler_TenantStaff(t *testing.T) {
 func TestUpdatePostHandler_NonAuthorized(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
+	post := &entity.Post{
+		ID: 5,
+		Number: 5,
+		Title: "My First Post",
+		Description: "Such an amazing description",
+		User: mock.JonSnow,
+	}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
@@ -134,10 +147,71 @@ func TestUpdatePostHandler_NonAuthorized(t *testing.T) {
 	Expect(code).Equals(http.StatusForbidden)
 }
 
+func TestUpdatePostHandler_IsOwner_AfterGracePeriod(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID: 5,
+		Number: 5,
+		Title: "My First Post",
+		Description: "Such an amazing description",
+		User: mock.AryaStark,
+		CreatedAt: time.Now().UTC().Add(-2 * time.Hour),
+	}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", "5").
+		ExecutePost(apiv1.UpdatePost(), `{ "title": "the new title", "description": "new description" }`)
+
+	Expect(code).Equals(http.StatusForbidden)
+}
+
+
+func TestUpdatePostHandler_IsOwner_WithinGracePeriod(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID: 5,
+		Number: 5,
+		Title: "My First Post",
+		Description: "Such an amazing description",
+		User: mock.AryaStark,
+		CreatedAt: time.Now().UTC(),
+	}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
+	bus.AddHandler(func(ctx context.Context, cmd *cmd.UploadImages) error { return nil })
+	bus.AddHandler(func(ctx context.Context, cmd *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, cmd *cmd.UpdatePost) error { return nil })
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", "5").
+		ExecutePost(apiv1.UpdatePost(), `{ "title": "the new title", "description": "new description" }`)
+
+	Expect(code).Equals(http.StatusOK)
+}
+
 func TestUpdatePostHandler_InvalidTitle(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 5, Number: 5, Title: "My First Post", Description: "Such an amazing description"}
+	post := &entity.Post{ID: 5, Number: 5, Title: "My First Post", Description: "Such an amazing description"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
 			q.Result = post
@@ -160,7 +234,7 @@ func TestUpdatePostHandler_InvalidTitle(t *testing.T) {
 func TestUpdatePostHandler_InvalidPost(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 5, Number: 5, Title: "My First Post", Description: "Such an amazing description"}
+	post := &entity.Post{ID: 5, Number: 5, Title: "My First Post", Description: "Such an amazing description"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
 			q.Result = post
@@ -184,8 +258,8 @@ func TestUpdatePostHandler_InvalidPost(t *testing.T) {
 func TestUpdatePostHandler_DuplicateTitle(t *testing.T) {
 	RegisterT(t)
 
-	post1 := &models.Post{ID: 1, Number: 1, Title: "My First Post", Slug: "my-first-post"}
-	post2 := &models.Post{ID: 2, Number: 2, Title: "My Second Post", Slug: "my-second-post"}
+	post1 := &entity.Post{ID: 1, Number: 1, Title: "My First Post", Slug: "my-first-post"}
+	post2 := &entity.Post{ID: 2, Number: 2, Title: "My Second Post", Slug: "my-second-post"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post1.Number {
 			q.Result = post1
@@ -222,7 +296,7 @@ func TestUpdatePostHandler_DuplicateTitle(t *testing.T) {
 func TestSetResponseHandler(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 1, Number: 1, Title: "My First Post", Slug: "my-first-post"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "My First Post", Slug: "my-first-post"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
 			q.Result = post
@@ -270,8 +344,8 @@ func TestSetResponseHandler_Duplicate(t *testing.T) {
 		return nil
 	})
 
-	post1 := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
-	post2 := &models.Post{ID: 2, Number: 2, Title: "The Post #2", Description: "The Description #2"}
+	post1 := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post2 := &entity.Post{ID: 2, Number: 2, Title: "The Post #2", Description: "The Description #2"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post1.Number {
 			q.Result = post1
@@ -299,7 +373,7 @@ func TestSetResponseHandler_Duplicate(t *testing.T) {
 func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
 	RegisterT(t)
 
-	post1 := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post1 := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post1.Number {
 			q.Result = post1
@@ -321,7 +395,7 @@ func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
 func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
 			q.Result = post
@@ -343,7 +417,7 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 func TestAddVoteHandler(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
@@ -385,7 +459,7 @@ func TestAddVoteHandler_InvalidPost(t *testing.T) {
 func TestRemoveVoteHandler(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
@@ -411,7 +485,7 @@ func TestRemoveVoteHandler(t *testing.T) {
 func TestDeletePostHandler_Authorized(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
@@ -443,7 +517,7 @@ func TestDeletePostHandler_Authorized(t *testing.T) {
 func TestPostCommentHandler(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
@@ -452,7 +526,7 @@ func TestPostCommentHandler(t *testing.T) {
 	var newComment *cmd.AddNewComment
 	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewComment) error {
 		newComment = c
-		c.Result = &models.Comment{ID: 1, Content: c.Content}
+		c.Result = &entity.Comment{ID: 1, Content: c.Content}
 		return nil
 	})
 
@@ -473,7 +547,7 @@ func TestPostCommentHandler(t *testing.T) {
 func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
@@ -493,13 +567,13 @@ func TestUpdateCommentHandler_Authorized(t *testing.T) {
 
 	server := mock.NewServer()
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
 	})
 
-	comment := &models.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment
 		return nil
@@ -531,13 +605,13 @@ func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
 
 	server := mock.NewServer()
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
 	})
 
-	comment := &models.Comment{ID: 5, Content: "Old comment text", User: mock.JonSnow}
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.JonSnow}
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment
 		return nil
@@ -556,16 +630,16 @@ func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
 func TestListCommentHandler(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
 		return nil
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentsByPost) error {
-		q.Result = []*models.Comment{
-			&models.Comment{ID: 1, Content: "First Comment"},
-			&models.Comment{ID: 2, Content: "First Comment"},
+		q.Result = []*entity.Comment{
+			{ID: 1, Content: "First Comment"},
+			{ID: 2, Content: "First Comment"},
 		}
 		return nil
 	})

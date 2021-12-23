@@ -1,16 +1,7 @@
-import "./ShowPostResponse.scss"
-
 import React from "react"
 import { PostResponse, PostStatus } from "@fider/models"
-import { Avatar, MultiLineText, UserName, Segment } from "@fider/components/common"
-
-interface ShowPostStatusProps {
-  status: PostStatus
-}
-
-export const ShowPostStatus = (props: ShowPostStatusProps) => {
-  return <span className={`status-label status-${props.status.value}`}>{props.status.title}</span>
-}
+import { Markdown, UserName, ShowPostStatus } from "@fider/components"
+import { HStack } from "./layout"
 
 const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
   if (!props.response) {
@@ -24,7 +15,10 @@ const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
 
   return (
     <div className="content">
-      <span>&#8618;</span> <a href={`/posts/${original.number}/${original.slug}`}>{original.title}</a>
+      <span>&#8618;</span>{" "}
+      <a className="text-link" href={`/posts/${original.number}/${original.slug}`}>
+        {original.title}
+      </a>
     </div>
   )
 }
@@ -32,7 +26,6 @@ const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
 interface PostResponseProps {
   status: string
   response: PostResponse | null
-  showUser: boolean
 }
 
 const StatusDetails = (props: PostResponseProps): JSX.Element | null => {
@@ -42,27 +35,27 @@ const StatusDetails = (props: PostResponseProps): JSX.Element | null => {
 
   return (
     <div className="content">
-      <MultiLineText text={props.response.text} style="full" />
+      <Markdown text={props.response.text} style="full" />
     </div>
   )
 }
 
-export const ShowPostResponse = (props: PostResponseProps): JSX.Element => {
+export const ShowPostResponse = (props: PostResponseProps): JSX.Element | null => {
   const status = PostStatus.Get(props.status)
 
   if (props.response && (status.show || props.response.text)) {
     return (
-      <Segment className="l-response">
-        {status.show && <ShowPostStatus status={status} />}
-        {props.showUser && (
-          <>
-            <Avatar user={props.response.user} size="small" /> <UserName user={props.response.user} />
-          </>
-        )}
+      <div className="p-2 shadow rounded">
+        <HStack>
+          {status.show && <ShowPostStatus status={status} />}
+          <span className="text-xs">
+            &middot; <UserName user={props.response.user} />
+          </span>
+        </HStack>
         {status === PostStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
-      </Segment>
+      </div>
     )
   }
 
-  return <div />
+  return null
 }

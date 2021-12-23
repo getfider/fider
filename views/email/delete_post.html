@@ -1,0 +1,16 @@
+{{define "subject"}}[{{ .siteName }}] {{ .title }}{{end}}
+
+{{define "body"}}
+<tr>
+  <td>
+    <p style="padding-bottom:10px;border-bottom:1px solid #efefef;color:#1c262d">
+      {{ translate "email.delete_post.text" (dict "title" (.title | stripHtml)) | html }}
+    </p>
+    {{ .content }}
+    <p style="color:#666;font-size:14px">
+      — <br />
+      {{ translate "email.footer.subscription_notice2" (dict "change" .change) | html }}
+    </p>
+  </td>
+</tr>
+{{end}}

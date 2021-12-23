@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/getfider/fider/app/models"
-
 	"github.com/getfider/fider/app/pkg/web"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -15,7 +13,7 @@ import (
 var e *web.Engine
 
 func StartServer() {
-	e = web.New(&models.SystemSettings{})
+	e = web.New()
 
 	group := e.Group()
 	{
@@ -47,8 +45,15 @@ func StartServer() {
 
 	go e.Start(":8080")
 
+	//Wait until web server is ready
 	Expect(func() error {
 		_, err := http.Get("http://127.0.0.1:8080/hello")
+		return err
+	}).EventuallyEquals(nil)
+
+	//Wait until metrics server is ready
+	Expect(func() error {
+		_, err := http.Get("http://127.0.0.1:4000/metrics")
 		return err
 	}).EventuallyEquals(nil)
 }

@@ -1,0 +1,18 @@
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.page {
+  padding-top: spacing(4);
+  padding-bottom: spacing(4);
+}
+
+@include media("sm") {
+  .page {
+    width: calc(100vw - 20px);
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}

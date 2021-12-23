@@ -21,8 +21,8 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 | Software    | How to install                                                 | What is it used for                                       |
 | ----------- | -------------------------------------------------------------- | --------------------------------------------------------- |
-| Go 1.16+    | https://golang.org/                                            | To compile server side code                               |
-| Node.js 14+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
+| Go 1.17+    | https://golang.org/                                            | To compile server side code                               |
+| Node.js 16+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
 | Docker      | https://www.docker.com/                                        | To start local PostgreSQL instances                       |
 
 #### 2. To setup your development workspace:
@@ -37,7 +37,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 8. run `cp .example.env .env` to create a local environment configuration file.
 
 - **Important:** Fider has a strong dependency on an email delivery service. For easier local development, the docker-compose file already provides
-  a fake SMTP server running at port **1026** and a UI (to check sent emails) at http://localhost:8026. The `.example.env` is already
+  a fake SMTP server running at port **1025** and a UI (to check sent emails) at http://localhost:8025. The `.example.env` is already
   configured to use it. If you want to, you can edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server
   details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign
   up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep
@@ -45,19 +45,9 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 #### 3. To start the application
 
-1. run `make watch-ui` and `make watch-server` to start both the server and ui on watch mode. The application will be reloaded every time a file is changed. Alternatively, it's also possible to start Fider by running `make build` and `make run`.
+1. run `make watch` to start both the server and ui on watch mode. The application will be reloaded every time a file is changed. Alternatively, it's also possible to start Fider by running `make build` and `make run`.
 2. Navigate to `http://localhost:3000/` and 🎉! You should see the sign up page of Fider!
 
 #### 4. To run the unit tests:
 
 1. run `make test` to run both UI and Server unit tests.
-
-## Common Issues
-
-#### 1. It doesn't work on Windows
-
-This is a known [Issue #434](https://github.com/getfider/fider/issues/434). If you're a Windows user and want to contribute to Fider, please help us resolve this.
-
-#### 2. godotenv: not found
-
-This happens when godotenv was not (or incorrectly) installed. Install it by running `go get github.com/joho/godotenv/cmd/godotenv/`.

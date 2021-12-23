@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/gosimple/slug"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/getfider/fider/app/pkg/bus"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -44,8 +44,8 @@ type dbPost struct {
 	Tags           []string       `db:"tags"`
 }
 
-func (i *dbPost) toModel(ctx context.Context) *models.Post {
-	post := &models.Post{
+func (i *dbPost) toModel(ctx context.Context) *entity.Post {
+	post := &entity.Post{
 		ID:            i.ID,
 		Number:        i.Number,
 		Title:         i.Title,
@@ -61,13 +61,13 @@ func (i *dbPost) toModel(ctx context.Context) *models.Post {
 	}
 
 	if i.Response.Valid {
-		post.Response = &models.PostResponse{
+		post.Response = &entity.PostResponse{
 			Text:        i.Response.String,
 			RespondedAt: i.RespondedAt.Time,
 			User:        i.ResponseUser.toModel(ctx),
 		}
 		if post.Status == enum.PostDuplicate && i.OriginalNumber.Valid {
-			post.Response.Original = &models.OriginalPost{
+			post.Response.Original = &entity.OriginalPost{
 				Number: int(i.OriginalNumber.Int64),
 				Slug:   i.OriginalSlug.String,
 				Title:  i.OriginalTitle.String,
@@ -170,7 +170,7 @@ var (
 )
 
 func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = false
 
 		exists, err := trx.Exists(`
@@ -190,7 +190,7 @@ func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
 }
 
 func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if c.Status == enum.PostDuplicate {
 			return errors.New("Use MarkAsDuplicate to change an post status to Duplicate")
 		}
@@ -210,7 +210,7 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 		}
 
 		c.Post.Status = c.Status
-		c.Post.Response = &models.PostResponse{
+		c.Post.Response = &entity.PostResponse{
 			Text:        c.Text,
 			RespondedAt: respondedAt,
 			User:        user,
@@ -220,7 +220,7 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 }
 
 func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		respondedAt := time.Now()
 		if c.Post.Status == enum.PostDuplicate && c.Post.Response != nil {
 			respondedAt = c.Post.Response.RespondedAt
@@ -249,10 +249,10 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 		}
 
 		c.Post.Status = enum.PostDuplicate
-		c.Post.Response = &models.PostResponse{
+		c.Post.Response = &entity.PostResponse{
 			RespondedAt: respondedAt,
 			User:        user,
-			Original: &models.OriginalPost{
+			Original: &entity.OriginalPost{
 				Number: c.Original.Number,
 				Title:  c.Original.Title,
 				Slug:   c.Original.Slug,
@@ -264,7 +264,7 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 }
 
 func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 
 		type dbStatusCount struct {
 			Status enum.PostStatus `db:"status"`
@@ -286,7 +286,7 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 }
 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var id int
 		err := trx.Get(&id,
 			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status) 
@@ -311,7 +311,7 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 }
 
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
 													 WHERE id = $4 AND tenant_id = $5`, c.Title, slug.Make(c.Title), c.Description, c.Post.ID, tenant.ID)
 		if err != nil {
@@ -328,7 +328,7 @@ func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 }
 
 func getPostByID(ctx context.Context, q *query.GetPostByID) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.id = $2"), tenant.ID, q.PostID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with id '%d'", q.PostID)
@@ -339,7 +339,7 @@ func getPostByID(ctx context.Context, q *query.GetPostByID) error {
 }
 
 func getPostBySlug(ctx context.Context, q *query.GetPostBySlug) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.slug = $2"), tenant.ID, q.Slug)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with slug '%s'", q.Slug)
@@ -350,7 +350,7 @@ func getPostBySlug(ctx context.Context, q *query.GetPostBySlug) error {
 }
 
 func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.number = $2"), tenant.ID, q.Number)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with number '%d'", q.Number)
@@ -361,7 +361,7 @@ func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
 }
 
 func searchPosts(ctx context.Context, q *query.SearchPosts) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
 
 		if q.Tags == nil {
@@ -408,7 +408,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			return errors.Wrap(err, "failed to search posts")
 		}
 
-		q.Result = make([]*models.Post, len(posts))
+		q.Result = make([]*entity.Post, len(posts))
 		for i, post := range posts {
 			q.Result[i] = post.toModel(ctx)
 		}
@@ -417,7 +417,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 }
 
 func getAllPosts(ctx context.Context, q *query.GetAllPosts) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		searchQuery := &query.SearchPosts{View: "all", Limit: "all"}
 		if err := searchPosts(ctx, searchQuery); err != nil {
 			return errors.Wrap(err, "failed to get all posts")
@@ -427,7 +427,7 @@ func getAllPosts(ctx context.Context, q *query.GetAllPosts) error {
 	})
 }
 
-func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...interface{}) (*models.Post, error) {
+func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...interface{}) (*entity.Post, error) {
 	post := dbPost{}
 
 	if err := trx.Get(&post, query, args...); err != nil {
@@ -437,7 +437,7 @@ func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...in
 	return post.toModel(ctx), nil
 }
 
-func buildPostQuery(user *models.User, filter string) string {
+func buildPostQuery(user *entity.User, filter string) string {
 	tagCondition := `AND tags.is_public = true`
 	if user != nil && user.IsCollaborator() {
 		tagCondition = ``

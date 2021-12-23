@@ -8,13 +8,13 @@ import (
 	"strconv"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/dbx"
 )
 
 func exportTable(ctx context.Context, tableName string) ([]byte, error) {
 	trx := ctx.Value(app.TransactionCtxKey).(*dbx.Trx)
-	tenant, _ := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	tenant, _ := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	columnName := "tenant_id"
 	if tableName == "tenants" {
 		columnName = "id"

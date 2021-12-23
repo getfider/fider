@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -12,7 +14,6 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -28,7 +29,7 @@ func TestUserStorage_GetByID(t *testing.T) {
 	Expect(userByID.Result.Tenant.ID).Equals(1)
 	Expect(userByID.Result.Name).Equals("Jon Snow")
 	Expect(userByID.Result.Email).Equals("jon.snow@got.com")
-	Expect(userByID.Result.AvatarURL).Equals("http://cdn.test.fider.io/avatars/gravatar/1/Jon%20Snow")
+	Expect(userByID.Result.AvatarURL).Equals("http://cdn.test.fider.io/static/avatars/gravatar/1/Jon%20Snow")
 	Expect(userByID.Result.Providers).HasLen(1)
 	Expect(userByID.Result.Providers[0].UID).Equals("FB1234")
 	Expect(userByID.Result.Providers[0].Name).Equals("facebook")
@@ -105,11 +106,11 @@ func TestUserStorage_Register(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user := &models.User{
+	user := &entity.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
 		Role:  enum.RoleCollaborator,
-		Providers: []*models.UserProvider{
+		Providers: []*entity.UserProvider{
 			{
 				UID:  "123123123",
 				Name: app.FacebookProvider,
@@ -134,7 +135,7 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user := &models.User{
+	user := &entity.User{
 		Name:  "Rob Stark",
 		Email: "   ",
 		Role:  enum.RoleCollaborator,
@@ -158,19 +159,19 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 
 	var tenantID int
 	err := trx.Get(&tenantID, `
-		INSERT INTO tenants (name, subdomain, created_at, status, is_private, custom_css, logo_bkey) 
-		VALUES ('My Domain Inc.','mydomain', now(), 1, false, '', '')
+		INSERT INTO tenants (name, subdomain, created_at, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed) 
+		VALUES ('My Domain Inc.','mydomain', now(), 1, false, '', '', 'en', true)
 		RETURNING id
 	`)
 	Expect(err).IsNil()
 
-	newTenantCtx := context.WithValue(ctx, app.TenantCtxKey, &models.Tenant{ID: tenantID})
+	newTenantCtx := context.WithValue(ctx, app.TenantCtxKey, &entity.Tenant{ID: tenantID})
 
-	user := &models.User{
+	user := &entity.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
 		Role:  enum.RoleCollaborator,
-		Providers: []*models.UserProvider{
+		Providers: []*entity.UserProvider{
 			{
 				UID:  "123123123",
 				Name: app.FacebookProvider,
@@ -224,7 +225,7 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 
 	err := bus.Dispatch(jonSnowCtx, &cmd.UpdateCurrentUser{
 		Name: "Jon Stark",
-		Avatar: &models.ImageUpload{
+		Avatar: &dto.ImageUpload{
 			BlobKey: "jon.png",
 		},
 	})

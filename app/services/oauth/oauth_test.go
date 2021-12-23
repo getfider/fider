@@ -9,9 +9,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/pkg/bus"
@@ -24,7 +24,7 @@ import (
 
 func newGetContext(rawurl string) *web.Context {
 	u, _ := url.Parse(rawurl)
-	e := web.New(nil)
+	e := web.New()
 	res := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", u.RequestURI(), nil)
 	req.Host = u.Host
@@ -91,7 +91,7 @@ func TestGetAuthURL_Custom(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_custom" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:     q.Provider,
 				ClientID:     "CU_CL_ID",
 				Scope:        "profile email",
@@ -119,7 +119,7 @@ func TestGetAuthURL_Twitch(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_custom" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:     q.Provider,
 				ClientID:     "CU_CL_ID",
 				Scope:        "openid",
@@ -147,7 +147,7 @@ func TestParseProfileResponse_AllFields(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
@@ -177,7 +177,7 @@ func TestParseProfileResponse_WithoutEmail(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
@@ -206,7 +206,7 @@ func TestParseProfileResponse_NestedData(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "profile.name",
@@ -241,7 +241,7 @@ func TestParseProfileResponse_WithFallback(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "profile.name, profile.login",
@@ -276,7 +276,7 @@ func TestParseProfileResponse_UseEmailWhenNameIsEmpty(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "profile.name",
@@ -310,7 +310,7 @@ func TestParseProfileResponse_InvalidEmail(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "profile.name",
@@ -345,7 +345,7 @@ func TestParseProfileResponse_EmptyID(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
@@ -372,7 +372,7 @@ func TestParseProfileResponse_EmptyName(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
@@ -400,7 +400,7 @@ func TestCustomOAuth_Disabled(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		if q.Provider == "_test1" {
-			q.Result = &models.OAuthConfig{
+			q.Result = &entity.OAuthConfig{
 				Provider:          q.Provider,
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",

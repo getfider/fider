@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -18,62 +19,66 @@ func WorkerSetup() worker.MiddlewareFunc {
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
 			start := time.Now()
-			log.Debugf(c, "Task '@{TaskName:magenta}' started on worker '@{WorkerID:magenta}'", dto.Props{
+			log.Infof(c, "Task '@{TaskName:magenta}' started on worker '@{WorkerID:magenta}'", dto.Props{
 				"TaskName": c.TaskName(),
 				"WorkerID": c.WorkerID(),
 			})
 
+			logFinish := func(state string, err error) {
+				elapsedMs := time.Since(start).Nanoseconds() / int64(time.Millisecond)
+
+				if errors.Cause(err) == context.Canceled {
+					log.Infof(c, "Task '@{TaskName:magenta}' was canceled after @{ElapsedMs:magenta}ms", dto.Props{
+						"State":     state,
+						"TaskName":  c.TaskName(),
+						"ElapsedMs": elapsedMs,
+					})
+					return
+				}
+
+				if err != nil {
+					log.Error(c, err)
+				}
+				log.Infof(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (@{State})", dto.Props{
+					"State":     state,
+					"TaskName":  c.TaskName(),
+					"ElapsedMs": elapsedMs,
+				})
+			}
+
 			trx, err := dbx.BeginTx(c)
 			if err != nil {
 				err = c.Failure(err)
-				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms", dto.Props{
-					"TaskName":  c.TaskName(),
-					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-				})
+				logFinish("begin_error", err)
 				return err
 			}
+
+			c.Set(app.TransactionCtxKey, trx)
 
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					_ = c.Failure(errors.Panicked(r))
+					err := c.Failure(errors.Panicked(r))
 					trx.MustRollback()
-					log.Debugf(c, "Task '@{TaskName:magenta}' panicked in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
-						"TaskName":  c.TaskName(),
-						"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-					})
+					logFinish("panicked", err)
 				}
 			}()
-
-			c.Set(app.TransactionCtxKey, trx)
 
 			//Execute the chain
 			if err = next(c); err != nil {
 				trx.MustRollback()
-				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
-					"TaskName":  c.TaskName(),
-					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-				})
+				logFinish("next_error", err)
 				return err
 			}
 
 			//No errors, so try to commit it
 			if err = trx.Commit(); err != nil {
-				log.Errorf(c, "Failed to commit request with: @{Error}", dto.Props{
-					"Error": err.Error(),
-				})
-				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
-					"TaskName":  c.TaskName(),
-					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-				})
+				logFinish("commit_error", err)
 				return err
 			}
 
 			//Still no errors, everything is fine!
-			log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (committed)", dto.Props{
-				"TaskName":  c.TaskName(),
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
+			logFinish("committed", nil)
 			return nil
 		}
 	}
@@ -83,59 +88,69 @@ func WorkerSetup() worker.MiddlewareFunc {
 func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}", dto.Props{
+			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} started", dto.Props{
 				"HttpMethod": c.Request.Method,
 				"URL":        c.Request.URL.String(),
-				"ClientIP":   c.Request.ClientIP,
 			})
+
+			logFinish := func(state string, err error) {
+				elapsedMs := time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond)
+
+				if errors.Cause(err) == context.Canceled {
+					log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} was canceled after @{ElapsedMs:magenta}ms", dto.Props{
+						"HttpMethod": c.Request.Method,
+						"URL":        c.Request.URL.String(),
+						"ElapsedMs":  elapsedMs,
+					})
+					return
+				}
+
+				if err != nil {
+					log.Error(c, err)
+				}
+
+				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (@{State})", dto.Props{
+					"State":      state,
+					"HttpMethod": c.Request.Method,
+					"StatusCode": c.Response.StatusCode,
+					"URL":        c.Request.URL.String(),
+					"ElapsedMs":  elapsedMs,
+				})
+			}
 
 			trx, err := dbx.BeginTx(c)
 			if err != nil {
 				err = c.Failure(err)
-				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms", dto.Props{
-					"HttpMethod": c.Request.Method,
-					"StatusCode": c.ResponseStatusCode,
-					"URL":        c.Request.URL.String(),
-					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
-				})
+				logFinish("begin_error", err)
 				return err
 			}
 
 			c.Set(app.TransactionCtxKey, trx)
 
+			//In case it panics somewhere
+			defer func() {
+				if r := recover(); r != nil {
+					err := c.Failure(errors.Panicked(r))
+					trx.MustRollback()
+					logFinish("panicked", err)
+				}
+			}()
+
 			//Execute the chain
 			if err := next(c); err != nil {
 				c.Rollback()
-				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
-					"HttpMethod": c.Request.Method,
-					"StatusCode": c.ResponseStatusCode,
-					"URL":        c.Request.URL.String(),
-					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
-				})
+				logFinish("next_error", err)
 				return err
 			}
 
 			//No errors, so try to commit it
 			if err := c.Commit(); err != nil {
-				log.Errorf(c, "Failed to commit request with: @{Error}", dto.Props{
-					"Error": err.Error(),
-				})
-				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
-					"HttpMethod": c.Request.Method,
-					"StatusCode": c.ResponseStatusCode,
-					"URL":        c.Request.URL.String(),
-					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
-				})
+				logFinish("commit_error", err)
 				return err
 			}
 
 			//Still no errors, everything is fine!
-			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (committed)", dto.Props{
-				"HttpMethod": c.Request.Method,
-				"StatusCode": c.ResponseStatusCode,
-				"URL":        c.Request.URL.String(),
-				"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
-			})
+			logFinish("committed", nil)
 			return nil
 		}
 	}

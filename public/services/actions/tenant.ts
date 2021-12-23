@@ -1,5 +1,5 @@
 import { http, Result } from "@fider/services/http"
-import { UserRole, OAuthConfig, ImageUpload } from "@fider/models"
+import { UserRole, OAuthConfig, ImageUpload, EmailVerificationKind } from "@fider/models"
 
 export interface CheckAvailabilityResponse {
   message: string
@@ -28,6 +28,7 @@ export interface UpdateTenantSettingsRequest {
   invitation: string
   welcomeMessage: string
   cname: string
+  locale: string
 }
 
 export const updateTenantSettings = async (request: UpdateTenantSettingsRequest): Promise<Result> => {
@@ -44,6 +45,12 @@ export const updateTenantPrivacy = async (isPrivate: boolean): Promise<Result> =
   })
 }
 
+export const updateTenantEmailAuthAllowed = async (isEmailAuthAllowed: boolean): Promise<Result> => {
+  return await http.post("/_api/admin/settings/emailauth", {
+    isEmailAuthAllowed,
+  })
+}
+
 export const checkAvailability = async (subdomain: string): Promise<Result<CheckAvailabilityResponse>> => {
   return await http.get<CheckAvailabilityResponse>(`/_api/tenants/${subdomain}/availability`)
 }
@@ -54,8 +61,9 @@ export const signIn = async (email: string): Promise<Result> => {
   })
 }
 
-export const completeProfile = async (key: string, name: string): Promise<Result> => {
+export const completeProfile = async (kind: EmailVerificationKind, key: string, name: string): Promise<Result> => {
   return await http.post("/_api/signin/complete", {
+    kind,
     key,
     name,
   })

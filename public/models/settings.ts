@@ -11,15 +11,14 @@ export interface OAuthProviderOption {
 
 export interface SystemSettings {
   mode: string
-  buildTime: string
+  locale: string
   version: string
   environment: string
-  compiler: string
   domain: string
   hasLegal: boolean
+  isBillingEnabled: boolean
   baseURL: string
-  tenantAssetsURL: string
-  globalAssetsURL: string
+  assetsURL: string
   oauth: OAuthProviderOption[]
 }
 
@@ -56,4 +55,11 @@ export interface ImageUpload {
     contentType?: string
   }
   remove: boolean
+}
+
+export enum EmailVerificationKind {
+  SignIn = 1,
+  SignUp = 2,
+  ChangeEmail = 3,
+  UserInvitation = 4,
 }

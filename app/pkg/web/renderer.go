@@ -13,25 +13,15 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/tpl"
 
 	"io/ioutil"
 
-	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/markdown"
 )
-
-var templateFunctions = template.FuncMap{
-	"md5": func(input string) string {
-		return crypto.MD5(input)
-	},
-	"markdown": func(input string) template.HTML {
-		return markdown.Full(input)
-	},
-}
 
 type clientAssets struct {
 	CSS []string
@@ -57,7 +47,6 @@ type assetsFile struct {
 //Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
-	settings      *models.SystemSettings
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
 	mutex         sync.RWMutex
@@ -65,26 +54,17 @@ type Renderer struct {
 }
 
 // NewRenderer creates a new Renderer
-func NewRenderer(settings *models.SystemSettings) *Renderer {
+func NewRenderer() *Renderer {
+	reactRenderer, err := NewReactRenderer("ssr.js")
+	if err != nil {
+		panic(errors.Wrap(err, "failed to initialize SSR renderer"))
+	}
+
 	return &Renderer{
 		templates:     make(map[string]*template.Template),
-		settings:      settings,
 		mutex:         sync.RWMutex{},
-		reactRenderer: NewReactRenderer("ssr.js"),
+		reactRenderer: reactRenderer,
 	}
-}
-
-//Render a template based on parameters
-func (r *Renderer) add(name string) *template.Template {
-	base := env.Path("/views/base.html")
-	file := env.Path("/views", name)
-	tpl, err := template.New("base.html").Funcs(templateFunctions).ParseFiles(base, file)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to parse template %s", file))
-	}
-
-	r.templates[name] = tpl
-	return tpl
 }
 
 func (r *Renderer) loadAssets() error {
@@ -152,7 +132,7 @@ func getClientAssets(assets []distAsset) *clientAssets {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, props Props, ctx *Context) {
+func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
@@ -185,17 +165,23 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		public["description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	if props.ChunkName != "" {
-		private["chunkAssets"] = r.chunkedAssets[props.ChunkName]
-	}
-
 	private["assets"] = r.assets
 	private["logo"] = LogoURL(ctx)
 
+	locale := i18n.GetLocale(ctx)
+	localeChunkName := fmt.Sprintf("locale-%s-client-json", locale)
+
+	// webpack replaces "/" and "." with "-", so we do the same here
+	pageChunkName := strings.ReplaceAll(strings.ReplaceAll(props.Page, ".", "-"), "/", "-")
+	private["preloadAssets"] = []*clientAssets{
+		r.chunkedAssets[localeChunkName],
+		r.chunkedAssets[pageChunkName],
+	}
+
 	if tenant == nil || tenant.LogoBlobKey == "" {
-		private["favicon"] = GlobalAssetsURL(ctx, "/favicon")
+		private["favicon"] = AssetsURL(ctx, "/static/favicon")
 	} else {
-		private["favicon"] = TenantAssetsURL(ctx, "/favicon/%s", tenant.LogoBlobKey)
+		private["favicon"] = AssetsURL(ctx, "/static/favicon/%s", tenant.LogoBlobKey)
 	}
 
 	private["currentURL"] = ctx.Request.URL.String()
@@ -206,29 +192,29 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 	oauthProviders := &query.ListActiveOAuthProviders{
 		Result: make([]*dto.OAuthProviderOption, 0),
 	}
-	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 300 {
+	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 500 {
 		err = bus.Dispatch(ctx, oauthProviders)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to get list of providers"))
 		}
 	}
 
+	public["page"] = props.Page
 	public["contextID"] = ctx.ContextID()
+	public["sessionID"] = ctx.SessionID()
 	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
-		"mode":            r.settings.Mode,
-		"buildTime":       r.settings.BuildTime,
-		"version":         r.settings.Version,
-		"environment":     r.settings.Environment,
-		"compiler":        r.settings.Compiler,
-		"googleAnalytics": r.settings.GoogleAnalytics,
-		"domain":          r.settings.Domain,
-		"hasLegal":        r.settings.HasLegal,
-		"baseURL":         ctx.BaseURL(),
-		"tenantAssetsURL": TenantAssetsURL(ctx, ""),
-		"globalAssetsURL": GlobalAssetsURL(ctx, ""),
-		"oauth":           oauthProviders.Result,
+		"mode":             env.Config.HostMode,
+		"locale":           locale,
+		"environment":      env.Config.Environment,
+		"googleAnalytics":  env.Config.GoogleAnalytics,
+		"domain":           env.MultiTenantDomain(),
+		"hasLegal":         env.HasLegal(),
+		"isBillingEnabled": env.IsBillingEnabled(),
+		"baseURL":          ctx.BaseURL(),
+		"assetsURL":        AssetsURL(ctx, ""),
+		"oauth":            oauthProviders.Result,
 	}
 
 	if ctx.IsAuthenticated() {
@@ -247,8 +233,9 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		}
 	}
 
-	// Only index.html template uses React, other templates are already SSR
-	if env.Config.Experimental_SSR_SEO && ctx.Request.IsCrawler() && templateName == "index.html" {
+	templateName := "index.html"
+
+	if ctx.Request.IsCrawler() {
 		html, err := r.reactRenderer.Render(ctx.Request.URL, public)
 		if err != nil {
 			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{
@@ -261,12 +248,8 @@ func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, prop
 		}
 	}
 
-	tmpl, ok := r.templates[templateName]
-	if !ok || env.IsDevelopment() {
-		tmpl = r.add(templateName)
-	}
-
-	err = tmpl.Execute(w, Map{
+	tmpl := tpl.GetTemplate("/views/base.html", "/views/"+templateName)
+	err = tpl.Render(ctx, tmpl, w, Map{
 		"public":  public,
 		"private": private,
 	})

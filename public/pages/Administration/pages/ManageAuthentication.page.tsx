@@ -1,13 +1,15 @@
 import React from "react"
 
-import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fider/components"
+import { Button, OAuthProviderLogo, Icon, Field, Toggle, Form } from "@fider/components"
 import { OAuthConfig, OAuthProviderOption } from "@fider/models"
 import { OAuthForm } from "../components/OAuthForm"
-import { actions, notify, Fider } from "@fider/services"
-import { FaEdit, FaPlay, FaSignInAlt } from "react-icons/fa"
+import { actions, notify, Fider, Failure } from "@fider/services"
 import { AdminBasePage } from "../components/AdminBasePage"
 
-import "./ManageAuthentication.page.scss"
+import IconPlay from "@fider/assets/images/heroicons-play.svg"
+import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
+
+import { HStack, VStack } from "@fider/components/layout"
 
 interface ManageAuthenticationPageProps {
   providers: OAuthProviderOption[]
@@ -15,13 +17,15 @@ interface ManageAuthenticationPageProps {
 
 interface ManageAuthenticationPageState {
   isAdding: boolean
+  isEmailAuthAllowed: boolean
+  canDisableEmailAuth: boolean
   editing?: OAuthConfig
+  error?: Failure
 }
 
 export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthenticationPageProps, ManageAuthenticationPageState> {
   public id = "p-admin-authentication"
   public name = "authentication"
-  public icon = FaSignInAlt
   public title = "Authentication"
   public subtitle = "Manage your site authentication"
 
@@ -29,6 +33,8 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
     super(props)
     this.state = {
       isAdding: false,
+      isEmailAuthAllowed: Fider.session.tenant.isEmailAuthAllowed,
+      canDisableEmailAuth: props.providers.map((o) => o.isEnabled).reduce((a, b) => a || b, false),
     }
   }
 
@@ -54,71 +60,124 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
     this.setState({ isAdding: false, editing: undefined })
   }
 
+  private toggleEmailAuth = async (active: boolean) => {
+    this.setState(
+      () => ({
+        isEmailAuthAllowed: active,
+      }),
+      async () => {
+        const response = await actions.updateTenantEmailAuthAllowed(this.state.isEmailAuthAllowed)
+        if (response.ok) {
+          notify.success(`You successfully ${this.state.isEmailAuthAllowed ? "allowed" : "disallowed"} email authentication.`)
+        } else {
+          this.setState(
+            () => ({
+              isEmailAuthAllowed: !active,
+              error: response.error,
+            }),
+            () => notify.error("Unable to save this setting.")
+          )
+        }
+      }
+    )
+  }
+
   public content() {
+    let enabledProvidersCount = 0
+    for (const o of this.props.providers) {
+      if (o.isEnabled) {
+        enabledProvidersCount++
+      }
+    }
+    const cantDisable = !this.state.isEmailAuthAllowed && enabledProvidersCount == 1
+
     if (this.state.isAdding) {
-      return <OAuthForm onCancel={this.cancel} />
+      return <OAuthForm cantDisable={cantDisable} onCancel={this.cancel} />
     }
 
     if (this.state.editing) {
-      return <OAuthForm config={this.state.editing} onCancel={this.cancel} />
+      return <OAuthForm cantDisable={cantDisable} config={this.state.editing} onCancel={this.cancel} />
     }
 
-    const enabled = <p className="m-enabled">Enabled</p>
-    const disabled = <p className="m-disabled">Disabled</p>
+    const enabled = <span className="text-green-700">Enabled</span>
+    const disabled = <span className="text-red-700">Disabled</span>
 
     return (
-      <>
-        <Heading
-          title="OAuth Providers"
-          subtitle="You can use these section to add any authentication provider thats supports the OAuth2 protocol."
-          size="small"
-        />
-        <p className="info">
-          Additional information is available in our{" "}
-          <a rel="noopener" target="_blank" href="https://getfider.com/docs/configuring-oauth/">
-            OAuth Documentation
-          </a>
-          .
-        </p>
-        <Segment>
-          <List divided={true}>
+      <VStack spacing={8}>
+        <div>
+          <h2 className="text-display">General Authentication</h2>
+          <Form error={this.state.error}>
+            <Field label="Allow Email Authentication">
+              <Toggle
+                field="isEmailAuthAllowed"
+                label={this.state.isEmailAuthAllowed ? "Allowed" : "Disallowed"}
+                disabled={!Fider.session.user.isAdministrator || !this.state.canDisableEmailAuth}
+                active={this.state.isEmailAuthAllowed}
+                onToggle={this.toggleEmailAuth}
+              />
+              {!this.state.canDisableEmailAuth && (
+                <p className="text-muted my-1">You need to configure another authentication provider before disabling email authentication.</p>
+              )}
+              <p className="text-muted my-1">
+                When email-based authentication is disabled, users will not be allowed to sign in using their email. Thus, they will be forced to use another
+                authentication provider, such as your preferred OAuth provider.{" "}
+                <strong>Be sure to enable and test one before you turn this setting off!</strong>
+              </p>
+              <p className="text-muted mt-1">Note: Administrator accounts will still be allowed to sign in using their email.</p>
+            </Field>
+          </Form>
+        </div>
+        <div>
+          <h2 className="text-display">OAuth Providers</h2>
+          <p>
+            You can use these section to add any authentication provider thats supports the OAuth2 protocol. Additional information is available in our{" "}
+            <a rel="noopener" className="text-link" target="_blank" href="https://getfider.com/docs/configuring-oauth/">
+              OAuth Documentation
+            </a>
+            .
+          </p>
+          <VStack spacing={6}>
             {this.props.providers.map((o) => (
-              <ListItem key={o.provider}>
-                {o.isCustomProvider && (
-                  <>
-                    {Fider.session.user.isAdministrator && (
-                      <Button onClick={this.edit.bind(this, o.provider)} size="mini" className="right">
-                        <FaEdit />
-                        Edit
+              <div key={o.provider}>
+                <HStack justify="between">
+                  <HStack className="h-6">
+                    <OAuthProviderLogo option={o} />
+                    <strong>{o.displayName}</strong>
+                  </HStack>
+                  {o.isCustomProvider && (
+                    <HStack>
+                      {Fider.session.user.isAdministrator && (
+                        <Button onClick={this.edit.bind(this, o.provider)} size="small">
+                          <Icon sprite={IconPencilAlt} />
+                          <span>Edit</span>
+                        </Button>
+                      )}
+                      <Button onClick={this.startTest.bind(this, o.provider)} size="small">
+                        <Icon sprite={IconPlay} />
+                        <span>Test</span>
                       </Button>
-                    )}
-                    <Button onClick={this.startTest.bind(this, o.provider)} size="mini" className="right">
-                      <FaPlay />
-                      Test
-                    </Button>
-                  </>
-                )}
-                <div className="l-provider">
-                  <OAuthProviderLogo option={o} />
-                  <strong>{o.displayName}</strong>
-                  {o.isEnabled ? enabled : disabled}
-                </div>
+                    </HStack>
+                  )}
+                </HStack>
+                <div className="text-xs block my-1">{o.isEnabled ? enabled : disabled}</div>
                 {o.isCustomProvider && (
-                  <span className="info">
+                  <span className="text-muted">
                     <strong>Client ID:</strong> {o.clientID} <br />
                     <strong>Callback URL:</strong> {o.callbackURL}
                   </span>
                 )}
-              </ListItem>
+              </div>
             ))}
-          </List>
-        </Segment>
-        {Fider.session.user.isAdministrator && (
-          <Button color="positive" onClick={this.addNew}>
-            Add new
-          </Button>
-        )}
-      </>
+            <div>
+              {Fider.session.user.isAdministrator && (
+                <Button variant="secondary" onClick={this.addNew}>
+                  Add new
+                </Button>
+              )}
+            </div>
+          </VStack>
+        </div>
+      </VStack>
     )
   }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE users ADD email_supressed_at TIMESTAMPTZ NULL;

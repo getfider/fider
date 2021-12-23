@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"net/http"
+
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -29,9 +31,9 @@ func Notifications() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Props{
-			Title:     "Notifications",
-			ChunkName: "MyNotifications.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "MyNotifications/MyNotifications.page",
+			Title: "Notifications",
 			Data: web.Map{
 				"notifications": q.Result,
 			},

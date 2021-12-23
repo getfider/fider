@@ -31,12 +31,8 @@ func SingleTenant() web.MiddlewareFunc {
 				return c.Failure(err)
 			}
 
-			if firstTenant.Result != nil && firstTenant.Result.Status != enum.TenantDisabled {
+			if firstTenant.Result != nil && !firstTenant.Result.IsDisabled() {
 				c.SetTenant(firstTenant.Result)
-
-				if c.Request.URL.Hostname() != env.Config.HostDomain {
-					return c.NotFound()
-				}
 			}
 
 			return next(c)
@@ -65,7 +61,7 @@ func MultiTenant() web.MiddlewareFunc {
 				return c.Failure(err)
 			}
 
-			if byDomain.Result != nil && byDomain.Result.Status != enum.TenantDisabled {
+			if byDomain.Result != nil && !byDomain.Result.IsDisabled() {
 				c.SetTenant(byDomain.Result)
 
 				if byDomain.Result.CNAME != "" && !c.IsAjax() {
@@ -104,7 +100,8 @@ func BlockPendingTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			if c.Tenant().Status == enum.TenantPending {
-				return c.Render(http.StatusOK, "pending-activation.html", web.Props{
+				return c.Page(http.StatusOK, web.Props{
+					Page:        "SignUp/PendingActivation.page",
 					Title:       "Pending Activation",
 					Description: "We sent you a confirmation email with a link to activate your site. Please check your inbox to activate it.",
 				})
@@ -126,19 +123,14 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 	}
 }
 
-// BlockLockedTenants blocks requests of non-administrator users on locked tenants
+// BlockLockedTenants blocks requests on locked tenants as they are in read-only mode
 func BlockLockedTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			if c.Tenant().Status == enum.TenantLocked {
-				if c.Request.IsAPI() {
-					return c.JSON(http.StatusLocked, web.Map{})
-				}
 
-				isAdmin := c.IsAuthenticated() && c.User().Role == enum.RoleAdministrator
-				if !isAdmin {
-					return c.Redirect("/signin")
-				}
+				// Only API operations are blocked, so it's ok to always return a JSON
+				return c.JSON(http.StatusPaymentRequired, web.Map{})
 			}
 			return next(c)
 		}

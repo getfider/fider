@@ -1,51 +1,54 @@
 import React from "react"
-import { Modal, Checkbox } from "@fider/components/common"
+import { Modal, Checkbox } from "@fider/components"
 import { useFider } from "@fider/hooks"
+import { Trans } from "@lingui/macro"
 
 interface LegalAgreementProps {
   onChange: (agreed: boolean) => void
 }
 
-export const TermsOfService: React.FunctionComponent<any> = () => {
+export const TermsOfService = () => {
   const fider = useFider()
 
   if (fider.settings.hasLegal) {
     return (
-      <a href="/terms" target="_blank">
-        Terms of Service
+      <a href="/terms" className="text-link" target="_blank">
+        <Trans id="legal.termsofservice">Terms of Service</Trans>
       </a>
     )
   }
   return null
 }
 
-export const PrivacyPolicy: React.FunctionComponent<any> = () => {
+export const PrivacyPolicy = () => {
   const fider = useFider()
 
   if (fider.settings.hasLegal) {
     return (
-      <a href="/privacy" target="_blank">
-        Privacy Policy
+      <a href="/privacy" className="text-link" target="_blank">
+        <Trans id="legal.privacypolicy">Privacy Policy</Trans>
       </a>
     )
   }
   return null
 }
 
-export const LegalNotice: React.FunctionComponent<any> = () => {
+export const LegalNotice = () => {
   const fider = useFider()
 
   if (fider.settings.hasLegal) {
     return (
-      <p className="info">
-        By signing in, you agree to the <PrivacyPolicy /> and <TermsOfService />.
+      <p className="text-muted">
+        <Trans id="legal.notice">
+          By signing in, you agree to the <PrivacyPolicy /> and <TermsOfService />.
+        </Trans>
       </p>
     )
   }
   return null
 }
 
-export const LegalFooter: React.FunctionComponent<any> = () => {
+export const LegalFooter = () => {
   const fider = useFider()
 
   if (fider.settings.hasLegal) {
@@ -64,7 +67,9 @@ export const LegalAgreement: React.FunctionComponent<LegalAgreementProps> = (pro
   if (fider.settings.hasLegal) {
     return (
       <Checkbox field="legalAgreement" onChange={props.onChange}>
-        I have read and agree to the <PrivacyPolicy /> and <TermsOfService />.
+        <Trans id="legal.agreement">
+          I have read and agree to the <PrivacyPolicy /> and <TermsOfService />.
+        </Trans>
       </Checkbox>
     )
   }

@@ -3,6 +3,8 @@ import { classSet } from "@fider/services"
 import { ValidationContext } from "./Form"
 import { DisplayError, hasError } from "./DisplayError"
 
+import "./Select.scss"
+
 export interface SelectOption {
   value: string
   label: string
@@ -67,18 +69,19 @@ export class Select extends React.Component<SelectProps, SelectState> {
       <ValidationContext.Consumer>
         {(ctx) => (
           <>
-            <div
-              className={classSet({
-                "c-form-field": true,
-                "m-error": hasError(this.props.field, ctx.error),
-              })}
-            >
+            <div className="c-form-field">
               {!!this.props.label && <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>}
-              <div className="c-form-field-wrapper">
-                <select id={`input-${this.props.field}`} defaultValue={this.props.defaultValue} onChange={this.onChange}>
-                  {options}
-                </select>
-              </div>
+              <select
+                className={classSet({
+                  "c-select": true,
+                  "c-select--error": hasError(this.props.field, ctx.error),
+                })}
+                id={`input-${this.props.field}`}
+                defaultValue={this.props.defaultValue}
+                onChange={this.onChange}
+              >
+                {options}
+              </select>
               <DisplayError fields={[this.props.field]} error={ctx.error} />
               {this.props.children}
             </div>

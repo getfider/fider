@@ -8,9 +8,9 @@ import (
 
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/services/email"
@@ -35,7 +35,7 @@ func mockSend(localname, servername string, enableStartTLS bool, auth gosmtp.Aut
 }
 
 func reset() {
-	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{
+	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
 		Subdomain: "got",
 	})
 	smtp.Send = mockSend
@@ -48,9 +48,9 @@ func TestSend_Success(t *testing.T) {
 	reset()
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
-			dto.Recipient{
+			{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
 			},
@@ -78,9 +78,9 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 	reset()
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
-			dto.Recipient{
+			{
 				Name:    "Jon Sow",
 				Address: "",
 			},
@@ -100,9 +100,9 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 	email.SetAllowlist("^.*@gmail.com$")
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
-			dto.Recipient{
+			{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
 			},
@@ -122,16 +122,16 @@ func TestBatch_Success(t *testing.T) {
 	email.SetAllowlist("")
 
 	bus.Publish(ctx, &cmd.SendMail{
-		From: "Fider Test",
+		From: dto.Recipient{Name: "Fider Test"},
 		To: []dto.Recipient{
-			dto.Recipient{
+			{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
 				Props: dto.Props{
 					"name": "Jon",
 				},
 			},
-			dto.Recipient{
+			{
 				Name:    "Arya Stark",
 				Address: "arya.start@got.com",
 				Props: dto.Props{

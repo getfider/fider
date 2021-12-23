@@ -1,13 +1,15 @@
 import "./SideMenu.scss"
 
-import React from "react"
+import React, { useState } from "react"
 import { classSet } from "@fider/services"
-import { FiderVersion } from "@fider/components"
+import { Icon } from "@fider/components"
 import { useFider } from "@fider/hooks"
+import IconX from "@fider/assets/images/heroicons-x.svg"
+import IconMenu from "@fider/assets/images/heroicons-menu.svg"
+import { VStack } from "@fider/components/layout"
 
 interface SiteMenuProps {
   activeItem: string
-  visible: boolean
   className?: string
 }
 
@@ -20,17 +22,9 @@ interface SideMenuItemProps {
 
 const SideMenuItem = (props: SideMenuItemProps) => {
   const className = classSet({
-    "c-side-menu-item": true,
-    "m-active": props.isActive,
+    "c-side-menu__item": true,
+    "c-side-menu__item--active": props.isActive,
   })
-
-  if (props.isActive) {
-    return (
-      <span key={props.name} className={className}>
-        {props.title}
-      </span>
-    )
-  }
 
   return (
     <a key={props.name} className={className} href={props.href}>
@@ -42,11 +36,10 @@ const SideMenuItem = (props: SideMenuItemProps) => {
 export const SideMenu = (props: SiteMenuProps) => {
   const fider = useFider()
   const activeItem = props.activeItem || "general"
-  const style = { display: props.visible ? "" : "none" }
 
   return (
-    <div className={props.className}>
-      <div className="c-side-menu" style={style}>
+    <div className="js-admin-menu sm:hidden md:hidden lg:block">
+      <VStack spacing={0} className="c-side-menu rounded-md shadow">
         <SideMenuItem name="general" title="General" href="/admin" isActive={activeItem === "general"} />
         <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
         <SideMenuItem name="members" title="Members" href="/admin/members" isActive={activeItem === "members"} />
@@ -56,50 +49,33 @@ export const SideMenu = (props: SiteMenuProps) => {
         <SideMenuItem name="advanced" title="Advanced" href="/admin/advanced" isActive={activeItem === "advanced"} />
         {fider.session.user.isAdministrator && (
           <>
+            {fider.settings.isBillingEnabled && <SideMenuItem name="billing" title="Billing" href="/admin/billing" isActive={activeItem === "billing"} />}
+            <SideMenuItem name="webhooks" title="Webhooks" href="/admin/webhooks" isActive={activeItem === "webhooks"} />
             <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
           </>
         )}
-      </div>
-      <FiderVersion />
+      </VStack>
     </div>
   )
 }
 
-interface SideMenuTogglerProps {
-  onToggle: (active: boolean) => void
-}
+export const SideMenuToggler = () => {
+  const [isActive, setIsActive] = useState(false)
 
-interface SideMenuTogglerState {
-  active: boolean
-}
-
-export class SideMenuToggler extends React.Component<SideMenuTogglerProps, SideMenuTogglerState> {
-  constructor(props: SideMenuTogglerProps) {
-    super(props)
-    this.state = {
-      active: false,
+  const toggle = () => {
+    const classes = ["sm:hidden", "md:hidden"]
+    const el = document.querySelector(".js-admin-menu") as HTMLElement
+    if (el && !isActive) {
+      el.classList.remove(...classes)
+    } else if (el && isActive) {
+      el.classList.add(...classes)
     }
-  }
-  private toggle = () => {
-    this.setState(
-      (state) => ({ active: !state.active }),
-      () => {
-        this.props.onToggle(this.state.active)
-      }
-    )
+    setIsActive(!isActive)
   }
 
-  public render() {
-    const className = classSet({
-      "c-side-menu-toggler": true,
-      active: this.state.active,
-    })
-    return (
-      <div className={className} onClick={this.toggle}>
-        <div className="bar1" />
-        <div className="bar2" />
-        <div className="bar3" />
-      </div>
-    )
-  }
+  return (
+    <div className="h-8 w-8 lg:hidden xl:hidden" onClick={toggle}>
+      {isActive ? <Icon sprite={IconX} /> : <Icon sprite={IconMenu} />}
+    </div>
+  )
 }

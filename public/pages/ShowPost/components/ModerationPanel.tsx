@@ -1,8 +1,10 @@
 import React, { useState } from "react"
 import { PostStatus, Post } from "@fider/models"
 import { actions, navigator, Failure } from "@fider/services"
-import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components"
+import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
+import { VStack } from "@fider/components/layout"
+import { t, Trans } from "@lingui/macro"
 
 interface ModerationPanelProps {
   post: Post
@@ -36,36 +38,41 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
     <Modal.Window isOpen={showConfirmation} onClose={hideModal} center={false} size="large">
       <Modal.Content>
         <Form error={error}>
-          <TextArea field="text" onChange={setText} value={text} placeholder="Why are you deleting this post? (optional)">
-            <span className="info">
-              This operation <strong>cannot</strong> be undone.
+          <TextArea
+            field="text"
+            onChange={setText}
+            value={text}
+            placeholder={t({ id: "showpost.moderationpanel.text.placeholder", message: "Why are you deleting this post? (optional)" })}
+          >
+            <span className="text-muted">
+              <Trans id="showpost.moderationpanel.text.help">
+                This operation <strong>cannot</strong> be undone.
+              </Trans>
             </span>
           </TextArea>
         </Form>
       </Modal.Content>
 
       <Modal.Footer>
-        <Button color="danger" onClick={handleDelete}>
-          Delete
+        <Button variant="danger" onClick={handleDelete}>
+          <Trans id="action.delete">Delete</Trans>
         </Button>
-        <Button color="cancel" onClick={hideModal}>
-          Cancel
+        <Button variant="tertiary" onClick={hideModal}>
+          <Trans id="action.cancel">Cancel</Trans>
         </Button>
       </Modal.Footer>
     </Modal.Window>
   )
 
   return (
-    <>
+    <VStack>
       {modal}
-      <span className="subtitle">Moderation</span>
-      <List>
-        <ListItem>
-          <Button color="danger" size="tiny" fluid={true} onClick={showModal}>
-            Delete
-          </Button>
-        </ListItem>
-      </List>
-    </>
+      <span className="text-category">
+        <Trans id="label.moderation">Moderation</Trans>
+      </span>
+      <Button disabled={fider.isReadOnly} variant="danger" size="small" className="w-full" onClick={showModal}>
+        <Trans id="action.delete">Delete</Trans>
+      </Button>
+    </VStack>
   )
 }

@@ -24,6 +24,11 @@ var userStatusName = map[string]UserStatus{
 	"blocked": UserBlocked,
 }
 
+// String returns the string version of the user status
+func (status UserStatus) String() string {
+	return userStatusIDs[status]
+}
+
 // MarshalText returns the Text version of the user status
 func (status UserStatus) MarshalText() ([]byte, error) {
 	return []byte(userStatusIDs[status]), nil

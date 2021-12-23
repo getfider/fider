@@ -1,11 +1,14 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path")
+const glob = require("glob")
 
-const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
+const PurgecssPlugin = require("purgecss-webpack-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
 const publicFolder = path.resolve(__dirname, "public")
+const localeFolder = path.resolve(__dirname, "locale")
 
 const isProduction = process.env.NODE_ENV === "production"
 
@@ -28,6 +31,11 @@ const plugins = [
       modules: false,
     },
   }),
+  new PurgecssPlugin({
+    paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
+    defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
+    safelist: [/--/, /__/, /data-/],
+  }),
 ]
 
 // On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
@@ -46,9 +54,10 @@ module.exports = {
   },
   devtool: "source-map",
   resolve: {
-    extensions: [".mjs", ".ts", ".tsx", ".js"],
+    extensions: [".mjs", ".ts", ".tsx", ".js", ".svg"],
     alias: {
       "@fider": publicFolder,
+      "@locale": localeFolder,
     },
   },
   performance: {
@@ -64,19 +73,19 @@ module.exports = {
       },
       {
         test: /\.(ts|tsx)$/,
-        include: publicFolder,
-        loader: "ts-loader",
-        options: {
-          transpileOnly: true,
-        },
+        include: [publicFolder, localeFolder],
+        loader: "babel-loader",
       },
       {
-        test: /\.(svg?)(\?[a-z0-9=&.]+)?$/,
+        test: /\.(json)$/,
+        include: localeFolder,
+        loader: "@lingui/loader",
+        type: "javascript/auto",
+      },
+      {
+        test: /\.svg$/,
         include: publicFolder,
-        loader: "file-loader",
-        options: {
-          name: "images/[name].[hash].[ext]",
-        },
+        use: ["svg-sprite-loader", "svgo-loader"],
       },
     ],
   },
@@ -98,7 +107,7 @@ module.exports = {
         vendor: {
           chunks: "all",
           name: "vendor",
-          test: /react|react-dom|tslib|react-textarea-autosize|react-icons/,
+          test: /(react($|\/)|react-dom|tslib|react-textarea-autosize|@lingui\/core)/,
         },
       },
     },

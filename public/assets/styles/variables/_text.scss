@@ -1,0 +1,26 @@
+$font-base: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+$font: (
+  family: (
+    base: $font-base,
+    code: $font-code,
+  ),
+  size: (
+    "2xs": 12px,
+    xs: 13px,
+    sm: 14px,
+    base: 15px,
+    lg: 18px,
+    xl: 22px,
+    "2xl": 26px,
+  ),
+  weight: (
+    light: 300,
+    normal: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+  ),
+);

@@ -1,8 +1,7 @@
-import "./TagForm.scss"
-
 import React from "react"
 import { Button, Input, ShowTag, Form, RadioButton, Field, SelectOption } from "@fider/components"
 import { Failure } from "@fider/services"
+import { HStack } from "@fider/components/layout"
 
 interface TagFormProps {
   name?: string
@@ -70,49 +69,43 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
 
   public render() {
     const randomizer = (
-      <span className="info clickable" onClick={this.randomize}>
+      <span className="text-link text-normal text-xs ml-1" onClick={this.randomize}>
         randomize
       </span>
     )
 
     return (
       <Form error={this.state.error}>
-        <div className="row">
-          <div className="col-lg-3">
-            <Input field="name" label="Name" value={this.state.name} onChange={this.setName} />
-          </div>
-          <div className="col-lg-2">
-            <Input field="color" label="Color" afterLabel={randomizer} value={this.state.color} onChange={this.setColor} />
-          </div>
-          <div className="col-lg-2">
-            <RadioButton
-              label="Visibility"
-              field="visibility"
-              defaultOption={this.state.isPublic ? this.visibilityPublic : this.visibilityPrivate}
-              options={[this.visibilityPublic, this.visibilityPrivate]}
-              onSelect={this.setVisibility}
+        <div className="grid gap-2 lg:grid-cols-5">
+          <Input field="name" label="Name" value={this.state.name} onChange={this.setName} />
+          <Input field="color" label="Color" afterLabel={randomizer} value={this.state.color} onChange={this.setColor} />
+          <RadioButton
+            label="Visibility"
+            field="visibility"
+            defaultOption={this.state.isPublic ? this.visibilityPublic : this.visibilityPrivate}
+            options={[this.visibilityPublic, this.visibilityPrivate]}
+            onSelect={this.setVisibility}
+          />
+          <Field label="Preview">
+            <ShowTag
+              tag={{
+                id: 0,
+                slug: "",
+                name: this.state.name,
+                color: this.state.color,
+                isPublic: this.state.isPublic,
+              }}
             />
-          </div>
-          <div className="col-lg-5">
-            <Field label="Preview">
-              <ShowTag
-                tag={{
-                  id: 0,
-                  slug: "",
-                  name: this.state.name,
-                  color: this.state.color,
-                  isPublic: this.state.isPublic,
-                }}
-              />
-            </Field>
-          </div>
+          </Field>
+          <HStack>
+            <Button variant="primary" onClick={this.handleSave}>
+              Save
+            </Button>
+            <Button onClick={this.handleCancel} variant="tertiary">
+              Cancel
+            </Button>
+          </HStack>
         </div>
-        <Button color="positive" onClick={this.handleSave}>
-          Save
-        </Button>
-        <Button onClick={this.handleCancel} color="cancel">
-          Cancel
-        </Button>
       </Form>
     )
   }

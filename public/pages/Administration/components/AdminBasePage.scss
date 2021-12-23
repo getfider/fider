@@ -1,7 +1,11 @@
 @import "~@fider/assets/styles/variables.scss";
 
-@include media("sm") {
-  .l-admin-heading .c-heading-subtitle {
-    display: none;
+.c-admin-basepage {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: spacing(4);
+
+  @include media("lg") {
+    grid-template-columns: 1fr 5fr;
   }
 }
