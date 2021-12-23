@@ -104,10 +104,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     steps:
-      - uses: actions/download-artifact@v2
-        with:
-          name: fider-image
-          path: ./out
+      - name: extract variables
+        run: |
+          echo "##[set-output name=sha7;]$(echo ${GITHUB_SHA::7})"
+          echo sha7=${GITHUB_SHA::7}
+        id: vars
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -125,9 +126,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          build-args: BUILDNUMBER=$(cat ./out/sha7)
+          build-args: BUILDNUMBER=${{ steps.vars.outputs.sha7 }}
           platforms: linux/amd64,linux/arm64/v8
-          tags: getfider/fider:PR_$(cat ./out/pr)
+          tags: getfider/fider:PR_${{ github.event.number }}
 
   test-e2e-ui:
     name: test-e2e-ui
