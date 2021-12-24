@@ -22,10 +22,7 @@ type ReactRenderer struct {
 func newIsolatePool() *sync.Pool {
 	return &sync.Pool{
 		New: func() interface{} {
-			isolate, err := v8go.NewIsolate()
-			if err != nil {
-				return errors.Wrap(err, "unable to initialize v8 isolate.")
-			}
+			isolate := v8go.NewIsolate()
 
 			runtime.SetFinalizer(isolate, func(iso *v8go.Isolate) {
 				if iso != nil {
@@ -60,13 +57,10 @@ func (r *ReactRenderer) Render(u *url.URL, props Map) (string, error) {
 	}
 	defer r.pool.Put(isolate)
 
-	v8ctx, err := v8go.NewContext(isolate)
-	if err != nil {
-		return "", errors.Wrap(err, "unable to initialize v8 context.")
-	}
+	v8ctx := v8go.NewContext(isolate)
 	defer v8ctx.Close()
 
-	_, err = v8ctx.RunScript(string(r.scriptContent), r.scriptPath)
+	_, err := v8ctx.RunScript(string(r.scriptContent), r.scriptPath)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to execute SSR script.")
 	}
