@@ -128,7 +128,7 @@ jobs:
           push: true
           build-args: BUILDNUMBER=${{ steps.vars.outputs.sha7 }}
           platforms: linux/amd64,linux/arm64/v8
-          tags: getfider/fider:PR_${{ github.event.number }}
+          tags: getfider/fider:SHA_${{ steps.vars.outputs.sha7 }}
 
   test-e2e-ui:
     name: test-e2e-ui
