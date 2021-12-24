@@ -26,7 +26,7 @@ require (
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20211029224645-99673261e6eb
 	golang.org/x/oauth2 v0.0.0-20211028175245-ba495a64dcb5
-	rogchap.com/v8go v0.6.0
+	rogchap.com/v8go v0.7.1-0.20211222173054-943fcf9e74cc
 )
 
 require (

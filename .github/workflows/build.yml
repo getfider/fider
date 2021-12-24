@@ -25,6 +25,10 @@ jobs:
   test-server:
     name: test-server
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
     services:
       minio:
         image: getfider/minio:0.0.2
@@ -67,6 +71,7 @@ jobs:
           BLOB_STORAGE_S3_ENDPOINT_URL: http://localhost:9000
           DATABASE_URL: postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable
 
+  # The build job uses the Dockerfile to build an image which is then used by e2e tests
   build:
     name: build
     runs-on: ubuntu-latest
@@ -79,7 +84,7 @@ jobs:
           echo sha7=${GITHUB_SHA::7}
         id: vars
 
-      - run: docker build --build-arg buildnumber=${{ steps.vars.outputs.sha7 }} -t fider-image .
+      - run: docker build -t fider-image .
 
       - run: mkdir -p ./out
 
@@ -89,7 +94,6 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
 
       - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
-        if: ${{ github.event_name == 'push' }}
 
       - uses: actions/upload-artifact@v2
         with:

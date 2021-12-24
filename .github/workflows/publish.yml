@@ -16,28 +16,16 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
 
-      - name: download artifact
-        uses: actions/github-script@v3.1.0
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
-          script: |
-            var artifacts = await github.actions.listWorkflowRunArtifacts({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: ${{github.event.workflow_run.id }},
-            });
-            var matchArtifact = artifacts.data.artifacts.filter((artifact) => {
-              return artifact.name == "fider-image"
-            })[0];
-            var download = await github.actions.downloadArtifact({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                artifact_id: matchArtifact.id,
-                archive_format: 'zip',
-            });
-            var fs = require('fs');
-            fs.writeFileSync('${{github.workspace}}/fider-image.zip', Buffer.from(download.data));
-      - run: unzip fider-image.zip
-      - run: docker load --input fider-image.tar
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
       - name: Login to Docker Hub
         uses: docker/login-action@v1
@@ -45,16 +33,20 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
-      - name: push docker image (pull_request)
+      - name: build and push docker image (pull_request)
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        run: |
-          docker tag fider-image getfider/fider:PR_$(cat ./pr)
-          docker push getfider/fider:PR_$(cat ./pr)
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          build-args: BUILDNUMBER=${{ github.event.workflow_run.head_sha }}
+          platforms: linux/amd64,linux/arm64/v8
+          tags: getfider/fider:PR_${{ github.event.workflow_run.pull_requests[0].number }}
 
-      - name: push docker image (push)
+      - name: build and push docker image (push)
         if: ${{ github.event.workflow_run.event == 'push' }}
-        run: |
-          docker tag fider-image getfider/fider:SHA_$(cat ./sha7)
-          docker push getfider/fider:SHA_$(cat ./sha7)
-          docker tag fider-image getfider/fider:main
-          docker push getfider/fider:main
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          build-args: BUILDNUMBER=${{ github.event.workflow_run.head_sha }}
+          platforms: linux/amd64,linux/arm64/v8
+          tags: getfider/fider:SHA_${{ github.event.workflow_run.head_sha }},getfider/fider:main
