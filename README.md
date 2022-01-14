@@ -25,8 +25,8 @@ To run uservoice on your machine you need to have docker installed. Then you can
 - open a command line in the root folder of this repository
 - run `docker build -t postgres-db ./scripts`
 - run `docker run -d --name my-postgresdb-container -p 5555:5432 postgres-db`
-- lookup the ip address of your postgres instance using `docker inspect my-postgresdb-container` ([detailed explanation](https://www.tutorialworks.com/container-networking/))
 - `docker build -t uservoice ./`
+- lookup the ip address of your postgres instance using `docker inspect my-postgresdb-container` ([detailed explanation](https://www.tutorialworks.com/container-networking/))
 - adjust the ip address in the following command and run it `docker run -it --rm -p 3000:3000 -e HOST_DOMAIN='localhost' -e GO_ENV='development' -e JWT_SECRET='hsjl]W;&ZcHxT&FK;s%bgIQF:#ch=~#Al4:5]N;7V<qPZ3e9lT4a%;go;LIkc%k' -e EMAIL_NOREPLY='noreply@bcc.no' -e EMAIL_SMTP_HOST='localhost' -e EMAIL_SMTP_PORT=1026 -e EMAIL_SMTP_USERNAME='' -e EMAIL_SMTP_PASSWORD='' -e DATABASE_URL='postgres://postgres:docker@172.17.0.2:5432/fider?sslmode=disable' --name uservoice uservoice`
 - go to http://localhost:3000 and configure your uservoice/fider instance.
 - to be able to use it you need to verify your email address. However the above script does not have a valid smtp server configured and therefore will not send the required email. You can either provide a working smtp server or you need to look up the verification url in the database by querying the database.
