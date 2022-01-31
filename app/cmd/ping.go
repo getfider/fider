@@ -19,7 +19,12 @@ func RunPing() int {
 		protocol = "https://"
 	}
 
-	resp, err := http.Get(protocol + "localhost:3000/_health")
+	host := "localhost:" + env.Config.Port
+	if env.IsSingleHostMode() && len(env.Config.HostDomain) > 0 {
+		host = env.Config.HostDomain
+	}
+
+	resp, err := http.Get(protocol + host + "/_health")
 	if err != nil {
 		fmt.Printf("Request failed with: %s\n", err)
 		return 1
