@@ -6,7 +6,7 @@
   "dependencies": {
     "@lingui/react": "3.12.1",
     "dompurify": "2.3.3",
-    "marked": "3.0.8",
+    "marked": "4.0.10",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-textarea-autosize": "8.3.3",
