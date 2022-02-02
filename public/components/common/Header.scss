@@ -68,10 +68,10 @@
       color: #484848;
 
       img {
-        margin-right: 10px;
-        width       : auto;
-        height      : auto;
-        max-height  : 36px;
+        margin-right: 20px;
+        //width       : auto;
+        //height      : auto;
+        //max-height  : 36px;
 
         @include media("sm") {
           max-height  : 26px;
