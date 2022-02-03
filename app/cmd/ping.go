@@ -31,7 +31,7 @@ func RunPing() int {
 
 	// Set Host if HostDomain is set
 	if env.IsSingleHostMode() && len(env.Config.HostDomain) > 0 {
-		req.Header.Set("Host", env.Config.HostDomain)
+		req.Host = env.Config.HostDomain
 	}
 
 	resp, err := client.Do(req)
