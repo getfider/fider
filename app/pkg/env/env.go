@@ -14,14 +14,14 @@ import (
 )
 
 var (
-	// these values are replaced during CI build
+	// this value is set by the CI build
 	buildnumber = ""
-	version     = "0.20.0-dev"
+	version     = "0.20.0"
 )
 
 func Version() string {
 	if buildnumber == "" {
-		return version
+		return fmt.Sprintf("%s-dev", version)
 	}
 
 	return fmt.Sprintf("%s-%s", version, buildnumber)
@@ -175,7 +175,7 @@ func Reload() {
 func mustBeSet(name string) {
 	value := os.Getenv(name)
 	if value == "" {
-		panic(fmt.Errorf("Could not find environment variable named '%s'", name))
+		panic(fmt.Errorf("could not find environment variable named '%s'", name))
 	}
 }
 
