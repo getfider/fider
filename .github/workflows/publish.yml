@@ -38,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          build-args: BUILDNUMBER=${{ github.event.workflow_run.head_sha }}
+          build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:PR_${{ github.event.workflow_run.pull_requests[0].number }}
 
@@ -47,6 +47,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          build-args: BUILDNUMBER=${{ github.event.workflow_run.head_sha }}
+          build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:SHA_${{ github.event.workflow_run.head_sha }},getfider/fider:main

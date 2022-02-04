@@ -3,7 +3,7 @@
 #####################
 FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.17-buster AS server-builder 
 
-ARG BUILDNUMBER=local
+ARG COMMITHASH
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -11,7 +11,7 @@ RUN mkdir /server
 WORKDIR /server
 
 COPY . .
-RUN BUILDNUMBER=${BUILDNUMBER} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
+RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
 
 #################
 ### UI Build Step

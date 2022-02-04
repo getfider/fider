@@ -2,7 +2,7 @@
 ##
 ## For more information, refer to https://suva.sh/posts/well-documented-makefiles/
 
-LDFLAGS += -X github.com/getfider/fider/app/pkg/env.buildnumber=${BUILDNUMBER}
+LDFLAGS += -X github.com/getfider/fider/app/pkg/env.commithash=${COMMITHASH}
 
 
 
