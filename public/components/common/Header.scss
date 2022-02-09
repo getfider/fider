@@ -69,9 +69,7 @@
 
       img {
         margin-right: 20px;
-        //width       : auto;
-        //height      : auto;
-        //max-height  : 36px;
+        width: 100px;
 
         @include media("sm") {
           max-height  : 50px;
