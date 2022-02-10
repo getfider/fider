@@ -68,14 +68,12 @@
       color: #484848;
 
       img {
-        margin-right: 10px;
-        width       : auto;
-        height      : auto;
-        max-height  : 36px;
+        margin-right: 20px;
+        width: 100px;
 
         @include media("sm") {
-          max-height  : 26px;
-          margin-right: 5px;
+          max-height  : 50px;
+          margin-right: 10px;
         }
       }
 
