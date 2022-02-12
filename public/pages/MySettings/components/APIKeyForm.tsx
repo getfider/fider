@@ -49,7 +49,7 @@ export class APIKeyForm extends React.Component<any, APIKeyFormState> {
         <p className="text-muted">
           <Trans id="mysettings.apikey.documentation">
             To learn how to use the API, read the{" "}
-            <a className="text-link" rel="noopener" href="https://getfider.com/docs/api" target="_blank">
+            <a className="text-link" rel="noopener" href="https://fider.io/docs/api" target="_blank">
               official documentation
             </a>
             .

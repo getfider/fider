@@ -73,7 +73,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		"view":        "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
 		"change":      "<a href='http://domain.com/settings'>change your notification preferences</a>",
 		"unsubscribe": "<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>",
-		"logo":        "https://getfider.com/images/logo-100x100.png",
+		"logo":        "https://fider.io/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
 		Name: "Arya Stark",

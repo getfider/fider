@@ -35,7 +35,7 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("change_emailaddress_email")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
-		"logo": "https://getfider.com/images/logo-100x100.png",
+		"logo": "https://fider.io/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
 		Name: mock.DemoTenant.Name,

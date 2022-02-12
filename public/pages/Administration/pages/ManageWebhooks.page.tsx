@@ -135,7 +135,7 @@ const ManageWebhooksPage = (props: ManageWebhooksPageProps) => {
     <VStack spacing={8}>
       <p>
         Use webhooks to integrate Fider with other applications like Slack, Discord, Zapier and many others.{" "}
-        <a className="text-link" href="https://getfider.com/docs/using-webhooks" target="_blank" rel="noopener">
+        <a className="text-link" href="https://fider.io/docs/using-webhooks" target="_blank" rel="noopener">
           Learn more in our documentation
         </a>
         .

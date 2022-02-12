@@ -46,15 +46,6 @@ func MultiTenant() web.MiddlewareFunc {
 		return func(c *web.Context) error {
 			hostname := c.Request.URL.Hostname()
 
-			// If no tenant is specified, redirect user to getfider.com
-			// This is only valid for fider.io hosting
-			if (env.IsProduction() && hostname == "fider.io") ||
-				(env.IsDevelopment() && hostname == "dev.fider.io") {
-				if c.Request.URL.Path == "" || c.Request.URL.Path == "/" {
-					return c.Redirect("https://getfider.com")
-				}
-			}
-
 			byDomain := &query.GetTenantByDomain{Domain: hostname}
 			err := bus.Dispatch(c, byDomain)
 			if err != nil && errors.Cause(err) != app.ErrNotFound {

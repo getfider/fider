@@ -131,7 +131,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
           <h2 className="text-display">OAuth Providers</h2>
           <p>
             You can use these section to add any authentication provider thats supports the OAuth2 protocol. Additional information is available in our{" "}
-            <a rel="noopener" className="text-link" target="_blank" href="https://getfider.com/docs/configuring-oauth/">
+            <a rel="noopener" className="text-link" target="_blank" href="https://fider.io/docs/configuring-oauth/">
               OAuth Documentation
             </a>
             .
