@@ -72,7 +72,6 @@
         width: 100px;
 
         @include media("sm") {
-          max-height  : 50px;
           margin-right: 10px;
         }
       }
