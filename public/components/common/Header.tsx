@@ -71,7 +71,7 @@ export const Header = () => {
         <div className="container">
           <a href="https://portal.bcc.no/" className="backToPortal" aria-label="go to portal.bcc.no" title="go to portal.bcc.no"><img src={BCCPortal} alt="" /></a>
           <a href="/" className="c-menu-item-title">
-            <TenantLogo size={100} />
+            <TenantLogo size={200} />
             <h1>{fider.session.tenant.name}</h1>
           </a>
           {showRightMenu && (

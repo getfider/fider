@@ -76,7 +76,7 @@ const HomePage = (props: HomePageProps) => {
           </div>
         </div>
         <svg width="1440" height="302" viewBox="0 0 1440 302" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <path d="M1.50678e-05 0H1440C1440 0 1440 134.41 1440 274.026C733.519 200.865 707.983 364.255 1.50678e-05 274.026C-3.09845e-05 128.913 1.50678e-05 0 1.50678e-05 0Z" fill="#6291EB" />
+          <path d="M1.50678e-05 0H1440C1440 0 1440 134.41 1440 274.026C733.519 200.865 707.983 364.255 1.50678e-05 274.026C-3.09845e-05 128.913 1.50678e-05 0 1.50678e-05 0Z" fill="#004E48" />
         </svg>
       </section>
 

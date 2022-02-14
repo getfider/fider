@@ -107,10 +107,10 @@ func (input *UpdateTenantSettings) Validate(ctx context.Context, user *models.Us
 
 	messages, err := validate.ImageUpload(input.Model.Logo, validate.ImageUploadOpts{
 		IsRequired:   false,
-		MinHeight:    200,
+		MinHeight:    100,
 		MinWidth:     200,
 		MaxKilobytes: 100,
-		ExactRatio:   true,
+		ExactRatio:   false,
 	})
 	if err != nil {
 		return validate.Error(err)
