@@ -30,7 +30,7 @@
     font-size: 3rem;
     color: #fff;
     
-    @include media("<=md"){
+    @include media("xs"){
       font-size: 1.75rem;
     }
   }
