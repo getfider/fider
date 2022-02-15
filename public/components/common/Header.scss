@@ -87,7 +87,7 @@
         }
       }
       
-      @include media("sm"){
+      @include media($sm-width){
         gap: 50px;
       }
     }
