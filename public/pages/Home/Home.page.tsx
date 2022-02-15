@@ -80,7 +80,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
           <VStack spacing={2}>
             <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
             <PostInput placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} />
-            <PoweredByFider className="sm:hidden md:hidden lg:block" />
+            <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block" />
           </VStack>
         </div>
         <div className="p-home__posts-col">
@@ -91,7 +91,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
           ) : (
             <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
           )}
-          <PoweredByFider className="lg:hidden xl:hidden mt-8" />
+          <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
         </div>
       </div>
     </>

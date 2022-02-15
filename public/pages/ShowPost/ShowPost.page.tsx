@@ -19,6 +19,7 @@ import {
   ImageViewer,
   Icon,
   Header,
+  PoweredByFider,
 } from "@fider/components"
 import { ResponseForm } from "./components/ResponseForm"
 import { TagsPanel } from "./components/TagsPanel"
@@ -196,6 +197,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
               <TagsPanel post={this.props.post} tags={this.props.tags} />
               <NotificationsPanel post={this.props.post} subscribed={this.props.subscribed} />
               <ModerationPanel post={this.props.post} />
+              <PoweredByFider slot="show-post" />
             </VStack>
 
             <div className="p-show-post__discussion_col">
