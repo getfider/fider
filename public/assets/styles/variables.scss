@@ -138,6 +138,10 @@ $xl-width: 1200px;
     @media only screen and (max-width: #{$md-width - 0.1px}) {
       @content;
     }
+  } @else if $media == "xs" {
+    @media only screen and (max-width: #{$sm-width - 0.1px}) {
+      @content;
+    }
   } @else if $media == ">=sm" {
     @media only screen and (min-width: #{$sm-width}) {
       @content;

@@ -86,6 +86,10 @@
           max-width: 240px;
         }
       }
+      
+      @include media("xs"){
+        gap: 50px;
+      }
     }
 
     .c-menu-item-signin {
