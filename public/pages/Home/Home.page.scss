@@ -26,6 +26,15 @@
     z-index : 1;
   }
 
+  .site-identifier{
+    font-size: 3rem;
+    color: #fff;
+    
+    @include media("xs"){
+      font-size: 1.75rem;
+    }
+  }
+  
   .welcome-message {
     padding-right: 3em;
 
@@ -44,7 +53,7 @@
     top     : 0;
     left    : 0;
     width   : 100%;
-    height  : 100%;
+    height  : 110%;
     z-index : -1;
   }
 
@@ -78,8 +87,8 @@
 
 .suggestions {
   position     : relative;
-  margin-top   : 2em;
   margin-bottom: 1em;
+  margin-top   : 2em;
   
   .c-form.visible {
 
@@ -98,11 +107,11 @@
   }
 
   @include media(">=md") {
-    margin-top: -90px;
+    margin-top: -2em;
   }
 
   @include media(">=lg") {
-    margin-top: -140px;
+    margin-top: -5rem;
   }
 }
 

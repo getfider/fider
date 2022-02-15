@@ -68,6 +68,7 @@ const HomePage = (props: HomePageProps) => {
         <div className="container">
           <div className="row">
             <div className="col col-10 col-md-6 col-caption">
+              <h1 className="site-identifier">{fider.session.tenant.name}</h1>
               <MultiLineText className="welcome-message" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
             </div>
             <div className="col col-2 col-md-6 col-image">
