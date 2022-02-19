@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"path"
 
@@ -34,6 +35,11 @@ type config struct {
 		Automatic      bool   `env:"SSL_AUTO,default=false"`
 		Certificate    string `env:"SSL_CERT"`
 		CertificateKey string `env:"SSL_CERT_KEY"`
+	}
+	HTTP struct {
+		ReadTimeout  time.Duration `env:"HTTP_READ_TIMEOUT,default=5s,strict"`
+		WriteTimeout time.Duration `env:"HTTP_WRITE_TIMEOUT,default=10s,strict"`
+		IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=120s,strict"`
 	}
 	Port       string `env:"PORT,default=3000"`
 	HostMode   string `env:"HOST_MODE,default=single"`

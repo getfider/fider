@@ -116,9 +116,9 @@ func (e *Engine) Start(address string) {
 
 	stdLog.SetOutput(ioutil.Discard)
 	e.webServer = &http.Server{
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  env.Config.HTTP.ReadTimeout,
+		WriteTimeout: env.Config.HTTP.WriteTimeout,
+		IdleTimeout:  env.Config.HTTP.IdleTimeout,
 		Addr:         address,
 		Handler:      e.mux,
 		TLSConfig:    getDefaultTLSConfig(env.Config.TLS.Automatic),
