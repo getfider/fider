@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/pkg/backup"
+	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -11,6 +13,7 @@ func ExportBackupZip() web.HandlerFunc {
 
 		file, err := backup.Create(c)
 		if err != nil {
+			log.Error(c, errors.Wrap(err, "failed to create backup"))
 			return c.Failure(err)
 		}
 

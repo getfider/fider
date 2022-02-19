@@ -108,7 +108,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 	})
 	if err != nil {
 		if isNotFound(err) {
-			return blob.ErrNotFound
+			return wrap(blob.ErrNotFound, "unable to find blob '%s' on S3", q.Key)
 		}
 		return wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
@@ -166,7 +166,7 @@ func basePath(ctx context.Context, segment string) string {
 
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
-		return path.Join("tenants", strconv.Itoa(tenant.ID), segment) 
+		return path.Join("tenants", strconv.Itoa(tenant.ID), segment)
 	}
 	return segment
 }
