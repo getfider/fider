@@ -12,7 +12,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . ./
-RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-amd64} make build-server
+RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
 
 #################
 ### UI Build Step
