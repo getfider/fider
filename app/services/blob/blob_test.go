@@ -131,7 +131,7 @@ func AllOperations(ctx context.Context) {
 		}
 		err = bus.Dispatch(ctx, q)
 		Expect(q.Result).IsNil()
-		Expect(err).Equals(blob.ErrNotFound)
+		Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 	}
 }
 
@@ -163,12 +163,12 @@ func SameKey_DifferentTenant(ctx context.Context) {
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctxWithTenant2, q)
-	Expect(err).Equals(blob.ErrNotFound)
+	Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 	Expect(q.Result).IsNil()
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctx, q)
-	Expect(err).Equals(blob.ErrNotFound)
+	Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 	Expect(q.Result).IsNil()
 
 	err = bus.Dispatch(ctxWithTenant1, &cmd.DeleteBlob{Key: key})
@@ -217,7 +217,7 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctx, q)
-	Expect(err).Equals(blob.ErrNotFound)
+	Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 	Expect(q.Result).IsNil()
 
 	err = bus.Dispatch(ctxWithTenant2, &cmd.DeleteBlob{Key: key})

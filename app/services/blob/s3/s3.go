@@ -3,6 +3,7 @@ package s3
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"path"
 	"sort"
@@ -76,11 +77,15 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 	prefix := basePath(ctx, q.Prefix)
 	response, err := DefaultClient.ListObjectsWithContext(ctx, &s3.ListObjectsInput{
 		Bucket:  aws.String(env.Config.BlobStorage.S3.BucketName),
-		MaxKeys: aws.Int64(3000),
+		MaxKeys: aws.Int64(1000),
 		Prefix:  aws.String(prefix),
 	})
 	if err != nil {
 		return wrap(err, "failed to list blobs from S3")
+	}
+
+	if response.IsTruncated != nil && *response.IsTruncated {
+		return wrap(err, "failed to return list of blobs because it was truncated")
 	}
 
 	files := make([]string, 0)
@@ -108,7 +113,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 	})
 	if err != nil {
 		if isNotFound(err) {
-			return blob.ErrNotFound
+			return wrap(blob.ErrNotFound, "unable to find blob '%s' on S3", q.Key)
 		}
 		return wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
@@ -166,7 +171,7 @@ func basePath(ctx context.Context, segment string) string {
 
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
-		return path.Join("tenants", strconv.Itoa(tenant.ID), segment) 
+		return fmt.Sprintf("tenants/%s/%s", strconv.Itoa(tenant.ID), segment)
 	}
 	return segment
 }
