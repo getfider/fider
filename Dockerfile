@@ -4,14 +4,15 @@
 FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.17-buster AS server-builder 
 
 ARG COMMITHASH
-ARG TARGETOS
-ARG TARGETARCH
 
 RUN mkdir /server
 WORKDIR /server
 
-COPY . .
-RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-amd64} make build-server
 
 #################
 ### UI Build Step
@@ -20,8 +21,11 @@ FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-buster AS ui-builder
 
 WORKDIR /ui
 
-COPY . .
+
+COPY package.json package-lock.json ./
 RUN npm ci
+
+COPY . .
 RUN make build-ssr
 RUN make build-ui
 
