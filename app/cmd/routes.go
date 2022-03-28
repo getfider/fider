@@ -16,6 +16,8 @@ import (
 func routes(r *web.Engine) *web.Engine {
 	r.Worker().Use(middlewares.WorkerSetup())
 
+	r.Get("/_health", handlers.Health())
+
 	r.Use(middlewares.CatchPanic())
 	r.Use(middlewares.Instrumentation())
 
@@ -44,7 +46,6 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Use(middlewares.Session())
 
-	r.Get("/_health", handlers.Health())
 	r.Get("/robots.txt", handlers.RobotsTXT())
 	r.Post("/_api/log-error", handlers.LogError())
 

@@ -30,7 +30,7 @@ func Health() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-		return c.Ok(web.Map{})
+		return c.Ok(web.Map{"status": "Healthy"})
 	}
 }
 
