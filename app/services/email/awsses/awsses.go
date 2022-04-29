@@ -7,8 +7,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	ses "github.com/aws/aws-sdk-go/service/sesv2"
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -82,6 +84,14 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		})
 
 		message := email.RenderMessage(ctx, c.TemplateName, c.From.Address, c.Props.Merge(to.Props))
+		tags := []*ses.MessageTag{
+			{Name: aws.String("template"), Value: aws.String(c.TemplateName)},
+		}
+
+		tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+		if ok && !env.IsSingleHostMode() {
+			tags = append(tags, &ses.MessageTag{Name: aws.String("tenant"), Value: aws.String(tenant.Subdomain)})
+		}
 
 		input := &ses.SendEmailInput{
 			FromEmailAddress: aws.String(c.From.String()),
@@ -104,6 +114,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 					},
 				},
 			},
+			EmailTags: tags,
 		}
 
 		result, err := sesClient.SendEmailWithContext(ctx, input)
