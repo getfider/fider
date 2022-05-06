@@ -49,10 +49,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Go 1.17
+      - name: Use Go 1.18
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17
+          go-version: 1.18
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:

@@ -1,7 +1,7 @@
 #####################
 ### Server Build Step
 #####################
-FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.17-buster AS server-builder 
+FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.18-buster AS server-builder 
 
 ARG COMMITHASH
 
