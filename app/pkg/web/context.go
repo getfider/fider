@@ -469,11 +469,16 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 	if code >= 400 {
 		c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 	}
-	c.Response.Header().Set("Content-Type", contentType)
 
+	c.Response.Header().Set("Content-Type", contentType)
 	c.Response.WriteHeader(code)
+
 	_, err := c.Response.Write(b)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed to write response")
+	}
+
+	return nil
 }
 
 // NoContent sends a response with no body and a status code.
