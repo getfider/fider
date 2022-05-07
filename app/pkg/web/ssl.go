@@ -153,8 +153,12 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 	}
 
 	cert, err := m.autotls.GetCertificate(hello)
-	if err != nil && errors.Cause(err) != errInvalidHostName {
-		log.Error(m.ctx, err)
+	if err != nil {
+		if errors.Cause(err) == errInvalidHostName {
+			log.Warn(m.ctx, err.Error())
+		} else {
+			log.Error(m.ctx, err)
+		}
 	}
 
 	return cert, err
