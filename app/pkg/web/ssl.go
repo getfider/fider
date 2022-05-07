@@ -62,6 +62,16 @@ func isValidHostName(ctx context.Context, host string) error {
 		return errors.Wrap(err, "failed start new transaction")
 	}
 	defer trx.MustCommit()
+	dbCtx := context.WithValue(ctx, app.TransactionCtxKey, trx)
+
+	getTenant := &query.GetTenantByDomain{Domain: host}
+	err = bus.Dispatch(dbCtx, getTenant)
+	if err != nil {
+		if errors.Cause(err) == app.ErrNotFound {
+			return errors.Wrap(errInvalidHostName, "no tenant found with cname %s", host)
+		}
+		return errors.Wrap(err, "failed to get tenant by cname")
+	}
 
 	cname, err := net.DefaultResolver.LookupCNAME(ctx, host)
 	if err != nil {
@@ -70,15 +80,6 @@ func isValidHostName(ctx context.Context, host string) error {
 
 	if cname == "" {
 		return errors.Wrap(errInvalidHostName, "no CNAME DNS record found for %s", host)
-	}
-
-	getTenant := &query.GetTenantByDomain{Domain: host}
-	err = bus.Dispatch(ctx, getTenant)
-	if err != nil {
-		if errors.Cause(err) == app.ErrNotFound {
-			return errors.Wrap(errInvalidHostName, "no tenant found with cname %s", host)
-		}
-		return errors.Wrap(err, "failed to get tenant by cname")
 	}
 
 	if strings.TrimSuffix(cname, ".") != getTenant.Result.Subdomain+env.MultiTenantDomain() {
@@ -144,6 +145,11 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 			return &m.cert, nil
 		}
 
+		// If it's an IP address, just return the cert we have
+		if net.ParseIP(serverName) != nil {
+			return &m.cert, nil
+		}
+
 		// throw an error if it doesn't match the leaf certificate but still ends with current hostname, example:
 		// hostdomain is myserver.com and the certificate is *.myserver.com
 		// serverName is something.else.myserver.com, it should throw an error
@@ -152,6 +158,7 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 		}
 	}
 
+	//TODO: consider recovering from a possible panic here
 	cert, err := m.autotls.GetCertificate(hello)
 	if err != nil {
 		if errors.Cause(err) == errInvalidHostName {

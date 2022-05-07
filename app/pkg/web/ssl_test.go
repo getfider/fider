@@ -69,8 +69,10 @@ func TestGetCertificate(t *testing.T) {
 		{"multi", "all-test-fider-io", "fider"},
 		{"multi", "all-test-fider-io", "feedback.test.fider.io"},
 		{"multi", "all-test-fider-io", "FEEDBACK.test.fider.io"},
+		{"multi", "all-test-fider-io", "44.194.119.243"},
 		{"single", "test-fider-io", "test.fider.io"},
 		{"single", "test-fider-io", "fider.io"},
+		{"single", "test-fider-io", "44.194.119.243"},
 	}
 
 	for _, testCase := range testCases {
