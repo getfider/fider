@@ -35,18 +35,20 @@ jobs:
 
       - name: build and push docker image (pull_request)
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           push: true
+          context: "{{defaultContext}}"
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:PR_${{ github.event.workflow_run.pull_requests[0].number }}
 
       - name: build and push docker image (push)
         if: ${{ github.event.workflow_run.event == 'push' }}
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           push: true
+          context: "{{defaultContext}}"
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:SHA_${{ github.event.workflow_run.head_sha }},getfider/fider:main
