@@ -123,10 +123,6 @@ func TestGetCertificate_WhenCNAMEDoesntMatch(t *testing.T) {
 	cert, err := manager.GetCertificate(&tls.ClientHelloInfo{ServerName: "feedbacktest.goenning.net"})
 	Expect(err.Error()).ContainsSubstring("cname goenning.test.fider.io. (from feedbacktest.goenning.net) doesn't match configured host demo.test.fider.io")
 	Expect(cert).IsNil()
-
-	cert, err = manager.GetCertificate(&tls.ClientHelloInfo{ServerName: "feedback.thisshouldnotwork.com"})
-	Expect(err.Error()).ContainsSubstring("lookup feedback.thisshouldnotwork.com: no such host")
-	Expect(cert).IsNil()
 }
 
 func TestGetCertificate_ServerNameMatchesCertificate_ShouldReturnIt(t *testing.T) {
