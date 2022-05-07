@@ -45,6 +45,8 @@ func RunServer() int {
 		})
 	}
 
+	log.Warn(ctx, "STARTING FIDER SERVER")
+
 	copyEtcFiles(ctx)
 	startJobs(ctx)
 
