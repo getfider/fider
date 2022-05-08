@@ -1,53 +1,60 @@
-import "./ListPosts.scss";
-
-import React from "react";
-import { Post, Tag, CurrentUser } from "@fider/models";
-import { ShowTag, ShowPostResponse, VoteCounter, MultiLineText, ListItem, List } from "@fider/components";
-import { FaRegComments } from "react-icons/fa";
+import React from "react"
+import { Post, Tag, CurrentUser } from "@fider/models"
+import { ShowTag, ShowPostResponse, VoteCounter, Markdown, Icon } from "@fider/components"
+import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
+import { HStack, VStack } from "@fider/components/layout"
 
 interface ListPostsProps {
-  posts?: Post[];
-  tags: Tag[];
-  emptyText: string;
+  posts?: Post[]
+  tags: Tag[]
+  emptyText: string
 }
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
-    <ListItem>
-      <VoteCounter post={props.post} />
-      <div className="c-list-item-content">
-        {props.post.commentsCount > 0 && (
-          <div className="info right">
-            {props.post.commentsCount} <FaRegComments />
-          </div>
-        )}
-        <a className="c-list-item-title" href={`/posts/${props.post.number}/${props.post.slug}`}>
-          {props.post.title}
-        </a>
-        <MultiLineText className="c-list-item-description" text={props.post.description} style="simple" />
-        <ShowPostResponse showUser={false} status={props.post.status} response={props.post.response} />
-        {props.tags.map(tag => (
-          <ShowTag key={tag.id} size="tiny" tag={tag} />
-        ))}
+    <HStack center={true}>
+      <div className="align-self-start">
+        <VoteCounter post={props.post} />
       </div>
-    </ListItem>
-  );
-};
+      <VStack className="w-full" spacing={2}>
+        <HStack justify="between">
+          <a className="text-title hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
+            {props.post.title}
+          </a>
+          {props.post.commentsCount > 0 && (
+            <HStack className="text-muted">
+              {props.post.commentsCount} <Icon sprite={IconChatAlt2} className="h-4 ml-1" />
+            </HStack>
+          )}
+        </HStack>
+        <Markdown className="text-gray-600" maxLength={300} text={props.post.description} style="plainText" />
+        <ShowPostResponse status={props.post.status} response={props.post.response} />
+        {props.tags.length >= 1 && (
+          <HStack className="flex-wrap">
+            {props.tags.map((tag) => (
+              <ShowTag key={tag.id} tag={tag} link />
+            ))}
+          </HStack>
+        )}
+      </VStack>
+    </HStack>
+  )
+}
 
 export const ListPosts = (props: ListPostsProps) => {
   if (!props.posts) {
-    return null;
+    return null
   }
 
   if (props.posts.length === 0) {
-    return <p className="center">{props.emptyText}</p>;
+    return <p className="text-center">{props.emptyText}</p>
   }
 
   return (
-    <List className="c-post-list" divided={true}>
-      {props.posts.map(post => (
-        <ListPostItem key={post.id} post={post} tags={props.tags.filter(tag => post.tags.indexOf(tag.slug) >= 0)} />
+    <VStack spacing={4} divide={true} center={true}>
+      {props.posts.map((post) => (
+        <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
       ))}
-    </List>
-  );
-};
+    </VStack>
+  )
+}

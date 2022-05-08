@@ -17,9 +17,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/getfider/fider/app"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -74,21 +74,31 @@ func (s Service) Init() {
 }
 
 func listBlobs(ctx context.Context, q *query.ListBlobs) error {
-	tenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
-	basePath := fmt.Sprintf("tenants/%d/", tenant.ID)
+	prefix := basePath(ctx, q.Prefix)
 	response, err := DefaultClient.ListObjectsWithContext(ctx, &s3.ListObjectsInput{
 		Bucket:  aws.String(env.Config.BlobStorage.S3.BucketName),
-		MaxKeys: aws.Int64(3000),
-		Prefix:  aws.String(basePath),
+		MaxKeys: aws.Int64(1000),
+		Prefix:  aws.String(prefix),
 	})
 	if err != nil {
 		return wrap(err, "failed to list blobs from S3")
 	}
 
+	if response.IsTruncated != nil && *response.IsTruncated {
+		return wrap(err, "failed to return list of blobs because it was truncated")
+	}
+
 	files := make([]string, 0)
 	for _, item := range response.Contents {
 		key := *item.Key
-		files = append(files, key[len(basePath):])
+
+		// if it ends with '/' it's not an actual blob
+		if strings.HasSuffix(key, "/") {
+			continue
+		}
+
+		fullKey := q.Prefix + key[len(prefix):]
+		files = append(files, strings.TrimLeft(fullKey, "/"))
 	}
 
 	sort.Strings(files)
@@ -103,7 +113,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 	})
 	if err != nil {
 		if isNotFound(err) {
-			return blob.ErrNotFound
+			return wrap(blob.ErrNotFound, "unable to find blob '%s' on S3", q.Key)
 		}
 		return wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
@@ -153,11 +163,17 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 }
 
 func keyFullPathURL(ctx context.Context, key string) string {
-	tenant, ok := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	return path.Join(basePath(ctx, ""), key)
+}
+
+func basePath(ctx context.Context, segment string) string {
+	blob.EnsureAuthorizedPrefix(ctx, segment)
+
+	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
-		return path.Join("tenants", strconv.Itoa(tenant.ID), key)
+		return fmt.Sprintf("tenants/%s/%s", strconv.Itoa(tenant.ID), segment)
 	}
-	return key
+	return segment
 }
 
 func isNotFound(err error) bool {

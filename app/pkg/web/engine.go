@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -23,17 +22,20 @@ import (
 	cache "github.com/patrickmn/go-cache"
 )
 
+// fonts.gstatic.com and fonts.googleapis.com are required for Custom CSS to work with Google Fonts
+// unsafe-inline on Style is required for rendering Tags on SSR
+
 var (
 	cspBase    = "base-uri 'self'"
 	cspDefault = "default-src 'self'"
-	cspStyle   = "style-src 'self' 'nonce-%[1]s' https://fonts.googleapis.com %[2]s"
-	cspScript  = "script-src 'self' 'nonce-%[1]s' https://cdn.polyfill.io https://js.stripe.com https://www.google-analytics.com %[2]s"
+	cspStyle   = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.paddle.com %[2]s"
+	cspScript  = "script-src 'self' 'nonce-%[1]s' https://www.google-analytics.com https://*.paddle.com %[2]s"
 	cspFont    = "font-src 'self' https://fonts.gstatic.com data: %[2]s"
 	cspImage   = "img-src 'self' https: data: %[2]s"
 	cspObject  = "object-src 'none'"
-	cspFrame   = "frame-src 'self' https://js.stripe.com"
+	cspFrame   = "frame-src 'self' https://*.paddle.com"
 	cspMedia   = "media-src 'none'"
-	cspConnect = "connect-src 'self' https://www.google-analytics.com https://ipinfo.io https://js.stripe.com %[2]s"
+	cspConnect = "connect-src 'self' https://www.google-analytics.com %[2]s"
 
 	//CspPolicyTemplate is the template used to generate the policy
 	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspFrame)
@@ -58,27 +60,31 @@ type MiddlewareFunc func(HandlerFunc) HandlerFunc
 //Engine is our web engine wrapper
 type Engine struct {
 	context.Context
-	mux         *httprouter.Router
-	renderer    *Renderer
-	binder      *DefaultBinder
-	middlewares []MiddlewareFunc
-	worker      worker.Worker
-	server      *http.Server
-	cache       *cache.Cache
+	mux           *httprouter.Router
+	renderer      *Renderer
+	binder        *DefaultBinder
+	middlewares   []MiddlewareFunc
+	worker        worker.Worker
+	webServer     *http.Server
+	metricsServer *http.Server
+	cache         *cache.Cache
 }
 
 //New creates a new Engine
-func New(settings *models.SystemSettings) *Engine {
+func New() *Engine {
 	ctx := context.Background()
 	ctx = log.WithProperties(ctx, dto.Props{
 		log.PropertyKeyContextID: rand.String(32),
 		log.PropertyKeyTag:       "WEB",
 	})
 
+	mux := httprouter.New()
+	mux.SaveMatchedRoutePath = true
+
 	router := &Engine{
 		Context:     ctx,
-		mux:         httprouter.New(),
-		renderer:    NewRenderer(settings),
+		mux:         mux,
+		renderer:    NewRenderer(),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
 		worker:      worker.New(),
@@ -91,7 +97,10 @@ func New(settings *models.SystemSettings) *Engine {
 //Start the server.
 func (e *Engine) Start(address string) {
 	log.Info(e, "Application is starting")
-	log.Infof(e, "GO_ENV: @{Env}", dto.Props{
+	log.Infof(e, "Version: @{Version}", dto.Props{
+		"Version": env.Version(),
+	})
+	log.Infof(e, "Environment: @{Env}", dto.Props{
 		"Env": env.Config.Environment,
 	})
 
@@ -100,45 +109,57 @@ func (e *Engine) Start(address string) {
 		keyFilePath  = ""
 	)
 
-	if env.Config.SSLCert != "" {
-		certFilePath = env.Etc(env.Config.SSLCert)
-		keyFilePath = env.Etc(env.Config.SSLCertKey)
+	if env.Config.TLS.Certificate != "" {
+		certFilePath = env.Etc(env.Config.TLS.Certificate)
+		keyFilePath = env.Etc(env.Config.TLS.CertificateKey)
 	}
 
 	stdLog.SetOutput(ioutil.Discard)
-	e.server = &http.Server{
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  120 * time.Second,
+	e.webServer = &http.Server{
+		ReadTimeout:  env.Config.HTTP.ReadTimeout,
+		WriteTimeout: env.Config.HTTP.WriteTimeout,
+		IdleTimeout:  env.Config.HTTP.IdleTimeout,
 		Addr:         address,
 		Handler:      e.mux,
-		TLSConfig:    getDefaultTLSConfig(),
+		TLSConfig:    getDefaultTLSConfig(env.Config.TLS.Automatic),
 	}
 
-	for i := 0; i < runtime.NumCPU()*2; i++ {
+	for i := 0; i < runtime.NumCPU(); i++ {
 		go e.Worker().Run(strconv.Itoa(i))
+	}
+
+	if env.Config.Metrics.Enabled {
+		metricsAddress := ":" + env.Config.Metrics.Port
+		e.metricsServer = newMetricsServer(metricsAddress)
+		go func() {
+			err := e.metricsServer.ListenAndServe()
+			if err != nil && err != http.ErrServerClosed {
+				panic(errors.Wrap(err, "failed to start metrics server"))
+			}
+		}()
 	}
 
 	var (
 		err         error
 		certManager *CertificateManager
 	)
-	if env.Config.AutoSSL {
-		certManager, err = NewCertificateManager(certFilePath, keyFilePath)
+
+	if env.Config.TLS.Automatic {
+		certManager, err = NewCertificateManager(e, certFilePath, keyFilePath)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
 
-		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		log.Infof(e, "https (auto ssl) server started on @{Address}", dto.Props{"Address": address})
+		e.webServer.TLSConfig.GetCertificate = certManager.GetCertificate
+		log.Infof(e, "https (auto tls) server started on @{Address}", dto.Props{"Address": address})
 		go certManager.StartHTTPServer()
-		err = e.server.ListenAndServeTLS("", "")
+		err = e.webServer.ListenAndServeTLS("", "")
 	} else if certFilePath == "" && keyFilePath == "" {
 		log.Infof(e, "http server started on @{Address}", dto.Props{"Address": address})
-		err = e.server.ListenAndServe()
+		err = e.webServer.ListenAndServe()
 	} else {
 		log.Infof(e, "https server started on @{Address}", dto.Props{"Address": address})
-		err = e.server.ListenAndServeTLS(certFilePath, keyFilePath)
+		err = e.webServer.ListenAndServeTLS(certFilePath, keyFilePath)
 	}
 
 	if err != nil && err != http.ErrServerClosed {
@@ -151,17 +172,29 @@ func (e *Engine) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.Info(e, "server is shutting down")
-	if err := e.server.Shutdown(ctx); err != nil {
-		return errors.Wrap(err, "failed to shutdown server")
+	if e.metricsServer != nil {
+		log.Info(e, "metrics server is shutting down")
+		if err := e.metricsServer.Shutdown(ctx); err != nil {
+			return errors.Wrap(err, "failed to shutdown metrics server")
+		}
+		log.Info(e, "metrics server has shutdown")
 	}
-	log.Info(e, "server has shutdown")
 
-	log.Info(e, "worker is shutting down")
-	if err := e.worker.Shutdown(ctx); err != nil {
-		return errors.Wrap(err, "failed to shutdown worker")
+	if e.webServer != nil {
+		log.Info(e, "web server is shutting down")
+		if err := e.webServer.Shutdown(ctx); err != nil {
+			return errors.Wrap(err, "failed to shutdown web server")
+		}
+		log.Info(e, "web server has shutdown")
 	}
-	log.Info(e, "worker has shutdown")
+
+	if e.worker != nil {
+		log.Info(e, "worker is shutting down")
+		if err := e.worker.Shutdown(ctx); err != nil {
+			return errors.Wrap(err, "failed to shutdown worker")
+		}
+		log.Info(e, "worker has shutdown")
+	}
 
 	return nil
 }
@@ -187,6 +220,10 @@ func (e *Engine) Group() *Group {
 
 //Use adds a middleware to the root engine
 func (e *Engine) Use(middleware MiddlewareFunc) {
+	if middleware == nil {
+		return
+	}
+
 	e.middlewares = append(e.middlewares, middleware)
 }
 
@@ -287,14 +324,15 @@ func (g *Group) Static(prefix, root string) {
 			filePath := path.Join(root, c.Param("filepath"))
 			fi, err := os.Stat(filePath)
 			if err == nil && !fi.IsDir() {
-				http.ServeFile(c.Response, c.Request.instance, filePath)
+				http.ServeFile(&c.Response, c.Request.instance, filePath)
 				return nil
 			}
+			c.Response.Header().Set("Cache-Control", "no-cache, no-store")
 			return c.NotFound()
 		}
 	} else {
 		h = func(c *Context) error {
-			http.ServeFile(c.Response, c.Request.instance, root)
+			http.ServeFile(&c.Response, c.Request.instance, root)
 			return nil
 		}
 	}

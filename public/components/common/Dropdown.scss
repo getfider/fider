@@ -1,0 +1,49 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-dropdown {
+  display: inline-block;
+  position: relative;
+  font-size: get("font.size.sm");
+
+  &__handle {
+    text-align: left;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  &__list {
+    margin-top: spacing(2);
+    position: absolute;
+    overflow: auto;
+    width: max-content;
+    min-width: sizing(40);
+    max-width: sizing(60);
+    padding: spacing(1) 0;
+    background-color: get("colors.white");
+    border-radius: get("border.radius.medium");
+    border: 1px solid get("colors.gray.300");
+    z-index: 10;
+
+    &--left {
+      right: 0;
+    }
+  }
+
+  &__listitem {
+    display: block;
+    padding: spacing(2);
+    &:hover {
+      cursor: pointer;
+      background-color: get("colors.gray.100");
+    }
+  }
+
+  &__divider {
+    margin: spacing(1);
+    background-color: get("colors.gray.200");
+    height: 1px;
+    border: none;
+  }
+}

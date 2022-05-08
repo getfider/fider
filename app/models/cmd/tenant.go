@@ -3,31 +3,38 @@ package cmd
 import (
 	"time"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/models/enum"
 )
 
 type CreateTenant struct {
 	Name      string
 	Subdomain string
-	Status    int
+	Status    enum.TenantStatus
 
-	Result *models.Tenant
+	Result *entity.Tenant
 }
 
 type UpdateTenantPrivacySettings struct {
-	Settings *models.UpdateTenantPrivacy
+	IsPrivate bool
+}
+
+type UpdateTenantEmailAuthAllowedSettings struct {
+	IsEmailAuthAllowed bool
 }
 
 type UpdateTenantSettings struct {
-	Settings *models.UpdateTenantSettings
-}
-
-type UpdateTenantBillingSettings struct {
-	Settings *models.TenantBilling
+	Logo           *dto.ImageUpload
+	Title          string
+	Invitation     string
+	WelcomeMessage string
+	CNAME          string
+	Locale         string
 }
 
 type UpdateTenantAdvancedSettings struct {
-	Settings *models.UpdateTenantAdvancedSettings
+	CustomCSS string
 }
 
 type ActivateTenant struct {
@@ -37,7 +44,15 @@ type ActivateTenant struct {
 type SaveVerificationKey struct {
 	Key      string
 	Duration time.Duration
-	Request  models.NewEmailVerification
+	Request  NewEmailVerification
+}
+
+//NewEmailVerification is used to define an email verification process
+type NewEmailVerification interface {
+	GetEmail() string
+	GetName() string
+	GetUser() *entity.User
+	GetKind() enum.EmailVerificationKind
 }
 
 type SetKeyAsVerified struct {

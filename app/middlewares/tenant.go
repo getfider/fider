@@ -31,7 +31,7 @@ func SingleTenant() web.MiddlewareFunc {
 				return c.Failure(err)
 			}
 
-			if firstTenant.Result != nil {
+			if firstTenant.Result != nil && !firstTenant.Result.IsDisabled() {
 				c.SetTenant(firstTenant.Result)
 			}
 
@@ -46,22 +46,13 @@ func MultiTenant() web.MiddlewareFunc {
 		return func(c *web.Context) error {
 			hostname := c.Request.URL.Hostname()
 
-			// If no tenant is specified, redirect user to getfider.com
-			// This is only valid for fider.io hosting
-			if (env.IsProduction() && hostname == "fider.io") ||
-				(env.IsDevelopment() && hostname == "dev.fider.io") {
-				if c.Request.URL.Path == "" || c.Request.URL.Path == "/" {
-					return c.Redirect("https://getfider.com")
-				}
-			}
-
 			byDomain := &query.GetTenantByDomain{Domain: hostname}
 			err := bus.Dispatch(c, byDomain)
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 
-			if byDomain.Result != nil {
+			if byDomain.Result != nil && !byDomain.Result.IsDisabled() {
 				c.SetTenant(byDomain.Result)
 
 				if byDomain.Result.CNAME != "" && !c.IsAjax() {
@@ -82,12 +73,14 @@ func MultiTenant() web.MiddlewareFunc {
 func RequireTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if c.Tenant() == nil {
+			tenant := c.Tenant()
+			if tenant == nil {
 				if env.IsSingleHostMode() {
 					return c.Redirect("/signup")
 				}
 				return c.NotFound()
 			}
+
 			return next(c)
 		}
 	}
@@ -98,7 +91,8 @@ func BlockPendingTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			if c.Tenant().Status == enum.TenantPending {
-				return c.Render(http.StatusOK, "pending-activation.html", web.Props{
+				return c.Page(http.StatusOK, web.Props{
+					Page:        "SignUp/PendingActivation.page",
 					Title:       "Pending Activation",
 					Description: "We sent you a confirmation email with a link to activate your site. Please check your inbox to activate it.",
 				})
@@ -120,19 +114,14 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 	}
 }
 
-// BlockLockedTenants blocks requests of non-administrator users on locked tenants
+// BlockLockedTenants blocks requests on locked tenants as they are in read-only mode
 func BlockLockedTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			if c.Tenant().Status == enum.TenantLocked {
-				if c.Request.IsAPI() {
-					return c.JSON(http.StatusLocked, web.Map{})
-				}
 
-				isAdmin := c.IsAuthenticated() && c.User().Role == enum.RoleAdministrator
-				if !isAdmin {
-					return c.Redirect("/signin")
-				}
+				// Only API operations are blocked, so it's ok to always return a JSON
+				return c.JSON(http.StatusPaymentRequired, web.Map{})
 			}
 			return next(c)
 		}

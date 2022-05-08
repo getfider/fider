@@ -9,12 +9,11 @@ import (
 
 	"github.com/getfider/fider/app"
 
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models/cmd"
-
-	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -218,33 +217,29 @@ func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-
 	key := "th3-s3cr3t"
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
-		if q.Key == key && q.Kind == enum.EmailVerificationKindChangeEmail {
-			q.Result = &models.EmailVerification{
-				UserID:    mock.JonSnow.ID,
-				Key:       q.Key,
-				Kind:      q.Kind,
-				ExpiresAt: time.Now().Add(10 * time.Minute),
-				Email:     "jon.stark@got.com",
-			}
-			return nil
-		}
-		return app.ErrNotFound
-	})
 
-	var changeEmailCmd *cmd.ChangeUserEmail
-	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserEmail) error {
-		changeEmailCmd = c
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		Expect(q.Key).Equals(key)
+		Expect(q.Kind).Equals(enum.EmailVerificationKindChangeEmail)
+		q.Result = &entity.EmailVerification{
+			UserID:    mock.JonSnow.ID,
+			Key:       q.Key,
+			Kind:      q.Kind,
+			ExpiresAt: time.Now().Add(10 * time.Minute),
+			Email:     "jon.stark@got.com",
+		}
 		return nil
 	})
 
-	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserEmail) error {
+		Expect(c.UserID).Equals(mock.JonSnow.ID)
+		Expect(c.Email).Equals("jon.stark@got.com")
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
-		if c.Key == key {
-			verified = true
-		}
+		Expect(c.Key).Equals(key)
 		return nil
 	})
 
@@ -255,9 +250,9 @@ func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 		Execute(handlers.VerifyChangeEmailKey())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(changeEmailCmd.UserID).Equals(mock.JonSnow.ID)
-	Expect(changeEmailCmd.Email).Equals("jon.stark@got.com")
-	Expect(verified).IsTrue()
+	ExpectHandler(&query.GetVerificationByKey{}).CalledOnce()
+	ExpectHandler(&cmd.ChangeUserEmail{}).CalledOnce()
+	ExpectHandler(&cmd.SetKeyAsVerified{}).CalledOnce()
 }
 
 func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
@@ -266,7 +261,7 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 	key := "th3-s3cr3t"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
 		if q.Key == key && q.Kind == enum.EmailVerificationKindChangeEmail {
-			q.Result = &models.EmailVerification{
+			q.Result = &entity.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,
 				ExpiresAt: time.Now().Add(10 * time.Minute),

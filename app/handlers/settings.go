@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app/models/enum"
@@ -18,21 +19,21 @@ import (
 // ChangeUserEmail register the intent of changing user email
 func ChangeUserEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.ChangeUserEmail)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewChangeUserEmail()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      input.Model.VerificationKey,
+			Key:      action.VerificationKey,
 			Duration: 24 * time.Hour,
-			Request:  input.Model,
+			Request:  action,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendChangeEmailConfirmation(input.Model))
+		c.Enqueue(tasks.SendChangeEmailConfirmation(action))
 
 		return c.Ok(web.Map{})
 	}
@@ -41,7 +42,8 @@ func ChangeUserEmail() web.HandlerFunc {
 // VerifyChangeEmailKey checks if key is correct and update user's email
 func VerifyChangeEmailKey() web.HandlerFunc {
 	return func(c *web.Context) error {
-		result, err := validateKey(enum.EmailVerificationKindChangeEmail, c)
+		key := c.QueryParam("k")
+		result, err := validateKey(enum.EmailVerificationKindChangeEmail, key, c)
 		if result == nil {
 			return err
 		}
@@ -58,10 +60,11 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
 		if err != nil {
 			return c.Failure(err)
 		}
+
 		return c.Redirect(c.BaseURL() + "/settings")
 	}
 }
@@ -74,9 +77,9 @@ func UserSettings() web.HandlerFunc {
 			return err
 		}
 
-		return c.Page(web.Props{
-			Title:     "Settings",
-			ChunkName: "MySettings.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "MySettings/MySettings.page",
+			Title: "Settings",
 			Data: web.Map{
 				"userSettings": settings.Result,
 			},
@@ -87,23 +90,23 @@ func UserSettings() web.HandlerFunc {
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.UpdateUserSettings)
-		if result := c.BindTo(input); !result.Ok {
+		action := actions.NewUpdateUserSettings()
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		if err := bus.Dispatch(c,
 			&cmd.UploadImage{
-				Image:  input.Model.Avatar,
+				Image:  action.Avatar,
 				Folder: "avatars",
 			},
 			&cmd.UpdateCurrentUser{
-				Name:       input.Model.Name,
-				Avatar:     input.Model.Avatar,
-				AvatarType: input.Model.AvatarType,
+				Name:       action.Name,
+				Avatar:     action.Avatar,
+				AvatarType: action.AvatarType,
 			},
 			&cmd.UpdateCurrentUserSettings{
-				Settings: input.Model.Settings,
+				Settings: action.Settings,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -116,14 +119,14 @@ func UpdateUserSettings() web.HandlerFunc {
 // ChangeUserRole changes given user role
 func ChangeUserRole() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.ChangeUserRole)
-		if result := c.BindTo(input); !result.Ok {
+		action := new(actions.ChangeUserRole)
+		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		changeRole := &cmd.ChangeUserRole{
-			UserID: input.Model.UserID,
-			Role:   input.Model.Role,
+			UserID: action.UserID,
+			Role:   action.Role,
 		}
 
 		if err := bus.Dispatch(c, changeRole); err != nil {

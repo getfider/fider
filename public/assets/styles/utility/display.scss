@@ -1,0 +1,194 @@
+.hidden {
+  display: none;
+}
+
+.block {
+  display: block;
+}
+
+.relative {
+  position: relative;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+@each $media in $medias {
+  @include media(#{$media}) {
+    .#{$media}\:hidden {
+      display: none;
+    }
+    .#{$media}\:block {
+      display: block;
+    }
+  }
+}
+
+.container {
+  position: relative;
+  display: block;
+  max-width: 100%;
+}
+
+@include media("sm") {
+  .container {
+    width: 100vw;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@include media("md") {
+  .container {
+    width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@include media("lg") {
+  .container {
+    width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@include media("xl") {
+  .container {
+    width: 1140px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-y {
+  flex-direction: column;
+}
+
+.flex-x {
+  flex-direction: row;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.align-self-start {
+  align-self: start;
+}
+
+.flex-items-center {
+  align-items: center;
+}
+
+.flex-items-baseline {
+  align-items: baseline;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-full > * {
+  flex: 1 1 0;
+}
+
+@each $i in 0, 1, 2, 4, 6, 8 {
+  .flex-x.flex--spacing-#{$i} > * + * {
+    margin-left: spacing($i);
+  }
+  .flex-y.flex--spacing-#{$i} > * + * {
+    margin-top: spacing($i);
+  }
+}
+
+@each $i in 2, 4, 6 {
+  .flex-x.flex--divide-#{$i} > *:first-child {
+    padding-right: spacing($i);
+  }
+  .flex-x.flex--divide-#{$i} > * + * {
+    padding-right: spacing($i);
+    padding-left: spacing($i);
+    border: 0 solid get("colors.gray.100");
+    border-left-width: 1px;
+  }
+  .flex-x.flex--divide-#{$i} > *:last-child {
+    padding-right: 0;
+  }
+  .flex-y.flex--divide-#{$i} > *:first-child {
+    padding-bottom: spacing($i);
+  }
+  .flex-y.flex--divide-#{$i} > * + * {
+    padding-top: spacing($i);
+    padding-bottom: spacing($i);
+    border: 0 solid get("colors.gray.100");
+    border-top-width: 1px;
+  }
+  .flex-y.flex--divide-#{$i} > *:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.shadow-sm {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+}
+.shadow {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+}
+.shadow-md {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+}
+.shadow-lg {
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+}
+
+.rounded {
+  border-radius: sizing(1);
+}
+
+.rounded-md {
+  border-radius: sizing(2);
+}
+
+.rounded-full {
+  border-radius: 999px;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+.overflow-scroll {
+  overflow: scroll;
+}
+
+.border {
+  border: 1px solid transparent;
+}
+
+.border-2 {
+  border: 2px solid transparent;
+}
+
+.clickable {
+  cursor: pointer;
+  pointer-events: inherit;
+}

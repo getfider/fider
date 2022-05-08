@@ -62,7 +62,7 @@ func Create(ctx context.Context) (*bytes.Buffer, error) {
 func addBlobToZipFile(ctx context.Context, zipWriter *zip.Writer, bkey string) error {
 	getBlob := &query.GetBlobByKey{Key: bkey}
 	if err := bus.Dispatch(ctx, getBlob); err != nil {
-		return err
+		return errors.Wrap(err, "failed to get blob with key %s", bkey)
 	}
 
 	fileName := fmt.Sprintf("blobs/%s", bkey)

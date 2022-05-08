@@ -5,8 +5,8 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -30,8 +30,8 @@ type dbOAuthConfig struct {
 	JSONUserEmailPath string `db:"json_user_email_path"`
 }
 
-func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
-	return &models.OAuthConfig{
+func (m *dbOAuthConfig) toModel() *entity.OAuthConfig {
+	return &entity.OAuthConfig{
 		ID:                m.ID,
 		Provider:          m.Provider,
 		DisplayName:       m.DisplayName,
@@ -51,7 +51,7 @@ func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
 }
 
 func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if tenant == nil {
 			return app.ErrNotFound
 		}
@@ -75,7 +75,11 @@ func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuth
 }
 
 func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		if trx == nil || tenant == nil {
+			return nil
+		}
+
 		configs := []*dbOAuthConfig{}
 		if tenant != nil {
 			err := trx.Select(&configs, `
@@ -91,7 +95,7 @@ func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) 
 			}
 		}
 
-		q.Result = make([]*models.OAuthConfig, len(configs))
+		q.Result = make([]*entity.OAuthConfig, len(configs))
 		for i, config := range configs {
 			q.Result[i] = config.toModel()
 		}
@@ -100,14 +104,14 @@ func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) 
 }
 
 func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var err error
 
-		if c.Config.Logo.Remove {
-			c.Config.Logo.BlobKey = ""
+		if c.Logo.Remove {
+			c.Logo.BlobKey = ""
 		}
 
-		if c.Config.ID == 0 {
+		if c.ID == 0 {
 			query := `INSERT INTO oauth_providers (
 				tenant_id, provider, display_name, status, is_trusted,
 				client_id, client_secret, authorize_url,
@@ -116,11 +120,11 @@ func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) er
 			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 			RETURNING id`
 
-			err = trx.Get(&c.Config.ID, query, tenant.ID, c.Config.Provider,
-				c.Config.DisplayName, c.Config.Status, c.Config.IsTrusted, c.Config.ClientID, c.Config.ClientSecret,
-				c.Config.AuthorizeURL, c.Config.ProfileURL, c.Config.TokenURL,
-				c.Config.Scope, c.Config.JSONUserIDPath, c.Config.JSONUserNamePath,
-				c.Config.JSONUserEmailPath, c.Config.Logo.BlobKey)
+			err = trx.Get(&c.ID, query, tenant.ID, c.Provider,
+				c.DisplayName, c.Status, c.IsTrusted, c.ClientID, c.ClientSecret,
+				c.AuthorizeURL, c.ProfileURL, c.TokenURL,
+				c.Scope, c.JSONUserIDPath, c.JSONUserNamePath,
+				c.JSONUserEmailPath, c.Logo.BlobKey)
 		} else {
 			query := `
 				UPDATE oauth_providers 
@@ -130,11 +134,11 @@ func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) er
 						logo_bkey = $14, is_trusted = $15
 			WHERE tenant_id = $1 AND id = $2`
 
-			_, err = trx.Execute(query, tenant.ID, c.Config.ID,
-				c.Config.DisplayName, c.Config.Status, c.Config.ClientID, c.Config.ClientSecret,
-				c.Config.AuthorizeURL, c.Config.ProfileURL, c.Config.TokenURL,
-				c.Config.Scope, c.Config.JSONUserIDPath, c.Config.JSONUserNamePath,
-				c.Config.JSONUserEmailPath, c.Config.Logo.BlobKey, c.Config.IsTrusted)
+			_, err = trx.Execute(query, tenant.ID, c.ID,
+				c.DisplayName, c.Status, c.ClientID, c.ClientSecret,
+				c.AuthorizeURL, c.ProfileURL, c.TokenURL,
+				c.Scope, c.JSONUserIDPath, c.JSONUserNamePath,
+				c.JSONUserEmailPath, c.Logo.BlobKey, c.IsTrusted)
 		}
 
 		if err != nil {

@@ -4,3 +4,6 @@ data
 output
 .git
 cover.out
+scripts
+.env
+dist

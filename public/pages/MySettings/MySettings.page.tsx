@@ -1,42 +1,40 @@
-import "./MySettings.page.scss";
+import React from "react"
 
-import React from "react";
+import { Modal, Form, Button, PageTitle, Input, Select, SelectOption, ImageUploader, Header } from "@fider/components"
 
-import { Modal, Form, Button, Heading, Input, Select, SelectOption, ImageUploader } from "@fider/components";
-
-import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models";
-import { Failure, actions, Fider } from "@fider/services";
-import { FaRegAddressCard } from "react-icons/fa";
-import { NotificationSettings } from "./components/NotificationSettings";
-import { APIKeyForm } from "./components/APIKeyForm";
-import { DangerZone } from "./components/DangerZone";
+import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models"
+import { Failure, actions, Fider } from "@fider/services"
+import { NotificationSettings } from "./components/NotificationSettings"
+import { APIKeyForm } from "./components/APIKeyForm"
+import { DangerZone } from "./components/DangerZone"
+import { t, Trans } from "@lingui/macro"
 
 interface MySettingsPageState {
-  showModal: boolean;
-  name: string;
-  newEmail: string;
-  avatar?: ImageUpload;
-  avatarType: UserAvatarType;
-  changingEmail: boolean;
-  error?: Failure;
-  userSettings: UserSettings;
+  showModal: boolean
+  name: string
+  newEmail: string
+  avatar?: ImageUpload
+  avatarType: UserAvatarType
+  changingEmail: boolean
+  error?: Failure
+  userSettings: UserSettings
 }
 
 interface MySettingsPageProps {
-  userSettings: UserSettings;
+  userSettings: UserSettings
 }
 
 export default class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
   constructor(props: MySettingsPageProps) {
-    super(props);
+    super(props)
     this.state = {
       showModal: false,
       changingEmail: false,
       avatarType: Fider.session.user.avatarType,
       newEmail: "",
       name: Fider.session.user.name,
-      userSettings: this.props.userSettings
-    };
+      userSettings: this.props.userSettings,
+    }
   }
 
   private confirm = async () => {
@@ -44,99 +42,106 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
       name: this.state.name,
       avatarType: this.state.avatarType,
       avatar: this.state.avatar,
-      settings: this.state.userSettings
-    });
+      settings: this.state.userSettings,
+    })
     if (result.ok) {
-      location.reload();
+      location.reload()
     } else if (result.error) {
-      this.setState({ error: result.error });
+      this.setState({ error: result.error })
     }
-  };
+  }
 
   private submitNewEmail = async () => {
-    const result = await actions.changeUserEmail(this.state.newEmail);
+    const result = await actions.changeUserEmail(this.state.newEmail)
     if (result.ok) {
       this.setState({
         error: undefined,
         changingEmail: false,
-        showModal: true
-      });
+        showModal: true,
+      })
     } else if (result.error) {
-      this.setState({ error: result.error });
+      this.setState({ error: result.error })
     }
-  };
+  }
 
   private startChangeEmail = () => {
-    this.setState({ changingEmail: true });
-  };
+    this.setState({ changingEmail: true })
+  }
 
   private cancelChangeEmail = async () => {
     this.setState({
       changingEmail: false,
       newEmail: "",
-      error: undefined
-    });
-  };
+      error: undefined,
+    })
+  }
 
   private avatarTypeChanged = (opt?: SelectOption) => {
     if (opt) {
-      this.setState({ avatarType: opt.value as UserAvatarType });
+      this.setState({ avatarType: opt.value as UserAvatarType })
     }
-  };
+  }
 
   private setName = (name: string) => {
-    this.setState({ name });
-  };
+    this.setState({ name })
+  }
 
   private setNotificationSettings = (userSettings: UserSettings) => {
-    this.setState({ userSettings });
-  };
+    this.setState({ userSettings })
+  }
 
   private closeModal = () => {
-    this.setState({ showModal: false });
-  };
+    this.setState({ showModal: false })
+  }
 
   private setNewEmail = (newEmail: string) => {
-    this.setState({ newEmail });
-  };
+    this.setState({ newEmail })
+  }
 
   private setAvatar = (avatar: ImageUpload): void => {
-    this.setState({ avatar });
-  };
+    this.setState({ avatar })
+  }
 
   public render() {
     const changeEmail = (
-      <span className="ui info clickable" onClick={this.startChangeEmail}>
-        change
-      </span>
-    );
+      <Button variant="tertiary" size="small" onClick={this.startChangeEmail}>
+        <Trans id="action.change">change</Trans>
+      </Button>
+    )
 
     return (
-      <div id="p-my-settings" className="page container">
-        <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal}>
-          <Modal.Header>Confirm your new email</Modal.Header>
-          <Modal.Content>
-            <div>
-              <p>
-                We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update
-                your email.
-              </p>
-              <p>
-                <a href="#" onClick={this.closeModal}>
-                  OK
-                </a>
-              </p>
-            </div>
-          </Modal.Content>
-        </Modal.Window>
+      <>
+        <Header />
+        <div id="p-my-settings" className="page container">
+          <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal}>
+            <Modal.Header>
+              <Trans id="modal.changeemail.header">Confirm your new email</Trans>
+            </Modal.Header>
+            <Modal.Content>
+              <div>
+                <p>
+                  <Trans id="modal.changeemail.text">
+                    We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update your email.
+                  </Trans>
+                </p>
+                <p>
+                  <a href="#" onClick={this.closeModal}>
+                    <Trans id="action.ok">OK</Trans>
+                  </a>
+                </p>
+              </div>
+            </Modal.Content>
+          </Modal.Window>
 
-        <Heading title="Settings" subtitle="Manage your profile settings" icon={FaRegAddressCard} />
+          <PageTitle
+            title={t({ id: "mysettings.page.title", message: "Settings" })}
+            subtitle={t({ id: "mysettings.page.subtitle", message: "Manage your profile settings" })}
+          />
 
-        <div className="row">
-          <div className="col-lg-7">
+          <div className="w-max-7xl">
             <Form error={this.state.error}>
               <Input
-                label="Email"
+                label={t({ id: "label.email", message: "Email" })}
                 field="email"
                 value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
                 maxLength={200}
@@ -144,90 +149,79 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 afterLabel={this.state.changingEmail ? undefined : changeEmail}
                 onChange={this.setNewEmail}
               >
-                <p className="info">
-                  {Fider.session.user.email || this.state.changingEmail
-                    ? "Your email is private and will never be publicly displayed."
-                    : "Your account doesn't have an email."}
+                <p className="text-muted">
+                  {Fider.session.user.email || this.state.changingEmail ? (
+                    <Trans id="mysettings.message.privateemail">Your email is private and will never be publicly displayed.</Trans>
+                  ) : (
+                    <Trans id="mysettings.message.noemail">Your account doesn&apos;t have an email.</Trans>
+                  )}
                 </p>
                 {this.state.changingEmail && (
                   <>
-                    <Button color="positive" size="mini" onClick={this.submitNewEmail}>
-                      Confirm
+                    <Button variant="primary" size="small" onClick={this.submitNewEmail}>
+                      <Trans id="action.confirm">Confirm</Trans>
                     </Button>
-                    <Button color="cancel" size="mini" onClick={this.cancelChangeEmail}>
-                      Cancel
+                    <Button variant="tertiary" size="small" onClick={this.cancelChangeEmail}>
+                      <Trans id="action.cancel">Cancel</Trans>
                     </Button>
                   </>
                 )}
               </Input>
 
-              <Input label="Name" field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
+              <Input label={t({ id: "label.name", message: "Name" })} field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
 
               <Select
-                label="Avatar"
+                label={t({ id: "label.avatar", message: "Avatar" })}
                 field="avatarType"
                 defaultValue={this.state.avatarType}
                 options={[
-                  { label: "Letter", value: UserAvatarType.Letter },
-                  { label: "Gravatar", value: UserAvatarType.Gravatar },
-                  { label: "Custom", value: UserAvatarType.Custom }
+                  { label: t({ id: "label.letter", message: "Letter" }), value: UserAvatarType.Letter },
+                  { label: t({ id: "label.gravatar", message: "Gravatar" }), value: UserAvatarType.Gravatar },
+                  { label: t({ id: "label.custom", message: "Custom" }), value: UserAvatarType.Custom },
                 ]}
                 onChange={this.avatarTypeChanged}
               >
                 {this.state.avatarType === UserAvatarType.Gravatar && (
-                  <p className="info">
-                    A{" "}
-                    <a href="https://en.gravatar.com" target="_blank">
-                      Gravatar
-                    </a>{" "}
-                    will be used based on your email. If you don't have a Gravatar, a letter avatar based on your
-                    initials is generated for you.
+                  <p className="text-muted mt-1">
+                    <Trans id="mysettings.message.avatar.gravatar">
+                      A{" "}
+                      <a className="text-link" rel="noopener" href="https://en.gravatar.com" target="_blank">
+                        Gravatar
+                      </a>{" "}
+                      will be used based on your email. If you don&apos;t have a Gravatar, a letter avatar based on your initials is generated for you.
+                    </Trans>
                   </p>
                 )}
                 {this.state.avatarType === UserAvatarType.Letter && (
-                  <p className="info">A letter avatar based on your initials is generated for you.</p>
+                  <p className="text-muted">
+                    <Trans id="mysettings.message.avatar.letter">A letter avatar based on your initials is generated for you.</Trans>
+                  </p>
                 )}
                 {this.state.avatarType === UserAvatarType.Custom && (
-                  <ImageUploader
-                    field="avatar"
-                    previewMaxWidth={80}
-                    onChange={this.setAvatar}
-                    bkey={Fider.session.user.avatarBlobKey}
-                  >
-                    <p className="info">
-                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
-                      dimensions of 50x50 pixels.
+                  <ImageUploader field="avatar" onChange={this.setAvatar} bkey={Fider.session.user.avatarBlobKey}>
+                    <p className="text-muted">
+                      <Trans id="mysettings.message.avatar.custom">
+                        We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.
+                      </Trans>
                     </p>
                   </ImageUploader>
                 )}
               </Select>
 
-              <NotificationSettings
-                userSettings={this.props.userSettings}
-                settingsChanged={this.setNotificationSettings}
-              />
+              <NotificationSettings userSettings={this.props.userSettings} settingsChanged={this.setNotificationSettings} />
 
-              <Button color="positive" onClick={this.confirm}>
-                Save
+              <Button variant="primary" onClick={this.confirm}>
+                <Trans id="action.save">Save</Trans>
               </Button>
             </Form>
-          </div>
-        </div>
 
-        {Fider.session.user.isCollaborator && (
-          <div className="row">
-            <div className="col-lg-7">
-              <APIKeyForm />
+            <div className="mt-8">{Fider.session.user.isCollaborator && <APIKeyForm />}</div>
+            <div className="mt-8">
+              <DangerZone />
             </div>
           </div>
-        )}
-
-        <div className="row">
-          <div className="col-lg-7">
-            <DangerZone />
-          </div>
         </div>
-      </div>
-    );
+      </>
+    )
   }
 }

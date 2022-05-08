@@ -11,15 +11,30 @@ import (
 //RunPing checks if Fider Server is running and is healthy
 //Returns an exitcode, 0 for OK and 1 for ERROR
 func RunPing() int {
+
+	client := &http.Client{}
+
+	host := "localhost:" + env.Config.Port
 	protocol := "http://"
-	if env.Config.SSLCert != "" || env.Config.AutoSSL {
+	if env.Config.TLS.Certificate != "" || env.Config.TLS.Automatic {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
 			InsecureSkipVerify: true,
 		}
 		protocol = "https://"
 	}
 
-	resp, err := http.Get(protocol + "localhost:3000/-/health")
+	req, err := http.NewRequest("GET", protocol+host+"/_health", nil)
+	if err != nil {
+		fmt.Printf("Setting up request failed with: %s", err)
+		return 1
+	}
+
+	// Set Host if HostDomain is set
+	if env.IsSingleHostMode() && len(env.Config.HostDomain) > 0 {
+		req.Host = env.Config.HostDomain
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("Request failed with: %s\n", err)
 		return 1

@@ -1,43 +1,58 @@
-import marked from "marked";
-import DOMPurify from "dompurify";
+import { marked } from "marked"
+import DOMPurify from "dompurify"
 
 marked.setOptions({
   headerIds: false,
   xhtml: true,
   smartLists: true,
   gfm: true,
-  breaks: true
-});
+  breaks: true,
+})
 
-DOMPurify.setConfig({
-  ADD_ATTR: ["target"]
-});
+if (DOMPurify.isSupported) {
+  DOMPurify.setConfig({
+    USE_PROFILES: {
+      html: true,
+    },
+    ADD_ATTR: ["target"],
+  })
+}
 
 const link = (href: string, title: string, text: string) => {
-  const titleAttr = title ? ` title=${title}` : "";
-  return `<a href="${href}"${titleAttr} rel="noopener" target="_blank">${text}</a>`;
-};
+  const titleAttr = title ? ` title=${title}` : ""
+  return `<a class="text-link" href="${href}"${titleAttr} rel="noopener" target="_blank">${text}</a>`
+}
 
-const simpleRenderer = new marked.Renderer();
-simpleRenderer.heading = (text, level, raw) => `<p>${raw}</p>`;
-simpleRenderer.image = (href, title, text) => "";
-simpleRenderer.link = link;
+const fullRenderer = new marked.Renderer()
+fullRenderer.image = () => ""
+fullRenderer.link = link
 
-const fullRenderer = new marked.Renderer();
-fullRenderer.link = link;
+const plainTextRenderer = new marked.Renderer()
+plainTextRenderer.link = (_href, _title, text) => text
+plainTextRenderer.image = () => ""
+plainTextRenderer.br = () => " "
+plainTextRenderer.strong = (text) => text
+plainTextRenderer.list = (body) => body
+plainTextRenderer.listitem = (text) => `${text} `
+plainTextRenderer.heading = (text) => text
+plainTextRenderer.paragraph = (text) => ` ${text} `
+plainTextRenderer.code = (code) => code
+plainTextRenderer.codespan = (code) => code
+plainTextRenderer.html = (html) => html
+plainTextRenderer.del = (text) => text
 
 const entities: { [key: string]: string } = {
   "<": "&lt;",
-  ">": "&gt;"
-};
+  ">": "&gt;",
+}
 
-const encodeHTML = (s: string) => s.replace(/[<>]/g, tag => entities[tag] || tag);
-const sanitize = (input: string) => DOMPurify.sanitize(input);
+const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag)
+const sanitize = (input: string) => (DOMPurify.isSupported ? DOMPurify.sanitize(input) : input)
 
 export const full = (input: string): string => {
-  return sanitize(marked(encodeHTML(input), { renderer: fullRenderer }).trim());
-};
+  return sanitize(marked(encodeHTML(input), { renderer: fullRenderer }).trim())
+}
 
-export const simple = (input: string): string => {
-  return sanitize(marked(encodeHTML(input), { renderer: simpleRenderer }).trim());
-};
+export const plainText = (input: string): string => {
+  return sanitize(marked(encodeHTML(input), { renderer: plainTextRenderer }).trim())
+}

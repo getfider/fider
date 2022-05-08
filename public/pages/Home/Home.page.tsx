@@ -1,80 +1,89 @@
-import "./Home.page.scss";
+import "./Home.page.scss"
+import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
-import React, { useState } from "react";
-import { Post, Tag, PostStatus } from "@fider/models";
-import { MultiLineText, Hint } from "@fider/components";
-import { SimilarPosts } from "./components/SimilarPosts";
-import { FaRegLightbulb } from "react-icons/fa";
-import { PostInput } from "./components/PostInput";
-import { PostsContainer } from "./components/PostsContainer";
-import { useFider } from "@fider/hooks";
+import React, { useState } from "react"
+import { Post, Tag, PostStatus } from "@fider/models"
+import { Markdown, Hint, PoweredByFider, Icon, Header } from "@fider/components"
+import { SimilarPosts } from "./components/SimilarPosts"
+import { PostInput } from "./components/PostInput"
+import { PostsContainer } from "./components/PostsContainer"
+import { useFider } from "@fider/hooks"
+import { VStack } from "@fider/components/layout"
+
+import { t, Trans } from "@lingui/macro"
 
 export interface HomePageProps {
-  posts: Post[];
-  tags: Tag[];
-  countPerStatus: { [key: string]: number };
+  posts: Post[]
+  tags: Tag[]
+  countPerStatus: { [key: string]: number }
 }
 
 export interface HomePageState {
-  title: string;
+  title: string
 }
 
 const Lonely = () => {
-  const fider = useFider();
+  const fider = useFider()
 
   return (
-    <div className="l-lonely center">
-      <Hint
-        permanentCloseKey="at-least-3-posts"
-        condition={fider.session.isAuthenticated && fider.session.user.isAdministrator}
-      >
-        It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The
-        initial content is key to start the interactions with your audience.
+    <div className="text-center">
+      <Hint permanentCloseKey="at-least-3-posts" condition={fider.session.isAuthenticated && fider.session.user.isAdministrator}>
+        <p>
+          <Trans id="home.lonely.suggestion">
+            It&apos;s recommended that you create <strong>at least 3</strong> suggestions here before sharing this site. The initial content is important to
+            start engaging your audience.
+          </Trans>
+        </p>
       </Hint>
-      <p>
-        <FaRegLightbulb />
+      <Icon sprite={NoDataIllustration} height="120" className="mt-6 mb-2" />
+      <p className="text-muted">
+        <Trans id="home.lonely.text">No posts have been created yet.</Trans>
       </p>
-      <p>It's lonely out here. Start by sharing a suggestion!</p>
     </div>
-  );
-};
-
-const defaultWelcomeMessage = `We'd love to hear what you're thinking about. 
-
-What can we do better? This is the place for you to vote, discuss and share ideas.`;
+  )
+}
 
 const HomePage = (props: HomePageProps) => {
-  const fider = useFider();
-  const [title, setTitle] = useState("");
+  const fider = useFider()
+  const [title, setTitle] = useState("")
+
+  const defaultWelcomeMessage = t({
+    id: "home.form.defaultwelcomemessage",
+    message: `We'd love to hear what you're thinking about.
+
+What can we do better? This is the place for you to vote, discuss and share ideas.`,
+  })
+
+  const defaultInvitation = t({
+    id: "home.form.defaultinvitation",
+    message: "Enter your suggestion here...",
+  })
 
   const isLonely = () => {
-    const len = Object.keys(props.countPerStatus).length;
+    const len = Object.keys(props.countPerStatus).length
     if (len === 0) {
-      return true;
+      return true
     }
 
     if (len === 1 && PostStatus.Deleted.value in props.countPerStatus) {
-      return true;
+      return true
     }
 
-    return false;
-  };
+    return false
+  }
 
   return (
-    <div id="p-home" className="page container">
-      <div className="row">
-        <div className="l-welcome-col col-md-4">
-          <MultiLineText
-            className="welcome-message"
-            text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage}
-            style="full"
-          />
-          <PostInput
-            placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."}
-            onTitleChanged={setTitle}
-          />
+    <>
+      <Header />
+      <div id="p-home" className="page container">
+        <div className="p-home__welcome-col">
+          <VStack spacing={2}>
+            <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
+            <PostInput placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} />
+            <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block" />
+          </VStack>
         </div>
-        <div className="l-posts-col col-md-8">
+        <div className="p-home__posts-col">
           {isLonely() ? (
             <Lonely />
           ) : title ? (
@@ -82,10 +91,11 @@ const HomePage = (props: HomePageProps) => {
           ) : (
             <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
           )}
+          <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
         </div>
       </div>
-    </div>
-  );
-};
+    </>
+  )
+}
 
-export default HomePage;
+export default HomePage

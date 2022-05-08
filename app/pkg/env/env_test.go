@@ -21,11 +21,6 @@ var envs = []struct {
 func TestIsEnvironment(t *testing.T) {
 	RegisterT(t)
 
-	current := env.Config.Environment
-	defer func() {
-		env.Config.Environment = current
-	}()
-
 	for _, testCase := range envs {
 		env.Config.Environment = testCase.go_env
 		actual := testCase.isEnv()
@@ -50,34 +45,24 @@ func TestMultiTenantDomain(t *testing.T) {
 	Expect(env.MultiTenantDomain()).Equals(".fider.io")
 }
 
-func TestIsBillingEnbled(t *testing.T) {
-	RegisterT(t)
-
-	env.Config.Stripe.SecretKey = ""
-	env.Config.Stripe.PublicKey = "pk_111"
-	Expect(env.IsBillingEnabled()).IsFalse()
-	env.Config.Stripe.SecretKey = "sk_1234"
-	Expect(env.IsBillingEnabled()).IsTrue()
-}
-
 func TestSubdomain(t *testing.T) {
 	RegisterT(t)
 
-	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("")
+	Expect(env.Subdomain("demo.test.fidercdn.com")).Equals("")
 
-	env.Config.CDN.Host = "test.assets-fider.io:3000"
+	env.Config.CDN.Host = "test.fidercdn.com:3000"
 
 	Expect(env.Subdomain("demo.test.fider.io")).Equals("demo")
-	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("demo")
+	Expect(env.Subdomain("demo.test.fidercdn.com")).Equals("demo")
 	Expect(env.Subdomain("test.fider.io")).Equals("")
-	Expect(env.Subdomain("test.assets-fider.io")).Equals("")
+	Expect(env.Subdomain("test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
 
 	env.Config.HostMode = "single"
 
 	Expect(env.Subdomain("demo.test.fider.io")).Equals("")
-	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("")
+	Expect(env.Subdomain("demo.test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("test.fider.io")).Equals("")
-	Expect(env.Subdomain("test.assets-fider.io")).Equals("")
+	Expect(env.Subdomain("test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
 }

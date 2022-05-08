@@ -2,17 +2,21 @@ package mock
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/julienschmidt/httprouter"
 )
 
 // Server is a HTTP server wrapper for testing purpose
@@ -28,12 +32,17 @@ func createServer() *Server {
 		return nil
 	})
 
-	settings := &models.SystemSettings{}
-	engine := web.New(settings)
+	engine := web.New()
 
+	// Create a new request and set matched routed into context
 	request, _ := http.NewRequest("GET", "/", nil)
+	request = request.WithContext(context.WithValue(request.Context(), httprouter.ParamsKey, httprouter.Params{
+		httprouter.Param{Key: httprouter.MatchedRoutePathParam, Value: "/"},
+	}))
+
 	recorder := httptest.NewRecorder()
-	context := web.NewContext(engine, request, recorder, make(web.StringMap))
+	params := make(web.StringMap)
+	context := web.NewContext(engine, request, recorder, params)
 
 	return &Server{
 		engine:     engine,
@@ -50,18 +59,20 @@ func (s *Server) Engine() *web.Engine {
 
 // Use adds a new middleware to pipeline
 func (s *Server) Use(middleware web.MiddlewareFunc) *Server {
-	s.middleware = append(s.middleware, middleware)
+	if middleware != nil {
+		s.middleware = append(s.middleware, middleware)
+	}
 	return s
 }
 
 // OnTenant set current context tenant
-func (s *Server) OnTenant(tenant *models.Tenant) *Server {
+func (s *Server) OnTenant(tenant *entity.Tenant) *Server {
 	s.context.SetTenant(tenant)
 	return s
 }
 
 // AsUser set current context user
-func (s *Server) AsUser(user *models.User) *Server {
+func (s *Server) AsUser(user *entity.User) *Server {
 	s.context.SetUser(user)
 	return s
 }
@@ -81,12 +92,6 @@ func (s *Server) AddHeader(name string, value string) *Server {
 // AddCookie add key-value to current context cookies
 func (s *Server) AddCookie(name string, value string) *Server {
 	s.context.Request.AddCookie(&http.Cookie{Name: name, Value: value})
-	return s
-}
-
-// WithClientIP set current ClientIP address
-func (s *Server) WithClientIP(clientIP string) *Server {
-	s.context.Request.ClientIP = clientIP
 	return s
 }
 
@@ -131,6 +136,38 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 func (s *Server) ExecutePostAsJSON(handler web.HandlerFunc, body string) (int, *jsonq.Query) {
 	code, response := s.ExecutePost(handler, body)
 	return code, toJSONQuery(response)
+}
+
+// ExecuteAsPage given handler and return page props
+func (s *Server) ExecuteAsPage(handler web.HandlerFunc) (int, *web.Props) {
+	code, response := s.Execute(handler)
+	bodyString := response.Body.String()
+
+	startTag := "<script id=\"server-data\" type=\"application/json\">"
+	endTag := "</script>"
+
+	startIndex := strings.Index(bodyString, startTag) + len(startTag)
+	endIndex := strings.Index(bodyString[startIndex:], endTag)
+
+	serverData := strings.TrimSpace(bodyString[startIndex : startIndex+endIndex])
+	serverDataJSON := map[string]interface{}{}
+
+	err := json.Unmarshal([]byte(serverData), &serverDataJSON)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to parse server data"))
+	}
+
+	title, _ := serverDataJSON["title"].(string)
+	description, _ := serverDataJSON["description"].(string)
+	page, _ := serverDataJSON["page"].(string)
+	props, _ := serverDataJSON["props"].(map[string]interface{})
+
+	return code, &web.Props{
+		Title:       title,
+		Description: description,
+		Page:        page,
+		Data:        props,
+	}
 }
 
 func toJSONQuery(response *httptest.ResponseRecorder) *jsonq.Query {

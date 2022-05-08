@@ -2,22 +2,26 @@ package mock
 
 import (
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
 )
 
 // DemoTenant is a mocked tenant
-var DemoTenant *models.Tenant
+var DemoTenant *entity.Tenant
 
 // AvengersTenant is a mocked tenant
-var AvengersTenant *models.Tenant
+var AvengersTenant *entity.Tenant
 
-// JonSnow is a mocked user
-var JonSnow *models.User
+// JonSnow is a mocked user (administrator)
+var JonSnow *entity.User
 
-// AryaStark is a mocked user
-var AryaStark *models.User
+// AryaStark is a mocked user (visitor)
+var AryaStark *entity.User
+
+func init() {
+	seed()
+}
 
 // NewSingleTenantServer creates a new multitenant test server
 func NewSingleTenantServer() *Server {
@@ -42,13 +46,14 @@ func NewWorker() *Worker {
 }
 
 func seed() {
-	DemoTenant = &models.Tenant{
-		ID:        1,
-		Name:      "Demonstration",
-		Subdomain: "demo",
-		Status:    enum.TenantActive,
+	DemoTenant = &entity.Tenant{
+		ID:                 1,
+		Name:               "Demonstration",
+		Subdomain:          "demo",
+		Status:             enum.TenantActive,
+		IsEmailAuthAllowed: true,
 	}
-	AvengersTenant = &models.Tenant{
+	AvengersTenant = &entity.Tenant{
 		ID:        2,
 		Name:      "Avengers",
 		Subdomain: "avengers",
@@ -56,19 +61,19 @@ func seed() {
 		CNAME:     "feedback.theavengers.com",
 	}
 
-	JonSnow = &models.User{
+	JonSnow = &entity.User{
 		ID:     1,
 		Name:   "Jon Snow",
 		Email:  "jon.snow@got.com",
 		Tenant: DemoTenant,
 		Status: enum.UserActive,
 		Role:   enum.RoleAdministrator,
-		Providers: []*models.UserProvider{
+		Providers: []*entity.UserProvider{
 			{UID: "FB1234", Name: app.FacebookProvider},
 		},
 	}
 
-	AryaStark = &models.User{
+	AryaStark = &entity.User{
 		ID:     2,
 		Name:   "Arya Stark",
 		Email:  "arya.stark@got.com",

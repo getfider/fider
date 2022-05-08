@@ -13,59 +13,58 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/i18n"
+	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/tpl"
 
 	"io/ioutil"
 
-	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/markdown"
 )
-
-var templateFunctions = template.FuncMap{
-	"md5": func(input string) string {
-		return crypto.MD5(input)
-	},
-	"markdown": func(input string) template.HTML {
-		return markdown.Full(input)
-	},
-}
 
 type clientAssets struct {
 	CSS []string
 	JS  []string
 }
 
+type distAsset struct {
+	Name string `json:"name"`
+	Size int64  `json:"size"`
+}
+
+type assetsFile struct {
+	Entrypoints struct {
+		Main struct {
+			Assets []distAsset `json:"assets"`
+		} `json:"main"`
+	} `json:"entrypoints"`
+	ChunkGroups map[string]struct {
+		Assets []distAsset `json:"assets"`
+	} `json:"namedChunkGroups"`
+}
+
 //Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
-	settings      *models.SystemSettings
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
 	mutex         sync.RWMutex
+	reactRenderer *ReactRenderer
 }
 
 // NewRenderer creates a new Renderer
-func NewRenderer(settings *models.SystemSettings) *Renderer {
-	return &Renderer{
-		templates: make(map[string]*template.Template),
-		settings:  settings,
-		mutex:     sync.RWMutex{},
-	}
-}
-
-//Render a template based on parameters
-func (r *Renderer) add(name string) *template.Template {
-	base := env.Path("/views/base.html")
-	file := env.Path("/views", name)
-	tpl, err := template.New("base.html").Funcs(templateFunctions).ParseFiles(base, file)
+func NewRenderer() *Renderer {
+	reactRenderer, err := NewReactRenderer("ssr.js")
 	if err != nil {
-		panic(errors.Wrap(err, "failed to parse template %s", file))
+		panic(errors.Wrap(err, "failed to initialize SSR renderer"))
 	}
 
-	r.templates[name] = tpl
-	return tpl
+	return &Renderer{
+		templates:     make(map[string]*template.Template),
+		mutex:         sync.RWMutex{},
+		reactRenderer: reactRenderer,
+	}
 }
 
 func (r *Renderer) loadAssets() error {
@@ -74,17 +73,6 @@ func (r *Renderer) loadAssets() error {
 
 	if r.assets != nil && env.IsProduction() {
 		return nil
-	}
-
-	type assetsFile struct {
-		Entrypoints struct {
-			Main struct {
-				Assets []string `json:"assets"`
-			} `json:"main"`
-		} `json:"entrypoints"`
-		ChunkGroups map[string]struct {
-			Assets []string `json:"assets"`
-		} `json:"namedChunkGroups"`
 	}
 
 	assetsFilePath := "/dist/assets.json"
@@ -121,21 +109,21 @@ func (r *Renderer) loadAssets() error {
 	return nil
 }
 
-func getClientAssets(assets []string) *clientAssets {
+func getClientAssets(assets []distAsset) *clientAssets {
 	clientAssets := &clientAssets{
 		CSS: make([]string, 0),
 		JS:  make([]string, 0),
 	}
 
 	for _, asset := range assets {
-		if strings.HasSuffix(asset, ".map") {
+		if strings.HasSuffix(asset.Name, ".map") {
 			continue
 		}
 
-		assetURL := "/assets/" + asset
-		if strings.HasSuffix(asset, ".css") {
+		assetURL := "/assets/" + asset.Name
+		if strings.HasSuffix(asset.Name, ".css") {
 			clientAssets.CSS = append(clientAssets.CSS, assetURL)
-		} else if strings.HasSuffix(asset, ".js") {
+		} else if strings.HasSuffix(asset.Name, ".js") {
 			clientAssets.JS = append(clientAssets.JS, assetURL)
 		}
 	}
@@ -144,23 +132,20 @@ func getClientAssets(assets []string) *clientAssets {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props, ctx *Context) {
+func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
-		err := r.loadAssets()
-		if err != nil && !env.IsTest() {
+		if err := r.loadAssets(); err != nil {
 			panic(err)
 		}
 	}
 
-	tmpl, ok := r.templates[name]
-	if !ok || env.IsDevelopment() {
-		tmpl = r.add(name)
-	}
-
 	public := make(Map)
 	private := make(Map)
+	if props.Data == nil {
+		props.Data = make(Map)
+	}
 
 	tenant := ctx.Tenant()
 	tenantName := "Fider"
@@ -180,17 +165,23 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		public["description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	if props.ChunkName != "" {
-		private["chunkAssets"] = r.chunkedAssets[props.ChunkName]
-	}
-
 	private["assets"] = r.assets
 	private["logo"] = LogoURL(ctx)
 
+	locale := i18n.GetLocale(ctx)
+	localeChunkName := fmt.Sprintf("locale-%s-client-json", locale)
+
+	// webpack replaces "/" and "." with "-", so we do the same here
+	pageChunkName := strings.ReplaceAll(strings.ReplaceAll(props.Page, ".", "-"), "/", "-")
+	private["preloadAssets"] = []*clientAssets{
+		r.chunkedAssets[localeChunkName],
+		r.chunkedAssets[pageChunkName],
+	}
+
 	if tenant == nil || tenant.LogoBlobKey == "" {
-		private["favicon"] = GlobalAssetsURL(ctx, "/favicon")
+		private["favicon"] = AssetsURL(ctx, "/static/favicon")
 	} else {
-		private["favicon"] = TenantAssetsURL(ctx, "/favicon/%s", tenant.LogoBlobKey)
+		private["favicon"] = AssetsURL(ctx, "/static/favicon/%s", tenant.LogoBlobKey)
 	}
 
 	private["currentURL"] = ctx.Request.URL.String()
@@ -201,30 +192,29 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 	oauthProviders := &query.ListActiveOAuthProviders{
 		Result: make([]*dto.OAuthProviderOption, 0),
 	}
-	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 300 {
+	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 500 {
 		err = bus.Dispatch(ctx, oauthProviders)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to get list of providers"))
 		}
 	}
 
+	public["page"] = props.Page
 	public["contextID"] = ctx.ContextID()
+	public["sessionID"] = ctx.SessionID()
 	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
-		"mode":            r.settings.Mode,
-		"buildTime":       r.settings.BuildTime,
-		"version":         r.settings.Version,
-		"environment":     r.settings.Environment,
-		"compiler":        r.settings.Compiler,
-		"googleAnalytics": r.settings.GoogleAnalytics,
-		"stripePublicKey": env.Config.Stripe.PublicKey,
-		"domain":          r.settings.Domain,
-		"hasLegal":        r.settings.HasLegal,
-		"baseURL":         ctx.BaseURL(),
-		"tenantAssetsURL": TenantAssetsURL(ctx, ""),
-		"globalAssetsURL": GlobalAssetsURL(ctx, ""),
-		"oauth":           oauthProviders.Result,
+		"mode":             env.Config.HostMode,
+		"locale":           locale,
+		"environment":      env.Config.Environment,
+		"googleAnalytics":  env.Config.GoogleAnalytics,
+		"domain":           env.MultiTenantDomain(),
+		"hasLegal":         env.HasLegal(),
+		"isBillingEnabled": env.IsBillingEnabled(),
+		"baseURL":          ctx.BaseURL(),
+		"assetsURL":        AssetsURL(ctx, ""),
+		"oauth":            oauthProviders.Result,
 	}
 
 	if ctx.IsAuthenticated() {
@@ -243,11 +233,27 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		}
 	}
 
-	err = tmpl.Execute(w, Map{
+	templateName := "index.html"
+
+	if ctx.Request.IsCrawler() {
+		html, err := r.reactRenderer.Render(ctx.Request.URL, public)
+		if err != nil {
+			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{
+				"Error": err.Error(),
+			})
+		}
+		if html != "" {
+			templateName = "ssr.html"
+			props.Data["html"] = template.HTML(html)
+		}
+	}
+
+	tmpl := tpl.GetTemplate("/views/base.html", "/views/"+templateName)
+	err = tpl.Render(ctx, tmpl, w, Map{
 		"public":  public,
 		"private": private,
 	})
 	if err != nil {
-		panic(errors.Wrap(err, "failed to execute template %s", name))
+		panic(errors.Wrap(err, "failed to execute template %s", templateName))
 	}
 }

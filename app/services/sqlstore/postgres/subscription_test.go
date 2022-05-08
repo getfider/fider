@@ -315,3 +315,40 @@ func TestSubscription_SubscribedToDifferentPost(t *testing.T) {
 	Expect(q.Result).HasLen(1)
 	Expect(q.Result[0].ID).Equals(jonSnow.ID)
 }
+
+func TestSubscription_EmailSupressed(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	// Enable email notifications for new comments
+	err := bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{
+		Settings: map[string]string{
+			enum.NotificationEventNewComment.UserSettingsKeyName: strconv.Itoa(int(enum.NotificationChannelEmail)),
+		},
+	})
+	Expect(err).IsNil()
+
+	newPost1 := &cmd.AddNewPost{Title: "Post #1", Description: "Description #1"}
+	err = bus.Dispatch(aryaStarkCtx, newPost1)
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(aryaStarkCtx, &cmd.AddSubscriber{Post: newPost1.Result, User: aryaStark})
+	Expect(err).IsNil()
+
+	q := &query.GetActiveSubscribers{Number: newPost1.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventNewComment}
+	err = bus.Dispatch(aryaStarkCtx, q)
+	Expect(err).IsNil()
+	Expect(q.Result).HasLen(2)
+	Expect(q.Result[0].ID).Equals(jonSnow.ID)
+	Expect(q.Result[1].ID).Equals(aryaStark.ID)
+
+	//Supress the email and verify that AryaStark is not an active subscriber anymore
+	err = bus.Dispatch(aryaStarkCtx, &cmd.SupressEmail{EmailAddresses: []string{aryaStark.Email}})
+	Expect(err).IsNil()
+
+	q = &query.GetActiveSubscribers{Number: newPost1.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventNewComment}
+	err = bus.Dispatch(aryaStarkCtx, q)
+	Expect(err).IsNil()
+	Expect(q.Result).HasLen(1)
+	Expect(q.Result[0].ID).Equals(jonSnow.ID)
+}

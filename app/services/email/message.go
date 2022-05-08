@@ -2,14 +2,12 @@ package email
 
 import (
 	"bytes"
-	"html/template"
+	"context"
 	"strings"
 
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/tpl"
 )
-
-var cache = make(map[string]*template.Template)
 
 // Message represents what is sent by email
 type Message struct {
@@ -17,39 +15,27 @@ type Message struct {
 	Body    string
 }
 
-var baseTpl, _ = template.ParseFiles(env.Path("/views/templates/base_email.tpl"))
-
 // RenderMessage returns the HTML of an email based on template and params
-func RenderMessage(templateName string, params dto.Props) *Message {
-	tpl, ok := cache[templateName]
-	if !ok || env.IsDevelopment() {
-		var err error
-		file := env.Path("/views/templates", templateName+".tpl")
-		tpl, err = template.ParseFiles(file)
-		if err != nil {
-			panic(err)
-		}
-		cache[templateName] = tpl
+func RenderMessage(ctx context.Context, templateName string, fromAddress string, params dto.Props) *Message {
+	noreply := false
+	if fromAddress == NoReply {
+		noreply = true
 	}
 
+	tmpl := tpl.GetTemplate("/views/email/base_email.html", "/views/email/"+templateName+".html")
 	var bf bytes.Buffer
-	if err := tpl.Execute(&bf, params); err != nil {
+	if err := tpl.Render(ctx, tmpl, &bf, params.Merge(dto.Props{
+		"logo":    params["logo"],
+		"noreply": noreply,
+	})); err != nil {
 		panic(err)
 	}
 
 	lines := strings.Split(bf.String(), "\n")
 	body := strings.TrimLeft(strings.Join(lines[2:], "\n"), " ")
 
-	bf.Reset()
-	if err := baseTpl.Execute(&bf, dto.Props{
-		"logo": params["logo"],
-		"body": template.HTML(body),
-	}); err != nil {
-		panic(err)
-	}
-
 	return &Message{
 		Subject: strings.TrimLeft(lines[0], "subject: "),
-		Body:    bf.String(),
+		Body:    body,
 	}
 }

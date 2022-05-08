@@ -1,0 +1,6 @@
+*:focus {
+  outline: 0;
+  box-shadow: rgb(255, 255, 255) 0px 0px 0px 0px, get("colors.primary.light") 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px !important;
+  border-color: get("colors.primary.light") !important;
+  transition: all 0.3s ease;
+}

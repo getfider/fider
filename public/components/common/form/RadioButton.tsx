@@ -1,59 +1,40 @@
-import React from "react";
+import { HStack, VStack } from "@fider/components/layout"
+import React, { useState } from "react"
+
+import "./RadioButton.scss"
 
 interface RadioButtonOption {
-  value: string;
-  label: string;
+  value: string
+  label: string
 }
 
 interface RadioButtonProps {
-  label: string;
-  field: string;
-  defaultOption: RadioButtonOption;
-  options: RadioButtonOption[];
-  onSelect?: (value: RadioButtonOption) => void;
+  label: string
+  field: string
+  defaultOption: RadioButtonOption
+  options: RadioButtonOption[]
+  onSelect?: (value: RadioButtonOption) => void
 }
 
-interface RadioButtonState {
-  selected: RadioButtonOption;
-}
+export const RadioButton = (props: RadioButtonProps) => {
+  const [selected, setSelected] = useState(props.defaultOption)
 
-export class RadioButton extends React.Component<RadioButtonProps, RadioButtonState> {
-  constructor(props: RadioButtonProps) {
-    super(props);
-    this.state = {
-      selected: props.defaultOption || props.options[0]
-    };
+  const onChange = (option: RadioButtonOption) => () => {
+    setSelected(option)
+    props.onSelect?.(option)
   }
 
-  private onChange = (selected: RadioButtonOption) => {
-    this.setState({ selected }, () => {
-      if (this.props.onSelect) {
-        this.props.onSelect(this.state.selected);
-      }
-    });
-  };
+  const inputs = props.options.map((option) => (
+    <HStack key={option.value} className="text-sm">
+      <input id={`visibility-${option.value}`} type="radio" name={`input-${props.field}`} checked={selected === option} onChange={onChange(option)} />
+      <label htmlFor={`visibility-${option.value}`}>{option.label}</label>
+    </HStack>
+  ))
 
-  public render() {
-    const inputs = this.props.options.map(option => {
-      return (
-        <div key={option.value} className="c-form-radio-option">
-          <input
-            id={`visibility-${option.value}`}
-            type="radio"
-            name={`input-${this.props.field}`}
-            checked={this.state.selected === option}
-            onChange={this.onChange.bind(this, option)}
-          />
-          <label htmlFor={`visibility-${option.value}`}>{option.label}</label>
-        </div>
-      );
-    });
-
-    return (
-      <div className="c-form-field">
-        <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>
-        {inputs}
-      </div>
-    );
-  }
+  return (
+    <div className="c-form-field">
+      <label htmlFor={`input-${props.field}`}>{props.label}</label>
+      <VStack className="c-radiobutton">{inputs}</VStack>
+    </div>
+  )
 }

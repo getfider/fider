@@ -10,7 +10,7 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -94,25 +94,23 @@ func TestUser_Blocked(t *testing.T) {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
-	Expect(status).Equals(http.StatusForbidden)
+	Expect(status).Equals(http.StatusUnauthorized)
 }
 
-func TestUser_LockedTenant_Administrator(t *testing.T) {
+func TestUser_LockedTenant_ShouldAllowSignIn(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
 	mock.DemoTenant.Status = enum.TenantLocked
 	token, _ := jwt.Encode(jwt.FiderClaims{
-		UserID:   mock.JonSnow.ID,
-		UserName: mock.JonSnow.Name,
+		UserID:   mock.AryaStark.ID,
+		UserName: mock.AryaStark.Name,
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
-		if q.UserID == mock.JonSnow.ID {
-			q.Result = mock.JonSnow
-			return nil
-		}
-		return app.ErrNotFound
+		Expect(q.UserID).Equals(mock.AryaStark.ID)
+		q.Result = mock.AryaStark
+		return nil
 	})
 
 	server.Use(middlewares.User())
@@ -125,37 +123,7 @@ func TestUser_LockedTenant_Administrator(t *testing.T) {
 		})
 
 	Expect(status).Equals(http.StatusOK)
-	Expect(response.Body.String()).Equals("Jon Snow")
-}
-
-func TestUser_LockedTenant_Visitor(t *testing.T) {
-	RegisterT(t)
-
-	server := mock.NewServer()
-	mock.DemoTenant.Status = enum.TenantLocked
-	token, _ := jwt.Encode(jwt.FiderClaims{
-		UserID:   mock.AryaStark.ID,
-		UserName: mock.AryaStark.Name,
-	})
-
-	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
-		if q.UserID == mock.AryaStark.ID {
-			q.Result = mock.AryaStark
-			return nil
-		}
-		return app.ErrNotFound
-	})
-
-	server.Use(middlewares.User())
-	status, _ := server.
-		OnTenant(mock.DemoTenant).
-		AddHeader("Accept", "application/json").
-		AddCookie(web.CookieAuthName, token).
-		Execute(func(c *web.Context) error {
-			return c.String(http.StatusOK, c.User().Name)
-		})
-
-	Expect(status).Equals(http.StatusForbidden)
+	Expect(response.Body.String()).Equals("Arya Stark")
 }
 
 func TestUser_WithCookie_InvalidUser(t *testing.T) {
@@ -339,7 +307,7 @@ func TestUser_Impersonation_Collaborator(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
 		if q.APIKey == "12345" {
-			q.Result = &models.User{
+			q.Result = &entity.User{
 				Name:   "The Collaborator",
 				Role:   enum.RoleCollaborator,
 				Status: enum.UserActive,

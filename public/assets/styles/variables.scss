@@ -1,133 +1,24 @@
-$font-size-micro: 9px;
-$font-size-mini: 11px;
-$font-size-tiny: 12px;
-$font-size-small: 13px;
-$font-size: 14px;
-$font-size-large: 16px;
-$font-size-big: 18px;
-$font-size-xlarge: 22px;
+@import "variables/_functions";
+@import "variables/_colors";
+@import "variables/_spacing";
+@import "variables/_sizing";
+@import "variables/_text";
 
-$font-site: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
-$font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-
-$bg-color: #fdfdfd;
-$white: #fff;
-
-// http://www.colorbox.io
-// Luminosity 98 to 15 with Sine EaseOut
-$gray-darkest: #262626;
-$gray-darker: #5c5c5c;
-$gray-dark: #929292;
-$gray: #c2c2c2;
-$gray-light: #e3e3e3;
-$gray-lighter: #f5f5f5;
-$gray-lightest: #fafafa;
-
-$gray-scale: (
-  darkest: $gray-darkest,
-  darker: $gray-darker,
-  dark: $gray-dark,
-  default: $gray,
-  light: $gray-light,
-  lighter: $gray-lighter,
-  lightest: $gray-lightest,
+$all: (
+  colors: $colors,
+  font: $font,
+  border: (
+    radius: (
+      small: 4px,
+      medium: 6px,
+      large: 8px,
+      full: 999px,
+    ),
+  ),
 );
-
-// http://www.colorbox.io
-// Hue 121 to 121 SineEaseOut
-// Saturation 5 to 80 SineEaseOut
-// Luminosity 100 to 40 SineEaseOut
-$green-darkest: #19801b;
-$green-darker: #23a025;
-$green-dark: #36c138;
-$green: #58dd5a;
-$green-light: #89f18b;
-$green-lighter: #bffcc0;
-$green-lightest: #f2fff2;
-
-$green-scale: (
-  darkest: $green-darkest,
-  darker: $green-darker,
-  dark: $green-dark,
-  default: $green,
-  light: $green-light,
-  lighter: $green-lighter,
-  lightest: $green-lightest,
-);
-
-// http://www.colorbox.io
-// Hue 40 to 40 SineEaseOut
-// Saturation 5 to 80 SineEaseOut
-// Luminosity 100 to 40 SineEaseOut
-$yellow-darkest: #664400;
-$yellow-darker: #8D5E00;
-$yellow-dark: #B47800;
-$yellow: #D78F00;
-$yellow-light: #EFAA20;
-$yellow-lighter: #FBD382;
-$yellow-lightest: #FFF7E6;
-
-$yellow-scale: (
-  darkest: $yellow-darkest,
-  darker: $yellow-darker,
-  dark: $yellow-dark,
-  default: $yellow,
-  light: $yellow-light,
-  lighter: $yellow-lighter,
-  lightest: $yellow-lightest,
-);
-
-// http://www.colorbox.io
-// Hue 0 to 0 SineEaseOut
-// Saturation 5 to 80 SineEaseOut
-// Luminosity 100 to 40 SineEaseOut
-$red-darkest: #801919;
-$red-darker: #a02323;
-$red-dark: #c13636;
-$red: #dd5858;
-$red-light: #f18989;
-$red-lighter: #fcbfbf;
-$red-lightest: #fff2f2;
-
-$red-scale: (
-  darkest: $red-darkest,
-  darker: $red-darker,
-  dark: $red-dark,
-  default: $red,
-  light: $red-light,
-  lighter: $red-lighter,
-  lightest: $red-lightest,
-);
-
-// http://www.colorbox.io
-// Hue 220 to 220 SineEaseOut
-// Saturation 5 to 80 SineEaseOut
-// Luminosity 100 to 40 SineEaseOut
-$blue-darkest: #193c80;
-$blue-darker: #234da0;
-$blue-dark: #3664c1;
-$blue: #5885dd;
-$blue-light: #89acf1;
-$blue-lighter: #bfd4fc;
-$blue-lightest: #f2f7ff;
-
-$blue-scale: (
-  darkest: $blue-darkest,
-  darker: $blue-darker,
-  dark: $blue-dark,
-  default: $blue,
-  light: $blue-light,
-  lighter: $blue-lighter,
-  lightest: $blue-lightest,
-);
-
-$main-color: #3b4ade;
-$admin-color: #3b4ade;
-$link-color: #3664c1;
-
-$orange: #ff9320;
 
 // Queries
+$medias: "sm", "md", "lg", "xl";
 $sm-width: 576px;
 $md-width: 768px;
 $lg-width: 992px;
@@ -135,65 +26,27 @@ $xl-width: 1200px;
 
 @mixin media($media) {
   @if $media == "sm" {
-    @media only screen and (max-width: #{$md-width - 0.1px}) { 
-      @content; 
+    @media only screen and (max-width: #{$md-width}) {
+      @content;
     }
-  }
-  @else if $media == ">=sm" {
-    @media only screen and (min-width: #{$sm-width}) { 
-      @content; 
+  } @else if $media == "md" {
+    @media only screen and (min-width: #{$md-width}) {
+      @content;
     }
-  }
-  @else if $media == "<=md" {
-    @media only screen and (max-width: #{$lg-width - 0.1px}) { 
-      @content; 
+  } @else if $media == "lg" {
+    @media only screen and (min-width: #{$lg-width}) {
+      @content;
     }
-  }
-  @else if $media == "md" {
-    @media only screen and (min-width: #{$md-width}) and (max-width: #{$lg-width - 0.1px}) { 
-      @content; 
+  } @else if $media == "xl" {
+    @media only screen and (min-width: #{$xl-width}) {
+      @content;
     }
-  }
-  @else if $media == ">=md" {
-    @media only screen and (min-width: #{$md-width}) { 
-      @content; 
-    }
-  }
-  @else if $media == "<lg" {
-    @media only screen and (max-width: #{$xl-width - 0.1px}) { 
-      @content; 
-    }
-  }
-  @else if $media == "lg" {
-    @media only screen and (min-width: #{$lg-width}) and (max-width: #{$xl-width - 0.1px}) { 
-      @content; 
-    }
-  }
-  @else if $media == ">=lg" {
-    @media only screen and (min-width: #{$lg-width}) { 
-      @content; 
-    }
-  }
-  @else if $media == "xl" {
-    @media only screen and (min-width: #{$xl-width}) { 
-      @content; 
-    }
-  }
-}
-
-@function textColorFor($color) {
-  @if (lightness($color) > 60) {
-    @return $gray-darkest; // Lighter background, return dark color
-  } @else {
-    @return $gray-lightest; // Darker background, return light color
   }
 }
 
 @mixin disabled() {
   cursor: not-allowed;
-  opacity: .45!important;
-  background-image: none!important;
-  -webkit-box-shadow: none!important;
-  box-shadow: none!important;
-  pointer-events: none!important;
+  opacity: 0.45 !important;
+  background-image: none !important;
+  pointer-events: none !important;
 }

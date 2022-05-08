@@ -1,29 +1,54 @@
-# Build Step
-FROM getfider/githubci:0.0.2 AS builder
+#####################
+### Server Build Step
+#####################
+FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.18-buster AS server-builder 
 
-RUN mkdir /app
-WORKDIR /app
+ARG COMMITHASH
+
+RUN mkdir /server
+WORKDIR /server
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
+
+#################
+### UI Build Step
+#################
+FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-buster AS ui-builder 
+
+WORKDIR /ui
+
+
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . .
-RUN npm ci
-RUN node -v 
-RUN npm -v 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 mage build
+RUN make build-ssr
+RUN make build-ui
 
-# Runtime Step
-FROM alpine:3.10
-RUN apk update && apk add ca-certificates
+################
+### Runtime Step
+################
+FROM --platform=${TARGETPLATFORM:-linux/amd64} debian:buster-slim
 
-RUN mkdir /app
+RUN apt-get update
+RUN apt-get install -y ca-certificates
+
 WORKDIR /app
 
-COPY --from=builder /app/favicon.png /app
-COPY --from=builder /app/migrations /app/migrations
-COPY --from=builder /app/views /app/views
-COPY --from=builder /app/dist /app/dist
-COPY --from=builder /app/LICENSE /app
-COPY --from=builder /app/robots.txt /app
-COPY --from=builder /app/fider /app
+COPY --from=server-builder /server/migrations /app/migrations
+COPY --from=server-builder /server/views /app/views
+COPY --from=server-builder /server/locale /app/locale
+COPY --from=server-builder /server/LICENSE /app
+COPY --from=server-builder /server/fider /app
+
+COPY --from=ui-builder /ui/favicon.png /app
+COPY --from=ui-builder /ui/dist /app/dist
+COPY --from=ui-builder /ui/robots.txt /app
+COPY --from=ui-builder /ui/ssr.js /app
 
 EXPOSE 3000
 

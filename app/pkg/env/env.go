@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"path"
 
@@ -13,33 +14,64 @@ import (
 	"github.com/joeshaw/envdecode"
 )
 
+var (
+	// this value is set by the CI build
+	commithash = ""
+	version    = "0.21.0"
+)
+
+func Version() string {
+	if commithash == "" {
+		return fmt.Sprintf("%s-dev", version)
+	}
+
+	return fmt.Sprintf("%s-%s", version, commithash)
+}
+
 type config struct {
-	Environment 	 string `env:"GO_ENV,default=production"`
+	Environment    string `env:"GO_ENV,default=production"`
 	SignUpDisabled bool   `env:"SIGNUP_DISABLED,default=false"`
-	AutoSSL     	 bool   `env:"SSL_AUTO,default=false"`
-	SSLCert     	 string `env:"SSL_CERT"`
-	SSLCertKey  	 string `env:"SSL_CERT_KEY"`
-	Port        	 string `env:"PORT,default=3000"`
-	HostMode    	 string `env:"HOST_MODE,default=single"`
-	HostDomain  	 string `env:"HOST_DOMAIN"`
-	JWTSecret   	 string `env:"JWT_SECRET,required"`
-	Rendergun   	 struct {
-		URL string `env:"RENDERGUN_URL"`
+	TLS            struct {
+		Automatic      bool   `env:"SSL_AUTO,default=false"`
+		Certificate    string `env:"SSL_CERT"`
+		CertificateKey string `env:"SSL_CERT_KEY"`
+	}
+	HTTP struct {
+		ReadTimeout  time.Duration `env:"HTTP_READ_TIMEOUT,default=5s,strict"`
+		WriteTimeout time.Duration `env:"HTTP_WRITE_TIMEOUT,default=10s,strict"`
+		IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=120s,strict"`
+	}
+	Port       string `env:"PORT,default=3000"`
+	HostMode   string `env:"HOST_MODE,default=single"`
+	HostDomain string `env:"HOST_DOMAIN,required"`
+	Locale     string `env:"LOCALE,default=en"`
+	JWTSecret  string `env:"JWT_SECRET,required"`
+	Paddle     struct {
+		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
+		VendorID       string `env:"PADDLE_VENDOR_ID"`
+		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`
+		PlanID         string `env:"PADDLE_PLAN_ID"`
+		PublicKey      string `env:"PADDLE_PUBLIC_KEY"`
+	}
+	Metrics struct {
+		Enabled bool   `env:"METRICS_ENABLED,default=false"`
+		Port    string `env:"METRICS_PORT,default=4000"`
 	}
 	Database struct {
 		URL          string `env:"DATABASE_URL,required"`
 		MaxIdleConns int    `env:"DATABASE_MAX_IDLE_CONNS,default=2,strict"`
 		MaxOpenConns int    `env:"DATABASE_MAX_OPEN_CONNS,default=4,strict"`
 	}
-	Stripe struct {
-		SecretKey string `env:"STRIPE_SECRET_KEY"`
-		PublicKey string `env:"STRIPE_PUBLIC_KEY"`
-	}
 	CDN struct {
 		Host string `env:"CDN_HOST"`
 	}
 	Log struct {
-		Level string `env:"LOG_LEVEL,default=INFO"`
+		Level      string `env:"LOG_LEVEL,default=INFO"`
+		Structured bool   `env:"LOG_STRUCTURED,default=false"`
+		Console    bool   `env:"LOG_CONSOLE,default=true"`
+		Sql        bool   `env:"LOG_SQL,default=true"`
+		File       bool   `env:"LOG_FILE,default=false"`
+		OutputFile string `env:"LOG_FILE_OUTPUT,default=logs/output.log"`
 	}
 	OAuth struct {
 		Google struct {
@@ -56,23 +88,30 @@ type config struct {
 		}
 	}
 	Email struct {
+		Type      string `env:"EMAIL"` // possible values: smtp, mailgun, awsses
 		NoReply   string `env:"EMAIL_NOREPLY,required"`
-		Whitelist string `env:"EMAIL_WHITELIST"`
-		Blacklist string `env:"EMAIL_BLACKLIST"`
-		Mailgun   struct {
+		Allowlist string `env:"EMAIL_ALLOWLIST"`
+		Blocklist string `env:"EMAIL_BLOCKLIST"`
+		AWSSES    struct {
+			Region          string `env:"EMAIL_AWSSES_REGION"`
+			AccessKeyID     string `env:"EMAIL_AWSSES_ACCESS_KEY_ID"`
+			SecretAccessKey string `env:"EMAIL_AWSSES_SECRET_ACCESS_KEY"`
+		}
+		Mailgun struct {
 			APIKey string `env:"EMAIL_MAILGUN_API"`
 			Domain string `env:"EMAIL_MAILGUN_DOMAIN"`
-			Region string `env:"EMAIL_MAILGUN_REGION,default=US"`
+			Region string `env:"EMAIL_MAILGUN_REGION,default=US"` // possible values: US or EU
 		}
 		SMTP struct {
-			Host     string `env:"EMAIL_SMTP_HOST"`
-			Port     string `env:"EMAIL_SMTP_PORT"`
-			Username string `env:"EMAIL_SMTP_USERNAME"`
-			Password string `env:"EMAIL_SMTP_PASSWORD"`
+			Host           string `env:"EMAIL_SMTP_HOST"`
+			Port           string `env:"EMAIL_SMTP_PORT"`
+			Username       string `env:"EMAIL_SMTP_USERNAME"`
+			Password       string `env:"EMAIL_SMTP_PASSWORD"`
+			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
 		}
 	}
 	BlobStorage struct {
-		Type string `env:"BLOB_STORAGE,default=sql"`
+		Type string `env:"BLOB_STORAGE,default=sql"` // possible values: sql, fs or s3
 		S3   struct {
 			EndpointURL     string `env:"BLOB_STORAGE_S3_ENDPOINT_URL"`
 			Region          string `env:"BLOB_STORAGE_S3_REGION"`
@@ -107,19 +146,31 @@ func Reload() {
 		panic(errors.Wrap(err, "failed to parse environment variables"))
 	}
 
-	//Environment validations
-	if Config.HostMode != "single" {
-		mustBeSet("HOST_DOMAIN")
+	// Email Type can be inferred if absense
+	if Config.Email.Type == "" {
+		if Config.Email.Mailgun.APIKey != "" {
+			Config.Email.Type = "mailgun"
+		} else if Config.Email.AWSSES.AccessKeyID != "" {
+			Config.Email.Type = "awsses"
+		} else {
+			Config.Email.Type = "smtp"
+		}
 	}
 
-	if Config.Email.Mailgun.APIKey != "" {
+	emailType := Config.Email.Type
+	if emailType == "mailgun" {
+		mustBeSet("EMAIL_MAILGUN_API")
 		mustBeSet("EMAIL_MAILGUN_DOMAIN")
-	} else {
+	} else if emailType == "awsses" {
+		mustBeSet("EMAIL_AWSSES_REGION")
+		mustBeSet("EMAIL_AWSSES_ACCESS_KEY_ID")
+		mustBeSet("EMAIL_AWSSES_SECRET_ACCESS_KEY")
+	} else if emailType == "smtp" {
 		mustBeSet("EMAIL_SMTP_HOST")
 		mustBeSet("EMAIL_SMTP_PORT")
 	}
 
-	bsType := strings.ToLower(Config.BlobStorage.Type)
+	bsType := Config.BlobStorage.Type
 	if bsType == "s3" {
 		mustBeSet("BLOB_STORAGE_S3_BUCKET")
 	} else if bsType == "fs" {
@@ -130,13 +181,8 @@ func Reload() {
 func mustBeSet(name string) {
 	value := os.Getenv(name)
 	if value == "" {
-		panic(fmt.Errorf("Could not find environment variable named '%s'", name))
+		panic(fmt.Errorf("could not find environment variable named '%s'", name))
 	}
-}
-
-// IsBillingEnabled returns true if billing is enabled
-func IsBillingEnabled() bool {
-	return Config.Stripe.SecretKey != ""
 }
 
 // IsSingleHostMode returns true if host mode is set to single tenant
@@ -163,6 +209,11 @@ func MultiTenantDomain() string {
 		return "." + Config.HostDomain
 	}
 	return ""
+}
+
+// IsBillingEnabled returns true if Paddle is configured
+func IsBillingEnabled() bool {
+	return Config.Paddle.VendorID != "" && Config.Paddle.VendorAuthCode != ""
 }
 
 // IsProduction returns true on Fider production environment

@@ -9,16 +9,17 @@ import (
 
 // Maintenance returns a maintenance page when system is under maintenance
 func Maintenance() web.MiddlewareFunc {
+	if !env.Config.Maintenance.Enabled {
+		return nil
+	}
+
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if !env.Config.Maintenance.Enabled {
-				return next(c)
-			}
 
-			c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 			c.Response.Header().Set("Retry-After", "3600")
 
-			return c.Render(http.StatusServiceUnavailable, "maintenance.html", web.Props{
+			return c.Page(http.StatusServiceUnavailable, web.Props{
+				Page:        "Error/Maintenance.page",
 				Title:       "UNDER MAINTENANCE",
 				Description: env.Config.Maintenance.Message,
 				Data: web.Map{

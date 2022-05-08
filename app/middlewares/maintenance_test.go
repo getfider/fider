@@ -29,10 +29,6 @@ func TestMaintenance_Disabled(t *testing.T) {
 func TestMaintenance_Enabled(t *testing.T) {
 	RegisterT(t)
 
-	defer func() {
-		env.Config.Maintenance.Enabled = false
-	}()
-
 	server := mock.NewServer()
 	env.Config.Maintenance.Enabled = true
 	server.Use(middlewares.ClientCache(30 * time.Hour))
@@ -44,6 +40,6 @@ func TestMaintenance_Enabled(t *testing.T) {
 	status, response := server.Execute(handler)
 
 	Expect(status).Equals(http.StatusServiceUnavailable)
-	Expect(response.Header().Get("Cache-Control")).Equals("no-cache, no-store, must-revalidate")
+	Expect(response.Header().Get("Cache-Control")).Equals("no-cache, no-store")
 	Expect(response.Header().Get("Retry-After")).Equals("3600")
 }

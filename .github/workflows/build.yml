@@ -1,0 +1,214 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-ui:
+    name: test-ui
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - run: npm ci
+      - run: make lint-ui
+      - run: make test-ui
+
+  test-server:
+    name: test-server
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+    services:
+      minio:
+        image: getfider/minio:0.0.2
+        ports:
+          - 9000:9000
+        env:
+          MINIO_ACCESS_KEY: s3user
+          MINIO_SECRET_KEY: s3user-s3cr3t
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: fider_ci
+          POSTGRES_PASSWORD: fider_ci_pw
+          POSTGRES_DB: fider_ci
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Go 1.18
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - run: npm ci # required for esbuild
+      - name: install golangci-lint
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.0
+      - name: install godotenv
+        run: go install github.com/joho/godotenv/cmd/godotenv
+      - run: make lint-server
+      - name: make test-server
+        run: |
+          mkdir ./dist
+          make test-server
+        env:
+          BLOB_STORAGE_S3_ENDPOINT_URL: http://localhost:9000
+          DATABASE_URL: postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable
+
+  # The build job uses the Dockerfile to build an image which is then used by e2e tests
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: extract variables
+        run: |
+          echo "##[set-output name=sha7;]$(echo ${GITHUB_SHA::7})"
+          echo sha7=${GITHUB_SHA::7}
+        id: vars
+
+      - run: docker build -t fider-image .
+
+      - run: mkdir -p ./out
+
+      - run: docker save -o ./out/fider-image.tar fider-image
+
+      - run: echo ${{ github.event.number }} > ./out/pr
+        if: ${{ github.event_name == 'pull_request' }}
+
+      - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: fider-image
+          path: out/
+
+  test-e2e-ui:
+    name: test-e2e-ui
+    runs-on: ubuntu-latest
+    needs: [build]
+    services:
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - "8025:8025"
+          - "1025:1025"
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: fider_ci
+          POSTGRES_PASSWORD: fider_ci_pw
+          POSTGRES_DB: fider_ci
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    strategy:
+      matrix:
+        browser: ["chromium", "webkit", "firefox"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - uses: actions/download-artifact@v2
+        with:
+          name: fider-image
+          path: ./out
+      - run: docker load --input ./out/fider-image.tar
+      - run: |
+          docker run \
+            --pull never \
+            -p 3000:3000 \
+            --env DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable \
+            --env JWT_SECRET=not_so_secret \
+            --env HOST_MODE=multi \
+            --env HOST_DOMAIN=dev.fider.io \
+            --env SSL_CERT=dev-fider-io.crt \
+            --env SSL_CERT_KEY=dev-fider-io.key \
+            --env EMAIL_NOREPLY=noreply@fider.io \
+            --env EMAIL_SMTP_HOST=mailhog \
+            --env EMAIL_SMTP_PORT=1025 \
+            -d --network "${{ job.container.network }}" \
+            -v "$PWD"/etc:/app/etc \
+            fider-image
+      - run: npm ci
+      - run: npx playwright install-deps $BROWSER
+        env:
+          BROWSER: ${{ matrix.browser }}
+      - run: make test-e2e-ui
+        env:
+          BROWSER: ${{ matrix.browser }}
+
+  test-e2e-server:
+    name: test-e2e-server
+    runs-on: ubuntu-latest
+    needs: [build]
+    services:
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - "8025:8025"
+          - "1025:1025"
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: fider_ci
+          POSTGRES_PASSWORD: fider_ci_pw
+          POSTGRES_DB: fider_ci
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - uses: actions/download-artifact@v2
+        with:
+          name: fider-image
+          path: ./out
+      - run: docker load --input ./out/fider-image.tar
+      - run: |
+          docker run \
+            --pull never \
+            -p 3000:3000 \
+            -p 4000:4000 \
+            --env DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable \
+            --env JWT_SECRET=not_so_secret \
+            --env HOST_MODE=multi \
+            --env HOST_DOMAIN=dev.fider.io \
+            --env METRICS_ENABLED=true \
+            --env SSL_CERT=dev-fider-io.crt \
+            --env SSL_CERT_KEY=dev-fider-io.key \
+            --env EMAIL_NOREPLY=noreply@fider.io \
+            --env EMAIL_SMTP_HOST=mailhog \
+            --env EMAIL_SMTP_PORT=1025 \
+            -d --network "${{ job.container.network }}" \
+            -v "$PWD"/etc:/app/etc \
+            fider-image
+      - run: npm ci
+      - run: npx playwright install-deps chromium
+        env:
+          BROWSER: chromium
+      - run: make test-e2e-server
+        env:
+          BROWSER: chromium

@@ -4,21 +4,21 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-func encode(user *models.User) string {
+func encode(user *entity.User) string {
 	token, err := jwt.Encode(jwt.FiderClaims{
 		UserID:    user.ID,
 		UserName:  user.Name,
 		UserEmail: user.Email,
 		Origin:    jwt.FiderClaimsOriginUI,
 		Metadata: jwt.Metadata{
-			ExpiresAt: time.Now().Add(365 * 24 * time.Hour).Unix(),
+			ExpiresAt: jwt.Time(time.Now().Add(365 * 24 * time.Hour)),
 		},
 	})
 
@@ -30,7 +30,7 @@ func encode(user *models.User) string {
 }
 
 //AddAuthUserCookie generates Auth Token and adds a cookie
-func AddAuthUserCookie(ctx *web.Context, user *models.User) {
+func AddAuthUserCookie(ctx *web.Context, user *entity.User) {
 	AddAuthTokenCookie(ctx, encode(user))
 }
 
@@ -41,8 +41,8 @@ func AddAuthTokenCookie(ctx *web.Context, token string) {
 }
 
 //SetSignUpAuthCookie sets a temporary domain-wide Auth Token
-func SetSignUpAuthCookie(ctx *web.Context, user *models.User) {
-	http.SetCookie(ctx.Response, &http.Cookie{
+func SetSignUpAuthCookie(ctx *web.Context, user *entity.User) {
+	http.SetCookie(&ctx.Response, &http.Cookie{
 		Name:     web.CookieSignUpAuthName,
 		Domain:   env.MultiTenantDomain(),
 		Value:    encode(user),
@@ -57,7 +57,7 @@ func SetSignUpAuthCookie(ctx *web.Context, user *models.User) {
 func GetSignUpAuthCookie(ctx *web.Context) string {
 	cookie, err := ctx.Request.Cookie(web.CookieSignUpAuthName)
 	if err == nil {
-		http.SetCookie(ctx.Response, &http.Cookie{
+		http.SetCookie(&ctx.Response, &http.Cookie{
 			Name:     web.CookieSignUpAuthName,
 			Domain:   env.MultiTenantDomain(),
 			Path:     "/",

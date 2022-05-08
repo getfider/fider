@@ -1,0 +1,15 @@
+{{define "head"}}
+  {{range $asset := .private.preloadAssets}}
+    {{if $asset}}
+      {{range $asset.CSS}}<link href="{{ $.public.settings.assetsURL }}{{ . }}" rel="stylesheet" />{{end}}
+    {{end}}
+  {{end}}
+{{end}}
+
+{{define "server-data"}}{{end}}
+
+{{define "content"}}
+<div id="root">{{ .public.props.html }}</div>
+{{end}}
+
+{{define "end-of-body"}}{{end}}

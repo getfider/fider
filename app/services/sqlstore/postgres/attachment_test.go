@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -20,8 +20,8 @@ func TestUploadImage(t *testing.T) {
 	})
 
 	uploadImage := &cmd.UploadImage{
-		Image: &models.ImageUpload{
-			Upload: &models.ImageUploadData{
+		Image: &dto.ImageUpload{
+			Upload: &dto.ImageUploadData{
 				Content:     []byte("Hello World"),
 				ContentType: "text/plain",
 			},
@@ -43,8 +43,8 @@ func TestUploadImage_NoContent(t *testing.T) {
 	})
 
 	uploadImage := &cmd.UploadImage{
-		Image: &models.ImageUpload{
-			Upload: &models.ImageUploadData{
+		Image: &dto.ImageUpload{
+			Upload: &dto.ImageUploadData{
 				Content: []byte(""),
 			},
 		},
@@ -64,15 +64,15 @@ func TestUploadMultipleImages(t *testing.T) {
 	})
 
 	uploadImages := &cmd.UploadImages{
-		Images: []*models.ImageUpload{
-			&models.ImageUpload{
-				Upload: &models.ImageUploadData{
+		Images: []*dto.ImageUpload{
+			{
+				Upload: &dto.ImageUploadData{
 					Content:     []byte("Hello World 1"),
 					ContentType: "text/plain",
 				},
 			},
-			&models.ImageUpload{
-				Upload: &models.ImageUploadData{
+			{
+				Upload: &dto.ImageUploadData{
 					Content:     []byte("Hello World 2"),
 					ContentType: "text/plain",
 				},

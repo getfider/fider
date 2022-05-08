@@ -1,0 +1,44 @@
+subject: {{block "subject" .}}{{end}}
+body:
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	</head>
+	<body bgcolor="#F7F7F7" style="font-size:18px">
+		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:18px;">
+			<tr>
+				<td height="40">&nbsp;</td>
+			</tr>
+			{{ if .logo }}
+			<tr>
+				<td>
+					<img height="50" src="{{ .logo }}"/>
+				</td>
+			</tr>
+			<tr>
+				<td height="10" style="line-height:1px;">&nbsp;</td>
+			</tr>
+			{{ end }}
+			<tr>
+				<td align="center">
+					<table bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;min-width:320px;max-width:660px;">
+						{{block "body" .}}{{end}}
+					</table>
+				</td>
+			</tr>
+			{{ if .noreply }}
+			<tr>
+				<td>
+					<span style="color:#666;font-size:12px">{{ "email.footer.noreply" | translate }}</span>
+				</td>
+			</tr>
+			{{ end }}
+			<tr>
+				<td height="40">&nbsp;</td>
+			</tr>
+		</table>
+	</body>
+</html>

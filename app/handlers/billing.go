@@ -1,162 +1,75 @@
 package handlers
 
 import (
-	"github.com/getfider/fider/app/actions"
+	"fmt"
+	"net/http"
+
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-// BillingPage is the billing settings page
-func BillingPage() web.HandlerFunc {
+// ManageBilling is the page used by administrators for billing settings
+func ManageBilling() web.HandlerFunc {
 	return func(c *web.Context) error {
-		if c.Tenant().Billing.StripeCustomerID == "" {
-			if err := bus.Dispatch(c, &cmd.CreateBillingCustomer{}); err != nil {
-				return c.Failure(err)
-			}
 
-			if err := bus.Dispatch(c, &cmd.UpdateTenantBillingSettings{
-				Settings: c.Tenant().Billing,
-			}); err != nil {
-				return c.Failure(err)
-			}
+		// It's not possible to use custom domains on billing page, so redirect to Fider url
+		if c.Request.IsCustomDomain() {
+			url := fmt.Sprintf("https://%s.%s/admin/billing", c.Tenant().Subdomain, env.Config.HostDomain)
+			return c.Redirect(url)
 		}
 
-		getUpcomingInvoiceQuery := &query.GetUpcomingInvoice{}
-		if c.Tenant().Billing.StripeSubscriptionID != "" {
-			err := bus.Dispatch(c, getUpcomingInvoiceQuery)
-			if err != nil {
-				return c.Failure(err)
-			}
-		}
-
-		paymentInfo := query.GetPaymentInfo{}
-		err := bus.Dispatch(c, paymentInfo)
-		if err != nil {
+		billingState := &query.GetBillingState{}
+		if err := bus.Dispatch(c, billingState); err != nil {
 			return c.Failure(err)
 		}
 
-		listPlansQuery := &query.ListBillingPlans{}
-		if paymentInfo.Result != nil {
-			listPlansQuery.CountryCode = paymentInfo.Result.AddressCountry
-			err = bus.Dispatch(c, listPlansQuery)
-			if err != nil {
-				println(err.Error())
+		billingSubscription := &query.GetBillingSubscription{
+			SubscriptionID: billingState.Result.SubscriptionID,
+		}
+		if billingState.Result.Status == enum.BillingActive {
+			if err := bus.Dispatch(c, billingSubscription); err != nil {
 				return c.Failure(err)
 			}
 		}
 
-		countUsers := &query.CountUsers{}
-		allCountries := &query.GetAllCountries{}
-		if err := bus.Dispatch(c, countUsers); err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Page(web.Props{
-			Title:     "Billing · Site Settings",
-			ChunkName: "Billing.page",
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "Administration/pages/ManageBilling.page",
+			Title: "Manage Billing · Site Settings",
 			Data: web.Map{
-				"invoiceDue":      getUpcomingInvoiceQuery.Result,
-				"tenantUserCount": countUsers.Result,
-				"plans":           listPlansQuery.Result,
-				"paymentInfo":     paymentInfo.Result,
-				"countries":       allCountries.Result,
+				"paddle": web.Map{
+					"isSandbox": env.Config.Paddle.IsSandbox,
+					"vendorId":  env.Config.Paddle.VendorID,
+					"planId":    env.Config.Paddle.PlanID,
+				},
+				"status":             billingState.Result.Status,
+				"trialEndsAt":        billingState.Result.TrialEndsAt,
+				"subscriptionEndsAt": billingState.Result.SubscriptionEndsAt,
+				"subscription":       billingSubscription.Result,
 			},
 		})
 	}
 }
 
-// UpdatePaymentInfo on stripe based on given input
-func UpdatePaymentInfo() web.HandlerFunc {
+// GenerateCheckoutLink generates a Paddle-hosted checkout link for the service subscription
+func GenerateCheckoutLink() web.HandlerFunc {
 	return func(c *web.Context) error {
-		input := new(actions.CreateEditBillingPaymentInfo)
-		if result := c.BindTo(input); !result.Ok {
-			return c.HandleValidation(result)
+		generateLink := &cmd.GenerateCheckoutLink{
+			Passthrough: dto.PaddlePassthrough{
+				TenantID: c.Tenant().ID,
+			},
 		}
 
-		if err := bus.Dispatch(c, &cmd.UpdatePaymentInfo{Input: input.Model}); err != nil {
+		if err := bus.Dispatch(c, generateLink); err != nil {
 			return c.Failure(err)
 		}
 
-		return c.Ok(web.Map{})
-	}
-}
-
-// GetBillingPlans returns a list of plans for given country code
-func GetBillingPlans() web.HandlerFunc {
-	return func(c *web.Context) error {
-		countryCode := c.Param("countryCode")
-		listPlansQuery := &query.ListBillingPlans{CountryCode: countryCode}
-		err := bus.Dispatch(c, listPlansQuery)
-		if err != nil {
-			return c.Failure(err)
-		}
-		return c.Ok(listPlansQuery.Result)
-	}
-}
-
-// BillingSubscribe subscribes current tenant to given plan on stripe
-func BillingSubscribe() web.HandlerFunc {
-	return func(c *web.Context) error {
-		planID := c.Param("planID")
-
-		paymentInfoQuery := &query.GetPaymentInfo{}
-		err := bus.Dispatch(c, paymentInfoQuery)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		getPlanByIDQuery := &query.GetBillingPlanByID{
-			PlanID:      planID,
-			CountryCode: paymentInfoQuery.Result.AddressCountry,
-		}
-		err = bus.Dispatch(c, getPlanByIDQuery)
-		if err != nil {
-			return c.Failure(err)
-		}
-		plan := getPlanByIDQuery.Result
-
-		countUsers := &query.CountUsers{}
-		err = bus.Dispatch(c, countUsers)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if plan.MaxUsers > 0 && countUsers.Result > plan.MaxUsers {
-			return c.Unauthorized()
-		}
-
-		if err = bus.Dispatch(c, &cmd.CreateBillingSubscription{
-			PlanID: plan.ID,
-		}); err != nil {
-			return c.Failure(err)
-		}
-
-		updateBilling := &cmd.UpdateTenantBillingSettings{Settings: c.Tenant().Billing}
-		activateTenant := &cmd.ActivateTenant{TenantID: c.Tenant().ID}
-		if err := bus.Dispatch(c, updateBilling, activateTenant); err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Ok(web.Map{})
-	}
-}
-
-// CancelBillingSubscription cancels current subscription from current tenant
-func CancelBillingSubscription() web.HandlerFunc {
-	return func(c *web.Context) error {
-		err := bus.Dispatch(c, &cmd.CancelBillingSubscription{})
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if err := bus.Dispatch(c, &cmd.UpdateTenantBillingSettings{
-			Settings: c.Tenant().Billing,
-		}); err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Ok(web.Map{})
+		return c.Ok(web.Map{
+			"url": generateLink.URL,
+		})
 	}
 }

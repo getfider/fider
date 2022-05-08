@@ -10,13 +10,12 @@ import (
 	awss3 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/rand"
-
-	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/services/blob/fs"
 	"github.com/getfider/fider/app/services/blob/s3"
@@ -27,8 +26,8 @@ import (
 	"github.com/getfider/fider/app/services/blob"
 )
 
-var tenant1 = &models.Tenant{ID: 1}
-var tenant2 = &models.Tenant{ID: 2}
+var tenant1 = &entity.Tenant{ID: 1}
+var tenant2 = &entity.Tenant{ID: 2}
 
 func setupS3(t *testing.T) {
 	RegisterT(t)
@@ -70,6 +69,8 @@ var tests = []struct {
 	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
 	{"SameKey_DifferentTenant_Delete", SameKey_DifferentTenant_Delete},
 	{"ListBlobsFromTenant", ListBlobsFromTenant},
+	{"ListBlobsOutsideTenant", ListBlobsOutsideTenant},
+	{"ListUnauthorizedBlobs", ListUnauthorizedBlobs},
 }
 
 func TestBlobStorage(t *testing.T) {
@@ -130,7 +131,7 @@ func AllOperations(ctx context.Context) {
 		}
 		err = bus.Dispatch(ctx, q)
 		Expect(q.Result).IsNil()
-		Expect(err).Equals(blob.ErrNotFound)
+		Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 	}
 }
 
@@ -162,12 +163,12 @@ func SameKey_DifferentTenant(ctx context.Context) {
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctxWithTenant2, q)
-	Expect(err).Equals(blob.ErrNotFound)
+	Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 	Expect(q.Result).IsNil()
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctx, q)
-	Expect(err).Equals(blob.ErrNotFound)
+	Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 	Expect(q.Result).IsNil()
 
 	err = bus.Dispatch(ctxWithTenant1, &cmd.DeleteBlob{Key: key})
@@ -216,7 +217,7 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctx, q)
-	Expect(err).Equals(blob.ErrNotFound)
+	Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 	Expect(q.Result).IsNil()
 
 	err = bus.Dispatch(ctxWithTenant2, &cmd.DeleteBlob{Key: key})
@@ -259,6 +260,48 @@ func ListBlobsFromTenant(ctx context.Context) {
 	Expect(err).IsNil()
 	Expect(tenant2Files.Result).HasLen(1)
 	Expect(tenant2Files.Result).Equals([]string{"texts/hello.txt"})
+}
+
+func ListBlobsOutsideTenant(ctx context.Context) {
+	err := bus.Dispatch(ctx, &cmd.StoreBlob{
+		Key:         "texts/hello.txt",
+		Content:     make([]byte, 0),
+		ContentType: "text/plain; charset=utf-8",
+	})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(ctx, &cmd.StoreBlob{
+		Key:         "texts/world.txt",
+		Content:     make([]byte, 0),
+		ContentType: "text/plain; charset=utf-8",
+	})
+	Expect(err).IsNil()
+
+	textFiles := &query.ListBlobs{Prefix: "texts/"}
+	err = bus.Dispatch(ctx, textFiles)
+	Expect(err).IsNil()
+	Expect(textFiles.Result).HasLen(2)
+	Expect(textFiles.Result).Equals([]string{"texts/hello.txt", "texts/world.txt"})
+
+	imageFiles := &query.ListBlobs{Prefix: "images/"}
+	err = bus.Dispatch(ctx, imageFiles)
+	Expect(err).IsNil()
+	Expect(imageFiles.Result).HasLen(0)
+	Expect(imageFiles.Result).Equals([]string{})
+}
+
+func ListUnauthorizedBlobs(ctx context.Context) {
+	Expect(func() {
+		_ = bus.Dispatch(ctx, &query.ListBlobs{Prefix: "tenants/"})
+	}).Panics()
+
+	Expect(func() {
+		_ = bus.Dispatch(ctx, &query.ListBlobs{Prefix: "tenants"})
+	}).Panics()
+
+	ctxWithTenant := context.WithValue(ctx, app.TenantCtxKey, tenant1)
+	err := bus.Dispatch(ctxWithTenant, &query.ListBlobs{Prefix: "tenants"})
+	Expect(err).IsNil()
 }
 
 func KeyFormats(ctx context.Context) {

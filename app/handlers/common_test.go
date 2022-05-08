@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -69,6 +69,9 @@ Disallow: /_api/
 Disallow: /api/v1/
 Disallow: /admin/
 Disallow: /oauth/
+Disallow: /terms
+Disallow: /privacy
+Disallow: /_design
 Sitemap: https://demo.test.fider.io/sitemap.xml`)
 }
 
@@ -76,7 +79,7 @@ func TestSitemap(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetAllPosts) error {
-		q.Result = []*models.Post{}
+		q.Result = []*entity.Post{}
 		return nil
 	})
 
@@ -95,9 +98,9 @@ func TestSitemap_WithPosts(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetAllPosts) error {
-		q.Result = []*models.Post{
-			&models.Post{Number: 1, Slug: "my-new-idea-1", Title: "My new idea 1"},
-			&models.Post{Number: 2, Slug: "the-other-idea", Title: "The other idea"},
+		q.Result = []*entity.Post{
+			{Number: 1, Slug: "my-new-idea-1", Title: "My new idea 1"},
+			{Number: 2, Slug: "the-other-idea", Title: "The other idea"},
 		}
 		return nil
 	})

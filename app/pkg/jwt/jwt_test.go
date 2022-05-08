@@ -6,6 +6,7 @@ import (
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
+	jwtgo "github.com/golang-jwt/jwt/v4"
 )
 
 func TestJWT_Encode(t *testing.T) {
@@ -40,6 +41,22 @@ func TestJWT_Decode(t *testing.T) {
 	Expect(decoded.UserEmail).Equals(claims.UserEmail)
 }
 
+func TestJWT_Decode_DifferentSignMethod(t *testing.T) {
+	RegisterT(t)
+
+	jwtToken := jwtgo.NewWithClaims(jwtgo.GetSigningMethod("none"), &jwt.FiderClaims{
+		UserID:    424,
+		UserName:  "Jon Snow",
+		UserEmail: "jon.snow@got.com",
+	})
+	token, err := jwtToken.SignedString(jwtgo.UnsafeAllowNoneSignatureType)
+	Expect(err).IsNil()
+
+	decoded, err := jwt.DecodeFiderClaims(token)
+	Expect(err.Error()).ContainsSubstring("Unexpected signing method: none")
+	Expect(decoded).IsNil()
+}
+
 func TestJWT_DecodeExpired(t *testing.T) {
 	RegisterT(t)
 
@@ -48,7 +65,7 @@ func TestJWT_DecodeExpired(t *testing.T) {
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
 		Metadata: jwt.Metadata{
-			ExpiresAt: time.Now().Unix(),
+			ExpiresAt: jwt.Time(time.Now()),
 		},
 	}
 
@@ -106,7 +123,7 @@ func TestJWT_DecodeOAuthClaimsExpired(t *testing.T) {
 		OAuthName:     "Jon Snow",
 		OAuthProvider: "facebook",
 		Metadata: jwt.Metadata{
-			ExpiresAt: time.Now().Unix(),
+			ExpiresAt: jwt.Time(time.Now()),
 		},
 	}
 

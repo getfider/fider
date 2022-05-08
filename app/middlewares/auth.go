@@ -27,7 +27,7 @@ func IsAuthorized(roles ...enum.Role) web.MiddlewareFunc {
 					return next(c)
 				}
 			}
-			return c.Unauthorized()
+			return c.Forbidden()
 		}
 	}
 }

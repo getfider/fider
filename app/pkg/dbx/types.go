@@ -3,8 +3,6 @@ package dbx
 import (
 	"database/sql"
 	"encoding/json"
-
-	"github.com/lib/pq"
 )
 
 // NullInt representa a nullable integer
@@ -35,7 +33,7 @@ func (r NullString) MarshalJSON() ([]byte, error) {
 
 // NullTime representa a nullable time.Time
 type NullTime struct {
-	pq.NullTime
+	sql.NullTime
 }
 
 // MarshalJSON interface redefinition

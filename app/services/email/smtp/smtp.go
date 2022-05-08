@@ -14,6 +14,7 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -37,16 +38,26 @@ func (s Service) Category() string {
 }
 
 func (s Service) Enabled() bool {
-	return env.Config.Email.Mailgun.APIKey == ""
+	return env.Config.Email.Type == "smtp"
 }
 
 func (s Service) Init() {
 	bus.AddListener(sendMail)
+	bus.AddHandler(fetchRecentSupressions)
+}
+
+func fetchRecentSupressions(ctx context.Context, c *query.FetchRecentSupressions) error {
+	//not implemented for SMTP
+	return nil
 }
 
 func sendMail(ctx context.Context, c *cmd.SendMail) {
 	if c.Props == nil {
 		c.Props = dto.Props{}
+	}
+
+	if c.From.Address == "" {
+		c.From.Address = email.NoReply
 	}
 
 	for _, to := range c.To {
@@ -74,10 +85,10 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 			"Props":        to.Props,
 		})
 
-		message := email.RenderMessage(c.TemplateName, c.Props.Merge(to.Props))
+		message := email.RenderMessage(ctx, c.TemplateName, c.From.Address, c.Props.Merge(to.Props))
 		b := builder{}
-		b.Set("From", dto.NewRecipient(c.From, email.NoReply, dto.Props{}).String())
-		b.Set("Reply-To", email.NoReply)
+		b.Set("From", c.From.String())
+		b.Set("Reply-To", c.From.Address)
 		b.Set("To", to.String())
 		b.Set("Subject", message.Subject)
 		b.Set("MIME-version", "1.0")
@@ -89,7 +100,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		smtpConfig := env.Config.Email.SMTP
 		servername := fmt.Sprintf("%s:%s", smtpConfig.Host, smtpConfig.Port)
 		auth := authenticate(smtpConfig.Username, smtpConfig.Password, smtpConfig.Host)
-		err = Send(localname, servername, auth, email.NoReply, []string{to.Address}, b.Bytes())
+		err = Send(localname, servername, smtpConfig.EnableStartTLS, auth, email.NoReply, []string{to.Address}, b.Bytes())
 		if err != nil {
 			panic(errors.Wrap(err, "failed to send email with template %s", c.TemplateName))
 		}
@@ -97,7 +108,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 	}
 }
 
-var Send = func(localName, serverAddress string, a gosmtp.Auth, from string, to []string, msg []byte) error {
+var Send = func(localName, serverAddress string, enableStartTLS bool, a gosmtp.Auth, from string, to []string, msg []byte) error {
 	host, _, _ := net.SplitHostPort(serverAddress)
 	c, err := gosmtp.Dial(serverAddress)
 	if err != nil {
@@ -107,10 +118,12 @@ var Send = func(localName, serverAddress string, a gosmtp.Auth, from string, to 
 	if err = c.Hello(localName); err != nil {
 		return err
 	}
-	if ok, _ := c.Extension("STARTTLS"); ok {
-		config := &tls.Config{ServerName: host}
-		if err = c.StartTLS(config); err != nil {
-			return err
+	if enableStartTLS {
+		if ok, _ := c.Extension("STARTTLS"); ok {
+			config := &tls.Config{ServerName: host}
+			if err = c.StartTLS(config); err != nil {
+				return err
+			}
 		}
 	}
 	if a != nil {

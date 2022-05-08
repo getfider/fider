@@ -17,16 +17,14 @@ func TestRequest_Basic(t *testing.T) {
 
 	req := web.WrapRequest(
 		&http.Request{
-			Method:     "GET",
-			Header:     header,
-			RemoteAddr: "172.10.10.10:5555",
-			Host:       "helloworld.com",
+			Method: "GET",
+			Header: header,
+			Host:   "helloworld.com",
 		},
 	)
 
 	Expect(req.Method).Equals("GET")
 	Expect(req.GetHeader("Content-Type")).Equals("application/json")
-	Expect(req.ClientIP).Equals("172.10.10.10")
 	Expect(req.URL.Hostname()).Equals("helloworld.com")
 	Expect(req.URL.Scheme).Equals("http")
 	Expect(req.URL.RequestURI()).Equals("/")
@@ -51,7 +49,6 @@ func TestRequest_WithPort(t *testing.T) {
 
 	Expect(req.Method).Equals("GET")
 	Expect(req.GetHeader("Content-Type")).Equals("application/json")
-	Expect(req.ClientIP).Equals("")
 	Expect(req.URL.Hostname()).Equals("helloworld.com")
 	Expect(req.URL.Scheme).Equals("http")
 	Expect(req.URL.Port()).Equals("3000")
@@ -65,7 +62,6 @@ func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
 	header := make(http.Header)
 	header.Set("X-Forwarded-Host", "feedback.mycompany.com")
 	header.Set("X-Forwarded-Proto", "https")
-	header.Set("X-Forwarded-For", "127.5.5.5, 129.2.2.2, 121.2.2.5")
 
 	req := web.WrapRequest(
 		&http.Request{
@@ -78,12 +74,11 @@ func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
 	Expect(req.Method).Equals("GET")
 	Expect(req.URL.Hostname()).Equals("feedback.mycompany.com")
 	Expect(req.URL.Scheme).Equals("https")
-	Expect(req.ClientIP).Equals("127.5.5.5")
 	Expect(req.IsSecure).Equals(true)
 	Expect(req.IsAPI()).IsFalse()
 }
 
-func TestRequest_FullURL(t *testing.T) {
+func TestIsCustomDomain(t *testing.T) {
 	RegisterT(t)
 
 	req := web.WrapRequest(
@@ -100,6 +95,19 @@ func TestRequest_FullURL(t *testing.T) {
 	Expect(req.URL.RequestURI()).Equals("/api/hello?value=Jon")
 	Expect(req.IsSecure).Equals(true)
 	Expect(req.IsAPI()).IsTrue()
+}
+
+func TestRequest_FullURL(t *testing.T) {
+	RegisterT(t)
+
+	req1 := web.WrapRequest(&http.Request{Host: "demo.test.fider.io:3000"})
+	Expect(req1.IsCustomDomain()).IsFalse()
+
+	req2 := web.WrapRequest(&http.Request{Host: "demo.test.fider.io"})
+	Expect(req2.IsCustomDomain()).IsFalse()
+
+	req3 := web.WrapRequest(&http.Request{Host: "feedback.demo.com"})
+	Expect(req3.IsCustomDomain()).IsTrue()
 }
 
 func TestRequest_IsCrawler(t *testing.T) {
