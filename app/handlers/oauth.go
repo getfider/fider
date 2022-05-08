@@ -106,7 +106,7 @@ func OAuthToken() web.HandlerFunc {
 				err = bus.Dispatch(c, customOAuthConfigByProvider)
 				customOAuthConfig := customOAuthConfigByProvider.Result
 				if err != nil {
-					customOAuthConfig = &models.OAuthConfig{IsTrusted: false}
+					customOAuthConfig = &entity.OAuthConfig{IsTrusted: false}
 				}
 				if c.Tenant().IsPrivate && !customOAuthConfig.IsTrusted {
 					return c.Redirect("/not-invited")
