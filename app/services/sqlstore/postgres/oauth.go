@@ -117,7 +117,7 @@ func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) er
 				client_id, client_secret, authorize_url,
 				profile_url, token_url, scope, json_user_id_path,
 				json_user_name_path, json_user_email_path, logo_bkey
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 			RETURNING id`
 
 			err = trx.Get(&c.ID, query, tenant.ID, c.Provider,

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -102,13 +103,8 @@ func OAuthToken() web.HandlerFunc {
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				customOAuthConfigByProvider := &query.GetCustomOAuthConfigByProvider{Provider: provider}
-				err = bus.Dispatch(c, customOAuthConfigByProvider)
-				customOAuthConfig := customOAuthConfigByProvider.Result
-				if err != nil {
-					customOAuthConfig = &entity.OAuthConfig{IsTrusted: false}
-				}
-				if c.Tenant().IsPrivate && !customOAuthConfig.IsTrusted {
+				isTrusted := isTrustedOAuthProvider(c, provider)
+				if c.Tenant().IsPrivate && !isTrusted {
 					return c.Redirect("/not-invited")
 				}
 
@@ -145,6 +141,15 @@ func OAuthToken() web.HandlerFunc {
 
 		return c.Redirect(redirectURL.String())
 	}
+}
+
+func isTrustedOAuthProvider(ctx context.Context, provider string) bool {
+	customOAuthConfigByProvider := &query.GetCustomOAuthConfigByProvider{Provider: provider}
+	err := bus.Dispatch(ctx, customOAuthConfigByProvider)
+	if err != nil {
+		return false
+	}
+	return customOAuthConfigByProvider.Result.IsTrusted
 }
 
 // OAuthCallback handles the redirect back from the OAuth provider
