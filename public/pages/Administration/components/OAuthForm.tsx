@@ -209,13 +209,15 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
           `}
         </pre>
 
-        <Field label="Trust this provider in private mode">
-          <Toggle active={isTrusted} onToggle={setTrusted} />
-          <span>{isTrusted ? "Trusted" : "Not Trusted"}</span>
-          {isTrusted && <p className="info">In private mode, unknown users identified by this provider will be automatically created.</p>}
-          {!isTrusted && (
-            <p className="info">In private mode, users identified by this provider will be rejected if they are not already members or invited.</p>
-          )}
+        <Field label="Trusted Source">
+          <Toggle field="isTrusted" active={isTrusted} onToggle={setTrusted} label={isTrusted ? "Yes" : "No"} />
+          <p className="text-muted mt-1">
+            This setting only applies to private sites. This site is currently <strong>{fider.session.tenant.isPrivate ? "Private" : "Public"}</strong>.
+          </p>
+          <p className="text-muted">
+            If enabled, users authenticated by this provider can get access to this site without being invited. This is recommended for corporate access, such
+            as Okta, Microsoft AD, Google Workspace and others. Do not use this for public identity providers such as Facebook or Twitter.
+          </p>
         </Field>
 
         <Field label="Status">

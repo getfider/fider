@@ -68,7 +68,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
       async () => {
         const response = await actions.updateTenantEmailAuthAllowed(this.state.isEmailAuthAllowed)
         if (response.ok) {
-          notify.success(`You successfully ${this.state.isEmailAuthAllowed ? "allowed" : "disallowed"} email authentication.`)
+          notify.success(`You successfully changed email authentication setting.`)
         } else {
           this.setState(
             () => ({
@@ -106,11 +106,11 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
       <VStack spacing={8}>
         <div>
           <h2 className="text-display">General Authentication</h2>
-          <Form error={this.state.error}>
-            <Field label="Allow Email Authentication">
+          <Form error={this.state.error} className="mt-4">
+            <Field label="Allow Email Authentication" className="mt-2">
               <Toggle
                 field="isEmailAuthAllowed"
-                label={this.state.isEmailAuthAllowed ? "Allowed" : "Disallowed"}
+                label={this.state.isEmailAuthAllowed ? "Yes" : "No"}
                 disabled={!Fider.session.user.isAdministrator || !this.state.canDisableEmailAuth}
                 active={this.state.isEmailAuthAllowed}
                 onToggle={this.toggleEmailAuth}
@@ -120,8 +120,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
               )}
               <p className="text-muted my-1">
                 When email-based authentication is disabled, users will not be allowed to sign in using their email. Thus, they will be forced to use another
-                authentication provider, such as your preferred OAuth provider.{" "}
-                <strong>Be sure to enable and test one before you turn this setting off!</strong>
+                authentication provider, such as your preferred OAuth provider.
               </p>
               <p className="text-muted mt-1">Note: Administrator accounts will still be allowed to sign in using their email.</p>
             </Field>
