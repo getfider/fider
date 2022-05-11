@@ -200,7 +200,7 @@ func TestGetOAuthBaseURL(t *testing.T) {
 	Expect(web.OAuthBaseURL(ctx)).Equals("https://login.test.fider.io")
 
 	env.Config.HostMode = "single"
-	Expect(web.OAuthBaseURL(ctx)).Equals("https://mydomain.com")
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://test.fider.io")
 }
 
 func TestGetOAuthBaseURL_WithPort(t *testing.T) {
@@ -212,5 +212,5 @@ func TestGetOAuthBaseURL_WithPort(t *testing.T) {
 	Expect(web.OAuthBaseURL(ctx)).Equals("http://login.test.fider.io:3000")
 
 	env.Config.HostMode = "single"
-	Expect(web.OAuthBaseURL(ctx)).Equals("http://demo.test.fider.io:3000")
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://test.fider.io")
 }

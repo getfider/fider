@@ -29,11 +29,6 @@ func RunPing() int {
 		return 1
 	}
 
-	// Set Host if HostDomain is set
-	if env.IsSingleHostMode() && len(env.Config.HostDomain) > 0 {
-		req.Host = env.Config.HostDomain
-	}
-
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("Request failed with: %s\n", err)

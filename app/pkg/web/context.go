@@ -575,6 +575,10 @@ func LogoURL(ctx context.Context) string {
 
 // BaseURL return the base URL from given context
 func BaseURL(ctx context.Context) string {
+	if env.IsSingleHostMode() {
+		return env.Config.BaseURL
+	}
+
 	request, ok := ctx.Value(app.RequestCtxKey).(Request)
 	if ok {
 		return request.BaseURL()
