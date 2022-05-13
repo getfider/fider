@@ -3,7 +3,6 @@
 #####################
 FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.18-buster AS server-builder 
 
-ARG COMMITHASH
 
 RUN mkdir /server
 WORKDIR /server
@@ -12,6 +11,8 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . ./
+
+ARG COMMITHASH
 RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
 
 #################
@@ -20,7 +21,6 @@ RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-se
 FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-buster AS ui-builder 
 
 WORKDIR /ui
-
 
 COPY package.json package-lock.json ./
 RUN npm ci
