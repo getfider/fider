@@ -164,7 +164,7 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 		if errors.Cause(err) == errInvalidHostName {
 			log.Warn(m.ctx, err.Error())
 		} else {
-			log.Error(m.ctx, err)
+			log.Error(m.ctx, errors.Wrap(err, "failed to get certificate for %s", hello.ServerName))
 		}
 	}
 

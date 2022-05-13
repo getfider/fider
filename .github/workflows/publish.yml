@@ -22,13 +22,13 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
@@ -42,6 +42,8 @@ jobs:
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:PR_${{ github.event.workflow_run.pull_requests[0].number }}
+          cache-from: type=registry,ref=getfider/fider:buildcache
+          cache-to: type=registry,ref=getfider/fider:buildcache,mode=max
 
       - name: build and push docker image (push)
         if: ${{ github.event.workflow_run.event == 'push' }}
@@ -52,3 +54,5 @@ jobs:
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:SHA_${{ github.event.workflow_run.head_sha }},getfider/fider:main
+          cache-from: type=registry,ref=getfider/fider:buildcache
+          cache-to: type=registry,ref=getfider/fider:buildcache,mode=max
