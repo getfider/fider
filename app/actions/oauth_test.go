@@ -2,8 +2,9 @@ package actions_test
 
 import (
 	"context"
-	"github.com/getfider/fider/app/models/dto"
 	"testing"
+
+	"github.com/getfider/fider/app/models/dto"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
