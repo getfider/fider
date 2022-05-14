@@ -101,6 +101,7 @@ export interface CreateEditOAuthConfigRequest {
   jsonUserNamePath: string
   jsonUserEmailPath: string
   logo?: ImageUpload
+  isTrusted: boolean
 }
 
 export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Promise<Result> => {

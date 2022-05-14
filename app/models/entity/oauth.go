@@ -15,6 +15,7 @@ type OAuthConfig struct {
 	TokenURL          string
 	ProfileURL        string
 	Scope             string
+	IsTrusted         bool
 	JSONUserIDPath    string
 	JSONUserNamePath  string
 	JSONUserEmailPath string
@@ -38,6 +39,7 @@ func (o OAuthConfig) MarshalJSON() ([]byte, error) {
 		"tokenURL":          o.TokenURL,
 		"profileURL":        o.ProfileURL,
 		"scope":             o.Scope,
+		"isTrusted":         o.IsTrusted,
 		"jsonUserIDPath":    o.JSONUserIDPath,
 		"jsonUserNamePath":  o.JSONUserNamePath,
 		"jsonUserEmailPath": o.JSONUserEmailPath,

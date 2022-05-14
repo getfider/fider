@@ -2,8 +2,9 @@ package actions
 
 import (
 	"context"
-	"github.com/getfider/fider/app"
 	"strings"
+
+	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
@@ -28,6 +29,7 @@ type CreateEditOAuthConfig struct {
 	TokenURL          string           `json:"tokenURL"`
 	Scope             string           `json:"scope"`
 	ProfileURL        string           `json:"profileURL"`
+	IsTrusted         bool             `json:"isTrusted"`
 	JSONUserIDPath    string           `json:"jsonUserIDPath"`
 	JSONUserNamePath  string           `json:"jsonUserNamePath"`
 	JSONUserEmailPath string           `json:"jsonUserEmailPath"`

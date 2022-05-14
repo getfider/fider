@@ -45,6 +45,7 @@ export interface OAuthConfig {
   jsonUserIDPath: string
   jsonUserNamePath: string
   jsonUserEmailPath: string
+  isTrusted: boolean
 }
 
 export interface ImageUpload {

@@ -16,6 +16,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
   const [provider] = useState((props.config && props.config.provider) || "")
   const [displayName, setDisplayName] = useState((props.config && props.config.displayName) || "")
   const [enabled, setEnabled] = useState((props.config && props.config.status === OAuthConfigStatus.Enabled) || false)
+  const [isTrusted, setTrusted] = useState((props.config && props.config.isTrusted) || false)
   const [clientID, setClientID] = useState((props.config && props.config.clientID) || "")
   const [clientSecret, setClientSecret] = useState((props.config && props.config.clientSecret) || "")
   const [clientSecretEnabled, setClientSecretEnabled] = useState(!props.config)
@@ -35,6 +36,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
     const result = await actions.saveOAuthConfig({
       provider,
       status: enabled ? OAuthConfigStatus.Enabled : OAuthConfigStatus.Disabled,
+      isTrusted,
       displayName,
       clientID,
       clientSecret: clientSecretEnabled ? clientSecret : "",
@@ -206,6 +208,17 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
 }
           `}
         </pre>
+
+        <Field label="Trusted Source">
+          <Toggle field="isTrusted" active={isTrusted} onToggle={setTrusted} label={isTrusted ? "Yes" : "No"} />
+          <p className="text-muted mt-1">
+            This setting only applies to private sites. This site is currently <strong>{fider.session.tenant.isPrivate ? "Private" : "Public"}</strong>.
+          </p>
+          <p className="text-muted">
+            If enabled, users authenticated by this provider can get access to this site without being invited. This is recommended for corporate access, such
+            as Okta, Microsoft AD, Google Workspace and others. Do not use this for public identity providers such as Facebook or Twitter.
+          </p>
+        </Field>
 
         <Field label="Status">
           <Toggle field="status" disabled={props.cantDisable} active={enabled} onToggle={setEnabled} label={enabled ? "Enabled" : "Disabled"} />

@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/services/oauth"
 
@@ -227,23 +228,31 @@ func TestOAuthTokenHandler_NewUser(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		Expect(q.Provider).Equals(app.FacebookProvider)
+		Expect(q.UID).Equals("FB456")
 		return app.ErrNotFound
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		Expect(q.Email).Equals("some.guy@facebook.com")
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		Expect(q.Provider).Equals(app.FacebookProvider)
 		return app.ErrNotFound
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetOAuthProfile) error {
-		if q.Provider == app.FacebookProvider && q.Code == "456" {
-			q.Result = &dto.OAuthUserProfile{
-				ID:    "FB456",
-				Name:  "Some Facebook Guy",
-				Email: "some.guy@facebook.com",
-			}
-			return nil
+		Expect(q.Provider).Equals(app.FacebookProvider)
+		Expect(q.Code).Equals("456")
+
+		q.Result = &dto.OAuthUserProfile{
+			ID:    "FB456",
+			Name:  "Some Facebook Guy",
+			Email: "some.guy@facebook.com",
 		}
-		return app.ErrNotFound
+		return nil
 	})
 
 	server := mock.NewServer()
@@ -275,6 +284,10 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 		return app.ErrNotFound
 	})
 
@@ -414,7 +427,7 @@ func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 	ExpectFiderAuthCookie(response, mock.JonSnow)
 }
 
-func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
+func TestOAuthTokenHandler_NewUser_PrivateSite(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
@@ -428,16 +441,20 @@ func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetOAuthProfile) error {
-		if q.Provider == app.FacebookProvider && q.Code == "456" {
-			q.Result = &dto.OAuthUserProfile{
-				ID:    "FB456",
-				Name:  "Some Facebook Guy",
-				Email: "some.guy@facebook.com",
-			}
-			return nil
-		}
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		Expect(q.Provider).Equals(app.FacebookProvider)
 		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetOAuthProfile) error {
+		Expect(q.Provider).Equals(app.FacebookProvider)
+		Expect(q.Code).Equals("456")
+		q.Result = &dto.OAuthUserProfile{
+			ID:    "FB456",
+			Name:  "Some Facebook Guy",
+			Email: "some.guy@facebook.com",
+		}
+		return nil
 	})
 
 	code, response := server.
@@ -451,6 +468,73 @@ func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(response.Header().Get("Location")).Equals("/not-invited")
 	ExpectFiderAuthCookie(response, nil)
+}
+
+func TestOAuthTokenHandler_NewUser_PrivateSite_UsingTrustedProvider(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	mock.AvengersTenant.IsPrivate = true
+
+	providerCode := "_jd72hfjv"
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+		Expect(c.User.Name).Equals("Mark Doe")
+		Expect(c.User.Email).Equals("mark.doe@microsoft.com")
+		Expect(c.User.Providers).HasLen(1)
+		Expect(c.User.Providers[0].UID).Equals("1234-5678")
+		Expect(c.User.Providers[0].Name).Equals(providerCode)
+		Expect(c.User.Role).Equals(enum.RoleVisitor)
+
+		c.User.ID = 999
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		Expect(q.Provider).Equals(providerCode)
+		q.Result = &entity.OAuthConfig{
+			Provider:    providerCode,
+			DisplayName: "Microsoft AD",
+			IsTrusted:   true,
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetOAuthProfile) error {
+		Expect(q.Provider).Equals(providerCode)
+		Expect(q.Code).Equals("000111")
+		q.Result = &dto.OAuthUserProfile{
+			ID:    "1234-5678",
+			Name:  "Mark Doe",
+			Email: "mark.doe@microsoft.com",
+		}
+		return nil
+	})
+
+	code, response := server.
+		WithURL("http://feedback.theavengers.com/oauth/"+providerCode+"/token?code=000111&identifier=MY_SESSION_ID&redirect=/").
+		OnTenant(mock.AvengersTenant).
+		AddParam("provider", providerCode).
+		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
+		Use(middlewares.Session()).
+		Execute(handlers.OAuthToken())
+
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+
+	Expect(response.Header().Get("Location")).Equals("/")
+	ExpectFiderAuthCookie(response, &entity.User{
+		ID:    999,
+		Name:  "Mark Doe",
+		Email: "mark.doe@microsoft.com",
+	})
 }
 
 func TestOAuthTokenHandler_InvalidIdentifier(t *testing.T) {
