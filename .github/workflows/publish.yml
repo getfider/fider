@@ -42,8 +42,8 @@ jobs:
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:PR_${{ github.event.workflow_run.pull_requests[0].number }}
-          cache-from: type=registry,ref=getfider/fider:buildcache
-          cache-to: type=registry,ref=getfider/fider:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: build and push docker image (push)
         if: ${{ github.event.workflow_run.event == 'push' }}
@@ -54,5 +54,5 @@ jobs:
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:SHA_${{ github.event.workflow_run.head_sha }},getfider/fider:main
-          cache-from: type=registry,ref=getfider/fider:buildcache
-          cache-to: type=registry,ref=getfider/fider:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
