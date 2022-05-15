@@ -11,20 +11,6 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-func TestSecure_HostMismatch(t *testing.T) {
-	RegisterT(t)
-	env.Config.HostDomain = "yoursite.com"
-
-	server := mock.NewSingleTenantServer()
-	server.Use(middlewares.Secure())
-
-	status, _ := server.WithURL("http://someothersite.com").Execute(func(c *web.Context) error {
-		return c.String(http.StatusOK, c.Tenant().Name)
-	})
-
-	Expect(status).Equals(http.StatusNotFound)
-}
-
 func TestSecureWithoutCDN(t *testing.T) {
 	RegisterT(t)
 

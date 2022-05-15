@@ -46,15 +46,12 @@ var errInvalidHostName = errors.New("autotls: invalid hostname")
 func isValidHostName(ctx context.Context, host string) error {
 	// In this context, host can only be custom domains, not a subdomain of fider.io
 
-	if host == "" {
-		return errors.Wrap(errInvalidHostName, "host cannot be empty.")
+	if env.IsSingleHostMode() {
+		return nil
 	}
 
-	if env.IsSingleHostMode() {
-		if env.Config.HostDomain == host {
-			return nil
-		}
-		return errors.Wrap(errInvalidHostName, "server name mismatch")
+	if host == "" {
+		return errors.Wrap(errInvalidHostName, "host cannot be empty.")
 	}
 
 	trx, err := dbx.BeginTx(ctx)

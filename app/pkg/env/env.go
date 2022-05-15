@@ -2,6 +2,7 @@ package env
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -43,7 +44,8 @@ type config struct {
 	}
 	Port       string `env:"PORT,default=3000"`
 	HostMode   string `env:"HOST_MODE,default=single"`
-	HostDomain string `env:"HOST_DOMAIN,required"`
+	HostDomain string `env:"HOST_DOMAIN"`
+	BaseURL    string `env:"BASE_URL"`
 	Locale     string `env:"LOCALE,default=en"`
 	JWTSecret  string `env:"JWT_SECRET,required"`
 	Paddle     struct {
@@ -144,6 +146,19 @@ func Reload() {
 	err := envdecode.Decode(&Config)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse environment variables"))
+	}
+
+	if IsSingleHostMode() {
+		if Config.HostDomain != "" {
+			panic("HOST_DOMAIN environment variable has been replaced by BASE_URL. Set it to your site base url, e.g: https://feedback.mysite.com")
+		}
+
+		mustBeSet("BASE_URL")
+
+		_, err := url.Parse(Config.BaseURL)
+		if err != nil {
+			panic(errors.Wrap(err, "'%s' is not a valid URL", Config.BaseURL))
+		}
 	}
 
 	// Email Type can be inferred if absense

@@ -115,7 +115,7 @@ func TestTenantURL_SingleHostMode(t *testing.T) {
 		ID:        1,
 		Subdomain: "theavengers",
 	}
-	Expect(web.TenantBaseURL(ctx, tenant)).Equals("http://demo.test.fider.io:3000")
+	Expect(web.TenantBaseURL(ctx, tenant)).Equals("https://test.fider.io:3000")
 }
 
 func TestAssetsURL_SingleHostMode(t *testing.T) {
@@ -128,8 +128,8 @@ func TestAssetsURL_SingleHostMode(t *testing.T) {
 		Subdomain: "theavengers",
 	})
 
-	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
-	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
+	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("/assets/main.js")
+	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("/assets/main.css")
 
 	env.Config.CDN.Host = "fidercdn.com"
 	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("http://fidercdn.com/assets/main.js")
@@ -200,7 +200,7 @@ func TestGetOAuthBaseURL(t *testing.T) {
 	Expect(web.OAuthBaseURL(ctx)).Equals("https://login.test.fider.io")
 
 	env.Config.HostMode = "single"
-	Expect(web.OAuthBaseURL(ctx)).Equals("https://mydomain.com")
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://test.fider.io:3000")
 }
 
 func TestGetOAuthBaseURL_WithPort(t *testing.T) {
@@ -212,5 +212,5 @@ func TestGetOAuthBaseURL_WithPort(t *testing.T) {
 	Expect(web.OAuthBaseURL(ctx)).Equals("http://login.test.fider.io:3000")
 
 	env.Config.HostMode = "single"
-	Expect(web.OAuthBaseURL(ctx)).Equals("http://demo.test.fider.io:3000")
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://test.fider.io:3000")
 }

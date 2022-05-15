@@ -530,12 +530,11 @@ func (c *Context) SetCanonicalURL(rawurl string) {
 
 //TenantBaseURL returns base URL for a given tenant
 func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
-	request := ctx.Value(app.RequestCtxKey).(Request)
-
 	if env.IsSingleHostMode() {
-		return request.BaseURL()
+		return BaseURL(ctx)
 	}
 
+	request := ctx.Value(app.RequestCtxKey).(Request)
 	address := request.URL.Scheme + "://"
 	if tenant.CNAME != "" {
 		address += tenant.CNAME
@@ -553,15 +552,21 @@ func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
 // AssetsURL return the full URL to a tenant-specific static asset
 func AssetsURL(ctx context.Context, path string, a ...interface{}) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
-	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	path = fmt.Sprintf(path, a...)
-	if env.Config.CDN.Host != "" && hasTenant {
-		if env.IsSingleHostMode() {
+
+	if env.IsSingleHostMode() {
+		if env.Config.CDN.Host != "" {
 			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
 		}
+		return path
+	}
+
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+	if env.Config.CDN.Host != "" && hasTenant {
 		return request.URL.Scheme + "://" + tenant.Subdomain + "." + env.Config.CDN.Host + path
 	}
-	return request.BaseURL() + path
+
+	return BaseURL(ctx) + path
 }
 
 // LogoURL return the full URL to the tenant-specific logo URL
@@ -575,6 +580,10 @@ func LogoURL(ctx context.Context) string {
 
 // BaseURL return the base URL from given context
 func BaseURL(ctx context.Context) string {
+	if env.IsSingleHostMode() {
+		return env.Config.BaseURL
+	}
+
 	request, ok := ctx.Value(app.RequestCtxKey).(Request)
 	if ok {
 		return request.BaseURL()
