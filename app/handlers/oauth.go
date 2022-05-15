@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 
@@ -163,6 +164,11 @@ func OAuthCallback() web.HandlerFunc {
 		provider := c.Param("provider")
 		state := c.QueryParam("state")
 		parts := strings.Split(state, "|")
+
+		if parts[0] == "" {
+			log.Warnf(c, "Missing redirect URL in OAuth callback state for provider @{Provider}.", dto.Props{"Provider": provider})
+			return c.NotFound()
+		}
 
 		redirectURL, err := url.ParseRequestURI(parts[0])
 		if err != nil {
