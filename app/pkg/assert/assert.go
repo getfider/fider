@@ -3,25 +3,26 @@ package assert
 import (
 	"context"
 	"fmt"
-	"github.com/getfider/fider/app/models/dto"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/dto"
+
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
-func mustBeFunction(v interface{}) {
+func mustBeFunction(v any) {
 	if reflect.TypeOf(v).Kind() != reflect.Func {
 		panic("Value is not a function")
 	}
 }
 
-func describe(v interface{}) string {
+func describe(v any) string {
 	value := reflect.ValueOf(v)
 
 	if v == nil {
@@ -40,7 +41,7 @@ func describeProps(props dto.Props) string {
 }
 
 //Fail the current test case with given message
-func Fail(msg string, args ...interface{}) {
+func Fail(msg string, args ...any) {
 	if currentT == nil {
 		panic("Did you forget to call RegisterT(t)?")
 	}
@@ -78,11 +79,11 @@ func restartEnv() {
 
 //AnyAssertions is used to assert any kind of value
 type AnyAssertions struct {
-	actual interface{}
+	actual any
 }
 
 //Expect starts new assertions on given value
-func Expect(actual interface{}) *AnyAssertions {
+func Expect(actual any) *AnyAssertions {
 	if currentT == nil {
 		panic("Did you forget to call RegisterT(t)?")
 	}
@@ -92,7 +93,7 @@ func Expect(actual interface{}) *AnyAssertions {
 }
 
 //Equals asserts that actual value equals expected value
-func (a *AnyAssertions) Equals(expected interface{}) bool {
+func (a *AnyAssertions) Equals(expected any) bool {
 	if reflect.DeepEqual(expected, a.actual) {
 		return true
 	}
@@ -112,7 +113,7 @@ func (a *AnyAssertions) ContainsSubstring(substr string) bool {
 }
 
 //NotEquals asserts that actual value is different than given value
-func (a *AnyAssertions) NotEquals(other interface{}) bool {
+func (a *AnyAssertions) NotEquals(other any) bool {
 	if !reflect.DeepEqual(other, a.actual) {
 		return true
 	}
@@ -189,7 +190,7 @@ func (a *AnyAssertions) Panics() (panicked bool) {
 }
 
 //EventuallyEquals asserts that, within 30 seconds, the actual function will return same value as expected value
-func (a *AnyAssertions) EventuallyEquals(expected interface{}) bool {
+func (a *AnyAssertions) EventuallyEquals(expected any) bool {
 	mustBeFunction(a.actual)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -229,7 +230,7 @@ func (a *AnyAssertions) TemporarilySimilar(other time.Time, diff time.Duration) 
 	return false
 }
 
-func (a AnyAssertions) ContainsProps(props map[string]interface{}) bool {
+func (a AnyAssertions) ContainsProps(props map[string]any) bool {
 	actualValue := reflect.ValueOf(a.actual)
 	actualType := actualValue.Type()
 	if actualType.Kind() != reflect.Map ||
@@ -238,7 +239,7 @@ func (a AnyAssertions) ContainsProps(props map[string]interface{}) bool {
 		panic("Value is not a Props")
 	}
 
-	actualProps := reflect.ValueOf(a.actual).Convert(reflect.TypeOf(map[string]interface{}{})).Interface().(map[string]interface{})
+	actualProps := reflect.ValueOf(a.actual).Convert(reflect.TypeOf(map[string]any{})).Interface().(map[string]any)
 	for key, expected := range props {
 		actual, ok := actualProps[key]
 		if !ok {

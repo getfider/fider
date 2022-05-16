@@ -30,7 +30,7 @@ func GetTemplate(baseFileName, templateFileName string) *template.Template {
 	return tpl
 }
 
-func Render(ctx context.Context, tmpl *template.Template, w io.Writer, data interface{}) error {
+func Render(ctx context.Context, tmpl *template.Template, w io.Writer, data any) error {
 	if err := template.Must(tmpl.Clone()).Funcs(template.FuncMap{
 		"translate": func(key string, params ...i18n.Params) string {
 			return i18n.T(ctx, key, params...)

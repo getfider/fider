@@ -27,7 +27,7 @@ func (o OAuthConfig) MarshalJSON() ([]byte, error) {
 	if len(o.ClientSecret) >= 10 {
 		secret = o.ClientSecret[0:3] + "..." + o.ClientSecret[len(o.ClientSecret)-3:]
 	}
-	return json.Marshal(map[string]interface{}{
+	return json.Marshal(map[string]any{
 		"id":                o.ID,
 		"provider":          o.Provider,
 		"displayName":       o.DisplayName,

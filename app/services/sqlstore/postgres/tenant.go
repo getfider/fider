@@ -199,7 +199,7 @@ func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) er
 
 func saveVerificationKey(ctx context.Context, c *cmd.SaveVerificationKey) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		var userID interface{}
+		var userID any
 		if c.Request.GetUser() != nil {
 			userID = c.Request.GetUser().ID
 		}

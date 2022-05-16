@@ -86,7 +86,7 @@ func writeLog(ctx context.Context, level log.Level, message string, props dto.Pr
 }
 
 func colorizeLevel(level log.Level) string {
-	var colorFunc func(interface{}) string
+	var colorFunc func(any) string
 
 	switch level {
 	case log.DEBUG:

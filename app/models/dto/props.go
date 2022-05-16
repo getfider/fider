@@ -6,7 +6,7 @@ import (
 )
 
 // Props is a map of key:value
-type Props map[string]interface{}
+type Props map[string]any
 
 // Value converts props into a database value
 func (p Props) Value() (driver.Value, error) {

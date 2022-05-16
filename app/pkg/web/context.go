@@ -28,8 +28,8 @@ import (
 	"github.com/getfider/fider/app/services/blob"
 )
 
-// Map defines a generic map of type `map[string]interface{}`
-type Map map[string]interface{}
+// Map defines a generic map of type `map[string]any`
+type Map map[string]any
 
 // StringMap defines a map of type `map[string]string`
 type StringMap map[string]string
@@ -169,7 +169,7 @@ func (c *Context) SetTenant(tenant *entity.Tenant) {
 }
 
 //Bind context values into given model
-func (c *Context) Bind(i interface{}) error {
+func (c *Context) Bind(i any) error {
 	err := c.engine.binder.Bind(i, c)
 	if err != nil {
 		return errors.Wrap(err, "failed to bind request to model")
@@ -306,7 +306,7 @@ func (c *Context) Attachment(fileName, contentType string, file []byte) error {
 }
 
 //Ok returns 200 OK with JSON result
-func (c *Context) Ok(data interface{}) error {
+func (c *Context) Ok(data any) error {
 	return c.JSON(http.StatusOK, data)
 }
 
@@ -433,7 +433,7 @@ func (c *Context) GetMatchedRoutePath() string {
 }
 
 // Set saves data in the context.
-func (c *Context) Set(key interface{}, val interface{}) {
+func (c *Context) Set(key any, val any) {
 	c.Context = context.WithValue(c.Context, key, val)
 }
 
@@ -448,7 +448,7 @@ func (c *Context) XML(code int, text string) error {
 }
 
 // JSON returns a JSON response with status code.
-func (c *Context) JSON(code int, i interface{}) error {
+func (c *Context) JSON(code int, i any) error {
 	b, err := json.Marshal(i)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal response to JSON")
@@ -550,7 +550,7 @@ func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
 }
 
 // AssetsURL return the full URL to a tenant-specific static asset
-func AssetsURL(ctx context.Context, path string, a ...interface{}) string {
+func AssetsURL(ctx context.Context, path string, a ...any) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
 	path = fmt.Sprintf(path, a...)
 

@@ -78,7 +78,7 @@ func (s *Server) AsUser(user *entity.User) *Server {
 }
 
 // AddParam to current context route parameters
-func (s *Server) AddParam(name string, value interface{}) *Server {
+func (s *Server) AddParam(name string, value any) *Server {
 	s.context.AddParam(name, fmt.Sprintf("%v", value))
 	return s
 }
@@ -150,7 +150,7 @@ func (s *Server) ExecuteAsPage(handler web.HandlerFunc) (int, *web.Props) {
 	endIndex := strings.Index(bodyString[startIndex:], endTag)
 
 	serverData := strings.TrimSpace(bodyString[startIndex : startIndex+endIndex])
-	serverDataJSON := map[string]interface{}{}
+	serverDataJSON := map[string]any{}
 
 	err := json.Unmarshal([]byte(serverData), &serverDataJSON)
 	if err != nil {
@@ -160,7 +160,7 @@ func (s *Server) ExecuteAsPage(handler web.HandlerFunc) (int, *web.Props) {
 	title, _ := serverDataJSON["title"].(string)
 	description, _ := serverDataJSON["description"].(string)
 	page, _ := serverDataJSON["page"].(string)
-	props, _ := serverDataJSON["props"].(map[string]interface{})
+	props, _ := serverDataJSON["props"].(map[string]any)
 
 	return code, &web.Props{
 		Title:       title,

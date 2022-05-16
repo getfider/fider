@@ -427,7 +427,7 @@ func getAllPosts(ctx context.Context, q *query.GetAllPosts) error {
 	})
 }
 
-func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...interface{}) (*entity.Post, error) {
+func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...any) (*entity.Post, error) {
 	post := dbPost{}
 
 	if err := trx.Get(&post, query, args...); err != nil {

@@ -11,8 +11,8 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
-type HandlerFunc interface{}
-type Msg interface{}
+type HandlerFunc any
+type Msg any
 
 type Service interface {
 	Name() string

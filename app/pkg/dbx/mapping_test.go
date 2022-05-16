@@ -9,8 +9,8 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 )
 
-func createScanner(values ...interface{}) func(dest ...interface{}) error {
-	return func(dest ...interface{}) error {
+func createScanner(values ...any) func(dest ...any) error {
+	return func(dest ...any) error {
 		for i := 0; i < len(values); i++ {
 			reflect.Indirect(reflect.ValueOf(dest[i])).Set(reflect.ValueOf(values[i]))
 		}

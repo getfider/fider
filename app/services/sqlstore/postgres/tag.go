@@ -186,7 +186,7 @@ func queryTagBySlug(trx *dbx.Trx, tenant *entity.Tenant, slug string) (*entity.T
 	return tag.toModel(), nil
 }
 
-func queryTags(trx *dbx.Trx, query string, args ...interface{}) ([]*entity.Tag, error) {
+func queryTags(trx *dbx.Trx, query string, args ...any) ([]*entity.Tag, error) {
 	tags := []*dbTag{}
 	err := trx.Select(&tags, query, args...)
 	if err != nil {

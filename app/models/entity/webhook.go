@@ -3,6 +3,7 @@ package entity
 import (
 	"database/sql/driver"
 	"encoding/json"
+
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -25,7 +26,7 @@ func (h HttpHeaders) Value() (driver.Value, error) {
 	return json.Marshal(h)
 }
 
-func (h *HttpHeaders) Scan(src interface{}) error {
+func (h *HttpHeaders) Scan(src any) error {
 	if src == nil {
 		return nil
 	}

@@ -105,8 +105,8 @@ func Page(title, description, page string) web.HandlerFunc {
 
 //NewLogError is the input model for UI errors
 type NewLogError struct {
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Message string `json:"message"`
+	Data    any    `json:"data"`
 }
 
 //LogError logs an error coming from the UI

@@ -19,19 +19,19 @@ func caller(skip int) (string, int) {
 }
 
 //New creates a new error
-func New(format string, a ...interface{}) error {
+func New(format string, a ...any) error {
 	file, line := caller(2)
 	text := fmt.Sprintf(format, a...)
 	return fmt.Errorf("%s (%s:%d)", text, file, line)
 }
 
 //Wrap existing error with additional text
-func Wrap(err error, format string, a ...interface{}) error {
+func Wrap(err error, format string, a ...any) error {
 	return wrap(err, 0, format, a...)
 }
 
 //Panicked wraps panick errow with extra details of error
-func Panicked(r interface{}) error {
+func Panicked(r any) error {
 	err, ok := r.(error)
 	if !ok {
 		err = fmt.Errorf("%v", r)
@@ -50,7 +50,7 @@ func StackN(err error, skip int) error {
 	return wrap(err, skip, "")
 }
 
-func wrap(err error, skip int, format string, a ...interface{}) error {
+func wrap(err error, skip int, format string, a ...any) error {
 	if err == nil {
 		return err
 	}

@@ -28,19 +28,19 @@ func exportTable(ctx context.Context, tableName string) ([]byte, error) {
 	return json.Marshal(jsonify(rows))
 }
 
-func jsonify(rows *sql.Rows) []map[string]interface{} {
+func jsonify(rows *sql.Rows) []map[string]any {
 	defer rows.Close()
 	columns, err := rows.Columns()
 	if err != nil {
 		panic(err.Error())
 	}
 
-	allResults := make([]map[string]interface{}, 0)
+	allResults := make([]map[string]any, 0)
 
 	for rows.Next() {
-		results := make(map[string]interface{})
-		values := make([]interface{}, len(columns))
-		scanArgs := make([]interface{}, len(values))
+		results := make(map[string]any)
+		values := make([]any, len(columns))
+		scanArgs := make([]any, len(values))
 		for i := range values {
 			scanArgs[i] = &values[i]
 		}

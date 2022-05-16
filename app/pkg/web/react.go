@@ -21,7 +21,7 @@ type ReactRenderer struct {
 
 func newIsolatePool() *sync.Pool {
 	return &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			isolate := v8go.NewIsolate()
 
 			runtime.SetFinalizer(isolate, func(iso *v8go.Isolate) {

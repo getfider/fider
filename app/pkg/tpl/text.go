@@ -1,9 +1,10 @@
 package tpl
 
 import (
-	"github.com/getfider/fider/app/pkg/markdown"
 	"strings"
 	"text/template"
+
+	"github.com/getfider/fider/app/pkg/markdown"
 )
 
 func GetTextTemplate(name string, rawText string) (*template.Template, error) {
@@ -19,7 +20,7 @@ func GetTextTemplate(name string, rawText string) (*template.Template, error) {
 	return tpl, nil
 }
 
-func Execute(tmpl *template.Template, data interface{}) (string, error) {
+func Execute(tmpl *template.Template, data any) (string, error) {
 	builder := &strings.Builder{}
 	if err := tmpl.Execute(builder, data); err != nil {
 		return "", err

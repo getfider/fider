@@ -28,7 +28,7 @@ var localeToPlurals = map[string]string{
 	"tr":    "tr",
 }
 
-type Params map[string]interface{}
+type Params map[string]any
 
 // cache for locale parser and file content to prevent excessive disk IO
 var cache = make(map[string]localeData)

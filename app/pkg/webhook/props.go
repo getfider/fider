@@ -6,7 +6,7 @@ import (
 )
 
 // Props is a map of key:value
-type Props map[string]interface{}
+type Props map[string]any
 
 // SetUser describe the user prefixed by "keyPrefix"
 func (p Props) SetUser(user *entity.User, keyPrefix string) Props {

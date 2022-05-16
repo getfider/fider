@@ -22,7 +22,7 @@ func NewRowMapper() *RowMapper {
 }
 
 //Map values from scanner (usually sql.Rows.Scan) into dest based on columns
-func (m *RowMapper) Map(dest interface{}, columns []string, scanner func(dest ...interface{}) error) error {
+func (m *RowMapper) Map(dest any, columns []string, scanner func(dest ...any) error) error {
 	t := reflect.TypeOf(dest)
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
@@ -44,7 +44,7 @@ func (m *RowMapper) Map(dest interface{}, columns []string, scanner func(dest ..
 		m.Unlock()
 	}
 
-	pointers := make([]interface{}, len(columns))
+	pointers := make([]any, len(columns))
 	for i, c := range columns {
 		mapping := typeMapper.Fields[c]
 		field := reflect.ValueOf(dest).Elem()

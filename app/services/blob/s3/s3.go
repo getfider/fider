@@ -183,7 +183,7 @@ func isNotFound(err error) bool {
 	return false
 }
 
-func wrap(err error, format string, a ...interface{}) error {
+func wrap(err error, format string, a ...any) error {
 	if awsErr, ok := err.(awserr.Error); ok {
 		return errors.Wrap(awsErr.OrigErr(), format, a...)
 	}

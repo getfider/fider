@@ -16,7 +16,7 @@ import (
 
 var strictHtmlPolicy = bluemonday.NewPolicy()
 
-var templateFunctions = map[string]interface{}{
+var templateFunctions = map[string]any{
 	"stripHtml": func(input string) string {
 		return strictHtmlPolicy.Sanitize(input)
 	},
@@ -38,12 +38,12 @@ var templateFunctions = map[string]interface{}{
 	"markdown": func(input string) template.HTML {
 		return markdown.Full(input)
 	},
-	"dict": func(values ...interface{}) map[string]interface{} {
+	"dict": func(values ...any) map[string]any {
 		if len(values)%2 != 0 {
 			panic(errors.New("invalid dictionary call"))
 		}
 
-		dict := make(map[string]interface{})
+		dict := make(map[string]any)
 		for i := 0; i < len(values); i += 2 {
 			var key string
 			switch v := values[i].(type) {
@@ -59,10 +59,10 @@ var templateFunctions = map[string]interface{}{
 	"format": func(format string, date time.Time) string {
 		return date.Format(format)
 	},
-	"quote": func(text interface{}) string {
+	"quote": func(text any) string {
 		return quote(text)
 	},
-	"escape": func(text interface{}) string {
+	"escape": func(text any) string {
 		quoted := quote(text)
 		return quoted[1 : len(quoted)-1]
 	},
@@ -74,6 +74,6 @@ var templateFunctions = map[string]interface{}{
 	},
 }
 
-func quote(text interface{}) string {
+func quote(text any) string {
 	return strconv.Quote(fmt.Sprintf("%v", text))
 }

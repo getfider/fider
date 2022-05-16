@@ -387,7 +387,7 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 	})
 }
 
-func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...interface{}) (*entity.User, error) {
+func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*entity.User, error) {
 	user := dbUser{}
 	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey FROM users WHERE status != %d AND ", enum.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)

@@ -17,7 +17,7 @@ var (
 )
 
 // FromName return content with given color name
-func FromName(colorName string, content interface{}) string {
+func FromName(colorName string, content any) string {
 	switch strings.ToUpper(colorName) {
 	case "RED":
 		return Red(content)
@@ -39,36 +39,36 @@ func FromName(colorName string, content interface{}) string {
 }
 
 // Red return content with red color
-func Red(content interface{}) string {
+func Red(content any) string {
 	return fmt.Sprintf("%s%v%s", colorRed, content, resetAll)
 }
 
 // Green return content with green color
-func Green(content interface{}) string {
+func Green(content any) string {
 	return fmt.Sprintf("%s%v%s", colorGreen, content, resetAll)
 }
 
 // Yellow return content with yellow color
-func Yellow(content interface{}) string {
+func Yellow(content any) string {
 	return fmt.Sprintf("%s%v%s", colorYellow, content, resetAll)
 }
 
 // Blue return content with blue color
-func Blue(content interface{}) string {
+func Blue(content any) string {
 	return fmt.Sprintf("%s%v%s", colorBlue, content, resetAll)
 }
 
 // Magenta return content with magenta color
-func Magenta(content interface{}) string {
+func Magenta(content any) string {
 	return fmt.Sprintf("%s%v%s", colorMagenta, content, resetAll)
 }
 
 // Bold return content with bold text
-func Bold(content interface{}) string {
+func Bold(content any) string {
 	return fmt.Sprintf("%s%v%s", styleBold, content, resetAll)
 }
 
 // Reverse return content with reverse colors
-func Reverse(content interface{}) string {
+func Reverse(content any) string {
 	return fmt.Sprintf("%s%v%s", styleReverse, content, resetAll)
 }

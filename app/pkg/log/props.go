@@ -28,12 +28,12 @@ func GetProperties(ctx context.Context) dto.Props {
 	return dto.Props{}
 }
 
-func GetProperty(ctx context.Context, key string) interface{} {
+func GetProperty(ctx context.Context, key string) any {
 	props := GetProperties(ctx)
 	return props[key]
 }
 
-func WithProperty(ctx context.Context, key string, value interface{}) context.Context {
+func WithProperty(ctx context.Context, key string, value any) context.Context {
 	return WithProperties(ctx, dto.Props{
 		key: value,
 	})

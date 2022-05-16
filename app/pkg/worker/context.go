@@ -53,7 +53,7 @@ func (c *Context) TaskName() string {
 }
 
 // Set saves data in the context.
-func (c *Context) Set(key interface{}, val interface{}) {
+func (c *Context) Set(key any, val any) {
 	c.Context = context.WithValue(c.Context, key, val)
 }
 

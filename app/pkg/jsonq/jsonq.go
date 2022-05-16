@@ -71,7 +71,7 @@ func (q *Query) IsArray() bool {
 //ArrayLength returns number of elements in the array
 func (q *Query) ArrayLength() int {
 	if q.IsArray() {
-		var arr []interface{}
+		var arr []any
 		err := json.Unmarshal([]byte(q.json), &arr)
 		if err != nil {
 			panic(err)
