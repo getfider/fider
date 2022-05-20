@@ -14,39 +14,39 @@ const locales: { [key: string]: Locale } = {
   },
   "es-ES": {
     text: "🇪🇸 Spanish",
-    translated: 100,
+    translated: 97,
   },
   de: {
     text: "🇩🇪 German",
-    translated: 100,
+    translated: 97,
   },
   fr: {
     text: "🇫🇷 French",
-    translated: 100,
+    translated: 97,
   },
   "sv-SE": {
     text: "🇸🇪 Swedish",
-    translated: 100,
+    translated: 97,
   },
   nl: {
     text: "🇳🇱 Dutch",
-    translated: 100,
+    translated: 97,
   },
   pl: {
     text: "🇵🇱 Polish",
-    translated: 100,
+    translated: 97,
   },
   ru: {
     text: "🇷🇺 Russian",
-    translated: 100,
+    translated: 97,
   },
   sk: {
     text: "🇸🇰 Slovak",
-    translated: 100,
+    translated: 97,
   },
   tr: {
     text: "🇹🇷 Turkish",
-    translated: 100,
+    translated: 97,
   },
 }
 

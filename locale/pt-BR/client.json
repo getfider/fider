@@ -26,7 +26,7 @@
   "error.internalerror.title": "Oops, isso não era esperado…",
   "error.pagenotfound.text": "O link que você acessou pode estar quebrado ou a página pode ter sido removida.",
   "error.pagenotfound.title": "Página não encontrada",
-  "error.unauthorized.text": "Sem permissão para acessar esta página.",
+  "error.unauthorized.text": "Você não está autorizado a visualizar esta página.",
   "error.unauthorized.title": "Não autorizado",
   "home.form.defaultinvitation": "Insira sua sugestão aqui...",
   "home.form.defaultwelcomemessage": "Gostaríamos de ouvir sobre o que você está pensando.\n\nO que podemos fazer melhor? Este é o lugar para você votar, discutir e compartilhar ideias.",
@@ -83,7 +83,7 @@
   "modal.deletecomment.text": "Este processo é irreversível. <0>Tem certeza?</0>",
   "modal.showvotes.message.zeromatches": "Nenhum usuário encontrado para <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Procurar usuários por nome...",
-  "modal.signin.header": "Faça login para postar e votar",
+  "modal.signin.header": "Faça login para participar e votar",
   "mynotifications.label.readrecently": "Lido nos últimos 30 dias.",
   "mynotifications.message.nounread": "Nenhuma notificação não lida.",
   "mynotifications.page.subtitle": "Mantenha-se atualizado com o que está acontecendo",
@@ -148,6 +148,6 @@
   "signin.message.locked.title": "<0>{0}</0> está bloqueado no momento.",
   "signin.message.onlyadmins": "Atualmente, só é permitido entrar em uma conta de administrador",
   "signin.message.private.text": "Se você tem uma conta ou um convite, você pode usar as seguintes opções para fazer o login.",
-  "signin.message.private.title": "<0>{0}</0> é um espaço privado e requer um convite para se juntar a ele.",
+  "signin.message.private.title": "<0>{0}</0> é um espaço privado, você deve se inscrever para participar e votar.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }
