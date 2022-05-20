@@ -24,7 +24,7 @@ const Private = (): JSX.Element => {
     <>
       <p className="text-title">
         <Trans id="signin.message.private.title">
-          <strong>{fider.session.tenant.name}</strong> is a private space and requires an invitation to join it.
+          <strong>{fider.session.tenant.name}</strong> is a private space, you must sign in to participate and vote.
         </Trans>
       </p>
       <Trans id="signin.message.private.text">If you have an account or an invitation, you may use following options to sign in.</Trans>
