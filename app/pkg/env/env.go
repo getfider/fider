@@ -18,7 +18,7 @@ import (
 var (
 	// this value is set by the CI build
 	commithash = ""
-	version    = "0.21.0"
+	version    = "0.22.0"
 )
 
 func Version() string {
