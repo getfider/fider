@@ -1,45 +1,55 @@
 package markdown
 
 import (
-	"html"
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/ast"
 	"html/template"
+	"io"
 	"strings"
 
-	"github.com/russross/blackfriday"
+	htmlrenderer "github.com/gomarkdown/markdown/html"
+	mdparser "github.com/gomarkdown/markdown/parser"
 )
 
 var mdExtns = 0 |
-	blackfriday.EXTENSION_TABLES |
-	blackfriday.EXTENSION_AUTOLINK |
-	blackfriday.EXTENSION_FENCED_CODE |
-	blackfriday.EXTENSION_TITLEBLOCK |
-	blackfriday.EXTENSION_STRIKETHROUGH |
-	blackfriday.EXTENSION_DEFINITION_LISTS |
-	blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
-	blackfriday.EXTENSION_HARD_LINE_BREAK
+	mdparser.Tables |
+	mdparser.Autolink |
+	mdparser.FencedCode |
+	mdparser.Titleblock |
+	mdparser.Strikethrough |
+	mdparser.DefinitionLists |
+	mdparser.NoIntraEmphasis |
+	mdparser.HardLineBreak
 
-var fullHTMLExtensions = 0 |
-	blackfriday.HTML_USE_XHTML |
-	blackfriday.HTML_USE_SMARTYPANTS |
-	blackfriday.HTML_SMARTYPANTS_FRACTIONS |
-	blackfriday.HTML_SMARTYPANTS_DASHES |
-	blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+var htmlFlags = 0 |
+	htmlrenderer.UseXHTML |
+	htmlrenderer.Smartypants |
+	htmlrenderer.SmartypantsFractions |
+	htmlrenderer.SmartypantsDashes |
+	htmlrenderer.SmartypantsLatexDashes
 
-var fullRenderer = blackfriday.HtmlRenderer(fullHTMLExtensions, "", "")
+var fullRenderer = htmlrenderer.NewRenderer(htmlrenderer.RendererOptions{
+	Flags: htmlFlags,
+	RenderNodeHook: func(w io.Writer, node ast.Node, entering bool) (ast.WalkStatus, bool) {
+		switch node := node.(type) {
+		case *ast.HTMLSpan:
+			htmlrenderer.EscapeHTML(w, node.Literal)
+			return ast.GoToNext, true
+		case *ast.HTMLBlock:
+			_, _ = io.WriteString(w, "\n")
+			htmlrenderer.EscapeHTML(w, node.Literal)
+			_, _ = io.WriteString(w, "\n")
+			return ast.GoToNext, true
+		}
+		return ast.GoToNext, false
+	},
+})
 
 // Full turns a markdown into HTML using all rules
 func Full(input string) template.HTML {
-	sanitizedInput := html.EscapeString(input)
-	output := blackfriday.Markdown([]byte(sanitizedInput), fullRenderer, mdExtns)
-
+	// Apparently a parser cannot be reused.
+	// https://github.com/gomarkdown/markdown/issues/229
+	parser := mdparser.NewWithExtensions(mdExtns)
+	output := markdown.ToHTML([]byte(input), parser, fullRenderer)
 	return template.HTML(strings.TrimSpace(string(output)))
-}
-
-var textRenderer = TextRenderer()
-
-// PlainText parses given markdown input and return only the text
-func PlainText(input string) string {
-	sanitizedInput := html.EscapeString(input)
-	output := blackfriday.Markdown([]byte(sanitizedInput), textRenderer, mdExtns)
-	return strings.TrimSpace(string(output))
 }

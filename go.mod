@@ -11,6 +11,7 @@ require (
 	github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/golangci/golangci-lint v1.45.0
+	github.com/gomarkdown/markdown v0.0.0-20220527210340-c82b80a9daf2
 	github.com/gosimple/slug v1.11.0
 	github.com/gotnospirit/messageformat v0.0.0-20190719172517-c1d0bdacdea2
 	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
@@ -22,7 +23,6 @@ require (
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/client_model v0.2.0
 	github.com/robfig/cron v1.2.0
-	github.com/russross/blackfriday v1.6.0
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
