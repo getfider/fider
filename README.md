@@ -33,7 +33,7 @@
 
 There are two options on how to get started with Fider
 
-- **Self-Hosted**: You can install Fider on any cloud providers. There is no fee associated and you are responsible for managing it. [Learn how](https://fider.io/#get-started)
+- **Self-Hosted**: You can install Fider on any cloud providers. There is no fee associated and you are responsible for managing it. [Learn how]([https://fider.io/#get-started](https://fider.io/docs/hosting-instance))
 - **Cloud**: Cloud Fider is a fully managed services where you get started in minutes. Forget about managing software updates and patches, we do it all for you! [Sign up now](https://fider.io/#get-started)
 
 ## Contributors
