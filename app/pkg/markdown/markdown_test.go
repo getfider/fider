@@ -25,9 +25,11 @@ func TestFullMarkdown(t *testing.T) {
 - **Option 1**
 - *Option 2*
 - ~~Option 3~~`: `<ul>
-<li><strong>Option 1</strong><br /></li>
-<li><em>Option 2</em><br /></li>
-<li><del>Option 3</del><br /></li>
+<li><strong>Option 1</strong><br />
+</li>
+<li><em>Option 2</em><br />
+</li>
+<li><del>Option 3</del></li>
 </ul>`,
 		`Please add:
 – SEND_SMS
