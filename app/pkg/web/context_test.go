@@ -128,8 +128,8 @@ func TestAssetsURL_SingleHostMode(t *testing.T) {
 		Subdomain: "theavengers",
 	})
 
-	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("/assets/main.js")
-	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("/assets/main.css")
+	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("https://test.fider.io:3000/assets/main.js")
+	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("https://test.fider.io:3000/assets/main.css")
 
 	env.Config.CDN.Host = "fidercdn.com"
 	Expect(web.AssetsURL(ctx, "/assets/main.js")).Equals("http://fidercdn.com/assets/main.js")

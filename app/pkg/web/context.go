@@ -550,6 +550,7 @@ func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
 }
 
 // AssetsURL return the full URL to a tenant-specific static asset
+// It should always return an absolute URL
 func AssetsURL(ctx context.Context, path string, a ...any) string {
 	request := ctx.Value(app.RequestCtxKey).(Request)
 	path = fmt.Sprintf(path, a...)
@@ -558,7 +559,7 @@ func AssetsURL(ctx context.Context, path string, a ...any) string {
 		if env.Config.CDN.Host != "" {
 			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
 		}
-		return path
+		return BaseURL(ctx) + path
 	}
 
 	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
