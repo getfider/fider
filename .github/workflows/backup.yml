@@ -20,28 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: Integration
     steps:
-      - run: echo "Hello world!"
-      - run: "curl https://int-uservoice.bcc.no/api/v1/export/backup --output backup.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
-      - uses: suisei-cn/actions-download-file@v1
-        id: downloadfile
-        name: Download user voice backup
-        with:
-          url: "https://int-uservoice.bcc.no/api/v1/export/backup"
+      - run: "curl https://int-uservoice.bcc.no/api/v1/export/backup --output backup-${{ steps.date.outputs.date }}.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
       - uses: actions/upload-artifact@v3
         with:
           path: ${{ github.workspace }}/**.zip
-          name: backup.zip
+          name: backup-${{ steps.date.outputs.date }}
         if: (${{ job.status }} != 'cancelled')
-
-  # test-ui:
-  #   name: test-ui
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Use Node.js 14.x
-  #       uses: actions/setup-node@v1
-  #       with:
-  #         node-version: 14.x
-  #     - run: npm ci
-  #     - run: make lint-ui
-  #     - run: make test-ui
