@@ -1,0 +1,42 @@
+name: backup
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: uservoice
+
+jobs:
+  download-backup:
+    steps:
+      - run: echo "Hello world!"
+      - uses: suisei-cn/actions-download-file@v1
+        id: downloadfile
+        name: Download user voice backup
+        with:
+          url: "https://int-uservoice.bcc.no/api/v1/export/backup"
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ${{ github.workspace }}/**.zip
+          name: backup.zip
+        if: (${{ job.status }} != 'cancelled')
+
+  # test-ui:
+  #   name: test-ui
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Use Node.js 14.x
+  #       uses: actions/setup-node@v1
+  #       with:
+  #         node-version: 14.x
+  #     - run: npm ci
+  #     - run: make lint-ui
+  #     - run: make test-ui
