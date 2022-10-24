@@ -1,6 +1,8 @@
 name: backup
 
 on:
+  schedule:
+    - cron: "0 0 * * *" #at the end of every day
   push:
     branches:
       - develop
@@ -16,9 +18,10 @@ env:
 jobs:
   download-backup:
     runs-on: ubuntu-latest
+    environment: Integration
     steps:
       - run: echo "Hello world!"
-      - run: "curl https://int-uservoice.bcc.no/api/v1/export/backup --output backup.zip --header 'authorization: Bearer ${{secrets.API_Key}}'"
+      - run: "curl https://int-uservoice.bcc.no/api/v1/export/backup --output backup.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
       - uses: suisei-cn/actions-download-file@v1
         id: downloadfile
         name: Download user voice backup
