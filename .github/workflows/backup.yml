@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: Integration
     steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - run: "curl https://int-uservoice.bcc.no/api/v1/export/backup --output backup-${{ steps.date.outputs.date }}.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
       - uses: actions/upload-artifact@v3
         with:
