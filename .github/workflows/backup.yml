@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Hello world!"
-      - run: curl https://int-uservoice.bcc.no/api/v1/export/backup --output backup.zip --header 'authorization: Bearer ${{secrets.API_Key}}'
+      - run: "curl https://int-uservoice.bcc.no/api/v1/export/backup --output backup.zip --header 'authorization: Bearer ${{secrets.API_Key}}'"
       - uses: suisei-cn/actions-download-file@v1
         id: downloadfile
         name: Download user voice backup
