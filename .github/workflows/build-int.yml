@@ -36,7 +36,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
 
       - name: Authenticate into Google Cloud Platform
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@main
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
           service_account_key: ${{ secrets.GCLOUD_KEY }}
