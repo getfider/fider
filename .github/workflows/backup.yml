@@ -15,6 +15,7 @@ env:
 
 jobs:
   download-backup:
+    runs-on: ubuntu-latest
     steps:
       - run: echo "Hello world!"
       - uses: suisei-cn/actions-download-file@v1
