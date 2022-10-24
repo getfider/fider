@@ -196,6 +196,7 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Administrators are allowed
 		api.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
 
+		api.Get("/api/v1/export/backup", handlers.ExportBackupZip())
 		api.Post("/api/v1/users", apiv1.CreateUser())
 		api.Delete("/api/v1/posts/:number", apiv1.DeletePost())
 		api.Post("/api/v1/tags", apiv1.CreateEditTag())
