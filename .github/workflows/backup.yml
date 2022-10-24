@@ -1,0 +1,22 @@
+name: backup
+
+on:
+  schedule:
+    - cron: "0 0 * * *" #at the end of every day
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  download-backup:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - run: "curl https://uservoice.bcc.no/api/v1/export/backup --output backup-${{ steps.date.outputs.date }}.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ${{ github.workspace }}/**.zip
+          name: backup-${{ steps.date.outputs.date }}
+        if: (${{ job.status }} != 'cancelled')
