@@ -14,6 +14,7 @@ jobs:
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+      - run: mkdir backups
       - run: "curl https://uservoice.bcc.no/api/v1/export/backup --output backups/backup-${{ steps.date.outputs.date }}.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
       - uses: shallwefootball/s3-upload-action@master
         with:
