@@ -16,10 +16,12 @@ jobs:
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - run: mkdir backups
       - run: "curl https://uservoice.bcc.no/api/v1/export/backup --output backups/backup-${{ steps.date.outputs.date }}.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
-      - uses: shallwefootball/s3-upload-action@master
+      - name: Connect to AWS
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws_key_id: ${{ secrets.AWS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
-          aws_bucket: ${{ secrets.AWS_BUCKET }}
-          aws-region: 'eu-central-1'
-          source_dir: 'backups'
+          aws-region: eu-central-1
+          aws-access-key-id: ${{ secrets.AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Copy files to the bucket with the AWS CLI
+        run: |
+          aws s3 cp backups/* s3://uservoice-backups
