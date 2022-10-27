@@ -14,8 +14,7 @@ jobs:
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-      - run: mkdir backups
-      - run: "curl https://uservoice.bcc.no/api/v1/export/backup --output backups/backup-${{ steps.date.outputs.date }}.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
+      - run: "curl https://uservoice.bcc.no/api/v1/export/backup --output backup-${{ steps.date.outputs.date }}.zip --header 'authorization: Bearer ${{ secrets.API_Key }}'"
       - name: Connect to AWS
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -24,4 +23,4 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - name: Copy files to the bucket with the AWS CLI
         run: |
-          aws s3 cp backups/* s3://uservoice-backups
+          aws s3 cp backup-* s3://uservoice-backups
