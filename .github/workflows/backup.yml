@@ -21,9 +21,5 @@ jobs:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_BUCKET }}
+          aws-region: 'eu-central-1'
           source_dir: 'backups'
-      - uses: actions/upload-artifact@v3
-        with:
-          path: ${{ github.workspace }}/**.zip
-          name: backup-${{ steps.date.outputs.date }}
-        if: (${{ job.status }} != 'cancelled')
