@@ -88,7 +88,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
 
   return (
     <>
-      <Field label="Notifications">
+      <Field label={t({ id: "label.notifications", message: "Notifications" })}>
         <p className="text-muted">
           <Trans id="mysettings.notification.title">Use following panel to choose which events you&apos;d like to receive notification</Trans>
         </p>
