@@ -118,19 +118,18 @@ const GeneralSettingsPage = () => {
           defaultValue={locale}
           options={Object.entries(locales).map(([k, v]) => ({
             value: k,
-            label: `${v.text} (${v.translated}%)`,
+            label: v.text,
           }))}
           onChange={(o) => setLocale(o?.value || "en")}
         >
           {locale !== "en" && (
             <>
               <p className="text-muted">
-                This language is currently <strong>{locales[locale].translated}%</strong> translated by the Open Source community. If you find a mistake or
-                would like to improve its quality, visit{" "}
+                This language is translated by the Open Source community. If you find a mistake or would like to improve its quality, visit{" "}
                 <a className="text-link" target="_blank" rel="noopener" href="https://crowdin.com/project/fider">
                   Crowdin
                 </a>{" "}
-                and contribute with your own translations. No technical knowledge required.
+                and contribute with your own translations. No technical knowledge is required.
               </p>
               <p className="text-muted">Only public pages are translated. Internal and/or administrative pages will remain in English.</p>
             </>
