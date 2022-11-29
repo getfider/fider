@@ -15,7 +15,7 @@ func TestFullMarkdown(t *testing.T) {
 		"# Hello World":                      `<h1>Hello World</h1>`,
 		"Hello <b>Beautiful</b> World":       `<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>`,
 		"![](http://example.com/hello.jpg)":  `<p><img src="http://example.com/hello.jpg" alt="" /></p>`,
-		"Go to http://example.com/hello.jpg": `<p>Go to <a href="http://example.com/hello.jpg">http://example.com/hello.jpg</a></p>`,
+		"Go to http://example.com/hello.jpg": `<p>Go to <a href="http://example.com/hello.jpg" rel="nofollow noreferrer">http://example.com/hello.jpg</a></p>`,
 		`-123
 -456
 -789`: `<p>-123<br />
