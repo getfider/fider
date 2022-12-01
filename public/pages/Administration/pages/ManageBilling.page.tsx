@@ -1,6 +1,6 @@
 import React from "react"
 import { Button, Moment, Money } from "@fider/components"
-import { VStack } from "@fider/components/layout"
+import { HStack, VStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
 import { BillingStatus } from "@fider/models"
 import { AdminPageContainer } from "../components/AdminBasePage"
@@ -11,7 +11,8 @@ interface ManageBillingPageProps {
   paddle: {
     isSandbox: boolean
     vendorId: string
-    planId: string
+    monthlyPlanId: string
+    yearlyPlanId: string
   }
   status: BillingStatus
   trialEndsAt: string
@@ -30,18 +31,50 @@ interface ManageBillingPageProps {
       currency: string
       date: string
     }
+    nextPayment: {
+      amount: number
+      currency: string
+      date: string
+    }
   }
 }
 
-const SubscribeButton = (props: { price: string; onClick: () => void }) => {
+const SubscribePanel = (props: { monthlyPrice: string; subscribeMonthly: () => void; yearlyPrice: string; subscribeYearly: () => void }) => {
   return (
-    <p>
-      <Button variant="primary" onClick={props.onClick}>
-        Subscribe for {props.price}/mo
-      </Button>
+    <div>
+      <HStack spacing={4}>
+        <VStack spacing={4} className="py-2 px-4 shadow rounded text-center">
+          <div>
+            <span className="block text-xs p-1 rounded mb-2">&nbsp;</span>
+            <span className="text-category">Monthy Subscription</span>
+          </div>
+          <span className="text-display2 block">
+            {props.monthlyPrice}
+            <span className="text-title">/month</span>
+          </span>
+          <Button variant="secondary" size="small" className="mx-auto" onClick={props.subscribeMonthly}>
+            Subscribe
+          </Button>
+        </VStack>
+        <VStack spacing={4} className="py-2 px-4 shadow rounded text-center">
+          <div>
+            <span className="block text-xs bg-yellow-100 p-1 rounded mb-2">
+              <strong>2 months free!</strong>
+            </span>
+            <span className="text-category">Yearly Subscription</span>
+          </div>
+          <span className="text-display2 block">
+            {props.yearlyPrice}
+            <span className="text-title">/year</span>
+          </span>
+          <Button variant="secondary" size="small" className="mx-auto" onClick={props.subscribeYearly}>
+            Subscribe
+          </Button>
+        </VStack>
+      </HStack>
 
-      <span className="block text-muted">VAT/Tax may be added during checkout.</span>
-    </p>
+      <span className="block mt-4 text-muted">VAT/Tax may be added during checkout.</span>
+    </div>
   )
 }
 
@@ -60,13 +93,13 @@ const ActiveSubscriptionInformation = (props: ManageBillingPageProps) => {
       <h3 className="text-display">Your subscription is Active</h3>
       <CardDetails {...props.subscription.paymentInformation} />
       <p>
-        Last payment was{" "}
+        Your next payment is{" "}
         <strong>
-          <Money amount={props.subscription.lastPayment.amount} currency={props.subscription.lastPayment.currency} locale={fider.currentLocale} />
+          <Money amount={props.subscription.nextPayment.amount} currency={props.subscription.nextPayment.currency} locale={fider.currentLocale} />
         </strong>{" "}
         on{" "}
         <strong>
-          <Moment locale={fider.currentLocale} format="date" date={props.subscription.lastPayment.date} />
+          <Moment locale={fider.currentLocale} format="date" date={props.subscription.nextPayment.date} />
         </strong>
         .
       </p>
@@ -79,7 +112,14 @@ const ActiveSubscriptionInformation = (props: ManageBillingPageProps) => {
         <a href="#" rel="noopener" className="text-link" onClick={open(props.subscription.cancelURL)}>
           cancel
         </a>{" "}
-        your subscription.
+        your subscription at any time.
+      </p>
+      <p>
+        To change your billing interval from monthly to yearly or vice-versa, please contact us at{" "}
+        <a className="text-link" href="mailto:billing@fider.io">
+          billing@fider.io
+        </a>
+        .
       </p>
     </VStack>
   )
@@ -87,7 +127,7 @@ const ActiveSubscriptionInformation = (props: ManageBillingPageProps) => {
 
 const CancelledSubscriptionInformation = (props: ManageBillingPageProps) => {
   const fider = useFider()
-  const { price, openCheckoutUrl } = usePaddle({ ...props.paddle })
+  const paddle = usePaddle({ ...props.paddle })
 
   const isExpired = new Date(props.subscriptionEndsAt) <= new Date()
 
@@ -111,14 +151,14 @@ const CancelledSubscriptionInformation = (props: ManageBillingPageProps) => {
           . <br /> Resubscribe to avoid a service interruption.
         </p>
       )}
-      <SubscribeButton onClick={openCheckoutUrl} price={price} />
+      <SubscribePanel {...paddle} />
     </VStack>
   )
 }
 
 const TrialInformation = (props: ManageBillingPageProps) => {
   const fider = useFider()
-  const { price, openCheckoutUrl } = usePaddle({ ...props.paddle })
+  const paddle = usePaddle({ ...props.paddle })
 
   const isExpired = new Date(props.trialEndsAt) <= new Date()
 
@@ -144,7 +184,7 @@ const TrialInformation = (props: ManageBillingPageProps) => {
         </p>
       )}
 
-      <SubscribeButton onClick={openCheckoutUrl} price={price} />
+      <SubscribePanel {...paddle} />
     </VStack>
   )
 }

@@ -31,12 +31,17 @@ const plugins = [
       modules: false,
     },
   }),
-  new PurgecssPlugin({
-    paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
-    defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
-    safelist: [/--/, /__/, /data-/],
-  }),
 ]
+
+if (isProduction) {
+  plugins.push(
+    new PurgecssPlugin({
+      paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
+      defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
+      safelist: [/--/, /__/, /data-/],
+    })
+  )
+}
 
 // On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
 const maxSizeFactor = isProduction ? 1 : 14

@@ -5,12 +5,14 @@ import { useEffect, useState } from "react"
 interface UsePaddleParams {
   isSandbox: boolean
   vendorId: string
-  planId: string
+  monthlyPlanId: string
+  yearlyPlanId: string
 }
 
 export function usePaddle(params: UsePaddleParams) {
   const status = useScript("https://cdn.paddle.com/paddle/paddle.js")
-  const [price, setPrice] = useCache("price", "$30")
+  const [monthlyPrice, setMonthlyPrice] = useCache("monthlyPrice", "$30")
+  const [yearlyPrice, setYearlyPrice] = useCache("yearlyPrice", "$300")
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
@@ -24,9 +26,11 @@ export function usePaddle(params: UsePaddleParams) {
     window.Paddle.Setup({ vendor })
     setIsReady(true)
 
-    const id = parseInt(params.planId, 10)
-    window.Paddle.Product.Prices(id, (resp) => {
-      setPrice(resp.price.net.replace(/\.00/g, ""))
+    window.Paddle.Product.Prices(parseInt(params.monthlyPlanId, 10), (resp) => {
+      setMonthlyPrice(resp.price.net.replace(/\.00/g, ""))
+    })
+    window.Paddle.Product.Prices(parseInt(params.yearlyPlanId, 10), (resp) => {
+      setYearlyPrice(resp.price.net.replace(/\.00/g, ""))
     })
   }, [status])
 
@@ -39,12 +43,19 @@ export function usePaddle(params: UsePaddleParams) {
     })
   }
 
-  const openCheckoutUrl = async () => {
-    const result = await actions.generateCheckoutLink()
+  const subscribeMonthly = async () => {
+    const result = await actions.generateCheckoutLink(params.monthlyPlanId)
     if (result.ok) {
       openUrl(result.data.url)
     }
   }
 
-  return { isReady, price, openUrl, openCheckoutUrl }
+  const subscribeYearly = async () => {
+    const result = await actions.generateCheckoutLink(params.yearlyPlanId)
+    if (result.ok) {
+      openUrl(result.data.url)
+    }
+  }
+
+  return { isReady, monthlyPrice, yearlyPrice, openUrl, subscribeMonthly, subscribeYearly }
 }
