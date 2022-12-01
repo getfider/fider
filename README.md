@@ -1,18 +1,21 @@
+<img src="etc/homepage.png">
+
+<br/>
+<hr/>
+<br/>
+
 <p align="center">
-  <a href="https://fider.io">
-    <img src="etc/logo-small.png" />
-  </a>
-  <h1 align="center">Fider</h1>
+  <img style="height:60px;display:inline-block;" src="etc/logo-small.png" />
   <div align="center">
-    <strong>A platform to collect and organize customer feedback.</strong>
+    <strong>Fider is a feedback portal to help you build better products.</strong>
   </div>
-  <div align="center">Let your customers share, vote and discuss on suggestions they have to make your product even better.</div>
+  <div align="center">Give your customers a voice and let them tell you what they need. Spend less time guessing and more time building the right product.</div>
 </p>
 
 <div align="center">
   <h3>
     <a href="https://fider.io">
-      Website
+      Learn more
     </a>
     <span> | </span>
     <a href="https://feedback.fider.io/">
@@ -27,14 +30,11 @@
 
 <br />
 
-<img src="etc/homepage.png">
-
 ## Get Started
 
-There are two options on how to get started with Fider
+- **Fider Cloud**: The easiest and quickest way to get started. A fully managed services by the creators of Fider to help you get started in minutes. Forget about managing software updates and patches, we do it all for you! [Sign up now](https://fider.io/#get-started)
 
-- **Self-Hosted**: You can install Fider on any cloud providers. There is no fee associated and you are responsible for managing it. [Learn how](https://fider.io/docs/hosting-instance)
-- **Cloud**: Cloud Fider is a fully managed services where you get started in minutes. Forget about managing software updates and patches, we do it all for you! [Sign up now](https://fider.io/#get-started)
+- **Self-Hosted**: You can also install Fider yourelf. It's free, but you are responsible for managing it. [Learn how](https://fider.io/docs/hosting-instance)
 
 ## Contributors
 
