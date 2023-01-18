@@ -59,8 +59,8 @@ const GeneralSettingsPage = () => {
           onChange={setWelcomeMessage}
         >
           <p className="text-muted">
-            The message is shown on this site&apos;s home page. Use it to help visitors understand what this space is about and the importance of their feedback.
-            Leave it empty for a default message.
+            The message is shown on this site&apos;s home page. Use it to help visitors understand what this space is about and the importance of their
+            feedback. Leave it empty for a default message.
           </p>
         </TextArea>
 
