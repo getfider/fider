@@ -133,6 +133,12 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	var newTenant *cmd.CreateTenant
 	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
 		newTenant = c
+		c.Result = &entity.Tenant{
+			ID:        1,
+			Name:      c.Name,
+			Subdomain: c.Subdomain,
+			Status:    enum.TenantActive,
+		}
 		return nil
 	})
 
