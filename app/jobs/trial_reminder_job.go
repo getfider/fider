@@ -47,7 +47,7 @@ func (e TrialReminderJobHandler) Run(ctx Context) error {
 	if len(to) > 0 {
 		bus.Publish(ctx, &cmd.SendMail{
 			From: dto.Recipient{
-				Name:    "Guilherme",
+				Name:    "Guilherme from Fider",
 				Address: "goenning@fider.io",
 			},
 			To:           to,

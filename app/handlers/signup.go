@@ -42,7 +42,7 @@ func CheckAvailability() web.HandlerFunc {
 	}
 }
 
-//CreateTenant creates a new tenant
+// CreateTenant creates a new tenant
 func CreateTenant() web.HandlerFunc {
 	return func(c *web.Context) error {
 		if env.Config.SignUpDisabled {
@@ -79,6 +79,8 @@ func CreateTenant() web.HandlerFunc {
 			Role:   enum.RoleAdministrator,
 		}
 
+		siteURL := web.TenantBaseURL(c, c.Tenant())
+
 		if socialSignUp {
 			user.Name = action.UserClaims.OAuthName
 			user.Email = action.UserClaims.OAuthEmail
@@ -112,14 +114,18 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			c.Enqueue(tasks.SendSignUpEmail(action, web.TenantBaseURL(c, createTenant.Result)))
+			c.Enqueue(tasks.SendSignUpEmail(action, siteURL))
+		}
+
+		if status == enum.TenantActive && user.Email != "" {
+			c.Enqueue(tasks.SendWelcomeEmail(user.Name, user.Email, siteURL))
 		}
 
 		return c.Ok(web.Map{})
 	}
 }
 
-//SignUp is the entry point for installation / signup
+// SignUp is the entry point for installation / signup
 func SignUp() web.HandlerFunc {
 	return func(c *web.Context) error {
 		if env.Config.SignUpDisabled {
@@ -185,6 +191,8 @@ func VerifySignUpKey() web.HandlerFunc {
 		}
 
 		webutil.AddAuthUserCookie(c, user)
+
+		c.Enqueue(tasks.SendWelcomeEmail(user.Name, user.Email, c.BaseURL()))
 
 		return c.Redirect(c.BaseURL())
 	}
