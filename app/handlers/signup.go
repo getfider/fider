@@ -117,9 +117,9 @@ func CreateTenant() web.HandlerFunc {
 			c.Enqueue(tasks.SendSignUpEmail(action, siteURL))
 		}
 
-		// if status == enum.TenantActive && user.Email != "" {
-		// 	c.Enqueue(tasks.SendWelcomeEmail(user.Name, user.Email, siteURL))
-		// }
+		if status == enum.TenantActive && user.Email != "" {
+			c.Enqueue(tasks.SendWelcomeEmail(user.Name, user.Email, siteURL))
+		}
 
 		return c.Ok(web.Map{})
 	}
