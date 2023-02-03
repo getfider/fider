@@ -1,7 +1,7 @@
 #####################
 ### Server Build Step
 #####################
-FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.18-buster AS server-builder 
+FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.19-buster AS server-builder 
 
 
 RUN mkdir /server
@@ -18,7 +18,7 @@ RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-se
 #################
 ### UI Build Step
 #################
-FROM --platform=${TARGETPLATFORM:-linux/amd64} node:16-buster AS ui-builder 
+FROM --platform=${TARGETPLATFORM:-linux/amd64} node:18-buster AS ui-builder 
 
 WORKDIR /ui
 
