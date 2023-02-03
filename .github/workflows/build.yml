@@ -59,7 +59,7 @@ jobs:
           node-version: 18.x
       - run: npm ci # required for esbuild
       - name: install golangci-lint
-        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.0
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.51.0
       - name: install godotenv
         run: go install github.com/joho/godotenv/cmd/godotenv
       - run: make lint-server

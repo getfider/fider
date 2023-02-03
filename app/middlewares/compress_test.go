@@ -2,7 +2,7 @@ package middlewares_test
 
 import (
 	"compress/gzip"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -31,7 +31,7 @@ func TestCompress(t *testing.T) {
 		Execute(handler)
 
 	reader, _ := gzip.NewReader(response.Body)
-	bytes, _ := ioutil.ReadAll(reader)
+	bytes, _ := io.ReadAll(reader)
 	Expect(bytes).Equals([]byte(data))
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Vary")).Equals("Accept-Encoding")

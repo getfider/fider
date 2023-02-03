@@ -17,8 +17,6 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/tpl"
 
-	"io/ioutil"
-
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -44,7 +42,7 @@ type assetsFile struct {
 	} `json:"namedChunkGroups"`
 }
 
-//Renderer is the default HTML Render
+// Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
 	assets        *clientAssets
@@ -87,7 +85,7 @@ func (r *Renderer) loadAssets() error {
 	}
 	defer jsonFile.Close()
 
-	jsonBytes, _ := ioutil.ReadAll(jsonFile)
+	jsonBytes, _ := io.ReadAll(jsonFile)
 	file := &assetsFile{}
 	err = json.Unmarshal([]byte(jsonBytes), file)
 	if err != nil {
@@ -131,7 +129,7 @@ func getClientAssets(assets []distAsset) *clientAssets {
 	return clientAssets
 }
 
-//Render a template based on parameters
+// Render a template based on parameters
 func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context) {
 	var err error
 

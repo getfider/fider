@@ -1,7 +1,7 @@
 package web
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -12,7 +12,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
-//Request wraps the http request object
+// Request wraps the http request object
 type Request struct {
 	instance      *http.Request
 	Method        string
@@ -43,7 +43,7 @@ func WrapRequest(request *http.Request) Request {
 
 	var bodyBytes []byte
 	if request.ContentLength > 0 {
-		bodyBytes, err = ioutil.ReadAll(request.Body)
+		bodyBytes, err = io.ReadAll(request.Body)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to read body").Error())
 		}
@@ -101,7 +101,7 @@ func (r *Request) IsCustomDomain() bool {
 	return !strings.HasSuffix(r.URL.Hostname(), env.Config.HostDomain)
 }
 
-//BaseURL returns base URL
+// BaseURL returns base URL
 func (r *Request) BaseURL() string {
 	address := r.URL.Scheme + "://" + r.URL.Hostname()
 

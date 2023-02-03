@@ -2,7 +2,6 @@ package blob_test
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -103,7 +102,7 @@ func AllOperations(ctx context.Context) {
 	}
 
 	for _, testCase := range testCases {
-		bytes, _ := ioutil.ReadFile(env.Path(testCase.localPath))
+		bytes, _ := os.ReadFile(env.Path(testCase.localPath))
 		err := bus.Dispatch(ctx, &cmd.StoreBlob{
 			Key:         testCase.key,
 			Content:     bytes,
@@ -147,7 +146,7 @@ func SameKey_DifferentTenant(ctx context.Context) {
 	ctxWithTenant2 := context.WithValue(ctx, app.TenantCtxKey, tenant2)
 
 	key := "path/to/file3.txt"
-	bytes, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
+	bytes, _ := os.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
 
 	err := bus.Dispatch(ctxWithTenant1, &cmd.StoreBlob{
 		Key:         key,
@@ -180,8 +179,8 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 	ctxWithTenant2 := context.WithValue(ctx, app.TenantCtxKey, tenant2)
 
 	key := "path/to/super-file.txt"
-	bytes1, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file.txt"))
-	bytes2, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
+	bytes1, _ := os.ReadFile(env.Path("/app/services/blob/testdata/file.txt"))
+	bytes2, _ := os.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
 
 	err := bus.Dispatch(ctxWithTenant1, &cmd.StoreBlob{
 		Key:         key,

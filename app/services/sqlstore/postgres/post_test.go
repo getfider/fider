@@ -1,7 +1,7 @@
 package postgres_test
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
@@ -577,7 +577,7 @@ func TestPostStorage_Attachments(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(getAttachments1.Result).HasLen(0)
 
-	bytes, err := ioutil.ReadFile(env.Path("favicon.png"))
+	bytes, err := os.ReadFile(env.Path("favicon.png"))
 	Expect(err).IsNil()
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{

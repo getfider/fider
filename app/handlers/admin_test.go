@@ -3,8 +3,8 @@ package handlers_test
 import (
 	"context"
 	"encoding/base64"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -69,7 +69,7 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 		return nil
 	})
 
-	logoBytes, _ := ioutil.ReadFile(env.Etc("logo.png"))
+	logoBytes, _ := os.ReadFile(env.Etc("logo.png"))
 	logoB64 := base64.StdEncoding.EncodeToString(logoBytes)
 
 	server := mock.NewServer()
