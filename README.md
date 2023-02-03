@@ -39,7 +39,7 @@ The easiest and quickest way to get started. A fully managed services by the cre
 
 ## 🏢 **Self-Hosted**
 
-You can also install Fider yourelf. It's free, but you are responsible for managing it. [Learn how](https://fider.io/docs/hosting-instance)
+You can also install Fider yourself. It's free, but you are responsible for managing it. [Learn how](https://fider.io/docs/hosting-instance)
 
 <br/>
 <br/>
@@ -50,6 +50,7 @@ You can also install Fider yourelf. It's free, but you are responsible for manag
   <img src="etc/browserstack.png">
 </a>
 
+<br />
 <br />
 
 > Does your organization use Fider? [Become a sponsor](https://opencollective.com/fider) and get your logo and link on our README!
