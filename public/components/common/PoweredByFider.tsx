@@ -9,7 +9,7 @@ interface PoweredByFiderProps {
 }
 
 export const PoweredByFider = (props: PoweredByFiderProps) => {
-  const source = encodeURIComponent(location.host)
+  const source = encodeURIComponent(window?.location?.host || "")
   const medium = "powered-by"
   const campaign = props.slot
 
