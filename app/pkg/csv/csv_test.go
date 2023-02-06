@@ -1,7 +1,7 @@
 package csv_test
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
@@ -15,7 +15,7 @@ func TestExportPostsToCSV_Empty(t *testing.T) {
 	RegisterT(t)
 
 	posts := []*entity.Post{}
-	expected, err := ioutil.ReadFile("./testdata/empty.csv")
+	expected, err := os.ReadFile("./testdata/empty.csv")
 	Expect(err).IsNil()
 	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
@@ -29,7 +29,7 @@ func TestExportPostsToCSV_OnePost(t *testing.T) {
 		declinedPost,
 	}
 
-	expected, err := ioutil.ReadFile("./testdata/one-post.csv")
+	expected, err := os.ReadFile("./testdata/one-post.csv")
 	Expect(err).IsNil()
 	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
@@ -45,7 +45,7 @@ func TestExportPostsToCSV_MorePosts(t *testing.T) {
 		duplicatePost,
 	}
 
-	expected, err := ioutil.ReadFile("./testdata/more-posts.csv")
+	expected, err := os.ReadFile("./testdata/more-posts.csv")
 	Expect(err).IsNil()
 	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()

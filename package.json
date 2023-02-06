@@ -117,7 +117,7 @@
   },
   "engines": {
     "npm": "8.x",
-    "node": "16.x || 17.x"
+    "node": "18.x || 19.x"
   },
   "scripts": {
     "heroku-postbuild": "make build-ssr && make build-ui"

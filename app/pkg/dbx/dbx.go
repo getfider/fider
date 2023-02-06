@@ -3,7 +3,7 @@ package dbx
 import (
 	"context"
 	"database/sql"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"time"
 
@@ -53,7 +53,7 @@ func BeginTx(ctx context.Context) (*Trx, error) {
 }
 
 func load(path string) {
-	content, err := ioutil.ReadFile(env.Path(path))
+	content, err := os.ReadFile(env.Path(path))
 	if err != nil {
 		panic(wrap(err, "failed to read file %s", path))
 	}
@@ -71,7 +71,7 @@ func Seed() {
 	}
 }
 
-//Trx represents a Database transaction
+// Trx represents a Database transaction
 type Trx struct {
 	tx  *sql.Tx
 	ctx context.Context
@@ -209,7 +209,7 @@ func (trx *Trx) Count(command string, args ...any) (int, error) {
 	return count, nil
 }
 
-//Select all matched rows bind to given data
+// Select all matched rows bind to given data
 func (trx *Trx) Select(data any, command string, args ...any) error {
 	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
@@ -250,7 +250,7 @@ func (trx *Trx) Select(data any, command string, args ...any) error {
 	return nil
 }
 
-//Query all matched rows and return raw sql.Rows
+// Query all matched rows and return raw sql.Rows
 func (trx *Trx) Query(command string, args ...any) (*sql.Rows, error) {
 	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
