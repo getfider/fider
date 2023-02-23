@@ -35,12 +35,10 @@ jobs:
       - run: echo ${{ steps.vars.outputs.sha7 }}
         if: ${{ github.event_name == 'push' }}
 
-      - name: Authenticate into Google Cloud Platform
-        uses: google-github-actions/setup-gcloud@main
+      - name: Authenticate into Google Cloud
+        uses: google-github-actions/auth@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT }}
-          service_account_key: ${{ secrets.GCLOUD_KEY }}
-          export_default_credentials: true
+          credentials_json: ${{ secrets.GCLOUD_KEY }}
 
       - name: Configure Docker to use Google Cloud Platform
         run: "gcloud auth configure-docker --quiet"
