@@ -46,6 +46,21 @@ func TestSignInByOAuthHandler(t *testing.T) {
 	bus.Init(&oauth.Service{})
 
 	server := mock.NewServer()
+	code, _ := server.
+		AddParam("provider", app.FacebookProvider).
+		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
+		WithURL("http://avengers.test.fider.io/oauth/facebook?redirect=http://evil.com").
+		Use(middlewares.Session()).
+		Execute(handlers.SignInByOAuth())
+
+	Expect(code).Equals(http.StatusForbidden)
+}
+
+func TestSignInByOAuthHandler_InvalidURL(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	server := mock.NewServer()
 	code, response := server.
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
