@@ -63,7 +63,7 @@ const CookieAuthName = "auth"
 // CookieSignUpAuthName is the name of the cookie that holds the temporary Authentication Token
 const CookieSignUpAuthName = "__signup_auth"
 
-//Context shared between http pipeline
+// Context shared between http pipeline
 type Context struct {
 	context.Context
 	Response  Response
@@ -75,7 +75,7 @@ type Context struct {
 	tasks     []worker.Task
 }
 
-//NewContext creates a new web Context
+// NewContext creates a new web Context
 func NewContext(engine *Engine, req *http.Request, rw http.ResponseWriter, params StringMap) *Context {
 	contextID := rand.String(32)
 
@@ -99,28 +99,28 @@ func NewContext(engine *Engine, req *http.Request, rw http.ResponseWriter, param
 	}
 }
 
-//Engine returns main HTTP engine
+// Engine returns main HTTP engine
 func (c *Context) Engine() *Engine {
 	return c.engine
 }
 
-//SessionID returns the current session ID
+// SessionID returns the current session ID
 func (c *Context) SessionID() string {
 	return c.sessionID
 }
 
-//SetSessionID sets the session ID on current context
+// SetSessionID sets the session ID on current context
 func (c *Context) SetSessionID(id string) {
 	c.sessionID = id
 	c.Context = log.WithProperty(c.Context, log.PropertyKeySessionID, id)
 }
 
-//ContextID returns the unique id for this context
+// ContextID returns the unique id for this context
 func (c *Context) ContextID() string {
 	return c.id
 }
 
-//Commit everything that is pending on current context
+// Commit everything that is pending on current context
 func (c *Context) Commit() error {
 	trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
 	if ok && trx != nil {
@@ -136,7 +136,7 @@ func (c *Context) Commit() error {
 	return nil
 }
 
-//Rollback everything that is pending on current context
+// Rollback everything that is pending on current context
 func (c *Context) Rollback() {
 	trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
 	if ok && trx != nil {
@@ -144,13 +144,13 @@ func (c *Context) Rollback() {
 	}
 }
 
-//Enqueue given task to be processed in background
+// Enqueue given task to be processed in background
 func (c *Context) Enqueue(task worker.Task) {
 	task.OriginContext = c
 	c.tasks = append(c.tasks, task)
 }
 
-//Tenant returns current tenant
+// Tenant returns current tenant
 func (c *Context) Tenant() *entity.Tenant {
 	tenant, ok := c.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
@@ -159,7 +159,7 @@ func (c *Context) Tenant() *entity.Tenant {
 	return nil
 }
 
-//SetTenant update HTTP context with current tenant
+// SetTenant update HTTP context with current tenant
 func (c *Context) SetTenant(tenant *entity.Tenant) {
 	if tenant != nil {
 		c.Set(log.PropertyKeyTenantID, tenant.ID)
@@ -168,7 +168,7 @@ func (c *Context) SetTenant(tenant *entity.Tenant) {
 	c.Set(app.TenantCtxKey, tenant)
 }
 
-//Bind context values into given model
+// Bind context values into given model
 func (c *Context) Bind(i any) error {
 	err := c.engine.binder.Bind(i, c)
 	if err != nil {
@@ -177,7 +177,7 @@ func (c *Context) Bind(i any) error {
 	return nil
 }
 
-//BindTo context values into given model
+// BindTo context values into given model
 func (c *Context) BindTo(i actions.Actionable) *validate.Result {
 	err := c.engine.binder.Bind(i, c)
 	if err != nil {
@@ -200,19 +200,19 @@ func (c *Context) BindTo(i actions.Actionable) *validate.Result {
 	return i.Validate(c, c.User())
 }
 
-//IsAuthenticated returns true if user is authenticated
+// IsAuthenticated returns true if user is authenticated
 func (c *Context) IsAuthenticated() bool {
 	return c.Value(app.UserCtxKey) != nil
 }
 
-//IsAjax returns true if request is AJAX
+// IsAjax returns true if request is AJAX
 func (c *Context) IsAjax() bool {
 	accept := c.Request.GetHeader("Accept")
 	contentType := c.Request.GetHeader("Content-Type")
 	return strings.Contains(accept, JSONContentType) || strings.Contains(contentType, JSONContentType)
 }
 
-//Unauthorized returns a 401 error response
+// Unauthorized returns a 401 error response
 func (c *Context) Unauthorized() error {
 	if c.IsAjax() {
 		return c.JSON(http.StatusUnauthorized, Map{})
@@ -225,7 +225,7 @@ func (c *Context) Unauthorized() error {
 	})
 }
 
-//Forbidden returns a 403 error response
+// Forbidden returns a 403 error response
 func (c *Context) Forbidden() error {
 	if c.IsAjax() {
 		return c.JSON(http.StatusForbidden, Map{})
@@ -238,7 +238,7 @@ func (c *Context) Forbidden() error {
 	})
 }
 
-//NotFound returns a 404 error page
+// NotFound returns a 404 error page
 func (c *Context) NotFound() error {
 	if c.IsAjax() {
 		return c.JSON(http.StatusNotFound, Map{})
@@ -251,7 +251,7 @@ func (c *Context) NotFound() error {
 	})
 }
 
-//Gone returns a 410 error page
+// Gone returns a 410 error page
 func (c *Context) Gone() error {
 	return c.Page(http.StatusGone, Props{
 		Page:        "Error/Error410.page",
@@ -260,7 +260,7 @@ func (c *Context) Gone() error {
 	})
 }
 
-//Failure returns a 500 page
+// Failure returns a 500 page
 func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
 	cause := errors.Cause(err)
@@ -283,7 +283,7 @@ func (c *Context) Failure(err error) error {
 	return err
 }
 
-//HandleValidation handles given validation result property to return 400 or 500
+// HandleValidation handles given validation result property to return 400 or 500
 func (c *Context) HandleValidation(result *validate.Result) error {
 	if result.Err != nil {
 		return c.Failure(result.Err)
@@ -298,24 +298,24 @@ func (c *Context) HandleValidation(result *validate.Result) error {
 	})
 }
 
-//Attachment returns an attached file
+// Attachment returns an attached file
 func (c *Context) Attachment(fileName, contentType string, file []byte) error {
 	c.Response.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
 
 	return c.Blob(http.StatusOK, contentType, file)
 }
 
-//Ok returns 200 OK with JSON result
+// Ok returns 200 OK with JSON result
 func (c *Context) Ok(data any) error {
 	return c.JSON(http.StatusOK, data)
 }
 
-//BadRequest returns 400 BadRequest with JSON result
+// BadRequest returns 400 BadRequest with JSON result
 func (c *Context) BadRequest(dict Map) error {
 	return c.JSON(http.StatusBadRequest, dict)
 }
 
-//Page returns a page with given variables
+// Page returns a page with given variables
 func (c *Context) Page(code int, props Props) error {
 	if c.IsAjax() {
 		return c.JSON(code, Map{})
@@ -327,12 +327,12 @@ func (c *Context) Page(code int, props Props) error {
 	return c.Blob(code, UTF8HTMLContentType, buf.Bytes())
 }
 
-//AddParam add a single param to route parameters list
+// AddParam add a single param to route parameters list
 func (c *Context) AddParam(name, value string) {
 	c.params[name] = value
 }
 
-//User returns authenticated user
+// User returns authenticated user
 func (c *Context) User() *entity.User {
 	user, ok := c.Value(app.UserCtxKey).(*entity.User)
 	if ok {
@@ -341,7 +341,7 @@ func (c *Context) User() *entity.User {
 	return nil
 }
 
-//SetUser update HTTP context with current user
+// SetUser update HTTP context with current user
 func (c *Context) SetUser(user *entity.User) {
 	if user != nil {
 		c.Context = log.WithProperty(c.Context, log.PropertyKeyUserID, user.ID)
@@ -349,7 +349,7 @@ func (c *Context) SetUser(user *entity.User) {
 	c.Set(app.UserCtxKey, user)
 }
 
-//AddCookie adds a cookie
+// AddCookie adds a cookie
 func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
 	cookie := &http.Cookie{
 		Name:     name,
@@ -363,7 +363,7 @@ func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie 
 	return cookie
 }
 
-//RemoveCookie removes a cookie
+// RemoveCookie removes a cookie
 func (c *Context) RemoveCookie(name string) {
 	http.SetCookie(&c.Response, &http.Cookie{
 		Name:     name,
@@ -375,17 +375,17 @@ func (c *Context) RemoveCookie(name string) {
 	})
 }
 
-//BaseURL returns base URL
+// BaseURL returns base URL
 func (c *Context) BaseURL() string {
 	return c.Request.BaseURL()
 }
 
-//QueryParam returns querystring parameter for given key
+// QueryParam returns querystring parameter for given key
 func (c *Context) QueryParam(key string) string {
 	return c.Request.URL.Query().Get(key)
 }
 
-//QueryParamAsInt returns querystring parameter for given key
+// QueryParamAsInt returns querystring parameter for given key
 func (c *Context) QueryParamAsInt(key string) (int, error) {
 	value := c.QueryParam(key)
 	if value == "" {
@@ -398,7 +398,7 @@ func (c *Context) QueryParamAsInt(key string) (int, error) {
 	return intValue, nil
 }
 
-//QueryParamAsArray returns querystring parameter for given key as an array
+// QueryParamAsArray returns querystring parameter for given key as an array
 func (c *Context) QueryParamAsArray(key string) []string {
 	param := c.QueryParam(key)
 	if param != "" {
@@ -407,7 +407,7 @@ func (c *Context) QueryParamAsArray(key string) []string {
 	return []string{}
 }
 
-//Param returns parameter as string
+// Param returns parameter as string
 func (c *Context) Param(name string) string {
 	if c.params == nil {
 		return ""
@@ -417,7 +417,7 @@ func (c *Context) Param(name string) string {
 	return strings.TrimLeft(c.params[name], "/")
 }
 
-//ParamAsInt returns parameter as int
+// ParamAsInt returns parameter as int
 func (c *Context) ParamAsInt(name string) (int, error) {
 	value := c.Param(name)
 	intValue, err := strconv.Atoi(value)
@@ -427,7 +427,7 @@ func (c *Context) ParamAsInt(name string) (int, error) {
 	return intValue, nil
 }
 
-//GetMatchedRoutePath returns the Matched Route name
+// GetMatchedRoutePath returns the Matched Route name
 func (c *Context) GetMatchedRoutePath() string {
 	return "/" + c.Param(httprouter.MatchedRoutePathParam)
 }
@@ -472,6 +472,11 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 
 	c.Response.Header().Set("Content-Type", contentType)
 	c.Response.WriteHeader(code)
+
+	// Don't write any body for HEAD requests
+	if c.Request.Method == http.MethodHead {
+		return nil
+	}
 
 	_, err := c.Response.Write(b)
 	if err != nil {
@@ -528,7 +533,7 @@ func (c *Context) SetCanonicalURL(rawurl string) {
 	}
 }
 
-//TenantBaseURL returns base URL for a given tenant
+// TenantBaseURL returns base URL for a given tenant
 func TenantBaseURL(ctx context.Context, tenant *entity.Tenant) string {
 	if env.IsSingleHostMode() {
 		return BaseURL(ctx)
