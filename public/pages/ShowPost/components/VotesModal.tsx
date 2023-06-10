@@ -64,7 +64,7 @@ export const VotesModal: React.FC<VotesModalProps> = (props) => {
               value={query}
               onChange={handleSearchFilterChanged}
             />
-            <VStack spacing={2} className="h-max-5xl overflow-scroll">
+            <VStack spacing={2} className="h-max-5xl overflow-auto">
               {filteredVotes.map((x) => (
                 <HStack key={x.user.id} justify="between">
                   <HStack>
