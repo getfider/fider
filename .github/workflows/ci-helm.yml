@@ -39,8 +39,31 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint-chart
     steps:
-      - name: Checkout
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-      - name: Run helm-docs
-        run: .github/helm-docs.sh
+    - name: Checkout
+      uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+    - name: Run helm-docs
+      run: .github/helm-docs.sh
 
+  kubeconform-chart:
+    runs-on: ubuntu-latest
+    needs:
+    - lint-chart
+    - lint-docs
+    strategy:
+      matrix:
+        k8s:
+        # from https://github.com/yannh/kubernetes-json-schema
+        - v1.24.13
+        - v1.25.9
+        - v1.26.4
+        - v1.27.1
+    steps:
+    - name: Checkout
+      uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      with:
+        fetch-depth: 0
+
+    - name: Run kubeconform
+      env:
+        KUBERNETES_VERSION: ${{ matrix.k8s }}
+      run: .github/kubeconform.sh
