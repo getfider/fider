@@ -1,7 +1,9 @@
+# -- Override the version of Kubernetes being used in a cluster
+kubeVersionOverride: null
 # -- Override the name of the chart
-nameOverride: ""
+nameOverride: null
 # -- Override the fully qualified app name
-fullnameOverride: ""
+fullnameOverride: null
 
 fider:
   # -- https://fider.io/docs/how-to-show-legal-pages
@@ -17,10 +19,12 @@ fider:
 
   env:
     # -- Public Host Name
-    BASE_URL: https://feedback.yourdomain.com
+  - name: BASE_URL
+    value: https://feedback.yourdomain.com
 
     # -- From which account e-mails will be sent
-    EMAIL_NOREPLY: noreply@yourdomain.com
+  - name: EMAIL_NOREPLY
+    value: noreply@yourdomain.com
 
     ###
     # EMAIL

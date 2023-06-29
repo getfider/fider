@@ -51,9 +51,10 @@ spec:
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         env:
-          {{- with .Values.fider.env }}
-            {{- toYaml . | nindent 10 }}
-          {{- end }}
+        {{- range $envVar := .Values.fider.env }}
+        - name: {{ $envVar.name }}
+          value: {{ $envVar.value | squote }}
+        {{- end }}
         {{- if .Values.fider.secretEnv }}
         envFrom:
         - secretRef:
