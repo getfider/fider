@@ -1,0 +1,22 @@
+apiVersion: v2
+name: fider
+description: An open platform to collect and prioritize feedback
+type: application
+version: 0.0.1
+appVersion: 0.21.1
+icon: https://fider.io/favicon-32x32.png
+home: https://fider.io/
+annotations:
+  licenses: AGPL-3.0-only
+keywords:
+- feedback
+- customer
+- needs
+- prioritisation
+sources:
+- https://github.com/getfider/fider
+dependencies:
+- name: postgresql
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 12.5.8
+  condition: postgresql.enabled

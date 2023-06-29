@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fider.fullname" . }}
+  labels:
+    {{- include "fider.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "fider.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "fider.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "fider.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.port }}
+          protocol: TCP
+        - name: http-metrics
+          containerPort: 4000
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: http-metrics
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: http-metrics
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        env:
+          {{- with .Values.fider.env }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- if .Values.fider.secretEnv }}
+        envFrom:
+        - secretRef:
+            name: {{ template "fider.fullname" . }}-env-secrets
+        {{- end }}
+        {{- if .Values.fider.legalPages.enabled }}
+        volumeMounts:
+        - name: legal-pages-volume
+          mountPath: /app/etc
+          readOnly: true
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.fider.legalPages.enabled }}
+      volumes:
+      - name: legal-pages-volume
+        configMap:
+          name: {{ template "fider.fullname" . }}-legal-configmap
+      {{- end }}

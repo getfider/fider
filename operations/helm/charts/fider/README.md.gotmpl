@@ -1,0 +1,21 @@
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
+
+{{ template "chart.description" . }}
+
+## Installation
+
+### Add Helm repository
+
+```bash
+helm repo add fider https://***
+helm repo update
+```
+
+## Configuration
+
+The following table lists the configurable parameters of the chart and the default values.
+
+{{ template "chart.valuesSection" . }}

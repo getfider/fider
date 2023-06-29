@@ -1,0 +1,13 @@
+{{- if .Values.fider.legalPages.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fider.fullname" . }}-legal-configmap
+  labels:
+    {{- include "fider.labels" . | nindent 4 }}
+data:
+  terms.md: |-
+{{ .Values.fider.legal.terms.md | indent 4 }}
+  privacy.md: |-
+{{ .Values.fider.legal.privacy.md | indent 4 }}
+{{- end }}

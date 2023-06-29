@@ -1,0 +1,4 @@
+helm-extra-args: --timeout 300s
+check-version-increment: false
+debug: true
+target-branch: main
