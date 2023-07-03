@@ -2,7 +2,7 @@ apiVersion: v2
 name: fider
 description: An open platform to collect and prioritize feedback
 type: application
-version: 0.0.1
+version: 0.0.2
 appVersion: 0.21.1
 icon: https://fider.io/favicon-32x32.png
 home: https://fider.io/
