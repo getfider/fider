@@ -53,10 +53,10 @@ jobs:
       matrix:
         k8s:
         # from https://github.com/yannh/kubernetes-json-schema
-        - v1.24.13
+        - v1.24.15
         - v1.25.9
         - v1.26.4
-        - v1.27.1
+        - v1.27.3
     steps:
     - name: Checkout
       uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
