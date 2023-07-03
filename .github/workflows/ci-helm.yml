@@ -67,3 +67,17 @@ jobs:
       env:
         KUBERNETES_VERSION: ${{ matrix.k8s }}
       run: .github/kubeconform.sh
+
+    - name: Create kind ${{ matrix.k8s }} cluster
+      uses: helm/kind-action@fa81e57adff234b2908110485695db0f181f3c67 # v1.7.0
+      with:
+        node_image: kindest/node:${{ matrix.k8s }}
+        version: v0.20.0 # renovate: datasource=github-releases depName=kind packageName=kubernetes-sigs/kind
+
+    - name: Install chart-testing
+      uses: helm/chart-testing-action@e8788873172cb653a90ca2e819d79d65a66d4e76 # v2.4.0
+      with:
+        version: v3.8.0 # renovate: datasource=github-releases depName=chart-testing packageName=helm/chart-testing
+
+    - name: Run chart install
+      run: ct install --config .github/ct.yml
