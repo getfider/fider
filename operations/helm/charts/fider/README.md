@@ -1,6 +1,6 @@
 # fider
 
-![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.21.1](https://img.shields.io/badge/AppVersion-0.21.1-informational?style=flat-square)
+![Version: 0.0.0](https://img.shields.io/badge/Version-0.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.21.1](https://img.shields.io/badge/AppVersion-0.21.1-informational?style=flat-square)
 
 An open platform to collect and prioritize feedback
 
@@ -9,7 +9,7 @@ An open platform to collect and prioritize feedback
 ### Add Helm repository
 
 ```bash
-helm repo add fider https://***
+helm repo add fider https://footur.github.io/fider
 helm repo update
 ```
 
