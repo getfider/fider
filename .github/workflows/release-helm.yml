@@ -1,0 +1,44 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'operations/helm/charts/fider/Chart.yaml'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      with:
+        fetch-depth: 0
+
+    - name: Configure Git
+      run: |
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+    - name: Install Helm
+      uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v3.5
+      with:
+        version: v3.12.1 # renovate: datasource=github-releases depName=helm packageName=helm/helm
+
+    - name: Build chart dependencies
+      run: |
+        for dir in operations/helm/charts/*/
+        do
+            (cd ${dir}; helm dependency build)
+        done
+
+    - name: Run chart-releaser
+      uses: helm/chart-releaser-action@be16258da8010256c6e82849661221415f031968 # v1.5.0
+      with:
+        version: v1.6.0 # renovate: datasource=github-releases depName=chart-releaser packageName=helm/chart-releaser
+        charts_dir: 'operations/helm/charts'
+      env:
+        CR_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        CR_GENERATE_RELEASE_NOTES: true
+        CR_SKIP_EXISTING: true
