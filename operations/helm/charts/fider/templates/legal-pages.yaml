@@ -7,7 +7,7 @@ metadata:
     {{- include "fider.labels" . | nindent 4 }}
 data:
   terms.md: |-
-{{ .Values.fider.legal.terms\.md | indent 4 }}
+{{ .Values.fider.legal.terms | indent 4 }}
   privacy.md: |-
-{{ .Values.fider.legal.privacy\.md | indent 4 }}
+{{ .Values.fider.legal.privacy | indent 4 }}
 {{- end }}

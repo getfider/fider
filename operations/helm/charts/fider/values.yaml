@@ -11,10 +11,10 @@ fider:
     # -- Enables legal pages
     enabled: false
     # -- Write your own Terms of Service in Markdown here
-    terms.md: |-
+    terms: |-
       foo
     # -- Write your own Privacy Policy in Markdown here
-    privacy.md: |-
+    privacy: |-
       bar
 
   env:
