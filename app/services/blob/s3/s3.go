@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"path"
 	"sort"
 	"strconv"
@@ -28,7 +28,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 )
 
-//DefaultClient is an S3 Client
+// DefaultClient is an S3 Client
 var DefaultClient *s3.S3
 
 func init() {
@@ -119,7 +119,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 	}
 	defer resp.Body.Close()
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return wrap(err, "failed to read blob body '%s' from S3", q.Key)
 	}

@@ -52,7 +52,8 @@ type config struct {
 		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
 		VendorID       string `env:"PADDLE_VENDOR_ID"`
 		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`
-		PlanID         string `env:"PADDLE_PLAN_ID"`
+		MonthlyPlanID  string `env:"PADDLE_MONTHLY_PLAN_ID"`
+		YearlyPlanID   string `env:"PADDLE_YEARLY_PLAN_ID"`
 		PublicKey      string `env:"PADDLE_PUBLIC_KEY"`
 	}
 	Metrics struct {

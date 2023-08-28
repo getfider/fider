@@ -26,4 +26,9 @@ type PaddleSubscriptionItem struct {
 		Currency string  `json:"currency"`
 		Date     string  `json:"date"`
 	} `json:"last_payment"`
+	NextPayment struct {
+		Amount   float64 `json:"amount"`
+		Currency string  `json:"currency"`
+		Date     string  `json:"date"`
+	} `json:"next_payment"`
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"sync"
 
 	"github.com/getfider/fider/app"
@@ -19,6 +19,7 @@ var localeToPlurals = map[string]string{
 	"pt-BR": "pt",
 	"sv-SE": "se",
 	"es-ES": "es",
+	"el":    "el",
 	"nl":    "nl",
 	"de":    "de",
 	"fr":    "fr",
@@ -52,7 +53,7 @@ func getLocaleData(locale string) localeData {
 		return item
 	}
 
-	content, err := ioutil.ReadFile(env.Path(fmt.Sprintf("locale/%s/server.json", locale)))
+	content, err := os.ReadFile(env.Path(fmt.Sprintf("locale/%s/server.json", locale)))
 	if err != nil {
 		panic(errors.Wrap(err, "failed to read locale file"))
 	}

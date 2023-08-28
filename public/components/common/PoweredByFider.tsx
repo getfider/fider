@@ -1,5 +1,4 @@
 import React from "react"
-import { useFider } from "@fider/hooks"
 import { classSet } from "@fider/services"
 
 import "./PoweredByFider.scss"
@@ -10,9 +9,7 @@ interface PoweredByFiderProps {
 }
 
 export const PoweredByFider = (props: PoweredByFiderProps) => {
-  const fider = useFider()
-
-  const source = encodeURIComponent(fider.session.tenant.subdomain)
+  const source = encodeURIComponent(window?.location?.host || "")
   const medium = "powered-by"
   const campaign = props.slot
 

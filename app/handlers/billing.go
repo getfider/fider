@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
@@ -42,9 +43,10 @@ func ManageBilling() web.HandlerFunc {
 			Title: "Manage Billing · Site Settings",
 			Data: web.Map{
 				"paddle": web.Map{
-					"isSandbox": env.Config.Paddle.IsSandbox,
-					"vendorId":  env.Config.Paddle.VendorID,
-					"planId":    env.Config.Paddle.PlanID,
+					"isSandbox":     env.Config.Paddle.IsSandbox,
+					"vendorId":      env.Config.Paddle.VendorID,
+					"monthlyPlanId": env.Config.Paddle.MonthlyPlanID,
+					"yearlyPlanId":  env.Config.Paddle.YearlyPlanID,
 				},
 				"status":             billingState.Result.Status,
 				"trialEndsAt":        billingState.Result.TrialEndsAt,
@@ -58,7 +60,13 @@ func ManageBilling() web.HandlerFunc {
 // GenerateCheckoutLink generates a Paddle-hosted checkout link for the service subscription
 func GenerateCheckoutLink() web.HandlerFunc {
 	return func(c *web.Context) error {
+		action := new(actions.GenerateCheckoutLink)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
 		generateLink := &cmd.GenerateCheckoutLink{
+			PlanID: action.PlanID,
 			Passthrough: dto.PaddlePassthrough{
 				TenantID: c.Tenant().ID,
 			},

@@ -19,6 +19,12 @@ func ToTSQuery(input string) string {
 	return strings.Join(strings.Fields(input), "|")
 }
 
+// SanitizeString converts input to another string that only contains utf-8 characters and not-null characters
+func SanitizeString(input string) string {
+	input = strings.Replace(input, "\u0000", "", -1)
+	return strings.ToValidUTF8(input, "")
+}
+
 func getViewData(view string) (string, []enum.PostStatus, string) {
 	var (
 		condition string

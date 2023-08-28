@@ -1,0 +1,24 @@
+{{define "subject"}}Welcome to Fider! 👋{{end}}
+
+{{define "body"}}
+<tr>
+  <td style="color:#1c262d">
+    <h2>Hey {{ .name }} 👋,</h2>
+    <p>Thanks for giving Fider a go.</p>
+    <p>You can now start collecting ideas and suggestions from your customers and clients without hassle.</p>
+    <p>Reach out to your audience and invite them to join in by sharing this link through email, Facebook, Twitter or any other platform they may be on.</p>
+    <p></p>
+    <p>👉 {{ .url | html }}</p>
+    <p></p>
+    <p>I'm here to support you in any way I can, let me know if you have any questions or need help with something.</p>
+    <p></p>
+    <p>
+      Best,
+      <br/>
+      Guilherme
+      <br/>
+      Founder · Fider.io
+    </p>
+  </td>
+</tr>
+{{end}}

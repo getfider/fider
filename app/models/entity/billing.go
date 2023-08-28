@@ -18,7 +18,8 @@ type BillingSubscription struct {
 	UpdateURL          string                    `json:"updateURL"`
 	CancelURL          string                    `json:"cancelURL"`
 	PaymentInformation BillingPaymentInformation `json:"paymentInformation"`
-	LastPayment        BillingLastPayment        `json:"lastPayment"`
+	LastPayment        BillingPayment            `json:"lastPayment"`
+	NextPayment        BillingPayment            `json:"nextPayment"`
 }
 
 type BillingPaymentInformation struct {
@@ -28,7 +29,7 @@ type BillingPaymentInformation struct {
 	ExpiryDate     string `json:"expiryDate"`
 }
 
-type BillingLastPayment struct {
+type BillingPayment struct {
 	Amount   float64 `json:"amount"`
 	Currency string  `json:"currency"`
 	Date     string  `json:"date"`

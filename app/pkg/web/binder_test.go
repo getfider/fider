@@ -3,7 +3,7 @@ package web_test
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -61,7 +61,7 @@ func TestDefaultBinder_TrimSpaces(t *testing.T) {
 func TestDefaultBinder_Base64ToBytes(t *testing.T) {
 	RegisterT(t)
 
-	resume, _ := ioutil.ReadFile(env.Path("./README.md"))
+	resume, _ := os.ReadFile(env.Path("./README.md"))
 	resumeBase64 := base64.StdEncoding.EncodeToString(resume)
 
 	type user struct {
@@ -82,7 +82,7 @@ func TestDefaultBinder_Base64ToBytes(t *testing.T) {
 func TestDefaultBinder_NestedJson(t *testing.T) {
 	RegisterT(t)
 
-	resume, _ := ioutil.ReadFile(env.Path("./README.md"))
+	resume, _ := os.ReadFile(env.Path("./README.md"))
 	resumeBase64 := base64.StdEncoding.EncodeToString(resume)
 
 	type user struct {

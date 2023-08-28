@@ -13,7 +13,7 @@ import (
 
 var domainRegex = regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]$")
 
-//Subdomain validates given subdomain
+// Subdomain validates given subdomain
 func Subdomain(ctx context.Context, subdomain string) ([]string, error) {
 	subdomain = strings.ToLower(subdomain)
 
@@ -33,8 +33,8 @@ func Subdomain(ctx context.Context, subdomain string) ([]string, error) {
 	case
 		"signup", "fider", "login", "customers", "admin", "setup", "about",
 		"wecanhearyou", "dev", "mail", "billing", "www", "web", "translate",
-		"help", "support", "status", "staging", "cdn", "assets", "live",
-		"manage", "mgmt", "platform", "production", "development":
+		"love", "api", "reports", "help", "support", "status", "staging", "cdn",
+		"assets", "live", "manage", "mgmt", "platform", "production", "development":
 		return []string{fmt.Sprintf("%s is a reserved subdomain.", subdomain)}, nil
 	}
 

@@ -1,11 +1,12 @@
 package markdown
 
 import (
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/ast"
 	"html/template"
 	"io"
 	"strings"
+
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/ast"
 
 	htmlrenderer "github.com/gomarkdown/markdown/html"
 	mdparser "github.com/gomarkdown/markdown/parser"
@@ -26,7 +27,10 @@ var htmlFlags = 0 |
 	htmlrenderer.Smartypants |
 	htmlrenderer.SmartypantsFractions |
 	htmlrenderer.SmartypantsDashes |
-	htmlrenderer.SmartypantsLatexDashes
+	htmlrenderer.SmartypantsLatexDashes |
+	htmlrenderer.Safelink |
+	htmlrenderer.NofollowLinks |
+	htmlrenderer.NoreferrerLinks
 
 var fullRenderer = htmlrenderer.NewRenderer(htmlrenderer.RendererOptions{
 	Flags: htmlFlags,

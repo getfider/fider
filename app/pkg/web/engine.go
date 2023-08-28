@@ -3,7 +3,7 @@ package web
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	stdLog "log"
 	"net/http"
 	"os"
@@ -51,13 +51,13 @@ func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 	_ = h.handler(ctx)
 }
 
-//HandlerFunc represents an HTTP handler
+// HandlerFunc represents an HTTP handler
 type HandlerFunc func(*Context) error
 
-//MiddlewareFunc represents an HTTP middleware
+// MiddlewareFunc represents an HTTP middleware
 type MiddlewareFunc func(HandlerFunc) HandlerFunc
 
-//Engine is our web engine wrapper
+// Engine is our web engine wrapper
 type Engine struct {
 	context.Context
 	mux           *httprouter.Router
@@ -70,7 +70,7 @@ type Engine struct {
 	cache         *cache.Cache
 }
 
-//New creates a new Engine
+// New creates a new Engine
 func New() *Engine {
 	ctx := context.Background()
 	ctx = log.WithProperties(ctx, dto.Props{
@@ -94,7 +94,7 @@ func New() *Engine {
 	return router
 }
 
-//Start the server.
+// Start the server.
 func (e *Engine) Start(address string) {
 	log.Info(e, "Application is starting")
 	log.Infof(e, "Version: @{Version}", dto.Props{
@@ -114,7 +114,7 @@ func (e *Engine) Start(address string) {
 		keyFilePath = env.Etc(env.Config.TLS.CertificateKey)
 	}
 
-	stdLog.SetOutput(ioutil.Discard)
+	stdLog.SetOutput(io.Discard)
 	e.webServer = &http.Server{
 		ReadTimeout:  env.Config.HTTP.ReadTimeout,
 		WriteTimeout: env.Config.HTTP.WriteTimeout,
@@ -167,7 +167,7 @@ func (e *Engine) Start(address string) {
 	}
 }
 
-//Stop the server.
+// Stop the server.
 func (e *Engine) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -199,17 +199,17 @@ func (e *Engine) Stop() error {
 	return nil
 }
 
-//Cache returns current cache
+// Cache returns current cache
 func (e *Engine) Cache() *cache.Cache {
 	return e.cache
 }
 
-//Worker returns current worker reference
+// Worker returns current worker reference
 func (e *Engine) Worker() worker.Worker {
 	return e.worker
 }
 
-//Group creates a new route group
+// Group creates a new route group
 func (e *Engine) Group() *Group {
 	g := &Group{
 		engine:      e,
@@ -218,7 +218,7 @@ func (e *Engine) Group() *Group {
 	return g
 }
 
-//Use adds a middleware to the root engine
+// Use adds a middleware to the root engine
 func (e *Engine) Use(middleware MiddlewareFunc) {
 	if middleware == nil {
 		return
@@ -227,27 +227,27 @@ func (e *Engine) Use(middleware MiddlewareFunc) {
 	e.middlewares = append(e.middlewares, middleware)
 }
 
-//Get handles HTTP GET requests
+// Get handles HTTP GET requests
 func (e *Engine) Get(path string, handler HandlerFunc) {
 	e.mux.Handle("GET", path, e.handle(e.middlewares, handler))
 }
 
-//Post handles HTTP POST requests
+// Post handles HTTP POST requests
 func (e *Engine) Post(path string, handler HandlerFunc) {
 	e.mux.Handle("POST", path, e.handle(e.middlewares, handler))
 }
 
-//Put handles HTTP PUT requests
+// Put handles HTTP PUT requests
 func (e *Engine) Put(path string, handler HandlerFunc) {
 	e.mux.Handle("PUT", path, e.handle(e.middlewares, handler))
 }
 
-//Delete handles HTTP DELETE requests
+// Delete handles HTTP DELETE requests
 func (e *Engine) Delete(path string, handler HandlerFunc) {
 	e.mux.Handle("DELETE", path, e.handle(e.middlewares, handler))
 }
 
-//NotFound register how to handle routes that are not found
+// NotFound register how to handle routes that are not found
 func (e *Engine) NotFound(handler HandlerFunc) {
 	e.mux.NotFound = &notFoundHandler{
 		engine:  e,
@@ -271,13 +271,13 @@ func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httpr
 	return h
 }
 
-//Group is our router group wrapper
+// Group is our router group wrapper
 type Group struct {
 	engine      *Engine
 	middlewares []MiddlewareFunc
 }
 
-//Group creates a new route group
+// Group creates a new route group
 func (g *Group) Group() *Group {
 	g2 := &Group{
 		engine:      g.engine,
@@ -286,27 +286,27 @@ func (g *Group) Group() *Group {
 	return g2
 }
 
-//Use adds a middleware to current route stack
+// Use adds a middleware to current route stack
 func (g *Group) Use(middleware MiddlewareFunc) {
 	g.middlewares = append(g.middlewares, middleware)
 }
 
-//Get handles HTTP GET requests
+// Get handles HTTP GET requests
 func (g *Group) Get(path string, handler HandlerFunc) {
 	g.engine.mux.Handle("GET", path, g.engine.handle(g.middlewares, handler))
 }
 
-//Post handles HTTP POST requests
+// Post handles HTTP POST requests
 func (g *Group) Post(path string, handler HandlerFunc) {
 	g.engine.mux.Handle("POST", path, g.engine.handle(g.middlewares, handler))
 }
 
-//Put handles HTTP PUT requests
+// Put handles HTTP PUT requests
 func (g *Group) Put(path string, handler HandlerFunc) {
 	g.engine.mux.Handle("PUT", path, g.engine.handle(g.middlewares, handler))
 }
 
-//Delete handles HTTP DELETE requests
+// Delete handles HTTP DELETE requests
 func (g *Group) Delete(path string, handler HandlerFunc) {
 	g.engine.mux.Handle("DELETE", path, g.engine.handle(g.middlewares, handler))
 }

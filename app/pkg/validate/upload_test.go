@@ -2,7 +2,7 @@ package validate_test
 
 import (
 	"context"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/getfider/fider/app/models/dto"
@@ -28,7 +28,7 @@ func TestValidateImageUpload(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		img, _ := ioutil.ReadFile(env.Path(testCase.fileName))
+		img, _ := os.ReadFile(env.Path(testCase.fileName))
 
 		upload := &dto.ImageUpload{
 			Upload: &dto.ImageUploadData{
@@ -49,7 +49,7 @@ func TestValidateImageUpload(t *testing.T) {
 func TestValidateImageUpload_ExactRatio(t *testing.T) {
 	RegisterT(t)
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
+	img, _ := os.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 	opts := validate.ImageUploadOpts{
 		IsRequired:   false,
 		MaxKilobytes: 200,
@@ -126,7 +126,7 @@ func TestValidateImageUpload_Required(t *testing.T) {
 func TestValidateMultiImageUpload(t *testing.T) {
 	RegisterT(t)
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
+	img, _ := os.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 
 	uploads := []*dto.ImageUpload{
 		{
@@ -157,7 +157,7 @@ func TestValidateMultiImageUpload(t *testing.T) {
 func TestValidateMultiImageUpload_Existing(t *testing.T) {
 	RegisterT(t)
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
+	img, _ := os.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 
 	uploads := []*dto.ImageUpload{
 		{

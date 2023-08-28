@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -171,7 +171,7 @@ func (s *Server) ExecuteAsPage(handler web.HandlerFunc) (int, *web.Props) {
 }
 
 func toJSONQuery(response *httptest.ResponseRecorder) *jsonq.Query {
-	b, err := ioutil.ReadAll(response.Body)
+	b, err := io.ReadAll(response.Body)
 	if err != nil {
 		panic(err)
 	}

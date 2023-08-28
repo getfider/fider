@@ -4,7 +4,7 @@ import { SignInModal } from "@fider/components"
 import { cache, actions, Failure } from "@fider/services"
 import { ImageUpload } from "@fider/models"
 import { useFider } from "@fider/hooks"
-import { t } from "@lingui/macro"
+import { t, Trans } from "@lingui/macro"
 
 interface PostInputProps {
   placeholder: string
@@ -80,7 +80,7 @@ export const PostInput = (props: PostInputProps) => {
       />
       <MultiImageUploader field="attachments" maxUploads={3} onChange={setAttachments} />
       <Button type="submit" variant="primary" onClick={submit}>
-        Submit
+        <Trans id="action.submit">Submit</Trans>
       </Button>
     </>
   )

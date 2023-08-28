@@ -2,7 +2,7 @@ package mailgun_test
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"testing"
 
@@ -53,7 +53,7 @@ func TestSend_Success(t *testing.T) {
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Authorization")).Equals("Basic YXBpOm15czNjcjN0azN5")
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/x-www-form-urlencoded")
 
-	bytes, err := ioutil.ReadAll(httpclientmock.RequestsHistory[0].Body)
+	bytes, err := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
 	Expect(err).IsNil()
 	values, err := url.ParseQuery(string(bytes))
 	Expect(err).IsNil()
@@ -175,7 +175,7 @@ func TestBatch_Success(t *testing.T) {
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Authorization")).Equals("Basic YXBpOm15czNjcjN0azN5")
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/x-www-form-urlencoded")
 
-	bytes, err := ioutil.ReadAll(httpclientmock.RequestsHistory[0].Body)
+	bytes, err := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
 	Expect(err).IsNil()
 	values, err := url.ParseQuery(string(bytes))
 	Expect(err).IsNil()

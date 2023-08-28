@@ -1,52 +1,43 @@
 interface Locale {
   text: string
-  translated: number
 }
 
 const locales: { [key: string]: Locale } = {
   en: {
-    text: "🇺🇸 English",
-    translated: 100,
+    text: "English",
   },
   "pt-BR": {
-    text: "🇧🇷 Portuguese (Brazilian)",
-    translated: 100,
+    text: "Portuguese (Brazilian)",
   },
   "es-ES": {
-    text: "🇪🇸 Spanish",
-    translated: 97,
+    text: "Spanish",
   },
   de: {
-    text: "🇩🇪 German",
-    translated: 97,
+    text: "German",
   },
   fr: {
-    text: "🇫🇷 French",
-    translated: 97,
+    text: "French",
   },
   "sv-SE": {
-    text: "🇸🇪 Swedish",
-    translated: 97,
+    text: "Swedish",
   },
   nl: {
-    text: "🇳🇱 Dutch",
-    translated: 97,
+    text: "Dutch",
   },
   pl: {
-    text: "🇵🇱 Polish",
-    translated: 97,
+    text: "Polish",
   },
   ru: {
-    text: "🇷🇺 Russian",
-    translated: 97,
+    text: "Russian",
   },
   sk: {
-    text: "🇸🇰 Slovak",
-    translated: 97,
+    text: "Slovak",
   },
   tr: {
-    text: "🇹🇷 Turkish",
-    translated: 97,
+    text: "Turkish",
+  },
+  el: {
+    text: "Greek",
   },
 }
 

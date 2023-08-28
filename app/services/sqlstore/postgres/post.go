@@ -392,7 +392,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(q.Query), q.Query)
+			}), ToTSQuery(q.Query), SanitizeString(q.Query))
 		} else {
 			condition, statuses, sort := getViewData(q.View)
 			sql := fmt.Sprintf(`

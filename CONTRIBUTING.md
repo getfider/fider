@@ -21,8 +21,8 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 | Software    | How to install                                                 | What is it used for                                       |
 | ----------- | -------------------------------------------------------------- | --------------------------------------------------------- |
-| Go 1.18+    | https://golang.org/                                            | To compile server side code                               |
-| Node.js 16+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
+| Go 1.19+    | https://golang.org/                                            | To compile server side code                               |
+| Node.js 18+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
 | Docker      | https://www.docker.com/                                        | To start local PostgreSQL instances                       |
 
 #### 2. To setup your development workspace:
@@ -31,7 +31,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 2. navigate into the cloned repository.
 3. run `go install github.com/cosmtrek/air` to install air, a cli tool for live reload, when you change the code, it automatically recompiles the application.
 4. run `go install github.com/joho/godotenv/cmd/godotenv` to install godotenv, a cli tool to load environment variables from a `.env` so that you don't have to change your machine environment variables.
-5. run `go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.0` to install golangci-lint, a linter for Go apps.
+5. run `go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.0` to install golangci-lint, a linter for Go apps.
 6. run `npm install` to install client side packages.
 7. run `docker-compose up -d` to start a local PostgreSQL database and Local SMTP (with [MailHog](https://github.com/mailhog/MailHog)) on Docker.
 8. run `cp .example.env .env` to create a local environment configuration file.

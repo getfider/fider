@@ -57,7 +57,7 @@ func generateCheckoutLink(ctx context.Context, c *cmd.GenerateCheckoutLink) erro
 	params := url.Values{}
 	params.Set("vendor_id", env.Config.Paddle.VendorID)
 	params.Set("vendor_auth_code", env.Config.Paddle.VendorAuthCode)
-	params.Set("product_id", env.Config.Paddle.PlanID)
+	params.Set("product_id", c.PlanID)
 	params.Set("passthrough", string(passthrough))
 
 	req := &cmd.HTTPRequest{
@@ -137,10 +137,15 @@ func getBillingSubscription(ctx context.Context, q *query.GetBillingSubscription
 				LastFourDigits: sub[0].PaymentInformation.LastFourDigits,
 				ExpiryDate:     sub[0].PaymentInformation.ExpiryDate,
 			},
-			LastPayment: entity.BillingLastPayment{
+			LastPayment: entity.BillingPayment{
 				Amount:   sub[0].LastPayment.Amount,
 				Currency: sub[0].LastPayment.Currency,
 				Date:     sub[0].LastPayment.Date,
+			},
+			NextPayment: entity.BillingPayment{
+				Amount:   sub[0].NextPayment.Amount,
+				Currency: sub[0].NextPayment.Currency,
+				Date:     sub[0].NextPayment.Date,
 			},
 		}
 	}

@@ -14,6 +14,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 
 	"github.com/getfider/fider/app/handlers"
@@ -59,7 +60,7 @@ func TestManageBillingHandler_ReturnsCorrectBillingInformation(t *testing.T) {
 				LastFourDigits: "1111",
 				ExpiryDate:     "10/2031",
 			},
-			LastPayment: entity.BillingLastPayment{
+			LastPayment: entity.BillingPayment{
 				Amount:   float64(30),
 				Currency: "USD",
 				Date:     "2021-11-09",
@@ -94,6 +95,11 @@ func TestManageBillingHandler_ReturnsCorrectBillingInformation(t *testing.T) {
 func TestGenerateCheckoutLinkHandler(t *testing.T) {
 	RegisterT(t)
 
+	env.Config.Paddle.VendorID = "123"
+	env.Config.Paddle.VendorAuthCode = "456"
+	env.Config.Paddle.MonthlyPlanID = "PLAN_M"
+	env.Config.Paddle.YearlyPlanID = "PLAN_Y"
+
 	bus.AddHandler(func(ctx context.Context, c *cmd.GenerateCheckoutLink) error {
 		c.URL = "https://paddle.com/fake-checkout-url"
 		return nil
@@ -104,7 +110,7 @@ func TestGenerateCheckoutLinkHandler(t *testing.T) {
 		WithURL("http://demo.test.fider.io/_api/billing/checkout-link").
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		ExecuteAsJSON(handlers.GenerateCheckoutLink())
+		ExecutePostAsJSON(handlers.GenerateCheckoutLink(), "{ \"planID\": \"PLAN_M\" }")
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(json.String("url")).Equals("https://paddle.com/fake-checkout-url")
