@@ -41,6 +41,10 @@ The easiest and quickest way to get started. A fully managed services by the cre
 
 You can also install Fider yourself. It's free, but you are responsible for managing it. [Learn how](https://fider.io/docs/hosting-instance)
 
+Deploy a self-hosted version in one-click with [Dome](https://app.trydome.io/signup?package=fider):
+
+[![Deploy to Dome](https://trydome.io/button.svg)](https://app.trydome.io/signup?package=fider)
+
 <br/>
 <br/>
 
