@@ -22,6 +22,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.12.1
 	github.com/prometheus/client_model v0.2.0
+	github.com/resend/resend-go/v2 v2.5.0
 	github.com/robfig/cron v1.2.0
 	golang.org/x/crypto v0.24.0
 	golang.org/x/net v0.26.0
