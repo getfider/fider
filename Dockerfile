@@ -23,7 +23,7 @@ FROM --platform=${TARGETPLATFORM:-linux/amd64} node:18-bullseye AS ui-builder
 WORKDIR /ui
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --maxsockets 1
 
 COPY . .
 RUN make build-ssr
