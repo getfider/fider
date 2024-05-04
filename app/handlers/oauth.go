@@ -163,14 +163,17 @@ func OAuthCallback() web.HandlerFunc {
 
 		provider := c.Param("provider")
 		state := c.QueryParam("state")
-		parts := strings.Split(state, "|")
+		claims, err := jwt.DecodeOAuthStateClaims(state)
+		if err != nil {
+			return c.Forbidden()
+		}
 
-		if parts[0] == "" {
+		if claims.Redirect == "" {
 			log.Warnf(c, "Missing redirect URL in OAuth callback state for provider @{Provider}.", dto.Props{"Provider": provider})
 			return c.NotFound()
 		}
 
-		redirectURL, err := url.ParseRequestURI(parts[0])
+		redirectURL, err := url.ParseRequestURI(claims.Redirect)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -184,7 +187,7 @@ func OAuthCallback() web.HandlerFunc {
 		if redirectURL.Path == fmt.Sprintf("/oauth/%s/echo", provider) {
 			var query = redirectURL.Query()
 			query.Set("code", code)
-			query.Set("identifier", parts[1])
+			query.Set("identifier", claims.Identifier)
 			redirectURL.RawQuery = query.Encode()
 			return c.Redirect(redirectURL.String())
 		}
@@ -221,7 +224,7 @@ func OAuthCallback() web.HandlerFunc {
 		var query = redirectURL.Query()
 		query.Set("code", code)
 		query.Set("redirect", redirectURL.RequestURI())
-		query.Set("identifier", parts[1])
+		query.Set("identifier", claims.Identifier)
 		redirectURL.RawQuery = query.Encode()
 		redirectURL.Path = fmt.Sprintf("/oauth/%s/token", provider)
 		return c.Redirect(redirectURL.String())

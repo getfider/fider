@@ -60,6 +60,11 @@ func TestSignInByOAuthHandler_InvalidURL(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
 
+	state, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://avengers.test.fider.io",
+		Identifier: "MY_SESSION_ID",
+	})
+
 	server := mock.NewServer()
 	code, response := server.
 		AddParam("provider", app.FacebookProvider).
@@ -69,7 +74,7 @@ func TestSignInByOAuthHandler_InvalidURL(t *testing.T) {
 		Execute(handlers.SignInByOAuth())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=http%3A%2F%2Favengers.test.fider.io%7CMY_SESSION_ID")
+	Expect(response.Header().Get("Location")).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state="+state)
 }
 
 func TestSignInByOAuthHandler_AuthenticatedUser(t *testing.T) {
@@ -102,8 +107,13 @@ func TestSignInByOAuthHandler_AuthenticatedUser_UsingEcho(t *testing.T) {
 		Use(middlewares.Session()).
 		Execute(handlers.SignInByOAuth())
 
+	state, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://avengers.test.fider.io/oauth/facebook/echo",
+		Identifier: "MY_SESSION_ID",
+	})
+
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=http%3A%2F%2Favengers.test.fider.io%2Foauth%2Ffacebook%2Fecho%7CMY_SESSION_ID")
+	Expect(response.Header().Get("Location")).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state="+state)
 }
 
 func TestCallbackHandler_InvalidState(t *testing.T) {
@@ -115,16 +125,20 @@ func TestCallbackHandler_InvalidState(t *testing.T) {
 		AddParam("provider", app.FacebookProvider).
 		Execute(handlers.OAuthCallback())
 
-	Expect(code).Equals(http.StatusInternalServerError)
+	Expect(code).Equals(http.StatusForbidden)
 }
 
 func TestCallbackHandler_InvalidCode(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
+	state, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://avengers.test.fider.io",
+		Identifier: "",
+	})
 
 	code, response := server.
-		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io").
+		WithURL("http://login.test.fider.io/oauth/callback?state="+state).
 		AddParam("provider", app.FacebookProvider).
 		Execute(handlers.OAuthCallback())
 
@@ -135,9 +149,14 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 func TestCallbackHandler_SignIn(t *testing.T) {
 	RegisterT(t)
 
+	state, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://avengers.test.fider.io",
+		Identifier: "888",
+	})
+
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io|888&code=123").
+		WithURL("http://login.test.fider.io/oauth/callback?state="+state+"&code=123").
 		AddParam("provider", app.FacebookProvider).
 		Execute(handlers.OAuthCallback())
 
@@ -149,8 +168,13 @@ func TestCallbackHandler_SignIn_WithPath(t *testing.T) {
 	RegisterT(t)
 	server := mock.NewServer()
 
+	state, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://avengers.test.fider.io/some-page",
+		Identifier: "888",
+	})
+
 	code, response := server.
-		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io/some-page|888&code=123").
+		WithURL("http://login.test.fider.io/oauth/callback?state="+state+"&code=123").
 		AddParam("provider", app.FacebookProvider).
 		Execute(handlers.OAuthCallback())
 
@@ -175,9 +199,14 @@ func TestCallbackHandler_SignUp(t *testing.T) {
 		return app.ErrNotFound
 	})
 
+	state, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://demo.test.fider.io/signup",
+		Identifier: "",
+	})
+
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://login.test.fider.io/oauth/callback?state=http://demo.test.fider.io/signup&code=123").
+		WithURL("http://login.test.fider.io/oauth/callback?state="+state+"&code=123").
 		AddParam("provider", app.FacebookProvider).
 		Execute(handlers.OAuthCallback())
 	Expect(code).Equals(http.StatusTemporaryRedirect)

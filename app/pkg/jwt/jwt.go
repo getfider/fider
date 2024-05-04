@@ -43,6 +43,13 @@ type OAuthClaims struct {
 	Metadata
 }
 
+// OAuthStateClaims represents what goes into JWT tokens used for OAuth state parameter
+type OAuthStateClaims struct {
+	Redirect    string    `json:"oauthstate/redirect"`
+	Identifier  string `json:"oauthstate/identifier"`
+	Metadata
+}
+
 // Encode creates new JWT token with given claims
 func Encode(claims jwtgo.Claims) (string, error) {
 	jwtToken := jwtgo.NewWithClaims(jwtgo.GetSigningMethod("HS256"), claims)
@@ -69,6 +76,16 @@ func DecodeOAuthClaims(token string) (*OAuthClaims, error) {
 	err := decode(token, claims)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode OAuth claims")
+	}
+	return claims, nil
+}
+
+// DecodeOAuthStateClaims extract OAuthClaims from given JWT token
+func DecodeOAuthStateClaims(token string) (*OAuthStateClaims, error) {
+	claims := &OAuthStateClaims{}
+	err := decode(token, claims)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode OAuthState claims")
 	}
 	return claims, nil
 }

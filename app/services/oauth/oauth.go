@@ -17,6 +17,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jsonq"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 	"golang.org/x/oauth2"
@@ -155,7 +156,17 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 	parameters.Add("scope", config.Scope)
 	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, q.Provider))
 	parameters.Add("response_type", "code")
-	parameters.Add("state", q.Redirect+"|"+q.Identifier)
+
+	state, err := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   q.Redirect,
+		Identifier: q.Identifier,
+	})
+	
+	if err != nil {
+		return err
+	}
+
+	parameters.Add("state", state)
 
 	authURL.RawQuery = parameters.Encode()
 	q.Result = authURL.String()

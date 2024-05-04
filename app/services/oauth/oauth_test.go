@@ -16,6 +16,7 @@ import (
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -46,9 +47,14 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 		Identifier: "456",
 	}
 
+	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://example.org",
+		Identifier: "456",
+	})
+
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=http%3A%2F%2Fexample.org%7C456")
+	Expect(authURL.Result).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state="+expectedState)
 }
 
 func TestGetAuthURL_Google(t *testing.T) {
@@ -63,9 +69,14 @@ func TestGetAuthURL_Google(t *testing.T) {
 		Identifier: "123",
 	}
 
+	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://example.org",
+		Identifier: "123",
+	})
+
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://accounts.google.com/o/oauth2/v2/auth?client_id=GO_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=profile+email&state=http%3A%2F%2Fexample.org%7C123")
+	Expect(authURL.Result).Equals("https://accounts.google.com/o/oauth2/v2/auth?client_id=GO_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=profile+email&state="+expectedState)
 }
 
 func TestGetAuthURL_GitHub(t *testing.T) {
@@ -80,9 +91,14 @@ func TestGetAuthURL_GitHub(t *testing.T) {
 		Identifier: "456",
 	}
 
+	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://example.org",
+		Identifier: "456",
+	})
+
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://github.com/login/oauth/authorize?client_id=GH_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=http%3A%2F%2Fexample.org%7C456")
+	Expect(authURL.Result).Equals("https://github.com/login/oauth/authorize?client_id=GH_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state="+expectedState)
 }
 
 func TestGetAuthURL_Custom(t *testing.T) {
@@ -108,9 +124,14 @@ func TestGetAuthURL_Custom(t *testing.T) {
 		Identifier: "456",
 	}
 
+	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://example.org",
+		Identifier: "456",
+	})
+
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state=http%3A%2F%2Fexample.org%7C456")
+	Expect(authURL.Result).Equals("https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state="+expectedState)
 }
 
 func TestGetAuthURL_Twitch(t *testing.T) {
@@ -136,9 +157,14 @@ func TestGetAuthURL_Twitch(t *testing.T) {
 		Identifier: "456",
 	}
 
+	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://example.org",
+		Identifier: "456",
+	})
+
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state=http%3A%2F%2Fexample.org%7C456")
+	Expect(authURL.Result).Equals("https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state="+expectedState)
 }
 
 func TestParseProfileResponse_AllFields(t *testing.T) {
