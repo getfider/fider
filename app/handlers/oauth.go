@@ -242,7 +242,7 @@ func SignInByOAuth() web.HandlerFunc {
 
 		if redirect == "" {
 			redirect = c.BaseURL()
-		} else if !strings.HasPrefix(redirect, c.BaseURL()) {
+		} else if redirect != c.BaseURL() && !strings.HasPrefix(redirect, c.BaseURL()+"/") {
 			return c.Forbidden()
 		}
 
