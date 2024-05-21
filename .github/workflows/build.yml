@@ -1,4 +1,4 @@
-name: build
+22: build
 
 on:
   push:
@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 18.x
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v1
         with:
-          node-version: 18.x
+          node-version: 22.x
       - run: npm ci
       - run: make lint-ui
       - run: make test-ui
@@ -53,10 +53,10 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.22
-      - name: Use Node.js 18.x
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v1
         with:
-          node-version: 18.x
+          node-version: 22.x
       - run: npm ci # required for esbuild
       - name: install golangci-lint
         run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.51.0
@@ -124,10 +124,10 @@ jobs:
         browser: ["chromium", "webkit", "firefox"]
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 18.x
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v1
         with:
-          node-version: 18.x
+          node-version: 22.x
       - uses: actions/download-artifact@v2
         with:
           name: fider-image
@@ -178,10 +178,10 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 18.x
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v1
         with:
-          node-version: 18.x
+          node-version: 22.x
       - uses: actions/download-artifact@v2
         with:
           name: fider-image
