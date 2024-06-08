@@ -1,8 +1,8 @@
-// +heroku goVersion go1.19
+// +heroku goVersion go1.22
 
 module github.com/getfider/fider
 
-go 1.19
+go 1.22.0
 
 require (
 	github.com/aws/aws-sdk-go v1.41.14

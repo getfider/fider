@@ -1,7 +1,7 @@
 #####################
 ### Server Build Step
 #####################
-FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.19-bullseye AS server-builder 
+FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.22-bullseye AS server-builder 
 
 
 RUN mkdir /server
