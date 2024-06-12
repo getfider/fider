@@ -24,7 +24,7 @@ require (
 	github.com/prometheus/client_model v0.2.0
 	github.com/robfig/cron v1.2.0
 	golang.org/x/crypto v0.1.0
-	golang.org/x/net v0.5.0
+	golang.org/x/net v0.7.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	rogchap.com/v8go v0.7.1-0.20211222173054-943fcf9e74cc
 )
@@ -198,8 +198,8 @@ require (
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/text v0.6.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/tools v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
