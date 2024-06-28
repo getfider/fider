@@ -34,6 +34,7 @@ func routes(r *web.Engine) *web.Engine {
 	})
 
 	r.Use(middlewares.Secure())
+	r.Use(middlewares.CSRF())
 	r.Use(middlewares.Compress())
 
 	assets := r.Group()
