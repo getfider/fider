@@ -2,12 +2,12 @@ package entity
 
 import "github.com/getfider/fider/app/models/enum"
 
-//User represents an user inside our application
+// User represents an user inside our application
 type User struct {
 	ID            int             `json:"id"`
 	Name          string          `json:"name"`
 	Tenant        *Tenant         `json:"-"`
-	Email         string          `json:"-"`
+	Email         string          `json:"email"`
 	Role          enum.Role       `json:"role"`
 	Providers     []*UserProvider `json:"-"`
 	AvatarBlobKey string          `json:"-"`
@@ -16,7 +16,7 @@ type User struct {
 	Status        enum.UserStatus `json:"status"`
 }
 
-//HasProvider returns true if current user has registered with given provider
+// HasProvider returns true if current user has registered with given provider
 func (u *User) HasProvider(provider string) bool {
 	for _, p := range u.Providers {
 		if p.Name == provider {
@@ -36,7 +36,7 @@ func (u *User) IsAdministrator() bool {
 	return u.Role == enum.RoleAdministrator
 }
 
-//UserProvider represents the relationship between an User and an Authentication provide
+// UserProvider represents the relationship between an User and an Authentication provide
 type UserProvider struct {
 	Name string
 	UID  string
