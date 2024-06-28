@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
@@ -126,11 +127,19 @@ func ManageMembers() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		// Create an array of UserWithEmail structs from the allUsers.Result
+		allUsersWithEmail := make([]entity.UserWithEmail, len(allUsers.Result))
+		for i, user := range allUsers.Result {
+			allUsersWithEmail[i] = entity.UserWithEmail{
+				User: user,
+			}
+		}
+
 		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/ManageMembers.page",
 			Title: "Manage Members · Site Settings",
 			Data: web.Map{
-				"users": allUsers.Result,
+				"users": allUsersWithEmail,
 			},
 		})
 	}

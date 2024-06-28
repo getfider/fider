@@ -69,6 +69,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
     super(props)
 
     const users = this.props.users.sort(this.sortByStaff)
+
     this.state = {
       query: "",
       users,
@@ -86,8 +87,12 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
     this.handleSearchFilterChanged("")
   }
 
+  private memberFilter = (query: string, user: User): boolean => {
+    return user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || (user.email && user.email.toLowerCase().indexOf(query.toLowerCase()) >= 0) || false
+  }
+
   private handleSearchFilterChanged = (query: string) => {
-    const users = this.props.users.filter((x) => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0).sort(this.sortByStaff)
+    const users = this.props.users.filter((x) => this.memberFilter(query, x)).sort(this.sortByStaff)
     this.setState({ query, users, visibleUsers: users.slice(0, 10) })
   }
 
@@ -145,7 +150,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
           field="query"
           icon={this.state.query ? IconX : IconSearch}
           onIconClick={this.state.query ? this.clearSearch : undefined}
-          placeholder="Search for users by name..."
+          placeholder="Search for users by name / email ..."
           value={this.state.query}
           onChange={this.handleSearchFilterChanged}
         />

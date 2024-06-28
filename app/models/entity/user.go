@@ -1,8 +1,12 @@
 package entity
 
-import "github.com/getfider/fider/app/models/enum"
+import (
+	"encoding/json"
 
-//User represents an user inside our application
+	"github.com/getfider/fider/app/models/enum"
+)
+
+// User represents an user inside our application
 type User struct {
 	ID            int             `json:"id"`
 	Name          string          `json:"name"`
@@ -16,7 +20,7 @@ type User struct {
 	Status        enum.UserStatus `json:"status"`
 }
 
-//HasProvider returns true if current user has registered with given provider
+// HasProvider returns true if current user has registered with given provider
 func (u *User) HasProvider(provider string) bool {
 	for _, p := range u.Providers {
 		if p.Name == provider {
@@ -36,8 +40,24 @@ func (u *User) IsAdministrator() bool {
 	return u.Role == enum.RoleAdministrator
 }
 
-//UserProvider represents the relationship between an User and an Authentication provide
+// UserProvider represents the relationship between an User and an Authentication provide
 type UserProvider struct {
 	Name string
 	UID  string
+}
+
+// UserWithEmail is a wrapper around User that includes the email field when marshaling to JSON
+type UserWithEmail struct {
+	*User
+}
+
+func (umc UserWithEmail) MarshalJSON() ([]byte, error) {
+	type Alias User // Prevent recursion
+	return json.Marshal(&struct {
+		*Alias
+		Email string `json:"email"`
+	}{
+		Alias: (*Alias)(umc.User),
+		Email: umc.User.Email,
+	})
 }
