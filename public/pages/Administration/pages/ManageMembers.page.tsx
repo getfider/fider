@@ -88,7 +88,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
   }
 
   private memberFilter = (query: string, user: User): boolean => {
-    return user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || (user.email && user.email.toLowerCase().indexOf(query.toLowerCase()) >= 0) || false;
+    return user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || (user.email && user.email.toLowerCase().indexOf(query.toLowerCase()) >= 0) || false
   }
 
   private handleSearchFilterChanged = (query: string) => {
