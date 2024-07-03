@@ -15,9 +15,13 @@ import (
 // SearchPosts return existing posts based on search criteria
 func SearchPosts() web.HandlerFunc {
 	return func(c *web.Context) error {
+		viewQueryParams := c.QueryParam("view")
+		if viewQueryParams == "" {
+			viewQueryParams = "all" // Set default value to "all" if not provided
+		}
 		searchPosts := &query.SearchPosts{
 			Query: c.QueryParam("query"),
-			View:  c.QueryParam("view"),
+			View:  viewQueryParams,
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
