@@ -28,3 +28,16 @@ func Secure() web.MiddlewareFunc {
 		}
 	}
 }
+
+// Secure middleware is responsible for blocking CSRF attacks
+func CSRF() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c *web.Context) error {
+			var isWriteRequest = c.Request.Method == "POST" || c.Request.Method == "PUT" || c.Request.Method == "DELETE"
+			if isWriteRequest && !c.IsAjax() {
+				return c.Forbidden()
+			}
+			return next(c)
+		}
+	}
+}
