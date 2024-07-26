@@ -39,6 +39,9 @@ const locales: { [key: string]: Locale } = {
   el: {
     text: "Greek",
   },
+  ar: {
+    text: "Arabic",
+  },
 }
 
 export default locales
