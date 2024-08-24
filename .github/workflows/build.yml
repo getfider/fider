@@ -1,11 +1,11 @@
 name: build
 
 on:
+  release:
+    types: [created]
   push:
     branches:
       - main
-    tags:
-      - "v*" # Triggers on version tags like v1.0.0
   pull_request:
     branches:
       - main
