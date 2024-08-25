@@ -65,6 +65,6 @@ jobs:
           context: .
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
-          tags: getfider/fider:${{ github.ref_name }}
+          tags: getfider/fider:${{ github.event.workflow_run.display_title }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
