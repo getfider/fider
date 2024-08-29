@@ -68,6 +68,10 @@ type config struct {
 	CDN struct {
 		Host string `env:"CDN_HOST"`
 	}
+	UserList struct {
+		Enabled bool   `env:"USER_LIST_ENABLED,default=false"`
+		ApiKey  string `env:"USER_LIST_APIKEY"`
+	}
 	Log struct {
 		Level      string `env:"LOG_LEVEL,default=INFO"`
 		Structured bool   `env:"LOG_STRUCTURED,default=false"`
