@@ -133,7 +133,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: fider-image
           path: ./out
@@ -187,7 +187,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: fider-image
           path: ./out
