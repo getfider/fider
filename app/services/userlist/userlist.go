@@ -62,9 +62,28 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	bus.AddHandler(createUserListCompany)
+	bus.AddHandler(updateUserListCompany)
 }
 
-func createUserListCompany(ctx context.Context, c *cmd.CreateUserListCompany) error {
+func updateUserListCompany(ctx context.Context, c *cmd.UserListUpdateCompany) error {
+	company := &Company{
+		Identifier: strconv.Itoa(c.Id),
+		Name:       c.Name,
+		Properties: map[string]interface{}{
+			"billing_status": c.BillingStatus,
+			"subdomain":      c.Subdomain,
+		},
+	}
+
+	err := pushCompanyUpdate(company, ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func createUserListCompany(ctx context.Context, c *cmd.UserListCreateCompany) error {
 
 	company := &Company{
 		Identifier: strconv.Itoa(c.TenantId),
@@ -72,7 +91,6 @@ func createUserListCompany(ctx context.Context, c *cmd.CreateUserListCompany) er
 		SignedUpAt: c.SignedUpAt,
 		Properties: map[string]interface{}{
 			"billing_status": c.BillingStatus,
-			"user_count":     1,
 			"subdomain":      c.Subdomain,
 		},
 		Users: []UserListUser{
@@ -87,7 +105,17 @@ func createUserListCompany(ctx context.Context, c *cmd.CreateUserListCompany) er
 		},
 	}
 
-	jsonContent, err := json.Marshal(company)
+	err := pushCompanyUpdate(company, ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func pushCompanyUpdate(c *Company, ctx context.Context) error {
+
+	jsonContent, err := json.Marshal(c)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal company object")
 	}
@@ -103,7 +131,7 @@ func createUserListCompany(ctx context.Context, c *cmd.CreateUserListCompany) er
 	}
 
 	if err := bus.Dispatch(ctx, req); err != nil {
-		return errors.Wrap(err, "Failed to create userlist company")
+		return errors.Wrap(err, "Failed to send userlist company")
 	}
 
 	if req.ResponseStatusCode >= 300 {
@@ -111,5 +139,4 @@ func createUserListCompany(ctx context.Context, c *cmd.CreateUserListCompany) er
 	}
 
 	return nil
-
 }

@@ -1,6 +1,6 @@
 package cmd
 
-type CreateUserListCompany struct {
+type UserListCreateCompany struct {
 	Name          string
 	TenantId      int
 	SignedUpAt    string
@@ -9,4 +9,17 @@ type CreateUserListCompany struct {
 	UserId        int
 	UserEmail     string
 	UserName      string
+}
+
+type UserListUpdateCompany struct {
+	Id            int
+	Name          string
+	BillingStatus string
+	Subdomain     string
+}
+
+type UpdateUserListUser struct {
+	Id    int
+	Email string
+	Name  string
 }

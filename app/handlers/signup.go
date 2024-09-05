@@ -192,7 +192,7 @@ func VerifySignUpKey() web.HandlerFunc {
 
 		// Handle userlist.
 		if env.Config.UserList.Enabled {
-			c.Enqueue(tasks.CreateUserListCompany(*c.Tenant(), *user))
+			c.Enqueue(tasks.UserListCreateCompany(*c.Tenant(), *user))
 		}
 
 		webutil.AddAuthUserCookie(c, user)

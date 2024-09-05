@@ -9,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 
 	"github.com/getfider/fider/app/tasks"
 
@@ -110,6 +111,10 @@ func UpdateUserSettings() web.HandlerFunc {
 			},
 		); err != nil {
 			return c.Failure(err)
+		}
+
+		if env.Config.UserList.Enabled {
+			c.Enqueue(tasks.UserListUpdateUser(*c.User(), action.Name))
 		}
 
 		return c.Ok(web.Map{})
