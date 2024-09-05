@@ -35,15 +35,15 @@ func UserListCreateCompany(tenant entity.Tenant, user entity.User) worker.Task {
 	})
 }
 
-func UserListUpdateCompany(action *actions.UpdateTenantSettings) worker.Task {
+func UserListUpdateCompany(action *actions.UserListUpdateCompany) worker.Task {
 	return describe("Update Company in UserList", func(c *worker.Context) error {
 		log.Debugf(c, "Updating company @{Tenant} in UserList", dto.Props{
-			"Tenant": action.Title,
+			"Tenant": action.Name,
 		})
 		if err := bus.Dispatch(c, &cmd.UserListUpdateCompany{
-			Id:        c.Tenant().ID,
-			Name:      action.Title,
-			Subdomain: action.CNAME,
+			TenantId:      action.TenantID,
+			Name:          action.Name,
+			BillingStatus: action.BillingStatus,
 		}); err != nil {
 			return c.Failure(err)
 		}

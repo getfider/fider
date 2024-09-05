@@ -63,7 +63,10 @@ func UpdateSettings() web.HandlerFunc {
 
 		// Handle userlist.
 		if env.Config.UserList.Enabled {
-			c.Enqueue(tasks.UserListUpdateCompany(action))
+			c.Enqueue(tasks.UserListUpdateCompany(&actions.UserListUpdateCompany{
+				TenantID: c.Tenant().ID,
+				Name:     action.Title,
+			}))
 		}
 
 		return c.Ok(web.Map{})

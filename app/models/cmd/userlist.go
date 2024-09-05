@@ -1,5 +1,7 @@
 package cmd
 
+import "github.com/getfider/fider/app/models/enum"
+
 type UserListCreateCompany struct {
 	Name          string
 	TenantId      int
@@ -12,10 +14,9 @@ type UserListCreateCompany struct {
 }
 
 type UserListUpdateCompany struct {
-	Id            int
+	TenantId      int
 	Name          string
-	BillingStatus string
-	Subdomain     string
+	BillingStatus enum.BillingStatus
 }
 
 type UpdateUserListUser struct {

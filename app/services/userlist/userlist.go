@@ -67,12 +67,13 @@ func (s Service) Init() {
 
 func updateUserListCompany(ctx context.Context, c *cmd.UserListUpdateCompany) error {
 	company := &Company{
-		Identifier: strconv.Itoa(c.Id),
+		Identifier: strconv.Itoa(c.TenantId),
 		Name:       c.Name,
-		Properties: map[string]interface{}{
+	}
+	if c.BillingStatus > 0 {
+		company.Properties = map[string]interface{}{
 			"billing_status": c.BillingStatus,
-			"subdomain":      c.Subdomain,
-		},
+		}
 	}
 
 	err := pushCompanyUpdate(company, ctx)

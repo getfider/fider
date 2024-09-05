@@ -13,13 +13,16 @@ import (
 	"sort"
 	"time"
 
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 )
 
 // IncomingPaddleWebhook handles all incoming requests from Paddle Webhooks
@@ -66,6 +69,15 @@ func handlePaddleSubscriptionCreated(c *web.Context, params url.Values) error {
 		return c.Failure(err)
 	}
 
+	// Handle userlist.
+	if env.Config.UserList.Enabled {
+		c.Enqueue(tasks.UserListUpdateCompany(&actions.UserListUpdateCompany{
+			TenantID:      passthrough.TenantID,
+			BillingStatus: enum.BillingActive,
+			Name:          c.Tenant().Name,
+		}))
+	}
+
 	return c.Ok(web.Map{})
 }
 
@@ -89,6 +101,15 @@ func handlePaddleSubscriptionCancelled(c *web.Context, params url.Values) error 
 
 	if err := bus.Dispatch(c, cancel); err != nil {
 		return c.Failure(err)
+	}
+
+	// Handle userlist.
+	if env.Config.UserList.Enabled {
+		c.Enqueue(tasks.UserListUpdateCompany(&actions.UserListUpdateCompany{
+			TenantID:      passthrough.TenantID,
+			BillingStatus: enum.BillingCancelled,
+			Name:          c.Tenant().Name,
+		}))
 	}
 
 	return c.Ok(web.Map{})

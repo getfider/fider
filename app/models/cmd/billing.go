@@ -28,4 +28,5 @@ type CancelBillingSubscription struct {
 type LockExpiredTenants struct {
 	//Output
 	NumOfTenantsLocked int64
+	TenantsLocked      []int
 }
