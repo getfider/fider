@@ -51,15 +51,30 @@ func UserListUpdateCompany(action *actions.UserListUpdateCompany) worker.Task {
 	})
 }
 
-func UserListUpdateUser(user entity.User, userName string) worker.Task {
+func UserListUpdateUser(id int, name string, email string) worker.Task {
 	return describe("Update User in UserList", func(c *worker.Context) error {
 		log.Debugf(c, "Updating user @{User} in UserList", dto.Props{
-			"User": user.Email,
+			"User": id,
 		})
-		if err := bus.Dispatch(c, &cmd.UpdateUserListUser{
-			Id:    user.ID,
-			Email: user.Email,
-			Name:  userName,
+		if err := bus.Dispatch(c, &cmd.UserListUpdateUser{
+			Id:    id,
+			Email: email,
+			Name:  name,
+		}); err != nil {
+			return c.Failure(err)
+		}
+		return nil
+	})
+}
+
+func UserListAddOrRemoveUser(userID int, role enum.Role) worker.Task {
+	return describe("Add or Remove User in UserList", func(c *worker.Context) error {
+		log.Debugf(c, "Handling role change for user in UserList", dto.Props{
+			"User": userID,
+		})
+		if err := bus.Dispatch(c, &cmd.UserListHandleRoleChange{
+			Id:   userID,
+			Role: role,
 		}); err != nil {
 			return c.Failure(err)
 		}

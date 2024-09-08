@@ -10,6 +10,8 @@ import (
 	"strconv"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -29,9 +31,14 @@ type Company struct {
 // including their identifier, email, sign-up date, and custom properties.
 type UserListUser struct {
 	Identifier string                 `json:"identifier,omitempty"`
+	Company    string                 `json:"company,omitempty"`
 	Email      string                 `json:"email,omitempty"`
 	SignedUpAt string                 `json:"signed_up_at,omitempty"`
 	Properties map[string]interface{} `json:"properties,omitempty"`
+}
+
+type UserListUserToDelete struct {
+	Identifier string `json:"identifier"`
 }
 
 type CompanyCreateResponse struct {
@@ -63,6 +70,66 @@ func (s Service) Enabled() bool {
 func (s Service) Init() {
 	bus.AddHandler(createUserListCompany)
 	bus.AddHandler(updateUserListCompany)
+	bus.AddHandler(updateUserListUser)
+	bus.AddHandler(addOrRemoveUserListUser)
+}
+
+func addOrRemoveUserListUser(ctx context.Context, u *cmd.UserListHandleRoleChange) error {
+	if u.Role == enum.RoleAdministrator {
+		// Get the user so we can add it to userlist.
+		user := &query.GetUserByID{
+			UserID: u.Id,
+		}
+		err := bus.Dispatch(ctx, user)
+		if err != nil {
+			return err
+		}
+
+		updateUserListUser(ctx, &cmd.UserListUpdateUser{
+			Id:       u.Id,
+			TenantId: user.Result.Tenant.ID,
+			Email:    user.Result.Email,
+			Name:     user.Result.Name,
+		})
+		return nil
+	}
+
+	// If the user is not an administrator, we remove it from userlist.
+	userToDelete := &UserListUserToDelete{
+		Identifier: strconv.Itoa(u.Id),
+	}
+
+	err := pushUserListUpdate(userToDelete, ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func updateUserListUser(ctx context.Context, u *cmd.UserListUpdateUser) error {
+
+	user := &UserListUser{
+		Identifier: strconv.Itoa(u.Id),
+		Company:    strconv.Itoa(u.TenantId),
+	}
+
+	if len(u.Email) > 0 {
+		user.Email = u.Email
+	}
+
+	if len(u.Name) > 0 {
+		user.Properties = map[string]interface{}{
+			"name": u.Name,
+		}
+	}
+
+	err := pushUserListUpdate(user, ctx)
+	if err != nil {
+		return err
+	}
+	return nil
+
 }
 
 func updateUserListCompany(ctx context.Context, c *cmd.UserListUpdateCompany) error {
@@ -76,7 +143,7 @@ func updateUserListCompany(ctx context.Context, c *cmd.UserListUpdateCompany) er
 		}
 	}
 
-	err := pushCompanyUpdate(company, ctx)
+	err := pushUserListUpdate(company, ctx)
 	if err != nil {
 		return err
 	}
@@ -106,7 +173,7 @@ func createUserListCompany(ctx context.Context, c *cmd.UserListCreateCompany) er
 		},
 	}
 
-	err := pushCompanyUpdate(company, ctx)
+	err := pushUserListUpdate(company, ctx)
 	if err != nil {
 		return err
 	}
@@ -114,17 +181,30 @@ func createUserListCompany(ctx context.Context, c *cmd.UserListCreateCompany) er
 
 }
 
-func pushCompanyUpdate(c *Company, ctx context.Context) error {
+func pushUserListUpdate(obj interface{}, ctx context.Context) error {
+	var url string
+	method := http.MethodPost
+	switch obj.(type) {
+	case *Company:
+		url = fmt.Sprintf("%s/companies", UserListBaseUrl)
+	case *UserListUser:
+		url = fmt.Sprintf("%s/users", UserListBaseUrl)
+	case *UserListUserToDelete:
+		url = fmt.Sprintf("%s/users", UserListBaseUrl)
+		method = http.MethodDelete
+	default:
+		return errors.New("invalid type passed to pushUserListUpdate")
+	}
 
-	jsonContent, err := json.Marshal(c)
+	jsonContent, err := json.Marshal(obj)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal company object")
+		return errors.Wrap(err, "failed to marshal object")
 	}
 
 	req := &cmd.HTTPRequest{
-		URL:    fmt.Sprintf("%s/companies", UserListBaseUrl),
+		URL:    url,
 		Body:   bytes.NewBuffer(jsonContent),
-		Method: http.MethodPost,
+		Method: method,
 		Headers: map[string]string{
 			"Content-Type":  "application/json",
 			"Authorization": fmt.Sprintf("Push %s", env.Config.UserList.ApiKey),
@@ -132,11 +212,11 @@ func pushCompanyUpdate(c *Company, ctx context.Context) error {
 	}
 
 	if err := bus.Dispatch(ctx, req); err != nil {
-		return errors.Wrap(err, "Failed to send userlist company")
+		return errors.Wrap(err, "Failed to send userlist update")
 	}
 
 	if req.ResponseStatusCode >= 300 {
-		return errors.New("unexpected status code while creating company in userlist: %d", req.ResponseStatusCode)
+		return errors.New("unexpected status code while updating userlist: %d", req.ResponseStatusCode)
 	}
 
 	return nil

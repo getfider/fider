@@ -15,6 +15,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/services/httpclient/httpclientmock"
 	"github.com/getfider/fider/app/services/userlist"
+	userlist_mock "github.com/getfider/fider/app/services/userlist/mocks"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
@@ -25,7 +26,7 @@ func reset() {
 	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
 		Subdomain: "got",
 	})
-	bus.Init(userlist.Service{}, httpclientmock.Service{})
+	bus.Init(userlist.Service{}, httpclientmock.Service{}, userlist_mock.Service{})
 }
 
 func TestCreatTenant_Success(t *testing.T) {
@@ -146,4 +147,68 @@ func TestUpdateTenant_NameShouldNotUpdateIfNotSet(t *testing.T) {
 	body, _ := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
 	containsName := strings.Contains(string(body), "name")
 	Expect(containsName).IsFalse()
+}
+
+func TestUpdateUser_NameOnly(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "multi"
+	reset()
+
+	bus.Dispatch(ctx, &cmd.UserListUpdateUser{
+		Id:       1,
+		TenantId: 1,
+		Name:     "Freddy",
+	})
+
+	Expect(httpclientmock.RequestsHistory).HasLen(1)
+
+	body, _ := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
+	containsName := strings.Contains(string(body), "name")
+	Expect(containsName).IsTrue()
+
+	containsEmail := strings.Contains(string(body), "email")
+	Expect(containsEmail).IsFalse()
+}
+
+func TestUpdateUser_EmailOnly(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "multi"
+	reset()
+
+	bus.Dispatch(ctx, &cmd.UserListUpdateUser{
+		Id:       1,
+		TenantId: 1,
+		Email:    "Freddy@example.com",
+	})
+
+	Expect(httpclientmock.RequestsHistory).HasLen(1)
+
+	body, _ := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
+	containsName := strings.Contains(string(body), "name")
+	Expect(containsName).IsFalse()
+
+	containsEmail := strings.Contains(string(body), "email")
+	Expect(containsEmail).IsTrue()
+}
+
+func TestMakeUserAdministrator(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "multi"
+	reset()
+
+	bus.Dispatch(ctx, &cmd.UserListHandleRoleChange{
+		Id:   1,
+		Role: enum.RoleAdministrator,
+	})
+
+	Expect(httpclientmock.RequestsHistory).HasLen(1)
+
+	Expect(httpclientmock.RequestsHistory[0].URL.String()).Equals("https://push.userlist.com/users")
+	Expect(httpclientmock.RequestsHistory[0].Method).Equals("POST")
+
+	body, _ := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
+	Expect(strings.Contains(string(body), "\"email\":\"john.doe@example.com\"")).IsTrue()
+	Expect(strings.Contains(string(body), "\"name\":\"John Doe\"")).IsTrue()
+	Expect(strings.Contains(string(body), "\"identifier\":\"1\"")).IsTrue()
+
 }

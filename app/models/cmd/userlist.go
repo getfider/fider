@@ -19,8 +19,14 @@ type UserListUpdateCompany struct {
 	BillingStatus enum.BillingStatus
 }
 
-type UpdateUserListUser struct {
-	Id    int
-	Email string
-	Name  string
+type UserListUpdateUser struct {
+	Id       int
+	TenantId int
+	Email    string
+	Name     string
+}
+
+type UserListHandleRoleChange struct {
+	Id   int
+	Role enum.Role
 }
