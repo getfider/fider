@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -63,7 +64,7 @@ func UpdateSettings() web.HandlerFunc {
 
 		// Handle userlist.
 		if env.Config.UserList.Enabled {
-			c.Enqueue(tasks.UserListUpdateCompany(&actions.UserListUpdateCompany{
+			c.Enqueue(tasks.UserListUpdateCompany(&dto.UserListUpdateCompany{
 				TenantID: c.Tenant().ID,
 				Name:     action.Title,
 			}))

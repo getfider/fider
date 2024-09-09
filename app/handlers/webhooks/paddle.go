@@ -13,7 +13,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
@@ -71,7 +70,7 @@ func handlePaddleSubscriptionCreated(c *web.Context, params url.Values) error {
 
 	// Handle userlist.
 	if env.Config.UserList.Enabled {
-		c.Enqueue(tasks.UserListUpdateCompany(&actions.UserListUpdateCompany{
+		c.Enqueue(tasks.UserListUpdateCompany(&dto.UserListUpdateCompany{
 			TenantID:      passthrough.TenantID,
 			BillingStatus: enum.BillingActive,
 			Name:          c.Tenant().Name,
@@ -105,7 +104,7 @@ func handlePaddleSubscriptionCancelled(c *web.Context, params url.Values) error 
 
 	// Handle userlist.
 	if env.Config.UserList.Enabled {
-		c.Enqueue(tasks.UserListUpdateCompany(&actions.UserListUpdateCompany{
+		c.Enqueue(tasks.UserListUpdateCompany(&dto.UserListUpdateCompany{
 			TenantID:      passthrough.TenantID,
 			BillingStatus: enum.BillingCancelled,
 			Name:          c.Tenant().Name,

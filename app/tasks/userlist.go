@@ -3,7 +3,6 @@ package tasks
 import (
 	"time"
 
-	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
@@ -35,7 +34,7 @@ func UserListCreateCompany(tenant entity.Tenant, user entity.User) worker.Task {
 	})
 }
 
-func UserListUpdateCompany(action *actions.UserListUpdateCompany) worker.Task {
+func UserListUpdateCompany(action *dto.UserListUpdateCompany) worker.Task {
 	return describe("Update Company in UserList", func(c *worker.Context) error {
 		log.Debugf(c, "Updating company @{Tenant} in UserList", dto.Props{
 			"Tenant": action.Name,

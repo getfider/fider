@@ -1,4 +1,4 @@
-package actions
+package dto
 
 import "github.com/getfider/fider/app/models/enum"
 
