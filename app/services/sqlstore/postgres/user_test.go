@@ -124,7 +124,7 @@ func TestUserStorage_Register(t *testing.T) {
 	err = bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
 
-	Expect(getUser.Result.ID).Equals(int(6))
+	Expect(getUser.Result.ID).Equals(int(7))
 	Expect(getUser.Result.Role).Equals(enum.RoleCollaborator)
 	Expect(getUser.Result.Name).Equals("Rob Stark")
 	Expect(getUser.Result.Email).Equals("rob.stark@got.com")

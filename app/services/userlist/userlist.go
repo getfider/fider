@@ -85,12 +85,15 @@ func addOrRemoveUserListUser(ctx context.Context, u *cmd.UserListHandleRoleChang
 			return err
 		}
 
-		updateUserListUser(ctx, &cmd.UserListUpdateUser{
+		err = updateUserListUser(ctx, &cmd.UserListUpdateUser{
 			Id:       u.Id,
 			TenantId: user.Result.Tenant.ID,
 			Email:    user.Result.Email,
 			Name:     user.Result.Name,
 		})
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 

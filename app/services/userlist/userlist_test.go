@@ -45,7 +45,8 @@ func TestCreatTenant_Success(t *testing.T) {
 		Subdomain:     "got",
 	}
 
-	bus.Dispatch(ctx, createCompanyCmd)
+	err := bus.Dispatch(ctx, createCompanyCmd)
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 	Expect(httpclientmock.RequestsHistory[0].URL.String()).Equals("https://push.userlist.com/companies")
@@ -64,7 +65,8 @@ func TestUpdateTenant_Success(t *testing.T) {
 		BillingStatus: enum.BillingActive,
 	}
 
-	bus.Dispatch(ctx, updateCompanyCmd)
+	err := bus.Dispatch(ctx, updateCompanyCmd)
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 	Expect(httpclientmock.RequestsHistory[0].URL.String()).Equals("https://push.userlist.com/companies")
@@ -83,7 +85,8 @@ func TestUpdateTenant_BillingStatusUpdatedIfSet(t *testing.T) {
 		BillingStatus: enum.BillingActive,
 	}
 
-	bus.Dispatch(ctx, updateCompanyCmd)
+	err := bus.Dispatch(ctx, updateCompanyCmd)
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
@@ -103,7 +106,8 @@ func TestUpdateTenant_BillingStatusNotUpdatedIfNotSet(t *testing.T) {
 		TenantId: 1,
 	}
 
-	bus.Dispatch(ctx, updateCompanyCmd)
+	err := bus.Dispatch(ctx, updateCompanyCmd)
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
@@ -122,7 +126,8 @@ func TestUpdateTenant_NameShouldUpdateIfSet(t *testing.T) {
 		TenantId: 1,
 	}
 
-	bus.Dispatch(ctx, updateCompanyCmd)
+	err := bus.Dispatch(ctx, updateCompanyCmd)
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
@@ -140,7 +145,8 @@ func TestUpdateTenant_NameShouldNotUpdateIfNotSet(t *testing.T) {
 		TenantId: 1,
 	}
 
-	bus.Dispatch(ctx, updateCompanyCmd)
+	err := bus.Dispatch(ctx, updateCompanyCmd)
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
@@ -154,11 +160,12 @@ func TestUpdateUser_NameOnly(t *testing.T) {
 	env.Config.HostMode = "multi"
 	reset()
 
-	bus.Dispatch(ctx, &cmd.UserListUpdateUser{
+	err := bus.Dispatch(ctx, &cmd.UserListUpdateUser{
 		Id:       1,
 		TenantId: 1,
 		Name:     "Freddy",
 	})
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
@@ -175,11 +182,12 @@ func TestUpdateUser_EmailOnly(t *testing.T) {
 	env.Config.HostMode = "multi"
 	reset()
 
-	bus.Dispatch(ctx, &cmd.UserListUpdateUser{
+	err := bus.Dispatch(ctx, &cmd.UserListUpdateUser{
 		Id:       1,
 		TenantId: 1,
 		Email:    "Freddy@example.com",
 	})
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
@@ -196,10 +204,11 @@ func TestMakeUserAdministrator(t *testing.T) {
 	env.Config.HostMode = "multi"
 	reset()
 
-	bus.Dispatch(ctx, &cmd.UserListHandleRoleChange{
+	err := bus.Dispatch(ctx, &cmd.UserListHandleRoleChange{
 		Id:   1,
 		Role: enum.RoleAdministrator,
 	})
+	Expect(err).IsNil()
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
