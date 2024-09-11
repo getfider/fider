@@ -53,7 +53,9 @@ jobs:
           context: .
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
           platforms: linux/amd64,linux/arm64/v8
-          tags: getfider/fider:SHA_${{ github.event.workflow_run.head_sha }},getfider/fider:main
+          tags: |
+            getfider/fider:SHA_${{ github.event.workflow_run.head_sha }}
+            getfider/fider:${{ github.event.workflow_run.head_branch == 'main' && 'main' || 'stable' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           
