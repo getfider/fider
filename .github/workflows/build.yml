@@ -1,11 +1,12 @@
 name: build
 
 on:
+  release:
+    types: [created]
   push:
     branches:
       - main
-    tags:
-      - "v*" # Triggers on version tags like v1.0.0
+      - stable 
   pull_request:
     branches:
       - main
@@ -99,7 +100,7 @@ jobs:
 
       - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: fider-image
           path: out/
@@ -132,7 +133,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: fider-image
           path: ./out
@@ -186,7 +187,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 22.x
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: fider-image
           path: ./out
