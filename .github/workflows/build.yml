@@ -100,7 +100,7 @@ jobs:
 
       - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: fider-image
           path: out/
