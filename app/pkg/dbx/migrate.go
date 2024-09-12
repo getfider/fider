@@ -63,20 +63,23 @@ func Migrate(ctx context.Context, path string) error {
 
 	totalMigrationsExecuted := 0
 
+	pendingVersions, err := getPendingMigrations(versions)
+	if err != nil {
+		return errors.Wrap(err, "failed to get pending migrations")
+	}
+
 	// Apply all migrations
-	for _, version := range versions {
-		if version > lastVersion {
-			fileName := versionFiles[version]
-			log.Infof(ctx, "Running Version: @{Version} (@{FileName})", dto.Props{
-				"Version":  version,
-				"FileName": fileName,
-			})
-			err := runMigration(ctx, version, path, fileName)
-			if err != nil {
-				return errors.Wrap(err, "failed to run migration '%s'", fileName)
-			}
-			totalMigrationsExecuted++
+	for _, version := range pendingVersions {
+		fileName := versionFiles[version]
+		log.Infof(ctx, "Running Version: @{Version} (@{FileName})", dto.Props{
+			"Version":  version,
+			"FileName": fileName,
+		})
+		err := runMigration(ctx, version, path, fileName)
+		if err != nil {
+			return errors.Wrap(err, "failed to run migration '%s'", fileName)
 		}
+		totalMigrationsExecuted++
 	}
 
 	if totalMigrationsExecuted > 0 {
@@ -139,4 +142,32 @@ func getLastMigration() (int, error) {
 	}
 
 	return int(lastVersion.Int64), nil
+}
+
+func getPendingMigrations(versions []int) ([]int, error) {
+	pendingMigrations := make([]int, 0)
+	versionStr := strconv.Itoa(versions[0])
+
+	for _, version := range versions {
+		versionStr = versionStr + "," + strconv.Itoa(version)
+	}
+
+	dbVersionMap := make(map[int]bool)
+	rows, err := conn.Query("SELECT version FROM migrations_history WHERE version IN (" + versionStr + ")")
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var version int
+		_ = rows.Scan(&version)
+		dbVersionMap[version] = true
+	}
+
+	for _, version := range versions {
+		if !dbVersionMap[version] {
+			pendingMigrations = append(pendingMigrations, version)
+		}
+	}
+
+	return pendingMigrations, nil
 }
