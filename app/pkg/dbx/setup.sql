@@ -30,3 +30,15 @@ INSERT INTO users (name, email, tenant_id, created_at, role, status, avatar_type
 VALUES ('The Hulk', 'the.hulk@avengers.com', 2, now(), 1, 1, 2, '');
 INSERT INTO user_providers (user_id, tenant_id, provider, provider_uid, created_at) 
 VALUES (5, 2, 'google', 'GO1111', now());
+
+-- Create a tenant that has reached the end of it's trial period
+INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed)
+VALUES ('Trial Expired', 'trial-expired', now(), 'feedback.trial-expired.com', '', '', 1, false, '', '', 'en', true);
+INSERT INTO tenants_billing (tenant_id, paddle_plan_id, paddle_subscription_id, status, subscription_ends_at, trial_ends_at)
+VALUES (3, 1, 1,1, now(), CURRENT_DATE - INTERVAL '10 days');
+INSERT INTO users (name, email, tenant_id, created_at, role, status, avatar_type, avatar_bkey)
+VALUES ('Trial Expired', 'trial.expired@trial-expired.com', 3, now(), 3, 1, 2, '');
+INSERT INTO user_providers (user_id, tenant_id, provider, provider_uid, created_at)
+VALUES (6, 3, 'facebook', 'FB3333', now());
+
+

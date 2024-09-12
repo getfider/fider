@@ -5,10 +5,13 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 )
 
 // GeneralSettingsPage is the general settings page
@@ -57,6 +60,14 @@ func UpdateSettings() web.HandlerFunc {
 			},
 		); err != nil {
 			return c.Failure(err)
+		}
+
+		// Handle userlist.
+		if env.Config.UserList.Enabled {
+			c.Enqueue(tasks.UserListUpdateCompany(&dto.UserListUpdateCompany{
+				TenantID: c.Tenant().ID,
+				Name:     action.Title,
+			}))
 		}
 
 		return c.Ok(web.Map{})

@@ -9,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 
 	"github.com/getfider/fider/app/tasks"
 
@@ -65,6 +66,10 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if env.Config.UserList.Enabled {
+			c.Enqueue(tasks.UserListUpdateUser(c.User().ID, "", result.Email))
+		}
+
 		return c.Redirect(c.BaseURL() + "/settings")
 	}
 }
@@ -112,6 +117,10 @@ func UpdateUserSettings() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if env.Config.UserList.Enabled {
+			c.Enqueue(tasks.UserListUpdateUser(c.User().ID, action.Name, ""))
+		}
+
 		return c.Ok(web.Map{})
 	}
 }
@@ -133,6 +142,11 @@ func ChangeUserRole() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		// Handle userlist
+		if env.Config.UserList.Enabled {
+			c.Enqueue(tasks.UserListAddOrRemoveUser(action.UserID, action.Role))
+		}
+
 		return c.Ok(web.Map{})
 	}
 }
@@ -145,6 +159,12 @@ func DeleteUser() web.HandlerFunc {
 		}
 
 		c.RemoveCookie(web.CookieAuthName)
+
+		// Handle userlist (easiest way is to demote them which will remove them from the userlist)
+		if env.Config.UserList.Enabled {
+			c.Enqueue(tasks.UserListAddOrRemoveUser(c.User().ID, enum.RoleVisitor))
+		}
+
 		return c.Ok(web.Map{})
 	}
 }

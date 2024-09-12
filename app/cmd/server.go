@@ -30,11 +30,12 @@ import (
 	_ "github.com/getfider/fider/app/services/log/sql"
 	_ "github.com/getfider/fider/app/services/oauth"
 	_ "github.com/getfider/fider/app/services/sqlstore/postgres"
+	_ "github.com/getfider/fider/app/services/userlist"
 	_ "github.com/getfider/fider/app/services/webhook"
 )
 
-//RunServer starts the Fider Server
-//Returns an exitcode, 0 for OK and 1 for ERROR
+// RunServer starts the Fider Server
+// Returns an exitcode, 0 for OK and 1 for ERROR
 func RunServer() int {
 	svcs := bus.Init()
 	ctx := log.WithProperty(context.Background(), log.PropertyKeyTag, "BOOTSTRAP")

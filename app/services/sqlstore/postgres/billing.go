@@ -140,6 +140,7 @@ func lockExpiredTenants(ctx context.Context, c *cmd.LockExpiredTenants) error {
 			}
 
 			c.NumOfTenantsLocked = count
+			c.TenantsLocked = ids
 		}
 
 		return nil
