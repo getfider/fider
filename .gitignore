@@ -21,3 +21,4 @@ debug.test
 cover.out
 coverage.tmp
 tsconfig.tsbuildinfo
+etc/*.pem

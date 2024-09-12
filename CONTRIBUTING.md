@@ -33,7 +33,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 4. run `go install github.com/joho/godotenv/cmd/godotenv` to install godotenv, a cli tool to load environment variables from a `.env` so that you don't have to change your machine environment variables.
 5. run `go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1` to install golangci-lint, a linter for Go apps.
 6. run `npm install` to install client side packages.
-7. run `docker-compose up -d` to start a local PostgreSQL database and Local SMTP (with [MailHog](https://github.com/mailhog/MailHog)) on Docker.
+7. run `docker compose up -d` to start a local PostgreSQL database and Local SMTP (with [MailHog](https://github.com/mailhog/MailHog)) on Docker.
 8. run `cp .example.env .env` to create a local environment configuration file.
 
 - **Important:** Fider has a strong dependency on an email delivery service. For easier local development, the docker-compose file already provides
