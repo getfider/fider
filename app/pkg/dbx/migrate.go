@@ -146,11 +146,11 @@ func getLastMigration() (int, error) {
 
 func getPendingMigrations(versions []int) ([]int, error) {
 	pendingMigrations := make([]int, 0)
-	versionStr := strconv.Itoa(versions[0])
-
+	versionStr := ""
 	for _, version := range versions {
 		versionStr = versionStr + "," + strconv.Itoa(version)
 	}
+	versionStr = versionStr[1:]
 
 	dbVersionMap := make(map[int]bool)
 	rows, err := conn.Query("SELECT version FROM migrations_history WHERE version IN (" + versionStr + ")")
