@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	stdErrors "errors"
 	"os"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -145,29 +146,25 @@ func getLastMigration() (int, error) {
 }
 
 func getPendingMigrations(versions []int) ([]int, error) {
-	pendingMigrations := make([]int, 0)
 	versionStr := ""
 	for _, version := range versions {
 		versionStr = versionStr + "," + strconv.Itoa(version)
 	}
 	versionStr = versionStr[1:]
 
-	dbVersionMap := make(map[int]bool)
 	rows, err := conn.Query("SELECT version FROM migrations_history WHERE version IN (" + versionStr + ")")
 	if err != nil {
 		return nil, err
 	}
+
 	for rows.Next() {
 		var version int
 		_ = rows.Scan(&version)
-		dbVersionMap[version] = true
-	}
-
-	for _, version := range versions {
-		if !dbVersionMap[version] {
-			pendingMigrations = append(pendingMigrations, version)
+		i := slices.Index(versions, version)
+		if i != -1 {
+			versions = slices.Delete(versions, i, i+1)
 		}
 	}
 
-	return pendingMigrations, nil
+	return versions, nil
 }
