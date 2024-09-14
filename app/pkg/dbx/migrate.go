@@ -146,8 +146,9 @@ func getLastMigration() (int, error) {
 }
 
 func getPendingMigrations(versions []int) ([]int, error) {
+	pendingMigrations := versions
 	versionStr := ""
-	for _, version := range versions {
+	for _, version := range pendingMigrations {
 		versionStr = versionStr + "," + strconv.Itoa(version)
 	}
 	versionStr = versionStr[1:]
@@ -160,11 +161,11 @@ func getPendingMigrations(versions []int) ([]int, error) {
 	for rows.Next() {
 		var version int
 		_ = rows.Scan(&version)
-		i := slices.Index(versions, version)
+		i := slices.Index(pendingMigrations, version)
 		if i != -1 {
-			versions = slices.Delete(versions, i, i+1)
+			pendingMigrations = slices.Delete(pendingMigrations, i, i+1)
 		}
 	}
 
-	return versions, nil
+	return pendingMigrations, nil
 }
