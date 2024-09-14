@@ -157,7 +157,9 @@ func getPendingMigrations(versions []int) ([]int, error) {
 
 	for rows.Next() {
 		var version int
-		_ = rows.Scan(&version)
+		if err := rows.Scan(&version); err != nil {
+			return nil, errors.Wrap(err, "failed to scan version")
+		}
 		i := slices.Index(pendingMigrations, version)
 		if i != -1 {
 			pendingMigrations = slices.Delete(pendingMigrations, i, i+1)
