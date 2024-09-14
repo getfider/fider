@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	stdErrors "errors"
+	"github.com/lib/pq"
 	"os"
 	"slices"
 	"sort"
@@ -147,13 +148,8 @@ func getLastMigration() (int, error) {
 
 func getPendingMigrations(versions []int) ([]int, error) {
 	pendingMigrations := versions
-	versionStr := ""
-	for _, version := range pendingMigrations {
-		versionStr = versionStr + "," + strconv.Itoa(version)
-	}
-	versionStr = versionStr[1:]
 
-	rows, err := conn.Query("SELECT version FROM migrations_history WHERE version IN (" + versionStr + ")")
+	rows, err := conn.Query("SELECT version FROM migrations_history WHERE version = ANY($1)", pq.Array(pendingMigrations))
 	if err != nil {
 		return nil, err
 	}
