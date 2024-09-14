@@ -54,7 +54,7 @@ func TestMigrate_SuccessWithPastMigration(t *testing.T) {
 	err = trx.Scalar(&version, "SELECT version FROM migrations_history WHERE version = '209901010000' LIMIT 1")
 	Expect(version).Equals("209901010000")
 	var count int
-	err = trx.Scalar(&count, "SELECT COUNT(*) FROM migrations_history where VERSION IN (209901010000,210001010002)")
+	err = trx.Scalar(&count, "SELECT COUNT(*) FROM migrations_history WHERE version IN (209901010000,210001010002)")
 	Expect(err).IsNil()
 	Expect(count).Equals(2)
 	trx.MustRollback()
