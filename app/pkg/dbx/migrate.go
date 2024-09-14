@@ -153,6 +153,7 @@ func getPendingMigrations(versions []int) ([]int, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var version int
