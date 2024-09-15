@@ -3,7 +3,7 @@ import "./ShowPost.page.scss"
 import React from "react"
 
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser } from "@fider/models"
-import { actions, Failure, Fider, timeAgo } from "@fider/services"
+import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 
 import {
   VoteCounter,
@@ -48,6 +48,7 @@ interface ShowPostPageState {
   newTitle: string
   attachments: ImageUpload[]
   newDescription: string
+  highlightedComment?: number
   error?: Failure
 }
 
@@ -70,6 +71,15 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
       newDescription: this.props.post.description,
       attachments: [],
     }
+  }
+
+  public componentDidMount() {
+    this.handleHashChange()
+    window.addEventListener("hashchange", this.handleHashChange)
+  }
+
+  public componentWillUnmount() {
+    window.removeEventListener("hashchange", this.handleHashChange)
   }
 
   private saveChanges = async () => {
@@ -101,6 +111,33 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
   private startEdit = async () => {
     this.setState({ editMode: true })
+  }
+
+  private handleHashChange = (e?: Event) => {
+    const hash = window.location.hash
+    const result = /#comment-([0-9]+)/.exec(hash)
+
+    let highlightedComment
+    if (result === null) {
+      // No match
+      highlightedComment = undefined
+    } else {
+      // Match, extract numeric ID
+      const id = parseInt(result[1])
+      if (this.props.comments.map((comment) => comment.id).includes(id)) {
+        highlightedComment = id
+      } else {
+        // Unknown comment
+        if (e?.cancelable) {
+          e.preventDefault()
+        } else {
+          clearUrlHash(true)
+        }
+        notify.error(<Trans id="showpost.comment.unknownhighlighted">Unknown comment ID #{id}</Trans>)
+        highlightedComment = undefined
+      }
+    }
+    this.setState({ highlightedComment })
   }
 
   public render() {
@@ -201,7 +238,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
             </VStack>
 
             <div className="p-show-post__discussion_col">
-              <DiscussionPanel post={this.props.post} comments={this.props.comments} />
+              <DiscussionPanel post={this.props.post} comments={this.props.comments} highlightedComment={this.state.highlightedComment} />
             </div>
           </VStack>
         </div>
