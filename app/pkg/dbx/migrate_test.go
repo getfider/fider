@@ -39,6 +39,30 @@ func TestMigrate_Success(t *testing.T) {
 	trx.MustRollback()
 }
 
+func TestMigrate_SuccessWithPastMigration(t *testing.T) {
+	setupMigrationTest(t)
+	ctx := context.Background()
+
+	err := dbx.Migrate(ctx, "/app/pkg/dbx/testdata/migration_success")
+	Expect(err).IsNil()
+
+	err = dbx.Migrate(ctx, "/app/pkg/dbx/testdata/migration_success_with_new_migrations")
+	Expect(err).IsNil()
+
+	trx, _ := dbx.BeginTx(ctx)
+	var version string
+	err = trx.Scalar(&version, "SELECT version FROM migrations_history WHERE version = '209901010000' LIMIT 1")
+	Expect(err).IsNil()
+	Expect(version).Equals("209901010000")
+
+	var count int
+	err = trx.Scalar(&count, "SELECT COUNT(*) FROM migrations_history WHERE version IN (209901010000,210001010002)")
+	Expect(err).IsNil()
+	Expect(count).Equals(2)
+
+	trx.MustRollback()
+}
+
 func TestMigrate_Failure(t *testing.T) {
 	setupMigrationTest(t)
 	ctx := context.Background()

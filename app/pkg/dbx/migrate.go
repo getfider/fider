@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	stdErrors "errors"
+	"github.com/lib/pq"
 	"os"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -63,20 +65,23 @@ func Migrate(ctx context.Context, path string) error {
 
 	totalMigrationsExecuted := 0
 
+	pendingVersions, err := getPendingMigrations(versions)
+	if err != nil {
+		return errors.Wrap(err, "failed to get pending migrations")
+	}
+
 	// Apply all migrations
-	for _, version := range versions {
-		if version > lastVersion {
-			fileName := versionFiles[version]
-			log.Infof(ctx, "Running Version: @{Version} (@{FileName})", dto.Props{
-				"Version":  version,
-				"FileName": fileName,
-			})
-			err := runMigration(ctx, version, path, fileName)
-			if err != nil {
-				return errors.Wrap(err, "failed to run migration '%s'", fileName)
-			}
-			totalMigrationsExecuted++
+	for _, version := range pendingVersions {
+		fileName := versionFiles[version]
+		log.Infof(ctx, "Running Version: @{Version} (@{FileName})", dto.Props{
+			"Version":  version,
+			"FileName": fileName,
+		})
+		err := runMigration(ctx, version, path, fileName)
+		if err != nil {
+			return errors.Wrap(err, "failed to run migration '%s'", fileName)
 		}
+		totalMigrationsExecuted++
 	}
 
 	if totalMigrationsExecuted > 0 {
@@ -139,4 +144,27 @@ func getLastMigration() (int, error) {
 	}
 
 	return int(lastVersion.Int64), nil
+}
+
+func getPendingMigrations(versions []int) ([]int, error) {
+	pendingMigrations := append([]int(nil), versions...)
+
+	rows, err := conn.Query("SELECT version FROM migrations_history WHERE version = ANY($1)", pq.Array(pendingMigrations))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var version int
+		if err := rows.Scan(&version); err != nil {
+			return nil, errors.Wrap(err, "failed to scan version")
+		}
+		i := slices.Index(pendingMigrations, version)
+		if i != -1 {
+			pendingMigrations = slices.Delete(pendingMigrations, i, i+1)
+		}
+	}
+
+	return pendingMigrations, nil
 }
