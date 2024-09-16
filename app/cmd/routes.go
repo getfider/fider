@@ -80,7 +80,7 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		tenantAssets.Use(middlewares.ClientCache(5 * 24 * time.Hour))
 		tenantAssets.Get("/static/avatars/letter/:id/:name", handlers.LetterAvatar())
-		tenantAssets.Get("/static/avatars/gravatar/:id/:name", handlers.Gravatar())
+		tenantAssets.Get("/static/avatars/gravatar/:id/*name", handlers.Gravatar())
 
 		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
 		tenantAssets.Get("/static/favicon/*bkey", handlers.Favicon())
