@@ -60,7 +60,7 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 		},
 	}
 
-	task := tasks.NotifyAboutDeletedPost(post)
+	task := tasks.NotifyAboutDeletedPost(post, true)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -94,6 +94,91 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	Expect(addNewNotification.Link).Equals("")
 	Expect(addNewNotification.Title).Equals("**Jon Snow** deleted **Add support for TypeScript**")
 	Expect(addNewNotification.User).Equals(mock.AryaStark)
+
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookDeletePost)
+	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
+		"post_id":                    post.ID,
+		"post_number":                post.Number,
+		"post_title":                 post.Title,
+		"post_slug":                  post.Slug,
+		"post_description":           post.Description,
+		"post_status":                post.Status.Name(),
+		"post_url":                   "http://domain.com/posts/1/add-support-for-typescript",
+		"post_author_id":             mock.AryaStark.ID,
+		"post_author_name":           mock.AryaStark.Name,
+		"post_author_email":          mock.AryaStark.Email,
+		"post_author_role":           mock.AryaStark.Role.String(),
+		"post_response":              true,
+		"post_response_text":         post.Response.Text,
+		"post_response_responded_at": post.Response.RespondedAt,
+		"post_response_author_id":    mock.JonSnow.ID,
+		"post_response_author_name":  mock.JonSnow.Name,
+		"post_response_author_email": mock.JonSnow.Email,
+		"post_response_author_role":  mock.JonSnow.Role.String(),
+		"author_id":                  mock.JonSnow.ID,
+		"author_name":                mock.JonSnow.Name,
+		"author_email":               mock.JonSnow.Email,
+		"author_role":                mock.JonSnow.Role.String(),
+		"tenant_id":                  mock.DemoTenant.ID,
+		"tenant_name":                mock.DemoTenant.Name,
+		"tenant_subdomain":           mock.DemoTenant.Subdomain,
+		"tenant_status":              mock.DemoTenant.Status.String(),
+		"tenant_url":                 "http://domain.com",
+	})
+}
+
+func TestNotifyAboutDeletePostTask_NoComment(t *testing.T) {
+	RegisterT(t)
+	bus.Init(emailmock.Service{})
+
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
+		q.Result = []*entity.User{
+			mock.AryaStark,
+		}
+		return nil
+	})
+
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
+		return nil
+	})
+
+	worker := mock.NewWorker()
+	post := &entity.Post{
+		ID:          1,
+		Number:      1,
+		Title:       "Add support for TypeScript",
+		Slug:        "add-support-for-typescript",
+		Description: "TypeScript is great, please add support for it",
+		User:        mock.AryaStark,
+		Status:      enum.PostDeleted,
+		Response: &entity.PostResponse{
+			RespondedAt: time.Now(),
+			Text:        "Invalid post!",
+			User:        mock.JonSnow,
+		},
+	}
+
+	task := tasks.NotifyAboutDeletedPost(post, false)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailmock.MessageHistory).HasLen(0)
+
+	Expect(addNewNotification).IsNil()
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookDeletePost)

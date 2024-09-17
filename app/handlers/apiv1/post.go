@@ -173,10 +173,7 @@ func DeletePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if action.Text != "" {
-			// Only send notification if user wrote a comment.
-			c.Enqueue(tasks.NotifyAboutDeletedPost(action.Post))
-		}
+		c.Enqueue(tasks.NotifyAboutDeletedPost(action.Post, action.Text != ""))
 
 		return c.Ok(web.Map{})
 	}
