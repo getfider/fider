@@ -21,7 +21,7 @@ export const NotificationIndicator = () => {
   }, [fider.session.isAuthenticated])
 
   return (
-    <a href="/notifications" className="c-notification-indicator">
+    <a href="/notifications" className="c-notification-indicator mr-3">
       <Icon sprite={IconBell} className="h-6 text-gray-500" />
       {unreadNotifications > 0 && <div className="c-notification-indicator-unread-counter" />}
     </a>

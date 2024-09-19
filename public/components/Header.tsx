@@ -16,7 +16,7 @@ export const Header = () => {
   const hideModal = () => setIsSignInModalOpen(false)
 
   return (
-    <div id="c-header">
+    <div id="c-header" className="bg-white">
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
       <HStack className="c-menu shadow p-2 w-full">
         <div className="container">

@@ -112,7 +112,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
     return (
       <>
         <Header />
-        <div id="p-my-settings" className="page container">
+        <div id="p-my-settings" className="page container box my-4">
           <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal}>
             <Modal.Header>
               <Trans id="modal.changeemail.header">Confirm your new email</Trans>

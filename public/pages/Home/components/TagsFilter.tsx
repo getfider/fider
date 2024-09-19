@@ -32,7 +32,9 @@ export const TagsFilter = (props: TagsFilterProps) => {
 
   return (
     <HStack>
-      <Trans id="home.tagsfilter.label.with">with</Trans>
+      <span>
+        <Trans id="home.tagsfilter.label.with">with</Trans>
+      </span>
       <Dropdown renderHandle={<div className="text-medium text-xs uppercase rounded-md uppercase bg-gray-100 px-2 py-1">{label}</div>}>
         {props.tags.map((t) => (
           <Dropdown.ListItem onClick={toggle(t)} key={t.id}>

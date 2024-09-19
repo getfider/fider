@@ -21,7 +21,7 @@ export const PoweredByFider = (props: PoweredByFiderProps) => {
   return (
     <div className={className}>
       <a rel="noopener" href={`https://fider.io?utm_source=${source}&utm_medium=${medium}&utm_campaign=${campaign}`} target="_blank">
-        Powered by Fider
+        Powered by Fider ⚡
       </a>
     </div>
   )

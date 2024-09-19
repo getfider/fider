@@ -63,6 +63,13 @@
   }
 }
 
+.box {
+  border-radius: get("border.radius.large");
+  background-color: get("colors.white");
+  border: 1px solid get("colors.gray.200");
+  padding: spacing(4);
+}
+
 .flex {
   display: flex;
 }

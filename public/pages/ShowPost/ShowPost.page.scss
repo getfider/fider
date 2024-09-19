@@ -9,22 +9,29 @@
     .p-show-post {
       display: grid;
       gap: spacing(4);
-      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-columns: 1fr 3fr;
       grid-template-rows: auto;
       grid-template-areas:
-        "Header Header Header Action"
-        "Discussion Discussion Discussion Action";
+        "Action Main"
+        "Action Main";
+
+      &__main-col {
+        grid-area: Main;
+        background-color: get("colors.white");
+        padding: spacing(4);
+        border-radius: get("border.radius.large");
+      }
 
       &__header-col {
-        grid-area: Header;
       }
 
       &__action-col {
+        > :first-child {
+          background-color: get("colors.white");
+          padding: spacing(4);
+          border-radius: get("border.radius.large");
+        }
         grid-area: Action;
-      }
-
-      &__discussion_col {
-        grid-area: Discussion;
       }
     }
   }
