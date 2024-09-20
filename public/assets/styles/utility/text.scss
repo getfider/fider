@@ -10,8 +10,8 @@ pre:last-child {
 }
 
 .text-display2 {
-  font-size: get("font.size.2xl");
-  font-weight: get("font.weight.bold");
+  font-size: get("font.size.xl");
+  font-weight: get("font.weight.medium");
   letter-spacing: -1px;
 }
 
@@ -21,7 +21,7 @@ pre:last-child {
 }
 
 .text-title {
-  font-size: get("font.size.lg");
+  font-size: get("font.size.xl");
   font-weight: get("font.weight.medium");
 }
 

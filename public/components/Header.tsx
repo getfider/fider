@@ -18,7 +18,7 @@ export const Header = () => {
   return (
     <div id="c-header" className="bg-white">
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <HStack className="c-menu shadow p-2 w-full">
+      <HStack className="c-menu shadow p-4 w-full">
         <div className="container">
           <HStack justify="between">
             <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">

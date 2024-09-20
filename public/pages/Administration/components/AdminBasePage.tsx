@@ -17,7 +17,7 @@ export const AdminPageContainer = (props: AdminPageContainerProps) => {
   return (
     <>
       <Header />
-      <div id={props.id} className="page container box my-5">
+      <div id={props.id} className="page container">
         <HStack justify="between">
           <PageTitle title={props.title} subtitle={props.subtitle} />
           <SideMenuToggler />
