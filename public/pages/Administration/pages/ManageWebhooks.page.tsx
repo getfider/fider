@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Button } from "@fider/components"
 
-import { Webhook, WebhookData, WebhookStatus, WebhookType } from "@fider/models"
+import { Webhook, WebhookData, WebhookStatus } from "@fider/models"
 import { actions, Failure } from "@fider/services"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { WebhookForm } from "../components/webhook/WebhookForm"
