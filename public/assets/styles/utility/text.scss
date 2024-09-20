@@ -20,8 +20,13 @@ pre:last-child {
   font-weight: get("font.weight.semibold");
 }
 
-.text-title {
+.text-header {
   font-size: get("font.size.xl");
+  font-weight: get("font.weight.medium");
+}
+
+.text-title {
+  font-size: get("font.size.lg");
   font-weight: get("font.weight.medium");
 }
 
@@ -47,6 +52,12 @@ pre:last-child {
 
 .text-link {
   color: get("colors.blue.600");
+}
+
+.nowrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .text-link:hover {

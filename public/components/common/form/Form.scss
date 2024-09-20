@@ -11,10 +11,10 @@
   }
 
   &:last-child {
-    margin-bottom: 0;
+    // margin-bottom: 0;
 
     .flex-x > & {
-      margin-bottom: spacing(2);
+      // margin-bottom: spacing(2);
     }
   }
 }
