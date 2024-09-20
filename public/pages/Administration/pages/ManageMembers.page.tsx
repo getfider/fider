@@ -161,7 +161,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
             ))}
           </VStack>
         </div>
-        <p className="text-muted">
+        <p className="text-muted pt-4">
           {!this.state.query && (
             <>
               Showing {this.state.visibleUsers.length} of {this.state.users.length} registered users.

@@ -30,7 +30,7 @@ interface WebhooksListProps {
 const WebhooksList = (props: WebhooksListProps) => {
   return (
     <div>
-      <h2 className="text-display mb-4">Existing Webhooks</h2>
+      <h2 className="text-display mb-4">My Webhooks</h2>
       <VStack spacing={4} divide>
         {props.list.length === 0 ? <p className="text-muted">There aren’t any webhooks yet.</p> : props.list}
       </VStack>
