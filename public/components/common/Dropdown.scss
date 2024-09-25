@@ -29,6 +29,11 @@
     &--left {
       right: 0;
     }
+
+    &--wide {
+      max-width: sizing(120);
+    }
+
   }
 
   &__listitem {
