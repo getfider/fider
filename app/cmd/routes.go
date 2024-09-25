@@ -34,7 +34,6 @@ func routes(r *web.Engine) *web.Engine {
 	})
 
 	r.Use(middlewares.Secure())
-	r.Use(middlewares.CSRF())
 	r.Use(middlewares.Compress())
 
 	assets := r.Group()
@@ -56,13 +55,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.User())
 
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
-	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
-
-	r.Post("/_api/tenants", handlers.CreateTenant())
-	r.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
-	r.Get("/signup", handlers.SignUp())
-	r.Get("/oauth/:provider", handlers.SignInByOAuth())
-	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 
 	if env.IsBillingEnabled() {
 		wh := r.Group()
@@ -70,6 +62,16 @@ func routes(r *web.Engine) *web.Engine {
 			wh.Post("/webhooks/paddle", webhooks.IncomingPaddleWebhook())
 		}
 	}
+
+	r.Use(middlewares.CSRF())
+
+	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
+
+	r.Post("/_api/tenants", handlers.CreateTenant())
+	r.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
+	r.Get("/signup", handlers.SignUp())
+	r.Get("/oauth/:provider", handlers.SignInByOAuth())
+	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 
 	//Starting from this step, a Tenant is required
 	r.Use(middlewares.RequireTenant())
