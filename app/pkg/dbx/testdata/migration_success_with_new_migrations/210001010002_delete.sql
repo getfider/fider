@@ -1,1 +1,0 @@
-DELETE FROM dummy WHERE id = 400;
