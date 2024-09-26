@@ -73,7 +73,6 @@ func handlePaddleSubscriptionCreated(c *web.Context, params url.Values) error {
 		c.Enqueue(tasks.UserListUpdateCompany(&dto.UserListUpdateCompany{
 			TenantID:      passthrough.TenantID,
 			BillingStatus: enum.BillingActive,
-			Name:          c.Tenant().Name,
 		}))
 	}
 
@@ -107,7 +106,6 @@ func handlePaddleSubscriptionCancelled(c *web.Context, params url.Values) error 
 		c.Enqueue(tasks.UserListUpdateCompany(&dto.UserListUpdateCompany{
 			TenantID:      passthrough.TenantID,
 			BillingStatus: enum.BillingCancelled,
-			Name:          c.Tenant().Name,
 		}))
 	}
 

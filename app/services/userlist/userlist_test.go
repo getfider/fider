@@ -29,7 +29,7 @@ func reset() {
 	bus.Init(userlist.Service{}, httpclientmock.Service{}, userlist_mock.Service{})
 }
 
-func TestCreatTenant_Success(t *testing.T) {
+func TestCreateTenant_Success(t *testing.T) {
 	RegisterT(t)
 	env.Config.HostMode = "multi"
 	reset()
