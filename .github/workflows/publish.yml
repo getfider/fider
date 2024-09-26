@@ -9,6 +9,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64/v8]
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Dump GitHub context
@@ -40,7 +43,7 @@ jobs:
           push: true
           context: .
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: ${{ matrix.platform }}
           tags: getfider/fider:PR_${{ github.event.workflow_run.pull_requests[0].number }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -52,7 +55,7 @@ jobs:
           push: true
           context: .
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: ${{ matrix.platform }}
           tags: |
             getfider/fider:SHA_${{ github.event.workflow_run.head_sha }}
             getfider/fider:${{ github.event.workflow_run.head_branch == 'main' && 'main' || 'stable' }}
@@ -66,7 +69,7 @@ jobs:
           push: true
           context: .
           build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: ${{ matrix.platform }}
           tags: getfider/fider:${{ github.event.workflow_run.display_title }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
