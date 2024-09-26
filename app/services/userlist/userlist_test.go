@@ -94,6 +94,9 @@ func TestUpdateTenant_BillingStatusUpdatedIfSet(t *testing.T) {
 	containsBillingStatus := strings.Contains(string(body), "billing_status")
 	Expect(containsBillingStatus).IsTrue()
 
+	// Also check we're using the enum string, not the int value
+	Expect(strings.Contains(string(body), "billing_status\":\"active\"")).IsTrue()
+
 }
 
 func TestUpdateTenant_BillingStatusNotUpdatedIfNotSet(t *testing.T) {

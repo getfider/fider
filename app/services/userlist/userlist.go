@@ -10,11 +10,13 @@ import (
 	"strconv"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 )
 
 // Company represents a company in UserList.com. It contains information about the company,
@@ -143,7 +145,7 @@ func updateUserListCompany(ctx context.Context, c *cmd.UserListUpdateCompany) er
 
 	if c.BillingStatus > 0 {
 		company.Properties = map[string]interface{}{
-			"billing_status": c.BillingStatus,
+			"billing_status": c.BillingStatus.String(),
 		}
 	}
 
@@ -218,6 +220,10 @@ func pushUserListUpdate(obj interface{}, ctx context.Context) error {
 	if err := bus.Dispatch(ctx, req); err != nil {
 		return errors.Wrap(err, "Failed to send userlist update")
 	}
+
+	log.Infof(ctx, "Userlist HTTP post complete with status @{status}. Header was @{ResponseHeader}. Body was @{ResponseBody}", dto.Props{
+		"status": req.ResponseStatusCode, "ResponseHeader": req.ResponseHeader, "ResponseBody": string(req.ResponseBody),
+	})
 
 	if req.ResponseStatusCode >= 300 {
 		return errors.New("unexpected status code while updating userlist: %d", req.ResponseStatusCode)
