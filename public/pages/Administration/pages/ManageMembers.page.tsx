@@ -38,7 +38,7 @@ const UserListItem = (props: UserListItemProps) => {
       <HStack spacing={4}>
         <Avatar user={props.user} />
         <VStack spacing={0}>
-          <UserName user={props.user} showEmail={true}/>
+          <UserName user={props.user} showEmail={true} />
           <span className="text-muted">
             {admin} {collaborator} {blocked}
           </span>
