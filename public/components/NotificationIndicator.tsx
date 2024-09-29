@@ -10,8 +10,13 @@ import { Notification } from "@fider/models"
 import { HStack, VStack } from "./layout"
 
 export const NotificationItem = ({ notification }: { notification: Notification }) => {
+  const openNotification = () => {
+    console.log(notification.link)
+    window.location.href = `/notifications/${notification.id}`
+  }
+
   return (
-    <HStack spacing={4} className="px-3">
+    <HStack spacing={4} className="px-3 clickable hover py-2" onClick={openNotification}>
       <Avatar user={{ name: notification.authorName, avatarURL: notification.avatarURL }} />
       <div>
         <Markdown className="c-notification-indicator-text" text={notification.title} style="full" />
@@ -38,7 +43,8 @@ export const NotificationIndicator = () => {
   const fider = useFider()
   const [unreadNotifications, setUnreadNotifications] = useState(0)
   const [showingNotifications, setShowingNotifications] = useState(false)
-  const [notifications, setNotifications] = useState<Notification[] | undefined>()
+  const [recent, setRecent] = useState<Notification[] | undefined>()
+  const [unread, setUnread] = useState<Notification[] | undefined>()
 
   useEffect(() => {
     if (fider.session.isAuthenticated) {
@@ -54,7 +60,16 @@ export const NotificationIndicator = () => {
     if (showingNotifications) {
       actions.getAllNotifications().then((result) => {
         if (result) {
-          setNotifications(result.data)
+          const [unread, recent] = (result.data || []).reduce(
+            (result, item) => {
+              result[item.read ? 1 : 0].push(item)
+              return result
+            },
+            [[] as Notification[], [] as Notification[]]
+          )
+          setRecent(recent)
+          setUnread(unread)
+          setUnreadNotifications(unread.length)
         }
       })
     }
@@ -64,19 +79,35 @@ export const NotificationIndicator = () => {
     <Dropdown
       wide={true}
       position="left"
-      onToggled={() => setShowingNotifications(!showingNotifications)}
+      fullsceenSm={true}
+      onToggled={(isOpen: boolean) => setShowingNotifications(isOpen)}
       renderHandle={<NotificationIcon unreadNotifications={unreadNotifications} />}
     >
-      <div>
-        {showingNotifications && notifications !== undefined && notifications?.length > 0 && (
+      <div className="c-notifications-container">
+        {showingNotifications && (unread !== undefined || recent !== undefined) && (
           <>
-            <p className="text-display text-center my-6 bg-gray-50">No new notifications</p>
-            <p className="text-title px-4 bg-gray-50">Previous notifications</p>
-            <VStack spacing={2} className="c-notifications-container py-2" divide={true}>
-              {notifications.map((n) => (
-                <NotificationItem key={n.id} notification={n} />
-              ))}
-            </VStack>
+            {unread !== undefined && unread?.length > 0 ? (
+              <>
+                <p className="text-title px-4 mt-2">Unread notifications</p>
+                <VStack spacing={2} className="py-3 mb-2 no-lastchild-paddingzero" divide={true}>
+                  {unread.map((n) => (
+                    <NotificationItem key={n.id} notification={n} />
+                  ))}
+                </VStack>
+              </>
+            ) : (
+              <p className="text-display text-center my-6">No new notifications</p>
+            )}
+            {recent !== undefined && recent?.length > 0 && (
+              <>
+                <p className="text-title px-4">Previous notifications</p>
+                <VStack spacing={2} className="py-2 no-lastchild-paddingzero" divide={true}>
+                  {recent.map((n) => (
+                    <NotificationItem key={n.id} notification={n} />
+                  ))}
+                </VStack>
+              </>
+            )}
           </>
         )}
       </div>

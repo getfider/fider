@@ -115,7 +115,7 @@ func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications
 
 		// Iterate over notifications and build avatar URL
 		for i := range q.Result {
-			q.Result[i].AvatarURL = buildAvatarURL(ctx, q.Result[i].AvatarType, int(q.Result[i].ID), q.Result[i].AuthorName, q.Result[i].AvatarBlobKey)
+			q.Result[i].AvatarURL = buildAvatarURL(ctx, q.Result[i].AvatarType, int(q.Result[i].AuthorID), q.Result[i].AuthorName, q.Result[i].AvatarBlobKey)
 		}
 
 		return nil

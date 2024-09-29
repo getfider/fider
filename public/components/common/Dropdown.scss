@@ -31,7 +31,15 @@
     }
 
     &--wide {
-      max-width: sizing(120);
+      max-width: sizing(180);
+    }
+
+    &--fullscreen-small {
+        @include media("sm") {
+          position: fixed;
+          left: 0;
+          width: 100vw;
+        }
     }
 
   }
