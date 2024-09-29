@@ -34,7 +34,6 @@ func routes(r *web.Engine) *web.Engine {
 	})
 
 	r.Use(middlewares.Secure())
-	r.Use(middlewares.CSRF())
 	r.Use(middlewares.Compress())
 
 	assets := r.Group()
@@ -56,13 +55,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.User())
 
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
-	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
-
-	r.Post("/_api/tenants", handlers.CreateTenant())
-	r.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
-	r.Get("/signup", handlers.SignUp())
-	r.Get("/oauth/:provider", handlers.SignInByOAuth())
-	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 
 	if env.IsBillingEnabled() {
 		wh := r.Group()
@@ -71,7 +63,17 @@ func routes(r *web.Engine) *web.Engine {
 		}
 	}
 
-	// Starting from this step, a Tenant is required
+	r.Use(middlewares.CSRF())
+
+	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
+
+	r.Post("/_api/tenants", handlers.CreateTenant())
+	r.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
+	r.Get("/signup", handlers.SignUp())
+	r.Get("/oauth/:provider", handlers.SignInByOAuth())
+	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
+
+	//Starting from this step, a Tenant is required
 	r.Use(middlewares.RequireTenant())
 
 	r.Get("/sitemap.xml", handlers.Sitemap())
@@ -96,7 +98,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
 	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
 
-	// If tenant is pending, block it from using any other route
+	//If tenant is pending, block it from using any other route
 	r.Use(middlewares.BlockPendingTenants())
 
 	r.Get("/signin", handlers.SignInPage())
@@ -106,7 +108,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
 
-	// Block if it's private tenant with unauthenticated user
+	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 
 	r.Get("/", handlers.Index())
@@ -115,7 +117,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	ui := r.Group()
 	{
-		// From this step, a User is required
+		//From this step, a User is required
 		ui.Use(middlewares.IsAuthenticated())
 
 		ui.Get("/settings", handlers.UserSettings())
@@ -129,7 +131,6 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/user/change-email", handlers.ChangeUserEmail())
 		ui.Post("/_api/notifications/read-all", handlers.ReadAllNotifications())
 		ui.Get("/_api/notifications/unread/total", handlers.TotalUnreadNotifications())
-		ui.Get("/_api/notifications/unread", handlers.GetAllNotifications())
 
 		// From this step, only Collaborators and Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
@@ -147,7 +148,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
 		ui.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 
-		// From this step, only Administrators are allowed
+		//From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
 
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Administration/pages/Export.page"))

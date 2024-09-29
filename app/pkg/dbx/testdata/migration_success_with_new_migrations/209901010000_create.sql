@@ -1,1 +1,0 @@
-insert into dummy (id, description) values (400, 'Description 400A');

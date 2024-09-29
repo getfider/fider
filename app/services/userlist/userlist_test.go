@@ -29,7 +29,7 @@ func reset() {
 	bus.Init(userlist.Service{}, httpclientmock.Service{}, userlist_mock.Service{})
 }
 
-func TestCreatTenant_Success(t *testing.T) {
+func TestCreateTenant_Success(t *testing.T) {
 	RegisterT(t)
 	env.Config.HostMode = "multi"
 	reset()
@@ -93,6 +93,9 @@ func TestUpdateTenant_BillingStatusUpdatedIfSet(t *testing.T) {
 	body, _ := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
 	containsBillingStatus := strings.Contains(string(body), "billing_status")
 	Expect(containsBillingStatus).IsTrue()
+
+	// Also check we're using the enum string, not the int value
+	Expect(strings.Contains(string(body), "billing_status\":\"active\"")).IsTrue()
 
 }
 

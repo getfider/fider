@@ -140,9 +140,10 @@ func updateUserListCompany(ctx context.Context, c *cmd.UserListUpdateCompany) er
 		Identifier: strconv.Itoa(c.TenantId),
 		Name:       c.Name,
 	}
+
 	if c.BillingStatus > 0 {
 		company.Properties = map[string]interface{}{
-			"billing_status": c.BillingStatus,
+			"billing_status": c.BillingStatus.String(),
 		}
 	}
 
