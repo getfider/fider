@@ -30,6 +30,11 @@ pre:last-child {
   font-weight: get("font.weight.medium");
 }
 
+.text-subtitle {
+  font-size: get("font.size.base");
+  font-weight: get("font.weight.medium");
+}
+
 .text-body {
   font-size: get("font.size.base");
 }
