@@ -9,6 +9,8 @@ import { Dropdown } from "./common/Dropdown"
 import { Notification } from "@fider/models"
 import { HStack, VStack } from "./layout"
 
+import { Trans } from "@lingui/macro"
+
 export const NotificationItem = ({ notification }: { notification: Notification }) => {
   const openNotification = () => {
     console.log(notification.link)
@@ -88,7 +90,9 @@ export const NotificationIndicator = () => {
           <>
             {unread !== undefined && unread?.length > 0 ? (
               <>
-                <p className="text-subtitle px-4 mt-2 mb-0">Unread notifications</p>
+                <p className="text-subtitle px-4 mt-2 mb-0">
+                  <Trans id="modal.notifications.unread">Unread notifications</Trans>
+                </p>
                 <VStack spacing={2} className="py-3 mb-2 no-lastchild-paddingzero" divide={true}>
                   {unread.map((n) => (
                     <NotificationItem key={n.id} notification={n} />
@@ -96,11 +100,15 @@ export const NotificationIndicator = () => {
                 </VStack>
               </>
             ) : (
-              <p className="text-display text-center my-6">No new notifications</p>
+              <p className="text-display text-center my-6">
+                <Trans id="modal.notifications.nonew">No new notifications</Trans>
+              </p>
             )}
             {recent !== undefined && recent?.length > 0 && (
               <>
-                <p className="text-subtitle px-4 mb-0">Previous notifications</p>
+                <p className="text-subtitle px-4 mb-0">
+                  <Trans id="modal.notifications.previous">Previous notifications</Trans>
+                </p>
                 <VStack spacing={2} className="py-2 no-lastchild-paddingzero" divide={true}>
                   {recent.map((n) => (
                     <NotificationItem key={n.id} notification={n} />
