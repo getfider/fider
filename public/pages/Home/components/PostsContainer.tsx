@@ -113,7 +113,6 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           <div className="c-posts-container__search-col">
             <Input
               field="query"
-              className="mb-0"
               icon={this.state.query ? IconX : IconSearch}
               onIconClick={this.state.query ? this.clearSearch : undefined}
               placeholder={t({ id: "home.postscontainer.query.placeholder", message: "Search" })}
