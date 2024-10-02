@@ -123,7 +123,7 @@ func CreateTenant() web.HandlerFunc {
 
 		// Handle userlist.
 		if env.Config.UserList.Enabled {
-			c.Enqueue(tasks.UserListCreateCompany(*c.Tenant(), *user))
+			c.Enqueue(tasks.UserListCreateCompany(*createTenant.Result, *user))
 		}
 
 		return c.Ok(web.Map{})
