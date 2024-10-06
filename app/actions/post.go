@@ -21,6 +21,7 @@ import (
 type CreateNewPost struct {
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
+	Tags        []string           `json:"tags"`
 	Attachments []*dto.ImageUpload `json:"attachments"`
 }
 
