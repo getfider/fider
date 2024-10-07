@@ -18,7 +18,7 @@ export const NotificationItem = ({ notification }: { notification: Notification 
   }
 
   return (
-    <HStack spacing={4} className="px-3 pr-5 clickable hover py-2" onClick={openNotification}>
+    <HStack spacing={4} className="px-3 pr-5 clickable hover py-4" onClick={openNotification}>
       <Avatar user={{ name: notification.authorName, avatarURL: notification.avatarURL }} />
       <div>
         <Markdown className="c-notification-indicator-text" text={notification.title} style="full" />
@@ -93,7 +93,7 @@ export const NotificationIndicator = () => {
                 <p className="text-subtitle px-4 mt-2 mb-0">
                   <Trans id="modal.notifications.unread">Unread notifications</Trans>
                 </p>
-                <VStack spacing={2} className="py-3 mb-2 no-lastchild-paddingzero" divide={true}>
+                <VStack spacing={0} className="my-2" divide={false}>
                   {unread.map((n) => (
                     <NotificationItem key={n.id} notification={n} />
                   ))}
@@ -112,7 +112,7 @@ export const NotificationIndicator = () => {
                 <p className="text-subtitle px-4 mb-0">
                   <Trans id="modal.notifications.previous">Previous notifications</Trans>
                 </p>
-                <VStack spacing={2} className="py-2 no-lastchild-paddingzero" divide={true}>
+                <VStack spacing={0} className="my-2" divide={false}>
                   {recent.map((n) => (
                     <NotificationItem key={n.id} notification={n} />
                   ))}

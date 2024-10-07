@@ -149,7 +149,7 @@
     border: 0 solid get("colors.gray.100");
     border-top-width: 1px;
   }
-  .flex-y.flex--divide-#{$i}:not(.no-lastchild-paddingzero) > *:last-child {
+  .flex-y.flex--divide-#{$i} > *:last-child {
     padding-bottom: 0;
   }
 }
@@ -204,10 +204,8 @@
   pointer-events: inherit;
 }
 
-
 .hover {
   &:hover {
-    background-color: get("colors.gray.100")
+    background-color: get("colors.gray.100");
   }
 }
-
