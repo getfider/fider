@@ -63,7 +63,6 @@ export const Dropdown = (props: DropdownProps) => {
   const changeToggleState = (newState: boolean) => {
     setIsOpen(newState)
     if (props.onToggled) {
-      console.log("onToggled", newState)
       props.onToggled(newState)
     }
   }

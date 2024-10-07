@@ -14,7 +14,6 @@ import { Trans } from "@lingui/macro"
 
 export const NotificationItem = ({ notification }: { notification: Notification }) => {
   const openNotification = () => {
-    console.log(notification.link)
     window.location.href = `/notifications/${notification.id}`
   }
 
