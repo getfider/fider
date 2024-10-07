@@ -1,4 +1,5 @@
 import "./NotificationIndicator.scss"
+import NoDataIllustration from "@fider/assets/images/undraw-empty.svg"
 
 import React, { useEffect, useState } from "react"
 import IconBell from "@fider/assets/images/heroicons-bell.svg"
@@ -100,9 +101,14 @@ export const NotificationIndicator = () => {
                 </VStack>
               </>
             ) : (
-              <p className="text-display text-center my-6">
-                <Trans id="modal.notifications.nonew">No new notifications</Trans>
-              </p>
+                <div className="text-center pb-6">
+                  <p className="text-display text-center mt-6 px-4">
+                    <Trans id="modal.notifications.nonew">No new notifications</Trans>
+                  </p>
+                  {recent?.length === 0 && (
+                    <Icon sprite={NoDataIllustration} height="120" className="mt-6 mb-2" />
+                  )}
+                </div>
             )}
             {recent !== undefined && recent?.length > 0 && (
               <>
