@@ -100,14 +100,12 @@ export const NotificationIndicator = () => {
                 </VStack>
               </>
             ) : (
-                <div className="text-center pb-6">
-                  <p className="text-display text-center mt-6 px-4">
-                    <Trans id="modal.notifications.nonew">No new notifications</Trans>
-                  </p>
-                  {recent?.length === 0 && (
-                    <Icon sprite={NoDataIllustration} height="120" className="mt-6 mb-2" />
-                  )}
-                </div>
+              <div className="text-center pb-6">
+                <p className="text-display text-center mt-6 px-4">
+                  <Trans id="modal.notifications.nonew">No new notifications</Trans>
+                </p>
+                {recent?.length === 0 && <Icon sprite={NoDataIllustration} height="120" className="mt-6 mb-2" />}
+              </div>
             )}
             {recent !== undefined && recent?.length > 0 && (
               <>
