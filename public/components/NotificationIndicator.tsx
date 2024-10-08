@@ -77,6 +77,14 @@ export const NotificationIndicator = () => {
     }
   }, [showingNotifications])
 
+  const markAllAsRead = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    const response = await actions.markAllAsRead()
+    if (response.ok) {
+      location.reload()
+    }
+  }
+
   return (
     <Dropdown
       wide={true}
@@ -90,10 +98,15 @@ export const NotificationIndicator = () => {
           <>
             {unread !== undefined && unread?.length > 0 ? (
               <>
-                <p className="text-subtitle px-4 mt-2 mb-0">
+                <p className="text-subtitle px-4 mt-4 mb-0">
                   <Trans id="modal.notifications.unread">Unread notifications</Trans>
+                  {unread.length > 1 && (
+                    <a href="#" className="text-link text-xs pl-6" onClick={markAllAsRead}>
+                      <Trans id="action.markallasread">Mark All as Read</Trans>
+                    </a>
+                  )}
                 </p>
-                <VStack spacing={0} className="my-2" divide={false}>
+                <VStack spacing={0} className="py-2" divide={false}>
                   {unread.map((n) => (
                     <NotificationItem key={n.id} notification={n} />
                   ))}
@@ -109,10 +122,10 @@ export const NotificationIndicator = () => {
             )}
             {recent !== undefined && recent?.length > 0 && (
               <>
-                <p className="text-subtitle px-4 mb-0">
+                <p className="text-subtitle px-4 mb-0 pt-4 bg-gray-50">
                   <Trans id="modal.notifications.previous">Previous notifications</Trans>
                 </p>
-                <VStack spacing={0} className="my-2" divide={false}>
+                <VStack spacing={0} className="py-2 bg-gray-50" divide={false}>
                   {recent.map((n) => (
                     <NotificationItem key={n.id} notification={n} />
                   ))}
