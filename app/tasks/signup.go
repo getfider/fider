@@ -45,8 +45,8 @@ func SendWelcomeEmail(name, email, baseURL string) worker.Task {
 
 		bus.Publish(c, &cmd.SendMail{
 			From: dto.Recipient{
-				Name:    "Guilherme from Fider",
-				Address: "goenning@fider.io",
+				Name:    "Fider",
+				Address: "contact@fider.io",
 			},
 			To:           []dto.Recipient{to},
 			TemplateName: "welcome_email",
