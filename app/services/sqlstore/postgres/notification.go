@@ -108,6 +108,7 @@ func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications
 			LEFT JOIN users u ON u.id = n.author_id
 			WHERE n.tenant_id = $1 AND n.user_id = $2
 			AND (n.read = false OR n.updated_at > CURRENT_DATE - INTERVAL '30 days')
+			ORDER BY n.updated_at DESC 
 		`, tenant.ID, user.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get active notifications")
