@@ -5,6 +5,23 @@
     flex-grow: 1;
   }
 
+  .p-show-post {
+    &__main-col {
+      background-color: get("colors.white");
+      padding: spacing(4);
+      border-radius: get("border.radius.large");
+      margin-bottom: spacing(4);
+    }
+
+    &__action-col {
+      > :first-child {
+        background-color: get("colors.white");
+        padding: spacing(4);
+        border-radius: get("border.radius.large");
+      }
+    }
+  }
+
   @include media("lg") {
     .p-show-post {
       display: grid;
@@ -17,20 +34,9 @@
 
       &__main-col {
         grid-area: Main;
-        background-color: get("colors.white");
-        padding: spacing(4);
-        border-radius: get("border.radius.large");
-      }
-
-      &__header-col {
       }
 
       &__action-col {
-        > :first-child {
-          background-color: get("colors.white");
-          padding: spacing(4);
-          border-radius: get("border.radius.large");
-        }
         grid-area: Action;
       }
     }
