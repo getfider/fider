@@ -102,16 +102,23 @@ func getNotificationByID(ctx context.Context, q *query.GetNotificationByID) erro
 
 func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		q.Result = []*entity.Notification{}
 		err := trx.Select(&q.Result, `
-			SELECT id, title, link, read, created_at 
-			FROM notifications 
-			WHERE tenant_id = $1 AND user_id = $2
-			AND (read = false OR updated_at > CURRENT_DATE - INTERVAL '30 days')
+			SELECT n.id, n.title, n.link, n.read, n.created_at, n.author_id, u.avatar_type, u.avatar_bkey, u.name
+			FROM notifications n
+			LEFT JOIN users u ON u.id = n.author_id
+			WHERE n.tenant_id = $1 AND n.user_id = $2
+			AND (n.read = false OR n.updated_at > CURRENT_DATE - INTERVAL '30 days')
+			ORDER BY n.updated_at DESC 
 		`, tenant.ID, user.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get active notifications")
 		}
+
+		// Iterate over notifications and build avatar URL
+		for i := range q.Result {
+			q.Result[i].AvatarURL = buildAvatarURL(ctx, q.Result[i].AvatarType, int(q.Result[i].AuthorID), q.Result[i].AuthorName, q.Result[i].AvatarBlobKey)
+		}
+
 		return nil
 	})
 }

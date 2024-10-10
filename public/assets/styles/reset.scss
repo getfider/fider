@@ -16,7 +16,7 @@ body {
   overflow-x: hidden;
   min-width: 320px;
   color: get("colors.gray.900");
-  background-color: get("colors.white");
+  background-color: get("colors.gray.100");
   font-size: get("font.size.base");
   font-family: $font-base;
 }

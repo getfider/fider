@@ -10,8 +10,8 @@ pre:last-child {
 }
 
 .text-display2 {
-  font-size: get("font.size.2xl");
-  font-weight: get("font.weight.bold");
+  font-size: get("font.size.xl");
+  font-weight: get("font.weight.medium");
   letter-spacing: -1px;
 }
 
@@ -20,8 +20,18 @@ pre:last-child {
   font-weight: get("font.weight.semibold");
 }
 
+.text-header {
+  font-size: get("font.size.xl");
+  font-weight: get("font.weight.medium");
+}
+
 .text-title {
   font-size: get("font.size.lg");
+  font-weight: get("font.weight.medium");
+}
+
+.text-subtitle {
+  font-size: get("font.size.base");
   font-weight: get("font.weight.medium");
 }
 
@@ -47,6 +57,12 @@ pre:last-child {
 
 .text-link {
   color: get("colors.blue.600");
+}
+
+.nowrap {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .text-link:hover {

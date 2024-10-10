@@ -12,7 +12,7 @@ interface StackProps {
 }
 
 const Stack = (props: StackProps, dir: "x" | "y") => {
-  const spacing = props.spacing === undefined ? 1 : props.spacing
+  const spacing = props.spacing === undefined ? 2 : props.spacing
   const className = classSet({
     [`${props.className}`]: props.className,
     flex: true,

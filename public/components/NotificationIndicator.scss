@@ -13,3 +13,11 @@
     border-radius: 100%;
   }
 }
+
+.c-notifications-container {
+  max-height: 80vh;
+  overflow-y: auto;
+  @include media("lg") {
+    min-width: 400px;
+  }
+}

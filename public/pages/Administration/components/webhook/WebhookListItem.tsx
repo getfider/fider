@@ -1,7 +1,7 @@
 import "./WebhookListItem.scss"
 
 import React, { useState } from "react"
-import { Webhook, WebhookStatus, WebhookTriggerResult } from "@fider/models"
+import { Webhook, WebhookStatus, WebhookTriggerResult, WebhookType } from "@fider/models"
 import { Button, Icon } from "@fider/components"
 import { actions, notify } from "@fider/services"
 
@@ -63,6 +63,19 @@ export const WebhookListItem = (props: WebhookListItemProps) => {
     }
   }
 
+  const getWebhookType = (type: WebhookType) => {
+    switch (type) {
+      case WebhookType.CHANGE_STATUS:
+        return "Change Status"
+      case WebhookType.NEW_COMMENT:
+        return "New Comment"
+      case WebhookType.DELETE_POST:
+        return "Delete Post"
+      case WebhookType.NEW_POST:
+        return "New Post"
+    }
+  }
+
   const testWebhook = async () => {
     const result = await actions.testWebhook(props.webhook.id)
     setTriggerResult(result.data)
@@ -100,8 +113,9 @@ export const WebhookListItem = (props: WebhookListItemProps) => {
       <HStack justify="between">
         <HStack>
           <WebhookIcon status={props.webhook.status} />
-          <h3 className="text-title">
-            <span className="text-muted">#{props.webhook.id}</span> {props.webhook.name}
+          <h3 className="text-body nowrap">
+            <span className="text-muted">#{props.webhook.id}</span>
+            <span className="text-bold px-2">{getWebhookType(props.webhook.type)}</span> - {props.webhook.name}
           </h3>
           {triggerResult?.success === false && (
             <WebhookFailInfo result={triggerResult} isModalOpen={isFailInfoModalOpen} onModalOpen={showFailInfoModal} onModalClose={hideFailInfoModal} />

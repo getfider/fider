@@ -5,26 +5,39 @@
     flex-grow: 1;
   }
 
+  .p-show-post {
+    &__main-col {
+      background-color: get("colors.white");
+      padding: spacing(4);
+      border-radius: get("border.radius.large");
+      margin-bottom: spacing(4);
+    }
+
+    &__action-col {
+      > :first-child {
+        background-color: get("colors.white");
+        padding: spacing(4);
+        border-radius: get("border.radius.large");
+      }
+    }
+  }
+
   @include media("lg") {
     .p-show-post {
       display: grid;
       gap: spacing(4);
-      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-columns: 1fr 3fr;
       grid-template-rows: auto;
       grid-template-areas:
-        "Header Header Header Action"
-        "Discussion Discussion Discussion Action";
+        "Action Main"
+        "Action Main";
 
-      &__header-col {
-        grid-area: Header;
+      &__main-col {
+        grid-area: Main;
       }
 
       &__action-col {
         grid-area: Action;
-      }
-
-      &__discussion_col {
-        grid-area: Discussion;
       }
     }
   }
