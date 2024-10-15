@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -11,14 +12,21 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
+type ReactionCounts struct {
+	Emoji string `db:"emoji"`
+	Count int    `db:"count"`
+}
+
 type dbComment struct {
-	ID          int          `db:"id"`
-	Content     string       `db:"content"`
-	CreatedAt   time.Time    `db:"created_at"`
-	User        *dbUser      `db:"user"`
-	Attachments []string     `db:"attachment_bkeys"`
-	EditedAt    dbx.NullTime `db:"edited_at"`
-	EditedBy    *dbUser      `db:"edited_by"`
+	ID             int            `db:"id"`
+	Content        string         `db:"content"`
+	CreatedAt      time.Time      `db:"created_at"`
+	User           *dbUser        `db:"user"`
+	Attachments    []string       `db:"attachment_bkeys"`
+	EditedAt       dbx.NullTime   `db:"edited_at"`
+	EditedBy       *dbUser        `db:"edited_by"`
+	ReactionCounts dbx.NullString `db:"reaction_counts"`
+	// Reactions      dbx.NullString `db:"reactions"`
 }
 
 func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
@@ -28,11 +36,22 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 		CreatedAt:   c.CreatedAt,
 		User:        c.User.toModel(ctx),
 		Attachments: c.Attachments,
+		// Reactions:   c.Reactions.String,
 	}
 	if c.EditedAt.Valid {
 		comment.EditedBy = c.EditedBy.toModel(ctx)
 		comment.EditedAt = &c.EditedAt.Time
 	}
+
+	comment.ReactionCounts = make(map[string]int)
+	if c.ReactionCounts.Valid {
+		var reactionCounts map[string]int
+		err := json.Unmarshal([]byte(c.ReactionCounts.String), &reactionCounts)
+		if err == nil {
+			comment.ReactionCounts = reactionCounts
+		}
+	}
+
 	return comment
 }
 
@@ -131,7 +150,8 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 
 		comments := []*dbComment{}
 		err := trx.Select(&comments,
-			`WITH agg_attachments AS ( 
+			`
+			WITH agg_attachments AS ( 
 					SELECT 
 							c.id as comment_id, 
 							ARRAY_REMOVE(ARRAY_AGG(at.attachment_bkey), NULL) as attachment_bkeys
@@ -144,6 +164,18 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 					AND at.tenant_id = $2
 					AND at.comment_id IS NOT NULL
 					GROUP BY c.id 
+			),
+			agg_reactions AS (
+				SELECT 
+					comment_id,
+					json_object_agg(emoji, count) as reaction_counts
+				FROM (
+					SELECT comment_id, emoji, COUNT(*) as count
+					FROM reactions
+					WHERE comment_id IN (SELECT id FROM comments WHERE post_id = $1)
+					GROUP BY comment_id, emoji
+				) r
+				GROUP BY comment_id
 			)
 			SELECT c.id, 
 					c.content, 
@@ -163,7 +195,8 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 					e.status AS edited_by_status,
 					e.avatar_type AS edited_by_avatar_type, 
 					e.avatar_bkey AS edited_by_avatar_bkey,
-					at.attachment_bkeys
+					at.attachment_bkeys,
+					ar.reaction_counts
 			FROM comments c
 			INNER JOIN posts p
 			ON p.id = c.post_id
@@ -176,6 +209,8 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			AND e.tenant_id = c.tenant_id
 			LEFT JOIN agg_attachments at
 			ON at.comment_id = c.id
+			LEFT JOIN agg_reactions ar
+			ON ar.comment_id = c.id
 			WHERE p.id = $1
 			AND p.tenant_id = $2
 			AND c.deleted_at IS NULL

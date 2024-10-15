@@ -178,6 +178,15 @@ export const ShowComment = (props: ShowCommentProps) => {
               <>
                 <Markdown text={comment.content} style="full" />
                 {comment.attachments && comment.attachments.map((x) => <ImageViewer key={x} bkey={x} />)}
+                {comment.reactionCounts !== undefined && (
+                  <div className="mt-2 flex space-x-2">
+                    {Object.entries(comment.reactionCounts).map(([emoji, count]) => (
+                      <span key={emoji} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 mr-2">
+                        {emoji} <span className="ml-1 font-semibold">{count}</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </>
             )}
           </div>

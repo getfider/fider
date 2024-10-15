@@ -57,6 +57,9 @@ export interface Comment {
   createdAt: string
   user: User
   attachments?: string[]
+  reactionCounts: {
+    [key: string]: number
+  }
   editedAt?: string
   editedBy?: User
 }
