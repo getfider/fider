@@ -62,6 +62,13 @@ export const updateComment = async (postNumber: number, commentID: number, conte
 export const deleteComment = async (postNumber: number, commentID: number): Promise<Result> => {
   return http.delete(`/api/v1/posts/${postNumber}/comments/${commentID}`).then(http.event("comment", "delete"))
 }
+interface ToggleReactionResponse {
+  added: boolean
+}
+
+export const toggleCommentReaction = async (postNumber: number, commentID: number, emoji: string): Promise<Result<ToggleReactionResponse>> => {
+  return http.post<ToggleReactionResponse>(`/api/v1/posts/${postNumber}/comments/${commentID}/reactions/${emoji}`)
+}
 
 interface SetResponseInput {
   status: string

@@ -51,15 +51,19 @@ export interface PostResponse {
   }
 }
 
+export interface ReactionCount {
+  emoji: string
+  count: number
+  includesMe: boolean
+}
+
 export interface Comment {
   id: number
   content: string
   createdAt: string
   user: User
   attachments?: string[]
-  reactionCounts: {
-    [key: string]: number
-  }
+  reactionCounts?: ReactionCount[]
   editedAt?: string
   editedBy?: User
 }

@@ -1,6 +1,20 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Comment, Post, ImageUpload } from "@fider/models"
-import { Avatar, UserName, Moment, Form, TextArea, Button, Markdown, Modal, ImageViewer, MultiImageUploader, Dropdown, Icon } from "@fider/components"
+import {
+  Reactions,
+  Avatar,
+  UserName,
+  Moment,
+  Form,
+  TextArea,
+  Button,
+  Markdown,
+  Modal,
+  ImageViewer,
+  MultiImageUploader,
+  Dropdown,
+  Icon,
+} from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash } from "@fider/services"
 import { useFider } from "@fider/hooks"
@@ -11,6 +25,7 @@ interface ShowCommentProps {
   post: Post
   comment: Comment
   highlighted?: boolean
+  onToggleReaction?: () => void
 }
 
 export const ShowComment = (props: ShowCommentProps) => {
@@ -20,6 +35,9 @@ export const ShowComment = (props: ShowCommentProps) => {
   const [newContent, setNewContent] = useState("")
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
+  const [localReactionCounts, setLocalReactionCounts] = useState(props.comment.reactionCounts)
+  const emojiSelectorRef = useRef<HTMLDivElement>(null)
+
   const [error, setError] = useState<Failure>()
 
   const handleClick = (e: MouseEvent) => {
@@ -69,6 +87,33 @@ export const ShowComment = (props: ShowCommentProps) => {
     const response = await actions.deleteComment(props.post.number, props.comment.id)
     if (response.ok) {
       location.reload()
+    }
+  }
+
+  const toggleReaction = async (emoji: string) => {
+    const response = await actions.toggleCommentReaction(props.post.number, comment.id, emoji)
+    if (response.ok) {
+      const added = response.data.added
+
+      setLocalReactionCounts((prevCounts) => {
+        const newCounts = [...(prevCounts ?? [])]
+        const reactionIndex = newCounts.findIndex((r) => r.emoji === emoji)
+        if (reactionIndex !== -1) {
+          const newCount = added ? newCounts[reactionIndex].count + 1 : newCounts[reactionIndex].count - 1
+          if (newCount === 0) {
+            newCounts.splice(reactionIndex, 1)
+          } else {
+            newCounts[reactionIndex] = {
+              ...newCounts[reactionIndex],
+              count: newCount,
+              includesMe: added,
+            }
+          }
+        } else if (added) {
+          newCounts.push({ emoji, count: 1, includesMe: true })
+        }
+        return newCounts
+      })
     }
   }
 
@@ -178,15 +223,7 @@ export const ShowComment = (props: ShowCommentProps) => {
               <>
                 <Markdown text={comment.content} style="full" />
                 {comment.attachments && comment.attachments.map((x) => <ImageViewer key={x} bkey={x} />)}
-                {comment.reactionCounts !== undefined && (
-                  <div className="mt-2 flex space-x-2">
-                    {Object.entries(comment.reactionCounts).map(([emoji, count]) => (
-                      <span key={emoji} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 mr-2">
-                        {emoji} <span className="ml-1 font-semibold">{count}</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <Reactions reactions={localReactionCounts} emojiSelectorRef={emojiSelectorRef} toggleReaction={toggleReaction} />
               </>
             )}
           </div>

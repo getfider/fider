@@ -12,11 +12,6 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
-type ReactionCounts struct {
-	Emoji string `db:"emoji"`
-	Count int    `db:"count"`
-}
-
 type dbComment struct {
 	ID             int            `db:"id"`
 	Content        string         `db:"content"`
@@ -26,7 +21,6 @@ type dbComment struct {
 	EditedAt       dbx.NullTime   `db:"edited_at"`
 	EditedBy       *dbUser        `db:"edited_by"`
 	ReactionCounts dbx.NullString `db:"reaction_counts"`
-	// Reactions      dbx.NullString `db:"reactions"`
 }
 
 func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
@@ -36,22 +30,15 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 		CreatedAt:   c.CreatedAt,
 		User:        c.User.toModel(ctx),
 		Attachments: c.Attachments,
-		// Reactions:   c.Reactions.String,
 	}
 	if c.EditedAt.Valid {
 		comment.EditedBy = c.EditedBy.toModel(ctx)
 		comment.EditedAt = &c.EditedAt.Time
 	}
 
-	comment.ReactionCounts = make(map[string]int)
 	if c.ReactionCounts.Valid {
-		var reactionCounts map[string]int
-		err := json.Unmarshal([]byte(c.ReactionCounts.String), &reactionCounts)
-		if err == nil {
-			comment.ReactionCounts = reactionCounts
-		}
+		json.Unmarshal([]byte(c.ReactionCounts.String), &comment.ReactionCounts)
 	}
-
 	return comment
 }
 
@@ -72,6 +59,38 @@ func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 		}
 		c.Result = q.Result
 
+		return nil
+	})
+}
+
+func toggleCommentReaction(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		var added bool
+		err := trx.Scalar(&added, `
+			WITH toggle_reaction AS (
+				INSERT INTO reactions (comment_id, user_id, emoji, created_on)
+				VALUES ($1, $2, $3, $4)
+				ON CONFLICT (comment_id, user_id, emoji) DO NOTHING
+				RETURNING true AS added
+			),
+			delete_existing AS (
+				DELETE FROM reactions
+				WHERE comment_id = $1 AND user_id = $2 AND emoji = $3
+				AND NOT EXISTS (SELECT 1 FROM toggle_reaction)
+				RETURNING false AS added
+			)
+			SELECT COALESCE(
+				(SELECT added FROM toggle_reaction),
+				(SELECT added FROM delete_existing),
+				false
+			)
+		`, c.Comment.ID, user.ID, c.Emoji, time.Now())
+
+		if err != nil {
+			return errors.Wrap(err, "failed to toggle reaction")
+		}
+
+		c.Result = added
 		return nil
 	})
 }
@@ -168,9 +187,17 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			agg_reactions AS (
 				SELECT 
 					comment_id,
-					json_object_agg(emoji, count) as reaction_counts
+					json_agg(json_build_object(
+						'emoji', emoji,
+						'count', count,
+						'includesMe', CASE WHEN $3 = ANY(user_ids) THEN true ELSE false END
+					)) as reaction_counts
 				FROM (
-					SELECT comment_id, emoji, COUNT(*) as count
+					SELECT 
+						comment_id, 
+						emoji, 
+						COUNT(*) as count,
+						array_agg(user_id) as user_ids
 					FROM reactions
 					WHERE comment_id IN (SELECT id FROM comments WHERE post_id = $1)
 					GROUP BY comment_id, emoji
@@ -214,7 +241,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			WHERE p.id = $1
 			AND p.tenant_id = $2
 			AND c.deleted_at IS NULL
-			ORDER BY c.created_at ASC`, q.Post.ID, tenant.ID)
+			ORDER BY c.created_at ASC`, q.Post.ID, tenant.ID, user.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed get comments of post with id '%d'", q.Post.ID)
 		}

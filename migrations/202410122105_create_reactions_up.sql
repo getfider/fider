@@ -7,3 +7,5 @@ create table if not exists reactions (
      foreign key (comment_id) references comments(id),
      foreign key (user_id) references users(id)
 );
+
+ALTER TABLE reactions ADD CONSTRAINT unique_reaction UNIQUE (comment_id, user_id, emoji);
