@@ -37,7 +37,7 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 	}
 
 	if c.ReactionCounts.Valid {
-		json.Unmarshal([]byte(c.ReactionCounts.String), &comment.ReactionCounts)
+		_ = json.Unmarshal([]byte(c.ReactionCounts.String), &comment.ReactionCounts)
 	}
 	return comment
 }
