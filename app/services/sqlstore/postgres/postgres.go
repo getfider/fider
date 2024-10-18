@@ -76,6 +76,7 @@ func (s Service) Init() {
 
 	bus.AddHandler(addNewComment)
 	bus.AddHandler(updateComment)
+	bus.AddHandler(toggleCommentReaction)
 	bus.AddHandler(deleteComment)
 	bus.AddHandler(getCommentByID)
 	bus.AddHandler(getCommentsByPost)

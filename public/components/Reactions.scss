@@ -1,0 +1,20 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-reactions {
+
+    &-add-reaction {
+        svg {
+            position: relative;
+            top:1px;
+            left:0;
+        }
+    }
+
+    &-emojis {
+        top: -30px;
+    }
+
+    button {
+        background-color: 'pink';
+    }
+}
