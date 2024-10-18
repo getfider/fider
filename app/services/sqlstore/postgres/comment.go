@@ -168,6 +168,10 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 		q.Result = make([]*entity.Comment, 0)
 
 		comments := []*dbComment{}
+		userId := 0
+		if user != nil {
+			userId = user.ID
+		}
 		err := trx.Select(&comments,
 			`
 			WITH agg_attachments AS ( 
@@ -241,7 +245,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			WHERE p.id = $1
 			AND p.tenant_id = $2
 			AND c.deleted_at IS NULL
-			ORDER BY c.created_at ASC`, q.Post.ID, tenant.ID, user.ID)
+			ORDER BY c.created_at ASC`, q.Post.ID, tenant.ID, userId)
 		if err != nil {
 			return errors.Wrap(err, "failed get comments of post with id '%d'", q.Post.ID)
 		}

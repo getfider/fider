@@ -3,6 +3,7 @@ import { ReactionCount } from "@fider/models"
 import { Icon } from "@fider/components"
 import ReactionAdd from "@fider/assets/images/reaction-add.svg"
 import { HStack } from "@fider/components/layout"
+import { classSet } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import "./Reactions.scss"
 
@@ -65,10 +66,14 @@ export const Reactions: React.FC<ReactionsProps> = ({ emojiSelectorRef, toggleRe
             {reactions.map((reaction) => (
               <span
                 key={reaction.emoji}
-                onClick={() => toggleReaction(reaction.emoji)}
-                className={`clickable inline-flex items-center px-2 py-1 rounded-full text-xs ${
-                  reaction.includesMe ? "bg-blue-100 hover:bg-blue-200" : "bg-gray-100 hover:bg-gray-200"
-                }`}
+                {...(fider.session.isAuthenticated && { onClick: () => toggleReaction(reaction.emoji) })}
+                className={classSet({
+                  "inline-flex items-center px-2 py-1 rounded-full text-xs": true,
+                  "bg-blue-100": reaction.includesMe,
+                  "bg-gray-100": !reaction.includesMe,
+                  "clickable hover:bg-blue-200": fider.session.isAuthenticated && reaction.includesMe,
+                  "clickable hover:bg-gray-200": fider.session.isAuthenticated && !reaction.includesMe,
+                })}
               >
                 {reaction.emoji} <span className="ml-1 font-semibold">{reaction.count}</span>
               </span>
