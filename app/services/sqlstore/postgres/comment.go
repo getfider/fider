@@ -195,7 +195,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 						'emoji', emoji,
 						'count', count,
 						'includesMe', CASE WHEN $3 = ANY(user_ids) THEN true ELSE false END
-					)) as reaction_counts
+					) ORDER BY count DESC) as reaction_counts
 				FROM (
 					SELECT 
 						comment_id, 
