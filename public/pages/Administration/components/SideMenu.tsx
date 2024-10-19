@@ -39,7 +39,7 @@ export const SideMenu = (props: SiteMenuProps) => {
 
   return (
     <div className="js-admin-menu sm:hidden md:hidden lg:block">
-      <VStack spacing={0} className="c-side-menu rounded-md shadow">
+      <VStack spacing={0} className="c-side-menu rounded-md shadow bg-white">
         <SideMenuItem name="general" title="General" href="/admin" isActive={activeItem === "general"} />
         <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
         <SideMenuItem name="members" title="Members" href="/admin/members" isActive={activeItem === "members"} />

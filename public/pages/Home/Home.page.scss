@@ -14,13 +14,22 @@
 
   .p-home {
     &__welcome-col {
-      background-color: get("colors.gray.100");
-      padding: spacing(2);
-      border-radius: get("border.radius.medium");
+      > :first-child {
+        background-color: get("colors.white");
+        border-radius: get("border.radius.large");
+        border: 1px solid get("colors.gray.200");
+
+        @include media("lg") {
+        }
+      }
+    }
+
+    &__posts-col {
+      background-color: get("colors.white");
+      border-radius: get("border.radius.large");
+      border: 1px solid get("colors.gray.200");
 
       @include media("lg") {
-        padding: 0;
-        background-color: transparent;
       }
     }
 

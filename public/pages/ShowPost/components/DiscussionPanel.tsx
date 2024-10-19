@@ -17,7 +17,7 @@ interface DiscussionPanelProps {
 export const DiscussionPanel = (props: DiscussionPanelProps) => {
   return (
     <>
-      <VStack spacing={2} className="c-comment-list">
+      <VStack spacing={2} className="c-comment-list mt-8">
         <span className="text-category">
           <Trans id="label.discussion">Discussion</Trans>
         </span>
