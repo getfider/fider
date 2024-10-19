@@ -94,7 +94,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
         </p>
 
         <div className="notifications-settings">
-          <VStack spacing={4} divide={true} className="p-2 bg-gray-50 rounded">
+          <VStack spacing={4} divide={true} className="p-2 rounded">
             <div>
               <div className="mb-1">
                 <Trans id="mysettings.notification.event.newpost">New Post</Trans>

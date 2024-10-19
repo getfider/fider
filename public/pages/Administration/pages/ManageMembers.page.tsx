@@ -38,7 +38,7 @@ const UserListItem = (props: UserListItemProps) => {
       <HStack spacing={4}>
         <Avatar user={props.user} />
         <VStack spacing={0}>
-          <UserName user={props.user} />
+          <UserName user={props.user} showEmail={true} />
           <span className="text-muted">
             {admin} {collaborator} {blocked}
           </span>
@@ -161,7 +161,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
             ))}
           </VStack>
         </div>
-        <p className="text-muted">
+        <p className="text-muted pt-4">
           {!this.state.query && (
             <>
               Showing {this.state.visibleUsers.length} of {this.state.users.length} registered users.

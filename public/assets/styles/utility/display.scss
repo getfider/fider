@@ -63,6 +63,13 @@
   }
 }
 
+.box {
+  border-radius: get("border.radius.large");
+  background-color: get("colors.white");
+  border: 1px solid get("colors.gray.200");
+  padding: spacing(4);
+}
+
 .flex {
   display: flex;
 }
@@ -176,6 +183,10 @@
   visibility: hidden;
 }
 
+.bt {
+  border-top: 1px solid;
+}
+
 .overflow-scroll {
   overflow: scroll;
 }
@@ -195,4 +206,10 @@
 .clickable {
   cursor: pointer;
   pointer-events: inherit;
+}
+
+.hover {
+  &:hover {
+    background-color: get("colors.gray.100");
+  }
 }
