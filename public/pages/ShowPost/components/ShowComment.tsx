@@ -167,7 +167,7 @@ export const ShowComment = (props: ShowCommentProps) => {
 
   const classList = classSet({
     "flex-grow rounded-md p-2": true,
-    "bg-white": !props.highlighted,
+    "bg-gray-50": !props.highlighted,
     "bg-gray-100": props.highlighted,
   })
 
