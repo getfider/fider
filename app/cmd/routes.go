@@ -197,6 +197,7 @@ func routes(r *web.Engine) *web.Engine {
 
 		membersApi.Post("/api/v1/posts", apiv1.CreatePost())
 		membersApi.Put("/api/v1/posts/:number", apiv1.UpdatePost())
+		membersApi.Post("/api/v1/posts/:number/comments/:id/reactions/:reaction", apiv1.ToggleReaction())
 		membersApi.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		membersApi.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
 		membersApi.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())

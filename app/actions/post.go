@@ -133,6 +133,38 @@ func (action *UpdatePost) Validate(ctx context.Context, user *entity.User) *vali
 	return result
 }
 
+type ToggleCommentReaction struct {
+	Number   int    `route:"number"`
+	Comment  int    `route:"id"`
+	Reaction string `route:"reaction"`
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *ToggleCommentReaction) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return user != nil
+}
+
+// Validate if current model is valid
+func (action *ToggleCommentReaction) Validate(ctx context.Context, user *entity.User) *validate.Result {
+
+	result := validate.Success()
+
+	allowedEmojis := []string{"👍", "👎", "😄", "🎉", "😕", "❤️", "🚀", "👀"}
+	isAllowed := false
+	for _, emoji := range allowedEmojis {
+		if action.Reaction == emoji {
+			isAllowed = true
+			break
+		}
+	}
+
+	if !isAllowed {
+		result.AddFieldFailure("reaction", i18n.T(ctx, "validation.custom.invalidemoji"))
+	}
+
+	return result
+}
+
 // AddNewComment represents a new comment to be added
 type AddNewComment struct {
 	Number      int                `route:"number"`

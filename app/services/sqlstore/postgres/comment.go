@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -12,13 +13,14 @@ import (
 )
 
 type dbComment struct {
-	ID          int          `db:"id"`
-	Content     string       `db:"content"`
-	CreatedAt   time.Time    `db:"created_at"`
-	User        *dbUser      `db:"user"`
-	Attachments []string     `db:"attachment_bkeys"`
-	EditedAt    dbx.NullTime `db:"edited_at"`
-	EditedBy    *dbUser      `db:"edited_by"`
+	ID             int            `db:"id"`
+	Content        string         `db:"content"`
+	CreatedAt      time.Time      `db:"created_at"`
+	User           *dbUser        `db:"user"`
+	Attachments    []string       `db:"attachment_bkeys"`
+	EditedAt       dbx.NullTime   `db:"edited_at"`
+	EditedBy       *dbUser        `db:"edited_by"`
+	ReactionCounts dbx.NullString `db:"reaction_counts"`
 }
 
 func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
@@ -32,6 +34,10 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 	if c.EditedAt.Valid {
 		comment.EditedBy = c.EditedBy.toModel(ctx)
 		comment.EditedAt = &c.EditedAt.Time
+	}
+
+	if c.ReactionCounts.Valid {
+		_ = json.Unmarshal([]byte(c.ReactionCounts.String), &comment.ReactionCounts)
 	}
 	return comment
 }
@@ -53,6 +59,38 @@ func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 		}
 		c.Result = q.Result
 
+		return nil
+	})
+}
+
+func toggleCommentReaction(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		var added bool
+		err := trx.Scalar(&added, `
+			WITH toggle_reaction AS (
+				INSERT INTO reactions (comment_id, user_id, emoji, created_on)
+				VALUES ($1, $2, $3, $4)
+				ON CONFLICT (comment_id, user_id, emoji) DO NOTHING
+				RETURNING true AS added
+			),
+			delete_existing AS (
+				DELETE FROM reactions
+				WHERE comment_id = $1 AND user_id = $2 AND emoji = $3
+				AND NOT EXISTS (SELECT 1 FROM toggle_reaction)
+				RETURNING false AS added
+			)
+			SELECT COALESCE(
+				(SELECT added FROM toggle_reaction),
+				(SELECT added FROM delete_existing),
+				false
+			)
+		`, c.Comment.ID, user.ID, c.Emoji, time.Now())
+
+		if err != nil {
+			return errors.Wrap(err, "failed to toggle reaction")
+		}
+
+		c.Result = added
 		return nil
 	})
 }
@@ -130,8 +168,13 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 		q.Result = make([]*entity.Comment, 0)
 
 		comments := []*dbComment{}
+		userId := 0
+		if user != nil {
+			userId = user.ID
+		}
 		err := trx.Select(&comments,
-			`WITH agg_attachments AS ( 
+			`
+			WITH agg_attachments AS ( 
 					SELECT 
 							c.id as comment_id, 
 							ARRAY_REMOVE(ARRAY_AGG(at.attachment_bkey), NULL) as attachment_bkeys
@@ -144,6 +187,26 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 					AND at.tenant_id = $2
 					AND at.comment_id IS NOT NULL
 					GROUP BY c.id 
+			),
+			agg_reactions AS (
+				SELECT 
+					comment_id,
+					json_agg(json_build_object(
+						'emoji', emoji,
+						'count', count,
+						'includesMe', CASE WHEN $3 = ANY(user_ids) THEN true ELSE false END
+					) ORDER BY count DESC) as reaction_counts
+				FROM (
+					SELECT 
+						comment_id, 
+						emoji, 
+						COUNT(*) as count,
+						array_agg(user_id) as user_ids
+					FROM reactions
+					WHERE comment_id IN (SELECT id FROM comments WHERE post_id = $1)
+					GROUP BY comment_id, emoji
+				) r
+				GROUP BY comment_id
 			)
 			SELECT c.id, 
 					c.content, 
@@ -163,7 +226,8 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 					e.status AS edited_by_status,
 					e.avatar_type AS edited_by_avatar_type, 
 					e.avatar_bkey AS edited_by_avatar_bkey,
-					at.attachment_bkeys
+					at.attachment_bkeys,
+					ar.reaction_counts
 			FROM comments c
 			INNER JOIN posts p
 			ON p.id = c.post_id
@@ -176,10 +240,12 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			AND e.tenant_id = c.tenant_id
 			LEFT JOIN agg_attachments at
 			ON at.comment_id = c.id
+			LEFT JOIN agg_reactions ar
+			ON ar.comment_id = c.id
 			WHERE p.id = $1
 			AND p.tenant_id = $2
 			AND c.deleted_at IS NULL
-			ORDER BY c.created_at ASC`, q.Post.ID, tenant.ID)
+			ORDER BY c.created_at ASC`, q.Post.ID, tenant.ID, userId)
 		if err != nil {
 			return errors.Wrap(err, "failed get comments of post with id '%d'", q.Post.ID)
 		}

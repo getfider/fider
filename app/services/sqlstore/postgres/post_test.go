@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -650,4 +651,80 @@ func TestPostStorage_Attachments(t *testing.T) {
 	err = bus.Dispatch(jonSnowCtx, getAttachments1)
 	Expect(err).IsNil()
 	Expect(getAttachments1.Result).HasLen(0)
+}
+
+func TestToggleReaction_Add(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	newComment := &cmd.AddNewComment{Post: newPost.Result, Content: "This is my comment"}
+	err = bus.Dispatch(jonSnowCtx, newComment)
+	Expect(err).IsNil()
+
+	// Now add a reaction
+	reaction := &cmd.ToggleCommentReaction{Comment: newComment.Result, Emoji: "👍", User: jonSnow}
+	err = bus.Dispatch(jonSnowCtx, reaction)
+	Expect(err).IsNil()
+	Expect(reaction.Result).IsTrue()
+
+	// Get the comment, and check that the reaction was added
+	commentByID := &query.GetCommentsByPost{Post: &entity.Post{ID: newPost.Result.ID}}
+	err = bus.Dispatch(jonSnowCtx, commentByID)
+	Expect(err).IsNil()
+
+	Expect(commentByID.Result).IsNotNil()
+	Expect(commentByID.Result[0].ReactionCounts).IsNotNil()
+	Expect(len(commentByID.Result[0].ReactionCounts)).Equals(1)
+	Expect(commentByID.Result[0].ReactionCounts[0].Emoji).Equals("👍")
+	Expect(commentByID.Result[0].ReactionCounts[0].Count).Equals(1)
+	Expect(commentByID.Result[0].ReactionCounts[0].IncludesMe).IsTrue()
+
+	// Now remove the reaction
+	reaction = &cmd.ToggleCommentReaction{Comment: newComment.Result, Emoji: "👍", User: jonSnow}
+	err = bus.Dispatch(jonSnowCtx, reaction)
+	Expect(err).IsNil()
+	Expect(reaction.Result).IsFalse()
+
+	// Get the comment, and check that the reaction was removed
+	commentByID = &query.GetCommentsByPost{Post: &entity.Post{ID: newPost.Result.ID}}
+	err = bus.Dispatch(jonSnowCtx, commentByID)
+	Expect(err).IsNil()
+
+	Expect(commentByID.Result).IsNotNil()
+	Expect(commentByID.Result[0].ReactionCounts).IsNil()
+}
+
+func TestViewReactions_AnonymousUser(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	newComment := &cmd.AddNewComment{Post: newPost.Result, Content: "This is my comment"}
+	err = bus.Dispatch(jonSnowCtx, newComment)
+	Expect(err).IsNil()
+
+	// Now add a reaction
+	reaction := &cmd.ToggleCommentReaction{Comment: newComment.Result, Emoji: "👍", User: jonSnow}
+	err = bus.Dispatch(jonSnowCtx, reaction)
+	Expect(err).IsNil()
+	Expect(reaction.Result).IsTrue()
+
+	// Get the comment as an anonymous user, and check that the reaction was added
+	commentByID := &query.GetCommentsByPost{Post: &entity.Post{ID: newPost.Result.ID}}
+	err = bus.Dispatch(demoTenantCtx, commentByID)
+	Expect(err).IsNil()
+
+	Expect(commentByID.Result).IsNotNil()
+	Expect(commentByID.Result[0].ReactionCounts).IsNotNil()
+	Expect(len(commentByID.Result[0].ReactionCounts)).Equals(1)
+	Expect(commentByID.Result[0].ReactionCounts[0].Emoji).Equals("👍")
+	Expect(commentByID.Result[0].ReactionCounts[0].Count).Equals(1)
+	Expect(commentByID.Result[0].ReactionCounts[0].IncludesMe).IsFalse()
 }
