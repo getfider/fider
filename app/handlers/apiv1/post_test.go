@@ -719,3 +719,25 @@ func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
 
 	Expect(code).Equals(http.StatusForbidden)
 }
+
+func TestCommentReactionToggleHandler_MismatchingTenantAndComment(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", 1).
+		AddParam("id", 1).
+		AddParam("reaction", "like").
+		ExecutePost(apiv1.ToggleReaction(), ``)
+
+	Expect(code).Equals(http.StatusNotFound)
+}
