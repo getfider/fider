@@ -146,7 +146,22 @@ func (action *ToggleCommentReaction) IsAuthorized(ctx context.Context, user *ent
 
 // Validate if current model is valid
 func (action *ToggleCommentReaction) Validate(ctx context.Context, user *entity.User) *validate.Result {
+
 	result := validate.Success()
+
+	allowedEmojis := []string{"👍", "👎", "😄", "🎉", "😕", "❤️", "🚀", "👀"}
+	isAllowed := false
+	for _, emoji := range allowedEmojis {
+		if action.Reaction == emoji {
+			isAllowed = true
+			break
+		}
+	}
+
+	if !isAllowed {
+		result.AddFieldFailure("reaction", i18n.T(ctx, "validation.custom.invalidemoji"))
+	}
+
 	return result
 }
 

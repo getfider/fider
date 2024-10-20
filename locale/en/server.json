@@ -29,6 +29,7 @@
   "validation.custom.minimagedimensions": "The image must have minimum dimensions of {width}x{height} pixels.",
   "validation.custom.imagesquareratio": "The image must have an aspect ratio of 1:1.",
   "validation.custom.maximagesize": "The image size must be smaller than {kilobytes}KB.",
+  "validation.custom.invalidemoji": "Invalid reaction emoji.",
   "enum.poststatus.open": "Open",
   "enum.poststatus.started": "Started",
   "enum.poststatus.completed": "Completed",

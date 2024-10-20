@@ -669,8 +669,8 @@ func TestCommentReactionToggleHandler(t *testing.T) {
 		user     *entity.User
 		reaction string
 	}{
-		{"JonSnow reacts with like", mock.JonSnow, "like"},
-		{"AryaStark reacts with smile", mock.AryaStark, "smile"},
+		{"JonSnow reacts with like", mock.JonSnow, "👍"},
+		{"AryaStark reacts with smile", mock.AryaStark, "👍"},
 	}
 
 	for _, tc := range testCases {
@@ -697,6 +697,30 @@ func TestCommentReactionToggleHandler(t *testing.T) {
 	}
 }
 
+func TestCommentReactionToggleHandler_InvalidEmoji(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		q.Result = comment
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", 1).
+		AddParam("id", comment.ID).
+		AddParam("reaction", "like").
+		ExecutePost(apiv1.ToggleReaction(), ``)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
 func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
 	RegisterT(t)
 
@@ -714,7 +738,7 @@ func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AddParam("number", 1).
 		AddParam("id", comment.ID).
-		AddParam("reaction", "like").
+		AddParam("reaction", "👍").
 		ExecutePost(apiv1.ToggleReaction(), ``)
 
 	Expect(code).Equals(http.StatusForbidden)
@@ -736,7 +760,7 @@ func TestCommentReactionToggleHandler_MismatchingTenantAndComment(t *testing.T) 
 		AsUser(mock.JonSnow).
 		AddParam("number", 1).
 		AddParam("id", 1).
-		AddParam("reaction", "like").
+		AddParam("reaction", "👍").
 		ExecutePost(apiv1.ToggleReaction(), ``)
 
 	Expect(code).Equals(http.StatusNotFound)
