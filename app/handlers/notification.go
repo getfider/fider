@@ -9,6 +9,18 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
+// GetAllNotifications will get all the notifications for the new modal
+func GetAllNotifications() web.HandlerFunc {
+	return func(c *web.Context) error {
+		q := &query.GetActiveNotifications{}
+		if err := bus.Dispatch(c, q); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(q.Result)
+	}
+}
+
 // TotalUnreadNotifications returns the total number of unread notifications
 func TotalUnreadNotifications() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -65,7 +77,6 @@ func ReadNotification() web.HandlerFunc {
 // ReadAllNotifications marks all unread notifications as read
 func ReadAllNotifications() web.HandlerFunc {
 	return func(c *web.Context) error {
-
 		if err := bus.Dispatch(c, &cmd.MarkAllNotificationsAsRead{}); err != nil {
 			return c.Failure(err)
 		}
