@@ -21,7 +21,7 @@ const locales: { [key: string]: Locale } = {
   "sv-SE": {
     text: "Swedish",
   },
-  "it": {
+  it: {
     text: "Italian",
   },
   nl: {
