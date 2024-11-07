@@ -14,7 +14,8 @@ interface TextAreaProps {
   minRows?: number
   placeholder?: string
   afterLabel?: JSX.Element
-  onChange?: (value: string) => void
+  onChange?: (value: string, selectionStart?: number) => void
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
   inputRef?: React.MutableRefObject<any>
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>
   className?: string
@@ -23,7 +24,13 @@ interface TextAreaProps {
 export const TextArea: React.FunctionComponent<TextAreaProps> = (props) => {
   const onChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     if (props.onChange) {
-      props.onChange(e.currentTarget.value)
+      props.onChange(e.currentTarget.value, e.currentTarget.selectionStart)
+    }
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (props.onKeyDown) {
+      props.onKeyDown(e)
     }
   }
 
@@ -47,6 +54,7 @@ export const TextArea: React.FunctionComponent<TextAreaProps> = (props) => {
               id={`input-${props.field}`}
               disabled={props.disabled}
               onChange={onChange}
+              onKeyDown={onKeyDown}
               value={props.value}
               minRows={props.minRows || 3}
               placeholder={props.placeholder}
