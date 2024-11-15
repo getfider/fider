@@ -8,7 +8,7 @@ interface SignInModalProps {
   onClose: () => void
 }
 
-export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) => {
+export const SignInModal: React.FC<SignInModalProps> = (props) => {
   const [email, setEmail] = useState("")
 
   useEffect(() => {

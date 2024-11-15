@@ -7,6 +7,7 @@ import Textarea from "react-textarea-autosize"
 import "./TextArea.scss"
 
 interface TextAreaProps {
+  children?: React.ReactNode
   label?: string
   field: string
   value?: string

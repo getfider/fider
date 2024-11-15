@@ -5,6 +5,7 @@ import ReactDOM from "react-dom"
 import { classSet } from "@fider/services"
 
 interface ModalWindowProps {
+  children?: React.ReactNode
   className?: string
   isOpen: boolean
   size?: "small" | "large" | "fluid"

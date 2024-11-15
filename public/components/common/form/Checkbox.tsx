@@ -6,6 +6,7 @@ import { HStack } from "@fider/components/layout"
 import "./Checkbox.scss"
 
 interface CheckboxProps {
+  children?: React.ReactNode
   field: string
   checked?: boolean
   onChange?: (checked: boolean) => void
