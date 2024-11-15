@@ -1,15 +1,32 @@
-import React, { useState, useRef } from "react"
+import React, { useState } from "react"
 
 import { Post, ImageUpload } from "@fider/models"
-import { Avatar, UserName, Button, TextArea, Form, MultiImageUploader } from "@fider/components"
+import { Avatar, UserName, Button, Form, MultiImageUploader } from "@fider/components"
 import { SignInModal } from "@fider/components"
-import { User, UserRole, UserStatus } from "@fider/models/identity"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import { HStack } from "@fider/components/layout"
 import { t, Trans } from "@lingui/macro"
-import MentionSelector from "./MentionSelector"
+
+import { createEditor } from "slate"
+// Import the Slate components and React plugin.
+import { Slate, Editable, withReact } from "slate-react"
+//
+// TypeScript users only add this code
+import { BaseEditor, Descendant, Node } from "slate"
+import { ReactEditor } from "slate-react"
+
+type paragraph = { type: "paragraph"; children: text[] }
+type text = { text: string }
+
+declare module "slate" {
+  interface CustomTypes {
+    Editor: BaseEditor & ReactEditor
+    Element: paragraph
+    Text: text
+  }
+}
 
 interface CommentInputProps {
   post: Post
@@ -17,57 +34,25 @@ interface CommentInputProps {
 
 const CACHE_TITLE_KEY = "CommentInput-Comment-"
 
-const users: User[] = [
-  { id: 1, name: "Matt", role: UserRole.Administrator, avatarURL: "", status: UserStatus.Active },
-  { id: 2, name: "Matt", role: UserRole.Administrator, avatarURL: "", status: UserStatus.Active },
-  { id: 3, name: "Matt", role: UserRole.Administrator, avatarURL: "", status: UserStatus.Active },
+const initialValue: Descendant[] = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
 ]
 
 export const CommentInput = (props: CommentInputProps) => {
   const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`
 
+  const [editor] = useState(() => withReact(createEditor()))
+
   const fider = useFider()
-  const inputRef = useRef<HTMLTextAreaElement>()
-  const [content, setContent] = useState((fider.session.isAuthenticated && cache.session.get(getCacheKey())) || "")
+  // const inputRef = useRef<HTMLTextAreaElement>()
+  // const [content, setContent] = useState((fider.session.isAuthenticated && cache.session.get(getCacheKey())) || "")
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
-
-  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false)
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
-  const [mentionIndex, setMentionIndex] = useState<number | null>(null)
-  const [cursorPosition, setCursorPosition] = useState<{ top: number; left: number } | null>(null)
-
-  const commentChanged = (newContent: string, selectionStart?: number) => {
-    cache.session.set(getCacheKey(), newContent)
-    setContent(newContent)
-
-    // Get the cursor position
-    const textBeforeCursor = newContent.slice(0, selectionStart)
-
-    // Check for "@" mention
-    const lastAtIndex = textBeforeCursor.lastIndexOf("@")
-    if (lastAtIndex >= 0) {
-      const mentionQuery = textBeforeCursor.slice(lastAtIndex + 1)
-      const matchedUsers = users.filter((user) => user.name.toLowerCase().startsWith(mentionQuery.toLowerCase()))
-
-      setFilteredUsers(matchedUsers)
-      setDropdownVisible(matchedUsers.length > 0)
-      setMentionIndex(lastAtIndex)
-
-      // Calculate position of dropdown
-      if (inputRef.current) {
-        const textareaRect = inputRef.current.getBoundingClientRect()
-        const top = textareaRect.top + window.scrollY + inputRef.current.scrollTop - 160
-        const left = textareaRect.left + window.scrollX - 50 // Adjust as needed
-        setCursorPosition({ top, left })
-      }
-    } else {
-      setDropdownVisible(false)
-    }
-  }
-
-  console.log(dropdownVisible, filteredUsers, mentionIndex, cursorPosition)
+  const [hasContent, setHasContent] = useState(false)
 
   const hideModal = () => setIsSignInModalOpen(false)
   const clearError = () => setError(undefined)
@@ -75,7 +60,9 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    const result = await actions.createComment(props.post.number, content, attachments)
+    const editorText = serialize(editor.children)
+    console.log("editorText", editorText)
+    const result = await actions.createComment(props.post.number, editorText, attachments)
     if (result.ok) {
       cache.session.remove(getCacheKey())
       location.reload()
@@ -84,11 +71,21 @@ export const CommentInput = (props: CommentInputProps) => {
     }
   }
 
+  const serialize = (nodes: Descendant[]): string => {
+    return nodes.map((n) => Node.string(n)).join("\n")
+  }
+
   const handleOnFocus = () => {
-    if (!fider.session.isAuthenticated && inputRef.current) {
-      inputRef.current.blur()
+    console.log("focus")
+    if (!fider.session.isAuthenticated) {
       setIsSignInModalOpen(true)
     }
+  }
+
+  const commentChanged = (newContent: Descendant[]) => {
+    console.log("newContent", newContent, newContent.toString())
+    const contentExists = newContent.length > 0 && (newContent[0] as paragraph).children[0].text !== ""
+    setHasContent(contentExists)
   }
 
   return (
@@ -103,25 +100,10 @@ export const CommentInput = (props: CommentInputProps) => {
                 <UserName user={Fider.session.user} />
               </div>
             )}
-            <TextArea
-              placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
-              field="content"
-              disabled={fider.isReadOnly}
-              value={content}
-              minRows={1}
-              onChange={commentChanged}
-              onFocus={handleOnFocus}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  setDropdownVisible(false)
-                }
-              }}
-              inputRef={inputRef}
-            />
-
-            {dropdownVisible && cursorPosition && <MentionSelector cursorPosition={cursorPosition} names={filteredUsers.map((user) => user.name)} />}
-
-            {content && (
+            <Slate editor={editor} initialValue={initialValue} onChange={commentChanged}>
+              <Editable onFocus={handleOnFocus} placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })} />
+            </Slate>
+            {hasContent && (
               <>
                 <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
                 <Button variant="primary" onClick={submit}>
