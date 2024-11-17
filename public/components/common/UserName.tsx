@@ -11,6 +11,7 @@ interface UserNameProps {
     role?: UserRole
     email?: string
   }
+  showEmail?: boolean
 }
 
 export const UserName = (props: UserNameProps) => {
@@ -23,7 +24,7 @@ export const UserName = (props: UserNameProps) => {
   return (
     <div className={className}>
       <span>{props.user.name || "Anonymous"}</span>
-      <>{props.user.email && <span className="c-username--email">({props.user.email})</span>}</>
+      <>{props.showEmail && props.user.email && <span className="c-username--email">({props.user.email})</span>}</>
 
       {isStaff && (
         <div data-tooltip={isStaff ? "Staff" : undefined}>

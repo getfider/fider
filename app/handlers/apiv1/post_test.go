@@ -124,11 +124,11 @@ func TestUpdatePostHandler_NonAuthorized(t *testing.T) {
 	RegisterT(t)
 
 	post := &entity.Post{
-		ID: 5,
-		Number: 5,
-		Title: "My First Post",
+		ID:          5,
+		Number:      5,
+		Title:       "My First Post",
 		Description: "Such an amazing description",
-		User: mock.JonSnow,
+		User:        mock.JonSnow,
 	}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
@@ -151,12 +151,12 @@ func TestUpdatePostHandler_IsOwner_AfterGracePeriod(t *testing.T) {
 	RegisterT(t)
 
 	post := &entity.Post{
-		ID: 5,
-		Number: 5,
-		Title: "My First Post",
+		ID:          5,
+		Number:      5,
+		Title:       "My First Post",
 		Description: "Such an amazing description",
-		User: mock.AryaStark,
-		CreatedAt: time.Now().UTC().Add(-2 * time.Hour),
+		User:        mock.AryaStark,
+		CreatedAt:   time.Now().UTC().Add(-2 * time.Hour),
 	}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
@@ -175,17 +175,16 @@ func TestUpdatePostHandler_IsOwner_AfterGracePeriod(t *testing.T) {
 	Expect(code).Equals(http.StatusForbidden)
 }
 
-
 func TestUpdatePostHandler_IsOwner_WithinGracePeriod(t *testing.T) {
 	RegisterT(t)
 
 	post := &entity.Post{
-		ID: 5,
-		Number: 5,
-		Title: "My First Post",
+		ID:          5,
+		Number:      5,
+		Title:       "My First Post",
 		Description: "Such an amazing description",
-		User: mock.AryaStark,
-		CreatedAt: time.Now().UTC(),
+		User:        mock.AryaStark,
+		CreatedAt:   time.Now().UTC(),
 	}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
@@ -653,4 +652,116 @@ func TestListCommentHandler(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	Expect(query.IsArray()).IsTrue()
 	Expect(query.ArrayLength()).Equals(2)
+}
+
+func TestCommentReactionToggleHandler(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		q.Result = comment
+		return nil
+	})
+
+	testCases := []struct {
+		name     string
+		user     *entity.User
+		reaction string
+	}{
+		{"JonSnow reacts with like", mock.JonSnow, "👍"},
+		{"AryaStark reacts with smile", mock.AryaStark, "👍"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var toggleReaction *cmd.ToggleCommentReaction
+			bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+				toggleReaction = c
+				return nil
+			})
+
+			code, _ := mock.NewServer().
+				OnTenant(mock.DemoTenant).
+				AsUser(tc.user).
+				AddParam("number", 1).
+				AddParam("id", comment.ID).
+				AddParam("reaction", tc.reaction).
+				ExecutePost(apiv1.ToggleReaction(), ``)
+
+			Expect(code).Equals(http.StatusOK)
+			Expect(toggleReaction.Emoji).Equals(tc.reaction)
+			Expect(toggleReaction.Comment).Equals(comment)
+			Expect(toggleReaction.User).Equals(tc.user)
+		})
+	}
+}
+
+func TestCommentReactionToggleHandler_InvalidEmoji(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		q.Result = comment
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", 1).
+		AddParam("id", comment.ID).
+		AddParam("reaction", "like").
+		ExecutePost(apiv1.ToggleReaction(), ``)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		q.Result = comment
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AddParam("number", 1).
+		AddParam("id", comment.ID).
+		AddParam("reaction", "👍").
+		ExecutePost(apiv1.ToggleReaction(), ``)
+
+	Expect(code).Equals(http.StatusForbidden)
+}
+
+func TestCommentReactionToggleHandler_MismatchingTenantAndComment(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", 1).
+		AddParam("id", 1).
+		AddParam("reaction", "👍").
+		ExecutePost(apiv1.ToggleReaction(), ``)
+
+	Expect(code).Equals(http.StatusNotFound)
 }

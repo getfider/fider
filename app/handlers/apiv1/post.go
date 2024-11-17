@@ -230,6 +230,34 @@ func GetComment() web.HandlerFunc {
 	}
 }
 
+// ToggleReaction adds or removes a reaction on a comment
+func ToggleReaction() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.ToggleCommentReaction)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		getComment := &query.GetCommentByID{CommentID: action.Comment}
+		if err := bus.Dispatch(c, getComment); err != nil {
+			return c.Failure(err)
+		}
+
+		toggleReaction := &cmd.ToggleCommentReaction{
+			Comment: getComment.Result,
+			Emoji:   action.Reaction,
+			User:    c.User(),
+		}
+		if err := bus.Dispatch(c, toggleReaction); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{
+			"added": toggleReaction.Result,
+		})
+	}
+}
+
 // PostComment creates a new comment on given post
 func PostComment() web.HandlerFunc {
 	return func(c *web.Context) error {

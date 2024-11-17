@@ -44,11 +44,8 @@ const GeneralSettingsPage = () => {
   return (
     <AdminPageContainer id="p-admin-general" name="general" title="General" subtitle="Manage your site settings">
       <Form error={error}>
-        <Input field="title" label="Title" maxLength={60} value={title} disabled={!fider.session.user.isAdministrator} onChange={setTitle}>
-          <p className="text-muted">
-            The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The product/service name is usually the best
-            choice.
-          </p>
+        <Input field="title" label="Your Fider board's title" maxLength={60} value={title} disabled={!fider.session.user.isAdministrator} onChange={setTitle}>
+          <p className="text-muted">Keep it short and snappy. Your product / service name is usually best.</p>
         </Input>
 
         <TextArea
@@ -60,7 +57,7 @@ const GeneralSettingsPage = () => {
         >
           <p className="text-muted">
             The message is shown on this site&apos;s home page. Use it to help visitors understand what this space is about and the importance of their
-            feedback. Leave it empty for a default message.
+            feedback.
           </p>
         </TextArea>
 
@@ -73,16 +70,11 @@ const GeneralSettingsPage = () => {
           placeholder="Enter your suggestion here..."
           onChange={setInvitation}
         >
-          <p className="text-muted">
-            This text is used as a placeholder for the suggestion&apos;s text box. Use it to invite your visitors into sharing their suggestions and feedback.
-            Leave it empty for a default message.
-          </p>
+          <p className="text-muted">Placeholder text in the suggestion&apos;s box. It should invite your visitors into sharing their feedback.</p>
         </Input>
 
-        <ImageUploader label="Logo" field="logo" bkey={fider.session.tenant.logoBlobKey} disabled={!fider.session.user.isAdministrator} onChange={setLogo}>
-          <p className="text-muted">
-            We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 200x200 pixels.
-          </p>
+        <ImageUploader label="Your Logo" field="logo" bkey={fider.session.tenant.logoBlobKey} disabled={!fider.session.user.isAdministrator} onChange={setLogo}>
+          <p className="text-muted">JPG, GIF or PNG smaller than 100KB, minimum size 200x200 pixels.</p>
         </ImageUploader>
 
         {!Fider.isSingleHostMode() && (
@@ -104,8 +96,7 @@ const GeneralSettingsPage = () => {
                 ]
               ) : (
                 <p>
-                  Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcompany.com</code>
-                  ).
+                  Use custom domains to access Fider via your own domain name <code>feedback.yourcompany.com</code>
                 </p>
               )}
             </div>

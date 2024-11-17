@@ -73,7 +73,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/oauth/:provider", handlers.SignInByOAuth())
 	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 
-	//Starting from this step, a Tenant is required
+	// Starting from this step, a Tenant is required
 	r.Use(middlewares.RequireTenant())
 
 	r.Get("/sitemap.xml", handlers.Sitemap())
@@ -98,7 +98,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
 	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
 
-	//If tenant is pending, block it from using any other route
+	// If tenant is pending, block it from using any other route
 	r.Use(middlewares.BlockPendingTenants())
 
 	r.Get("/signin", handlers.SignInPage())
@@ -108,7 +108,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
 
-	//Block if it's private tenant with unauthenticated user
+	// Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 
 	r.Get("/", handlers.Index())
@@ -117,12 +117,13 @@ func routes(r *web.Engine) *web.Engine {
 
 	ui := r.Group()
 	{
-		//From this step, a User is required
+		// From this step, a User is required
 		ui.Use(middlewares.IsAuthenticated())
 
 		ui.Get("/settings", handlers.UserSettings())
 		ui.Get("/notifications", handlers.Notifications())
 		ui.Get("/notifications/:id", handlers.ReadNotification())
+		ui.Get("/_api/notifications/unread", handlers.GetAllNotifications())
 		ui.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
 		ui.Delete("/_api/user", handlers.DeleteUser())
@@ -148,7 +149,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
 		ui.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 
-		//From this step, only Administrators are allowed
+		// From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
 
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Administration/pages/Export.page"))
@@ -196,6 +197,7 @@ func routes(r *web.Engine) *web.Engine {
 
 		membersApi.Post("/api/v1/posts", apiv1.CreatePost())
 		membersApi.Put("/api/v1/posts/:number", apiv1.UpdatePost())
+		membersApi.Post("/api/v1/posts/:number/comments/:id/reactions/:reaction", apiv1.ToggleReaction())
 		membersApi.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		membersApi.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
 		membersApi.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())

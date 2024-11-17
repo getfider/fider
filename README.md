@@ -25,7 +25,7 @@
 </div>
 
 <div align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/goenning">Guilherme Oenning</a> and <a href="https://github.com/getfider/fider/graphs/contributors">contributors</a></sub>
+  <sub>Created with ❤️ by <a href="https://github.com/goenning">Guilherme Oenning</a>, now maintained by <a href="https://github.com/mattwoberts">Matt Roberts</a> and supported by <a href="https://github.com/getfider/fider/graphs/contributors">contributors</a></sub>
 </div>
 
 <br/>
@@ -68,7 +68,3 @@ Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn how you can contribute t
 
 <br/>
 <br/>
-
----
-
-❤️ Love using Fider? [Give us a review!](https://love.fider.io/r/sp8FmI)

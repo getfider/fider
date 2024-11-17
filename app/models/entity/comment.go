@@ -2,13 +2,20 @@ package entity
 
 import "time"
 
-//Comment represents an user comment on an post
+type ReactionCounts struct {
+	Emoji      string `json:"emoji"`
+	Count      int    `json:"count"`
+	IncludesMe bool   `json:"includesMe"`
+}
+
+// Comment represents an user comment on an post
 type Comment struct {
-	ID          int        `json:"id"`
-	Content     string     `json:"content"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	User        *User      `json:"user"`
-	Attachments []string   `json:"attachments,omitempty"`
-	EditedAt    *time.Time `json:"editedAt,omitempty"`
-	EditedBy    *User      `json:"editedBy,omitempty"`
+	ID             int              `json:"id"`
+	Content        string           `json:"content"`
+	CreatedAt      time.Time        `json:"createdAt"`
+	User           *User            `json:"user"`
+	Attachments    []string         `json:"attachments,omitempty"`
+	EditedAt       *time.Time       `json:"editedAt,omitempty"`
+	EditedBy       *User            `json:"editedBy,omitempty"`
+	ReactionCounts []ReactionCounts `json:"reactionCounts,omitempty"`
 }
