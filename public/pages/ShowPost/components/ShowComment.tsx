@@ -1,25 +1,13 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Comment, Post, ImageUpload } from "@fider/models"
-import {
-  Reactions,
-  Avatar,
-  UserName,
-  Moment,
-  Form,
-  TextArea,
-  Button,
-  Markdown,
-  Modal,
-  ImageViewer,
-  MultiImageUploader,
-  Dropdown,
-  Icon,
-} from "@fider/components"
+import { Reactions, Avatar, UserName, Moment, Form, Button, Markdown, Modal, ImageViewer, MultiImageUploader, Dropdown, Icon } from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import { t, Trans } from "@lingui/macro"
+import { Deserialize, Serialize, SlateEditor } from "@fider/components/common/form/SlateEditor"
+import { Descendant } from "slate"
 
 interface ShowCommentProps {
   post: Post
@@ -32,7 +20,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   const fider = useFider()
   const node = useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const [newContent, setNewContent] = useState("")
+  const [newContent, setNewContent] = useState<Descendant[]>([])
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [localReactionCounts, setLocalReactionCounts] = useState(props.comment.reactionCounts)
@@ -66,12 +54,13 @@ export const ShowComment = (props: ShowCommentProps) => {
 
   const cancelEdit = async () => {
     setIsEditing(false)
-    setNewContent("")
+    setNewContent([])
     clearError()
   }
 
   const saveEdit = async () => {
-    const response = await actions.updateComment(props.post.number, props.comment.id, newContent, attachments)
+    const editorText = Serialize(newContent)
+    const response = await actions.updateComment(props.post.number, props.comment.id, editorText, attachments)
     if (response.ok) {
       location.reload()
     } else {
@@ -126,7 +115,7 @@ export const ShowComment = (props: ShowCommentProps) => {
       )
     } else if (action === "edit") {
       setIsEditing(true)
-      setNewContent(props.comment.content)
+      setNewContent(Deserialize(props.comment.content))
       clearError()
     } else if (action === "delete") {
       setIsDeleteConfirmationModalOpen(true)
@@ -210,7 +199,8 @@ export const ShowComment = (props: ShowCommentProps) => {
           <div>
             {isEditing ? (
               <Form error={error}>
-                <TextArea field="content" minRows={1} value={newContent} placeholder={comment.content} onChange={setNewContent} />
+                <SlateEditor initialValue={newContent} onChange={setNewContent} placeholder={comment.content} />
+                {/* <TextArea field="content" minRows={1} value={newContent} placeholder={comment.content} onChange={setNewContent} /> */}
                 <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} />
                 <Button size="small" onClick={saveEdit} variant="primary">
                   <Trans id="action.save">Save</Trans>

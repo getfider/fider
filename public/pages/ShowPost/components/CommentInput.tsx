@@ -9,24 +9,9 @@ import { useFider } from "@fider/hooks"
 import { HStack } from "@fider/components/layout"
 import { t, Trans } from "@lingui/macro"
 
-import { createEditor } from "slate"
-// Import the Slate components and React plugin.
-import { Slate, Editable, withReact } from "slate-react"
-//
-// TypeScript users only add this code
-import { BaseEditor, Descendant, Node } from "slate"
-import { ReactEditor } from "slate-react"
-
-type paragraph = { type: "paragraph"; children: text[] }
-type text = { text: string }
-
-declare module "slate" {
-  interface CustomTypes {
-    Editor: BaseEditor & ReactEditor
-    Element: paragraph
-    Text: text
-  }
-}
+import { SlateEditor, Serialize } from "@fider/components"
+import { Descendant } from "slate"
+import { Paragraph } from "@fider/components/common/form/SlateEditor"
 
 interface CommentInputProps {
   post: Post
@@ -34,25 +19,22 @@ interface CommentInputProps {
 
 const CACHE_TITLE_KEY = "CommentInput-Comment-"
 
-const initialValue: Descendant[] = [
-  {
-    type: "paragraph",
-    children: [{ text: "" }],
-  },
-]
-
 export const CommentInput = (props: CommentInputProps) => {
   const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`
 
-  const [editor] = useState(() => withReact(createEditor()))
+  const getContentFromCache = () => {
+    const cacheVal = cache.session.get(getCacheKey())
+    if (cacheVal) {
+      return JSON.parse(cacheVal)
+    }
+  }
 
   const fider = useFider()
   // const inputRef = useRef<HTMLTextAreaElement>()
-  // const [content, setContent] = useState((fider.session.isAuthenticated && cache.session.get(getCacheKey())) || "")
+  const [content, setContent] = useState<Descendant[]>((fider.session.isAuthenticated && getContentFromCache()) || null)
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
-  const [hasContent, setHasContent] = useState(false)
 
   const hideModal = () => setIsSignInModalOpen(false)
   const clearError = () => setError(undefined)
@@ -60,8 +42,7 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    const editorText = serialize(editor.children)
-    console.log("editorText", editorText)
+    const editorText = Serialize(content)
     const result = await actions.createComment(props.post.number, editorText, attachments)
     if (result.ok) {
       cache.session.remove(getCacheKey())
@@ -71,22 +52,18 @@ export const CommentInput = (props: CommentInputProps) => {
     }
   }
 
-  const serialize = (nodes: Descendant[]): string => {
-    return nodes.map((n) => Node.string(n)).join("\n")
-  }
-
-  const handleOnFocus = () => {
-    console.log("focus")
+  const editorFocused = () => {
     if (!fider.session.isAuthenticated) {
       setIsSignInModalOpen(true)
     }
   }
 
   const commentChanged = (newContent: Descendant[]) => {
-    console.log("newContent", newContent, newContent.toString())
-    const contentExists = newContent.length > 0 && (newContent[0] as paragraph).children[0].text !== ""
-    setHasContent(contentExists)
+    setContent(newContent)
+    cache.session.set(getCacheKey(), JSON.stringify(newContent))
   }
+
+  const hasContent = content?.length > 0 && (content[0] as Paragraph).children[0].text !== ""
 
   return (
     <>
@@ -100,9 +77,13 @@ export const CommentInput = (props: CommentInputProps) => {
                 <UserName user={Fider.session.user} />
               </div>
             )}
-            <Slate editor={editor} initialValue={initialValue} onChange={commentChanged}>
-              <Editable onFocus={handleOnFocus} placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })} />
-            </Slate>
+            <SlateEditor
+              initialValue={content}
+              onChange={commentChanged}
+              onFocus={editorFocused}
+              disabled={!Fider.session.isAuthenticated}
+              placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
+            />
             {hasContent && (
               <>
                 <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
