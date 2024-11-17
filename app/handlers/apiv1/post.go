@@ -61,12 +61,7 @@ func CreatePost() web.HandlerFunc {
 		}
 		
 		for _, tag := range action.Tags {
-			getTag := &query.GetTagBySlug{Slug: tag}
-			if err := bus.Dispatch(c, getTag); err != nil {
-				return c.Failure(err)
-			}
-
-			assignTag := &cmd.AssignTag{Tag: getTag.Result, Post: newPost.Result}
+			assignTag := &cmd.AssignTag{Tag: tag, Post: newPost.Result}
 			if err := bus.Dispatch(c, assignTag); err != nil {
 				return c.Failure(err)
 			}
