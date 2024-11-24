@@ -5,13 +5,10 @@ import { Avatar, UserName, Button, Form, MultiImageUploader } from "@fider/compo
 import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
-import { useFider } from "@fider/hooks"
 import { HStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { Trans } from "@lingui/macro"
 
-import { SlateEditor, Serialize } from "@fider/components"
-import { Descendant } from "slate"
-import { Paragraph } from "@fider/components/common/form/SlateEditor"
+import { MentionExample } from "@fider/components"
 
 interface CommentInputProps {
   post: Post
@@ -22,16 +19,8 @@ const CACHE_TITLE_KEY = "CommentInput-Comment-"
 export const CommentInput = (props: CommentInputProps) => {
   const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`
 
-  const getContentFromCache = () => {
-    const cacheVal = cache.session.get(getCacheKey())
-    if (cacheVal) {
-      return JSON.parse(cacheVal)
-    }
-  }
 
-  const fider = useFider()
   // const inputRef = useRef<HTMLTextAreaElement>()
-  const [content, setContent] = useState<Descendant[]>((fider.session.isAuthenticated && getContentFromCache()) || null)
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
@@ -42,7 +31,7 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    const editorText = Serialize(content)
+    const editorText = "Hello"
     const result = await actions.createComment(props.post.number, editorText, attachments)
     if (result.ok) {
       cache.session.remove(getCacheKey())
@@ -52,18 +41,7 @@ export const CommentInput = (props: CommentInputProps) => {
     }
   }
 
-  const editorFocused = () => {
-    if (!fider.session.isAuthenticated) {
-      setIsSignInModalOpen(true)
-    }
-  }
-
-  const commentChanged = (newContent: Descendant[]) => {
-    setContent(newContent)
-    cache.session.set(getCacheKey(), JSON.stringify(newContent))
-  }
-
-  const hasContent = content?.length > 0 && (content[0] as Paragraph).children[0].text !== ""
+  const hasContent = true
 
   return (
     <>
@@ -77,13 +55,7 @@ export const CommentInput = (props: CommentInputProps) => {
                 <UserName user={Fider.session.user} />
               </div>
             )}
-            <SlateEditor
-              initialValue={content}
-              onChange={commentChanged}
-              onFocus={editorFocused}
-              disabled={!Fider.session.isAuthenticated}
-              placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
-            />
+            <MentionExample />
             {hasContent && (
               <>
                 <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
