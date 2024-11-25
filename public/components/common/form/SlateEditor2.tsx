@@ -11,16 +11,19 @@ import { actions } from "@fider/services"
 
 import "./SlateEditor.scss"
 
-type CustomText = {
-  bold?: boolean
-  italic?: boolean
-  code?: boolean
-  text: string
-}
+// export type Paragraph = { type: "paragraph"; children: Text[] }
+export type Text = { text: string }
 
-type EmptyText = {
-  text: string
-}
+// type CustomText = {
+//   bold?: boolean
+//   italic?: boolean
+//   code?: boolean
+//   text: string
+// }
+
+// type EmptyText = {
+//   text: string
+// }
 
 interface RenderElementProps {
   attributes: React.HTMLAttributes<HTMLElement>
@@ -31,12 +34,11 @@ interface RenderElementProps {
 type MentionElement = {
   type: "mention"
   character: string
-  children: CustomText[]
+  children: Text[]
 }
 
 type ParagraphElement = {
   type: "paragraph"
-  align?: string
   children: Descendant[]
 }
 
@@ -48,11 +50,18 @@ type CustomEditor = BaseEditor &
     nodeToDecorations?: Map<Element, Range[]>
   }
 
+const emptyValue: Descendant[] = [
+  {
+    type: "paragraph",
+    children: [{ text: "" }],
+  },
+]
+
 declare module "slate" {
   interface CustomTypes {
     Editor: CustomEditor
     Element: CustomElement
-    Text: CustomText | EmptyText
+    Text: Text
     Range: BaseRange & {
       [key: string]: unknown
     }
@@ -134,7 +143,7 @@ export const MentionExample = () => {
   return (
     <Slate
       editor={editor}
-      initialValue={initialValue}
+      initialValue={emptyValue}
       onChange={() => {
         const { selection } = editor
 
@@ -263,55 +272,6 @@ const Mention = ({
     </span>
   )
 }
-const initialValue: Descendant[] = [
-  {
-    type: "paragraph",
-    children: [
-      {
-        text: "This example shows how you might implement a simple ",
-      },
-      {
-        text: "@-mentions",
-        bold: true,
-      },
-      {
-        text: " feature that lets users autocomplete mentioning a user by their username. Which, in this case means Star Wars characters. The ",
-      },
-      {
-        text: "mentions",
-        bold: true,
-      },
-      {
-        text: " are rendered as ",
-      },
-      {
-        text: "void inline elements",
-        code: true,
-      },
-      {
-        text: " inside the document.",
-      },
-    ],
-  },
-  {
-    type: "paragraph",
-    children: [
-      { text: "Try mentioning characters, like " },
-      {
-        type: "mention",
-        character: "R2-D2",
-        children: [{ text: "", bold: true }],
-      },
-      { text: " or " },
-      {
-        type: "mention",
-        character: "Mace Windu",
-        children: [{ text: "" }],
-      },
-      { text: "!" },
-    ],
-  },
-]
 
 // export const Serialize = (nodes: Descendant[]): string => {
 //   return nodes.map((n) => Node.string(n)).join("\n")
