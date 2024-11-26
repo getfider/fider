@@ -27,7 +27,7 @@ type CreateNewPost struct {
 	Tags []*entity.Tag
 }
 
-// OnPreExecute prefetches Post for later use
+// OnPreExecute prefetches Tags for later use
 func (input *CreateNewPost) OnPreExecute(ctx context.Context) error {
 	input.Tags = make([]*entity.Tag, len(input.TagSlugs))
 	for i, slug := range input.TagSlugs {
