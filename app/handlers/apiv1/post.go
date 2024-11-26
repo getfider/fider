@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -60,10 +61,12 @@ func CreatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 		
-		for _, tag := range action.Tags {
-			assignTag := &cmd.AssignTag{Tag: tag, Post: newPost.Result}
-			if err := bus.Dispatch(c, assignTag); err != nil {
-				return c.Failure(err)
+		if env.Config.PostCreationWithTagsEnabled {
+			for _, tag := range action.Tags {
+				assignTag := &cmd.AssignTag{Tag: tag, Post: newPost.Result}
+				if err := bus.Dispatch(c, assignTag); err != nil {
+					return c.Failure(err)
+				}
 			}
 		}
 

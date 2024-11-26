@@ -3,12 +3,14 @@ package actions
 import (
 	"context"
 	"time"
+	"fmt"
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/gosimple/slug"
 
@@ -29,14 +31,17 @@ type CreateNewPost struct {
 
 // OnPreExecute prefetches Tags for later use
 func (input *CreateNewPost) OnPreExecute(ctx context.Context) error {
-	input.Tags = make([]*entity.Tag, len(input.TagSlugs))
-	for i, slug := range input.TagSlugs {
-		getTag := &query.GetTagBySlug{Slug: slug}
-		if err := bus.Dispatch(ctx, getTag); err != nil {
-			return err
+	fmt.Println(env.Config.PostCreationWithTagsEnabled)
+	if env.Config.PostCreationWithTagsEnabled {
+		input.Tags = make([]*entity.Tag, len(input.TagSlugs))
+		for i, slug := range input.TagSlugs {
+			getTag := &query.GetTagBySlug{Slug: slug}
+			if err := bus.Dispatch(ctx, getTag); err != nil {
+				return err
+			}
+			
+			input.Tags[i] = getTag.Result
 		}
-		
-		input.Tags[i] = getTag.Result
 	}
 	
 	return nil
@@ -46,7 +51,7 @@ func (input *CreateNewPost) OnPreExecute(ctx context.Context) error {
 func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	if user == nil {
 		return false
-	} else if !user.IsCollaborator() {
+	} else if env.Config.PostCreationWithTagsEnabled && !user.IsCollaborator() {
 		for _, tag := range action.Tags {
 			if !tag.IsPublic {
 				return false
