@@ -6,9 +6,10 @@ import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
 import { HStack } from "@fider/components/layout"
-import { Trans } from "@lingui/macro"
+import { Trans, t } from "@lingui/macro"
 
-import { MentionExample } from "@fider/components"
+import { CommentEditor } from "@fider/components"
+import { useFider } from "@fider/hooks"
 
 interface CommentInputProps {
   post: Post
@@ -19,8 +20,13 @@ const CACHE_TITLE_KEY = "CommentInput-Comment-"
 export const CommentInput = (props: CommentInputProps) => {
   const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`
 
+  const getContentFromCache = () => {
+    return cache.session.get(getCacheKey())
+  }
 
+  const fider = useFider()
   // const inputRef = useRef<HTMLTextAreaElement>()
+  const [content, setContent] = useState<string>((fider.session.isAuthenticated && getContentFromCache()) || "")
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
@@ -31,8 +37,7 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    const editorText = "Hello"
-    const result = await actions.createComment(props.post.number, editorText, attachments)
+    const result = await actions.createComment(props.post.number, content, attachments)
     if (result.ok) {
       cache.session.remove(getCacheKey())
       location.reload()
@@ -41,7 +46,19 @@ export const CommentInput = (props: CommentInputProps) => {
     }
   }
 
-  const hasContent = true
+  const editorFocused = () => {
+    if (!fider.session.isAuthenticated) {
+      setIsSignInModalOpen(true)
+    }
+  }
+
+  const commentChanged = (newContent: string) => {
+    console.log("content changed", newContent)
+    setContent(newContent)
+    cache.session.set(getCacheKey(), newContent)
+  }
+
+  const hasContent = content?.length > 0
 
   return (
     <>
@@ -55,7 +72,13 @@ export const CommentInput = (props: CommentInputProps) => {
                 <UserName user={Fider.session.user} />
               </div>
             )}
-            <MentionExample />
+            <CommentEditor
+              initialValue={content}
+              onChange={commentChanged}
+              onFocus={editorFocused}
+              disabled={!Fider.session.isAuthenticated}
+              placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
+            />
             {hasContent && (
               <>
                 <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />

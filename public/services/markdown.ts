@@ -26,6 +26,18 @@ const link = (href: string, title: string, text: string) => {
 const fullRenderer = new marked.Renderer()
 fullRenderer.image = () => ""
 fullRenderer.link = link
+fullRenderer.text = (text: string) => {
+  console.log(JSON.stringify(/@{([^}]+)}/g.exec(text)))
+  return text.replace(/@{([^}]+)}/g, (match) => {
+    try {
+      const json = match.substring(1).replace(/&quot;/g, '"')
+      const mention = JSON.parse(json)
+      return `<a href="/users/${mention.id}" class="text-link">@${mention.name}</a>`
+    } catch {
+      return match
+    }
+  })
+}
 
 const plainTextRenderer = new marked.Renderer()
 plainTextRenderer.link = (_href, _title, text) => text

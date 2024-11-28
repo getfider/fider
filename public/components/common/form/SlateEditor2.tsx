@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useRef, useEffect, useState, Fragment, ReactNode } from "react"
-import { Editor, Transforms, Range, createEditor, Descendant, BaseEditor, BaseRange } from "slate"
+import { Element, Editor, Transforms, Range, createEditor, Descendant, BaseEditor, BaseRange, Node } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
 import { Slate, Editable, ReactEditor, withReact, useSelected, useFocused } from "slate-react"
 
@@ -11,19 +11,7 @@ import { actions } from "@fider/services"
 
 import "./SlateEditor.scss"
 
-// export type Paragraph = { type: "paragraph"; children: Text[] }
-export type Text = { text: string }
-
-// type CustomText = {
-//   bold?: boolean
-//   italic?: boolean
-//   code?: boolean
-//   text: string
-// }
-
-// type EmptyText = {
-//   text: string
-// }
+export type TextType = { text: string }
 
 interface RenderElementProps {
   attributes: React.HTMLAttributes<HTMLElement>
@@ -34,10 +22,10 @@ interface RenderElementProps {
 type MentionElement = {
   type: "mention"
   character: string
-  children: Text[]
+  children: TextType[]
 }
 
-type ParagraphElement = {
+export type ParagraphElement = {
   type: "paragraph"
   children: Descendant[]
 }
@@ -61,7 +49,7 @@ declare module "slate" {
   interface CustomTypes {
     Editor: CustomEditor
     Element: CustomElement
-    Text: Text
+    Text: TextType
     Range: BaseRange & {
       [key: string]: unknown
     }
@@ -72,7 +60,16 @@ const Portal = ({ children }: { children?: ReactNode }) => {
   return typeof document === "object" ? ReactDOM.createPortal(children, document.body) : null
 }
 
-export const MentionExample = () => {
+interface CommentEditorProps {
+  initialValue?: string
+  disabled?: boolean
+  placeholder?: string
+  onChange?: (value: string) => void
+  onFocus?: React.FocusEventHandler<HTMLDivElement>
+  className?: string
+}
+
+export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [users, setUsers] = useState<UserNames[]>([])
   const ref = useRef<HTMLDivElement | null>(null)
   const [target, setTarget] = useState<Range | undefined>()
@@ -90,8 +87,7 @@ export const MentionExample = () => {
     loadUsers()
   }, [])
 
-  const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, [])
-  // const renderLeaf = useCallback((props: { attributes: any; leaf: any; children: any }) => <Leaf {...props} />, [])
+  const renderElement = useCallback((props: RenderElementProps) => <SlateElement {...props} />, [])
   const editor = useMemo(() => withMentions(withReact(withHistory(createEditor()))), [])
 
   const filteredUsers = users.filter((user) => user.name.toLowerCase().startsWith(search.toLowerCase())).slice(0, 10)
@@ -116,7 +112,7 @@ export const MentionExample = () => {
           case "Enter":
             event.preventDefault()
             Transforms.select(editor, target)
-            insertMention(editor, filteredUsers[index].name)
+            insertMention(editor, filteredUsers[index])
             setTarget(undefined)
             break
           case "Escape":
@@ -140,11 +136,15 @@ export const MentionExample = () => {
     }
   }, [filteredUsers.length, editor, index, search, target])
 
+  const initialValue = props.initialValue ? deserialize(props.initialValue) : emptyValue
+
+  console.log(JSON.stringify(initialValue))
+
   return (
     <Slate
       editor={editor}
-      initialValue={emptyValue}
-      onChange={() => {
+      initialValue={initialValue}
+      onChange={(descendant) => {
         const { selection } = editor
 
         if (selection && Range.isCollapsed(selection)) {
@@ -165,21 +165,25 @@ export const MentionExample = () => {
             setIndex(0)
             return
           }
+
+          console.log(JSON.stringify(descendant))
+
+          props.onChange && props.onChange(serialize(descendant))
         }
 
         setTarget(undefined)
       }}
     >
-      <Editable className="slate-editor" renderElement={renderElement} onKeyDown={onKeyDown} placeholder="Enter some text..." />
+      <Editable readOnly={props.disabled} className="slate-editor" renderElement={renderElement} onKeyDown={onKeyDown} placeholder={props.placeholder} />
       {target && filteredUsers.length > 0 && (
         <Portal>
           <div ref={ref} className="slate-editor--mentions" data-cy="mentions-portal">
-            {filteredUsers.map((char, i) => (
+            {filteredUsers.map((user, i) => (
               <div
-                key={char.name}
+                key={user.id}
                 onClick={() => {
                   Transforms.select(editor, target)
-                  insertMention(editor, char.name)
+                  insertMention(editor, user)
                   setTarget(undefined)
                 }}
                 style={{
@@ -189,7 +193,7 @@ export const MentionExample = () => {
                   background: i === index ? "#B4D5FF" : "transparent",
                 }}
               >
-                {char.name}
+                {user.name}
               </div>
             ))}
           </div>
@@ -198,6 +202,7 @@ export const MentionExample = () => {
     </Slate>
   )
 }
+
 const withMentions = (editor: CustomEditor) => {
   const { isInline, isVoid, markableVoid } = editor
 
@@ -216,17 +221,17 @@ const withMentions = (editor: CustomEditor) => {
   return editor
 }
 
-const insertMention = (editor: Editor, character: string) => {
+const insertMention = (editor: Editor, user: UserNames) => {
   const mention: MentionElement = {
     type: "mention",
-    character,
-    children: [{ text: "" }],
+    character: user.name,
+    children: [{ text: "@" + JSON.stringify(user) }],
   }
   Transforms.insertNodes(editor, mention)
   Transforms.move(editor)
 }
 
-const Element = (props: RenderElementProps) => {
+const SlateElement = (props: RenderElementProps) => {
   const { attributes, children, element } = props
   switch (element.type) {
     case "mention":
@@ -273,14 +278,49 @@ const Mention = ({
   )
 }
 
-// export const Serialize = (nodes: Descendant[]): string => {
-//   return nodes.map((n) => Node.string(n)).join("\n")
-// }
+const serialize = (nodes: Descendant[]): string => {
+  return nodes.map((n) => Node.string(n)).join("\n")
+}
 
-// export const Deserialize = (value: string): Descendant[] => {
-//   return value.split("\n").map((line) => {
-//     return {
-//       children: [{ text: line }],
-//     } as Descendant
-//   })
-// }
+const deserialize = (markdown: string): Descendant[] => {
+  return markdown.split("\n").map((line) => {
+    const children: Descendant[] = []
+    const regex = /@{\\?"id":\\?\d+,\\?"name":\\?"[^"]+\\?"}/g
+    let lastIndex = 0
+
+    let match
+    while ((match = regex.exec(line)) !== null) {
+      // Add text before the mention
+      if (match.index > lastIndex) {
+        children.push({ text: line.slice(lastIndex, match.index) })
+      }
+
+      // Handle mention
+      try {
+        const jsonStr = match[0].replace(/\\/g, "").slice(1)
+        const mentionData = JSON.parse(jsonStr)
+        children.push({
+          type: "mention",
+          character: mentionData.name,
+          children: [{ text: match[0] }],
+        })
+      } catch (err) {
+        console.error("Error parsing mention:", err)
+        // Just add the text as a normal paragraph
+        children.push({ text: line })
+      }
+
+      lastIndex = match.index + match[0].length
+    }
+
+    // Add remaining text after last mention
+    if (lastIndex <= line.length) {
+      children.push({ text: line.slice(lastIndex) })
+    }
+
+    return {
+      type: "paragraph",
+      children,
+    }
+  })
+}
