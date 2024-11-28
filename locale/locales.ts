@@ -45,6 +45,9 @@ const locales: { [key: string]: Locale } = {
   ar: {
     text: "Arabic",
   },
+  "zh-CN": {
+    text: "Chinese (Simplified)",
+  },
 }
 
 export default locales
