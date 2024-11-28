@@ -12,6 +12,7 @@
     "react-textarea-autosize": "^8.5.4",
     "react-toastify": "^9.0.1",
     "slate": "^0.110.2",
+    "slate-history": "^0.110.3",
     "slate-react": "^0.111.0"
   },
   "devDependencies": {
