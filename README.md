@@ -41,6 +41,8 @@ The easiest and quickest way to get started. A fully managed services by the cre
 
 You can also install Fider yourself. It's free, but you are responsible for managing it. [Learn how](https://fider.io/docs/hosting-instance)
 
+If you do self-host and enjoy Fider, please [let us know where you're using it](https://github.com/getfider/fider/issues/899) - we really appreciate it 🙏
+
 <br/>
 <br/>
 
