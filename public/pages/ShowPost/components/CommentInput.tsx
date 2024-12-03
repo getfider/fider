@@ -53,7 +53,6 @@ export const CommentInput = (props: CommentInputProps) => {
   }
 
   const commentChanged = (newContent: string) => {
-    console.log("content changed", newContent)
     setContent(newContent)
     cache.session.set(getCacheKey(), newContent)
   }
