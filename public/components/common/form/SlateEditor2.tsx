@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useRef, useEffect, useState, Fragment, ReactNode } from "react"
 import { Element, Editor, Transforms, Range, createEditor, Descendant, BaseEditor, BaseRange, Node } from "slate"
 import { HistoryEditor, withHistory } from "slate-history"
-import { Slate, Editable, ReactEditor, withReact, useSelected, useFocused } from "slate-react"
+import { Slate, Editable, ReactEditor, withReact, useSelected, useFocused, RenderPlaceholderProps } from "slate-react"
 
 export const IS_MAC = typeof navigator !== "undefined" && /Mac OS X/.test(navigator.userAgent)
 
@@ -67,6 +67,23 @@ interface CommentEditorProps {
   onChange?: (value: string) => void
   onFocus?: React.FocusEventHandler<HTMLDivElement>
   className?: string
+}
+
+const Placeholder = ({ attributes, children }: RenderPlaceholderProps) => {
+  return (
+    <span
+      {...attributes}
+      className="slate-editor--placeholder"
+      style={{
+        position: "absolute",
+        opacity: 0.3,
+        userSelect: "none",
+        pointerEvents: "none",
+      }}
+    >
+      {children}
+    </span>
+  )
 }
 
 export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props) => {
@@ -174,7 +191,14 @@ export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props
         setTarget(undefined)
       }}
     >
-      <Editable readOnly={props.disabled} className="slate-editor" renderElement={renderElement} onKeyDown={onKeyDown} placeholder={props.placeholder} />
+      <Editable
+        readOnly={props.disabled}
+        className="slate-editor"
+        renderElement={renderElement}
+        onKeyDown={onKeyDown}
+        placeholder={props.placeholder}
+        renderPlaceholder={Placeholder}
+      />
       {target && filteredUsers.length > 0 && (
         <Portal>
           <div ref={ref} className="slate-editor--mentions" data-cy="mentions-portal">
