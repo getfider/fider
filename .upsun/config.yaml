@@ -1,0 +1,80 @@
+# Defines and version-controls your hosting infrastructure on Upsun.com
+# applications: defines applications within this repository to deploy.
+---
+applications:
+  fider-application:
+    source:
+      root: "/"
+
+    type: "golang:1.22"
+
+    relationships:
+      postgresql:
+        # service: the service ("postgresql") defined in .upsun/services.yaml
+        service: postgresql
+        endpoint: admin
+    
+    web:
+      commands:
+        start: ./fider
+      upstream:
+        socket_family: tcp
+      locations:
+        "/":
+          passthru: true
+
+    timezone: "Europe/Paris"
+
+    variables:
+      env:
+        N_PREFIX: "/app/.global"
+
+    build:
+      flavor: none
+
+    dependencies:
+      nodejs:
+        n: "*"
+        npx: "*"
+
+    hooks:
+      build: |
+        set -eux
+        n auto || n lts
+        hash -r
+        npm i
+        go build
+        npm run  heroku-postbuild
+
+      deploy: |
+        set -eux
+        ./fider migrate
+
+
+# Defines and version-controls your services requirements
+# services: services can be databases, cache, storage and more
+services:
+  # postgressql: Can be changed to any string value.
+  #    Renaming must be reflected in `applications.{app-name}.relationships`
+  postgresql:
+    type: postgresql:15
+    configuration:
+      databases:
+        - fider
+      endpoints:
+        admin:
+          default_database: fider
+          privileges:
+            fider: admin
+
+
+# Defines and version-controls the routes required by the defined applications
+# routes: enables you to define hostname and path proxies
+routes:
+  "https://{default}/":
+    type: upstream
+    # upstream: Points our default domain to our application defined above.
+    upstream: "fider-application:http"
+  "https://www.{default}":
+    type: redirect
+    to: "https://{default}/"

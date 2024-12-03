@@ -1,0 +1,23 @@
+# Set database environment variables
+export DB_HOST="$POSTGRESQL_HOST"
+export DB_PORT="$POSTGRESQL_PORT"
+export DB_PATH="$POSTGRESQL_PATH"
+export DB_DATABASE="$DB_PATH"
+export DB_USERNAME="$POSTGRESQL_USERNAME"
+export DB_PASSWORD="$POSTGRESQL_PASSWORD"
+export DB_SCHEME="postgresql"
+export DATABASE_URL="${DB_SCHEME}://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_PATH}?sslmode=disable"
+
+# Set email service environment variables
+export EMAIL_NOREPLY="noreply@platform.sh"
+if [ "$PLATFORM_ENVIRONMENT_TYPE" != "production" ]; then
+  export EMAIL_SMTP_HOST="only_available_in_prod"
+else
+  export EMAIL_SMTP_HOST="${PLATFORM_SMTP_HOST}"
+fi
+export EMAIL_SMTP_PORT="25"
+
+# Set general environment specifics
+export BASE_URL=$(echo $PLATFORM_ROUTES | base64 --decode | jq -r 'to_entries[] | select(.value.primary == true) | .key')
+export GO_ENV="${PLATFORM_ENVIRONMENT_TYPE}"
+export JWT_SECRET=$PLATFORM_PROJECT_ENTROPY
