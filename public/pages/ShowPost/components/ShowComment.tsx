@@ -20,7 +20,6 @@ import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearU
 import { useFider } from "@fider/hooks"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import { t, Trans } from "@lingui/macro"
-// import { Deserialize, Serialize} from "@fider/components/common/form/SlateEditor"
 
 interface ShowCommentProps {
   post: Post

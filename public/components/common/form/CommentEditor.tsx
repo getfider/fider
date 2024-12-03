@@ -9,7 +9,7 @@ import ReactDOM from "react-dom"
 import { UserNames } from "@fider/models"
 import { actions } from "@fider/services"
 
-import "./SlateEditor.scss"
+import "./CommentEditor.scss"
 
 export type TextType = { text: string }
 
@@ -154,8 +154,6 @@ export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props
   }, [filteredUsers.length, editor, index, search, target])
 
   const initialValue = props.initialValue ? deserialize(props.initialValue) : emptyValue
-
-  console.log(JSON.stringify(initialValue))
 
   return (
     <Slate
