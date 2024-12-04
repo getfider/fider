@@ -69,7 +69,7 @@ const ManageWebhooksPage = (props: ManageWebhooksPageProps) => {
 
   const handleWebhookDeleted = (webhook: Webhook) => {
     const idx = allWebhooks.indexOf(webhook)
-    setAllWebhooks(allWebhooks.splice(idx, 1) && allWebhooks)
+    setAllWebhooks(allWebhooks.filter((_, i) => i !== idx))
   }
 
   const handleWebhookEdited = async (data: WebhookData): Promise<Failure | undefined> => {
