@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -197,6 +198,11 @@ func ListComments() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		// the content of the comment needs to be sanitized before it is returned
+		for _, comment := range getComments.Result {
+			comment.Content = markdown.StripMentionMetaData(comment.Content)
+		}
+
 		return c.Ok(getComments.Result)
 	}
 }
@@ -213,6 +219,8 @@ func GetComment() web.HandlerFunc {
 		if err := bus.Dispatch(c, commentByID); err != nil {
 			return c.Failure(err)
 		}
+
+		commentByID.Result.Content = markdown.StripMentionMetaData(commentByID.Result.Content)
 
 		return c.Ok(commentByID.Result)
 	}
