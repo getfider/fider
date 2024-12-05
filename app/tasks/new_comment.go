@@ -15,7 +15,7 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
-//NotifyAboutNewComment sends a notification (web and email) to subscribers
+// NotifyAboutNewComment sends a notification (web and email) to subscribers
 func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		// Web notification
@@ -76,7 +76,7 @@ func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 			Props:        mailProps,
 		})
 
-		webhookProps := webhook.Props{"comment": comment}
+		webhookProps := webhook.Props{"comment": markdown.StripMentionMetaData(comment)}
 		webhookProps.SetPost(post, "post", baseURL, true, true)
 		webhookProps.SetUser(author, "author")
 		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)

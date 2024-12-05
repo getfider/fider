@@ -116,3 +116,57 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		"tenant_url":        "http://domain.com",
 	})
 }
+
+func TestNotifyAboutNewCommentTask_WithMention(t *testing.T) {
+	RegisterT(t)
+	bus.Init(emailmock.Service{})
+
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
+		q.Result = []*entity.User{
+			mock.JonSnow,
+		}
+		return nil
+	})
+
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
+		return nil
+	})
+
+	worker := mock.NewWorker()
+	post := &entity.Post{
+		ID:          1,
+		Number:      1,
+		Title:       "Add support for TypeScript",
+		Slug:        "add-support-for-typescript",
+		Description: "TypeScript is great, please add support for it",
+		User:        mock.JonSnow,
+	}
+	task := tasks.NotifyAboutNewComment(post, `I agree, what about you @{"id":1, "name":"Jon Snow"}?`)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(addNewNotification).IsNotNil()
+	Expect(addNewNotification.PostID).Equals(post.ID)
+	Expect(addNewNotification.Link).Equals("/posts/1/add-support-for-typescript")
+	Expect(addNewNotification.Title).Equals("**Arya Stark** left a comment on **Add support for TypeScript**")
+	Expect(addNewNotification.User).Equals(mock.JonSnow)
+
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookNewComment)
+	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
+		"comment": "I agree, what about you @Jon Snow?",
+	})
+}

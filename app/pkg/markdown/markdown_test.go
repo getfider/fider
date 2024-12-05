@@ -80,3 +80,23 @@ How are you?`,
 		Expect(output).Equals(expected)
 	}
 }
+
+func TestStripMentionMetaData(t *testing.T) {
+	RegisterT(t)
+
+	for input, expected := range map[string]string{
+		`@{\"id\":1,\"name\":\"John Doe quoted\"}`:                                 "@John Doe quoted",
+		`@{"id":1,"name":"John Doe"}`:                                              "@John Doe",
+		`@{"id":1,"name":"JohnDoe"}`:                                               "@JohnDoe",
+		`@{\"id\":1,\"name\":\"JohnDoe quoted\"}`:                                  "@JohnDoe quoted",
+		`@{"id":1,"name":"John Smith Doe"}`:                                        "@John Smith Doe",
+		`@{\"id\":1,\"name\":\"John Smith Doe quoted\"}`:                           "@John Smith Doe quoted",
+		"Hello there how are you":                                                  "Hello there how are you",
+		`Hello there @{"id":1,"name":"John Doe"}`:                                  "Hello there @John Doe",
+		`Hello there @{"id":1,"name":"John Doe quoted"}`:                           "Hello there @John Doe quoted",
+		`Hello both @{"id":1,"name":"John Doe"} and @{"id":2,"name":"John Smith"}`: "Hello both @John Doe and @John Smith",
+	} {
+		output := markdown.StripMentionMetaData(input)
+		Expect(output).Equals(expected)
+	}
+}

@@ -1,8 +1,10 @@
 package markdown
 
 import (
+	"encoding/json"
 	"html/template"
 	"io"
+	"regexp"
 	"strings"
 
 	"github.com/gomarkdown/markdown"
@@ -56,4 +58,28 @@ func Full(input string) template.HTML {
 	parser := mdparser.NewWithExtensions(mdExtns)
 	output := markdown.ToHTML([]byte(input), parser, fullRenderer)
 	return template.HTML(strings.TrimSpace(string(output)))
+}
+
+// StripMentionMetaData removes all mention metadata from a markdown string
+// Example input: Hello there @{\"id\":1,\"name\":\"John Doe\"}"
+// Example output: Hello there @John Doe
+func StripMentionMetaData(input string) string {
+
+	r, _ := regexp.Compile("@{([^}]+)}")
+
+	// Remove escaped quotes from the input string
+	input = strings.ReplaceAll(input, `\"`, `"`)
+
+	return r.ReplaceAllStringFunc(input, func(match string) string {
+		jsonMention := match[1:]
+
+		var dat map[string]interface{}
+
+		err := json.Unmarshal([]byte(jsonMention), &dat)
+		if err != nil {
+			return match
+		}
+		return "@" + dat["name"].(string)
+	})
+
 }
