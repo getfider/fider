@@ -40,7 +40,7 @@ func describeProps(props dto.Props) string {
 	return str
 }
 
-//Fail the current test case with given message
+// Fail the current test case with given message
 func Fail(msg string, args ...any) {
 	if currentT == nil {
 		panic("Did you forget to call RegisterT(t)?")
@@ -51,7 +51,7 @@ func Fail(msg string, args ...any) {
 var currentT *testing.T
 var envVariables map[string]string
 
-//RegisterT saves current testing.T for further usage by Expect
+// RegisterT saves current testing.T for further usage by Expect
 func RegisterT(t *testing.T) {
 	bus.Reset()
 	if currentT == nil {
@@ -77,12 +77,12 @@ func restartEnv() {
 	env.Reload()
 }
 
-//AnyAssertions is used to assert any kind of value
+// AnyAssertions is used to assert any kind of value
 type AnyAssertions struct {
 	actual any
 }
 
-//Expect starts new assertions on given value
+// Expect starts new assertions on given value
 func Expect(actual any) *AnyAssertions {
 	if currentT == nil {
 		panic("Did you forget to call RegisterT(t)?")
@@ -92,7 +92,7 @@ func Expect(actual any) *AnyAssertions {
 	}
 }
 
-//Equals asserts that actual value equals expected value
+// Equals asserts that actual value equals expected value
 func (a *AnyAssertions) Equals(expected any) bool {
 	if reflect.DeepEqual(expected, a.actual) {
 		return true
@@ -102,7 +102,7 @@ func (a *AnyAssertions) Equals(expected any) bool {
 	return false
 }
 
-//ContainsSubstring asserts that actual value contains given substring
+// ContainsSubstring asserts that actual value contains given substring
 func (a *AnyAssertions) ContainsSubstring(substr string) bool {
 	if strings.Contains(a.actual.(string), substr) {
 		return true
@@ -112,7 +112,7 @@ func (a *AnyAssertions) ContainsSubstring(substr string) bool {
 	return false
 }
 
-//NotEquals asserts that actual value is different than given value
+// NotEquals asserts that actual value is different than given value
 func (a *AnyAssertions) NotEquals(other any) bool {
 	if !reflect.DeepEqual(other, a.actual) {
 		return true
@@ -122,27 +122,27 @@ func (a *AnyAssertions) NotEquals(other any) bool {
 	return false
 }
 
-//IsTrue asserts that actual value is true
+// IsTrue asserts that actual value is true
 func (a *AnyAssertions) IsTrue() bool {
 	return a.Equals(true)
 }
 
-//IsFalse asserts that actual value is false
+// IsFalse asserts that actual value is false
 func (a *AnyAssertions) IsFalse() bool {
 	return a.Equals(false)
 }
 
-//IsEmpty asserts that actual value is empty
+// IsEmpty asserts that actual value is empty
 func (a *AnyAssertions) IsEmpty() bool {
 	return a.Equals("")
 }
 
-//IsNotEmpty asserts that actual value is not empty
+// IsNotEmpty asserts that actual value is not empty
 func (a *AnyAssertions) IsNotEmpty() bool {
 	return a.NotEquals("")
 }
 
-//IsNotNil asserts that actual value is not nil
+// IsNotNil asserts that actual value is not nil
 func (a *AnyAssertions) IsNotNil() bool {
 	if a.actual != nil && !reflect.ValueOf(a.actual).IsNil() {
 		return true
@@ -152,7 +152,7 @@ func (a *AnyAssertions) IsNotNil() bool {
 	return false
 }
 
-//IsNil asserts that actual value is nil
+// IsNil asserts that actual value is nil
 func (a *AnyAssertions) IsNil() bool {
 	if a.actual == nil || reflect.ValueOf(a.actual).IsNil() {
 		return true
@@ -162,7 +162,7 @@ func (a *AnyAssertions) IsNil() bool {
 	return false
 }
 
-//HasLen asserts that actual value has an expected length
+// HasLen asserts that actual value has an expected length
 func (a *AnyAssertions) HasLen(expected int) bool {
 	length := reflect.ValueOf(a.actual).Len()
 	if expected == length {
@@ -173,7 +173,7 @@ func (a *AnyAssertions) HasLen(expected int) bool {
 	return false
 }
 
-//Panics asserts that actual value panics whenever called
+// Panics asserts that actual value panics whenever called
 func (a *AnyAssertions) Panics() (panicked bool) {
 	mustBeFunction(a.actual)
 	defer func() {
@@ -189,7 +189,7 @@ func (a *AnyAssertions) Panics() (panicked bool) {
 	return
 }
 
-//EventuallyEquals asserts that, within 30 seconds, the actual function will return same value as expected value
+// EventuallyEquals asserts that, within 30 seconds, the actual function will return same value as expected value
 func (a *AnyAssertions) EventuallyEquals(expected any) bool {
 	mustBeFunction(a.actual)
 
@@ -213,7 +213,7 @@ func (a *AnyAssertions) EventuallyEquals(expected any) bool {
 	}
 }
 
-//TemporarilySimilar asserts that actual value is between a range of other time value
+// TemporarilySimilar asserts that actual value is between a range of other time value
 func (a *AnyAssertions) TemporarilySimilar(other time.Time, diff time.Duration) bool {
 	actual, ok := a.actual.(time.Time)
 	if !ok {

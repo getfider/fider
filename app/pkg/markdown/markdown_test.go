@@ -100,3 +100,19 @@ func TestStripMentionMetaData(t *testing.T) {
 		Expect(output).Equals(expected)
 	}
 }
+
+func TestStripMentionMetaDataDoesntBreakUserInput(t *testing.T) {
+	RegisterT(t)
+
+	for input, expected := range map[string]string{
+		`There is nothing here`:                                         "There is nothing here",
+		`There is nothing here {ok}`:                                    "There is nothing here {ok}",
+		`This is a message for {{matt}}`:                                "This is a message for {{matt}}",
+		`This is a message for {{id:1,wiggles:true}}`:                   "This is a message for {{id:1,wiggles:true}}",
+		`Although uncommon, someone could enter @{something} like this`: "Although uncommon, someone could enter @{something} like this",
+		`Or @{"id":100,"wiggles":"yes"} something like this`:            `Or @{"id":100,"wiggles":"yes"} something like this`,
+	} {
+		output := markdown.StripMentionMetaData(input)
+		Expect(output).Equals(expected)
+	}
+}

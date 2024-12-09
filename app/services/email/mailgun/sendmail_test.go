@@ -44,7 +44,11 @@ func TestSend_Success(t *testing.T) {
 		},
 		TemplateName: "echo_test",
 		Props: dto.Props{
-			"name": "Hello",
+			"name":     "Hello",
+			"userName": "Jon Snow",
+			"title":    "Add support for TypeScript",
+			"postLink": "https://test.com/posts/1",
+			"locale":   "email.new_mention.text",
 		},
 	})
 

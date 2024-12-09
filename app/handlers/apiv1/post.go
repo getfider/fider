@@ -287,7 +287,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Content))
+		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, addNewComment.Result))
 
 		metrics.TotalComments.Inc()
 		return c.Ok(web.Map{

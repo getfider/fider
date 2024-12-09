@@ -79,7 +79,15 @@ func StripMentionMetaData(input string) string {
 		if err != nil {
 			return match
 		}
-		return "@" + dat["name"].(string)
+
+		name, nameExists := dat["name"]
+		_, idExists := dat["id"]
+
+		if !nameExists || !idExists {
+			return match
+		}
+
+		return "@" + name.(string)
 	})
 
 }

@@ -244,10 +244,11 @@ const withMentions = (editor: CustomEditor) => {
 }
 
 const insertMention = (editor: Editor, user: UserNames) => {
+  const newMention = { ...user, isNew: true }
   const mention: MentionElement = {
     type: "mention",
     character: user.name,
-    children: [{ text: "@" + JSON.stringify(user) }],
+    children: [{ text: "@" + JSON.stringify(newMention) }],
   }
   Transforms.insertNodes(editor, mention)
   Transforms.move(editor)
@@ -307,7 +308,7 @@ const serialize = (nodes: Descendant[]): string => {
 const deserialize = (markdown: string): Descendant[] => {
   return markdown.split("\n").map((line) => {
     const children: Descendant[] = []
-    const regex = /@{\\?"id":\\?\d+,\\?"name":\\?"[^"]+\\?"}/g
+    const regex = /@{\\?"id\\?":\d+,\\?"name\\?":\\?"[^"]+\\?"(,\\?"isNew\\?":[^}]+)?}/g
     let lastIndex = 0
 
     let match
