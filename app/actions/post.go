@@ -3,7 +3,6 @@ package actions
 import (
 	"context"
 	"time"
-	"fmt"
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
@@ -31,16 +30,15 @@ type CreateNewPost struct {
 
 // OnPreExecute prefetches Tags for later use
 func (input *CreateNewPost) OnPreExecute(ctx context.Context) error {
-	fmt.Println(env.Config.PostCreationWithTagsEnabled)
 	if env.Config.PostCreationWithTagsEnabled {
-		input.Tags = make([]*entity.Tag, len(input.TagSlugs))
-		for i, slug := range input.TagSlugs {
+		input.Tags = make([]*entity.Tag, 0, len(input.TagSlugs))
+		for _, slug := range input.TagSlugs {
 			getTag := &query.GetTagBySlug{Slug: slug}
 			if err := bus.Dispatch(ctx, getTag); err != nil {
-				return err
+				break
 			}
 			
-			input.Tags[i] = getTag.Result
+			input.Tags = append(input.Tags, getTag.Result)
 		}
 	}
 	
@@ -71,6 +69,8 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *v
 		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.descriptivetitle"))
 	} else if len(action.Title) > 100 {
 		result.AddFieldFailure("title", propertyMaxStringLen(ctx, "title", 100))
+	} else if env.Config.PostCreationWithTagsEnabled && len(action.TagSlugs) != len(action.Tags) {
+		result.AddFieldFailure("tags", propertyIsInvalid(ctx, "tags"))
 	} else {
 		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Title)})
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
