@@ -1,12 +1,11 @@
 package markdown
 
 import (
-	"encoding/json"
 	"html/template"
 	"io"
-	"regexp"
 	"strings"
 
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 
@@ -65,29 +64,9 @@ func Full(input string) template.HTML {
 // Example output: Hello there @John Doe
 func StripMentionMetaData(input string) string {
 
-	r, _ := regexp.Compile("@{([^}]+)}")
-
-	// Remove escaped quotes from the input string
-	input = strings.ReplaceAll(input, `\"`, `"`)
-
-	return r.ReplaceAllStringFunc(input, func(match string) string {
-		jsonMention := match[1:]
-
-		var dat map[string]interface{}
-
-		err := json.Unmarshal([]byte(jsonMention), &dat)
-		if err != nil {
-			return match
-		}
-
-		name, nameExists := dat["name"]
-		_, idExists := dat["id"]
-
-		if !nameExists || !idExists {
-			return match
-		}
-
-		return "@" + name.(string)
+	mentionString := entity.CommentString(input)
+	return mentionString.FormatMentionJson(func(mention entity.Mention) string {
+		return mention.Name
 	})
 
 }

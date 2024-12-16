@@ -1,6 +1,8 @@
 package apiv1
 
 import (
+	"fmt"
+
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/models/cmd"
@@ -272,12 +274,17 @@ func PostComment() web.HandlerFunc {
 		}
 
 		addNewComment := &cmd.AddNewComment{
-			Post:    getPost.Result,
-			Content: action.Content,
+			Post: getPost.Result,
+			Content: entity.CommentString(action.Content).FormatMentionJson(func(mention entity.Mention) string {
+				return fmt.Sprintf(`{"id":%d,"name":"%s"}`, mention.ID, mention.Name)
+			}),
 		}
 		if err := bus.Dispatch(c, addNewComment); err != nil {
 			return c.Failure(err)
 		}
+
+		// For processing, restore the original content
+		addNewComment.Result.Content = action.Content
 
 		if err := bus.Dispatch(c, &cmd.SetAttachments{
 			Post:        getPost.Result,
@@ -287,7 +294,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, addNewComment.Result))
+		c.Enqueue(tasks.NotifyAboutNewComment(addNewComment.Result, getPost.Result))
 
 		metrics.TotalComments.Inc()
 		return c.Ok(web.Map{
@@ -304,6 +311,15 @@ func UpdateComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		getPost := &query.GetPostByID{PostID: action.Post.ID}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		contentToSave := entity.CommentString(action.Content).FormatMentionJson(func(mention entity.Mention) string {
+			return fmt.Sprintf(`{"id":%d,"name":"%s"}`, mention.ID, mention.Name)
+		})
+
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
 				Images: action.Attachments,
@@ -311,7 +327,7 @@ func UpdateComment() web.HandlerFunc {
 			},
 			&cmd.UpdateComment{
 				CommentID: action.ID,
-				Content:   action.Content,
+				Content:   contentToSave,
 			},
 			&cmd.SetAttachments{
 				Post:        action.Post,
@@ -322,6 +338,10 @@ func UpdateComment() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		// Update the content
+
+		c.Enqueue(tasks.NotifyAboutUpdatedComment(action.Content, getPost.Result))
 
 		return c.Ok(web.Map{})
 	}

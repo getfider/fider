@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/i18n"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/webhook"
@@ -16,7 +17,7 @@ import (
 )
 
 // NotifyAboutNewComment sends a notification (web and email) to subscribers
-func NotifyAboutNewComment(post *entity.Post, comment *entity.Comment) worker.Task {
+func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 
 		comment.ParseMentions()
@@ -131,6 +132,75 @@ func NotifyAboutNewComment(post *entity.Post, comment *entity.Comment) worker.Ta
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		return nil
+	})
+}
+
+func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
+	return describe("Notify about updated comment", func(c *worker.Context) error {
+
+		contentString := entity.CommentString(content)
+		mentions := contentString.ParseMentions()
+
+		log.Infof(c, "Comment updated: @{Comment:Yellow}. Mentions @{MentionsCount}", dto.Props{
+			"Comment":       contentString,
+			"MentionsCount": len(mentions),
+		})
+
+		author := c.User()
+		title := fmt.Sprintf("**%s** mentioned you in **%s**", author.Name, post.Title)
+		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
+		if mentions != nil {
+
+			users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention)
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			// Iterate the mentions
+			for _, mention := range mentions {
+				// Check if the user is in the list of mention subscribers (users)
+				for _, u := range users {
+					if u.ID == mention.ID && mention.IsNew {
+						err = bus.Dispatch(c, &cmd.AddNewNotification{
+							User:   u,
+							Title:  title,
+							Link:   link,
+							PostID: post.ID,
+						})
+						if err != nil {
+							return c.Failure(err)
+						}
+					}
+				}
+			}
+
+		}
+
+		strippedContent := markdown.StripMentionMetaData(content)
+
+		to := make([]dto.Recipient, 0)
+		if mentions != nil {
+
+			users, err := getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention)
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			for _, mention := range mentions {
+				// Check if the user is in the list of mention subscribers (users)
+				for _, u := range users {
+					if u.ID == mention.ID && mention.IsNew {
+						to = append(to, dto.NewRecipient(u.Name, u.Email, dto.Props{}))
+						break
+					}
+				}
+			}
+
+		}
+
+		sendEmailNotifications(c, post, to, strippedContent, enum.NotificationEventMention)
 
 		return nil
 	})

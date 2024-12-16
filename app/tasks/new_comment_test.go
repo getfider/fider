@@ -56,7 +56,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.JonSnow,
 	}
-	task := tasks.NotifyAboutNewComment(post, &entity.Comment{Content: "I agree"})
+	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree"}, post)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -158,7 +158,7 @@ func TestNotifyAboutNewCommentTask_WithMention(t *testing.T) {
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.JonSnow,
 	}
-	task := tasks.NotifyAboutNewComment(post, &entity.Comment{Content: "I agree with @{\"id\":1,\"name\":\"Jon Snow\",\"isNew\":true}"})
+	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree with @{\"id\":1,\"name\":\"Jon Snow\",\"isNew\":true}"}, post)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -222,4 +222,73 @@ func TestNotifyAboutNewCommentTask_WithMention(t *testing.T) {
 		"tenant_status":     mock.DemoTenant.Status.String(),
 		"tenant_url":        "http://domain.com",
 	})
+}
+
+func TestNotifyAboutUpdatedComment(t *testing.T) {
+	RegisterT(t)
+	bus.Init(emailmock.Service{})
+
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
+		q.Result = []*entity.User{
+			mock.JonSnow,
+		}
+		return nil
+	})
+
+	worker := mock.NewWorker()
+	post := &entity.Post{
+		ID:          1,
+		Number:      1,
+		Title:       "Add support for TypeScript",
+		Slug:        "add-support-for-typescript",
+		Description: "TypeScript is great, please add support for it",
+		User:        mock.JonSnow,
+	}
+
+	commentString := "I agree with @{\"id\":1,\"name\":\"Jon Snow\",\"isNew\":true} but not @{\"id\":2,\"name\":\"Arya Stark\",\"isNew\":false}"
+	task := tasks.NotifyAboutUpdatedComment(commentString, post)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailmock.MessageHistory).HasLen(1)
+	Expect(emailmock.MessageHistory[0].TemplateName).Equals("new_comment")
+	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
+		"title":               "Add support for TypeScript",
+		"messageLocaleString": "email.new_mention.text",
+		"postLink":            "<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>",
+		"siteName":            "Demonstration",
+		"userName":            "Arya Stark",
+		"content":             template.HTML("<p>I agree with @Jon Snow but not @Arya Stark</p>"),
+		"view":                "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
+		"change":              "<a href='http://domain.com/settings'>change your notification preferences</a>",
+		"unsubscribe":         "<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>",
+		"logo":                "https://fider.io/images/logo-100x100.png",
+	})
+	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
+		Name: "Arya Stark",
+	})
+	Expect(emailmock.MessageHistory[0].To).HasLen(1)
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
+		Name:    "Jon Snow",
+		Address: "jon.snow@got.com",
+		Props:   dto.Props{},
+	})
+
+	Expect(addNewNotification).IsNotNil()
+	Expect(addNewNotification.PostID).Equals(post.ID)
+	Expect(addNewNotification.Link).Equals("/posts/1/add-support-for-typescript")
+	Expect(addNewNotification.Title).Equals("**Arya Stark** mentioned you in **Add support for TypeScript**")
+	Expect(addNewNotification.User).Equals(mock.JonSnow)
 }
