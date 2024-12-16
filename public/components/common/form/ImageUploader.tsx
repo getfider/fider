@@ -11,6 +11,7 @@ import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 const hardFileSizeLimit = 5 * 1024 * 1024
 
 interface ImageUploaderProps {
+  children?: React.ReactNode
   instanceID?: string
   field: string
   label?: string

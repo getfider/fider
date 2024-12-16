@@ -1,0 +1,48 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.slate-editor {
+  background-color: get("colors.white");
+  width: 100%;
+  line-height: get("font.size.xl");
+  padding: spacing(2);
+  resize: none;
+  border: 1px solid get("colors.gray.300");
+  border-radius: get("border.radius.medium");
+  -webkit-appearance: none;
+  appearance: none;
+  margin: spacing(3) 0;
+
+  &:disabled {
+    @include disabled();
+  }
+  &--error {
+    border-color: get("colors.red.600");
+  }
+  p {
+    // line-height: 9px;
+    margin-bottom: 0;
+  }
+}
+.slate-editor--mention {
+  // padding: 3px 3px 2px;
+  margin: 0 1px;
+  vertical-align: baseline;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: get("colors.gray.100");
+  font-size: get("font.size.sm");
+}
+
+.slate-editor--mentions {
+  top: -9999px;
+  left: -9999px;
+  position: absolute;
+  z-index: 1;
+  padding: 3px;
+  background: get("colors.white");
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+
+
+}
+

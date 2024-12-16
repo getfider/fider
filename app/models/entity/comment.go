@@ -1,6 +1,8 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
 
 type ReactionCounts struct {
 	Emoji      string `json:"emoji"`
@@ -18,4 +20,10 @@ type Comment struct {
 	EditedAt       *time.Time       `json:"editedAt,omitempty"`
 	EditedBy       *User            `json:"editedBy,omitempty"`
 	ReactionCounts []ReactionCounts `json:"reactionCounts,omitempty"`
+	Mentions       []Mention        `json:"_"`
+}
+
+func (c *Comment) ParseMentions() {
+	mentionString := CommentString(c.Content)
+	c.Mentions = mentionString.ParseMentions()
 }

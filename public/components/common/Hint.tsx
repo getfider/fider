@@ -7,6 +7,7 @@ import { cache } from "@fider/services"
 import { Icon } from "./Icon"
 
 interface HintProps {
+  children?: React.ReactNode
   permanentCloseKey?: string
   condition?: boolean
 }

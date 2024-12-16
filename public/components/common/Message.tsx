@@ -9,6 +9,7 @@ import { HStack } from "@fider/components/layout"
 import { Icon } from "./Icon"
 
 interface MessageProps {
+  children?: React.ReactNode
   type: "success" | "warning" | "error"
   className?: string
   alignment?: "center"

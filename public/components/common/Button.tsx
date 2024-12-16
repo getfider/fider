@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { classSet } from "@fider/services"
 
 interface ButtonProps {
+  children?: React.ReactNode
   className?: string
   disabled?: boolean
   href?: string

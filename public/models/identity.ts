@@ -28,6 +28,11 @@ export interface User {
   avatarURL: string
 }
 
+export interface UserNames {
+  id: number
+  name: string
+}
+
 export enum UserAvatarType {
   Letter = "letter",
   Gravatar = "gravatar",

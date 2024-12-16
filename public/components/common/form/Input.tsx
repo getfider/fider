@@ -8,6 +8,7 @@ import "./Input.scss"
 import { HStack } from "@fider/components/layout"
 
 interface InputProps {
+  children?: React.ReactNode
   field: string
   label?: string
   className?: string

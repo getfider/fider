@@ -23,6 +23,16 @@ func ListUsers() web.HandlerFunc {
 	}
 }
 
+func ListTaggableUsers() web.HandlerFunc {
+	return func(c *web.Context) error {
+		allUsers := &query.GetAllUsersNames{}
+		if err := bus.Dispatch(c, allUsers); err != nil {
+			return c.Failure(err)
+		}
+		return c.Ok(allUsers.Result)
+	}
+}
+
 // CreateUser is used to create new users
 func CreateUser() web.HandlerFunc {
 	return func(c *web.Context) error {
