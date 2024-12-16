@@ -64,7 +64,7 @@ func TestCreatePostHandler_WithoutTitle(t *testing.T) {
 	Expect(code).Equals(http.StatusBadRequest)
 }
 
-func TestCreatePostHandler_WithInexistentTag(t *testing.T) {
+func TestCreatePostHandler_WithNonExistentTag(t *testing.T) {
 	if env.Config.PostCreationWithTagsEnabled {
 		RegisterT(t)
 		
