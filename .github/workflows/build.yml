@@ -6,7 +6,7 @@ on:
   push:
     branches:
       - main
-      - stable 
+      - stable
   pull_request:
     branches:
       - main
@@ -87,8 +87,6 @@ jobs:
           echo sha7=${GITHUB_SHA::7}
         id: vars
 
-        
-
       - run: docker build -t fider-image .
 
       - run: mkdir -p ./out
@@ -155,7 +153,10 @@ jobs:
             -v "$PWD"/etc:/app/etc \
             fider-image
       - run: npm ci
-      - run: npx playwright install-deps $BROWSER
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2t64
+          npx playwright install-deps $BROWSER
         env:
           BROWSER: ${{ matrix.browser }}
       - run: make test-e2e-ui
