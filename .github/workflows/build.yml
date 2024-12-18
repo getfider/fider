@@ -154,7 +154,7 @@ jobs:
             fider-image
       - run: npm ci
       - run: |
-          npx playwright install-deps $BROWSER
+          npx playwright install --with-deps $BROWSER
         env:
           BROWSER: ${{ matrix.browser }}
       - run: make test-e2e-ui
@@ -211,7 +211,7 @@ jobs:
             fider-image
       - run: npm ci
       - run: |
-          npx playwright install-deps chromium
+          npx playwright install --with-deps chromium
         env:
           BROWSER: chromium
       - run: make test-e2e-server
