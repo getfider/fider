@@ -154,9 +154,8 @@ jobs:
             fider-image
       - run: npm ci
       - run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2t64
-          npx playwright install $BROWSER
+          npx install playwright@1.48
+          npx playwright@1.48 install-deps $BROWSER
         env:
           BROWSER: ${{ matrix.browser }}
       - run: make test-e2e-ui
@@ -213,9 +212,8 @@ jobs:
             fider-image
       - run: npm ci
       - run: |
-          sudo apt-get update
-          sudo apt-get install -y libasound2t64
-          npx playwright install chromium
+          npx install playwright@1.48
+          npx playwright@1.48 install-deps chromium
         env:
           BROWSER: chromium
       - run: make test-e2e-server
