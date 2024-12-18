@@ -156,7 +156,7 @@ jobs:
       - run: |
           sudo apt-get update
           sudo apt-get install -y libasound2t64
-          npx playwright install-deps $BROWSER
+          npx playwright install $BROWSER
         env:
           BROWSER: ${{ matrix.browser }}
       - run: make test-e2e-ui
@@ -215,7 +215,7 @@ jobs:
       - run: |
           sudo apt-get update
           sudo apt-get install -y libasound2t64
-          npx playwright install-deps chromium
+          npx playwright install chromium
         env:
           BROWSER: chromium
       - run: make test-e2e-server
