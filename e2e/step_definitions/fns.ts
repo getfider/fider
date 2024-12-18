@@ -1,4 +1,4 @@
-import { Page } from "playwright"
+import { Page } from "@playwright/test"
 
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
