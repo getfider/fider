@@ -6,7 +6,6 @@ import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser } from "@fider/model
 import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 
 import {
-  VoteCounter,
   ShowPostResponse,
   Button,
   UserName,
@@ -20,6 +19,7 @@ import {
   Icon,
   Header,
   PoweredByFider,
+  Avatar,
 } from "@fider/components"
 import { ResponseForm } from "./components/ResponseForm"
 import { TagsPanel } from "./components/TagsPanel"
@@ -30,7 +30,7 @@ import { VotesPanel } from "./components/VotesPanel"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
-import IconCheck from "@fider/assets/images/heroicons-check.svg"
+import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
 
@@ -148,9 +148,9 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
           <div className="p-show-post">
             <div className="p-show-post__main-col">
               <div className="p-show-post__header-col">
-                <VStack spacing={4}>
+                <VStack spacing={6}>
                   <HStack>
-                    <VoteCounter post={this.props.post} />
+                    {/* <VoteCounter post={this.props.post} /> */}
 
                     <div className="flex-grow">
                       {this.state.editMode ? (
@@ -158,20 +158,28 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                           <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
                         </Form>
                       ) : (
-                        <h1 className="text-display2">{this.props.post.title}</h1>
+                        <h1 className="text-large">{this.props.post.title}</h1>
                       )}
 
-                      <span className="text-muted">
+                      <HStack spacing={4} className="my-3 mt-4">
+                        <Avatar user={this.props.post.user} />
+                        <VStack spacing={1}>
+                          <UserName user={this.props.post.user} />
+                          <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
+                        </VStack>
+                      </HStack>
+
+                      {/* <span className="text-muted">
                         <Trans id="showpost.label.author">
                           Posted by <UserName user={this.props.post.user} /> &middot; <Moment locale={Fider.currentLocale} date={this.props.post.createdAt} />
                         </Trans>
-                      </span>
+                      </span> */}
                     </div>
                   </HStack>
-                  <VStack>
-                    <span className="text-category">
+                  <VStack className="flex-items-start">
+                    {/* <span className="text-category">
                       <Trans id="label.description">Description</Trans>
-                    </span>
+                    </span> */}
                     {this.state.editMode ? (
                       <Form error={this.state.error}>
                         <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
@@ -191,6 +199,25 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       </>
                     )}
                   </VStack>
+                  <div className="align-self-start">
+                    <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
+                      <Icon sprite={IconThumbsUp} />{" "}
+                      <span>
+                        <Trans id="action.vote">Vote for this idea</Trans>
+                      </span>
+                    </Button>
+                  </div>
+
+                  <HStack>
+                    <span className="text-display">
+                      {this.props.post.votesCount} {this.props.post.votesCount === 1 ? "Vote" : "Votes"}
+                    </span>
+                    <div className="pl-4">
+                      <VotesPanel post={this.props.post} votes={this.props.votes} hideTitle={true} />
+                    </div>
+                  </HStack>
+
+                  <div className="purple-border" />
                   <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
                 </VStack>
               </div>
@@ -211,7 +238,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     {this.state.editMode ? (
                       <VStack>
                         <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
-                          <Icon sprite={IconCheck} />{" "}
+                          <Icon sprite={IconThumbsUp} />{" "}
                           <span>
                             <Trans id="action.save">Save</Trans>
                           </span>

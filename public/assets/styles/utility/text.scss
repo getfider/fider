@@ -9,6 +9,12 @@ pre:last-child {
   margin-bottom: 0;
 }
 
+.text-large {
+  font-size: get("font.size.2xl");
+  font-weight: get("font.weight.bold");
+  letter-spacing: -1px;
+}
+
 .text-display2 {
   font-size: get("font.size.xl");
   font-weight: get("font.weight.medium");

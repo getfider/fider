@@ -106,6 +106,10 @@
   align-items: baseline;
 }
 
+.flex-items-start {
+  align-items: start;
+}
+
 .justify-between {
   justify-content: space-between;
 }
@@ -216,4 +220,8 @@
   &:hover {
     background-color: get("colors.gray.100");
   }
+}
+
+.purple-border {
+  border-top: 4px solid get("colors.primary.base");
 }

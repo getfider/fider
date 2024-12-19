@@ -9,6 +9,7 @@ import { Trans } from "@lingui/macro"
 
 interface VotesPanelProps {
   post: Post
+  hideTitle?: boolean
   votes: Vote[]
 }
 
@@ -30,9 +31,11 @@ export const VotesPanel = (props: VotesPanelProps) => {
   return (
     <VStack>
       <VotesModal post={props.post} isOpen={isVotesModalOpen} onClose={closeModal} />
-      <span className="text-category">
-        <Trans id="label.voters">Voters</Trans>
-      </span>
+      {!props.hideTitle && (
+        <span className="text-category">
+          <Trans id="label.voters">Voters</Trans>
+        </span>
+      )}
       <HStack>
         {props.votes.length > 0 && <AvatarStack users={props.votes.map((x) => x.user)} />}
         {extraVotesCount > 0 && (
