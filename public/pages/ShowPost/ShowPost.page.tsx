@@ -33,6 +33,7 @@ import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
+import { TagsPanel2 } from "./components/TagsPanel2"
 
 interface ShowPostPageProps {
   post: Post
@@ -149,33 +150,34 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
             <div className="p-show-post__main-col">
               <div className="p-show-post__header-col">
                 <VStack spacing={6}>
-                  <HStack>
-                    {/* <VoteCounter post={this.props.post} /> */}
+                  {/* <VoteCounter post={this.props.post} /> */}
 
-                    <div className="flex-grow">
-                      {this.state.editMode ? (
-                        <Form error={this.state.error}>
-                          <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
-                        </Form>
-                      ) : (
-                        <h1 className="text-large">{this.props.post.title}</h1>
-                      )}
+                  <div className="flex-grow">
+                    {this.state.editMode ? (
+                      <Form error={this.state.error}>
+                        <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
+                      </Form>
+                    ) : (
+                      <h1 className="text-large">{this.props.post.title}</h1>
+                    )}
+                    <div className="mt-2">
+                      <TagsPanel2 post={this.props.post} tags={this.props.tags} />
+                    </div>
+                  </div>
 
-                      <HStack spacing={4} className="my-3 mt-4">
-                        <Avatar user={this.props.post.user} />
-                        <VStack spacing={1}>
-                          <UserName user={this.props.post.user} />
-                          <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
-                        </VStack>
-                      </HStack>
+                  <HStack spacing={4}>
+                    <Avatar user={this.props.post.user} />
+                    <VStack spacing={1}>
+                      <UserName user={this.props.post.user} />
+                      <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
+                    </VStack>
+                  </HStack>
 
-                      {/* <span className="text-muted">
+                  {/* <span className="text-muted">
                         <Trans id="showpost.label.author">
                           Posted by <UserName user={this.props.post.user} /> &middot; <Moment locale={Fider.currentLocale} date={this.props.post.createdAt} />
                         </Trans>
                       </span> */}
-                    </div>
-                  </HStack>
                   <VStack className="flex-items-start">
                     {/* <span className="text-category">
                       <Trans id="label.description">Description</Trans>
