@@ -8,7 +8,7 @@ import IconVolumeOff from "@fider/assets/images/heroicons-volume-off.svg"
 import { VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
 
-interface NotificationsPanelProps {
+export interface NotificationsPanelProps {
   post: Post
   subscribed: boolean
 }

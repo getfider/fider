@@ -30,6 +30,16 @@
     }
   }
 
+  &--quaternary {
+    color: get("colors.gray.900");
+    background-color: transparent;
+    border: 1px solid get("colors.primary.base");
+  
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   &--secondary {
     color: get("colors.gray.900");
     background-color: get("colors.gray.50");
@@ -143,3 +153,5 @@
     transform: rotate(360deg);
   }
 }
+
+

@@ -4,6 +4,7 @@ import React from "react"
 
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser } from "@fider/models"
 import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
+import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 
 import {
   ShowPostResponse,
@@ -20,6 +21,7 @@ import {
   Header,
   PoweredByFider,
   Avatar,
+  Dropdown,
 } from "@fider/components"
 import { ResponseForm } from "./components/ResponseForm"
 import { TagsPanel } from "./components/TagsPanel"
@@ -34,6 +36,8 @@ import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
 import { TagsPanel2 } from "./components/TagsPanel2"
+import { NotificationsPanel2 } from "./components/NotificationsPanel2"
+import { VoteSection } from "./components/VoteSection"
 
 interface ShowPostPageProps {
   post: Post
@@ -141,6 +145,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     this.setState({ highlightedComment })
   }
 
+  public onActionSelected = (action: string) => () => {
+    console.log(action)
+  }
+
   public render() {
     return (
       <>
@@ -152,25 +160,43 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 <VStack spacing={6}>
                   {/* <VoteCounter post={this.props.post} /> */}
 
-                  <div className="flex-grow">
-                    {this.state.editMode ? (
-                      <Form error={this.state.error}>
-                        <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
-                      </Form>
-                    ) : (
-                      <h1 className="text-large">{this.props.post.title}</h1>
-                    )}
-                    <div className="mt-2">
-                      <TagsPanel2 post={this.props.post} tags={this.props.tags} />
+                  <HStack justify="between">
+                    <div className="flex-grow">
+                      {this.state.editMode ? (
+                        <Form error={this.state.error}>
+                          <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
+                        </Form>
+                      ) : (
+                        <h1 className="text-large">{this.props.post.title}</h1>
+                      )}
+                      <div className="mt-2">
+                        <TagsPanel2 post={this.props.post} tags={this.props.tags} />
+                      </div>
                     </div>
-                  </div>
-
-                  <HStack spacing={4}>
-                    <Avatar user={this.props.post.user} />
-                    <VStack spacing={1}>
-                      <UserName user={this.props.post.user} />
-                      <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
-                    </VStack>
+                    <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
+                      <Dropdown.ListItem onClick={this.onActionSelected("copy")}>
+                        <Trans id="action.copylink">Copy link</Trans>
+                      </Dropdown.ListItem>
+                      <Dropdown.ListItem onClick={this.onActionSelected("edit")}>
+                        <Trans id="action.edit">Edit</Trans>
+                      </Dropdown.ListItem>
+                      <Dropdown.ListItem onClick={this.onActionSelected("status")}>
+                        <Trans id="action.respond">Respond</Trans>
+                      </Dropdown.ListItem>
+                      <Dropdown.ListItem onClick={this.onActionSelected("delete")} className="text-red-700">
+                        <Trans id="action.delete">Delete</Trans>
+                      </Dropdown.ListItem>
+                    </Dropdown>
+                  </HStack>
+                  <HStack spacing={4} justify="between">
+                    <HStack>
+                      <Avatar user={this.props.post.user} />
+                      <VStack spacing={1}>
+                        <UserName user={this.props.post.user} />
+                        <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
+                      </VStack>
+                    </HStack>
+                    <NotificationsPanel2 post={this.props.post} subscribed={this.props.subscribed} />
                   </HStack>
 
                   {/* <span className="text-muted">
@@ -201,7 +227,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       </>
                     )}
                   </VStack>
-                  <div className="align-self-start">
+
+                  <VoteSection post={this.props.post} votes={this.props.votes} />
+
+                  {/* <div className="align-self-start">
                     <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
                       <Icon sprite={IconThumbsUp} />{" "}
                       <span>
@@ -217,7 +246,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     <div className="pl-4">
                       <VotesPanel post={this.props.post} votes={this.props.votes} hideTitle={true} />
                     </div>
-                  </HStack>
+                  </HStack> */}
 
                   <div className="purple-border" />
                   <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />

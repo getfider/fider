@@ -6,12 +6,9 @@ import { actions, classSet } from "@fider/services"
 import { Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import FaCaretUp from "@fider/assets/images/fa-caretup.svg"
+import { VoteCounterProps } from "@fider/components"
 
-export interface VoteCounterProps {
-  post: Post
-}
-
-export const VoteCounter = (props: VoteCounterProps) => {
+export const VoteCounter2 = (props: VoteCounterProps) => {
   const fider = useFider()
   const [hasVoted, setHasVoted] = useState(props.post.hasVoted)
   const [votesCount, setVotesCount] = useState(props.post.votesCount)

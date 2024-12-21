@@ -10,7 +10,7 @@ interface ButtonProps {
   rel?: "nofollow"
   target?: "_self" | "_blank" | "_parent" | "_top"
   type?: "button" | "submit"
-  variant?: "primary" | "danger" | "secondary" | "tertiary"
+  variant?: "primary" | "danger" | "secondary" | "tertiary" | "quaternary"
   size?: "small" | "default" | "large"
   onClick?: (event: ButtonClickEvent) => Promise<any> | void
 }
