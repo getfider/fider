@@ -2,7 +2,7 @@ import "./ShowPost.page.scss"
 
 import React from "react"
 
-import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser } from "@fider/models"
+import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
 import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 
@@ -98,6 +98,14 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     }
   }
 
+  private canDeletePost = () => {
+    const status = PostStatus.Get(this.props.post.status)
+    if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
+      return false
+    }
+    return true
+  }
+
   private setNewTitle = (newTitle: string) => {
     this.setState({ newTitle })
   }
@@ -145,8 +153,17 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     this.setState({ highlightedComment })
   }
 
-  public onActionSelected = (action: string) => () => {
-    console.log(action)
+  public onActionSelected = (action: "copy" | "delete" | "status" | "edit") => () => {
+    if (action === "copy") {
+      navigator.clipboard.writeText(window.location.href)
+      notify.success(<Trans id="showpost.copylink.success">Link copied to clipboard</Trans>)
+    } else if (action === "delete") {
+      // actions.deletePost(this.props.post.number)
+    } else if (action === "status") {
+      // actions.changeStatus(this.props.post.number, this.props.post.status)
+    } else if (action === "edit") {
+      this.startEdit()
+    }
   }
 
   public render() {
@@ -158,7 +175,6 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
             <div className="p-show-post__main-col">
               <div className="p-show-post__header-col">
                 <VStack spacing={6}>
-                  {/* <VoteCounter post={this.props.post} /> */}
 
                   <HStack justify="between">
                     <div className="flex-grow">
@@ -167,47 +183,52 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                           <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
                         </Form>
                       ) : (
-                        <h1 className="text-large">{this.props.post.title}</h1>
+                        <>
+                          <h1 className="text-large">{this.props.post.title}</h1>
+                          <div className="mt-2">
+                            <TagsPanel2 post={this.props.post} tags={this.props.tags} />
+                          </div>
+                        </>
                       )}
-                      <div className="mt-2">
-                        <TagsPanel2 post={this.props.post} tags={this.props.tags} />
-                      </div>
                     </div>
-                    <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
-                      <Dropdown.ListItem onClick={this.onActionSelected("copy")}>
-                        <Trans id="action.copylink">Copy link</Trans>
-                      </Dropdown.ListItem>
-                      <Dropdown.ListItem onClick={this.onActionSelected("edit")}>
-                        <Trans id="action.edit">Edit</Trans>
-                      </Dropdown.ListItem>
-                      <Dropdown.ListItem onClick={this.onActionSelected("status")}>
-                        <Trans id="action.respond">Respond</Trans>
-                      </Dropdown.ListItem>
-                      <Dropdown.ListItem onClick={this.onActionSelected("delete")} className="text-red-700">
-                        <Trans id="action.delete">Delete</Trans>
-                      </Dropdown.ListItem>
-                    </Dropdown>
+                    {!this.state.editMode && (
+                      <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
+                        <Dropdown.ListItem onClick={this.onActionSelected("copy")}>
+                          <Trans id="action.copylink">Copy link</Trans>
+                        </Dropdown.ListItem>
+                        {canEditPost(Fider.session.user, this.props.post) && (
+                          <>
+                            <Dropdown.ListItem onClick={this.onActionSelected("edit")}>
+                              <Trans id="action.edit">Edit</Trans>
+                            </Dropdown.ListItem>
+                            {Fider.session.user.isCollaborator && (
+                              <Dropdown.ListItem onClick={this.onActionSelected("status")}>
+                                <Trans id="action.respond">Respond</Trans>
+                              </Dropdown.ListItem>
+                            )}
+                          </>
+                        )}
+                        {this.canDeletePost() && (
+                          <Dropdown.ListItem onClick={this.onActionSelected("delete")} className="text-red-700">
+                            <Trans id="action.delete">Delete</Trans>
+                          </Dropdown.ListItem>
+                        )}
+                      </Dropdown>
+                    )}
                   </HStack>
-                  <HStack spacing={4} justify="between">
-                    <HStack>
-                      <Avatar user={this.props.post.user} />
-                      <VStack spacing={1}>
-                        <UserName user={this.props.post.user} />
-                        <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
-                      </VStack>
+                  {!this.state.editMode && (
+                    <HStack spacing={4} justify="between">
+                      <HStack>
+                        <Avatar user={this.props.post.user} />
+                        <VStack spacing={1}>
+                          <UserName user={this.props.post.user} />
+                          <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
+                        </VStack>
+                      </HStack>
+                      <NotificationsPanel2 post={this.props.post} subscribed={this.props.subscribed} />
                     </HStack>
-                    <NotificationsPanel2 post={this.props.post} subscribed={this.props.subscribed} />
-                  </HStack>
-
-                  {/* <span className="text-muted">
-                        <Trans id="showpost.label.author">
-                          Posted by <UserName user={this.props.post.user} /> &middot; <Moment locale={Fider.currentLocale} date={this.props.post.createdAt} />
-                        </Trans>
-                      </span> */}
-                  <VStack className="flex-items-start">
-                    {/* <span className="text-category">
-                      <Trans id="label.description">Description</Trans>
-                    </span> */}
+                  )}
+                  <VStack>
                     {this.state.editMode ? (
                       <Form error={this.state.error}>
                         <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
@@ -228,25 +249,24 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     )}
                   </VStack>
 
-                  <VoteSection post={this.props.post} votes={this.props.votes} />
-
-                  {/* <div className="align-self-start">
-                    <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
-                      <Icon sprite={IconThumbsUp} />{" "}
-                      <span>
-                        <Trans id="action.vote">Vote for this idea</Trans>
-                      </span>
-                    </Button>
-                  </div>
-
-                  <HStack>
-                    <span className="text-display">
-                      {this.props.post.votesCount} {this.props.post.votesCount === 1 ? "Vote" : "Votes"}
-                    </span>
-                    <div className="pl-4">
-                      <VotesPanel post={this.props.post} votes={this.props.votes} hideTitle={true} />
-                    </div>
-                  </HStack> */}
+                  {!this.state.editMode ? (
+                    <VoteSection post={this.props.post} votes={this.props.votes} />
+                  ) : (
+                    <HStack>
+                      <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
+                        <Icon sprite={IconThumbsUp} />{" "}
+                        <span>
+                          <Trans id="action.save">Save</Trans>
+                        </span>
+                      </Button>
+                      <Button onClick={this.cancelEdit} disabled={Fider.isReadOnly}>
+                        <Icon sprite={IconX} />
+                        <span>
+                          <Trans id="action.cancel">Cancel</Trans>
+                        </span>
+                      </Button>
+                    </HStack>
+                  )}
 
                   <div className="purple-border" />
                   <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />

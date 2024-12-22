@@ -1,7 +1,7 @@
 import "./VoteCounter.scss"
 
 import React, { useState } from "react"
-import { Post, PostStatus } from "@fider/models"
+import { PostStatus } from "@fider/models"
 import { actions, classSet } from "@fider/services"
 import { Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
