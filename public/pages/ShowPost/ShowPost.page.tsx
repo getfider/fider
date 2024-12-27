@@ -23,21 +23,22 @@ import {
   Avatar,
   Dropdown,
 } from "@fider/components"
-import { ResponseForm } from "./components/ResponseForm"
-import { TagsPanel } from "./components/TagsPanel"
-import { NotificationsPanel } from "./components/NotificationsPanel"
-import { ModerationPanel } from "./components/ModerationPanel"
+// import { ResponseForm } from "./components/ResponseForm"
+// import { TagsPanel } from "./components/TagsPanel"
+// import { NotificationsPanel } from "./components/NotificationsPanel"
+// import { ModerationPanel } from "./components/ModerationPanel"
 import { DiscussionPanel } from "./components/DiscussionPanel"
-import { VotesPanel } from "./components/VotesPanel"
+// import { VotesPanel } from "./components/VotesPanel"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
-import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
+// import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
 import { TagsPanel2 } from "./components/TagsPanel2"
 import { NotificationsPanel2 } from "./components/NotificationsPanel2"
 import { VoteSection } from "./components/VoteSection"
+import { ModerationPanel } from "./components/ModerationPanel"
 
 interface ShowPostPageProps {
   post: Post
@@ -51,6 +52,7 @@ interface ShowPostPageProps {
 interface ShowPostPageState {
   editMode: boolean
   newTitle: string
+  showDeleteModal: boolean
   attachments: ImageUpload[]
   newDescription: string
   highlightedComment?: number
@@ -72,6 +74,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
     this.state = {
       editMode: false,
+      showDeleteModal: false,
       newTitle: this.props.post.title,
       newDescription: this.props.post.description,
       attachments: [],
@@ -118,6 +121,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     this.setState({ attachments })
   }
 
+  private setShowDeleteModal = (showDeleteModal: boolean) => {
+    this.setState({ showDeleteModal })
+  }
+
   private cancelEdit = async () => {
     this.setState({ error: undefined, editMode: false })
   }
@@ -158,7 +165,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
       navigator.clipboard.writeText(window.location.href)
       notify.success(<Trans id="showpost.copylink.success">Link copied to clipboard</Trans>)
     } else if (action === "delete") {
-      // actions.deletePost(this.props.post.number)
+      this.setShowDeleteModal(true)
     } else if (action === "status") {
       // actions.changeStatus(this.props.post.number, this.props.post.status)
     } else if (action === "edit") {
@@ -174,8 +181,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
           <div className="p-show-post">
             <div className="p-show-post__main-col">
               <div className="p-show-post__header-col">
-                <VStack spacing={6}>
-
+                <VStack spacing={8}>
                   <HStack justify="between">
                     <div className="flex-grow">
                       {this.state.editMode ? (
@@ -191,6 +197,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                         </>
                       )}
                     </div>
+                    <ModerationPanel onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
                     {!this.state.editMode && (
                       <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
                         <Dropdown.ListItem onClick={this.onActionSelected("copy")}>
@@ -278,7 +285,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
               </div>
             </div>
             <div className="p-show-post__action-col">
-              <VStack spacing={4}>
+              {/* <VStack spacing={4}>
                 <VotesPanel post={this.props.post} votes={this.props.votes} />
 
                 {Fider.session.isAuthenticated && canEditPost(Fider.session.user, this.props.post) && (
@@ -318,7 +325,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 <TagsPanel post={this.props.post} tags={this.props.tags} />
                 <NotificationsPanel post={this.props.post} subscribed={this.props.subscribed} />
                 <ModerationPanel post={this.props.post} />
-              </VStack>
+              </VStack> */}
               <PoweredByFider slot="show-post" className="mt-3" />
             </div>
           </div>

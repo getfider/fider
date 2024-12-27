@@ -3,26 +3,23 @@ import { PostStatus, Post } from "@fider/models"
 import { actions, navigator, Failure } from "@fider/services"
 import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
-import { VStack } from "@fider/components/layout"
 import { t, Trans } from "@lingui/macro"
 
 interface ModerationPanelProps {
   post: Post
+  showModal: boolean
+  onModalClose: () => void
 }
 
 export const ModerationPanel = (props: ModerationPanelProps) => {
   const fider = useFider()
-  const [showConfirmation, setShowConfirmation] = useState(false)
   const [text, setText] = useState("")
   const [error, setError] = useState<Failure>()
-
-  const hideModal = async () => setShowConfirmation(false)
-  const showModal = async () => setShowConfirmation(true)
 
   const handleDelete = async () => {
     const response = await actions.deletePost(props.post.number, text)
     if (response.ok) {
-      hideModal()
+      props.onModalClose()
       navigator.goHome()
     } else if (response.error) {
       setError(response.error)
@@ -35,7 +32,7 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
   }
 
   const modal = (
-    <Modal.Window isOpen={showConfirmation} onClose={hideModal} center={false} size="large">
+    <Modal.Window isOpen={props.showModal} onClose={props.onModalClose} center={false} size="large">
       <Modal.Content>
         <Form error={error}>
           <TextArea
@@ -57,22 +54,12 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
         <Button variant="danger" onClick={handleDelete}>
           <Trans id="action.delete">Delete</Trans>
         </Button>
-        <Button variant="tertiary" onClick={hideModal}>
+        <Button variant="tertiary" onClick={props.onModalClose}>
           <Trans id="action.cancel">Cancel</Trans>
         </Button>
       </Modal.Footer>
     </Modal.Window>
   )
 
-  return (
-    <VStack>
-      {modal}
-      <span className="text-category">
-        <Trans id="label.moderation">Moderation</Trans>
-      </span>
-      <Button disabled={fider.isReadOnly} variant="danger" size="small" className="w-full" onClick={showModal}>
-        <Trans id="action.delete">Delete</Trans>
-      </Button>
-    </VStack>
-  )
+  return modal
 }
