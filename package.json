@@ -4,8 +4,10 @@
   "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
+    "@lingui/core": "^3.13.3",
     "@lingui/react": "^3.13.3",
     "dompurify": "^2.3.6",
+    "make-plural": "^7.4.0",
     "marked": "^4.0.15",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -90,7 +92,8 @@
       "tr",
       "it",
       "zh-CN",
-      "el"
+      "el",
+      "ar"
     ]
   },
   "browserslist": ">1%, not dead",
