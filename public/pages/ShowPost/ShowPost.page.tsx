@@ -39,6 +39,8 @@ import { TagsPanel2 } from "./components/TagsPanel2"
 import { NotificationsPanel2 } from "./components/NotificationsPanel2"
 import { VoteSection } from "./components/VoteSection"
 import { ModerationPanel } from "./components/ModerationPanel"
+import { ResponseModal } from "./components/ResponseModal"
+import { MostWanted } from "./components/MostWanted"
 
 interface ShowPostPageProps {
   post: Post
@@ -53,6 +55,7 @@ interface ShowPostPageState {
   editMode: boolean
   newTitle: string
   showDeleteModal: boolean
+  showResponseModal: boolean
   attachments: ImageUpload[]
   newDescription: string
   highlightedComment?: number
@@ -75,6 +78,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     this.state = {
       editMode: false,
       showDeleteModal: false,
+      showResponseModal: false,
       newTitle: this.props.post.title,
       newDescription: this.props.post.description,
       attachments: [],
@@ -125,6 +129,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     this.setState({ showDeleteModal })
   }
 
+  private setShowResponseModal = (showResponseModal: boolean) => {
+    this.setState({ showResponseModal })
+  }
+
   private cancelEdit = async () => {
     this.setState({ error: undefined, editMode: false })
   }
@@ -167,7 +175,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     } else if (action === "delete") {
       this.setShowDeleteModal(true)
     } else if (action === "status") {
-      // actions.changeStatus(this.props.post.number, this.props.post.status)
+      this.setShowResponseModal(true)
     } else if (action === "edit") {
       this.startEdit()
     }
@@ -198,6 +206,9 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       )}
                     </div>
                     <ModerationPanel onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
+                    {Fider.session.user.isCollaborator && (
+                      <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
+                    )}
                     {!this.state.editMode && (
                       <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
                         <Dropdown.ListItem onClick={this.onActionSelected("copy")}>
@@ -235,6 +246,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       <NotificationsPanel2 post={this.props.post} subscribed={this.props.subscribed} />
                     </HStack>
                   )}
+                  <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
                   <VStack>
                     {this.state.editMode ? (
                       <Form error={this.state.error}>
@@ -276,7 +288,6 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   )}
 
                   <div className="purple-border" />
-                  <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
                 </VStack>
               </div>
 
@@ -285,47 +296,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
               </div>
             </div>
             <div className="p-show-post__action-col">
-              {/* <VStack spacing={4}>
-                <VotesPanel post={this.props.post} votes={this.props.votes} />
-
-                {Fider.session.isAuthenticated && canEditPost(Fider.session.user, this.props.post) && (
-                  <VStack>
-                    <span key={0} className="text-category">
-                      <Trans id="label.actions">Actions</Trans>
-                    </span>
-                    {this.state.editMode ? (
-                      <VStack>
-                        <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
-                          <Icon sprite={IconThumbsUp} />{" "}
-                          <span>
-                            <Trans id="action.save">Save</Trans>
-                          </span>
-                        </Button>
-                        <Button onClick={this.cancelEdit} disabled={Fider.isReadOnly}>
-                          <Icon sprite={IconX} />
-                          <span>
-                            <Trans id="action.cancel">Cancel</Trans>
-                          </span>
-                        </Button>
-                      </VStack>
-                    ) : (
-                      <VStack>
-                        <Button onClick={this.startEdit} disabled={Fider.isReadOnly}>
-                          <Icon sprite={IconPencilAlt} />
-                          <span>
-                            <Trans id="action.edit">Edit</Trans>
-                          </span>
-                        </Button>
-                        {Fider.session.user.isCollaborator && <ResponseForm post={this.props.post} />}
-                      </VStack>
-                    )}
-                  </VStack>
-                )}
-
-                <TagsPanel post={this.props.post} tags={this.props.tags} />
-                <NotificationsPanel post={this.props.post} subscribed={this.props.subscribed} />
-                <ModerationPanel post={this.props.post} />
-              </VStack> */}
+              <MostWanted />
               <PoweredByFider slot="show-post" className="mt-3" />
             </div>
           </div>

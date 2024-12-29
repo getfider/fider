@@ -25,8 +25,8 @@
   @include media("lg") {
     .p-show-post {
       display: grid;
-      gap: spacing(4);
-      grid-template-columns: 3fr 1fr;
+      gap: spacing(6);
+      grid-template-columns: 5fr 2fr;
       grid-template-rows: auto;
       grid-template-areas:
         "Main Action"
