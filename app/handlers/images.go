@@ -208,7 +208,7 @@ func ViewUploadedImage() web.HandlerFunc {
 
 // ValidateLogoUpload validates if logo upload is within allowed formats and size
 func ValidateLogoUpload(c *web.Context) error {
-	contentType := c.Request.Header.Get("Content-Type")
+	contentType := c.Request.GetHeader("Content-Type")
 	if contentType != "image/png" && contentType != "image/jpeg" && contentType != "image/gif" && contentType != "image/svg+xml" {
 		return c.BadRequest(web.Map{
 			"message": "File format not supported. Upload only JPG, GIF, PNG or SVG files.",
