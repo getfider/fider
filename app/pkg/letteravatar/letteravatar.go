@@ -7,7 +7,6 @@ import (
 	"image/draw"
 	"math"
 	"strings"
-	"unicode"
 
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
