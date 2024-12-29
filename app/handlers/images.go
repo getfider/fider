@@ -135,10 +135,17 @@ func Gravatar() web.HandlerFunc {
 			name = "?"
 		}
 
-		// Extract and draw letter avatar
-		extractedLetter := letteravatar.Extract(name)
+		// URL decode the name (matching LetterAvatar behavior)
+		decodedName, err := url.QueryUnescape(name)
+		if err != nil {
+			log.Error(c, err)
+			return c.Failure(err)
+		}
+
+		// Use the same mechanism as LetterAvatar
+		extractedLetter := letteravatar.Extract(decodedName)
 		img, err := letteravatar.Draw(size, extractedLetter, &letteravatar.Options{
-			PaletteKey: fmt.Sprintf("%d:%s", id, name),
+			PaletteKey: fmt.Sprintf("%s:%s", fmt.Sprint(id), decodedName),
 		})
 		if err != nil {
 			log.Error(c, err)
