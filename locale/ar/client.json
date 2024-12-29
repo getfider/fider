@@ -12,6 +12,7 @@
   "action.save": "حفظ",
   "action.signin": "تسجيل الدخول",
   "action.submit": "إرسال",
+  "email.new_comment.text": "علق على",
   "enum.poststatus.completed": "مكتمل",
   "enum.poststatus.declined": "مرفوض",
   "enum.poststatus.deleted": "محذوف",

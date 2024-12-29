@@ -17,10 +17,10 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/letteravatar"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/imagic"
-	"github.com/goenning/letteravatar"
 )
 
 // LetterAvatar returns a letter gravatar picture based on given name
@@ -38,7 +38,7 @@ func LetterAvatar() web.HandlerFunc {
 		}
 		size = between(size, 50, 200)
 
-		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{
+		img, err := letteravatar.Draw(size, letteravatar.Extract(name), &letteravatar.Options{
 			PaletteKey: fmt.Sprintf("%s:%s", id, name),
 		})
 		if err != nil {
