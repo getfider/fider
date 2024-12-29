@@ -1,45 +1,45 @@
-version: "3"
 services:
-  smtp:
-    image: mailhog/mailhog:latest
+  # PostgreSQL Database Service
+  db:
+    image: postgres:14
+    container_name: fider_db
     restart: always
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-  pgdev:
-    container_name: fider_pgdev
-    restart: always
-    image: postgres:12
     volumes:
-      - pgdev-data:/var/lib/postgresql/data
-    ports:
-      - "5555:5432"
+      - /var/fider/pg_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: fider
-      POSTGRES_PASSWORD: fider_pw
-  pgtest:
-    container_name: fider_pgtest
+      POSTGRES_PASSWORD: s0m3g00dp4ssw0rd
+
+  # Fider Application Service (custom fork)
+  app:
+    # Instead of using the public image, we build from your local Dockerfile
+    build: .
+    container_name: fider_app
+    depends_on:
+      - db
     restart: always
-    image: postgres:12
     ports:
-      - "5566:5432"
+      - "3001:3000"  # Access the app on http://<server-ip>:3001
     environment:
-      POSTGRES_USER: fider_test
-      POSTGRES_PASSWORD: fider_test_pw
-  s3test:
-    container_name: fider_s3test
-    restart: always
-    image: minio/minio:RELEASE.2021-07-27T02-40-15Z
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - s3test-data:/data
-    environment:
-      MINIO_ACCESS_KEY: s3user
-      MINIO_SECRET_KEY: s3user-s3cr3t
-    command: server /data --console-address ":9001"
+      # Replace with your actual domain/IP and port (if necessary)
+      BASE_URL: http://localhost:3001
+
+      # Postgres connection string
+      DATABASE_URL: postgres://fider:s0m3g00dp4ssw0rd@db:5432/fider?sslmode=disable
+
+      # Change this to a secure JWT secret
+      JWT_SECRET: a0d1d154cddbe359b11eda6043a3917faa0e986daeee4d7fd026c9f6be96bcaa7
+
+      # "From" address for all outgoing emails
+      EMAIL_NOREPLY: noreply@bassel.art
+
+      # Mailgun environment variables (if you’re using Mailgun)
+      EMAIL_MAILGUN_API: 19012a9047dfd7ec81a3817c3751ac07-2e68d0fb-ed161485
+      EMAIL_MAILGUN_DOMAIN: bassel.art
+      EMAIL_MAILGUN_REGION: US
+
+      # Set the default locale to Arabic, if desired
+      DEFAULT_LOCALE: ar
 
 volumes:
-  pgdev-data:
-  s3test-data:
+  pg_data:

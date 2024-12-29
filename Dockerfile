@@ -34,8 +34,10 @@ RUN make build-ui
 ################
 FROM --platform=${TARGETPLATFORM:-linux/amd64} debian:bookworm-slim
 
-RUN apt-get update
-RUN apt-get install -y ca-certificates
+RUN apt-get update && \
+    apt-get install -y ca-certificates fonts-liberation && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

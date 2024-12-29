@@ -205,3 +205,21 @@ func ViewUploadedImage() web.HandlerFunc {
 		return c.Image(q.Result.ContentType, bytes)
 	}
 }
+
+// ValidateLogoUpload validates if logo upload is within allowed formats and size
+func ValidateLogoUpload(c *web.Context) error {
+	contentType := c.Request.Header.Get("Content-Type")
+	if contentType != "image/png" && contentType != "image/jpeg" && contentType != "image/gif" && contentType != "image/svg+xml" {
+		return c.BadRequest(web.Map{
+			"message": "File format not supported. Upload only JPG, GIF, PNG or SVG files.",
+		})
+	}
+
+	if c.Request.ContentLength > 100*1024 {
+		return c.BadRequest(web.Map{
+			"message": "File size is too large. Maximum allowed size is 100KB.",
+		})
+	}
+
+	return nil
+}

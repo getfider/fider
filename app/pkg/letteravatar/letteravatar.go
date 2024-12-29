@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 	"math"
+	"os"
 	"strings"
 	"unicode/utf8"
 
@@ -50,8 +51,14 @@ func Draw(size int, text string, opts *Options) (image.Image, error) {
 	// Draw the background
 	draw.Draw(img, img.Bounds(), &image.Uniform{bg}, image.Point{}, draw.Src)
 
-	// Use the built-in Go font for now
-	f, err := truetype.Parse(goregular.TTF)
+	// Try to load Arial font first
+	fontBytes, err := os.ReadFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf")
+	if err != nil {
+		// Fallback to built-in Go font if Arial is not available
+		fontBytes = goregular.TTF
+	}
+
+	f, err := truetype.Parse(fontBytes)
 	if err != nil {
 		return nil, err
 	}
