@@ -62,10 +62,11 @@ func Extract(name string) string {
 
 	// Check if it's an Arabic letter and convert if needed
 	if englishLetter, ok := arabicToEnglish[r]; ok {
-		return englishLetter
+		return englishLetter // Already uppercase in the map
 	}
 
-	return string(r)
+	// For non-Arabic letters, convert to uppercase
+	return strings.ToUpper(string(r))
 }
 
 // Draw generates a letter avatar image with the given size and text
