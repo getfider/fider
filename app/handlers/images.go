@@ -135,11 +135,24 @@ func Gravatar() web.HandlerFunc {
 			name = "?"
 		}
 
-		// Call LetterAvatar handler directly with the name
-		return LetterAvatar()(web.NewContext(c.Request, c.Response, c.Engine(), web.Map{
-			"id":   fmt.Sprint(id),
-			"name": name,
-		}))
+		// Extract and draw letter avatar
+		extractedLetter := letteravatar.Extract(name)
+		img, err := letteravatar.Draw(size, extractedLetter, &letteravatar.Options{
+			PaletteKey: fmt.Sprintf("%d:%s", id, name),
+		})
+		if err != nil {
+			log.Error(c, err)
+			return c.Failure(err)
+		}
+
+		buf := new(bytes.Buffer)
+		err = png.Encode(buf, img)
+		if err != nil {
+			log.Error(c, err)
+			return c.Failure(err)
+		}
+
+		return c.Image("image/png", buf.Bytes())
 	}
 }
 
