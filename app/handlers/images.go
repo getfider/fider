@@ -85,7 +85,7 @@ func Gravatar() web.HandlerFunc {
 
 		size = between(size, 50, 200)
 
-		if err == nil && id > 0 {
+		if id > 0 {
 			userByID := &query.GetUserByID{UserID: id}
 			err := bus.Dispatch(c, userByID)
 			if err == nil && userByID.Result.Tenant.ID == c.Tenant().ID {
@@ -120,7 +120,22 @@ func Gravatar() web.HandlerFunc {
 			}
 		}
 
-		return LetterAvatar()(c)
+		// Fallback to letter avatar if:
+		// 1. User ID is invalid
+		// 2. User not found
+		// 3. User has no email
+		// 4. Gravatar not found
+		name := c.QueryParam("name")
+		if name == "" && userByID != nil && userByID.Result != nil {
+			name = userByID.Result.Name
+		}
+		if name == "" {
+			name = "?"
+		}
+
+		// Create a new context with the name parameter for LetterAvatar
+		letterContext := c.WithParam("name", name)
+		return LetterAvatar()(letterContext)
 	}
 }
 
