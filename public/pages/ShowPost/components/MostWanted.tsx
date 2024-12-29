@@ -22,7 +22,9 @@ export const MostWanted = () => {
           <div key={post.id} className="pt-1">
             <span className="text-medium">{post.title}</span>
             <div className="pt-1 flex">
-              <span className="text-muted" style={{ width: "150px" }}>{post.commentsCount} comments</span>
+              <span className="text-muted" style={{ width: "150px" }}>
+                {post.commentsCount} comments
+              </span>
               <span className="text-muted">{post.votesCount} votes</span>
             </div>
           </div>

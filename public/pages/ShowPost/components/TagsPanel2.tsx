@@ -68,7 +68,6 @@ export const TagsPanel2 = (props: TagsPanelProps) => {
     </VStack>
   )
 
-
   if (fider.isReadOnly) {
     return (
       <VStack>
