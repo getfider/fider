@@ -1,7 +1,6 @@
 package letteravatar
 
 import (
-	"embed"
 	"image"
 	"image/color"
 	"image/draw"
@@ -12,10 +11,8 @@ import (
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
+	"golang.org/x/image/font/gofont/goregular"
 )
-
-//go:embed fonts
-var fonts embed.FS
 
 // Options contains the options for letter avatar generation
 type Options struct {
@@ -53,13 +50,8 @@ func Draw(size int, text string, opts *Options) (image.Image, error) {
 	// Draw the background
 	draw.Draw(img, img.Bounds(), &image.Uniform{bg}, image.Point{}, draw.Src)
 
-	// Load the font
-	fontBytes, err := fonts.ReadFile("fonts/IBMPlexSansArabic-Regular.ttf")
-	if err != nil {
-		return nil, err
-	}
-
-	f, err := truetype.Parse(fontBytes)
+	// Use the built-in Go font for now
+	f, err := truetype.Parse(goregular.TTF)
 	if err != nil {
 		return nil, err
 	}

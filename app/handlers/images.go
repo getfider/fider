@@ -34,25 +34,32 @@ func LetterAvatar() web.HandlerFunc {
 		// URL decode the name
 		decodedName, err := url.QueryUnescape(name)
 		if err != nil {
+			log.Error(c, err)
 			return c.Failure(err)
 		}
 
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
+			log.Error(c, err)
 			return c.BadRequest(web.Map{})
 		}
 		size = between(size, 50, 200)
 
-		img, err := letteravatar.Draw(size, letteravatar.Extract(decodedName), &letteravatar.Options{
+		extractedLetter := letteravatar.Extract(decodedName)
+		log.Debugf(c, "Generating letter avatar for name '%s', extracted letter: '%s'", decodedName, extractedLetter)
+
+		img, err := letteravatar.Draw(size, extractedLetter, &letteravatar.Options{
 			PaletteKey: fmt.Sprintf("%s:%s", id, decodedName),
 		})
 		if err != nil {
+			log.Error(c, err)
 			return c.Failure(err)
 		}
 
 		buf := new(bytes.Buffer)
 		err = png.Encode(buf, img)
 		if err != nil {
+			log.Error(c, err)
 			return c.Failure(err)
 		}
 
