@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"image/draw"
 	"math"
-	"os"
 	"strings"
 	"unicode/utf8"
 
@@ -14,6 +13,30 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/goregular"
 )
+
+var arabicToEnglish = map[rune]string{
+	// Alif variations
+	'ا': "A", 'أ': "A", 'إ': "A", 'آ': "A",
+	
+	// Grouped letters
+	'ب': "B",
+	'ت': "T", 'ث': "T",
+	'ج': "G", 'ح': "H", 'خ': "K",
+	'د': "D", 'ذ': "T",
+	'ر': "R", 'ز': "Z",
+	'س': "S", 'ش': "S",
+	'ص': "S", 'ض': "D",
+	'ط': "T", 'ظ': "D",
+	'ع': "A", 'غ': "G",
+	'ف': "F",
+	'ق': "Q", 'ك': "Q",
+	'ل': "L",
+	'م': "M",
+	'ن': "N",
+	'ه': "H",
+	'و': "W",
+	'ي': "Y",
+}
 
 // Options contains the options for letter avatar generation
 type Options struct {
@@ -37,6 +60,11 @@ func Extract(name string) string {
 		return "?"
 	}
 
+	// Check if it's an Arabic letter and convert if needed
+	if englishLetter, ok := arabicToEnglish[r]; ok {
+		return englishLetter
+	}
+
 	return string(r)
 }
 
@@ -51,14 +79,8 @@ func Draw(size int, text string, opts *Options) (image.Image, error) {
 	// Draw the background
 	draw.Draw(img, img.Bounds(), &image.Uniform{bg}, image.Point{}, draw.Src)
 
-	// Try to load Arial font first
-	fontBytes, err := os.ReadFile("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf")
-	if err != nil {
-		// Fallback to built-in Go font if Arial is not available
-		fontBytes = goregular.TTF
-	}
-
-	f, err := truetype.Parse(fontBytes)
+	// Use the built-in Go font
+	f, err := truetype.Parse(goregular.TTF)
 	if err != nil {
 		return nil, err
 	}
