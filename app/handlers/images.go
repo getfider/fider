@@ -46,7 +46,10 @@ func LetterAvatar() web.HandlerFunc {
 		size = between(size, 50, 200)
 
 		extractedLetter := letteravatar.Extract(decodedName)
-		log.Debugf(c, "Generating letter avatar for name '%s', extracted letter: '%s'", decodedName, extractedLetter)
+		log.Debugf(c, "Generating letter avatar. Name: @{Name}, Letter: @{Letter}", dto.Props{
+			"Name":   decodedName,
+			"Letter": extractedLetter,
+		})
 
 		img, err := letteravatar.Draw(size, extractedLetter, &letteravatar.Options{
 			PaletteKey: fmt.Sprintf("%s:%s", id, decodedName),
