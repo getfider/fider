@@ -135,9 +135,11 @@ func Gravatar() web.HandlerFunc {
 			name = "?"
 		}
 
-		// Create a new context for LetterAvatar
-		c.SetParam("name", name)
-		return LetterAvatar()(c)
+		// Call LetterAvatar handler directly with the name
+		return LetterAvatar()(web.NewContext(c.Request, c.Response, c.Engine(), web.Map{
+			"id":   fmt.Sprint(id),
+			"name": name,
+		}))
 	}
 }
 
