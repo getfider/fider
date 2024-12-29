@@ -7,6 +7,7 @@ import (
 	"image/draw"
 	"math"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
@@ -32,13 +33,13 @@ func Extract(name string) string {
 		return "?"
 	}
 
-	firstWord := []rune(words[0])
-	if len(firstWord) == 0 {
+	// Get first rune from first word
+	r, _ := utf8.DecodeRuneInString(words[0])
+	if r == utf8.RuneError {
 		return "?"
 	}
 
-	firstLetter := string(firstWord[0])
-	return firstLetter
+	return string(r)
 }
 
 // Draw generates a letter avatar image with the given size and text

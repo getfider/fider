@@ -6,14 +6,13 @@ import (
 	"image/color"
 	"image/png"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
-
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/query"
-
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
@@ -32,14 +31,20 @@ func LetterAvatar() web.HandlerFunc {
 			name = "?"
 		}
 
+		// URL decode the name
+		decodedName, err := url.QueryUnescape(name)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
 			return c.BadRequest(web.Map{})
 		}
 		size = between(size, 50, 200)
 
-		img, err := letteravatar.Draw(size, letteravatar.Extract(name), &letteravatar.Options{
-			PaletteKey: fmt.Sprintf("%s:%s", id, name),
+		img, err := letteravatar.Draw(size, letteravatar.Extract(decodedName), &letteravatar.Options{
+			PaletteKey: fmt.Sprintf("%s:%s", id, decodedName),
 		})
 		if err != nil {
 			return c.Failure(err)
