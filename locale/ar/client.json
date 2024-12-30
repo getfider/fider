@@ -165,5 +165,9 @@
   "modal.signin.message.facebook": "انقر فوق الزر أدناه للمتابعة.",
   "modal.signin.message.google": "انقر فوق الزر أدناه للمتابعة.",
   "modal.notifications.nonew": "لا توجد إشعارات جديدة",
-  "modal.signin.title": "تسجيل الدخول"
+  "modal.signin.title": "تسجيل الدخول",
+  "notification.comment": "ترك تعليقاً على",
+  "notification.post": "منشور جديد",
+  "notification.status.changed": "تم تغيير حالة",
+  "notification.status.to": "إلى"
 }
