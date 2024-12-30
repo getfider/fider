@@ -164,5 +164,6 @@
   "modal.notifications.nonew": "لا توجد إشعارات جديدة",
   "modal.signin.title": "تسجيل الدخول",
   "notification.status.changed": "تم تغيير حالة",
-  "notification.status.to": "إلى"
+  "notification.status.to": "إلى",
+  "home.similar.noposts": "لم يتم العثور على منشورات مشابهة لـ '{title}'."
 }
