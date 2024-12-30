@@ -27,7 +27,7 @@ export const UserName = (props: UserNameProps) => {
       <>{props.showEmail && props.user.email && <span className="c-username--email">({props.user.email})</span>}</>
 
       {isStaff && (
-        <div data-tooltip={isStaff ? "Staff" : undefined}>
+        <div data-tooltip={isStaff ? "مشرف" : undefined}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path
               fillRule="evenodd"

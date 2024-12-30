@@ -25,7 +25,7 @@ func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 		}
 
 		author := c.User()
-		title := fmt.Sprintf("**%s** left a comment on **%s**", author.Name, post.Title)
+		title := fmt.Sprintf("**%s** %s **%s**", author.Name, i18n.T(c, "notification.leftcomment"), post.Title)
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != author.ID {
