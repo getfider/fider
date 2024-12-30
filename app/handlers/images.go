@@ -43,7 +43,7 @@ func LetterAvatar() web.HandlerFunc {
 			log.Error(c, err)
 			return c.BadRequest(web.Map{})
 		}
-		size = between(size, 50, 200)
+		size = between(size, 50, 1000)
 
 		extractedLetter := letteravatar.Extract(decodedName)
 		log.Debugf(c, "Generating letter avatar. Name: @{Name}, Letter: @{Letter}", dto.Props{
