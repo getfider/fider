@@ -163,11 +163,6 @@
   "modal.signin.message.google": "انقر فوق الزر أدناه للمتابعة.",
   "modal.notifications.nonew": "لا توجد إشعارات جديدة",
   "modal.signin.title": "تسجيل الدخول",
-  "notification.comment": "ترك تعليقاً على",
-  "notification.post": "منشور جديد",
   "notification.status.changed": "تم تغيير حالة",
-  "notification.status.to": "إلى",
-  "email.subscription.view": "عرض المنشور",
-  "email.subscription.unsubscribe": "إلغاء الاشتراك",
-  "email.subscription.change": "تغيير الاشتراك"
+  "notification.status.to": "إلى"
 }

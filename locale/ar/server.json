@@ -58,5 +58,7 @@
   "email.signup_email.confirmation": "من خلال الرابط أدناه يمكنك التحقق من عنوان بريدك الإلكتروني وإكمال عملية التفعيل.",
   "email.footer.subscription_notice": "أنت تتلقى هذا البريد الإلكتروني لأنك مشترك في هذا المنشور. يمكنك {view}، {unsubscribe} أو {change}.",
   "email.footer.subscription_notice2": "أنت تتلقى هذا البريد الإلكتروني لأنك مشترك في هذا المنشور. يمكنك {change}.",
-  "email.footer.subscription_notice3": "أنت تتلقى هذا البريد الإلكتروني لأنك مشترك في هذا المنشور. يمكنك {view} أو {change}."
+  "email.footer.subscription_notice3": "أنت تتلقى هذا البريد الإلكتروني لأنك مشترك في هذا المنشور. يمكنك {view} أو {change}.",
+  "notification.comment": "ترك تعليقاً على",
+  "notification.post": "منشور جديد"
 }
