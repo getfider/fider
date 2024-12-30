@@ -13,6 +13,6 @@ interface AvatarProps {
 }
 
 export const Avatar = (props: AvatarProps) => {
-  const size = props.size === "small" ? "h-6 w-6" : "h-8 w-8"
-  return <img className={`c-avatar ${size}`} alt={props.user.name} src={`${props.user.avatarURL}?size=50`} />
+  const size = props.size === "small" ? "h-6 w-6" : "h-9 w-9"
+  return <img className={`c-avatar ${size}`} alt={props.user.name} src={`${props.user.avatarURL}?size=100`} />
 }

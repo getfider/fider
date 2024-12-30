@@ -3,7 +3,7 @@ import { uploadedImageURL } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import { Tenant } from "@fider/models"
 
-type Size = 24 | 50 | 100 | 200
+type Size = 24 | 50 | 100 | 200 | 1000
 
 interface TenantLogoProps {
   size: Size
