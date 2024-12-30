@@ -13,7 +13,7 @@ interface ReactionsProps {
   reactions?: ReactionCount[]
 }
 
-const availableEmojis = ["👍", "👎", "😄", "🎉", "😕", "❤️", "🚀", "👀"]
+const availableEmojis = ["👍", "👎", "🎉", "❤️", "🚀", "👀"]
 
 export const Reactions: React.FC<ReactionsProps> = ({ emojiSelectorRef, toggleReaction, reactions }) => {
   const fider = useFider()
