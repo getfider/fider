@@ -126,8 +126,6 @@
   "mysettings.notification.title": "استخدم اللوحة التالية لاختيار الأحداث التي ترغب في تلقي إشعارات عنها",
   "mysettings.page.subtitle": "إدارة إعدادات ملفك الشخصي",
   "mysettings.page.title": "الإعدادات",
-  "notification.leftcomment": "ترك تعليقاً على",
-  "notification.newpost": "منشور جديد",
   "page.backhome": "أعدني إلى <0>{0}</0> الصفحة الرئيسية.",
   "page.notinvited.text": "لم نتمكن من العثور على حساب لبريدك الإلكتروني.",
   "page.notinvited.title": "غير مدعو",
@@ -168,5 +166,8 @@
   "notification.comment": "ترك تعليقاً على",
   "notification.post": "منشور جديد",
   "notification.status.changed": "تم تغيير حالة",
-  "notification.status.to": "إلى"
+  "notification.status.to": "إلى",
+  "email.subscription.view": "عرض المنشور",
+  "email.subscription.unsubscribe": "إلغاء الاشتراك",
+  "email.subscription.change": "تغيير الاشتراك"
 }
