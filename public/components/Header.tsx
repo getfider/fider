@@ -18,10 +18,10 @@ export const Header = () => {
   return (
     <div id="c-header" className="bg-white">
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <HStack className="c-menu shadow p-4 w-full">
+      <HStack className="c-menu shadow p-2 w-full">
         <div className="container">
           <HStack justify="between">
-            <a href="/" className="flex flex-x flex-items-center flex--spacing-2">
+            <a href="/" className="logo flex flex-x flex-items-center flex--spacing-2">
               <TenantLogo size={1000} />
               <h1 className="text-header">{fider.session.tenant.name}</h1>
             </a>
