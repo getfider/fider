@@ -192,7 +192,7 @@ func Favicon() web.HandlerFunc {
 
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
-			return c.BadRequest(web.Map{})
+			size = 64 // Default size if not provided or invalid
 		}
 
 		size = between(size, 50, 1000)
