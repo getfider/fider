@@ -30,7 +30,7 @@ const CompleteSignInProfilePage = (props: CompleteSignInProfilePageProps) => {
       <div id="p-complete-profile" className="page container w-max-6xl">
         <div>
           <div className="h-20 text-center mb-4">
-            <TenantLogo size={100} />
+            <TenantLogo size={1000} />
           </div>
 
           <p className="text-title">

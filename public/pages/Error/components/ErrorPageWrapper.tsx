@@ -18,7 +18,7 @@ export const ErrorPageWrapper = (props: ErrorPageWrapperProps) => {
       <div id={props.id} className="container page">
         <div className="w-max-7xl mx-auto text-center mt-8">
           <div className="h-20 mb-4">
-            <TenantLogo size={100} useFiderIfEmpty={true} />
+            <TenantLogo size={1000} useFiderIfEmpty={true} />
           </div>
           {props.children}
           {props.showHomeLink && fider.session.tenant && (

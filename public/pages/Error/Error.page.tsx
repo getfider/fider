@@ -15,7 +15,7 @@ export const ErrorPage = (props: ErrorPageProps) => {
     <div id="p-error" className="container page">
       <div className="w-max-7xl mx-auto">
         <div className="h-20 text-center mb-4">
-          <TenantLogo size={100} useFiderIfEmpty={true} />
+          <TenantLogo size={1000} useFiderIfEmpty={true} />
         </div>
         <h1 className="text-display">Shoot! Well, this is unexpected…</h1>
         <p>An error has occurred and we&apos;re working to fix the problem!</p>

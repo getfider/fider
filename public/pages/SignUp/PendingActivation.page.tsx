@@ -7,7 +7,7 @@ const PendingActivation = () => {
     <div id="p-notinvited" className="container page">
       <div className="w-max-7xl mx-auto text-center mt-8">
         <div className="h-20 mb-4">
-          <TenantLogo size={100} useFiderIfEmpty={true} />
+          <TenantLogo size={1000} useFiderIfEmpty={true} />
         </div>
         <h1 className="text-display uppercase">
           <Trans id="page.pendingactivation.title">Your account is pending activation</Trans>

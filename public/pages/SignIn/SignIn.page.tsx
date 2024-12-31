@@ -48,7 +48,7 @@ export const SignInPage = () => {
   return (
     <div id="p-signin" className="page container w-max-6xl">
       <div className="h-20 text-center mb-4">
-        <TenantLogo size={100} />
+        <TenantLogo size={1000} />
       </div>
       <div className="text-center w-max-4xl mx-auto mb-4">{fider.session.tenant.isPrivate ? <Private /> : <Locked />}</div>
 
