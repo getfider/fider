@@ -30,7 +30,7 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 		}
 
 		author := c.User()
-		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", author.Name, post.Title, post.Status.Name())
+		title := fmt.Sprintf("**%s** غير حالة **%s** إلى **%s**", author.Name, post.Title, i18n.T(c, fmt.Sprintf("enum.poststatus.%s", post.Status.Name())))
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != author.ID {
