@@ -20,7 +20,6 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/imagic"
-	"github.com/pkg/errors"
 )
 
 // LetterAvatar returns a letter gravatar picture based on given name
@@ -183,24 +182,23 @@ func Favicon() web.HandlerFunc {
 			bytes = q.Result.Content
 			contentType = q.Result.ContentType
 		} else {
-			//bytes, err = os.ReadFile(env.Path("favicon.png"))
-			bytes, err = os.ReadFile(env.Path("public/assets/images/fav.png"))
+			bytes, err = os.ReadFile(env.Path("favicon.png"))
 			contentType = "image/png"
 			if err != nil {
-				log.Error(c, errors.Wrap(err, "failed to read favicon file"))
 				return c.Failure(err)
 			}
 		}
 
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
-			size = 64 // Default size if not provided or invalid
+			return c.BadRequest(web.Map{})
 		}
 
-		size = between(size, 50, 1000)
+		size = between(size, 50, 200)
 
 		opts := []imagic.ImageOperation{}
 		if size > 0 {
+			opts = append(opts, imagic.Padding(size*10/100))
 			opts = append(opts, imagic.Resize(size))
 		}
 
@@ -210,7 +208,6 @@ func Favicon() web.HandlerFunc {
 
 		bytes, err = imagic.Apply(bytes, opts...)
 		if err != nil {
-			log.Error(c, errors.Wrap(err, "failed to process favicon image"))
 			return c.Failure(err)
 		}
 

@@ -176,8 +176,11 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 		r.chunkedAssets[pageChunkName],
 	}
 
-	// Always use the local favicon file
-	private["favicon"] = AssetsURL(ctx, "/static/favicon")
+	if tenant == nil || tenant.LogoBlobKey == "" {
+		private["favicon"] = AssetsURL(ctx, "/static/favicon")
+	} else {
+		private["favicon"] = AssetsURL(ctx, "/static/favicon/%s", tenant.LogoBlobKey)
+	}
 
 	private["currentURL"] = ctx.Request.URL.String()
 	if canonicalURL := ctx.Value("Canonical-URL"); canonicalURL != nil {
