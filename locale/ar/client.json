@@ -88,7 +88,7 @@
   "modal.notifications.unread": "الإشعارات غير المقروءة",
   "modal.showvotes.message.zeromatches": "لم يتم العثور على مستخدمين مطابقين لـ <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "ابحث عن المستخدمين بالاسم...",
-  "modal.signin.header": "تسجيل الدخول للمساهمة والتصويت",
+  "modal.signin.header": "سجل الدخول لتتمكن من المساهمة والتصويت",
   "mynotifications.label.readrecently": "تمت قراءتها في آخر 30 يوم.",
   "mynotifications.message.nounread": "لا توجد إشعارات غير مقروءة.",
   "mynotifications.page.subtitle": "ابق على اطلاع بما يحدث",
