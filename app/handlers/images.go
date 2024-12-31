@@ -195,7 +195,7 @@ func Favicon() web.HandlerFunc {
 			return c.BadRequest(web.Map{})
 		}
 
-		size = between(size, 50, 200)
+		size = between(size, 50, 1000)
 
 		opts := []imagic.ImageOperation{}
 		if size > 0 {
