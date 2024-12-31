@@ -198,8 +198,8 @@ func Favicon() web.HandlerFunc {
 
 		opts := []imagic.ImageOperation{}
 		if size > 0 {
+			opts = append(opts, imagic.Padding(size*10/100))
 			opts = append(opts, imagic.Resize(size))
-			opts = append(opts, imagic.Fit())
 		}
 
 		if c.QueryParam("bg") != "" {
