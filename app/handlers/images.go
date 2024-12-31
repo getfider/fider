@@ -182,7 +182,8 @@ func Favicon() web.HandlerFunc {
 			bytes = q.Result.Content
 			contentType = q.Result.ContentType
 		} else {
-			bytes, err = os.ReadFile(env.Path("favicon.png"))
+			//bytes, err = os.ReadFile(env.Path("favicon.png"))
+			bytes, err = os.ReadFile(env.Path("public/assets/images/fav.png"))
 			contentType = "image/png"
 			if err != nil {
 				return c.Failure(err)
@@ -198,7 +199,6 @@ func Favicon() web.HandlerFunc {
 
 		opts := []imagic.ImageOperation{}
 		if size > 0 {
-			opts = append(opts, imagic.Padding(size*10/100))
 			opts = append(opts, imagic.Resize(size))
 		}
 
