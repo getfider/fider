@@ -6,6 +6,16 @@ body:
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<style>
+			body {
+				font-family: 'Arial', sans-serif;
+				direction: rtl; /* Ensures RTL styling */
+				text-align: right; /* Aligns text to the right */
+			}
+			table {
+				text-align: right; /* Ensures table text aligns to the right */
+			}
+		</style>
 	</head>
 	<body bgcolor="#F7F7F7" style="font-size:18px">
 		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:18px;">
@@ -24,7 +34,7 @@ body:
 			{{ end }}
 			<tr>
 				<td align="center">
-					<table bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;min-width:320px;max-width:660px;">
+					<table bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;min-width:320px;max-width:660px; direction: rtl;">
 						{{block "body" .}}{{end}}
 					</table>
 				</td>
@@ -32,7 +42,7 @@ body:
 			{{ if .noreply }}
 			<tr>
 				<td>
-					<span style="color:#666;font-size:12px">{{ "email.footer.noreply" | translate }}</span>
+					<span style="color:#666;font-size:12px;direction: rtl;">{{ "email.footer.noreply" | translate }}</span>
 				</td>
 			</tr>
 			{{ end }}
