@@ -110,7 +110,7 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 			}
 
 			if logo.Height > MaxDimensionSize && logo.Width > MaxDimensionSize {
-				newImageBytes, err := imagic.Apply(upload.Upload.Content, imagic.FitToWidth(MaxDimensionSize))
+				newImageBytes, err := imagic.Apply(upload.Upload.Content, imagic.Resize(MaxDimensionSize))
 				if err != nil {
 					return nil, err
 				}

@@ -201,7 +201,7 @@ func Favicon() web.HandlerFunc {
 
 		opts := []imagic.ImageOperation{}
 		if size > 0 {
-			opts = append(opts, imagic.FitToWidth(size))
+			opts = append(opts, imagic.Resize(size))
 		}
 
 		if c.QueryParam("bg") != "" {
@@ -238,7 +238,7 @@ func ViewUploadedImage() web.HandlerFunc {
 
 		bytes := q.Result.Content
 		if size > 0 {
-			bytes, err = imagic.Apply(bytes, imagic.FitToWidth(size))
+			bytes, err = imagic.Apply(bytes, imagic.Resize(size))
 			if err != nil {
 				return c.Failure(err)
 			}

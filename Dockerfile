@@ -11,6 +11,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . ./
+RUN go mod tidy
 
 ARG COMMITHASH
 RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
