@@ -22,7 +22,7 @@
   "enum.poststatus.started": "بدأ العمل",
   "error.expired.text": "الرابط الذي نقرت عليه قد انتهت صلاحيته.",
   "error.expired.title": "منتهي الصلاحية",
-  "error.forbidden.text": "أنت غير مخول لعرض هذه الصفحة.",
+  "error.forbidden.text": "أنت غير مخول لعرض هذه الصفحة، قد يكون حسابك محظور.",
   "error.forbidden.title": "ممنوع",
   "error.internalerror.text": "حدث خطأ ونحن نعمل على إصلاح المشكلة! سنكون في الخدمة قريباً.",
   "error.internalerror.title": "عفواً! هذا غير متوقع...",
