@@ -11,6 +11,7 @@ pre:last-child {
 
 .text-large {
   font-size: get("font.size.2xl");
+  color: get("colors.gray.900");
   font-weight: get("font.weight.bold");
   letter-spacing: -1px;
 }
@@ -28,21 +29,25 @@ pre:last-child {
 
 .text-header {
   font-size: get("font.size.xl");
+  color: get("colors.gray.900");
   font-weight: get("font.weight.medium");
 }
 
 .text-title {
   font-size: get("font.size.lg");
+  color: get("colors.gray.900");
   font-weight: get("font.weight.medium");
 }
 
 .text-subtitle {
   font-size: get("font.size.base");
+  color: get("colors.gray.900");
   font-weight: get("font.weight.medium");
 }
 
 .text-body {
   font-size: get("font.size.base");
+  color: get("colors.gray.700");
 }
 
 .text-sm {
