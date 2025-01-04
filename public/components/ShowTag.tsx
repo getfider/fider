@@ -34,6 +34,16 @@ export const ShowTag = (props: TagProps) => {
     "c-tag--circular": props.circular === true,
   })
 
+  const darkenColor = (color: string) => {
+    const components = getRGB(color)
+    const darkerR = Math.floor(components.R * 0.8)
+    const darkerG = Math.floor(components.G * 0.8)
+    const darkerB = Math.floor(components.B * 0.8)
+    return `${darkerR.toString(16).padStart(2, "0")}${darkerG.toString(16).padStart(2, "0")}${darkerB.toString(16).padStart(2, "0")}`
+  }
+
+  const darkerColor = darkenColor(props.tag.color)
+
   return (
     <a
       href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : undefined}
@@ -41,6 +51,7 @@ export const ShowTag = (props: TagProps) => {
       className={className}
       style={{
         backgroundColor: `#${props.tag.color}`,
+        border: `1px solid #${darkerColor}`,
         color: textColor(props.tag.color),
       }}
     >

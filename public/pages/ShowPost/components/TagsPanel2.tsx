@@ -52,7 +52,12 @@ export const TagsPanel2 = (props: TagsPanelProps) => {
       {assignedTags.length > 0 && assignedTags.map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
       <HStack spacing={1} center={true} className="clickable" onClick={onSubtitleClick}>
         <Icon sprite={IconPlusCircle} className="h-5 text-primary" />
-        <span>Edit Tags</span>
+
+        {assignedTags.length === 0 && (
+          <span>
+            <Trans id="label.tags">Tags</Trans>
+          </span>
+        )}
       </HStack>
     </HStack>
   )

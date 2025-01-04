@@ -246,7 +246,6 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       <NotificationsPanel2 post={this.props.post} subscribed={this.props.subscribed} />
                     </HStack>
                   )}
-                  <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
                   <VStack>
                     {this.state.editMode ? (
                       <Form error={this.state.error}>
@@ -267,27 +266,29 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       </>
                     )}
                   </VStack>
+                  <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
 
-                  {!this.state.editMode ? (
-                    <VoteSection post={this.props.post} votes={this.props.votes} />
-                  ) : (
-                    <HStack>
-                      <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
-                        <Icon sprite={IconThumbsUp} />{" "}
-                        <span>
-                          <Trans id="action.save">Save</Trans>
-                        </span>
-                      </Button>
-                      <Button onClick={this.cancelEdit} disabled={Fider.isReadOnly}>
-                        <Icon sprite={IconX} />
-                        <span>
-                          <Trans id="action.cancel">Cancel</Trans>
-                        </span>
-                      </Button>
-                    </HStack>
-                  )}
-
-                  <div className="purple-border" />
+                  <VStack spacing={4}>
+                    {!this.state.editMode ? (
+                      <VoteSection post={this.props.post} votes={this.props.votes} />
+                    ) : (
+                      <HStack>
+                        <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
+                          <Icon sprite={IconThumbsUp} />{" "}
+                          <span>
+                            <Trans id="action.save">Save</Trans>
+                          </span>
+                        </Button>
+                        <Button onClick={this.cancelEdit} disabled={Fider.isReadOnly}>
+                          <Icon sprite={IconX} />
+                          <span>
+                            <Trans id="action.cancel">Cancel</Trans>
+                          </span>
+                        </Button>
+                      </HStack>
+                    )}
+                    <div className="purple-border" />
+                  </VStack>
                 </VStack>
               </div>
 

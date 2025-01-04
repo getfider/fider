@@ -1,6 +1,7 @@
 import React from "react"
 import { PostResponse, PostStatus } from "@fider/models"
-import { Markdown, UserName, ShowPostStatus } from "@fider/components"
+import { Icon, Markdown } from "@fider/components"
+import HeroIconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import { HStack } from "./layout"
 
 const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
@@ -14,12 +15,12 @@ const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
   }
 
   return (
-    <div className="content">
-      <span>&#8618;</span>{" "}
+    <HStack>
+      <Icon sprite={HeroIconDuplicate} className="h-6 text-gray-500" />
       <a className="text-link" href={`/posts/${original.number}/${original.slug}`}>
         {original.title}
       </a>
-    </div>
+    </HStack>
   )
 }
 
@@ -45,14 +46,9 @@ export const ShowPostResponse = (props: PostResponseProps): JSX.Element | null =
 
   if (props.response && (status.show || props.response.text)) {
     return (
-      <div className="p-2 shadow rounded">
-        <HStack>
-          {status.show && <ShowPostStatus status={status} />}
-          <span className="text-xs">
-            &middot; <UserName user={props.response.user} />
-          </span>
-        </HStack>
-        {status === PostStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
+      <div>
+        {status.show && <div className={`p-2 text-white text-center text-semibold c-status-bg--${status.value}`}>{status.title}</div>}
+        <div className="pt-2">{status === PostStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}</div>
       </div>
     )
   }
