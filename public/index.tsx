@@ -1,7 +1,7 @@
 import "@fider/assets/styles/index.scss"
 
 import React, { Suspense } from "react"
-import ReactDOM from "react-dom"
+import { createRoot } from "react-dom/client"
 import { ErrorBoundary, Loader, ReadOnlyNotice, DevBanner } from "@fider/components"
 import { classSet, Fider, FiderContext, actions, activateI18N } from "@fider/services"
 
@@ -43,7 +43,8 @@ const bootstrapApp = (i18n: I18n) => {
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
   })
 
-  ReactDOM.render(
+  const root = createRoot(document.getElementById("root")!)
+  root.render(
     <React.StrictMode>
       <ErrorBoundary onError={logProductionError}>
         <I18nProvider i18n={i18n}>
@@ -54,8 +55,7 @@ const bootstrapApp = (i18n: I18n) => {
           </FiderContext.Provider>
         </I18nProvider>
       </ErrorBoundary>
-    </React.StrictMode>,
-    document.getElementById("root")
+    </React.StrictMode>
   )
 }
 
