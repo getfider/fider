@@ -19,7 +19,7 @@ interface ModalFooterProps {
   children?: React.ReactNode
 }
 
-const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
+const ModalWindow: React.FunctionComponent<ModalWindowProps> = ({ size = "small", canClose = true, center = true, ...props }) => {
   const root = useRef<HTMLElement>(document.getElementById("root-modal"))
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
   }
 
   const close = () => {
-    if (props.canClose) {
+    if (canClose) {
       props.onClose()
     }
   }
@@ -56,8 +56,8 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
   const className = classSet({
     "c-modal-window": true,
     [`${props.className}`]: !!props.className,
-    "c-modal-window--center": props.center,
-    [`c-modal-window--${props.size}`]: true,
+    "c-modal-window--center": center,
+    [`c-modal-window--${size}`]: true,
   })
 
   return ReactDOM.createPortal(
@@ -71,13 +71,6 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
     root.current
   )
 }
-
-ModalWindow.defaultProps = {
-  size: "small",
-  canClose: true,
-  center: true,
-}
-
 const Header = (props: { children: React.ReactNode }) => <div className="c-modal-header">{props.children}</div>
 const Content = (props: { children: React.ReactNode }) => <div className="c-modal-content">{props.children}</div>
 const Footer = (props: ModalFooterProps) => {

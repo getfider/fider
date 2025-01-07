@@ -26,7 +26,7 @@ export class ButtonClickEvent {
   }
 }
 
-export const Button: React.FC<ButtonProps> = (props) => {
+export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "secondary", type = "button", ...props }) => {
   const [clicked, setClicked] = useState(false)
   const unmountedContainer = useRef(false)
 
@@ -38,12 +38,12 @@ export const Button: React.FC<ButtonProps> = (props) => {
 
   const className = classSet({
     "c-button": true,
-    [`c-button--${props.size}`]: props.size,
-    [`c-button--${props.variant}`]: props.variant,
+    [`c-button--${size}`]: size,
+    [`c-button--${variant}`]: variant,
     "c-button--loading": clicked,
     "c-button--disabled": clicked || props.disabled,
     [props.className || ""]: props.className,
-    "shadow-sm": props.variant !== "tertiary",
+    "shadow-sm": variant !== "tertiary",
   })
 
   let buttonContent: JSX.Element
@@ -77,23 +77,17 @@ export const Button: React.FC<ButtonProps> = (props) => {
     }
 
     buttonContent = (
-      <button type={props.type} className={className} onClick={onClick}>
+      <button type={type} className={className} onClick={onClick}>
         {props.children}
       </button>
     )
   } else {
     buttonContent = (
-      <button type={props.type} className={className}>
+      <button type={type} className={className}>
         {props.children}
       </button>
     )
   }
 
   return buttonContent
-}
-
-Button.defaultProps = {
-  size: "default",
-  variant: "secondary",
-  type: "button",
 }
