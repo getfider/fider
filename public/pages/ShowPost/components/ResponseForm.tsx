@@ -6,7 +6,8 @@ import { Post, PostStatus } from "@fider/models"
 import { actions, Failure, Fider } from "@fider/services"
 import { PostSearch } from "./PostSearch"
 import IconSpeakerPhone from "@fider/assets/images/heroicons-speakerphone.svg"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
 
 interface ResponseFormProps {
   post: Post
@@ -79,7 +80,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       const id = `enum.poststatus.${s.value.toString()}`
       return {
         value: s.value.toString(),
-        label: t({ id, message: s.title }),
+        label: t({ id, message: `${s.title}` }),
       }
     })
 

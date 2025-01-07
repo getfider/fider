@@ -6,7 +6,9 @@ import { useFider } from "@fider/hooks"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface VotesModalProps {
   isOpen: boolean

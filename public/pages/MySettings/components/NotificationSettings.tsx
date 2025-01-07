@@ -3,7 +3,9 @@ import React, { useState } from "react"
 import { UserSettings } from "@fider/models"
 import { Toggle, Field } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface NotificationSettingsProps {
   userSettings: UserSettings

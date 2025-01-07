@@ -4,7 +4,7 @@ import { PageTitle, Loader } from "@fider/components"
 import { ListPosts } from "./ListPosts"
 import { actions } from "@fider/services"
 
-import { t } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
 
 interface SimilarPostsProps {
   title: string

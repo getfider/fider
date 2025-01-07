@@ -2,7 +2,9 @@ import React, { useState } from "react"
 
 import { Button, Form, Input, LegalFooter, TenantLogo } from "@fider/components"
 import { actions, Failure } from "@fider/services"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 import { EmailVerificationKind } from "@fider/models"
 
 import "./CompleteSignInProfile.page.scss"

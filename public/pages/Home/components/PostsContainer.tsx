@@ -10,7 +10,9 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
 import { TagsFilter } from "./TagsFilter"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface PostsContainerProps {
   user?: CurrentUser

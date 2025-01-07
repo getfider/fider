@@ -1,7 +1,7 @@
 import React from "react"
 import { Button } from "@fider/components"
 import { actions } from "@fider/services"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro";
 
 interface APIKeyFormState {
   apiKey?: string

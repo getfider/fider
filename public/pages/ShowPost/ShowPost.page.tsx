@@ -32,7 +32,7 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { HStack, VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro";
 
 interface ShowPostPageProps {
   post: Post

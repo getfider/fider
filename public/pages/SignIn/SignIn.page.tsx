@@ -1,7 +1,7 @@
 import React from "react"
 import { SignInControl, TenantLogo, LegalNotice } from "@fider/components"
 import { notify } from "@fider/services"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro";
 import { useFider } from "@fider/hooks"
 
 const Locked = (): JSX.Element => {

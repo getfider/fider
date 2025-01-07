@@ -3,7 +3,9 @@ import { PostStatus } from "@fider/models"
 import { Dropdown } from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface PostFilterProps {
   activeView: string
@@ -40,7 +42,7 @@ export const PostFilter = (props: PostFilterProps) => {
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
     const id = `enum.poststatus.${s.value.toString()}`
     options.push({
-      label: t({ id, message: s.title }),
+      label: t({ id, message: `${s.title}` }),
       value: s.value,
       count: props.countPerStatus[s.value],
     })

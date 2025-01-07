@@ -4,7 +4,9 @@ import { Input, ShowPostStatus } from "@fider/components"
 import { actions } from "@fider/services"
 import { Post, PostStatus } from "@fider/models"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface PostSearchProps {
   exclude?: number[]

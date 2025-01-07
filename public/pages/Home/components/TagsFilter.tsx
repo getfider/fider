@@ -3,7 +3,10 @@ import { Tag } from "@fider/models"
 import { Dropdown, Icon, ShowTag } from "@fider/components"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { HStack } from "@fider/components/layout"
-import { plural, t, Trans } from "@lingui/macro"
+
+import { t, plural } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface TagsFilterProps {
   tags: Tag[]

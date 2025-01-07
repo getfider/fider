@@ -6,7 +6,9 @@ import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
 import { HStack } from "@fider/components/layout"
-import { Trans, t } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 import { CommentEditor } from "@fider/components"
 import { useFider } from "@fider/hooks"

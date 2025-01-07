@@ -4,7 +4,9 @@ import { SignInModal } from "@fider/components"
 import { cache, actions, Failure } from "@fider/services"
 import { ImageUpload } from "@fider/models"
 import { useFider } from "@fider/hooks"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface PostInputProps {
   placeholder: string

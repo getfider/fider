@@ -4,7 +4,9 @@ import { Notification } from "@fider/models"
 import { Header, Markdown, Moment, PageTitle } from "@fider/components"
 import { actions, Fider } from "@fider/services"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface MyNotificationsPageProps {
   notifications: Notification[]

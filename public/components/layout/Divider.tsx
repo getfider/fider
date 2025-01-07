@@ -1,7 +1,7 @@
 import "./Divider.scss"
 
 import React from "react"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro";
 
 export const Divider = () => {
   return (

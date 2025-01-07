@@ -10,7 +10,9 @@ import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
 
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 export interface HomePageProps {
   posts: Post[]

@@ -1,7 +1,7 @@
 import React from "react"
 import { Modal, Checkbox } from "@fider/components"
 import { useFider } from "@fider/hooks"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro";
 
 interface LegalAgreementProps {
   onChange: (agreed: boolean) => void

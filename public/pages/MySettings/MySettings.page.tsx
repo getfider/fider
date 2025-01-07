@@ -7,7 +7,9 @@ import { Failure, actions, Fider } from "@fider/services"
 import { NotificationSettings } from "./components/NotificationSettings"
 import { APIKeyForm } from "./components/APIKeyForm"
 import { DangerZone } from "./components/DangerZone"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface MySettingsPageState {
   showModal: boolean

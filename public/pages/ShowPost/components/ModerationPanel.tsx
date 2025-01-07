@@ -4,7 +4,9 @@ import { actions, navigator, Failure } from "@fider/services"
 import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
+
 
 interface ModerationPanelProps {
   post: Post
