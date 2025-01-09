@@ -1,5 +1,5 @@
 {{define "subject"}}Message to: {{ .name }}{{end}}
 
 {{define "body"}}
-Hello World {{ translate .locale (dict "userName" .userName "title" (.title | stripHtml) "postLink" .postLink) | html }}!
+Hello World {{ .name }}!
 {{end}}

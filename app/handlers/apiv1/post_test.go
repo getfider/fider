@@ -608,6 +608,11 @@ func TestUpdateCommentHandler_Authorized(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		q.Result = post
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error { return nil })
 	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
 	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
