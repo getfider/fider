@@ -3,9 +3,8 @@ import React, { useState } from "react"
 import { UserSettings } from "@fider/models"
 import { Toggle, Field } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
-import { t } from "@lingui/core/macro"
+import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
-
 
 interface NotificationSettingsProps {
   userSettings: UserSettings
@@ -35,8 +34,8 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     props.settingsChanged(nextSettings)
   }
 
-  const labelWeb = t({ id: "mysettings.notification.channelweb", message: "Web" })
-  const labelEmail = t({ id: "mysettings.notification.channelemail", message: "Email" })
+  const labelWeb = i18n._("mysettings.notification.channelweb", { message: "Web" })
+  const labelEmail = i18n._("mysettings.notification.channelemail", { message: "Email" })
 
   const icon = (settingsKey: string, channel: Channel) => {
     const active = isEnabled(settingsKey, channel)
@@ -45,10 +44,9 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     return <Toggle key={`${settingsKey}_${channel}`} active={active} label={label} onToggle={onToggle} />
   }
 
-
   return (
     <>
-      <Field label={t({ id: "label.notifications", message: "Notifications" })}>
+      <Field label={i18n._("label.notifications", { message: "Notifications" })}>
         <p className="text-muted mb-6">
           <Trans id="mysettings.notification.title">Choose the events to recieve a notification for.</Trans>
         </p>

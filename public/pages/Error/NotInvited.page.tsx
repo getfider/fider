@@ -6,10 +6,10 @@ const NotInvited = () => {
   return (
     <ErrorPageWrapper id="p-notinvited" showHomeLink={true}>
       <h1 className="text-display">
-        <Trans id="error.unauthorized.title">Not invited</Trans>
+        <Trans id="error.notinvited.title">Not Invited</Trans>
       </h1>
       <p>
-        <Trans id="error.unauthorized.text">We could not find an account for your email address.</Trans>
+        <Trans id="error.notinvited.text">We could not find an account for your email address.</Trans>
       </p>
     </ErrorPageWrapper>
   )

@@ -6,9 +6,8 @@ import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
 import { HStack } from "@fider/components/layout"
-import { t } from "@lingui/core/macro"
+import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
-
 
 import { CommentEditor } from "@fider/components"
 import { useFider } from "@fider/hooks"
@@ -78,7 +77,7 @@ export const CommentInput = (props: CommentInputProps) => {
               onChange={commentChanged}
               onFocus={editorFocused}
               disabled={!Fider.session.isAuthenticated}
-              placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
+              placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
             />
             {hasContent && (
               <>

@@ -4,9 +4,8 @@ import { actions, navigator, Failure } from "@fider/services"
 import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
-import { t } from "@lingui/core/macro"
+import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
-
 
 interface ModerationPanelProps {
   post: Post
@@ -44,7 +43,7 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
             field="text"
             onChange={setText}
             value={text}
-            placeholder={t({ id: "showpost.moderationpanel.text.placeholder", message: "Why are you deleting this post? (optional)" })}
+            placeholder={i18n._("showpost.moderationpanel.text.placeholder", { message: "Why are you deleting this post? (optional)" })}
           >
             <span className="text-muted">
               <Trans id="showpost.moderationpanel.text.help">

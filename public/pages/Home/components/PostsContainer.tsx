@@ -10,9 +10,8 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
 import { TagsFilter } from "./TagsFilter"
-import { t } from "@lingui/core/macro"
+import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
-
 
 interface PostsContainerProps {
   user?: CurrentUser
@@ -117,7 +116,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
               field="query"
               icon={this.state.query ? IconX : IconSearch}
               onIconClick={this.state.query ? this.clearSearch : undefined}
-              placeholder={t({ id: "home.postscontainer.query.placeholder", message: "Search" })}
+              placeholder={i18n._("home.postscontainer.query.placeholder", { message: "Search" })}
               value={this.state.query}
               onChange={this.handleSearchFilterChanged}
             />
@@ -126,7 +125,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         <ListPosts
           posts={this.state.posts}
           tags={this.props.tags}
-          emptyText={t({ id: "home.postscontainer.label.noresults", message: "No results matched your search, try something different." })}
+          emptyText={i18n._("home.postscontainer.label.noresults", { message: "No results matched your search, try something different." })}
         />
         {this.state.loading && <Loader />}
         {showMoreLink && (

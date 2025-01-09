@@ -4,9 +4,9 @@ import { Dropdown, Icon, ShowTag } from "@fider/components"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { HStack } from "@fider/components/layout"
 
-import { t, plural } from "@lingui/core/macro"
+import { plural } from "@lingui/core/macro"
 import { Trans } from "@lingui/react/macro"
-
+import { i18n } from "@lingui/core"
 
 interface TagsFilterProps {
   tags: Tag[]
@@ -31,7 +31,7 @@ export const TagsFilter = (props: TagsFilterProps) => {
           one: `# tag`,
           other: `# tags`,
         })
-      : t({ id: "home.tagsfilter.selected.none", message: "Any tag" })
+      : i18n._("home.tagsfilter.selected.none", {message: "Any tag" })
 
   return (
     <HStack>

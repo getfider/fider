@@ -4,9 +4,8 @@ import { Input, ShowPostStatus } from "@fider/components"
 import { actions } from "@fider/services"
 import { Post, PostStatus } from "@fider/models"
 import { HStack, VStack } from "@fider/components/layout"
-import { t } from "@lingui/core/macro"
+import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
-
 
 interface PostSearchProps {
   exclude?: number[]
@@ -48,7 +47,7 @@ export const PostSearch = (props: PostSearchProps) => {
       <Input
         field="query"
         icon={IconSearch}
-        placeholder={t({ id: "showpost.postsearch.query.placeholder", message: "Search original post..." })}
+        placeholder={i18n._("showpost.postsearch.query.placeholder", { message: "Search original post..." })}
         value={query}
         onChange={setQuery}
       />

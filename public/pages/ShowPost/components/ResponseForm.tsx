@@ -6,8 +6,8 @@ import { Post, PostStatus } from "@fider/models"
 import { actions, Failure, Fider } from "@fider/services"
 import { PostSearch } from "./PostSearch"
 import IconSpeakerPhone from "@fider/assets/images/heroicons-speakerphone.svg"
-import { t } from "@lingui/core/macro"
 import { Trans } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 
 interface ResponseFormProps {
   post: Post
@@ -80,7 +80,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       const id = `enum.poststatus.${s.value.toString()}`
       return {
         value: s.value.toString(),
-        label: t({ id, message: `${s.title}` }),
+        label: i18n._(id, { message: s.title }),
       }
     })
 
@@ -105,8 +105,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                 onChange={this.setText}
                 value={this.state.text}
                 minRows={5}
-                placeholder={t({
-                  id: "showpost.responseform.text.placeholder",
+                placeholder={i18n._("showpost.responseform.text.placeholder", {
                   message: "What's going on with this post? Let your users know what are your plans...",
                 })}
               />
