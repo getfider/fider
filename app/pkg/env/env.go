@@ -42,12 +42,13 @@ type config struct {
 		WriteTimeout time.Duration `env:"HTTP_WRITE_TIMEOUT,default=10s,strict"`
 		IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=120s,strict"`
 	}
-	Port       string `env:"PORT,default=3000"`
-	HostMode   string `env:"HOST_MODE,default=single"`
-	HostDomain string `env:"HOST_DOMAIN"`
-	BaseURL    string `env:"BASE_URL"`
-	Locale     string `env:"LOCALE,default=en"`
-	JWTSecret  string `env:"JWT_SECRET,required"`
+	Port                        string `env:"PORT,default=3000"`
+	HostMode                    string `env:"HOST_MODE,default=single"`
+	HostDomain                  string `env:"HOST_DOMAIN"`
+	BaseURL                     string `env:"BASE_URL"`
+	Locale                      string `env:"LOCALE,default=en"`
+	JWTSecret                   string `env:"JWT_SECRET,required"`
+	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	Paddle     struct {
 		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
 		VendorID       string `env:"PADDLE_VENDOR_ID"`

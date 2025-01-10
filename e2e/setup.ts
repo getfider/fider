@@ -1,6 +1,6 @@
 import { Before, BeforeAll, AfterAll, After } from "@cucumber/cucumber"
 import debug from "debug"
-import * as playwright from "playwright"
+import * as playwright from "@playwright/test"
 import { getLatestLinkSentTo } from "./step_definitions/fns"
 import { FiderWorld } from "./world"
 

@@ -17,6 +17,7 @@ import (
 	"github.com/getfider/fider/app/handlers/apiv1"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 )
 
@@ -61,6 +62,185 @@ func TestCreatePostHandler_WithoutTitle(t *testing.T) {
 		ExecutePost(apiv1.CreatePost(), `{ "title": "" }`)
 
 	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestCreatePostHandler_WithNonExistentTag(t *testing.T) {
+	if env.Config.PostCreationWithTagsEnabled {
+		RegisterT(t)
+		
+		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+			return app.ErrNotFound
+		})
+		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+			return app.ErrNotFound
+		})
+		
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.JonSnow).
+			ExecutePost(apiv1.CreatePost(), `{ "title": "My newest post :)", "tags": ["inexistent_tag"]}`)
+
+		Expect(code).Equals(http.StatusBadRequest)
+	}
+}
+
+func TestCreatePostHandler_WithPrivateTagAsVisitor(t *testing.T) {
+	if env.Config.PostCreationWithTagsEnabled {
+		RegisterT(t)
+		
+		privateTag := &entity.Tag{
+			ID:       1,
+			Name:     "private_tag",
+			Slug:     "private_tag",
+			Color:    "blue",
+			IsPublic: false,
+		}
+		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+			if q.Slug == "private_tag" {
+				q.Result = privateTag
+				return nil
+			}
+			return app.ErrNotFound
+		})
+		
+		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+			return app.ErrNotFound
+		})
+		
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.AryaStark).
+			ExecutePost(apiv1.CreatePost(), `{ "title": "My newest post :)", "tags": ["private_tag"]}`)
+
+		Expect(code).Equals(http.StatusForbidden)
+	}
+}
+
+func TestCreatePostHandler_WithPublicTagAsVisitor(t *testing.T) {
+	if env.Config.PostCreationWithTagsEnabled {
+		RegisterT(t)
+		
+		var newPost *cmd.AddNewPost
+		bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
+			newPost = c
+			c.Result = &entity.Post{
+				ID:          1,
+				Title:       c.Title,
+				Description: c.Description,
+			}
+			return nil
+		})
+		
+		publicTag := &entity.Tag{
+			ID:       1,
+			Name:     "public_tag",
+			Slug:     "public_tag",
+			Color:    "red",
+			IsPublic: true,
+		}
+		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+			if q.Slug == "public_tag" {
+				q.Result = publicTag
+				return nil
+			}
+			return app.ErrNotFound
+		})
+		
+		var tagAssignment *cmd.AssignTag
+		bus.AddHandler(func(ctx context.Context, c *cmd.AssignTag) error {
+			tagAssignment = c
+			return nil
+		})
+		
+		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+			return app.ErrNotFound
+		})
+		
+		bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+		bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
+		bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+		
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.AryaStark).
+			ExecutePost(apiv1.CreatePost(), `{ "title": "My newest post :)", "tags": ["public_tag"]}`)
+
+		Expect(code).Equals(http.StatusOK)
+		Expect(tagAssignment.Tag).Equals(publicTag)
+		Expect(tagAssignment.Post).Equals(newPost.Result)
+	}
+}
+
+func TestCreatePostHandler_WithPublicTagAndPrivateTagAsCollaborator(t *testing.T) {
+	if env.Config.PostCreationWithTagsEnabled {
+		RegisterT(t)
+		
+		var newPost *cmd.AddNewPost
+		bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
+			newPost = c
+			c.Result = &entity.Post{
+				ID:          1,
+				Title:       c.Title,
+				Description: c.Description,
+			}
+			return nil
+		})
+		
+		publicTag := &entity.Tag{
+			ID:       1,
+			Name:     "public_tag",
+			Slug:     "public_tag",
+			Color:    "red",
+			IsPublic: true,
+		}
+		privateTag := &entity.Tag{
+			ID:       1,
+			Name:     "private_tag",
+			Slug:     "private_tag",
+			Color:    "blue",
+			IsPublic: false,
+		}
+		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+			if q.Slug == "public_tag" {
+				q.Result = publicTag
+				return nil
+			}
+			if q.Slug == "private_tag" {
+				q.Result = privateTag
+				return nil
+			}
+			return app.ErrNotFound
+		})
+		
+		tagAssignments := make([]*cmd.AssignTag, 2)
+		bus.AddHandler(func(ctx context.Context, c *cmd.AssignTag) error {
+			if c.Tag.Slug == "public_tag" {
+				tagAssignments[0] = c
+			} else if c.Tag.Slug == "private_tag" {
+				tagAssignments[1] = c
+			}
+			return nil
+		})
+		
+		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+			return app.ErrNotFound
+		})
+		
+		bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+		bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
+		bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+		
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.JonSnow).
+			ExecutePost(apiv1.CreatePost(), `{ "title": "My newest post :)", "tags": ["public_tag", "private_tag"]}`)
+
+		Expect(code).Equals(http.StatusOK)
+		Expect(tagAssignments[0].Tag).Equals(publicTag)
+		Expect(tagAssignments[1].Tag).Equals(privateTag)
+		Expect(tagAssignments[0].Post).Equals(newPost.Result)
+		Expect(tagAssignments[1].Post).Equals(newPost.Result)
+	}
 }
 
 func TestGetPostHandler(t *testing.T) {
