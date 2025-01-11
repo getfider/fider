@@ -206,11 +206,10 @@ func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
 	})
 }
 
-func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recipient, comment string, event enum.NotificationEvent) error {
-
+func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recipient, comment string, event enum.NotificationEvent) {
 	// Short circuit if there is no one to notify
 	if len(to) == 0 {
-		return nil
+		return
 	}
 
 	author := c.User()
@@ -240,7 +239,4 @@ func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recip
 		TemplateName: "new_comment",
 		Props:        mailProps,
 	})
-
-	return nil
-
 }
