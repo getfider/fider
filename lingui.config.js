@@ -13,5 +13,5 @@ module.exports = {
   },
   sourceLocale: "en",
   format: formatter({ style: "minimal", explicitIdAsDefault: true, sort: true }),
-  locales: ["pt-BR", "es-ES", "nl", "sv-SE", "fr", "de", "en", "pl", "ru", "sk", "tr", "el"],
+  locales: ["pt-BR", "es-ES", "nl", "sv-SE", "fr", "de", "en", "pl", "ru", "sk", "tr", "el", "it", "zh-CN"],
 }
