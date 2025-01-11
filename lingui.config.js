@@ -1,6 +1,6 @@
 import { formatter } from "@lingui/format-json"
 
-module.exports = {
+export default {
   catalogs: [
     {
       path: "<rootDir>/locale/{locale}/client",

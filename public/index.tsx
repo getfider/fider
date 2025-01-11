@@ -43,22 +43,24 @@ const bootstrapApp = (i18n: I18n) => {
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
   })
 
-  const root = createRoot(document.getElementById("root")!)
-  root.render(
-    <React.StrictMode>
-      <ErrorBoundary onError={logProductionError}>
-        <I18nProvider i18n={i18n}>
-          <FiderContext.Provider value={fider}>
-            <DevBanner />
-            <ReadOnlyNotice />
-            <Suspense fallback={<Loading />}>{React.createElement(component, fider.session.props)}</Suspense>
-          </FiderContext.Provider>
-        </I18nProvider>
-      </ErrorBoundary>
-    </React.StrictMode>
-  )
+  const rootElement = document.getElementById("root")
+  if (rootElement) {
+    const root = createRoot(rootElement)
+    root.render(
+      <React.StrictMode>
+        <ErrorBoundary onError={logProductionError}>
+          <I18nProvider i18n={i18n}>
+            <FiderContext.Provider value={fider}>
+              <DevBanner />
+              <ReadOnlyNotice />
+              <Suspense fallback={<Loading />}>{React.createElement(component, fider.session.props)}</Suspense>
+            </FiderContext.Provider>
+          </I18nProvider>
+        </ErrorBoundary>
+      </React.StrictMode>
+    )
+  }
 }
-
 const fider = Fider.initialize()
 __webpack_nonce__ = fider.session.contextID
 __webpack_public_path__ = `${fider.settings.assetsURL}/assets/`
