@@ -10,7 +10,7 @@ import { Dropdown } from "./common/Dropdown"
 import { Notification } from "@fider/models"
 import { HStack, VStack } from "./layout"
 
-import { Trans } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro"
 
 export const NotificationItem = ({ notification }: { notification: Notification }) => {
   const openNotification = () => {

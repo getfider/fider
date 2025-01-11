@@ -5,7 +5,7 @@ import { SocialSignInButton, Form, Button, Input, Message } from "@fider/compone
 import { Divider } from "@fider/components/layout"
 import { device, actions, Failure, isCookieEnabled } from "@fider/services"
 import { useFider } from "@fider/hooks"
-import { Trans } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro"
 
 interface SignInControlProps {
   useEmail: boolean

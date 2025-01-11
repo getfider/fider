@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import { SignInModal, TenantLogo, NotificationIndicator, UserMenu } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack } from "./layout"
-import { Trans } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro"
 
 export const Header = () => {
   const fider = useFider()
