@@ -1,6 +1,6 @@
 import React from "react"
 import { TenantLogo } from "@fider/components"
-import { Trans } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro"
 
 const PendingActivation = () => {
   return (

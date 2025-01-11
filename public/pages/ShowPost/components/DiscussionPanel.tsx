@@ -5,7 +5,7 @@ import { CommentInput } from "./CommentInput"
 import PostIllustration from "@fider/assets/images/undraw-post.svg"
 import { Icon } from "@fider/components"
 import { VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro"
 
 interface DiscussionPanelProps {
   user?: CurrentUser

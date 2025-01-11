@@ -2,7 +2,7 @@ import React from "react"
 
 import { Button, Modal, ButtonClickEvent } from "@fider/components"
 import { actions, notify, navigator } from "@fider/services"
-import { Trans } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro"
 
 interface DangerZoneState {
   clicked: boolean

@@ -8,7 +8,7 @@ import { useFider } from "@fider/hooks"
 import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconCheckCircle from "@fider/assets/images/heroicons-check-circle.svg"
 import { HStack, VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro"
 
 interface TagsPanelProps {
   post: Post

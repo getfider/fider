@@ -6,7 +6,6 @@ import { useFider } from "@fider/hooks"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
-
 interface PostFilterProps {
   activeView: string
   countPerStatus: { [key: string]: number }
@@ -29,20 +28,20 @@ export const PostFilter = (props: PostFilterProps) => {
   }
 
   const options: OptionItem[] = [
-    { value: "trending", label: i18n._("home.postfilter.option.trending", {message: "Trending" }) },
-    { value: "recent", label: i18n._("home.postfilter.option.recent", {message: "Recent" }) },
-    { value: "most-wanted", label: i18n._("home.postfilter.option.mostwanted", {message: "Most Wanted" }) },
-    { value: "most-discussed", label: i18n._("home.postfilter.option.mostdiscussed", {message: "Most Discussed" }) },
+    { value: "trending", label: i18n._("home.postfilter.option.trending", { message: "Trending" }) },
+    { value: "recent", label: i18n._("home.postfilter.option.recent", { message: "Recent" }) },
+    { value: "most-wanted", label: i18n._("home.postfilter.option.mostwanted", { message: "Most Wanted" }) },
+    { value: "most-discussed", label: i18n._("home.postfilter.option.mostdiscussed", { message: "Most Discussed" }) },
   ]
 
   if (fider.session.isAuthenticated) {
-    options.push({ value: "my-votes", label: i18n._("home.postfilter.option.myvotes", {message: "My Votes" }) })
+    options.push({ value: "my-votes", label: i18n._("home.postfilter.option.myvotes", { message: "My Votes" }) })
   }
 
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
     const id = `enum.poststatus.${s.value.toString()}`
     options.push({
-      label: i18n._(id, {message: s.title }),
+      label: i18n._(id, { message: s.title }),
       value: s.value,
       count: props.countPerStatus[s.value],
     })

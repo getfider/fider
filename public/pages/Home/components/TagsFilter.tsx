@@ -31,7 +31,7 @@ export const TagsFilter = (props: TagsFilterProps) => {
           one: `# tag`,
           other: `# tags`,
         })
-      : i18n._("home.tagsfilter.selected.none", {message: "Any tag" })
+      : i18n._("home.tagsfilter.selected.none", { message: "Any tag" })
 
   return (
     <HStack>

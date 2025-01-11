@@ -22,7 +22,6 @@ import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.s
 import { t } from "@lingui/core/macro"
 import { Trans } from "@lingui/react/macro"
 
-
 interface ShowCommentProps {
   post: Post
   comment: Comment
