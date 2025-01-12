@@ -71,16 +71,16 @@ export const PostInput = (props: PostInputProps) => {
       }
     }
   }
-  
+
   const handleTagsChanged = (newTags: string[]) => {
     setTags(newTags)
-    
+
     navigator.replaceState(
       querystring.stringify({
         view: querystring.get("view"),
         query: querystring.get("query"),
         tags: newTags,
-        limit: querystring.getNumber("limit")
+        limit: querystring.getNumber("limit"),
       })
     )
   }
