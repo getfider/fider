@@ -32,7 +32,7 @@ export const PostInput = (props: PostInputProps) => {
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
-
+  
   useEffect(() => {
     props.onTitleChanged(title)
   }, [title])

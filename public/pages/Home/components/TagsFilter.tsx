@@ -16,7 +16,7 @@ export const TagsFilter = (props: TagsFilterProps) => {
 
   const toggle = (item: Tag) => () => {
     const idx = selected.indexOf(item.slug)
-    const next = idx >= 0 ? selected.splice(idx, 1) && selected : selected.concat(item.slug)
+    const next = idx >= 0 ? selected.filter((x) => x != item.slug) : selected.concat(item.slug)
     setSelected(next)
     props.selectionChanged(next)
   }
