@@ -6,8 +6,8 @@ import { useFider } from "@fider/hooks"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { Trans } from "@lingui/macro"
-import { HStack } from "@fider/components/layout"
-import { VotesPanel } from "./VotesPanel"
+import { HStack, VStack } from "@fider/components/layout"
+// import { VotesPanel } from "./VotesPanel"
 
 interface VoteSectionProps {
   post: Post
@@ -50,7 +50,7 @@ export const VoteSection = (props: VoteSectionProps) => {
   const icon = hasVoted ? IconCheck : IconThumbsUp
 
   return (
-    <>
+    <VStack spacing={4}>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
       <div className="align-self-start">
         <Button variant="primary" onClick={voteOrUndo} disabled={isDisabled}>
@@ -61,10 +61,10 @@ export const VoteSection = (props: VoteSectionProps) => {
         <span className="text-display">
           {votes.length} {votes.length === 1 ? "Vote" : "Votes"}
         </span>
-        <div className="pl-4">
+        {/* <div className="pl-4">
           <VotesPanel post={post} votes={votes} hideTitle={true} />
-        </div>
+        </div> */}
       </HStack>
-    </>
+    </VStack>
   )
 }

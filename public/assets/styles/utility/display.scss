@@ -207,8 +207,11 @@
   border: 1px solid transparent;
 }
 
-.border-2 {
-  border: 2px solid transparent;
+
+@each $i in 2, 3, 4, 6 {
+  .border-#{$i} {
+    border: #{$i}px solid transparent;
+  }
 }
 
 .clickable {
@@ -222,6 +225,3 @@
   }
 }
 
-.purple-border {
-  border-top: 4px solid get("colors.primary.base");
-}

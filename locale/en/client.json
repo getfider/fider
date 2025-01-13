@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "You'll not receive any notification about this post.",
   "showpost.postsearch.numofvotes": "{0} votes",
   "showpost.postsearch.query.placeholder": "Search original post...",
+  "showpost.response.date": "Status changed to {status} on {statusDate}",
   "showpost.responseform.message.mergedvotes": "Votes from this post will be merged into original post.",
   "showpost.responseform.text.placeholder": "What's going on with this post? Let your users know what are your plans...",
   "showpost.votespanel.more": "+{extraVotesCount} more",

@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "Δεν θα λάβετε καμία ειδοποίηση σχετικά με αυτή τη δημοσίευση.",
   "showpost.postsearch.numofvotes": "{0} Ψήφοι",
   "showpost.postsearch.query.placeholder": "Αναζήτηση αρχικής ανάρτησης...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "Οι ψήφοι από αυτό το post θα συγχωνευτούν στο αρχικό post.",
   "showpost.responseform.text.placeholder": "Τι συμβαίνει με αυτή την ανάρτηση; Αφήστε τους χρήστες σας να γνωρίζουν ποια είναι τα σχέδιά σας...",
   "showpost.votespanel.more": "+{extraVotesCount} περισσότερα",

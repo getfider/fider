@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "Na tento príspevok nedostanete žiadne upozornenie.",
   "showpost.postsearch.numofvotes": "{0} hlasov",
   "showpost.postsearch.query.placeholder": "Hľadať pôvodný príspevok...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "Hlasy z tohto príspevku budú zlúčené do pôvodného príspevku.",
   "showpost.responseform.text.placeholder": "Čo sa deje s týmto príspevkom? Dajte svojim používateľom vedieť, aké máte plány...",
   "showpost.votespanel.more": "+{extraVotesCount} viac",

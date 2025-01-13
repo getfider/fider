@@ -1,28 +1,28 @@
 @import "~@fider/assets/styles/variables.scss";
 
-.c-status-bg {
+.c-status-col {
 
   &--open {
-    background-color: get("colors.gray.900");
+    color: get("colors.blue.600");
   }
 
   &--planned {
-    background-color: #6435c9;
+    color: #6435c9;
   }
 
   &--started {
-    background-color: #2185d0;
+    color: #2185d0;
   }
 
   &--completed {
-    background-color: #21ba45;
+    color: #21ba45;
   }
 
   &--declined {
-    background-color: #db2828;
+    color: #db2828;
   }
 
   &--duplicate {
-    background-color: #d6a100;
+    color: #d6a100;
   }
 }

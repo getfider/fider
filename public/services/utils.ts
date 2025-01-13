@@ -38,7 +38,7 @@ export const formatDate = (locale: string, input: Date | string, format: DateFor
   }
 }
 
-export const timeSince = (locale: string, now: Date, date: Date): string => {
+export const timeSince = (locale: string, now: Date, date: Date, dateFormat: DateFormat = "short"): string => {
   try {
     const seconds = Math.round((now.getTime() - date.getTime()) / 1000)
     const minutes = Math.round(seconds / 60)
@@ -57,10 +57,9 @@ export const timeSince = (locale: string, now: Date, date: Date): string => {
       rtf.format(-1 * years, "years")
     )
   } catch {
-    return formatDate(locale, date, "short")
+    return formatDate(locale, date, dateFormat)
   }
 }
-
 export const fileToBase64 = async (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader()

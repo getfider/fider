@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "您将不会收到有关此帖子的任何通知.",
   "showpost.postsearch.numofvotes": "{0} 投票",
   "showpost.postsearch.query.placeholder": "搜索原始帖子...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "此帖子的投票将合并到原始帖子中.",
   "showpost.responseform.text.placeholder": "这篇文章怎么了？让你的用户知道你的计划是什么...",
   "showpost.votespanel.more": "+{extraVotesCount} 更多",

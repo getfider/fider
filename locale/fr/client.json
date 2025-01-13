@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "Vous ne recevrez aucune notification à propos de ce message.",
   "showpost.postsearch.numofvotes": "{0} votes",
   "showpost.postsearch.query.placeholder": "Rechercher le message original...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "Les votes de ce message seront fusionnés dans le message original.",
   "showpost.responseform.text.placeholder": "Que se passe-t-il avec ce message ? Faites savoir à vos utilisateurs quels sont vos plans...",
   "showpost.votespanel.more": "+{extraVotesCount} de plus",

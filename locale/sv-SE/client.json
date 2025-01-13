@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "Du får inte aviseringar för det här inlägget.",
   "showpost.postsearch.numofvotes": "{0} röster",
   "showpost.postsearch.query.placeholder": "Sök i ursprungliga inlägget...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "Röster från det här inlägget kommer att flyttas till det ursprungliga inlägget.",
   "showpost.responseform.text.placeholder": "Vad händer med det här inlägget? Låt dina användare veta vad du planerar...",
   "showpost.votespanel.more": "+{extraVotesCount} ytterligare",

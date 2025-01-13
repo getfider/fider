@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "No recibirás ninguna notificación sobre este evento.",
   "showpost.postsearch.numofvotes": "{0} votos",
   "showpost.postsearch.query.placeholder": "Buscar publicación original...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "Los votos de esta publicación se fusionarán en la publicación original.",
   "showpost.responseform.text.placeholder": "¿Qué está pasando con esta publicación? Dile a tus usuarios cuáles son tus planes...",
   "showpost.votespanel.more": "+{extraVotesCount} más",

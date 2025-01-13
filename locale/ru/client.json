@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "Вы не подписаны на уведомления об активности в этом посте.",
   "showpost.postsearch.numofvotes": "{0} голосов",
   "showpost.postsearch.query.placeholder": "Выберите оригинальный пост...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "Голоса этого поста будут прибавлены к голосам оригинального поста.",
   "showpost.responseform.text.placeholder": "Что произойдёт с этим предложением? Дайте людям знать о ваших планах...",
   "showpost.votespanel.more": "и ещё {extraVotesCount}",

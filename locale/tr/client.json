@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "Bu öneri hakkında bildirim almayacaksınız.",
   "showpost.postsearch.numofvotes": "{0} oy",
   "showpost.postsearch.query.placeholder": "Orijinal öneri ara...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "Bu önerideki yorumlar orijinal öneriye dahil edilecek.",
   "showpost.responseform.text.placeholder": "Bu öneriye neler oluyor? Kullanıcılara planlarınız hakkında bilgi verin...",
   "showpost.votespanel.more": "+{extraVotesCount} daha",

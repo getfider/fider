@@ -149,6 +149,7 @@
   "showpost.notificationspanel.message.unsubscribed": "Sie erhalten keine Benachrichtigungen über diesen Beitrag.",
   "showpost.postsearch.numofvotes": "{0} Stimmen",
   "showpost.postsearch.query.placeholder": "Originalbeitrag suchen...",
+  "showpost.response.date": "",
   "showpost.responseform.message.mergedvotes": "Stimmen aus diesem Beitrag werden mit den Stimmen vom ursprünglichen Beitrag zusammengeführt.",
   "showpost.responseform.text.placeholder": "Was passiert in diesem Beitrag? Lassen Sie Ihre Benutzer wissen, was Ihre Pläne sind...",
   "showpost.votespanel.more": "+{extraVotesCount} mehr",

@@ -1,6 +1,6 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { ShowTag, ShowPostResponse, VoteCounter, Markdown, Icon } from "@fider/components"
+import { ShowTag, VoteCounter, Markdown, Icon, ResponseStatusLabel } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import { HStack, VStack } from "@fider/components/layout"
 
@@ -28,7 +28,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
           )}
         </HStack>
         <Markdown className="text-gray-600" maxLength={300} text={props.post.description} style="plainText" />
-        <ShowPostResponse status={props.post.status} response={props.post.response} />
+        <ResponseStatusLabel status={props.post.status} response={props.post.response} />
         {props.tags.length >= 1 && (
           <HStack className="flex-wrap">
             {props.tags.map((tag) => (

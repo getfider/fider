@@ -54,6 +54,10 @@ pre:last-child {
   font-size: get("font.size.sm");
 }
 
+.text-lg {
+  font-size: get("font.size.lg");
+}
+
 .text-category {
   font-size: get("font.size.xs");
   font-weight: get("font.weight.semibold");
