@@ -36,7 +36,7 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
-// import { TagsPanel2 } from "./components/TagsPanel2"
+import { TagsPanel2 } from "./components/TagsPanel2"
 import { NotificationsPanel2 } from "./components/NotificationsPanel2"
 import { VoteSection } from "./components/VoteSection"
 import { ModerationPanel } from "./components/ModerationPanel"
@@ -229,9 +229,9 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       ) : (
                         <>
                           <h1 className="text-large">{this.props.post.title}</h1>
-                          {/* <div className="mt-2"> */}
-                          {/*   <TagsPanel2 post={this.props.post} tags={this.props.tags} /> */}
-                          {/* </div> */}
+                          <div className="mt-2">
+                            <TagsPanel2 post={this.props.post} tags={this.props.tags} />
+                          </div>
                         </>
                       )}
                     </div>
