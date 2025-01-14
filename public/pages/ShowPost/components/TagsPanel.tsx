@@ -1,12 +1,10 @@
 import React, { useState } from "react"
-import { Tag, Post } from "@fider/models"
+import { Post, Tag } from "@fider/models"
 import { actions } from "@fider/services"
-import { ShowTag, Icon } from "@fider/components"
+import { ShowTag, Button } from "@fider/components"
 import { TagListItem } from "./TagListItem"
 import { useFider } from "@fider/hooks"
 
-import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
-import IconCheckCircle from "@fider/assets/images/heroicons-check-circle.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
 
@@ -52,28 +50,27 @@ export const TagsPanel = (props: TagsPanelProps) => {
     return null
   }
 
-  const tagsList =
-    assignedTags.length > 0 ? (
-      <VStack spacing={2} className="flex-items-baseline">
-        {assignedTags.map((tag) => (
-          <ShowTag key={tag.id} tag={tag} link />
-        ))}
-      </VStack>
-    ) : (
-      <span className="text-muted">
-        <Trans id="label.none">None</Trans>
-      </span>
-    )
+  const tagsList = (
+    <HStack spacing={2} center={true}>
+      {assignedTags.length > 0 && assignedTags.map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
+      <HStack spacing={1} center={true} className="clickable" onClick={onSubtitleClick}>
+        <span>
+          <Trans id="label.edittags">Edit tags</Trans>
+        </span>
+      </HStack>
+    </HStack>
+  )
 
   const editTagsList = props.tags.length > 0 && (
-    <VStack>
+    <VStack justify="between" className="flex-items-start">
       {props.tags.map((tag) => (
         <TagListItem key={tag.id} tag={tag} assigned={assignedTags.indexOf(tag) >= 0} onClick={assignOrUnassignTag} />
       ))}
+      <Button variant="secondary" size="small" onClick={onSubtitleClick}>
+        <Trans id="action.close">Close</Trans>
+      </Button>
     </VStack>
   )
-
-  const icon = canEdit && (isEditing ? <Icon sprite={IconCheckCircle} className="h-4" /> : <Icon sprite={IconPencilAlt} className="h-4" />)
 
   if (fider.isReadOnly) {
     return (
@@ -88,15 +85,10 @@ export const TagsPanel = (props: TagsPanelProps) => {
 
   return (
     <VStack>
-      <HStack spacing={2} className="text-category clickable" onClick={onSubtitleClick}>
-        <span>
-          <Trans id="label.tags">Tags</Trans>
-        </span>
-        {icon}
+      <HStack spacing={2} center={true} className="text-primary-base text-xs">
+        {!isEditing && tagsList}
+        {isEditing && editTagsList}
       </HStack>
-
-      {!isEditing && tagsList}
-      {isEditing && editTagsList}
     </VStack>
   )
 }

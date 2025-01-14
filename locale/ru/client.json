@@ -54,6 +54,7 @@
   "label.custom": "Пользовательский",
   "label.description": "Описание",
   "label.discussion": "Обсуждение",
+  "label.edittags": "",
   "label.email": "Адрес электронной почты",
   "label.follow": "",
   "label.gravatar": "Gravatar",

@@ -5,13 +5,13 @@ import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { t, Trans } from "@lingui/macro"
 
-interface ModerationPanelProps {
+interface DeletePostModalProps {
   post: Post
   showModal: boolean
   onModalClose: () => void
 }
 
-export const ModerationPanel = (props: ModerationPanelProps) => {
+export const DeletePostModal = (props: DeletePostModalProps) => {
   const fider = useFider()
   const [text, setText] = useState("")
   const [error, setError] = useState<Failure>()

@@ -36,10 +36,10 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
-import { TagsPanel2 } from "./components/TagsPanel2"
-import { NotificationsPanel2 } from "./components/NotificationsPanel2"
+import { TagsPanel } from "./components/TagsPanel"
+import { FollowButton } from "./components/FollowButton"
 import { VoteSection } from "./components/VoteSection"
-import { ModerationPanel } from "./components/ModerationPanel"
+import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { MostWanted } from "./components/MostWanted"
 
@@ -229,13 +229,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       ) : (
                         <>
                           <h1 className="text-large">{this.props.post.title}</h1>
-                          <div className="mt-2">
-                            <TagsPanel2 post={this.props.post} tags={this.props.tags} />
-                          </div>
                         </>
                       )}
                     </div>
-                    <ModerationPanel onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
+                    <DeletePostModal onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
                     {Fider.session.user.isCollaborator && (
                       <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
                     )}
@@ -269,12 +266,15 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       </>
                     )}
                   </VStack>
+                  <div className="mt-2">
+                    <TagsPanel post={this.props.post} tags={this.props.tags} />
+                  </div>
 
                   <VStack spacing={4}>
                     {!this.state.editMode ? (
                       <HStack justify="between" center={false}>
                         <VoteSection post={this.props.post} votes={this.props.votes} />
-                        <NotificationsPanel2 post={this.props.post} subscribed={this.props.subscribed} />
+                        <FollowButton post={this.props.post} subscribed={this.props.subscribed} />
                       </HStack>
                     ) : (
                       <HStack>

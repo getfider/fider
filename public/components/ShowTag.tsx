@@ -22,11 +22,11 @@ const getRGB = (color: string) => {
   }
 }
 
-const textColor = (color: string) => {
-  const components = getRGB(color)
-  const bgDelta = components.R * 0.299 + components.G * 0.587 + components.B * 0.114
-  return bgDelta > 140 ? "#333" : "#fff"
-}
+// const textColor = (color: string) => {
+//   const components = getRGB(color)
+//   const bgDelta = components.R * 0.299 + components.G * 0.587 + components.B * 0.114
+//   return bgDelta > 140 ? "#333" : "#fff"
+// }
 
 export const ShowTag = (props: TagProps) => {
   const className = classSet({
@@ -49,12 +49,13 @@ export const ShowTag = (props: TagProps) => {
       href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : undefined}
       title={`${props.tag.name}${props.tag.isPublic ? "" : " (Private)"}`}
       className={className}
-      style={{
-        backgroundColor: `#${props.tag.color}`,
-        border: `1px solid #${darkerColor}`,
-        color: textColor(props.tag.color),
-      }}
     >
+      <span
+        style={{
+          backgroundColor: `#${props.tag.color}`,
+          border: `1px solid #${darkerColor}`,
+        }}
+      ></span>
       {!props.tag.isPublic && !props.circular && (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
           <path
