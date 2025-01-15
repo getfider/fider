@@ -173,7 +173,7 @@ export const ShowComment = (props: ShowCommentProps) => {
 
   return (
     <div id={`comment-${comment.id}`}>
-      <HStack spacing={2} center={false} className="c-comment flex-items-baseline">
+      <HStack spacing={2} className="c-comment flex-items-baseline">
         {modal()}
         <div className="pt-4">
           <Avatar user={comment.user} />

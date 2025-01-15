@@ -1,6 +1,6 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { ShowTag, VoteCounter, Markdown, Icon, ResponseStatusLabel } from "@fider/components"
+import { ShowTag, VoteCounter, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import { HStack, VStack } from "@fider/components/layout"
 
@@ -12,7 +12,7 @@ interface ListPostsProps {
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
-    <HStack center={true}>
+    <HStack align="center">
       <div className="align-self-start">
         <VoteCounter post={props.post} />
       </div>
@@ -28,7 +28,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
           )}
         </HStack>
         <Markdown className="text-gray-600" maxLength={300} text={props.post.description} style="plainText" />
-        <ResponseStatusLabel status={props.post.status} response={props.post.response} />
+        <ResponseLozenge status={props.post.status} response={props.post.response} />
         {props.tags.length >= 1 && (
           <HStack className="flex-wrap">
             {props.tags.map((tag) => (
@@ -51,7 +51,7 @@ export const ListPosts = (props: ListPostsProps) => {
   }
 
   return (
-    <VStack spacing={4} divide={true} center={true}>
+    <VStack spacing={4} divide={true} align="center">
       {props.posts.map((post) => (
         <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
       ))}

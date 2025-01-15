@@ -2,10 +2,9 @@ import React from "react"
 import { PostResponse, PostStatus } from "@fider/models"
 import { Icon, Markdown } from "@fider/components"
 import HeroIconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
-import HeroIconSmile from "@fider/assets/images/heroicons-smile.svg"
-import HeroIconStar from "@fider/assets/images/heroicons-star.svg"
+import HeroIconCheck from "@fider/assets/images/heroicons-check-circle.svg"
+import HeroIconSparkles from "@fider/assets/images/heroicons-sparkles-outline.svg"
 import HeroIconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
-import HeroIconInbox from "@fider/assets/images/heroicons-inbox.svg"
 import { t } from "@lingui/macro"
 
 import { HStack } from "./layout"
@@ -76,23 +75,27 @@ const getStatusIcon = (status: PostStatus): SpriteSymbol => {
     case PostStatus.Duplicate:
       return HeroIconDuplicate
     case PostStatus.Completed:
-      return HeroIconStar
+      return HeroIconCheck
     case PostStatus.Planned:
       return HeroIconThumbsUp
     case PostStatus.Started:
-      return HeroIconSmile
+      return HeroIconSparkles
   }
-  return HeroIconInbox
+  return HeroIconThumbsUp
 }
 
-export const ResponseStatusLabel = (props: PostResponseProps): JSX.Element | null => {
+export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null => {
   const status = PostStatus.Get(props.status)
+
+  if (status === PostStatus.Open) {
+    return <div />
+  }
 
   return (
     <>
-      <HStack>
-        <Icon sprite={getStatusIcon(status)} className={`h-6 c-status-col--${status.value}`} />
-        <span className={`text-semibold text-lg c-status-col--${status.value}`}>{status.title}</span>
+      <HStack align="start" className="align-self-start bg-blue-100 border border-blue-300 rounded-full p-1 px-3 mb-4">
+        <Icon sprite={getStatusIcon(status)} className={`h-5 c-status-col--${status.value}`} />
+        <span className={`text-semibold c-status-col--${status.value}`}>{status.title}</span>
       </HStack>
     </>
   )

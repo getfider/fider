@@ -51,9 +51,9 @@ export const TagsPanel = (props: TagsPanelProps) => {
   }
 
   const tagsList = (
-    <HStack spacing={2} center={true}>
+    <HStack spacing={2} align="center">
       {assignedTags.length > 0 && assignedTags.map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
-      <HStack spacing={1} center={true} className="clickable" onClick={onSubtitleClick}>
+      <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
         <span>
           <Trans id="label.edittags">Edit tags</Trans>
         </span>
@@ -85,7 +85,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
 
   return (
     <VStack>
-      <HStack spacing={2} center={true} className="text-primary-base text-xs">
+      <HStack spacing={2} align="center" className="text-primary-base text-xs">
         {!isEditing && tagsList}
         {isEditing && editTagsList}
       </HStack>
