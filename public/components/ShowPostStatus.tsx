@@ -1,4 +1,4 @@
-import "./ShowPostStatus.scss"
+// import "./ShowPostStatus.scss"
 
 import React from "react"
 import { PostStatus } from "@fider/models"

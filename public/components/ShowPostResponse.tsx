@@ -5,30 +5,11 @@ import HeroIconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import HeroIconCheck from "@fider/assets/images/heroicons-check-circle.svg"
 import HeroIconSparkles from "@fider/assets/images/heroicons-sparkles-outline.svg"
 import HeroIconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
+import HeroIconThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
 import { t } from "@lingui/macro"
 
 import { HStack } from "./layout"
 import { timeSince } from "@fider/services"
-
-// const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
-//   if (!props.response) {
-//     return null
-//   }
-
-//   const original = props.response.original
-//   if (!original) {
-//     return null
-//   }
-
-//   return (
-//     <HStack>
-//       <Icon sprite={HeroIconDuplicate} className="h-6 text-gray-500" />
-//       <a className="text-link" href={`/posts/${original.number}/${original.slug}`}>
-//         {original.title}
-//       </a>
-//     </HStack>
-//   )
-// }
 
 interface PostResponseProps {
   status: string
@@ -70,22 +51,24 @@ export const ResponseDetails = (props: PostResponseProps): JSX.Element | null =>
   )
 }
 
-const getStatusIcon = (status: PostStatus): SpriteSymbol => {
+const getLozengeProps = (status: PostStatus): { icon: SpriteSymbol; bg: string; color: string; border: string } => {
   switch (status) {
+    case PostStatus.Declined:
+      return { icon: HeroIconThumbsDown, bg: "bg-red-100", color: "text-red-800", border: "border-red-300" }
     case PostStatus.Duplicate:
-      return HeroIconDuplicate
+      return { icon: HeroIconDuplicate, bg: "bg-yellow-100", color: "text-yellow-800", border: "border-yellow-400" }
     case PostStatus.Completed:
-      return HeroIconCheck
+      return { icon: HeroIconCheck, bg: "bg-green-300", color: "text-green-800", border: "border-green-500" }
     case PostStatus.Planned:
-      return HeroIconThumbsUp
-    case PostStatus.Started:
-      return HeroIconSparkles
+      return { icon: HeroIconThumbsUp, bg: "bg-blue-100", color: "text-blue-700", border: "border-blue-400" }
+    default:
+      return { icon: HeroIconSparkles, bg: "bg-green-100", color: "text-green-700", border: "border-green-400" }
   }
-  return HeroIconThumbsUp
 }
 
 export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null => {
   const status = PostStatus.Get(props.status)
+  const { icon, bg, color, border } = getLozengeProps(status)
 
   if (status === PostStatus.Open) {
     return <div />
@@ -93,8 +76,8 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
 
   return (
     <>
-      <HStack align="start" className="align-self-start bg-blue-100 border border-blue-300 rounded-full p-1 px-3 mb-4">
-        <Icon sprite={getStatusIcon(status)} className={`h-5 c-status-col--${status.value}`} />
+      <HStack align="start" className={`align-self-start ${color} ${bg} border ${border} rounded-full p-1 px-3`}>
+        <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />
         <span className={`text-semibold c-status-col--${status.value}`}>{status.title}</span>
       </HStack>
     </>

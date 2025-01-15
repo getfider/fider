@@ -98,6 +98,10 @@
   align-self: start;
 }
 
+.align-self-center {
+  align-self: center;
+}
+
 .flex-items-center {
   align-items: center;
 }
@@ -146,7 +150,7 @@
   .flex-x.flex--divide-#{$i} > * + * {
     padding-right: spacing($i);
     padding-left: spacing($i);
-    border: 0 solid get("colors.gray.100");
+    border: 0 solid get("colors.gray.200");
     border-left-width: 1px;
   }
   .flex-x.flex--divide-#{$i} > *:last-child {
@@ -158,7 +162,7 @@
   .flex-y.flex--divide-#{$i} > * + * {
     padding-top: spacing($i);
     padding-bottom: spacing($i);
-    border: 0 solid get("colors.gray.100");
+    border: 0 solid get("colors.gray.200");
     border-top-width: 1px;
   }
   .flex-y.flex--divide-#{$i} > *:last-child {
@@ -197,6 +201,10 @@
 
 .bt {
   border-top: 1px solid;
+}
+
+.bl {
+  border-left: 1px solid;
 }
 
 .overflow-scroll {
