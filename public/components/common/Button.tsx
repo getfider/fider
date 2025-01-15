@@ -10,7 +10,7 @@ interface ButtonProps {
   rel?: "nofollow"
   target?: "_self" | "_blank" | "_parent" | "_top"
   type?: "button" | "submit"
-  variant?: "primary" | "danger" | "secondary" | "tertiary" | "quaternary"
+  variant?: "primary" | "danger" | "secondary" | "tertiary"
   size?: "small" | "default" | "large"
   onClick?: (event: ButtonClickEvent) => Promise<any> | void
 }
@@ -42,7 +42,7 @@ export const Button: React.FC<ButtonProps> = (props) => {
     "c-button--loading": clicked,
     "c-button--disabled": clicked || props.disabled,
     [props.className || ""]: props.className,
-    "shadow-sm": props.variant !== "tertiary",
+    "shadow-sm": props.variant == "primary" || props.variant == "secondary",
   })
 
   let buttonContent: JSX.Element
