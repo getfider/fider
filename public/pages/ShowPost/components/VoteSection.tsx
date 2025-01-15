@@ -53,8 +53,10 @@ export const VoteSection = (props: VoteSectionProps) => {
     <VStack spacing={4}>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
       <div className="align-self-start">
-        <Button variant="primary" onClick={voteOrUndo} disabled={isDisabled}>
-          <Icon sprite={icon} /> <span>{buttonText}</span>
+        <Button variant="primary" onClick={voteOrUndo} disabled={isDisabled} style={{ minWidth: "180px" }}>
+          <HStack spacing={2} justify="center" className="w-full">
+            <Icon sprite={icon} /> <span>{buttonText}</span>
+          </HStack>
         </Button>
       </div>
       <HStack>
