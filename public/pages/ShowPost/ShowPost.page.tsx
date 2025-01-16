@@ -193,7 +193,11 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 <VStack spacing={8}>
                   <HStack justify="between">
                     <VStack align="start">
-                      <ResponseLozenge status={this.props.post.status} response={this.props.post.response} />
+                      {this.props.post.status !== "open" && (
+                        <div className="mb-4">
+                          <ResponseLozenge status={this.props.post.status} response={this.props.post.response} />
+                        </div>
+                      )}
                       <div className="flex-grow">
                         {this.state.editMode ? (
                           <Form error={this.state.error}>
