@@ -97,6 +97,10 @@ pre:last-child {
   font-size: get("font.size.2xs");
 }
 
+.text-xl {
+  font-size: get("font.size.xl");
+}
+
 .hover\:underline:hover {
   text-decoration: underline;
 }

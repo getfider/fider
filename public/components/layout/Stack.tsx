@@ -25,8 +25,8 @@ const Stack = (props: StackProps, dir: "x" | "y") => {
     "justify-full": props.justify === "full",
     "justify-center": props.justify === "center",
     "flex-items-start": props.align === "start",
-    "flex-items-center": props.align === "center" && dir === "x",
-    "items-end": props.align === "end",
+    "flex-items-center": props.align === "center" || (dir === "x" && props.align === undefined),
+    "flex-items-end": props.align === "end",
   })
 
   return (
