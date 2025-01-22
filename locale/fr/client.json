@@ -46,6 +46,7 @@
   "home.postscontainer.label.noresults": "Aucun résultat ne correspond à votre recherche, essayez quelque chose de différent.",
   "home.postscontainer.label.viewmore": "Voir plus de messages",
   "home.postscontainer.query.placeholder": "Rechercher",
+  "home.postsort.label": "",
   "home.similar.subtitle": "Envisagez de voter sur les messages existants.",
   "home.similar.title": "Messages similaires",
   "home.tagsfilter.label.with": "avec",

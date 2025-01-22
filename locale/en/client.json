@@ -46,6 +46,7 @@
   "home.postscontainer.label.noresults": "No results matched your search, try something different.",
   "home.postscontainer.label.viewmore": "View more posts",
   "home.postscontainer.query.placeholder": "Search",
+  "home.postsort.label": "Sort by:",
   "home.similar.subtitle": "Consider voting on existing posts instead.",
   "home.similar.title": "Similar posts",
   "home.tagsfilter.label.with": "with",
