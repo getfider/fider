@@ -22,6 +22,7 @@ func Index() web.HandlerFunc {
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
+		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
 		getAllTags := &query.GetAllTags{}
 		countPerStatus := &query.CountPostPerStatus{}
 

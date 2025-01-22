@@ -31,6 +31,7 @@
   "error.pagenotfound.title": "Nie odnaleziono strony",
   "error.unauthorized.text": "Nie masz uprawnień do przeglądania tej strony.",
   "error.unauthorized.title": "Brak autoryzacji",
+  "home.filter.label": "",
   "home.form.defaultinvitation": "Wpisz swoją sugestię tutaj...",
   "home.form.defaultwelcomemessage": "Chcemy się dowiedzieć o czym myślisz.\n\nCo możemy poprawić? To jest miejsce, w którym możesz głosować, dyskutować i dzielić się pomysłami.",
   "home.lonely.suggestion": "Zaleca się stworzenie tutaj <0>co najmniej 3</0> sugestii przed udostępnieniem tej witryny. Początkowa zawartość jest ważna do zaangażowania swoich odbiorców.",

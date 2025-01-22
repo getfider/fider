@@ -513,6 +513,115 @@ func TestPostStorage_WithTags(t *testing.T) {
 	Expect(getPost.Result.Tags[1]).Equals(addFeatureRequest.Result.Slug)
 }
 
+func TestGetPosts_Different_Statuses(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "New Post, hello there.", Description: "with this description 3"}
+	startedPost := &cmd.AddNewPost{Title: "Started Post, yes we're doing this", Description: "with this description"}
+	completedPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description 2"}
+	duplicatePost := &cmd.AddNewPost{Title: "New Post, hello there again", Description: "with this description 2"}
+	declinedPost := &cmd.AddNewPost{Title: "Nope, not this", Description: "with this description 2"}
+	plannedPost := &cmd.AddNewPost{Title: "Yes we're going to do this", Description: "with this description 2"}
+	err := bus.Dispatch(aryaStarkCtx, startedPost, completedPost, newPost, duplicatePost, declinedPost, plannedPost)
+	Expect(err).IsNil()
+
+	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
+	addFeatureRequest := &cmd.AddNewTag{Name: "Feature Request", Color: "00FF00", IsPublic: false}
+	bus.MustDispatch(aryaStarkCtx, addBug, addFeatureRequest)
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: newPost.Result})
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: newPost.Result})
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: completedPost.Result})
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: completedPost.Result})
+
+	completedPostResponse := &cmd.SetPostResponse{Post: completedPost.Result, Text: "We're doing this", Status: enum.PostCompleted}
+	startedPostResponse := &cmd.SetPostResponse{Post: startedPost.Result, Text: "We're doing this", Status: enum.PostStarted}
+	declinedPostResponse := &cmd.SetPostResponse{Post: declinedPost.Result, Text: "We're not doing this", Status: enum.PostDeclined}
+	plannedPostResponse := &cmd.SetPostResponse{Post: plannedPost.Result, Text: "This is planned", Status: enum.PostPlanned}
+	duplicatePostResponse := &cmd.SetPostResponse{Post: duplicatePost.Result, Text: "This is a dupe", Status: enum.PostDeclined}
+
+	err = bus.Dispatch(aryaStarkCtx, startedPostResponse, completedPostResponse, duplicatePostResponse, declinedPostResponse, plannedPostResponse)
+	Expect(err).IsNil()
+
+	testCases := []struct {
+		name          string
+		searchParams  *query.SearchPosts
+		expectedCount int
+		expectedIDs   []int
+	}{
+		{
+			name:          "Default Search (Everything except declined, completed and duplicate)",
+			searchParams:  &query.SearchPosts{},
+			expectedCount: 3,
+			expectedIDs:   []int{startedPost.Result.ID, newPost.Result.ID, plannedPost.Result.ID},
+		},
+		{
+			name: "Started and Completed",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{enum.PostStarted, enum.PostCompleted},
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{startedPost.Result.ID, completedPost.Result.ID},
+		},
+		{
+			name: "Only Started",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{enum.PostStarted},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{startedPost.Result.ID},
+		},
+		{
+			name: "All statuses",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{
+					enum.PostStarted,
+					enum.PostCompleted,
+					enum.PostDeclined,
+					enum.PostDuplicate,
+					enum.PostPlanned,
+					enum.PostOpen,
+				},
+			},
+			expectedCount: 6,
+			expectedIDs:   []int{startedPost.Result.ID, completedPost.Result.ID, newPost.Result.ID, duplicatePost.Result.ID, declinedPost.Result.ID, plannedPost.Result.ID},
+		},
+		{
+			name: "Completed, with bug tag",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{enum.PostCompleted},
+				Tags:     []string{addBug.Result.Slug},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{completedPost.Result.ID},
+		},
+		{
+			name: "Open and Completed, with bug tag",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{enum.PostCompleted, enum.PostOpen},
+				Tags:     []string{addBug.Result.Slug},
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{completedPost.Result.ID, newPost.Result.ID},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err = bus.Dispatch(aryaStarkCtx, tc.searchParams)
+			Expect(err).IsNil()
+			Expect(tc.searchParams.Result).HasLen(tc.expectedCount)
+
+			foundIDs := make([]int, len(tc.searchParams.Result))
+			for i, post := range tc.searchParams.Result {
+				foundIDs[i] = post.ID
+			}
+			Expect(foundIDs).ContainsOnly(tc.expectedIDs)
+		})
+	}
+
+}
+
 func TestPostStorage_IsReferenced(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

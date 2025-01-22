@@ -31,6 +31,7 @@
   "error.pagenotfound.title": "Stránka nenájdená",
   "error.unauthorized.text": "Nemáte oprávnenie na zobrazenie tejto stránky.",
   "error.unauthorized.title": "Neautorizovaný",
+  "home.filter.label": "",
   "home.form.defaultinvitation": "Sem zadajte svoj návrh...",
   "home.form.defaultwelcomemessage": "Radi by sme počuli, čo máte na mysli.\n\nČo môžeme urobiť lepšie? Tu môžete hlasovať, diskutovať a zdieľať nápady.",
   "home.lonely.suggestion": "Pred zdieľaním tejto stránky tu odporúčame vytvoriť <0> aspoň 3 </0> návrhy. Počiatočný obsah je dôležitý, aby ste mohli zaujať publikum.",

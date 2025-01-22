@@ -31,6 +31,7 @@
   "error.pagenotfound.title": "Sayfa bulunamadı",
   "error.unauthorized.text": "Bu sayfayı görüntülemek için yetkiniz yok.",
   "error.unauthorized.title": "Yetkili Değil",
+  "home.filter.label": "",
   "home.form.defaultinvitation": "Önerinizi buraya yazın...",
   "home.form.defaultwelcomemessage": "Ne düşündüğünüzü öğrenmeyi çok isteriz.\n\nKendimizi nasıl geliştirebiliriz? Burada önerileri oylayabilir, tartışabilir ya da paylaşabilirsiniz.",
   "home.lonely.suggestion": "Siteyi paylaşmadan önce buraya <0>en az 3</0> öneri girmenizi tavsiye ederiz. İlk içerikler, hedef kitlenizin etkileşime geçmesi için önemlidir.",

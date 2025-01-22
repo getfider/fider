@@ -7,10 +7,10 @@ import { Loader, Input } from "@fider/components"
 import { actions, navigator, querystring } from "@fider/services"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
-import { PostFilter } from "./PostFilter"
+import { PostFilter, FilterState } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
-import { TagsFilter } from "./TagsFilter"
 import { t, Trans } from "@lingui/macro"
+import { PostsSort } from "./PostsSort"
 
 interface PostsContainerProps {
   user?: CurrentUser
@@ -21,23 +21,28 @@ interface PostsContainerProps {
 
 interface PostsContainerState {
   loading: boolean
-  posts?: Post[]
+  posts?: Post[] // All posts
   view: string
-  tags: string[]
-  query: string
-  limit?: number
+  filterState: FilterState // Filter state
+  query: string // Seach query
+  limit?: number // Limit
 }
 
 export class PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
   constructor(props: PostsContainerProps) {
     super(props)
 
+    let view = querystring.get("view")
+    if (!view) {
+      view = "trending"
+    }
+
     this.state = {
       posts: this.props.posts,
       loading: false,
-      view: querystring.get("view"),
+      view,
       query: querystring.get("query"),
-      tags: querystring.getArray("tags"),
+      filterState: { tags: querystring.getArray("tags"), statuses: querystring.getArray("statuses") },
       limit: querystring.getNumber("limit"),
     }
   }
@@ -47,23 +52,24 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
       const query = this.state.query.trim().toLowerCase()
       navigator.replaceState(
         querystring.stringify({
-          tags: this.state.tags,
+          statuses: this.state.filterState.statuses,
+          tags: this.state.filterState.tags,
           query,
           view: this.state.view,
           limit: this.state.limit,
         })
       )
 
-      this.searchPosts(query, this.state.view, this.state.limit, this.state.tags, reset)
+      this.searchPosts(query, this.state.view, this.state.limit, this.state.filterState.tags, this.state.filterState.statuses, reset)
     })
   }
 
   private timer?: number
-  private async searchPosts(query: string, view: string, limit: number | undefined, tags: string[], reset: boolean) {
+  private async searchPosts(query: string, view: string, limit: number | undefined, tags: string[], statuses: string[], reset: boolean) {
     window.clearTimeout(this.timer)
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true })
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view, limit, tags }).then((response) => {
+      actions.searchPosts({ query, view: view, limit, tags, statuses }).then((response) => {
         if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data })
         }
@@ -71,16 +77,16 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     }, 500)
   }
 
-  private handleViewChanged = (view: string) => {
-    this.changeFilterCriteria({ view }, true)
-  }
-
-  private handleTagsFilterChanged = (tags: string[]) => {
-    this.changeFilterCriteria({ tags }, true)
+  private handleFilterChanged = (filterState: FilterState) => {
+    this.changeFilterCriteria({ filterState }, true)
   }
 
   private handleSearchFilterChanged = (query: string) => {
     this.changeFilterCriteria({ query }, true)
+  }
+
+  private handleSortChanged = (view: string) => {
+    this.changeFilterCriteria({ view }, true)
   }
 
   private clearSearch = () => {
@@ -103,11 +109,16 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
     return (
       <div className="c-posts-container">
-        <div className="c-posts-container__header mb-4">
+        <div className="c-posts-container__header mb-5">
           {!this.state.query && (
             <div className="c-posts-container__filter-col">
-              <PostFilter activeView={this.state.view} viewChanged={this.handleViewChanged} countPerStatus={this.props.countPerStatus} />
-              {this.props.tags.length > 0 && <TagsFilter tags={this.props.tags} selectionChanged={this.handleTagsFilterChanged} selected={this.state.tags} />}
+              <PostFilter
+                tags={this.props.tags}
+                activeFilter={this.state.filterState}
+                filtersChanged={this.handleFilterChanged}
+                countPerStatus={this.props.countPerStatus}
+              />
+              <PostsSort onChange={this.handleSortChanged} value={this.state.view} />
             </div>
           )}
           <div className="c-posts-container__search-col">

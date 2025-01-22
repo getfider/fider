@@ -31,6 +31,7 @@
   "error.pagenotfound.title": "Pagina non trovata",
   "error.unauthorized.text": "Non sei autorizzato a visualizzare questa pagina.",
   "error.unauthorized.title": "Non autorizzato",
+  "home.filter.label": "",
   "home.form.defaultinvitation": "Inserisci qui il tuo suggerimento...",
   "home.form.defaultwelcomemessage": "Ci piacerebbe sentire quello che stai pensando.\n\nChe cosa possiamo fare meglio? Questo è il posto per voi per votare, discutere e condividere idee.",
   "home.lonely.suggestion": "Si consiglia di creare <0>almeno 3</0> suggerimenti qui prima di condividere questo sito. Il contenuto iniziale è importante per iniziare ad coinvolgere il pubblico.",

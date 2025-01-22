@@ -31,6 +31,7 @@
   "error.pagenotfound.title": "Pagina niet gevonden",
   "error.unauthorized.text": "Je bent niet bevoegd om deze pagina te bekijken.",
   "error.unauthorized.title": "Geen toegang",
+  "home.filter.label": "",
   "home.form.defaultinvitation": "Deel jouw suggesties hier...",
   "home.form.defaultwelcomemessage": "We horen graag waar je aan denkt.\n\nWat kunnen we beter doen? Dit is de plek waar je op ideeën kunt stemmen en reageren, en ook je eigen ideeën kunt delen.",
   "home.lonely.suggestion": "Het is aanbevolen om <0>tenminste 3 ideeën</0> aan te maken voor het delen van de site. De initiële inhoud is belangrijk om jouw publiek te motiveren om deel te nemen.",

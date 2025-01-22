@@ -26,7 +26,7 @@
   }
 
   &__search-col {
-    grid-auto-columns: auto;
+    grid-column: 4;
     &:first-child {
       grid-column: 1 / -1;
     }

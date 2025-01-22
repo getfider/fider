@@ -31,6 +31,7 @@
   "error.pagenotfound.title": "Die Seite wurde nicht gefunden",
   "error.unauthorized.text": "Du bist nicht berechtigt, diese Seite anzuschauen.",
   "error.unauthorized.title": "Nicht berechtigt",
+  "home.filter.label": "",
   "home.form.defaultinvitation": "Gib hier Deinen Vorschlag ein...",
   "home.form.defaultwelcomemessage": "Wir würden gerne erfahren, worüber Du nachdenkst.\n\nWas können wir verbessern? Hier kannst Du abstimmen, diskutieren und neue Ideen vorschlagen.",
   "home.lonely.suggestion": "Es wird empfohlen, dass Sie <0>mindestens 3</0> Vorschläge hier erstellen, bevor Sie diese Seite teilen. Der ursprüngliche Inhalt ist wichtig, um Ihr Publikum zu engagieren.",

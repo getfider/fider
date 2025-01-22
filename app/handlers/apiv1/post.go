@@ -26,6 +26,8 @@ func SearchPosts() web.HandlerFunc {
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
+		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
+
 		if err := bus.Dispatch(c, searchPosts); err != nil {
 			return c.Failure(err)
 		}
@@ -60,7 +62,7 @@ func CreatePost() web.HandlerFunc {
 		if err = bus.Dispatch(c, setAttachments, addVote); err != nil {
 			return c.Failure(err)
 		}
-		
+
 		if env.Config.PostCreationWithTagsEnabled {
 			for _, tag := range action.Tags {
 				assignTag := &cmd.AssignTag{Tag: tag, Post: newPost.Result}
