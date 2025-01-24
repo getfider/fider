@@ -12,7 +12,7 @@ interface ListPostsProps {
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
-    <HStack spacing={4} align="start">
+    <HStack spacing={4} align="start" className="c-posts-container__post">
       <div>
         <VoteCounter post={props.post} />
       </div>

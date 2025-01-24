@@ -215,7 +215,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                         <Dropdown.ListItem onClick={this.onActionSelected("copy")}>
                           <Trans id="action.copylink">Copy link</Trans>
                         </Dropdown.ListItem>
-                        {canEditPost(Fider.session.user, this.props.post) && (
+                        {Fider.session.isAuthenticated && canEditPost(Fider.session.user, this.props.post) && (
                           <>
                             <Dropdown.ListItem onClick={this.onActionSelected("edit")}>
                               <Trans id="action.edit">Edit</Trans>
@@ -238,7 +238,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   <ResponseDetails status={this.props.post.status} response={this.props.post.response} />
 
                   <DeletePostModal onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
-                  {Fider.session.user.isCollaborator && (
+                  {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
                     <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
                   )}
                   {!this.state.editMode && (
