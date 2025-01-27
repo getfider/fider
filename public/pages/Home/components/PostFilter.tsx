@@ -7,11 +7,15 @@ import HeroIconFilter from "@fider/assets/images/heroicons-filter.svg"
 import { useFider } from "@fider/hooks"
 import { t } from "@lingui/macro"
 
+import { FilterState } from "./PostsContainer"
+
+type FilterType = "tag" | "status" | "myVotes"
+
 interface OptionItem {
-  value: string
+  value: string | boolean
   label: string
   count?: number
-  tag?: Tag
+  type: FilterType
 }
 
 interface PostFilterProps {
@@ -20,35 +24,57 @@ interface PostFilterProps {
   filtersChanged: (filter: FilterState) => void
   tags: Tag[]
 }
-export interface FilterState {
-  tags: string[]
-  statuses: string[]
+
+export interface FilterItem {
+  type: FilterType
+  value: string | boolean
+}
+
+const FilterStateToFilterItems = (filterState: FilterState): FilterItem[] => {
+  const filterItems: FilterItem[] = []
+  filterState.statuses.forEach((s) => {
+    filterItems.push({ type: "status", value: s })
+  })
+  filterState.tags.forEach((t) => {
+    filterItems.push({ type: "tag", value: t })
+  })
+  if (filterState.myVotes) {
+    filterItems.push({ type: "myVotes", value: true })
+  }
+  return filterItems
+}
+
+const FilterItemsToFilterState = (filterItems: FilterItem[]): FilterState => {
+  const filterState: FilterState = { tags: [], statuses: [], myVotes: false }
+  filterItems.forEach((i) => {
+    if (i.type === "tag") {
+      filterState.tags.push(i.value as string)
+    } else if (i.type === "status") {
+      filterState.statuses.push(i.value as string)
+    } else if (i.type === "myVotes") {
+      filterState.myVotes = true
+    }
+  })
+  return filterState
 }
 
 export const PostFilter = (props: PostFilterProps) => {
   const fider = useFider()
 
+  const filterItems: FilterItem[] = FilterStateToFilterItems(props.activeFilter)
+
   const handleChangeFilter = (item: OptionItem) => () => {
-    if (item.tag) {
-      // Handle tag selection
-      const newTags = props.activeFilter.tags.includes(item.value)
-        ? props.activeFilter.tags.filter((t) => t !== item.value)
-        : [...props.activeFilter.tags, item.value]
-      const newFilters = { ...props.activeFilter, tags: newTags }
-      props.filtersChanged(newFilters)
-    } else {
-      // Handle status selection
-      const newStatuses = props.activeFilter.statuses.includes(item.value)
-        ? props.activeFilter.statuses.filter((s) => s !== item.value)
-        : [...props.activeFilter.statuses, item.value]
-      const newFilters = { ...props.activeFilter, statuses: newStatuses }
-      props.filtersChanged(newFilters)
-    }
+    const exists = filterItems.find((i) => i.type === item.type && i.value === item.value)
+    const newFilter = exists
+      ? filterItems.filter((i) => !(i.type === item.type && i.value === item.value))
+      : [...filterItems, { type: item.type, value: item.value }]
+
+    props.filtersChanged(FilterItemsToFilterState(newFilter))
   }
   const options: OptionItem[] = []
 
   if (fider.session.isAuthenticated) {
-    options.push({ value: "my-votes", label: t({ id: "home.postfilter.option.myvotes", message: "My Votes" }) })
+    options.push({ value: true, label: t({ id: "home.postfilter.option.myvotes", message: "My Votes" }), type: "myVotes" })
   }
 
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
@@ -57,6 +83,7 @@ export const PostFilter = (props: PostFilterProps) => {
       label: t({ id, message: s.title }),
       value: s.value,
       count: props.countPerStatus[s.value],
+      type: "status",
     })
   })
 
@@ -64,17 +91,14 @@ export const PostFilter = (props: PostFilterProps) => {
     options.push({
       label: t.name,
       value: t.slug,
-      tag: t,
+      type: "tag",
     })
   })
 
-  const filterCount = props.activeFilter.tags.length + props.activeFilter.statuses.length
+  const filterCount = filterItems.length
 
   return (
     <HStack className="mr-4">
-      {/* <span className="text-category">
-        <Trans id="home.postfilter.label.view">View</Trans>
-      </span> */}
       <Dropdown
         renderHandle={
           <HStack className="h-10 text-medium text-xs rounded-md uppercase border border-gray-400 text-gray-800 p-2 px-3">
@@ -85,10 +109,11 @@ export const PostFilter = (props: PostFilterProps) => {
         }
       >
         {options.map((o) => {
-          const isChecked = o.tag ? props.activeFilter.tags.includes(o.value) : props.activeFilter.statuses.includes(o.value)
+          const isChecked = filterItems.find((f) => f.type === o.type && f.value === o.value) !== undefined
+
           return (
-            <Dropdown.ListItem onClick={handleChangeFilter(o)} key={o.value}>
-              <Checkbox field={o.value} checked={isChecked}>
+            <Dropdown.ListItem onClick={handleChangeFilter(o)} key={o.value.toString()}>
+              <Checkbox field={o.value.toString()} checked={isChecked}>
                 <HStack spacing={2}>
                   <span className={isChecked ? "text-semibold" : ""}>{o.label}</span>
                   <div className="">

@@ -41,30 +41,35 @@ func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {
 		}
 	}
 
+	if query.MyVotesOnly {
+		condition = "AND has_voted = true"
+	}
+
 	switch query.View {
 	case "recent":
-		sort = "id"
-	case "my-votes":
-		condition = "AND has_voted = true"
 		sort = "id"
 	case "most-wanted":
 		sort = "votes_count"
 	case "most-discussed":
 		sort = "comments_count"
-	// Depracted: Use status filters instead
+	case "my-votes":
+		// Depracated: You can instead filter on my votes only for more flexibility than using this view.
+		condition = "AND has_voted = true"
+		sort = "id"
 	case "planned":
+		// Depracated: Use status filters instead
 		sort = "response_date"
 		statusFilters = []enum.PostStatus{enum.PostPlanned}
-	// Deprecated: Use status filters instead
 	case "started":
+		// Depracated: Use status filters instead
 		sort = "response_date"
 		statusFilters = []enum.PostStatus{enum.PostStarted}
-	// Deprecated: Use status filters instead
 	case "completed":
+		// Depracated: Use status filters instead
 		sort = "response_date"
 		statusFilters = []enum.PostStatus{enum.PostCompleted}
-	// Deprecated: Use status filters instead
 	case "declined":
+		// Depracated: Use status filters instead
 		sort = "response_date"
 		statusFilters = []enum.PostStatus{enum.PostDeclined}
 	case "all":

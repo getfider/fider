@@ -528,7 +528,8 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 
 	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
 	addFeatureRequest := &cmd.AddNewTag{Name: "Feature Request", Color: "00FF00", IsPublic: false}
-	bus.MustDispatch(aryaStarkCtx, addBug, addFeatureRequest)
+	voteForPostRequest := &cmd.AddVote{Post: newPost.Result, User: aryaStark}
+	bus.MustDispatch(aryaStarkCtx, addBug, addFeatureRequest, voteForPostRequest)
 	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: newPost.Result})
 	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: newPost.Result})
 	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: completedPost.Result})
@@ -570,6 +571,22 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 			},
 			expectedCount: 1,
 			expectedIDs:   []int{startedPost.Result.ID},
+		},
+		{
+			name: "My votes only",
+			searchParams: &query.SearchPosts{
+				MyVotesOnly: true,
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{newPost.Result.ID},
+		},
+		{
+			name: "Legacy view for my votes only should still work",
+			searchParams: &query.SearchPosts{
+				View: "my-votes",
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{newPost.Result.ID},
 		},
 		{
 			name: "All statuses",

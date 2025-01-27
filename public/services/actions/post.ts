@@ -10,19 +10,22 @@ export interface SearchPostsParams {
   view?: string
   limit?: number
   tags?: string[]
+  myVotes?: boolean
   statuses?: string[]
 }
 
 export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
-  return await http.get<Post[]>(
-    `/api/v1/posts${querystring.stringify({
-      tags: params.tags,
-      statuses: params.statuses,
-      query: params.query,
-      view: params.view,
-      limit: params.limit,
-    })}`
-  )
+  let qsParams = querystring.stringify({
+    tags: params.tags,
+    statuses: params.statuses,
+    query: params.query,
+    view: params.view,
+    limit: params.limit,
+  })
+  if (params.myVotes) {
+    qsParams += `&myvotes=true`
+  }
+  return await http.get<Post[]>(`/api/v1/posts${qsParams}`)
 }
 
 export const deletePost = async (postNumber: number, text: string): Promise<Result> => {

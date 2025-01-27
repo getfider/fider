@@ -7,7 +7,7 @@ import { Loader, Input } from "@fider/components"
 import { actions, navigator, querystring } from "@fider/services"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
-import { PostFilter, FilterState } from "./PostFilter"
+import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
 import { t, Trans } from "@lingui/macro"
 import { PostsSort } from "./PostsSort"
@@ -28,6 +28,12 @@ interface PostsContainerState {
   limit?: number // Limit
 }
 
+export interface FilterState {
+  tags: string[]
+  statuses: string[]
+  myVotes: boolean
+}
+
 export class PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
   constructor(props: PostsContainerProps) {
     super(props)
@@ -42,7 +48,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
       loading: false,
       view,
       query: querystring.get("query"),
-      filterState: { tags: querystring.getArray("tags"), statuses: querystring.getArray("statuses") },
+      filterState: { tags: querystring.getArray("tags"), statuses: querystring.getArray("statuses"), myVotes: querystring.get("myvotes") === "true" },
       limit: querystring.getNumber("limit"),
     }
   }
@@ -54,22 +60,31 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         querystring.stringify({
           statuses: this.state.filterState.statuses,
           tags: this.state.filterState.tags,
+          myvotes: this.state.filterState.myVotes.toString(),
           query,
           view: this.state.view,
           limit: this.state.limit,
         })
       )
 
-      this.searchPosts(query, this.state.view, this.state.limit, this.state.filterState.tags, this.state.filterState.statuses, reset)
+      this.searchPosts(
+        query,
+        this.state.view,
+        this.state.limit,
+        this.state.filterState.tags,
+        this.state.filterState.statuses,
+        this.state.filterState.myVotes,
+        reset
+      )
     })
   }
 
   private timer?: number
-  private async searchPosts(query: string, view: string, limit: number | undefined, tags: string[], statuses: string[], reset: boolean) {
+  private async searchPosts(query: string, view: string, limit: number | undefined, tags: string[], statuses: string[], myVotes: boolean, reset: boolean) {
     window.clearTimeout(this.timer)
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true })
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view: view, limit, tags, statuses }).then((response) => {
+      actions.searchPosts({ query, view: view, limit, tags, statuses, myVotes }).then((response) => {
         if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data })
         }

@@ -26,6 +26,9 @@ func SearchPosts() web.HandlerFunc {
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
+		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
+			searchPosts.MyVotesOnly = myVotesOnly
+		}
 		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
 
 		if err := bus.Dispatch(c, searchPosts); err != nil {

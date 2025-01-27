@@ -34,11 +34,12 @@ type GetPostByNumber struct {
 }
 
 type SearchPosts struct {
-	Query    string
-	View     string
-	Limit    string
-	Statuses []enum.PostStatus
-	Tags     []string
+	Query       string
+	View        string
+	Limit       string
+	Statuses    []enum.PostStatus
+	Tags        []string
+	MyVotesOnly bool
 
 	Result []*entity.Post
 }
