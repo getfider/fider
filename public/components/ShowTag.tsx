@@ -3,23 +3,13 @@ import "./ShowTag.scss"
 import React from "react"
 import { Tag } from "@fider/models"
 import { classSet } from "@fider/services"
+import ShieldCheck from "@fider/assets/images/heroicons-shieldcheck.svg"
+import { Icon } from "./common"
 
 interface TagProps {
   tag: Tag
   circular?: boolean
   link?: boolean
-}
-
-const getRGB = (color: string) => {
-  const r = color.substring(0, 2)
-  const g = color.substring(2, 4)
-  const b = color.substring(4, 6)
-
-  return {
-    R: parseInt(r, 16),
-    G: parseInt(g, 16),
-    B: parseInt(b, 16),
-  }
 }
 
 // const textColor = (color: string) => {
@@ -34,16 +24,6 @@ export const ShowTag = (props: TagProps) => {
     "c-tag--circular": props.circular === true,
   })
 
-  const darkenColor = (color: string) => {
-    const components = getRGB(color)
-    const darkerR = Math.floor(components.R * 0.8)
-    const darkerG = Math.floor(components.G * 0.8)
-    const darkerB = Math.floor(components.B * 0.8)
-    return `${darkerR.toString(16).padStart(2, "0")}${darkerG.toString(16).padStart(2, "0")}${darkerB.toString(16).padStart(2, "0")}`
-  }
-
-  const darkerColor = darkenColor(props.tag.color)
-
   return (
     <a
       href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : undefined}
@@ -53,18 +33,9 @@ export const ShowTag = (props: TagProps) => {
       <span
         style={{
           backgroundColor: `#${props.tag.color}`,
-          border: `1px solid #${darkerColor}`,
         }}
       ></span>
-      {!props.tag.isPublic && !props.circular && (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path
-            fillRule="evenodd"
-            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      )}
+      {!props.tag.isPublic && !props.circular && <Icon height="14" width="14" sprite={ShieldCheck} className="mr-1" />}
       {props.circular ? "" : props.tag.name || "Tag"}
     </a>
   )

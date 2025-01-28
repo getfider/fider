@@ -7,7 +7,7 @@
   font-size: 13px;
   color: get("colors.gray.900");
   background-color: get("colors.gray.200");
-  font-weight: 600;
+  font-weight: 500;
   border-radius: 5px;
   // line-height: 18px;
   padding: 6px 10px;
@@ -28,11 +28,6 @@
     height: 12px;
     border-radius: 50%;
     display: inline-block;
-  }
-
-  svg {
-    height: 8px;
-    margin-right: 2px;
   }
 
   &--circular {
