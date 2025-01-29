@@ -58,6 +58,10 @@ pre:last-child {
   font-size: get("font.size.lg");
 }
 
+.text-2xl {
+  font-size: get("font.size.2xl");
+}
+
 .text-category {
   font-size: get("font.size.xs");
   font-weight: get("font.weight.semibold");

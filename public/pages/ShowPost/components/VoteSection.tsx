@@ -59,13 +59,11 @@ export const VoteSection = (props: VoteSectionProps) => {
           </HStack>
         </Button>
       </div>
-      <HStack>
-        <span className="text-display">
-          {votes.length} {votes.length === 1 ? "Vote" : "Votes"}
+      <HStack align="center">
+        <span className="text-semibold text-2xl" style={{ fontSize: "32px", minHeight: "48px" }}>
+          {votes.length}
         </span>
-        {/* <div className="pl-4">
-          <VotesPanel post={post} votes={votes} hideTitle={true} />
-        </div> */}
+        <span className="text-semibold text-lg">{votes.length === 1 ? "Vote" : "Votes"}</span>
       </HStack>
     </VStack>
   )

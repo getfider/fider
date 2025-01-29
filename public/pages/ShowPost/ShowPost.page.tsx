@@ -7,7 +7,6 @@ import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/s
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 
 import {
-  ResponseLozenge,
   ResponseDetails,
   Button,
   UserName,
@@ -193,23 +192,17 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 <VStack spacing={8}>
                   <HStack justify="between">
                     <VStack align="start">
-                      {this.props.post.status !== "open" && (
-                        <div className="mb-4">
-                          <ResponseLozenge status={this.props.post.status} response={this.props.post.response} />
-                        </div>
+                      {!this.state.editMode && (
+                        <HStack>
+                          <Avatar user={this.props.post.user} />
+                          <VStack spacing={1}>
+                            <UserName user={this.props.post.user} />
+                            <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
+                          </VStack>
+                        </HStack>
                       )}
-                      <div className="flex-grow">
-                        {this.state.editMode ? (
-                          <Form error={this.state.error}>
-                            <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
-                          </Form>
-                        ) : (
-                          <>
-                            <h1 className="text-large">{this.props.post.title}</h1>
-                          </>
-                        )}
-                      </div>
                     </VStack>
+
                     {!this.state.editMode && (
                       <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
                         <Dropdown.ListItem onClick={this.onActionSelected("copy")}>
@@ -235,20 +228,27 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                       </Dropdown>
                     )}
                   </HStack>
-                  <ResponseDetails status={this.props.post.status} response={this.props.post.response} />
+
+                  {/* {this.props.post.status !== "open" && (
+                        <div className="mb-4">
+                          <ResponseLozenge status={this.props.post.status} response={this.props.post.response} />
+                        </div>
+                      )} */}
+                  <div className="flex-grow">
+                    {this.state.editMode ? (
+                      <Form error={this.state.error}>
+                        <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
+                      </Form>
+                    ) : (
+                      <>
+                        <h1 className="text-large">{this.props.post.title}</h1>
+                      </>
+                    )}
+                  </div>
 
                   <DeletePostModal onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
                   {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
                     <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
-                  )}
-                  {!this.state.editMode && (
-                    <HStack>
-                      <Avatar user={this.props.post.user} />
-                      <VStack spacing={1}>
-                        <UserName user={this.props.post.user} />
-                        <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
-                      </VStack>
-                    </HStack>
                   )}
                   <VStack>
                     {this.state.editMode ? (
@@ -276,7 +276,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
                   <VStack spacing={4}>
                     {!this.state.editMode ? (
-                      <HStack justify="between">
+                      <HStack justify="between" align="start">
                         <VoteSection post={this.props.post} votes={this.props.votes} />
                         <FollowButton post={this.props.post} subscribed={this.props.subscribed} />
                       </HStack>
@@ -298,6 +298,8 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     )}
                     <div className="border-4 border-blue-500" />
                   </VStack>
+
+                  <ResponseDetails status={this.props.post.status} response={this.props.post.response} />
                 </VStack>
               </div>
 

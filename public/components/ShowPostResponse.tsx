@@ -6,9 +6,7 @@ import HeroIconCheck from "@fider/assets/images/heroicons-check-circle.svg"
 import HeroIconSparkles from "@fider/assets/images/heroicons-sparkles-outline.svg"
 import HeroIconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import HeroIconThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
-import { t } from "@lingui/macro"
-
-import { HStack } from "./layout"
+import { HStack, VStack } from "./layout"
 import { timeSince } from "@fider/services"
 
 interface PostResponseProps {
@@ -18,36 +16,29 @@ interface PostResponseProps {
 
 export const ResponseDetails = (props: PostResponseProps): JSX.Element | null => {
   const status = PostStatus.Get(props.status)
-  const id = `enum.poststatus.${status.value}`
-  const statusLabel = t({ id, message: status.title })
 
   if (!props.response || status === PostStatus.Open) {
     return null
   }
 
-  const title = t({
-    id: "showpost.response.date",
-    message: "Status changed to {status} on {statusDate}",
-    values: { status: statusLabel, statusDate: timeSince("en", new Date(), props.response.respondedAt, "date") },
-  })
-
   return (
-    <div className="bg-blue-50 p-2 border border-blue-200 rounded">
-      <div>{title}</div>
+    <VStack align="start" spacing={4} className="bg-blue-50 p-3 border border-blue-200 rounded">
+      <ResponseLozenge response={props.response} status={props.status} />
+      <div className="text-semibold text-lg">{timeSince("en", new Date(), props.response.respondedAt, "date")}</div>
       {props.response?.text && status !== PostStatus.Duplicate && (
-        <div className="content pt-1">
+        <div className="content">
           <Markdown text={props.response.text} style="full" />
         </div>
       )}
 
       {status === PostStatus.Duplicate && props.response.original && (
-        <div className="content pt-1">
+        <div className="content">
           <a className="text-link" href={`/posts/${props.response.original.number}/${props.response.original.slug}`}>
             {props.response.original.title}
           </a>
         </div>
       )}
-    </div>
+    </VStack>
   )
 }
 
@@ -75,11 +66,11 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
   }
 
   return (
-    <>
-      <HStack align="start" className={`align-self-start ${color} ${bg} border ${border} rounded-full p-1 px-3`}>
+    <div>
+      <HStack align="start" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
         <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />
         <span className={`text-semibold c-status-col--${status.value}`}>{status.title}</span>
       </HStack>
-    </>
+    </div>
   )
 }
