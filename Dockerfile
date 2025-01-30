@@ -14,7 +14,6 @@ COPY . ./
 
 ARG COMMITHASH
 RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
-
 #################
 ### UI Build Step
 #################
@@ -36,6 +35,11 @@ FROM --platform=${TARGETPLATFORM:-linux/amd64} debian:bookworm-slim
 
 RUN apt-get update
 RUN apt-get install -y ca-certificates
+RUN apt-get install -y \
+    build-essential \
+    gcc \
+    libc6-dev
+
 
 WORKDIR /app
 
