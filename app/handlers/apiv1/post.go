@@ -377,6 +377,52 @@ func RemoveVote() web.HandlerFunc {
 	}
 }
 
+func ToggleVote() web.HandlerFunc {
+	return func(c *web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		if getPost.Result == nil {
+			return c.NotFound()
+		}
+
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID}
+		if err := bus.Dispatch(c, listVotes); err != nil {
+			return c.Failure(err)
+		}
+
+		hasVoted := false
+		for _, vote := range listVotes.Result {
+			if vote.User.ID == c.User().ID {
+				hasVoted = true
+				break
+			}
+		}
+
+		if hasVoted {
+			err := bus.Dispatch(c, &cmd.RemoveVote{Post: getPost.Result, User: c.User()})
+			if err != nil {
+				return c.Failure(err)
+			}
+			return c.Ok(web.Map{"voted": false})
+		}
+
+		err = bus.Dispatch(c, &cmd.AddVote{Post: getPost.Result, User: c.User()})
+		if err != nil {
+			return c.Failure(err)
+		}
+		metrics.TotalVotes.Inc()
+		return c.Ok(web.Map{"voted": true})
+	}
+}
+
 // Subscribe adds current user to list of subscribers of given post
 func Subscribe() web.HandlerFunc {
 	return func(c *web.Context) error {

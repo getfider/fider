@@ -277,7 +277,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   <VStack spacing={4}>
                     {!this.state.editMode ? (
                       <HStack justify="between" align="start">
-                        <VoteSection post={this.props.post} votes={this.props.votes} />
+                        <VoteSection post={this.props.post} votes={this.props.post.votesCount} />
                         <FollowButton post={this.props.post} subscribed={this.props.subscribed} />
                       </HStack>
                     ) : (

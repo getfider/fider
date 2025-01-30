@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Post, PostStatus, Vote } from "@fider/models"
+import { Post, PostStatus } from "@fider/models"
 import { actions } from "@fider/services"
 import { Button, Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
@@ -7,18 +7,16 @@ import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { Trans } from "@lingui/macro"
 import { HStack, VStack } from "@fider/components/layout"
-// import { VotesPanel } from "./VotesPanel"
 
 interface VoteSectionProps {
   post: Post
-  votes: Vote[]
+  votes: number
 }
 
 export const VoteSection = (props: VoteSectionProps) => {
   const fider = useFider()
-  const [hasVoted, setHasVoted] = useState(props.post.hasVoted)
   const [votes, setVotes] = useState(props.votes)
-  const [post, setPost] = useState(props.post)
+  const [hasVoted, setHasVoted] = useState(props.post.hasVoted)
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
 
   const voteOrUndo = async () => {
@@ -27,17 +25,10 @@ export const VoteSection = (props: VoteSectionProps) => {
       return
     }
 
-    const action = hasVoted ? actions.removeVote : actions.addVote
-
-    const response = await action(props.post.number)
+    const response = await actions.toggleVote(props.post.number)
     if (response.ok) {
-      const newVotes: Vote[] = hasVoted
-        ? votes.filter((vote) => vote.user.id !== fider.session.user.id)
-        : [...votes, { user: fider.session.user, createdAt: new Date() }]
-
-      setPost({ ...post, votesCount: newVotes.length })
-      setVotes(newVotes)
-      setHasVoted(!hasVoted)
+      setVotes(response.data.voted ? votes + 1 : votes - 1)
+      setHasVoted(response.data.voted)
     }
   }
 
@@ -61,9 +52,9 @@ export const VoteSection = (props: VoteSectionProps) => {
       </div>
       <HStack align="center">
         <span className="text-semibold text-2xl" style={{ fontSize: "32px", minHeight: "48px" }}>
-          {votes.length}
+          {votes}
         </span>
-        <span className="text-semibold text-lg">{votes.length === 1 ? "Vote" : "Votes"}</span>
+        <span className="text-semibold text-lg">{votes === 1 ? "Vote" : "Votes"}</span>
       </HStack>
     </VStack>
   )
