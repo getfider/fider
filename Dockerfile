@@ -37,7 +37,7 @@ RUN make build-ui
 ################
 FROM --platform=${TARGETPLATFORM:-linux/amd64} debian:bookworm-slim
 
-RUN apt-get install -y ca-certificates
+RUN apt-get update && apt-get install -y ca-certificates
 
 WORKDIR /app
 
