@@ -19,7 +19,7 @@ import {
   ImageViewer,
   Icon,
   Header,
-  PoweredByFider,
+  // PoweredByFider,
   Avatar,
   Dropdown,
 } from "@fider/components"
@@ -40,7 +40,7 @@ import { FollowButton } from "./components/FollowButton"
 import { VoteSection } from "./components/VoteSection"
 import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
-import { MostWanted } from "./components/MostWanted"
+// import { MostWanted } from "./components/MostWanted"
 
 interface ShowPostPageProps {
   post: Post
@@ -308,8 +308,8 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
               </div>
             </div>
             <div className="p-show-post__action-col">
-              <MostWanted />
-              <PoweredByFider slot="show-post" className="mt-3" />
+              {/* <MostWanted /> */}
+              {/* <PoweredByFider slot="show-post" className="mt-3" /> */}
             </div>
           </div>
         </div>
