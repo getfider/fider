@@ -8,7 +8,7 @@ Feature: Post
     And I click submit new post
     Then I should be on the show post page
     And I should see "Feature Request Example" as the post title
-    And I should see 1 vote(s)
+    And I should see 1 vote
 
   Scenario: Non-logged in user can view a post
     Given I go to the home page
@@ -16,4 +16,4 @@ Feature: Post
     And I click on the first post
     Then I should be on the show post page
     And I should see "Feature Request Example" as the post title
-    And I should see 1 vote(s)
+    And I should see 1 vote
