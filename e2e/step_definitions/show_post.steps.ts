@@ -13,5 +13,5 @@ Then("I should see {string} as the post title", async function (this: FiderWorld
 })
 
 Then("I should see {int} vote\\(s)", async function (this: FiderWorld, voteCount: number) {
-  await expect(this.page.getByText(`${voteCount} votes`, { exact: true })).toBeVisible()
+  await expect(this.page.getByText(`${voteCount}${voteCount === 1 ? "Vote" : "Votes"}`, { exact: true })).toBeVisible()
 })
