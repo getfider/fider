@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Δεν υπάρχει περιγραφή.",
   "showpost.moderationpanel.text.help": "Αυτή η λειτουργία <0>δεν μπορεί</0> να αναιρεθεί.",
   "showpost.moderationpanel.text.placeholder": "Γιατί διαγράφετε αυτή την ανάρτηση; (προαιρετικό)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Λαμβάνετε ειδοποιήσεις σχετικά με δραστηριότητα σε αυτή τη δημοσίευση.",
   "showpost.notificationspanel.message.unsubscribed": "Δεν θα λάβετε καμία ειδοποίηση σχετικά με αυτή τη δημοσίευση.",
   "showpost.postsearch.numofvotes": "{0} Ψήφοι",

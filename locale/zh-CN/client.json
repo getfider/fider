@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "未提供描述.",
   "showpost.moderationpanel.text.help": "此操作<0>无法撤消</0>.",
   "showpost.moderationpanel.text.placeholder": "你为什么要删除这篇内容？（可选）",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "您正在收到有关此帖子活动的通知.",
   "showpost.notificationspanel.message.unsubscribed": "您将不会收到有关此帖子的任何通知.",
   "showpost.postsearch.numofvotes": "{0} 投票",

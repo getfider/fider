@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "No description provided.",
   "showpost.moderationpanel.text.help": "This operation <0>cannot</0> be undone.",
   "showpost.moderationpanel.text.placeholder": "Why are you deleting this post? (optional)",
+  "showpost.mostwanted.comments": "{count, plural, one {# comment} other {# comments}}",
+  "showpost.mostwanted.votes": "{count, plural, one {# votes} other {# votes}}",
   "showpost.notificationspanel.message.subscribed": "You’re receiving notifications about activity on this post.",
   "showpost.notificationspanel.message.unsubscribed": "You'll not receive any notification about this post.",
   "showpost.postsearch.numofvotes": "{0} votes",

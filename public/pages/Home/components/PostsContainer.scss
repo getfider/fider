@@ -8,19 +8,18 @@
   }
 
   &__filter-col {
-    grid-column: span 3 / span 3;
+    grid-column: 1 / -1;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     & > * + * {
       margin-left: 0;
-      margin-top: spacing(1);
     }
 
     @include media("md") {
+      grid-column: span 3 / span 3;
       flex-direction: row;
       & > * + * {
         margin-left: spacing(1);
-        margin-top: 0;
       }
     }
   }
@@ -28,6 +27,10 @@
   &__search-col {
     grid-column: 4;
     &:first-child {
+      grid-column: 1 / -1;
+    }
+
+    @include media("sm") {
       grid-column: 1 / -1;
     }
   }

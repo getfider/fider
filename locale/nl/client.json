@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Geen omschrijving opgegeven.",
   "showpost.moderationpanel.text.help": "Deze bewerking kan <0>niet</0> ongedaan gemaakt worden.",
   "showpost.moderationpanel.text.placeholder": "Waarom verwijder je dit bericht? (optioneel)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Je ontvangt meldingen over activiteiten op dit bericht.",
   "showpost.notificationspanel.message.unsubscribed": "Je ontvangt geen meldingen over dit bericht.",
   "showpost.postsearch.numofvotes": "{0} stemmen",

@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Brak opisu.",
   "showpost.moderationpanel.text.help": "Ta akcja <0>nie może</0> zostać wykonana.",
   "showpost.moderationpanel.text.placeholder": "Dlaczego usuwasz ten wpis? (opcjonalne)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Otrzymujesz powiadomienia o aktywności tego posta.",
   "showpost.notificationspanel.message.unsubscribed": "Nie będziesz otrzymywał żadnych powiadomień o o tym poście.",
   "showpost.postsearch.numofvotes": "{0} głosów",

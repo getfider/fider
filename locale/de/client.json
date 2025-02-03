@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Keine Beschreibung angegeben.",
   "showpost.moderationpanel.text.help": "Diese Aktion <0>kann nicht</0> rückgängig gemacht werden.",
   "showpost.moderationpanel.text.placeholder": "Warum löschst du diesen Beitrag? (optional)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Sie erhalten Benachrichtigungen über Aktivitäten auf diesem Beitrag.",
   "showpost.notificationspanel.message.unsubscribed": "Sie erhalten keine Benachrichtigungen über diesen Beitrag.",
   "showpost.postsearch.numofvotes": "{0} Stimmen",

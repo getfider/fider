@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "No se proporcionó ninguna descripción.",
   "showpost.moderationpanel.text.help": "Esta operación <0>no se puede</0> deshacer.",
   "showpost.moderationpanel.text.placeholder": "¿Por qué estás eliminando esta publicación? (opcional)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Has recibido notificaciones sobre la actividad en este mensaje.",
   "showpost.notificationspanel.message.unsubscribed": "No recibirás ninguna notificación sobre este evento.",
   "showpost.postsearch.numofvotes": "{0} votos",

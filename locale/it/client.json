@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Nessuna descrizione fornita.",
   "showpost.moderationpanel.text.help": "Questa operano <0>non</0> può essere cancellata.",
   "showpost.moderationpanel.text.placeholder": "Stai eliminando questo post? (Opzione)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Stai ricevendo notifiche sull'attività di questo post.",
   "showpost.notificationspanel.message.unsubscribed": "Non riceverai alcuna notifica su questo post.",
   "showpost.postsearch.numofvotes": "{0} votes",

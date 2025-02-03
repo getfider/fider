@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Nenhuma descrição fornecida.",
   "showpost.moderationpanel.text.help": "Esta operação <0>não pode</0> ser desfeita.",
   "showpost.moderationpanel.text.placeholder": "Por que você está excluindo esta postagem? (opcional)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Você está recebendo notificações sobre a atividade nesta postagem.",
   "showpost.notificationspanel.message.unsubscribed": "Você não receberá nenhuma notificação sobre esta postagem.",
   "showpost.postsearch.numofvotes": "{0} votos",

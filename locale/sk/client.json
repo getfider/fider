@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Nie je poskytnutý žiadny popis.",
   "showpost.moderationpanel.text.help": "Túto operáciu <0>nemožno</0> vrátiť späť.",
   "showpost.moderationpanel.text.placeholder": "Prečo mažete tento príspevok? (voliteľné)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Dostávate upozornenia na aktivitu v tomto príspevku.",
   "showpost.notificationspanel.message.unsubscribed": "Na tento príspevok nedostanete žiadne upozornenie.",
   "showpost.postsearch.numofvotes": "{0} hlasov",

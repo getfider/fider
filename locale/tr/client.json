@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Herhangi bir açıklama belirtilmedi.",
   "showpost.moderationpanel.text.help": "Bu işlem geri <0>alınamaz</0>.",
   "showpost.moderationpanel.text.placeholder": "Bu öneriyi neden siliyorsunuz? (isteğe bağlı)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Bu öneri üzerindeki hareketler hakkında bildirimler alacaksınız.",
   "showpost.notificationspanel.message.unsubscribed": "Bu öneri hakkında bildirim almayacaksınız.",
   "showpost.postsearch.numofvotes": "{0} oy",

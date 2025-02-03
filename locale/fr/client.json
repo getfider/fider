@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Aucune description fournie.",
   "showpost.moderationpanel.text.help": "Cette opération <0>ne peut pas</0> être annulée.",
   "showpost.moderationpanel.text.placeholder": "Pourquoi supprimez-vous ce message ? (optionnel)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Vous recevrez des notifications sur l'activité de ce message.",
   "showpost.notificationspanel.message.unsubscribed": "Vous ne recevrez aucune notification à propos de ce message.",
   "showpost.postsearch.numofvotes": "{0} votes",

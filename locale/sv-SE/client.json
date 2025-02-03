@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Ingen beskrivning angiven.",
   "showpost.moderationpanel.text.help": "Denna åtgärd <0>går inte</0> att ångra.",
   "showpost.moderationpanel.text.placeholder": "Varför tar du bort detta inlägg? (valfritt)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Du får aviseringar om aktivitet på det här inlägget.",
   "showpost.notificationspanel.message.unsubscribed": "Du får inte aviseringar för det här inlägget.",
   "showpost.postsearch.numofvotes": "{0} röster",

@@ -149,6 +149,8 @@
   "showpost.message.nodescription": "Описания нет.",
   "showpost.moderationpanel.text.help": "Это действие <0>нельзя</0> отменить.",
   "showpost.moderationpanel.text.placeholder": "Почему вы удаляете этот пост? (необязательно)",
+  "showpost.mostwanted.comments": "",
+  "showpost.mostwanted.votes": "",
   "showpost.notificationspanel.message.subscribed": "Вы подписаны на уведомления об активности в этом посте.",
   "showpost.notificationspanel.message.unsubscribed": "Вы не подписаны на уведомления об активности в этом посте.",
   "showpost.postsearch.numofvotes": "{0} голосов",
