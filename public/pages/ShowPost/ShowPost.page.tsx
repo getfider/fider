@@ -40,6 +40,7 @@ import { FollowButton } from "./components/FollowButton"
 import { VoteSection } from "./components/VoteSection"
 import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
+import { VotesPanel } from "./components/VotesPanel"
 // import { MostWanted } from "./components/MostWanted"
 
 interface ShowPostPageProps {
@@ -308,6 +309,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
               </div>
             </div>
             <div className="p-show-post__action-col">
+              <VotesPanel post={this.props.post} votes={this.props.votes} />
               {/* <MostWanted /> */}
               {/* <PoweredByFider slot="show-post" className="mt-3" /> */}
             </div>

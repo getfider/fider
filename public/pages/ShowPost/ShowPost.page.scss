@@ -15,9 +15,9 @@
 
     &__action-col {
       > :first-child {
-        background-color: get("colors.white");
+        // background-color: get("colors.white");
         padding: spacing(4);
-        border-radius: get("border.radius.large");
+        // border-radius: get("border.radius.large");
       }
     }
   }
@@ -26,11 +26,11 @@
     .p-show-post {
       display: grid;
       gap: spacing(6);
-      grid-template-columns: 1fr 5fr 1fr;
+      grid-template-columns: 2fr 6fr 1fr;
       grid-template-rows: auto;
       grid-template-areas:
-        "Action Main Nothing"
-        "Action Main Nothing";
+        "Action Main"
+        "Action Main";
 
       &__main-col {
         grid-area: Main;
