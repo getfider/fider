@@ -28,10 +28,8 @@ import {
 // import { NotificationsPanel } from "./components/NotificationsPanel"
 // import { ModerationPanel } from "./components/ModerationPanel"
 import { DiscussionPanel } from "./components/DiscussionPanel"
-// import { VotesPanel } from "./components/VotesPanel"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
-// import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/macro"
@@ -41,7 +39,6 @@ import { VoteSection } from "./components/VoteSection"
 import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
-// import { MostWanted } from "./components/MostWanted"
 
 interface ShowPostPageProps {
   post: Post
