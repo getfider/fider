@@ -22,6 +22,12 @@ func Index() web.HandlerFunc {
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
+
+		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
+			searchPosts.MyVotesOnly = myVotesOnly
+		}
+
+		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
 		getAllTags := &query.GetAllTags{}
 		countPerStatus := &query.CountPostPerStatus{}
 
@@ -68,7 +74,7 @@ func PostDetails() web.HandlerFunc {
 		isSubscribed := &query.UserSubscribedTo{PostID: getPost.Result.ID}
 		getComments := &query.GetCommentsByPost{Post: getPost.Result}
 		getAllTags := &query.GetAllTags{}
-		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, Limit: 6, IncludeEmail: false}
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, Limit: 24, IncludeEmail: false}
 		getAttachments := &query.GetAttachments{Post: getPost.Result}
 		if err := bus.Dispatch(c, getAllTags, getComments, listVotes, isSubscribed, getAttachments); err != nil {
 			return c.Failure(err)

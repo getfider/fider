@@ -10,17 +10,22 @@ export interface SearchPostsParams {
   view?: string
   limit?: number
   tags?: string[]
+  myVotes?: boolean
+  statuses?: string[]
 }
 
 export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
-  return await http.get<Post[]>(
-    `/api/v1/posts${querystring.stringify({
-      tags: params.tags,
-      query: params.query,
-      view: params.view,
-      limit: params.limit,
-    })}`
-  )
+  let qsParams = querystring.stringify({
+    tags: params.tags,
+    statuses: params.statuses,
+    query: params.query,
+    view: params.view,
+    limit: params.limit,
+  })
+  if (params.myVotes) {
+    qsParams += `&myvotes=true`
+  }
+  return await http.get<Post[]>(`/api/v1/posts${qsParams}`)
 }
 
 export const deletePost = async (postNumber: number, text: string): Promise<Result> => {
@@ -37,6 +42,10 @@ export const addVote = async (postNumber: number): Promise<Result> => {
 
 export const removeVote = async (postNumber: number): Promise<Result> => {
   return http.delete(`/api/v1/posts/${postNumber}/votes`).then(http.event("post", "unvote"))
+}
+
+export const toggleVote = async (postNumber: number): Promise<Result<{ voted: boolean }>> => {
+  return http.post<{ voted: boolean }>(`/api/v1/posts/${postNumber}/votes/toggle`).then(http.event("post", "toggle-vote"))
 }
 
 export const subscribe = async (postNumber: number): Promise<Result> => {

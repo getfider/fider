@@ -1,40 +1,80 @@
-import React, { useState } from "react"
-import { PostStatus } from "@fider/models"
-import { Dropdown } from "@fider/components"
+import React from "react"
+import { PostStatus, Tag } from "@fider/models"
+import { Checkbox, Dropdown, Icon } from "@fider/components"
 import { HStack } from "@fider/components/layout"
-import { useFider } from "@fider/hooks"
-import { t, Trans } from "@lingui/macro"
+import HeroIconFilter from "@fider/assets/images/heroicons-filter.svg"
 
-interface PostFilterProps {
-  activeView: string
-  countPerStatus: { [key: string]: number }
-  viewChanged: (name: string) => void
-}
+import { useFider } from "@fider/hooks"
+import { t } from "@lingui/macro"
+
+import { FilterState } from "./PostsContainer"
+
+type FilterType = "tag" | "status" | "myVotes"
 
 interface OptionItem {
-  value: string
+  value: string | boolean
   label: string
   count?: number
+  type: FilterType
+}
+
+interface PostFilterProps {
+  activeFilter: FilterState
+  countPerStatus: { [key: string]: number }
+  filtersChanged: (filter: FilterState) => void
+  tags: Tag[]
+}
+
+export interface FilterItem {
+  type: FilterType
+  value: string | boolean
+}
+
+const FilterStateToFilterItems = (filterState: FilterState): FilterItem[] => {
+  const filterItems: FilterItem[] = []
+  filterState.statuses.forEach((s) => {
+    filterItems.push({ type: "status", value: s })
+  })
+  filterState.tags.forEach((t) => {
+    filterItems.push({ type: "tag", value: t })
+  })
+  if (filterState.myVotes) {
+    filterItems.push({ type: "myVotes", value: true })
+  }
+  return filterItems
+}
+
+const FilterItemsToFilterState = (filterItems: FilterItem[]): FilterState => {
+  const filterState: FilterState = { tags: [], statuses: [], myVotes: false }
+  filterItems.forEach((i) => {
+    if (i.type === "tag") {
+      filterState.tags.push(i.value as string)
+    } else if (i.type === "status") {
+      filterState.statuses.push(i.value as string)
+    } else if (i.type === "myVotes") {
+      filterState.myVotes = true
+    }
+  })
+  return filterState
 }
 
 export const PostFilter = (props: PostFilterProps) => {
   const fider = useFider()
-  const [view, setView] = useState<string>(props.activeView)
 
-  const handleChangeView = (item: OptionItem) => () => {
-    setView(item.value)
-    props.viewChanged(item.value)
+  const filterItems: FilterItem[] = FilterStateToFilterItems(props.activeFilter)
+
+  const handleChangeFilter = (item: OptionItem) => () => {
+    const exists = filterItems.find((i) => i.type === item.type && i.value === item.value)
+    const newFilter = exists
+      ? filterItems.filter((i) => !(i.type === item.type && i.value === item.value))
+      : [...filterItems, { type: item.type, value: item.value }]
+
+    props.filtersChanged(FilterItemsToFilterState(newFilter))
   }
-
-  const options: OptionItem[] = [
-    { value: "trending", label: t({ id: "home.postfilter.option.trending", message: "Trending" }) },
-    { value: "recent", label: t({ id: "home.postfilter.option.recent", message: "Recent" }) },
-    { value: "most-wanted", label: t({ id: "home.postfilter.option.mostwanted", message: "Most Wanted" }) },
-    { value: "most-discussed", label: t({ id: "home.postfilter.option.mostdiscussed", message: "Most Discussed" }) },
-  ]
+  const options: OptionItem[] = []
 
   if (fider.session.isAuthenticated) {
-    options.push({ value: "my-votes", label: t({ id: "home.postfilter.option.myvotes", message: "My Votes" }) })
+    options.push({ value: true, label: t({ id: "home.postfilter.option.myvotes", message: "My Votes" }), type: "myVotes" })
   }
 
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
@@ -43,26 +83,47 @@ export const PostFilter = (props: PostFilterProps) => {
       label: t({ id, message: s.title }),
       value: s.value,
       count: props.countPerStatus[s.value],
+      type: "status",
     })
   })
 
-  const selectedItem = options.filter((x) => x.value === view)
-  const label = selectedItem.length > 0 ? selectedItem[0].label : options[0].label
+  props.tags.forEach((t) => {
+    options.push({
+      label: t.name,
+      value: t.slug,
+      type: "tag",
+    })
+  })
+
+  const filterCount = filterItems.length
 
   return (
-    <HStack>
-      <span className="text-category">
-        <Trans id="home.postfilter.label.view">View</Trans>
-      </span>
-      <Dropdown renderHandle={<div className="text-medium text-xs uppercase rounded-md uppercase bg-gray-100 px-2 py-1">{label}</div>}>
-        {options.map((o) => (
-          <Dropdown.ListItem onClick={handleChangeView(o)} key={o.value}>
-            <HStack spacing={2}>
-              <span className={view === o.value ? "text-semibold" : ""}>{o.label}</span>
-              <div>{o.count && o.count > 0 && <span className="bg-gray-200 inline-block rounded-full px-1 w-min-4 text-2xs text-center">{o.count}</span>}</div>
-            </HStack>
-          </Dropdown.ListItem>
-        ))}
+    <HStack className="mr-4">
+      <Dropdown
+        renderHandle={
+          <HStack className="h-10 text-medium text-xs rounded-md uppercase border border-gray-400 text-gray-800 p-2 px-3">
+            <Icon sprite={HeroIconFilter} className="h-5 pr-1" />
+            {t({ id: "home.filter.label", message: "Filter" })}
+            {filterCount > 0 && <div className="bg-gray-200 inline-block rounded-full px-2 py-1 w-min-4 text-2xs text-center">{filterCount}</div>}
+          </HStack>
+        }
+      >
+        {options.map((o) => {
+          const isChecked = filterItems.find((f) => f.type === o.type && f.value === o.value) !== undefined
+
+          return (
+            <Dropdown.ListItem onClick={handleChangeFilter(o)} key={o.value.toString()}>
+              <Checkbox field={o.value.toString()} checked={isChecked}>
+                <HStack spacing={2}>
+                  <span className={isChecked ? "text-semibold" : ""}>{o.label}</span>
+                  <div className="">
+                    {o.count && o.count > 0 && <span className="bg-gray-200 inline-block rounded-full px-1 w-min-4 text-2xs text-center">{o.count}</span>}
+                  </div>
+                </HStack>
+              </Checkbox>
+            </Dropdown.ListItem>
+          )
+        })}
       </Dropdown>
     </HStack>
   )

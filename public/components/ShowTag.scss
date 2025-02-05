@@ -4,12 +4,13 @@
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  font-size: 11px;
+  font-size: 13px;
   color: get("colors.gray.900");
+  background-color: get("colors.gray.200");
   font-weight: 500;
-  border-radius: 10px;
-  line-height: 18px;
-  padding: 0 8px;
+  border-radius: 5px;
+  // line-height: 18px;
+  padding: 6px 10px;
   border: 0;
 
   &[href] {
@@ -21,9 +22,12 @@
     }
   }
 
-  svg {
-    height: 8px;
-    margin-right: 2px;
+  span {
+    margin-right: 7px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
   }
 
   &--circular {

@@ -55,7 +55,7 @@ export const CommentInput = (props: CommentInputProps) => {
   return (
     <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <HStack spacing={2} center={false} className="c-comment-input">
+      <HStack spacing={2} className="c-comment-input">
         {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
         <div className="flex-grow bg-gray-50 rounded-md p-2">
           <Form error={error}>

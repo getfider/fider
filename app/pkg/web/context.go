@@ -398,6 +398,18 @@ func (c *Context) QueryParamAsInt(key string) (int, error) {
 	return intValue, nil
 }
 
+func (c *Context) QueryParamAsBool(key string) (bool, error) {
+	value := c.QueryParam(key)
+	if value == "" {
+		return false, nil
+	}
+	boolValue, err := strconv.ParseBool(value)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to parse %s to boolean", value)
+	}
+	return boolValue, nil
+}
+
 // QueryParamAsArray returns querystring parameter for given key as an array
 func (c *Context) QueryParamAsArray(key string) []string {
 	param := c.QueryParam(key)
