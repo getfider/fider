@@ -19,14 +19,10 @@ import {
   ImageViewer,
   Icon,
   Header,
-  // PoweredByFider,
+  PoweredByFider,
   Avatar,
   Dropdown,
 } from "@fider/components"
-// import { ResponseForm } from "./components/ResponseForm"
-// import { TagsPanel } from "./components/TagsPanel"
-// import { NotificationsPanel } from "./components/NotificationsPanel"
-// import { ModerationPanel } from "./components/ModerationPanel"
 import { DiscussionPanel } from "./components/DiscussionPanel"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
@@ -227,11 +223,6 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     )}
                   </HStack>
 
-                  {/* {this.props.post.status !== "open" && (
-                        <div className="mb-4">
-                          <ResponseLozenge status={this.props.post.status} response={this.props.post.response} />
-                        </div>
-                      )} */}
                   <div className="flex-grow">
                     {this.state.editMode ? (
                       <Form error={this.state.error}>
@@ -307,8 +298,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
             </div>
             <div className="p-show-post__action-col">
               <VotesPanel post={this.props.post} votes={this.props.votes} />
-              {/* <MostWanted /> */}
-              {/* <PoweredByFider slot="show-post" className="mt-3" /> */}
+              <PoweredByFider slot="show-post" className="mt-3" />
             </div>
           </div>
         </div>
