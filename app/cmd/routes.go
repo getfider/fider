@@ -204,6 +204,7 @@ func routes(r *web.Engine) *web.Engine {
 		membersApi.Get("/api/v1/taggable-users", apiv1.ListTaggableUsers())
 		membersApi.Post("/api/v1/posts/:number/votes", apiv1.AddVote())
 		membersApi.Delete("/api/v1/posts/:number/votes", apiv1.RemoveVote())
+		membersApi.Post("/api/v1/posts/:number/votes/toggle", apiv1.ToggleVote())
 		membersApi.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
 		membersApi.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
 

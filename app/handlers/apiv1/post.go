@@ -29,6 +29,11 @@ func SearchPosts() web.HandlerFunc {
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
+		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
+			searchPosts.MyVotesOnly = myVotesOnly
+		}
+		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
+
 		if err := bus.Dispatch(c, searchPosts); err != nil {
 			return c.Failure(err)
 		}
@@ -397,6 +402,52 @@ func RemoveVote() web.HandlerFunc {
 		return addOrRemove(c, func(post *entity.Post, user *entity.User) bus.Msg {
 			return &cmd.RemoveVote{Post: post, User: user}
 		})
+	}
+}
+
+func ToggleVote() web.HandlerFunc {
+	return func(c *web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		if getPost.Result == nil {
+			return c.NotFound()
+		}
+
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID}
+		if err := bus.Dispatch(c, listVotes); err != nil {
+			return c.Failure(err)
+		}
+
+		hasVoted := false
+		for _, vote := range listVotes.Result {
+			if vote.User.ID == c.User().ID {
+				hasVoted = true
+				break
+			}
+		}
+
+		if hasVoted {
+			err := bus.Dispatch(c, &cmd.RemoveVote{Post: getPost.Result, User: c.User()})
+			if err != nil {
+				return c.Failure(err)
+			}
+			return c.Ok(web.Map{"voted": false})
+		}
+
+		err = bus.Dispatch(c, &cmd.AddVote{Post: getPost.Result, User: c.User()})
+		if err != nil {
+			return c.Failure(err)
+		}
+		metrics.TotalVotes.Inc()
+		return c.Ok(web.Map{"voted": true})
 	}
 }
 

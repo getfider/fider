@@ -167,13 +167,13 @@ export const ShowComment = (props: ShowCommentProps) => {
 
   const classList = classSet({
     "flex-grow rounded-md p-2": true,
-    "bg-gray-50": !props.highlighted,
-    "bg-gray-100": props.highlighted,
+    "bg-gray-100": !props.highlighted,
+    "bg-gray-200": props.highlighted,
   })
 
   return (
     <div id={`comment-${comment.id}`}>
-      <HStack spacing={2} center={false} className="c-comment flex-items-baseline">
+      <HStack spacing={2} className="c-comment flex-items-baseline">
         {modal()}
         <div className="pt-4">
           <Avatar user={comment.user} />

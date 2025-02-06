@@ -1,32 +1,31 @@
 import React from "react"
 
-import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption, Icon } from "@fider/components"
+import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components"
 import { Post, PostStatus } from "@fider/models"
 
-import { actions, Failure, Fider } from "@fider/services"
+import { actions, Failure } from "@fider/services"
 import { PostSearch } from "./PostSearch"
-import IconSpeakerPhone from "@fider/assets/images/heroicons-speakerphone.svg"
-import { Trans } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 
-interface ResponseFormProps {
+interface ResponseModalProps {
   post: Post
+  showModal: boolean
+  onCloseModal: () => void
 }
 
-interface ResponseFormState {
-  showModal: boolean
+interface ResponseModalState {
   status: string
   text: string
   originalNumber: number
   error?: Failure
 }
 
-export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
-  constructor(props: ResponseFormProps) {
+export class ResponseModal extends React.Component<ResponseModalProps, ResponseModalState> {
+  constructor(props: ResponseModalProps) {
     super(props)
 
     this.state = {
-      showModal: false,
       status: this.props.post.status,
       originalNumber: 0,
       text: this.props.post.response ? this.props.post.response.text : "",
@@ -44,14 +43,6 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
     }
   }
 
-  private showModal = async () => {
-    this.setState({ showModal: true })
-  }
-
-  private closeModal = async () => {
-    this.setState({ showModal: false })
-  }
-
   private setStatus = (opt?: SelectOption) => {
     if (opt) {
       this.setState({ status: opt.value })
@@ -67,15 +58,6 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   }
 
   public render() {
-    const button = (
-      <Button className="w-full" onClick={this.showModal} disabled={Fider.isReadOnly}>
-        <Icon sprite={IconSpeakerPhone} />{" "}
-        <span>
-          <Trans id="action.respond">Respond</Trans>
-        </span>
-      </Button>
-    )
-
     const options = PostStatus.All.map((s) => {
       const id = `enum.poststatus.${s.value.toString()}`
       return {
@@ -85,7 +67,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
     })
 
     const modal = (
-      <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal} center={false} size="large">
+      <Modal.Window isOpen={this.props.showModal} onClose={this.props.onCloseModal} center={false} size="large">
         <Modal.Content>
           <Form error={this.state.error} className="c-response-form">
             <Select field="status" label="Status" defaultValue={this.state.status} options={options} onChange={this.setStatus} />
@@ -105,7 +87,8 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                 onChange={this.setText}
                 value={this.state.text}
                 minRows={5}
-                placeholder={i18n._("showpost.responseform.text.placeholder", {
+                placeholder={t({
+                  id: "showpost.responseform.text.placeholder",
                   message: "What's going on with this post? Let your users know what are your plans...",
                 })}
               />
@@ -117,18 +100,13 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
           <Button variant="primary" onClick={this.submit}>
             <Trans id="action.submit">Submit</Trans>
           </Button>
-          <Button variant="tertiary" onClick={this.closeModal}>
+          <Button variant="tertiary" onClick={this.props.onCloseModal}>
             <Trans id="action.cancel">Cancel</Trans>
           </Button>
         </Modal.Footer>
       </Modal.Window>
     )
 
-    return (
-      <>
-        {button}
-        {modal}
-      </>
-    )
+    return modal
   }
 }

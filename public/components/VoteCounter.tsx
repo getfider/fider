@@ -7,7 +7,7 @@ import { Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import FaCaretUp from "@fider/assets/images/fa-caretup.svg"
 
-interface VoteCounterProps {
+export interface VoteCounterProps {
   post: Post
 }
 
@@ -38,6 +38,7 @@ export const VoteCounter = (props: VoteCounterProps) => {
   const isDisabled = status.closed || fider.isReadOnly
 
   const className = classSet({
+    "border-gray-200 border rounded-md bg-gray-100": true,
     "c-vote-counter__button": true,
     "c-vote-counter__button--voted": !status.closed && hasVoted,
     "c-vote-counter__button--disabled": isDisabled,

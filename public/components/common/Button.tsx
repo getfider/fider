@@ -13,9 +13,9 @@ interface ButtonProps {
   type?: "button" | "submit"
   variant?: "primary" | "danger" | "secondary" | "tertiary"
   size?: "small" | "default" | "large"
+  style?: React.CSSProperties
   onClick?: (event: ButtonClickEvent) => Promise<any> | void
 }
-
 export class ButtonClickEvent {
   private shouldEnable = true
   public preventEnable(): void {
@@ -43,7 +43,7 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
     "c-button--loading": clicked,
     "c-button--disabled": clicked || props.disabled,
     [props.className || ""]: props.className,
-    "shadow-sm": variant !== "tertiary",
+    "shadow-sm": props.variant == "primary" || props.variant == "secondary",
   })
 
   let buttonContent: JSX.Element
@@ -51,7 +51,7 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
 
   if (props.href) {
     buttonContent = (
-      <a href={props.href} rel={props.rel} target={props.target} className={className}>
+      <a href={props.href} rel={props.rel} target={props.target} className={className} style={props.style}>
         {props.children}
       </a>
     )
@@ -77,13 +77,13 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
     }
 
     buttonContent = (
-      <button type={type} className={className} onClick={onClick}>
+      <button type={props.type} className={className} onClick={onClick} style={props.style}>
         {props.children}
       </button>
     )
   } else {
     buttonContent = (
-      <button type={type} className={className}>
+      <button type={props.type} className={className} style={props.style}>
         {props.children}
       </button>
     )

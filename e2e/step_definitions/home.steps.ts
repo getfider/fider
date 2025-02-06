@@ -11,6 +11,14 @@ Then("I should be on the home page", async function (this: FiderWorld) {
   expect(container).toBeDefined()
 })
 
+Then("I click on the first post", async function (this: FiderWorld) {
+  await this.page.click(".c-posts-container__post:first-child a")
+})
+
+Then("I search for {string}", async function (this: FiderWorld, searchTerm: string) {
+  await this.page.type("#input-query", searchTerm)
+})
+
 Given("I type {string} as the title", async function (this: FiderWorld, title: string) {
   await this.page.type("#input-title", title)
 })

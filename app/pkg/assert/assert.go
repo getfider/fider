@@ -172,6 +172,28 @@ func (a *AnyAssertions) HasLen(expected int) bool {
 	currentT.Error(errors.StackN(err, 1))
 	return false
 }
+func (a *AnyAssertions) ContainsOnly(expected []int) bool {
+	actual := reflect.ValueOf(a.actual).Interface().([]int)
+
+	contains := func(arr []int, value int) bool {
+		for _, v := range arr {
+			if v == value {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, v := range actual {
+		if !contains(expected, v) {
+			err := fmt.Errorf("ContainsOnly assertion failed. \n Expected: \n\t\t %v \n Actual: \n\t\t %v", expected, actual)
+			currentT.Error(errors.StackN(err, 1))
+			return false
+		}
+	}
+
+	return true
+}
 
 // Panics asserts that actual value panics whenever called
 func (a *AnyAssertions) Panics() (panicked bool) {

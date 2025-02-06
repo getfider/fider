@@ -5,7 +5,7 @@
     border: 2px solid white;
   }
 
-  > * + * {
+  &--overlap & > * + * {
     margin-left: spacing(-3);
   }
 }
