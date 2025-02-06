@@ -103,7 +103,7 @@ export const PostFilter = (props: PostFilterProps) => {
         renderHandle={
           <HStack className="h-10 text-medium text-xs rounded-md uppercase border border-gray-400 text-gray-800 p-2 px-3">
             <Icon sprite={HeroIconFilter} className="h-5 pr-1" />
-            {t({ id: "home.filter.label", message: "Filter" })}
+            {i18n._("home.filter.label", { message: "Filter" })}
             {filterCount > 0 && <div className="bg-gray-200 inline-block rounded-full px-2 py-1 w-min-4 text-2xs text-center">{filterCount}</div>}
           </HStack>
         }

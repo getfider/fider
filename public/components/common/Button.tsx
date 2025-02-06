@@ -16,6 +16,7 @@ interface ButtonProps {
   style?: React.CSSProperties
   onClick?: (event: ButtonClickEvent) => Promise<any> | void
 }
+
 export class ButtonClickEvent {
   private shouldEnable = true
   public preventEnable(): void {
@@ -43,7 +44,7 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
     "c-button--loading": clicked,
     "c-button--disabled": clicked || props.disabled,
     [props.className || ""]: props.className,
-    "shadow-sm": props.variant == "primary" || props.variant == "secondary",
+    "shadow-sm": variant == "primary" || variant == "secondary",
   })
 
   let buttonContent: JSX.Element
@@ -77,17 +78,23 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
     }
 
     buttonContent = (
-      <button type={props.type} className={className} onClick={onClick} style={props.style}>
+      <button type={type} className={className} onClick={onClick} style={props.style}>
         {props.children}
       </button>
     )
   } else {
     buttonContent = (
-      <button type={props.type} className={className} style={props.style}>
+      <button type={type} className={className} style={props.style}>
         {props.children}
       </button>
     )
   }
 
   return buttonContent
+}
+
+Button.defaultProps = {
+  size: "default",
+  variant: "secondary",
+  type: "button",
 }

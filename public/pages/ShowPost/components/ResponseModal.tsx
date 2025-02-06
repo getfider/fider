@@ -87,8 +87,7 @@ export class ResponseModal extends React.Component<ResponseModalProps, ResponseM
                 onChange={this.setText}
                 value={this.state.text}
                 minRows={5}
-                placeholder={t({
-                  id: "showpost.responseform.text.placeholder",
+                placeholder={i18n._("showpost.responseform.text.placeholder", {
                   message: "What's going on with this post? Let your users know what are your plans...",
                 })}
               />
