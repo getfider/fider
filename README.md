@@ -25,7 +25,7 @@
 </div>
 
 <div align="center">
-  <sub>Created with ❤️ by <a href="https://github.com/goenning">Guilherme Oenning</a>, now maintained by <a href="https://github.com/mattwoberts">Matt Roberts</a> and supported by <a href="https://github.com/getfider/fider/graphs/contributors">contributors</a></sub>
+  <sub>Created with ❤️ by <a href="https://github.com/goenning">Guilherme Oenning</a>, now maintained by <a href="https://github.com/mattwoberts">Matt Roberts</a> and supported by <a href="https://github.com/Spicy-Bush/fider-tarkov-community/graphs/contributors">contributors</a></sub>
 </div>
 
 <br/>
@@ -41,7 +41,7 @@ The easiest and quickest way to get started. A fully managed services by the cre
 
 You can also install Fider yourself. It's free, but you are responsible for managing it. [Learn how](https://docs.fider.io/self-hosted/)
 
-If you do self-host and enjoy Fider, please [let us know where you're using it](https://github.com/getfider/fider/issues/899) - we really appreciate it 🙏
+If you do self-host and enjoy Fider, please [let us know where you're using it](https://github.com/Spicy-Bush/fider-tarkov-community/issues/899) - we really appreciate it 🙏
 
 <br/>
 <br/>
@@ -64,7 +64,7 @@ If you do self-host and enjoy Fider, please [let us know where you're using it](
 
 This project exists thanks to all the amazing people who contribute!
 
-<a href="https://github.com/getfider/fider/graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/Spicy-Bush/fider-tarkov-community/graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
 
 Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn how you can contribute to Fider.
 
