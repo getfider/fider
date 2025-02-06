@@ -5,24 +5,24 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/rand"
 	"github.com/aws/aws-sdk-go/aws"
 	awss3 "github.com/aws/aws-sdk-go/service/s3"
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/rand"
 
-	"github.com/getfider/fider/app/services/blob/fs"
-	"github.com/getfider/fider/app/services/blob/s3"
-	"github.com/getfider/fider/app/services/blob/sql"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/blob/fs"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/blob/s3"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/blob/sql"
 
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/services/blob"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/blob"
 )
 
 var tenant1 = &entity.Tenant{ID: 1}

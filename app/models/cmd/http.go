@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/getfider/fider/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
 )
 
 type HTTPRequest struct {

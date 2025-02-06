@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/getfider/fider/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
 )
 
 type SaveCustomOAuthConfig struct {

@@ -3,8 +3,8 @@ package validate
 import (
 	"context"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
 	"github.com/goenning/imagic"
 )
 
@@ -30,7 +30,7 @@ type ImageUploadOpts struct {
 	MaxKilobytes int
 }
 
-//MultiImageUpload validates multiple image uploads
+// MultiImageUpload validates multiple image uploads
 func MultiImageUpload(ctx context.Context, currentAttachments []string, uploads []*dto.ImageUpload, opts MultiImageUploadOpts) ([]string, error) {
 	if currentAttachments == nil {
 		currentAttachments = []string{}
@@ -71,7 +71,7 @@ func MultiImageUpload(ctx context.Context, currentAttachments []string, uploads 
 	return []string{}, nil
 }
 
-//ImageUpload validates given image upload
+// ImageUpload validates given image upload
 func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadOpts) ([]string, error) {
 	messages := []string{}
 

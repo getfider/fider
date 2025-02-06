@@ -3,10 +3,10 @@ package actions
 import (
 	"context"
 
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
 // GenerateCheckoutLink is used to generate a Paddle-hosted checkout link for the service subscription

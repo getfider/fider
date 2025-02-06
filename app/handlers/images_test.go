@@ -6,16 +6,16 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/services/httpclient"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/httpclient"
 
-	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/mock"
 
-	"github.com/getfider/fider/app/handlers"
-	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/handlers"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 func TestGravatarHandler(t *testing.T) {

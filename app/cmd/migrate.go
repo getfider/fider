@@ -3,12 +3,12 @@ package cmd
 import (
 	"context"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/rand"
-	_ "github.com/getfider/fider/app/services/log/console"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/rand"
+	_ "github.com/Spicy-Bush/fider-tarkov-community/app/services/log/console"
 )
 
 // RunMigrate run all pending migrations on current DATABASE_URL

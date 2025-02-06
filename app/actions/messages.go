@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/getfider/fider/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
 )
 
 func propertyIsRequired(ctx context.Context, fieldName string) string {

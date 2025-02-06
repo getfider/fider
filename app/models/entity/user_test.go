@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/getfider/fider/app/models/entity"
-	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 func TestUserWithEmail_MarshalJSON(t *testing.T) {

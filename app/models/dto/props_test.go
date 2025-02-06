@@ -3,9 +3,9 @@ package dto_test
 import (
 	"testing"
 
-	"github.com/getfider/fider/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
 
-	. "github.com/getfider/fider/app/pkg/assert"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 func TestPropsMerge(t *testing.T) {

@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/getfider/fider/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
 )
 
 type GetBillingState struct {

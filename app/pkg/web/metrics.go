@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/getfider/fider/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 	"github.com/julienschmidt/httprouter"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )

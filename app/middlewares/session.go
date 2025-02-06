@@ -4,8 +4,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/rand"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/rand"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // Session starts a new Session if an Session ID is not yet set

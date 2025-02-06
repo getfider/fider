@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/getfider/fider/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
 )
 
-//FromPosts return a byte array of CSV file containing all posts
+// FromPosts return a byte array of CSV file containing all posts
 func FromPosts(posts []*entity.Post) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	writer := gocsv.NewWriter(buffer)

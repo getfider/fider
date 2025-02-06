@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // ClientCache adds Cache-Control header for X seconds

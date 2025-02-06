@@ -3,14 +3,14 @@
 There are many ways you can contribute to Fider.
 
 - **Send us a Pull Request** on GitHub. Make sure you read our [Getting Started](#getting-started-with-fider-codebase) guide to learn how to setup the development environment;
-- **Report issues** and bug reports on https://github.com/Spicy-Bush/fider-tarkov-community/issues;
+- **Report issues** and bug reports on https://github.com/getfider/fider/issues;
 - **Give feedback** and vote on features you'd like to see at https://feedback.fider.io;
 - **Spread the word** by starring us on GitHub. Tweet about the project and show it to your friends. The more people know about Fider, the bigger the community will be and more contributions will be made;
 - **Support us financially** by donating any amount to our [OpenCollective](https://opencollective.com/fider) and help us continue our activities;
 
 ## Getting started with Fider codebase
 
-Before start working on something that you intend to send a Pull Request, make sure there's an [GitHub Issue](https://github.com/Spicy-Bush/fider-tarkov-community/issues) open for that or create one yourself. If it's a new feature you're working on, please share your high level thoughts on the ticket so we can agree on a solution that aligns with the overall architecture and future of Fider.
+Before start working on something that you intend to send a Pull Request, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that or create one yourself. If it's a new feature you're working on, please share your high level thoughts on the ticket so we can agree on a solution that aligns with the overall architecture and future of Fider.
 
 If you have any question or need help, leave a comment on the issue and we'll do our best to help you out.
 

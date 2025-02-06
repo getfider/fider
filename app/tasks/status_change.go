@@ -3,19 +3,19 @@ package tasks
 import (
 	"fmt"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/i18n"
-	"github.com/getfider/fider/app/pkg/markdown"
-	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/webhook"
-	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/markdown"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/webhook"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/worker"
 )
 
-//NotifyAboutStatusChange sends a notification (web and email) to subscribers
+// NotifyAboutStatusChange sends a notification (web and email) to subscribers
 func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) worker.Task {
 	return describe("Notify about post status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same

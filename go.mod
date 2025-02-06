@@ -1,6 +1,6 @@
 // +heroku goVersion go1.22
 
-module github.com/Spicy-Bush/fider-tarkov-community
+module github.com/getfider/fider
 
 go 1.22.0
 

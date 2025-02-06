@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // Chain combines multiple middlewares into one

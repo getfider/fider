@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // CORS adds Cross-Origin Resource Sharing response headers

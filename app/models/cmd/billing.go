@@ -3,7 +3,7 @@ package cmd
 import (
 	"time"
 
-	"github.com/getfider/fider/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
 )
 
 type GenerateCheckoutLink struct {

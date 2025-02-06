@@ -1,15 +1,15 @@
 package tasks
 
 import (
-	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/worker"
 )
 
-//SendChangeEmailConfirmation is used to send the change email confirmation email to requestor
+// SendChangeEmailConfirmation is used to send the change email confirmation email to requestor
 func SendChangeEmailConfirmation(action *actions.ChangeUserEmail) worker.Task {
 	return describe("Send change email confirmation", func(c *worker.Context) error {
 

@@ -3,9 +3,9 @@ package errors_test
 import (
 	"testing"
 
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 
-	. "github.com/getfider/fider/app/pkg/assert"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 func TestNewError(t *testing.T) {
@@ -85,8 +85,8 @@ func TestPanicked(t *testing.T) {
 		if r := recover(); r != nil {
 			err := errors.Panicked(r)
 			Expect(err.Error()).ContainsSubstring(`runtime/debug.Stack`)
-			Expect(err.Error()).ContainsSubstring(`github.com/getfider/fider/app/pkg/errors.Panicked`)
-			Expect(err.Error()).ContainsSubstring(`- github.com/getfider/fider/app/pkg/errors_test.TestPanicked:`)
+			Expect(err.Error()).ContainsSubstring(`github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors.Panicked`)
+			Expect(err.Error()).ContainsSubstring(`- github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors_test.TestPanicked:`)
 			Expect(err.Error()).ContainsSubstring(`(app/pkg/errors/errors.go:39)
 - Boom!`)
 		}

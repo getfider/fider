@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/jwt"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 func encode(user *entity.User) string {
@@ -29,18 +29,18 @@ func encode(user *entity.User) string {
 	return token
 }
 
-//AddAuthUserCookie generates Auth Token and adds a cookie
+// AddAuthUserCookie generates Auth Token and adds a cookie
 func AddAuthUserCookie(ctx *web.Context, user *entity.User) {
 	AddAuthTokenCookie(ctx, encode(user))
 }
 
-//AddAuthTokenCookie adds given token to a cookie
+// AddAuthTokenCookie adds given token to a cookie
 func AddAuthTokenCookie(ctx *web.Context, token string) {
 	expiresAt := time.Now().Add(365 * 24 * time.Hour)
 	ctx.AddCookie(web.CookieAuthName, token, expiresAt)
 }
 
-//SetSignUpAuthCookie sets a temporary domain-wide Auth Token
+// SetSignUpAuthCookie sets a temporary domain-wide Auth Token
 func SetSignUpAuthCookie(ctx *web.Context, user *entity.User) {
 	http.SetCookie(&ctx.Response, &http.Cookie{
 		Name:     web.CookieSignUpAuthName,
@@ -53,7 +53,7 @@ func SetSignUpAuthCookie(ctx *web.Context, user *entity.User) {
 	})
 }
 
-//GetSignUpAuthCookie returns the temporary temporary domain-wide Auth Token and removes it
+// GetSignUpAuthCookie returns the temporary temporary domain-wide Auth Token and removes it
 func GetSignUpAuthCookie(ctx *web.Context) string {
 	cookie, err := ctx.Request.Cookie(web.CookieSignUpAuthName)
 	if err == nil {

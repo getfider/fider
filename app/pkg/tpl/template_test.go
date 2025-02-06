@@ -5,9 +5,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/models/dto"
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/tpl"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/tpl"
 )
 
 func TestGetTemplate_Render(t *testing.T) {

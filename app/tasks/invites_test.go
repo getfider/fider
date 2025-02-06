@@ -5,15 +5,15 @@ import (
 	"html/template"
 	"testing"
 
-	"github.com/getfider/fider/app/actions"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/mock"
-	"github.com/getfider/fider/app/services/email/emailmock"
-	"github.com/getfider/fider/app/tasks"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/mock"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/email/emailmock"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/tasks"
 )
 
 func TestSendInvites(t *testing.T) {

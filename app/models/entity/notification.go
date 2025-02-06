@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"github.com/getfider/fider/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 )
 
 // Notification is the system generated notification entity

@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 )
 
 type HandlerFunc any
@@ -51,7 +51,7 @@ func Reset() {
 
 // Initializes the bus services that have been registered via bus.Register
 // Services that set via Init(...services) are always registered (regardless of Enabled() function)
-/// and have preference over services registered from bus.Register
+// / and have preference over services registered from bus.Register
 func Init(forcedServices ...Service) []Service {
 	initializedServices := make([]Service, 0)
 	for _, svc := range forcedServices {

@@ -3,9 +3,9 @@ package cmd
 import (
 	"time"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 )
 
 type CreateTenant struct {
@@ -47,7 +47,7 @@ type SaveVerificationKey struct {
 	Request  NewEmailVerification
 }
 
-//NewEmailVerification is used to define an email verification process
+// NewEmailVerification is used to define an email verification process
 type NewEmailVerification interface {
 	GetEmail() string
 	GetName() string

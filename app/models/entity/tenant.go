@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/getfider/fider/app/models/enum"
+import "github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 
 // Tenant represents a tenant
 type Tenant struct {

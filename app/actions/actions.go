@@ -3,8 +3,8 @@ package actions
 import (
 	"context"
 
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
 // Actionable is any action that the user can perform using the web app

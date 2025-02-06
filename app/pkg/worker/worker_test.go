@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/worker"
 
-	. "github.com/getfider/fider/app/pkg/assert"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 var dummyTask = worker.Task{

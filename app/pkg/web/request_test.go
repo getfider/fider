@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/web"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 func TestRequest_Basic(t *testing.T) {

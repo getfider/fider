@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"github.com/getfider/fider/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

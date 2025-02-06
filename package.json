@@ -1,7 +1,7 @@
 {
   "name": "fider",
   "version": "0.0.0",
-  "repository": "https://github.com/Spicy-Bush/fider-tarkov-community",
+  "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
     "@lingui/react": "^3.13.3",

@@ -3,7 +3,7 @@ package entity
 import (
 	"encoding/json"
 
-	"github.com/getfider/fider/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 )
 
 // User represents an user inside our application

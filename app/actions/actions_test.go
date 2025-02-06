@@ -1,9 +1,9 @@
 package actions_test
 
 import (
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/validate"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/jwt"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
 var jonSnowToken, _ = jwt.Encode(jwt.OAuthClaims{

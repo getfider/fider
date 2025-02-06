@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 	"rogchap.com/v8go"
 )
 

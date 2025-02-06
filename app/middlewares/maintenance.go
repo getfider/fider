@@ -3,8 +3,8 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // Maintenance returns a maintenance page when system is under maintenance

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 type gzipResponseWriter struct {

@@ -2,7 +2,7 @@
 ##
 ## For more information, refer to https://www.thapaliya.com/en/writings/well-documented-makefiles/
 
-LDFLAGS += -X github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env.commithash=${COMMITHASH}
+LDFLAGS += -X github.com/getfider/fider/app/pkg/env.commithash=${COMMITHASH}
 
 
 

@@ -4,8 +4,8 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 )
 
 // Webhook represents a webhook

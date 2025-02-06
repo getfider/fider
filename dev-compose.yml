@@ -1,0 +1,45 @@
+version: "3"
+services:
+  smtp:
+    image: mailhog/mailhog:latest
+    restart: always
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+  pgdev:
+    container_name: fider_pgdev
+    restart: always
+    image: postgres:12
+    volumes:
+      - pgdev-data:/var/lib/postgresql/data
+    ports:
+      - "5555:5432"
+    environment:
+      POSTGRES_USER: fider
+      POSTGRES_PASSWORD: fider_pw
+  pgtest:
+    container_name: fider_pgtest
+    restart: always
+    image: postgres:12
+    ports:
+      - "5566:5432"
+    environment:
+      POSTGRES_USER: fider_test
+      POSTGRES_PASSWORD: fider_test_pw
+  s3test:
+    container_name: fider_s3test
+    restart: always
+    image: minio/minio:RELEASE.2021-07-27T02-40-15Z
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - s3test-data:/data
+    environment:
+      MINIO_ACCESS_KEY: s3user
+      MINIO_SECRET_KEY: s3user-s3cr3t
+    command: server /data --console-address ":9001"
+
+volumes:
+  pgdev-data:
+  s3test-data:
