@@ -74,7 +74,7 @@ services:
     container_name: pgadmin4
     restart: always
     ports:
-      - "8889:80"
+      - "${pgadmin_port}:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${pgadmin_email}
       PGADMIN_DEFAULT_PASSWORD: ${pgadmin_password}
