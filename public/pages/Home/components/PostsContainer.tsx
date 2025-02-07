@@ -39,10 +39,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
   constructor(props: PostsContainerProps) {
     super(props)
 
-    let view = querystring.get("view")
-    if (!view) {
-      view = "trending"
-    }
+    const view = querystring.get("view")
 
     this.state = {
       posts: this.props.posts,
@@ -61,7 +58,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         querystring.stringify({
           statuses: this.state.filterState.statuses,
           tags: this.state.filterState.tags,
-          myvotes: this.state.filterState.myVotes.toString(),
+          myvotes: this.state.filterState.myVotes ? "true" : undefined,
           query,
           view: this.state.view,
           limit: this.state.limit,
@@ -70,7 +67,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
       this.searchPosts(
         query,
-        this.state.view,
+        this.state.view || "trending",
         this.state.limit,
         this.state.filterState.tags,
         this.state.filterState.statuses,
