@@ -19,7 +19,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
       <VStack className="w-full" spacing={2}>
         {props.post.status !== "open" && (
           <div className="mb-2 align-self-start">
-            <ResponseLozenge status={props.post.status} response={props.post.response} />
+            <ResponseLozenge status={props.post.status} response={props.post.response} small={true} />
           </div>
         )}
         <HStack justify="between">
