@@ -43,7 +43,7 @@ x-common-build-args: &common-build-args
 
 services:
   fider:
-    image: spicybush/fider-tarkov-community:${TAG}
+    image: spicybush/fider-tarkov-community:202502071800
     build:
       context: ./
       dockerfile: Dockerfile
