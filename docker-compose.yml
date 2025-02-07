@@ -40,12 +40,10 @@ x-common-build-args: &common-build-args
   DOCKER_USER_GID: ${DOCKER_USER_GID}
   DOCKER_USER_UID: ${DOCKER_USER_UID}
 
-COMMIT: $(git rev-parse --short HEAD)
-
 
 services:
   fider:
-    image: spicybush/fider-tarkov-community:${COMMIT}
+    image: spicybush/fider-tarkov-community:${TAG}
     build:
       context: ./
       dockerfile: Dockerfile
