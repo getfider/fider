@@ -4,7 +4,7 @@ x-common-env: &fider-env
   BASE_URL: ${base_url}:${http_port}
 
   # Connection string to the PostgreSQL database
-  DATABASE_URL: postgres://fider:fider_pw@pgdev:5432/fider?sslmode=disable
+  DATABASE_URL: ${database_url}
 
   # Generate a secure secret, for example using https://jwtsecret.com
   JWT_SECRET: ${jwt_secret}
@@ -21,7 +21,7 @@ x-common-env: &fider-env
   # EMAIL_MAILGUN_DOMAIN: yourdomain.com
   # EMAIL_MAILGUN_REGION: US
 
-  EMAIL_SMTP_HOST: smtp
+  EMAIL_SMTP_HOST: mailhog
   EMAIL_SMTP_PORT: ${mailhog_smtp_port}
   # EMAIL_SMTP_USERNAME: user@yourdomain.com
   # EMAIL_SMTP_PASSWORD: s0m3p4ssw0rd
@@ -51,15 +51,17 @@ services:
     ports:
       - "${http_port}:3000"  
     hostname: tarkov-community-${env_string}
+    #container_name: fider
+    restart: always
 
-  smtp:
+  mailhog:
     image: mailhog/mailhog:latest
     restart: always
     ports:
       - "${mailhog_web_port}:8025"
       - "${mailhog_smtp_port}:1025"
-  pgdev:
-    container_name: fider_pgdev
+  postgres:
+    #container_name: fider_pgdev
     restart: always
     image: postgres:12
     volumes:
@@ -71,7 +73,7 @@ services:
       POSTGRES_PASSWORD: fider_pw
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin4
+    #container_name: pgadmin4
     restart: always
     ports:
       - "${pgadmin_port}:80"
