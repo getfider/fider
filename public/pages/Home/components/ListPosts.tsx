@@ -17,10 +17,12 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         <VoteCounter post={props.post} />
       </div>
       <VStack className="w-full" spacing={2}>
-        {props.post.status !== "open" && (
-          <div className="mb-2 align-self-start">
-            <ResponseLozenge status={props.post.status} response={props.post.response} />
-          </div>
+        {props.tags.length >= 1 && (
+          <HStack spacing={0} className="gap-2 flex-wrap">
+            {props.tags.map((tag) => (
+              <ShowTag key={tag.id} tag={tag} link />
+            ))}
+          </HStack>
         )}
         <HStack justify="between">
           <a className="text-title hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
@@ -33,12 +35,10 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
           )}
         </HStack>
         <Markdown className="text-gray-700" maxLength={300} text={props.post.description} style="plainText" />
-        {props.tags.length >= 1 && (
-          <HStack spacing={0} className="gap-2 flex-wrap">
-            {props.tags.map((tag) => (
-              <ShowTag key={tag.id} tag={tag} link />
-            ))}
-          </HStack>
+        {props.post.status !== "open" && (
+          <div className="mb-2 align-self-start">
+            <ResponseLozenge status={props.post.status} response={props.post.response} />
+          </div>
         )}
       </VStack>
     </HStack>
