@@ -11,6 +11,7 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/profanity"
 	"github.com/gosimple/slug"
 
 	"github.com/Spicy-Bush/fider-tarkov-community/app"
@@ -71,6 +72,10 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *v
 		result.AddFieldFailure("title", propertyMaxStringLen(ctx, "title", 100))
 	} else if env.Config.PostCreationWithTagsEnabled && len(action.TagSlugs) != len(action.Tags) {
 		result.AddFieldFailure("tags", propertyIsInvalid(ctx, "tags"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Title); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.containsprofanity"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Description); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("description", i18n.T(ctx, "validation.custom.containsprofanity"))
 	} else {
 		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Title)})
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
@@ -215,6 +220,8 @@ func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *v
 
 	if action.Content == "" {
 		result.AddFieldFailure("content", propertyIsRequired(ctx, "comment"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Content); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.containsprofanity"))
 	}
 
 	messages, err := validate.MultiImageUpload(ctx, nil, action.Attachments, validate.MultiImageUploadOpts{

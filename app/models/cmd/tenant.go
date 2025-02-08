@@ -34,7 +34,8 @@ type UpdateTenantSettings struct {
 }
 
 type UpdateTenantAdvancedSettings struct {
-	CustomCSS string
+	CustomCSS      string
+	ProfanityWords string
 }
 
 type ActivateTenant struct {

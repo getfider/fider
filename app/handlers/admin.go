@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
@@ -32,6 +33,8 @@ func AdvancedSettingsPage() web.HandlerFunc {
 			Title: "Advanced · Site Settings",
 			Data: web.Map{
 				"customCSS": c.Tenant().CustomCSS,
+				// replace commas with newlines makes it easier to edit for the user, we convert it back to commas when saving
+				"profanityWords": strings.ReplaceAll(c.Tenant().ProfanityWords, ",", "\n"),
 			},
 		})
 	}
@@ -222,6 +225,21 @@ func SaveOAuthConfig() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		return c.Ok(web.Map{})
+	}
+}
+
+// UpdateProfanityWords is used to update profanity words for the tenant
+func UpdateProfanityWords() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := actions.NewUpdateProfanityWords()
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		if err := action.Run(c); err != nil {
+			return c.Failure(err)
+		}
 		return c.Ok(web.Map{})
 	}
 }

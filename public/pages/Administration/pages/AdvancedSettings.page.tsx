@@ -6,10 +6,12 @@ import { AdminBasePage } from "../components/AdminBasePage"
 
 interface AdvancedSettingsPageProps {
   customCSS: string
+  profanityWords: string
 }
 
 interface AdvancedSettingsPageState {
   customCSS: string
+  profanityWords: string
   error?: Failure
 }
 
@@ -24,6 +26,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
 
     this.state = {
       customCSS: this.props.customCSS,
+      profanityWords: this.props.profanityWords,
     }
   }
 
@@ -31,7 +34,22 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
     this.setState({ customCSS })
   }
 
-  private handleSave = async (): Promise<void> => {
+  private setProfanityWords = (profanityWords: string): void => {
+    this.setState({ profanityWords })
+  }
+
+  // Separate save function for profanity words.
+  private handleSaveProfanityWords = async (): Promise<void> => {
+    const result = await actions.updateProfanityWords(this.state.profanityWords)
+    if (result.ok) {
+      location.reload()
+    } else {
+      this.setState({ error: result.error })
+    }
+  }
+
+  // Save function for custom CSS.
+  private handleSaveCustomCSS = async (): Promise<void> => {
     const result = await actions.updateTenantAdvancedSettings(this.state.customCSS)
     if (result.ok) {
       location.reload()
@@ -51,32 +69,33 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
           value={this.state.customCSS}
           onChange={this.setCustomCSS}
         >
-          <p className="text-muted">
-            Custom CSS allows you to change the look and feel of Fider and apply your own branding.
-            <br />
-            This is a powerful and flexible feature, but requires basic understanding of <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS">CSS</a>.
-          </p>
-          <p className="text-muted">
-            Custom CSS might break the design of your site as Fider evolves. You can minimize conflict by following these recommendations:
-          </p>
-          <ul className="text-muted">
-            <li>
-              <strong>Avoid nested selectors</strong>: Fider might change the structure of the HTML at any time. It&apos;s likely that such changes would
-              invalidate some rules.
-            </li>
-            <li>
-              <strong>Keep it simple</strong>: Customize only the essential.
-            </li>
-          </ul>
+          {}
         </TextArea>
 
-        {Fider.session.user.isAdministrator && (
-          <div className="field">
-            <Button variant="primary" onClick={this.handleSave}>
-              Save
-            </Button>
-          </div>
-        )}
+        <div className="field">
+          <Button variant="primary" onClick={this.handleSaveCustomCSS}>
+            Save Custom CSS
+          </Button>
+        </div>
+
+        <TextArea
+          field="profanityWords"
+          label="Profanity Words (one per line)"
+          disabled={!Fider.session.user.isAdministrator}
+          minRows={5}
+          value={this.state.profanityWords}
+          onChange={this.setProfanityWords}
+        >
+          <p className="text-muted">
+            Enter banned words, one per line. Any post or comment containing these words will be blocked.
+          </p>
+        </TextArea>
+
+        <div className="field">
+          <Button variant="primary" onClick={this.handleSaveProfanityWords}>
+            Save Profanity Words
+          </Button>
+        </div>
       </Form>
     )
   }

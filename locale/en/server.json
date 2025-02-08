@@ -16,6 +16,7 @@
   "validation.custom.differentemail": "Choose a different email.",
   "validation.custom.emailtaken": "This email is already in use by someone else",
   "validation.custom.descriptivetitle": "Title needs to be more descriptive.",
+  "validation.custom.containsprofanity": "Excessive profanity is not allowed.",
   "validation.custom.duplicatetitle": "This has already been posted before.",
   "validation.custom.selfduplicate": "Cannot be a duplicate of itself.",
   "validation.custom.originalpostnotfound": "Original post not found.",
