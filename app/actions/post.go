@@ -139,6 +139,17 @@ func (action *UpdatePost) Validate(ctx context.Context, user *entity.User) *vali
 		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.descriptivetitle"))
 	} else if len(action.Title) > 100 {
 		result.AddFieldFailure("title", propertyMaxStringLen(ctx, "title", 100))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Title); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.containsprofanity"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Description); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("description", i18n.T(ctx, "validation.custom.containsprofanity"))
+	} else {
+		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Title)})
+		if err != nil && errors.Cause(err) != app.ErrNotFound {
+			return validate.Error(err)
+		} else if err == nil {
+			result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.duplicatetitle"))
+		}
 	}
 
 	postBySlug := &query.GetPostBySlug{Slug: slug.Make(action.Title)}
@@ -186,7 +197,7 @@ func (action *ToggleCommentReaction) Validate(ctx context.Context, user *entity.
 
 	result := validate.Success()
 
-	allowedEmojis := []string{"👍", "👎", "😄", "🎉", "😕", "❤️", "🚀", "👀"}
+	allowedEmojis := []string{"👍", "👎", "❤️", "🤔", "👏", "😂", "😲"}
 	isAllowed := false
 	for _, emoji := range allowedEmojis {
 		if action.Reaction == emoji {
@@ -347,6 +358,8 @@ func (action *EditComment) Validate(ctx context.Context, user *entity.User) *val
 
 	if action.Content == "" {
 		result.AddFieldFailure("content", propertyIsRequired(ctx, "comment"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Content); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.containsprofanity"))
 	}
 
 	if len(action.Attachments) > 0 {
