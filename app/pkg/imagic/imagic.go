@@ -81,9 +81,9 @@ func Resize(size int) ImageOperation {
 		}
 
 		if srcW > srcH {
-			return imaging.Resize(src, size, 0, imaging.NearestNeighbor)
+			return imaging.Resize(src, size, 0, imaging.Linear)
 		}
-		return imaging.Resize(src, 0, size, imaging.NearestNeighbor)
+		return imaging.Resize(src, 0, size, imaging.Linear)
 	}
 }
 

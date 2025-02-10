@@ -40,6 +40,8 @@ x-common-build-args: &common-build-args
   DOCKER_USER_GID: ${DOCKER_USER_GID}
   DOCKER_USER_UID: ${DOCKER_USER_UID}
 
+DATABASE_MAX_IDLE_CONNS: 50
+DATABASE_MAX_OPEN_CONNS: 100
 
 services:
   fider:
