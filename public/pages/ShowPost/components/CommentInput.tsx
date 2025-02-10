@@ -48,6 +48,7 @@ export const CommentInput = (props: CommentInputProps) => {
   }
 
   const editorFocused = () => {
+    console.log("focused")
     if (!fider.session.isAuthenticated) {
       setIsSignInModalOpen(true)
     }
@@ -76,7 +77,6 @@ export const CommentInput = (props: CommentInputProps) => {
               initialValue={content}
               onChange={commentChanged}
               onFocus={editorFocused}
-              disabled={!Fider.session.isAuthenticated}
               placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
             />
             {hasContent && (

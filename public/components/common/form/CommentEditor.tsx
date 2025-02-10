@@ -10,6 +10,7 @@ import { UserNames } from "@fider/models"
 import { actions } from "@fider/services"
 
 import "./CommentEditor.scss"
+import { useFider } from "@fider/hooks"
 
 export type TextType = { text: string }
 
@@ -62,7 +63,6 @@ const Portal = ({ children }: { children?: ReactNode }) => {
 
 interface CommentEditorProps {
   initialValue?: string
-  disabled?: boolean
   placeholder?: string
   onChange?: (value: string) => void
   onFocus?: React.FocusEventHandler<HTMLDivElement>
@@ -92,6 +92,7 @@ export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props
   const [target, setTarget] = useState<Range | undefined>()
   const [index, setIndex] = useState(0)
   const [search, setSearch] = useState("")
+  const fider = useFider()
 
   // Fetch users when component mounts
   useEffect(() => {
@@ -101,7 +102,9 @@ export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props
         setUsers(result.data)
       }
     }
-    loadUsers()
+    if (fider.session.isAuthenticated) {
+      loadUsers()
+    }
   }, [])
 
   const renderElement = useCallback((props: RenderElementProps) => <SlateElement {...props} />, [])
@@ -190,10 +193,11 @@ export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props
       }}
     >
       <Editable
-        readOnly={props.disabled}
+        readOnly={false}
         className="slate-editor"
         renderElement={renderElement}
         onKeyDown={onKeyDown}
+        onFocus={props.onFocus}
         placeholder={props.placeholder}
         renderPlaceholder={Placeholder}
       />
