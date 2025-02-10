@@ -10,7 +10,6 @@ import { UserNames } from "@fider/models"
 import { actions } from "@fider/services"
 
 import "./CommentEditor.scss"
-import { useFider } from "@fider/hooks"
 
 export type TextType = { text: string }
 
@@ -92,20 +91,10 @@ export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props
   const [target, setTarget] = useState<Range | undefined>()
   const [index, setIndex] = useState(0)
   const [search, setSearch] = useState("")
-  const fider = useFider()
 
-  // Fetch users when component mounts
   useEffect(() => {
-    const loadUsers = async () => {
-      const result = await actions.getTaggableUsers("")
-      if (result.ok) {
-        setUsers(result.data)
-      }
-    }
-    if (fider.session.isAuthenticated) {
-      loadUsers()
-    }
-  }, [])
+    console.log("target changed", target)
+  }, [target])
 
   const renderElement = useCallback((props: RenderElementProps) => <SlateElement {...props} />, [])
   const editor = useMemo(() => withMentions(withReact(withHistory(createEditor()))), [])
@@ -181,6 +170,15 @@ export const CommentEditor: React.FunctionComponent<CommentEditorProps> = (props
             setTarget(beforeRange)
             setSearch(beforeMatch[1])
             setIndex(0)
+
+            // Load users when @ is typed
+            const loadUsers = async () => {
+              const result = await actions.getTaggableUsers("")
+              if (result.ok) {
+                setUsers(result.data)
+              }
+            }
+            users.length === 0 && loadUsers()
             return
           }
 
