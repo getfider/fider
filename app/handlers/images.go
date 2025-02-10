@@ -17,9 +17,9 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/crypto"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/imagic"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
-	"github.com/goenning/imagic"
 	"github.com/goenning/letteravatar"
 )
 

@@ -7,6 +7,7 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/profanity"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
@@ -35,6 +36,8 @@ func (action *UpdateUserSettings) Validate(ctx context.Context, user *entity.Use
 
 	if action.Name == "" {
 		result.AddFieldFailure("name", propertyIsRequired(ctx, "name"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Name); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.containsprofanity"))
 	}
 
 	if action.AvatarType < 1 || action.AvatarType > 3 {

@@ -6,8 +6,9 @@ go 1.22.0
 
 require (
 	github.com/aws/aws-sdk-go v1.41.14
+	github.com/chai2010/webp v1.1.1
 	github.com/cosmtrek/air v1.27.3
-	github.com/goenning/imagic v0.0.1
+	github.com/disintegration/imaging v1.6.2
 	github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/golangci/golangci-lint v1.59.1
@@ -24,6 +25,7 @@ require (
 	github.com/prometheus/client_model v0.2.0
 	github.com/robfig/cron v1.2.0
 	golang.org/x/crypto v0.24.0
+	golang.org/x/image v0.18.0
 	golang.org/x/net v0.26.0
 	golang.org/x/oauth2 v0.15.0
 	rogchap.com/v8go v0.7.1-0.20211222173054-943fcf9e74cc
@@ -69,7 +71,6 @@ require (
 	github.com/daixiang0/gci v0.13.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/denis-tingaikin/go-header v0.5.0 // indirect
-	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/ettle/strcase v0.2.0 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
@@ -207,7 +208,6 @@ require (
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/exp v0.0.0-20240103183307-be819d1f06fc // indirect
 	golang.org/x/exp/typeparams v0.0.0-20240314144324-c7f7c6466f7f // indirect
-	golang.org/x/image v0.18.0 // indirect
 	golang.org/x/mod v0.18.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect

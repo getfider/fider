@@ -1,9 +1,14 @@
 package postgres
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
+	"image"
+	"path/filepath"
+	"strings"
 
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
@@ -12,7 +17,7 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/rand"
-	"github.com/Spicy-Bush/fider-tarkov-community/app/services/blob"
+	"github.com/chai2010/webp"
 )
 
 func setAttachments(ctx context.Context, c *cmd.SetAttachments) error {
@@ -85,18 +90,46 @@ func getAttachments(ctx context.Context, q *query.GetAttachments) error {
 }
 
 func uploadImage(ctx context.Context, c *cmd.UploadImage) error {
-	if c.Image.Upload != nil && len(c.Image.Upload.Content) > 0 {
-		bkey := fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
-		err := bus.Dispatch(ctx, &cmd.StoreBlob{
-			Key:         bkey,
-			Content:     c.Image.Upload.Content,
-			ContentType: c.Image.Upload.ContentType,
-		})
-		if err != nil {
-			return errors.Wrap(err, "failed to upload new blob")
-		}
-		c.Image.BlobKey = bkey
+	if c.Image.Upload == nil || len(c.Image.Upload.Content) == 0 {
+		return nil
 	}
+
+	src, _, err := image.Decode(bytes.NewReader(c.Image.Upload.Content))
+	if err != nil {
+		return errors.Wrap(err, "failed to decode image for WebP conversion")
+	}
+
+	var buf bytes.Buffer
+	encodeOptions := &webp.Options{
+		Lossless: false,
+		Quality:  80,
+	}
+	if err := webp.Encode(&buf, src, encodeOptions); err != nil {
+		return errors.Wrap(err, "failed to encode image as WebP")
+	}
+
+	c.Image.Upload.Content = buf.Bytes()
+	c.Image.Upload.ContentType = "image/webp"
+
+	fileBase := strings.TrimSuffix(
+		c.Image.Upload.FileName,
+		filepath.Ext(c.Image.Upload.FileName),
+	)
+
+	encodedName := base64.RawURLEncoding.EncodeToString([]byte(fileBase))
+
+	bkey := fmt.Sprintf("%s/%s-%s.webp", c.Folder, rand.String(64), encodedName)
+
+	err = bus.Dispatch(ctx, &cmd.StoreBlob{
+		Key:         bkey,
+		Content:     c.Image.Upload.Content,
+		ContentType: c.Image.Upload.ContentType,
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to upload new blob")
+	}
+
+	c.Image.BlobKey = bkey
 	return nil
 }
 

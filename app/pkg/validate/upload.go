@@ -5,7 +5,7 @@ import (
 
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
-	"github.com/goenning/imagic"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/imagic"
 )
 
 // MaxDimensionSize is the max width/height of an image. If image is bigger than this, it'll be resized.
