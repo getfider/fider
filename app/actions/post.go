@@ -64,6 +64,20 @@ func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *entity.User
 func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
+	if user != nil && (!user.IsCollaborator() || !user.IsModerator() || !user.IsAdministrator()) {
+		q := &query.GetUserPostCount{
+			UserID: user.ID,
+			Since:  time.Now().Add(-24 * time.Hour),
+		}
+		if err := bus.Dispatch(ctx, q); err != nil {
+			return validate.Error(err)
+		}
+		if q.Result >= 10 {
+			result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.toomanyposts"))
+			return result
+		}
+	}
+
 	if action.Title == "" {
 		result.AddFieldFailure("title", propertyIsRequired(ctx, "title"))
 	} else if len(action.Title) < 10 {
@@ -87,7 +101,7 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *v
 
 	messages, err := validate.MultiImageUpload(ctx, nil, action.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   3,
-		MaxKilobytes: 5120,
+		MaxKilobytes: 7500,
 		ExactRatio:   false,
 	})
 	if err != nil {
@@ -121,7 +135,7 @@ func (input *UpdatePost) OnPreExecute(ctx context.Context) error {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	if user.IsCollaborator() || user.IsModerator() {
+	if user != nil && (user.IsCollaborator() || user.IsModerator()) {
 		return true
 	}
 
@@ -162,7 +176,7 @@ func (action *UpdatePost) Validate(ctx context.Context, user *entity.User) *vali
 
 		messages, err := validate.MultiImageUpload(ctx, getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   3,
-			MaxKilobytes: 5120,
+			MaxKilobytes: 7500,
 			ExactRatio:   false,
 		})
 		if err != nil {
@@ -222,6 +236,21 @@ func (action *AddNewComment) IsAuthorized(ctx context.Context, user *entity.User
 func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
+	// if not admin, collab or moderator, check if user has posted too many comments in the last 24 hours
+	if user != nil && (!user.IsCollaborator() || !user.IsModerator() || !user.IsAdministrator()) {
+		q := &query.GetUserCommentCount{
+			UserID: user.ID,
+			Since:  time.Now().Add(-24 * time.Hour),
+		}
+		if err := bus.Dispatch(ctx, q); err != nil {
+			return validate.Error(err)
+		}
+		if q.Result >= 50 {
+			result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.toomanycomments"))
+			return result
+		}
+	}
+
 	if action.Content == "" {
 		result.AddFieldFailure("content", propertyIsRequired(ctx, "comment"))
 	} else if matches, err := profanity.ContainsProfanity(ctx, action.Content); err == nil && len(matches) > 0 {
@@ -230,7 +259,7 @@ func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *v
 
 	messages, err := validate.MultiImageUpload(ctx, nil, action.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   2,
-		MaxKilobytes: 5120,
+		MaxKilobytes: 7500,
 		ExactRatio:   false,
 	})
 	if err != nil {
@@ -297,7 +326,7 @@ type DeletePost struct {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *DeletePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	return user != nil && user.IsAdministrator() || user.IsModerator() || user.IsCollaborator()
+	return user != nil && (user.IsAdministrator() || user.IsModerator() || user.IsCollaborator())
 }
 
 // Validate if current model is valid
@@ -364,7 +393,7 @@ func (action *EditComment) Validate(ctx context.Context, user *entity.User) *val
 
 		messages, err := validate.MultiImageUpload(ctx, getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   2,
-			MaxKilobytes: 5120,
+			MaxKilobytes: 7500,
 			ExactRatio:   false,
 		})
 		if err != nil {

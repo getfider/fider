@@ -360,6 +360,50 @@ func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
 	})
 }
 
+func getUserPostCount(ctx context.Context, q *query.GetUserPostCount) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, currentUser *entity.User) error {
+		var count int
+
+		// Example, ignoring deleted posts, i.e. status != PostDeleted (which is 5 in your enum)
+		sqlQuery := `
+            SELECT COUNT(*) 
+            FROM posts
+            WHERE tenant_id = $1
+              AND user_id = $2
+              AND status != 6
+              AND created_at >= $3
+        `
+
+		if err := trx.Scalar(&count, sqlQuery, tenant.ID, q.UserID, q.Since); err != nil {
+			return errors.Wrap(err, "failed to get user post count")
+		}
+
+		q.Result = count
+		return nil
+	})
+}
+
+func getUserCommentCount(ctx context.Context, q *query.GetUserCommentCount) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, currentUser *entity.User) error {
+		var count int
+
+		sqlQuery := `
+            SELECT COUNT(*)
+            FROM comments
+            WHERE tenant_id = $1
+              AND user_id = $2
+              AND deleted_at IS NULL
+              AND created_at >= $3
+        `
+		if err := trx.Scalar(&count, sqlQuery, tenant.ID, q.UserID, q.Since); err != nil {
+			return errors.Wrap(err, "failed to get user comment count")
+		}
+
+		q.Result = count
+		return nil
+	})
+}
+
 func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
@@ -367,11 +411,9 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 		if q.Tags == nil {
 			q.Tags = []string{}
 		}
-
 		if q.Statuses == nil {
 			q.Statuses = []enum.PostStatus{}
 		}
-
 		if q.Limit != "all" {
 			if _, err := strconv.Atoi(q.Limit); err != nil {
 				q.Limit = "30"
@@ -385,7 +427,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 		if q.Query != "" {
 			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
+				SELECT * FROM (%s) AS q
 				WHERE %s > 0.1
 				ORDER BY %s DESC
 				LIMIT %s
@@ -399,8 +441,11 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			}), ToTSQuery(q.Query), SanitizeString(q.Query))
 		} else {
 			condition, statuses, sort := getViewData(*q)
+			if q.Untagged {
+				condition += " AND NOT EXISTS (SELECT 1 FROM post_tags t WHERE t.post_id = q.id)"
+			}
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
+				SELECT * FROM (%s) AS q
 				WHERE 1 = 1 %s
 				ORDER BY %s DESC
 				LIMIT %s
@@ -447,7 +492,7 @@ func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...an
 
 func buildPostQuery(user *entity.User, filter string) string {
 	tagCondition := `AND tags.is_public = true`
-	if user != nil && user.IsCollaborator() || user.IsModerator() {
+	if user != nil && (user.IsCollaborator() || user.IsModerator()) {
 		tagCondition = ``
 	}
 	hasVotedSubQuery := "null"

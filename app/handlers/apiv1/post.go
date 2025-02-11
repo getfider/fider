@@ -18,13 +18,29 @@ func SearchPosts() web.HandlerFunc {
 	return func(c *web.Context) error {
 		viewQueryParams := c.QueryParam("view")
 		if viewQueryParams == "" {
-			viewQueryParams = "all" // Set default value to "all" if not provided
+			viewQueryParams = "all"
 		}
+
+		tags := c.QueryParamAsArray("tags")
+		var untagged bool
+		var filteredTags []string
+		for _, t := range tags {
+			if t == "untagged" {
+				untagged = true
+			} else {
+				filteredTags = append(filteredTags, t)
+			}
+		}
+		if untagged {
+			filteredTags = nil
+		}
+
 		searchPosts := &query.SearchPosts{
-			Query: c.QueryParam("query"),
-			View:  viewQueryParams,
-			Limit: c.QueryParam("limit"),
-			Tags:  c.QueryParamAsArray("tags"),
+			Query:    c.QueryParam("query"),
+			View:     viewQueryParams,
+			Limit:    c.QueryParam("limit"),
+			Tags:     filteredTags,
+			Untagged: untagged,
 		}
 		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
 			searchPosts.MyVotesOnly = myVotesOnly
@@ -34,7 +50,6 @@ func SearchPosts() web.HandlerFunc {
 		if err := bus.Dispatch(c, searchPosts); err != nil {
 			return c.Failure(err)
 		}
-
 		return c.Ok(searchPosts.Result)
 	}
 }

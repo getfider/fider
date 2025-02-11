@@ -45,9 +45,9 @@ COPY --from=server-builder /server/migrations /app/migrations
 COPY --from=server-builder /server/views /app/views
 COPY --from=server-builder /server/locale /app/locale
 COPY --from=server-builder /server/misc /app/misc
+COPY --from=server-builder /server/etc /app/etc
 COPY --from=server-builder /server/LICENSE /app
 COPY --from=server-builder /server/fider /app
-COPY --from=server-builder /server/etc /app
 
 COPY --from=ui-builder /ui/favicon.png /app
 COPY --from=ui-builder /ui/dist /app/dist

@@ -8,6 +8,7 @@ import { classSet, Fider, FiderContext, actions, activateI18N } from "@fider/ser
 import { I18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
 import { AsyncPage } from "./AsyncPages"
+import Footer from "./components/Footer"
 
 const Loading = () => (
   <div className="page">
@@ -51,7 +52,10 @@ const bootstrapApp = (i18n: I18n) => {
           <FiderContext.Provider value={fider}>
             <DevBanner />
             <ReadOnlyNotice />
-            <Suspense fallback={<Loading />}>{React.createElement(component, fider.session.props)}</Suspense>
+            <Suspense fallback={<Loading />}>
+              {React.createElement(component, fider.session.props)}
+            </Suspense>
+            <Footer />
           </FiderContext.Provider>
         </I18nProvider>
       </ErrorBoundary>
@@ -61,6 +65,6 @@ const bootstrapApp = (i18n: I18n) => {
 }
 
 const fider = Fider.initialize()
-__webpack_nonce__ = fider.session.contextID
-__webpack_public_path__ = `${fider.settings.assetsURL}/assets/`
+;(window as any).__webpack_nonce__ = fider.session.contextID
+;(window as any).__webpack_public_path__ = `${fider.settings.assetsURL}/assets/`
 activateI18N(fider.currentLocale).then(bootstrapApp).catch(bootstrapApp)
