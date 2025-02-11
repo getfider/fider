@@ -1,7 +1,7 @@
 x-common-env: &fider-env
   ENVIRONMENT: ${env_string}
   # Public Host Name
-  BASE_URL: ${base_url}:${http_port}
+  BASE_URL: ${base_url}
 
   # Connection string to the PostgreSQL database
   DATABASE_URL: ${database_url}
@@ -86,6 +86,14 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${pgadmin_password}
     volumes:
       - pgadmin-data:/var/lib/pgadmin
+
+  tunnel:
+    container_name: cloudflared-tunnel
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${cloudflared}    
     
 
   # pgtest:
