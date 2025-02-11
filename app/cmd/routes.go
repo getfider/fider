@@ -42,7 +42,7 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Use(middlewares.ClientCache(365 * 24 * time.Hour))
 		assets.Get("/static/favicon", handlers.Favicon())
 		assets.Static("/assets/*filepath", "dist")
-		assets.Static("/misc/*filepath", "static")
+		assets.Static("/misc/*filepath", "misc")
 	}
 
 	r.Use(middlewares.Session())
