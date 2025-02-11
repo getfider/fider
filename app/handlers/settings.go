@@ -20,6 +20,10 @@ import (
 // ChangeUserEmail register the intent of changing user email
 func ChangeUserEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
+		if c.User().Role != enum.RoleAdministrator || c.User().Role != enum.RoleCollaborator {
+			return c.Redirect(c.BaseURL() + "/settings")
+		}
+
 		action := actions.NewChangeUserEmail()
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
@@ -43,6 +47,9 @@ func ChangeUserEmail() web.HandlerFunc {
 // VerifyChangeEmailKey checks if key is correct and update user's email
 func VerifyChangeEmailKey() web.HandlerFunc {
 	return func(c *web.Context) error {
+		if c.User().Role != enum.RoleAdministrator || c.User().Role != enum.RoleCollaborator {
+			return c.Redirect(c.BaseURL() + "/settings")
+		}
 		key := c.QueryParam("k")
 		result, err := validateKey(enum.EmailVerificationKindChangeEmail, key, c)
 		if result == nil {

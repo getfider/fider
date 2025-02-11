@@ -58,7 +58,7 @@ interface ShowPostPageState {
 
 const oneHour = 3600
 const canEditPost = (user: CurrentUser, post: Post) => {
-  if (user.isCollaborator) {
+  if (user.isCollaborator || user.isModerator) {
     return true
   }
 
@@ -236,9 +236,9 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   </div>
 
                   <DeletePostModal onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
-                  {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
+                    {Fider.session.isAuthenticated && (Fider.session.user.isCollaborator || Fider.session.user.isModerator) && (
                     <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
-                  )}
+                    )}
                   <VStack>
                     {this.state.editMode ? (
                       <Form error={this.state.error}>

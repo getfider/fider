@@ -96,11 +96,12 @@ type config struct {
 		}
 	}
 	Email struct {
-		Type      string `env:"EMAIL"` // possible values: smtp, mailgun, awsses
-		NoReply   string `env:"EMAIL_NOREPLY,required"`
-		Allowlist string `env:"EMAIL_ALLOWLIST"`
-		Blocklist string `env:"EMAIL_BLOCKLIST"`
-		AWSSES    struct {
+		Type                      string `env:"EMAIL"` // possible values: smtp, mailgun, awsses
+		NoReply                   string `env:"EMAIL_NOREPLY,required"`
+		Allowlist                 string `env:"EMAIL_ALLOWLIST"`
+		Blocklist                 string `env:"EMAIL_BLOCKLIST"`
+		DisableEmailNotifications bool   `env:"DISABLE_EMAIL_NOTIFICATIONS,default=false"`
+		AWSSES                    struct {
 			Region          string `env:"EMAIL_AWSSES_REGION"`
 			AccessKeyID     string `env:"EMAIL_AWSSES_ACCESS_KEY_ID"`
 			SecretAccessKey string `env:"EMAIL_AWSSES_SECRET_ACCESS_KEY"`

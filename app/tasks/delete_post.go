@@ -8,6 +8,7 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/markdown"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
@@ -64,32 +65,34 @@ func NotifyAboutDeletedPost(post *entity.Post, deleteCommentAdded bool) worker.T
 		}
 
 		// Email notification
-		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventChangeStatus)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		to := make([]dto.Recipient, 0)
-		for _, user := range users {
-			if user.ID != author.ID {
-				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
+		if !env.Config.Email.DisableEmailNotifications {
+			users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventChangeStatus)
+			if err != nil {
+				return c.Failure(err)
 			}
-		}
 
-		props := dto.Props{
-			"title":    post.Title,
-			"siteName": tenant.Name,
-			"content":  markdown.Full(post.Response.Text),
-			"change":   linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
-			"logo":     logoURL,
-		}
+			to := make([]dto.Recipient, 0)
+			for _, user := range users {
+				if user.ID != author.ID {
+					to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
+				}
+			}
 
-		bus.Publish(c, &cmd.SendMail{
-			From:         dto.Recipient{Name: c.User().Name},
-			To:           to,
-			TemplateName: "delete_post",
-			Props:        props,
-		})
+			props := dto.Props{
+				"title":    post.Title,
+				"siteName": tenant.Name,
+				"content":  markdown.Full(post.Response.Text),
+				"change":   linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
+				"logo":     logoURL,
+			}
+
+			bus.Publish(c, &cmd.SendMail{
+				From:         dto.Recipient{Name: c.User().Name},
+				To:           to,
+				TemplateName: "delete_post",
+				Props:        props,
+			})
+		}
 
 		return nil
 	})

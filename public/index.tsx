@@ -41,6 +41,7 @@ const bootstrapApp = (i18n: I18n) => {
   document.body.className = classSet({
     "is-authenticated": fider.session.isAuthenticated,
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
+    "is-moderator": fider.session.isAuthenticated && fider.session.user.isModerator,
   })
 
   ReactDOM.render(

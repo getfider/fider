@@ -84,9 +84,11 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
+		tenant := c.Tenant()
 
 		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{
-			CustomCSS: action.CustomCSS,
+			CustomCSS:      action.CustomCSS,
+			ProfanityWords: tenant.ProfanityWords,
 		}); err != nil {
 			return c.Failure(err)
 		}

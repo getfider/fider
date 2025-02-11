@@ -20,15 +20,11 @@ func NewUpdateProfanityWords() *UpdateProfanityWords {
 }
 
 func (action *UpdateProfanityWords) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	return user != nil && (user.IsAdministrator() || user.IsCollaborator())
+	return user != nil && user.IsAdministrator()
 }
 
 func (action *UpdateProfanityWords) Validate(ctx context.Context, user *entity.User) *validate.Result {
-	result := validate.Success()
-	if action.ProfanityWords == "" {
-		result.AddFieldFailure("profanityWords", "No profanity words provided")
-	}
-	return result
+	return validate.Success()
 }
 
 func (action *UpdateProfanityWords) Run(ctx context.Context) error {

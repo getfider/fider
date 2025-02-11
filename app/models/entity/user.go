@@ -40,6 +40,11 @@ func (u *User) IsAdministrator() bool {
 	return u.Role == enum.RoleAdministrator
 }
 
+// IsModerator returns true if user is moderator
+func (u *User) IsModerator() bool {
+	return u.Role == enum.RoleModerator
+}
+
 // UserProvider represents the relationship between an User and an Authentication provide
 type UserProvider struct {
 	Name string

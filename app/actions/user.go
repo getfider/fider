@@ -70,7 +70,7 @@ func (action *ChangeUserRole) IsAuthorized(ctx context.Context, user *entity.Use
 // Validate if current model is valid
 func (action *ChangeUserRole) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
-	if action.Role < enum.RoleVisitor || action.Role > enum.RoleAdministrator {
+	if action.Role < enum.RoleVisitor || action.Role > enum.RoleModerator {
 		return validate.Error(app.ErrNotFound)
 	}
 

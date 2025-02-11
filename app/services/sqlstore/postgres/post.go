@@ -447,7 +447,7 @@ func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...an
 
 func buildPostQuery(user *entity.User, filter string) string {
 	tagCondition := `AND tags.is_public = true`
-	if user != nil && user.IsCollaborator() {
+	if user != nil && user.IsCollaborator() || user.IsModerator() {
 		tagCondition = ``
 	}
 	hasVotedSubQuery := "null"

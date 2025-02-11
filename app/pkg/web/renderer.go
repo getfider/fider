@@ -228,6 +228,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 			"avatarBlobKey":   u.AvatarBlobKey,
 			"isAdministrator": u.IsAdministrator(),
 			"isCollaborator":  u.IsCollaborator(),
+			"isModerator":     u.IsModerator(),
 		}
 	}
 

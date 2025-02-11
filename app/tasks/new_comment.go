@@ -8,6 +8,7 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/markdown"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
@@ -42,51 +43,53 @@ func NotifyAboutNewComment(post *entity.Post, comment string) worker.Task {
 		}
 
 		// Email notification
-		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewComment)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		to := make([]dto.Recipient, 0)
-		for _, user := range users {
-			if user.ID != author.ID {
-				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
+		if !env.Config.Email.DisableEmailNotifications {
+			users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewComment)
+			if err != nil {
+				return c.Failure(err)
 			}
-		}
 
-		tenant := c.Tenant()
-		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
+			to := make([]dto.Recipient, 0)
+			for _, user := range users {
+				if user.ID != author.ID {
+					to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
+				}
+			}
 
-		mailProps := dto.Props{
-			"title":       post.Title,
-			"siteName":    tenant.Name,
-			"userName":    author.Name,
-			"content":     markdown.Full(comment),
-			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), baseURL, "/posts/%d/%s", post.Number, post.Slug),
-			"view":        linkWithText(i18n.T(c, "email.subscription.view"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
-			"unsubscribe": linkWithText(i18n.T(c, "email.subscription.unsubscribe"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
-			"change":      linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
-			"logo":        logoURL,
-		}
+			tenant := c.Tenant()
+			baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
 
-		bus.Publish(c, &cmd.SendMail{
-			From:         dto.Recipient{Name: author.Name},
-			To:           to,
-			TemplateName: "new_comment",
-			Props:        mailProps,
-		})
+			mailProps := dto.Props{
+				"title":       post.Title,
+				"siteName":    tenant.Name,
+				"userName":    author.Name,
+				"content":     markdown.Full(comment),
+				"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), baseURL, "/posts/%d/%s", post.Number, post.Slug),
+				"view":        linkWithText(i18n.T(c, "email.subscription.view"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
+				"unsubscribe": linkWithText(i18n.T(c, "email.subscription.unsubscribe"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
+				"change":      linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
+				"logo":        logoURL,
+			}
 
-		webhookProps := webhook.Props{"comment": comment}
-		webhookProps.SetPost(post, "post", baseURL, true, true)
-		webhookProps.SetUser(author, "author")
-		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
+			bus.Publish(c, &cmd.SendMail{
+				From:         dto.Recipient{Name: author.Name},
+				To:           to,
+				TemplateName: "new_comment",
+				Props:        mailProps,
+			})
 
-		err = bus.Dispatch(c, &cmd.TriggerWebhooks{
-			Type:  enum.WebhookNewComment,
-			Props: webhookProps,
-		})
-		if err != nil {
-			return c.Failure(err)
+			webhookProps := webhook.Props{"comment": comment}
+			webhookProps.SetPost(post, "post", baseURL, true, true)
+			webhookProps.SetUser(author, "author")
+			webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
+
+			err = bus.Dispatch(c, &cmd.TriggerWebhooks{
+				Type:  enum.WebhookNewComment,
+				Props: webhookProps,
+			})
+			if err != nil {
+				return c.Failure(err)
+			}
 		}
 
 		return nil

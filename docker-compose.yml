@@ -31,6 +31,7 @@ x-common-env: &fider-env
   # EMAIL_AWSSES_ACCESS_KEY_ID: youraccesskeygoeshere
   # EMAIL_AWSSES_SECRET_ACCESS_KEY: yoursecretkeygoeshere  
   LOG_LEVEL: DEBUG
+  DISABLE_EMAIL_NOTIFICATIONS: true
   LOG_CONSOLE: true
   LOG_SQL: true
   LOG_FILE: false

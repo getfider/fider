@@ -36,7 +36,15 @@ export const updateTenantSettings = async (request: UpdateTenantSettingsRequest)
 }
 
 export const updateTenantAdvancedSettings = async (customCSS: string): Promise<Result> => {
-  return await http.post("/_api/admin/settings/advanced", { customCSS })
+  return await http.post("/_api/admin/settings/advanced", { 
+    customCSS,
+  })
+}
+
+export async function updateProfanityWords(profanityWords: string) {
+  return await http.post("/_api/admin/settings/profanity", {
+    profanityWords,
+  })
 }
 
 export const updateTenantPrivacy = async (isPrivate: boolean): Promise<Result> => {

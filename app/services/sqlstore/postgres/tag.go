@@ -67,7 +67,7 @@ func getAllTags(ctx context.Context, q *query.GetAllTags) error {
 		q.Result = make([]*entity.Tag, 0)
 
 		condition := `AND t.is_public = true`
-		if user != nil && user.IsCollaborator() {
+		if user != nil && user.IsCollaborator() || user.IsModerator() {
 			condition = ``
 		}
 

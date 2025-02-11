@@ -44,10 +44,19 @@ export enum UserRole {
   Visitor = "visitor",
   Collaborator = "collaborator",
   Administrator = "administrator",
+  Moderator = "moderator",
 }
 
 export const isCollaborator = (role: UserRole): boolean => {
   return role === UserRole.Collaborator || role === UserRole.Administrator
+}
+
+export const isModerator = (role: UserRole): boolean => {
+  return role === UserRole.Moderator || role === UserRole.Administrator
+}
+
+export const isAdministrator = (role: UserRole): boolean => {
+  return role === UserRole.Administrator
 }
 
 export interface CurrentUser {
@@ -61,4 +70,5 @@ export interface CurrentUser {
   status: UserStatus
   isAdministrator: boolean
   isCollaborator: boolean
+  isModerator: boolean
 }

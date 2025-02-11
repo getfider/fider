@@ -104,7 +104,7 @@ type AssignUnassignTag struct {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *AssignUnassignTag) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	return user != nil && user.IsCollaborator()
+	return user != nil && (user.IsCollaborator() || user.IsModerator())
 }
 
 // Validate if current model is valid

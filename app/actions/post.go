@@ -121,7 +121,7 @@ func (input *UpdatePost) OnPreExecute(ctx context.Context) error {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	if user.IsCollaborator() {
+	if user.IsCollaborator() || user.IsModerator() {
 		return true
 	}
 
@@ -143,13 +143,6 @@ func (action *UpdatePost) Validate(ctx context.Context, user *entity.User) *vali
 		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.containsprofanity"))
 	} else if matches, err := profanity.ContainsProfanity(ctx, action.Description); err == nil && len(matches) > 0 {
 		result.AddFieldFailure("description", i18n.T(ctx, "validation.custom.containsprofanity"))
-	} else {
-		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Title)})
-		if err != nil && errors.Cause(err) != app.ErrNotFound {
-			return validate.Error(err)
-		} else if err == nil {
-			result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.duplicatetitle"))
-		}
 	}
 
 	postBySlug := &query.GetPostBySlug{Slug: slug.Make(action.Title)}
@@ -304,7 +297,7 @@ type DeletePost struct {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *DeletePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	return user != nil && user.IsAdministrator()
+	return user != nil && user.IsAdministrator() || user.IsModerator() || user.IsCollaborator()
 }
 
 // Validate if current model is valid
@@ -349,7 +342,7 @@ func (action *EditComment) IsAuthorized(ctx context.Context, user *entity.User) 
 
 	action.Post = postByNumber.Result
 	action.Comment = commentByID.Result
-	return user.ID == action.Comment.User.ID || user.IsCollaborator()
+	return user.ID == action.Comment.User.ID || user.IsCollaborator() || user.IsModerator()
 }
 
 // Validate if current model is valid
@@ -396,7 +389,7 @@ func (action *DeleteComment) IsAuthorized(ctx context.Context, user *entity.User
 		return false
 	}
 
-	return user.ID == commentByID.Result.User.ID || user.IsCollaborator()
+	return user.ID == commentByID.Result.User.ID || user.IsCollaborator() || user.IsModerator()
 }
 
 // Validate if current model is valid

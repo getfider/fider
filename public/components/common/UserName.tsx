@@ -1,7 +1,7 @@
 import "./UserName.scss"
 
 import React from "react"
-import { isCollaborator, UserRole } from "@fider/models"
+import { isAdministrator, isCollaborator, isModerator, UserRole } from "@fider/models"
 import { classSet } from "@fider/services"
 
 interface UserNameProps {
@@ -16,9 +16,13 @@ interface UserNameProps {
 
 export const UserName = (props: UserNameProps) => {
   const isStaff = props.user.role && isCollaborator(props.user.role)
+  const isMod = props.user.role && isModerator(props.user.role)
+  const isAdmin = props.user.role && isAdministrator(props.user.role)
   const className = classSet({
     "c-username": true,
-    "c-username--staff": isStaff,
+    "c-username--Moderator": isMod,
+    "c-username--BSG": isStaff,
+    "c-username--Admin": isAdmin,
   })
 
   return (
