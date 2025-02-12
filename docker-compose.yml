@@ -62,8 +62,15 @@ services:
         aliases:
           - fider
     labels:
-      - "fider.MY_SETTING_1=value1"
-      - "fider.MY_SETTING_2=value2"
+      - "USE_PROXY_PROTOCOL=yes"
+      - "API_WHITELIST_IP=127.0.0.0/8 10.20.30.0/24"
+      - "uat-514894.tarkov.community_USE_BROTLI=yes"
+      - "uat-514894.tarkov.community_USE_CLIENT_CACHE=yes"
+      - "uat-514894.tarkov.community_USE_REAL_IP=yes"
+      - "uat-514894.tarkov.community_BROTLI_COMP_LEVEL=8"
+      - "uat-514894.tarkov.community_USE_REVERSE_PROXY=yes"
+      - "uat-514894.tarkov.community_REVERSE_PROXY_URL=/"
+      - "uat-514894.tarkov.community_REVERSE_PROXY_HOST=http://fider:3011"
 
   mailhog:
     image: mailhog/mailhog:latest
