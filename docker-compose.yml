@@ -130,3 +130,8 @@ volumes:
   pgdev-data:
   pgadmin-data:
 #  s3test-data:
+
+networks:
+  bw-services:
+    external: true
+    name: bw-services
