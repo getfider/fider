@@ -57,6 +57,13 @@ services:
     hostname: tarkov-community-${env_string}
     #container_name: fider
     restart: always
+    networks:
+      bw-services:
+        aliases:
+          - fider-dev
+    labels:
+      - "fider-dev.MY_SETTING_1=value1"
+      - "fider-dev.MY_SETTING_2=value2"
 
   mailhog:
     image: mailhog/mailhog:latest
