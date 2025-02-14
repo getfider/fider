@@ -2,7 +2,9 @@ import React, { useState } from "react"
 
 import { Button, Form, Input, LegalFooter, TenantLogo } from "@fider/components"
 import { actions, Failure } from "@fider/services"
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
+
 import { EmailVerificationKind } from "@fider/models"
 
 import "./CompleteSignInProfile.page.scss"
@@ -45,7 +47,7 @@ const CompleteSignInProfilePage = (props: CompleteSignInProfilePageProps) => {
               field="name"
               onChange={setName}
               maxLength={100}
-              placeholder={t({ id: "modal.completeprofile.name.placeholder", message: "Name" })}
+              placeholder={i18n._("modal.completeprofile.name.placeholder", { message: "Name" })}
               suffix={
                 <Button type="submit" onClick={submit} variant="primary" disabled={name === ""}>
                   <Trans id="action.submit">Submit</Trans>

@@ -17,20 +17,16 @@ export const TenantLogoURL = (tenant: Tenant, size: Size): string | undefined =>
   return undefined
 }
 
-export const TenantLogo = (props: TenantLogoProps) => {
+export const TenantLogo = ({ size, useFiderIfEmpty = false }: TenantLogoProps) => {
   const fider = useFider()
 
   const tenant = fider.session.tenant
   if (tenant && tenant.logoBlobKey) {
-    return <img src={TenantLogoURL(fider.session.tenant, props.size)} alt={tenant.name} />
-  } else if (props.useFiderIfEmpty) {
+    return <img src={TenantLogoURL(fider.session.tenant, size)} alt={tenant.name} />
+  } else if (useFiderIfEmpty) {
     return <img src="https://fider.io/images/logo-100x100.png" alt="Fider" />
   }
   return null
-}
-
-TenantLogo.defaultProps = {
-  useFiderIfEmpty: false,
 }
 
 interface OAuthProviderLogoProps {

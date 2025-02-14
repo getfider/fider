@@ -3,6 +3,10 @@
 #####################
 FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.22-bookworm AS server-builder 
 
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    libc6-dev
 
 RUN mkdir /server
 WORKDIR /server
@@ -14,7 +18,6 @@ COPY . ./
 
 ARG COMMITHASH
 RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
-
 #################
 ### UI Build Step
 #################
@@ -34,8 +37,7 @@ RUN make build-ui
 ################
 FROM --platform=${TARGETPLATFORM:-linux/amd64} debian:bookworm-slim
 
-RUN apt-get update
-RUN apt-get install -y ca-certificates
+RUN apt-get update && apt-get install -y ca-certificates
 
 WORKDIR /app
 

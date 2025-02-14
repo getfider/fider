@@ -4,33 +4,39 @@
   "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
-    "@lingui/react": "^3.13.3",
+    "@lingui/format-json": "^5.1.2",
+    "@lingui/react": "^5.1.2",
     "dompurify": "^2.3.6",
     "marked": "^4.0.15",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-textarea-autosize": "^8.3.3",
-    "react-toastify": "^9.0.1"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-textarea-autosize": "^8.5.4",
+    "react-toastify": "^9.0.1",
+    "slate": "^0.110.2",
+    "slate-history": "^0.110.3",
+    "slate-react": "^0.111.0"
   },
   "devDependencies": {
-    "@babel/core": "7.17.10",
+    "@babel/cli": "^7.26.4",
+    "@babel/core": "^7.26.0",
     "@babel/preset-env": "7.17.10",
     "@babel/preset-react": "7.16.7",
     "@babel/preset-typescript": "7.16.7",
     "@cucumber/cucumber": "8.2.0",
-    "@lingui/cli": "3.13.3",
-    "@lingui/loader": "3.13.3",
-    "@lingui/macro": "3.13.3",
+    "@lingui/babel-plugin-lingui-macro": "^5.1.2",
+    "@lingui/cli": "^5.1.2",
+    "@lingui/loader": "^5.1.2",
+    "@lingui/macro": "^5.1.2",
     "@playwright/test": "1.48",
     "@testing-library/jest-dom": "5.16.4",
-    "@testing-library/react": "12.1.5",
+    "@testing-library/react": "^16.0.1",
     "@types/debug": "4.1.7",
     "@types/dompurify": "2.3.3",
     "@types/jsdom": "16.2.14",
     "@types/marked": "4.0.3",
     "@types/node": "17.0.31",
-    "@types/react": "17.0.45",
-    "@types/react-dom": "17.0.16",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@types/react-textarea-autosize": "4.3.6",
     "@typescript-eslint/eslint-plugin": "5.22.0",
     "@typescript-eslint/parser": "5.22.0",
@@ -61,37 +67,6 @@
     "webpack": "5.94.0",
     "webpack-bundle-analyzer": "4.5.0",
     "webpack-cli": "4.9.2"
-  },
-  "lingui": {
-    "catalogs": [
-      {
-        "path": "<rootDir>/locale/{locale}/client",
-        "include": [
-          "<rootDir>"
-        ]
-      }
-    ],
-    "fallbackLocales": {
-      "default": "en"
-    },
-    "sourceLocale": "en",
-    "format": "minimal",
-    "locales": [
-      "pt-BR",
-      "es-ES",
-      "nl",
-      "sv-SE",
-      "fr",
-      "de",
-      "en",
-      "pl",
-      "ru",
-      "sk",
-      "tr",
-      "it",
-      "zh-CN",
-      "el"
-    ]
   },
   "browserslist": ">1%, not dead",
   "jest": {

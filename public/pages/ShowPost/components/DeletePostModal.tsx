@@ -3,26 +3,24 @@ import { PostStatus, Post } from "@fider/models"
 import { actions, navigator, Failure } from "@fider/services"
 import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
-import { VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 
-interface ModerationPanelProps {
+interface DeletePostModalProps {
   post: Post
+  showModal: boolean
+  onModalClose: () => void
 }
 
-export const ModerationPanel = (props: ModerationPanelProps) => {
+export const DeletePostModal = (props: DeletePostModalProps) => {
   const fider = useFider()
-  const [showConfirmation, setShowConfirmation] = useState(false)
   const [text, setText] = useState("")
   const [error, setError] = useState<Failure>()
-
-  const hideModal = async () => setShowConfirmation(false)
-  const showModal = async () => setShowConfirmation(true)
 
   const handleDelete = async () => {
     const response = await actions.deletePost(props.post.number, text)
     if (response.ok) {
-      hideModal()
+      props.onModalClose()
       navigator.goHome()
     } else if (response.error) {
       setError(response.error)
@@ -35,14 +33,14 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
   }
 
   const modal = (
-    <Modal.Window isOpen={showConfirmation} onClose={hideModal} center={false} size="large">
+    <Modal.Window isOpen={props.showModal} onClose={props.onModalClose} center={false} size="large">
       <Modal.Content>
         <Form error={error}>
           <TextArea
             field="text"
             onChange={setText}
             value={text}
-            placeholder={t({ id: "showpost.moderationpanel.text.placeholder", message: "Why are you deleting this post? (optional)" })}
+            placeholder={i18n._("showpost.moderationpanel.text.placeholder", { message: "Why are you deleting this post? (optional)" })}
           >
             <span className="text-muted">
               <Trans id="showpost.moderationpanel.text.help">
@@ -57,22 +55,12 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
         <Button variant="danger" onClick={handleDelete}>
           <Trans id="action.delete">Delete</Trans>
         </Button>
-        <Button variant="tertiary" onClick={hideModal}>
+        <Button variant="tertiary" onClick={props.onModalClose}>
           <Trans id="action.cancel">Cancel</Trans>
         </Button>
       </Modal.Footer>
     </Modal.Window>
   )
 
-  return (
-    <VStack>
-      {modal}
-      <span className="text-category">
-        <Trans id="label.moderation">Moderation</Trans>
-      </span>
-      <Button disabled={fider.isReadOnly} variant="danger" size="small" className="w-full" onClick={showModal}>
-        <Trans id="action.delete">Delete</Trans>
-      </Button>
-    </VStack>
-  )
+  return modal
 }

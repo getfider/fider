@@ -45,7 +45,7 @@
     overflow-x: scroll;
     padding: 16px;
     line-height: 1.45;
-    background-color: get("colors.gray.100");
+    background-color: get("colors.gray.200");
     border-radius: 4px;
     code {
       display: inline;
@@ -55,7 +55,7 @@
       overflow: visible;
       line-height: inherit;
       word-wrap: normal;
-      background-color: transparent;
+      // background-color: transparent;
       border: 0;
     }
   }
@@ -64,7 +64,7 @@
     padding: 0.2em;
     font-size: 85%;
     margin: 0;
-    background-color: get("colors.gray.100");
+    background-color: get("colors.gray.200");
     border-radius: 4px;
   }
 }

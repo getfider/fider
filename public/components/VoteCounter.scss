@@ -3,14 +3,14 @@
 .c-vote-counter {
   &__button {
     font-size: get("font.size.lg");
-    border: none;
+    // border: none;
     width: sizing(11);
     font-weight: get("font.weight.bold");
     cursor: pointer;
-    background-color: transparent;
+    // background-color: transparent;
     text-align: center;
     margin: 0 auto;
-    padding: 0 0;
+    padding: 3px 0 8px 0;
     color: get("colors.gray.700");
     display: flex;
     flex-direction: column;

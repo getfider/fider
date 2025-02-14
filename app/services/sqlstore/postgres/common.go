@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -25,41 +26,55 @@ func SanitizeString(input string) string {
 	return strings.ToValidUTF8(input, "")
 }
 
-func getViewData(view string) (string, []enum.PostStatus, string) {
+func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {
 	var (
 		condition string
 		sort      string
 	)
-	statuses := []enum.PostStatus{
-		enum.PostOpen,
-		enum.PostStarted,
-		enum.PostPlanned,
+	statusFilters := query.Statuses
+	if len(statusFilters) == 0 {
+		// Use a sensible default list of status filters
+		statusFilters = []enum.PostStatus{
+			enum.PostOpen,
+			enum.PostStarted,
+			enum.PostPlanned,
+		}
 	}
-	switch view {
-	case "recent":
-		sort = "id"
-	case "my-votes":
+
+	if query.MyVotesOnly {
 		condition = "AND has_voted = true"
+	}
+
+	switch query.View {
+	case "recent":
 		sort = "id"
 	case "most-wanted":
 		sort = "votes_count"
 	case "most-discussed":
 		sort = "comments_count"
+	case "my-votes":
+		// Depracated: You can instead filter on my votes only for more flexibility than using this view.
+		condition = "AND has_voted = true"
+		sort = "id"
 	case "planned":
+		// Depracated: Use status filters instead
 		sort = "response_date"
-		statuses = []enum.PostStatus{enum.PostPlanned}
+		statusFilters = []enum.PostStatus{enum.PostPlanned}
 	case "started":
+		// Depracated: Use status filters instead
 		sort = "response_date"
-		statuses = []enum.PostStatus{enum.PostStarted}
+		statusFilters = []enum.PostStatus{enum.PostStarted}
 	case "completed":
+		// Depracated: Use status filters instead
 		sort = "response_date"
-		statuses = []enum.PostStatus{enum.PostCompleted}
+		statusFilters = []enum.PostStatus{enum.PostCompleted}
 	case "declined":
+		// Depracated: Use status filters instead
 		sort = "response_date"
-		statuses = []enum.PostStatus{enum.PostDeclined}
+		statusFilters = []enum.PostStatus{enum.PostDeclined}
 	case "all":
 		sort = "id"
-		statuses = []enum.PostStatus{
+		statusFilters = []enum.PostStatus{
 			enum.PostOpen,
 			enum.PostStarted,
 			enum.PostPlanned,
@@ -71,7 +86,11 @@ func getViewData(view string) (string, []enum.PostStatus, string) {
 	default:
 		sort = "((COALESCE(recent_votes_count, 0)*5 + COALESCE(recent_comments_count, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_at)/3600) + 2, 1.4)"
 	}
-	return condition, statuses, sort
+
+	if len(query.Tags) > 0 {
+		condition += " AND tags && $3"
+	}
+	return condition, statusFilters, sort
 }
 
 func buildAvatarURL(ctx context.Context, avatarType enum.AvatarType, id int, name, avatarBlobKey string) string {

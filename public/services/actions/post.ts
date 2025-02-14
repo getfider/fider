@@ -1,5 +1,5 @@
 import { http, Result, querystring } from "@fider/services"
-import { Post, Vote, ImageUpload } from "@fider/models"
+import { Post, Vote, ImageUpload, UserNames } from "@fider/models"
 
 export const getAllPosts = async (): Promise<Result<Post[]>> => {
   return await http.get<Post[]>("/api/v1/posts")
@@ -10,17 +10,22 @@ export interface SearchPostsParams {
   view?: string
   limit?: number
   tags?: string[]
+  myVotes?: boolean
+  statuses?: string[]
 }
 
 export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
-  return await http.get<Post[]>(
-    `/api/v1/posts${querystring.stringify({
-      tags: params.tags,
-      query: params.query,
-      view: params.view,
-      limit: params.limit,
-    })}`
-  )
+  let qsParams = querystring.stringify({
+    tags: params.tags,
+    statuses: params.statuses,
+    query: params.query,
+    view: params.view,
+    limit: params.limit,
+  })
+  if (params.myVotes) {
+    qsParams += `&myvotes=true`
+  }
+  return await http.get<Post[]>(`/api/v1/posts${qsParams}`)
 }
 
 export const deletePost = async (postNumber: number, text: string): Promise<Result> => {
@@ -39,6 +44,10 @@ export const removeVote = async (postNumber: number): Promise<Result> => {
   return http.delete(`/api/v1/posts/${postNumber}/votes`).then(http.event("post", "unvote"))
 }
 
+export const toggleVote = async (postNumber: number): Promise<Result<{ voted: boolean }>> => {
+  return http.post<{ voted: boolean }>(`/api/v1/posts/${postNumber}/votes/toggle`).then(http.event("post", "toggle-vote"))
+}
+
 export const subscribe = async (postNumber: number): Promise<Result> => {
   return http.post(`/api/v1/posts/${postNumber}/subscription`).then(http.event("post", "subscribe"))
 }
@@ -49,6 +58,10 @@ export const unsubscribe = async (postNumber: number): Promise<Result> => {
 
 export const listVotes = async (postNumber: number): Promise<Result<Vote[]>> => {
   return http.get<Vote[]>(`/api/v1/posts/${postNumber}/votes`)
+}
+
+export const getTaggableUsers = async (userFilter: string): Promise<Result<UserNames[]>> => {
+  return http.get<UserNames[]>(`/api/v1/taggable-users${querystring.stringify({ query: userFilter })}`)
 }
 
 export const createComment = async (postNumber: number, content: string, attachments: ImageUpload[]): Promise<Result> => {

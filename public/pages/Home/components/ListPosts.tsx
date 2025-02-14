@@ -1,6 +1,6 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { ShowTag, ShowPostResponse, VoteCounter, Markdown, Icon } from "@fider/components"
+import { ShowTag, VoteCounter, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import { HStack, VStack } from "@fider/components/layout"
 
@@ -12,11 +12,16 @@ interface ListPostsProps {
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
-    <HStack center={true}>
-      <div className="align-self-start">
+    <HStack spacing={4} align="start" className="c-posts-container__post">
+      <div>
         <VoteCounter post={props.post} />
       </div>
       <VStack className="w-full" spacing={2}>
+        {props.post.status !== "open" && (
+          <div className="mb-2 align-self-start">
+            <ResponseLozenge status={props.post.status} response={props.post.response} small={true} />
+          </div>
+        )}
         <HStack justify="between">
           <a className="text-title hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
             {props.post.title}
@@ -27,10 +32,9 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
             </HStack>
           )}
         </HStack>
-        <Markdown className="text-gray-600" maxLength={300} text={props.post.description} style="plainText" />
-        <ShowPostResponse status={props.post.status} response={props.post.response} />
+        <Markdown className="text-gray-700" maxLength={300} text={props.post.description} style="plainText" />
         {props.tags.length >= 1 && (
-          <HStack className="flex-wrap">
+          <HStack spacing={0} className="gap-2 flex-wrap">
             {props.tags.map((tag) => (
               <ShowTag key={tag.id} tag={tag} link />
             ))}
@@ -51,7 +55,7 @@ export const ListPosts = (props: ListPostsProps) => {
   }
 
   return (
-    <VStack spacing={4} divide={true} center={true}>
+    <VStack spacing={4} divide>
       {props.posts.map((post) => (
         <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
       ))}

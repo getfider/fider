@@ -34,7 +34,7 @@ export const Reactions: React.FC<ReactionsProps> = ({ emojiSelectorRef, toggleRe
 
   return (
     <div ref={emojiSelectorRef}>
-      <HStack spacing={2} center={true} className="mt-2 c-reactions relative">
+      <HStack spacing={2} align="center" className="mt-2 c-reactions relative">
         {fider.session.isAuthenticated && (
           <>
             <span

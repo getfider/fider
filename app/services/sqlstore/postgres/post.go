@@ -368,6 +368,10 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			q.Tags = []string{}
 		}
 
+		if q.Statuses == nil {
+			q.Statuses = []enum.PostStatus{}
+		}
+
 		if q.Limit != "all" {
 			if _, err := strconv.Atoi(q.Limit); err != nil {
 				q.Limit = "30"
@@ -394,14 +398,18 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				enum.PostDeclined,
 			}), ToTSQuery(q.Query), SanitizeString(q.Query))
 		} else {
-			condition, statuses, sort := getViewData(q.View)
+			condition, statuses, sort := getViewData(*q)
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
-				WHERE tags @> $3 %s
+				WHERE 1 = 1 %s
 				ORDER BY %s DESC
 				LIMIT %s
 			`, innerQuery, condition, sort, q.Limit)
-			err = trx.Select(&posts, sql, tenant.ID, pq.Array(statuses), pq.Array(q.Tags))
+			params := []interface{}{tenant.ID, pq.Array(statuses)}
+			if len(q.Tags) > 0 {
+				params = append(params, pq.Array(q.Tags))
+			}
+			err = trx.Select(&posts, sql, params...)
 		}
 
 		if err != nil {

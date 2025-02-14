@@ -723,6 +723,36 @@ func TestPostCommentHandler(t *testing.T) {
 	Expect(newComment.Content).Equals("This is a comment!")
 }
 
+func TestPostCommentHandlerMentions(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = post
+		return nil
+	})
+
+	var newComment *cmd.AddNewComment
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewComment) error {
+		newComment = c
+		c.Result = &entity.Comment{ID: 1, Content: c.Content}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecutePost(apiv1.PostComment(), `{ "content": "Hello @{\"id\":1,\"name\":\"Jon Snow\",\"isNew\":true}!" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(newComment.Post).Equals(post)
+	Expect(newComment.Content).Equals("Hello @{\"id\":1,\"name\":\"Jon Snow\"}!")
+}
+
 func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	RegisterT(t)
 
@@ -755,6 +785,11 @@ func TestUpdateCommentHandler_Authorized(t *testing.T) {
 	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		q.Result = post
 		return nil
 	})
 
