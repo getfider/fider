@@ -1,5 +1,5 @@
 import { http, Result, querystring } from "@fider/services"
-import { Post, Vote, ImageUpload } from "@fider/models"
+import { Post, Vote, ImageUpload, UserNames } from "@fider/models"
 
 export const getAllPosts = async (): Promise<Result<Post[]>> => {
   return await http.get<Post[]>("/api/v1/posts")
@@ -58,6 +58,10 @@ export const unsubscribe = async (postNumber: number): Promise<Result> => {
 
 export const listVotes = async (postNumber: number): Promise<Result<Vote[]>> => {
   return http.get<Vote[]>(`/api/v1/posts/${postNumber}/votes`)
+}
+
+export const getTaggableUsers = async (userFilter: string): Promise<Result<UserNames[]>> => {
+  return http.get<UserNames[]>(`/api/v1/taggable-users${querystring.stringify({ query: userFilter })}`)
 }
 
 export const createComment = async (postNumber: number, content: string, attachments: ImageUpload[]): Promise<Result> => {

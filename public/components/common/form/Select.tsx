@@ -11,6 +11,7 @@ export interface SelectOption {
 }
 
 interface SelectProps {
+  children?: React.ReactNode
   field: string
   label?: string
   maxLength?: number

@@ -1,6 +1,8 @@
 package apiv1
 
 import (
+	"fmt"
+
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/models/cmd"
@@ -9,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -212,6 +215,11 @@ func ListComments() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		// the content of the comment needs to be sanitized before it is returned
+		for _, comment := range getComments.Result {
+			comment.Content = markdown.StripMentionMetaData(comment.Content)
+		}
+
 		return c.Ok(getComments.Result)
 	}
 }
@@ -228,6 +236,8 @@ func GetComment() web.HandlerFunc {
 		if err := bus.Dispatch(c, commentByID); err != nil {
 			return c.Failure(err)
 		}
+
+		commentByID.Result.Content = markdown.StripMentionMetaData(commentByID.Result.Content)
 
 		return c.Ok(commentByID.Result)
 	}
@@ -279,12 +289,17 @@ func PostComment() web.HandlerFunc {
 		}
 
 		addNewComment := &cmd.AddNewComment{
-			Post:    getPost.Result,
-			Content: action.Content,
+			Post: getPost.Result,
+			Content: entity.CommentString(action.Content).FormatMentionJson(func(mention entity.Mention) string {
+				return fmt.Sprintf(`{"id":%d,"name":"%s"}`, mention.ID, mention.Name)
+			}),
 		}
 		if err := bus.Dispatch(c, addNewComment); err != nil {
 			return c.Failure(err)
 		}
+
+		// For processing, restore the original content
+		addNewComment.Result.Content = action.Content
 
 		if err := bus.Dispatch(c, &cmd.SetAttachments{
 			Post:        getPost.Result,
@@ -294,7 +309,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Content))
+		c.Enqueue(tasks.NotifyAboutNewComment(addNewComment.Result, getPost.Result))
 
 		metrics.TotalComments.Inc()
 		return c.Ok(web.Map{
@@ -311,6 +326,15 @@ func UpdateComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		getPost := &query.GetPostByID{PostID: action.Post.ID}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		contentToSave := entity.CommentString(action.Content).FormatMentionJson(func(mention entity.Mention) string {
+			return fmt.Sprintf(`{"id":%d,"name":"%s"}`, mention.ID, mention.Name)
+		})
+
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
 				Images: action.Attachments,
@@ -318,7 +342,7 @@ func UpdateComment() web.HandlerFunc {
 			},
 			&cmd.UpdateComment{
 				CommentID: action.ID,
-				Content:   action.Content,
+				Content:   contentToSave,
 			},
 			&cmd.SetAttachments{
 				Post:        action.Post,
@@ -329,6 +353,10 @@ func UpdateComment() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		// Update the content
+
+		c.Enqueue(tasks.NotifyAboutUpdatedComment(action.Content, getPost.Result))
 
 		return c.Ok(web.Map{})
 	}

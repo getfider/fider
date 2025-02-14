@@ -5,7 +5,7 @@ import { HStack } from "@fider/components/layout"
 import HeroIconFilter from "@fider/assets/images/heroicons-filter.svg"
 
 import { useFider } from "@fider/hooks"
-import { t } from "@lingui/macro"
+import { i18n } from "@lingui/core"
 
 import { FilterState } from "./PostsContainer"
 
@@ -74,13 +74,13 @@ export const PostFilter = (props: PostFilterProps) => {
   const options: OptionItem[] = []
 
   if (fider.session.isAuthenticated) {
-    options.push({ value: true, label: t({ id: "home.postfilter.option.myvotes", message: "My Votes" }), type: "myVotes" })
+    options.push({ value: true, label: i18n._("home.postfilter.option.myvotes", { message: "My Votes" }), type: "myVotes" })
   }
 
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
     const id = `enum.poststatus.${s.value.toString()}`
     options.push({
-      label: t({ id, message: s.title }),
+      label: i18n._(id, { message: s.title }),
       value: s.value,
       count: props.countPerStatus[s.value],
       type: "status",
@@ -103,7 +103,7 @@ export const PostFilter = (props: PostFilterProps) => {
         renderHandle={
           <HStack className="h-10 text-medium text-xs rounded-md uppercase border border-gray-400 text-gray-800 p-2 px-3">
             <Icon sprite={HeroIconFilter} className="h-5 pr-1" />
-            {t({ id: "home.filter.label", message: "Filter" })}
+            {i18n._("home.filter.label", { message: "Filter" })}
             {filterCount > 0 && <div className="bg-gray-200 inline-block rounded-full px-2 py-1 w-min-4 text-2xs text-center">{filterCount}</div>}
           </HStack>
         }

@@ -125,12 +125,12 @@ func T(ctx context.Context, key string, params ...Params) string {
 
 	parsedMsg, err := parser.Parse(msg)
 	if err != nil {
-		panic(errors.Wrap(err, fmt.Sprintf("failed to parse msg '%s'", msg)))
+		panic(errors.Wrap(err, "failed to parse msg %s", msg))
 	}
 
 	str, err := parsedMsg.FormatMap(params[0])
 	if err != nil {
-		panic(errors.Wrap(err, fmt.Sprintf("failed to format msg '%s' with params '%v'", msg, params[0])))
+		panic(errors.Wrap(err, "failed to format msg '%s' with params '%v'", msg, params[0]))
 	}
 
 	return str

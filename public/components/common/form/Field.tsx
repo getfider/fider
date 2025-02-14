@@ -4,6 +4,7 @@ import { ValidationContext } from "./Form"
 import { DisplayError, hasError } from "./DisplayError"
 
 interface FieldProps {
+  children?: React.ReactNode
   className?: string
   label?: string
   field?: string

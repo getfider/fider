@@ -9,7 +9,8 @@ import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 import { PostsSort } from "./PostsSort"
 
 interface PostsContainerProps {
@@ -38,10 +39,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
   constructor(props: PostsContainerProps) {
     super(props)
 
-    let view = querystring.get("view")
-    if (!view) {
-      view = "trending"
-    }
+    const view = querystring.get("view")
 
     this.state = {
       posts: this.props.posts,
@@ -60,7 +58,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         querystring.stringify({
           statuses: this.state.filterState.statuses,
           tags: this.state.filterState.tags,
-          myvotes: this.state.filterState.myVotes.toString(),
+          myvotes: this.state.filterState.myVotes ? "true" : undefined,
           query,
           view: this.state.view,
           limit: this.state.limit,
@@ -69,7 +67,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
       this.searchPosts(
         query,
-        this.state.view,
+        this.state.view || "trending",
         this.state.limit,
         this.state.filterState.tags,
         this.state.filterState.statuses,
@@ -141,7 +139,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
               field="query"
               icon={this.state.query ? IconX : IconSearch}
               onIconClick={this.state.query ? this.clearSearch : undefined}
-              placeholder={t({ id: "home.postscontainer.query.placeholder", message: "Search" })}
+              placeholder={i18n._("home.postscontainer.query.placeholder", { message: "Search" })}
               value={this.state.query}
               onChange={this.handleSearchFilterChanged}
             />
@@ -150,7 +148,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         <ListPosts
           posts={this.state.posts}
           tags={this.props.tags}
-          emptyText={t({ id: "home.postscontainer.label.noresults", message: "No results matched your search, try something different." })}
+          emptyText={i18n._("home.postscontainer.label.noresults", { message: "No results matched your search, try something different." })}
         />
         {this.state.loading && <Loader />}
         {showMoreLink && (

@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { classSet } from "@fider/services"
 
 interface ButtonProps {
+  children?: React.ReactNode
   className?: string
   disabled?: boolean
   href?: string
@@ -15,6 +16,7 @@ interface ButtonProps {
   style?: React.CSSProperties
   onClick?: (event: ButtonClickEvent) => Promise<any> | void
 }
+
 export class ButtonClickEvent {
   private shouldEnable = true
   public preventEnable(): void {
@@ -25,7 +27,7 @@ export class ButtonClickEvent {
   }
 }
 
-export const Button: React.FC<ButtonProps> = (props) => {
+export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "secondary", type = "button", ...props }) => {
   const [clicked, setClicked] = useState(false)
   const unmountedContainer = useRef(false)
 
@@ -37,12 +39,12 @@ export const Button: React.FC<ButtonProps> = (props) => {
 
   const className = classSet({
     "c-button": true,
-    [`c-button--${props.size}`]: props.size,
-    [`c-button--${props.variant}`]: props.variant,
+    [`c-button--${size}`]: size,
+    [`c-button--${variant}`]: variant,
     "c-button--loading": clicked,
     "c-button--disabled": clicked || props.disabled,
     [props.className || ""]: props.className,
-    "shadow-sm": props.variant == "primary" || props.variant == "secondary",
+    "shadow-sm": variant == "primary" || variant == "secondary",
   })
 
   let buttonContent: JSX.Element
@@ -76,13 +78,13 @@ export const Button: React.FC<ButtonProps> = (props) => {
     }
 
     buttonContent = (
-      <button type={props.type} className={className} onClick={onClick} style={props.style}>
+      <button type={type} className={className} onClick={onClick} style={props.style}>
         {props.children}
       </button>
     )
   } else {
     buttonContent = (
-      <button type={props.type} className={className} style={props.style}>
+      <button type={type} className={className} style={props.style}>
         {props.children}
       </button>
     )

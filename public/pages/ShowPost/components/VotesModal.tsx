@@ -6,7 +6,8 @@ import { useFider } from "@fider/hooks"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 
 interface VotesModalProps {
   isOpen: boolean
@@ -60,7 +61,7 @@ export const VotesModal: React.FC<VotesModalProps> = (props) => {
               field="query"
               icon={query ? IconX : IconSearch}
               onIconClick={query ? clearSearch : undefined}
-              placeholder={t({ id: "modal.showvotes.query.placeholder", message: "Search for users by name..." })}
+              placeholder={i18n._("modal.showvotes.query.placeholder", { message: "Search for users by name..." })}
               value={query}
               onChange={handleSearchFilterChanged}
             />

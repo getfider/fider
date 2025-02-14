@@ -10,7 +10,8 @@ import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
 
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 
 export interface HomePageProps {
   posts: Post[]
@@ -47,15 +48,13 @@ const HomePage = (props: HomePageProps) => {
   const fider = useFider()
   const [title, setTitle] = useState("")
 
-  const defaultWelcomeMessage = t({
-    id: "home.form.defaultwelcomemessage",
+  const defaultWelcomeMessage = i18n._("home.form.defaultwelcomemessage", {
     message: `We'd love to hear what you're thinking about.
 
 What can we do better? This is the place for you to vote, discuss and share ideas.`,
   })
 
-  const defaultInvitation = t({
-    id: "home.form.defaultinvitation",
+  const defaultInvitation = i18n._("home.form.defaultinvitation", {
     message: "Enter your suggestion here...",
   })
 
