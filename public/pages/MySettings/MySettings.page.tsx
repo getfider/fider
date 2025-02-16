@@ -201,7 +201,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                   <ImageUploader field="avatar" onChange={this.setAvatar} bkey={Fider.session.user.avatarBlobKey}>
                     <p className="text-muted">
                       <Trans id="mysettings.message.avatar.custom">
-                        We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.
+                        We accept JPG and PNG images, smaller than 5MB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.
                       </Trans>
                     </p>
                   </ImageUploader>

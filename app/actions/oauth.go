@@ -83,7 +83,7 @@ func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entity.
 		MinHeight:    24,
 		MinWidth:     24,
 		ExactRatio:   true,
-		MaxKilobytes: 50,
+		MaxKilobytes: 5000,
 	})
 	if err != nil {
 		return validate.Error(err)

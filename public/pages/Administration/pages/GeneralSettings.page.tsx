@@ -74,7 +74,7 @@ const GeneralSettingsPage = () => {
         </Input>
 
         <ImageUploader label="Your Logo" field="logo" bkey={fider.session.tenant.logoBlobKey} disabled={!fider.session.user.isAdministrator} onChange={setLogo}>
-          <p className="text-muted">JPG, GIF or PNG smaller than 100KB, minimum size 200x200 pixels.</p>
+          <p className="text-muted">JPG or PNG smaller than 5MB, minimum size 200x200 pixels.</p>
         </ImageUploader>
 
         {!Fider.isSingleHostMode() && (

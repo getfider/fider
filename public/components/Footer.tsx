@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
             <a href="mailto:contact@tarkov.community">Contact</a>
           </li>
           <li>
-            <a href="https://discord.gg/officialescapefromtarkov" target="_blank" rel="noreferrer">
+            <a href="https://discord.gg/escapefromtarkovofficial" target="_blank" rel="noreferrer">
               Official Tarkov Discord
             </a>
           </li>

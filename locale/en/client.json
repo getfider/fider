@@ -110,7 +110,7 @@
   "mysettings.dangerzone.notice": "This process is irreversible. Please be certain.",
   "mysettings.dangerzone.text": "When you choose to delete your account, we will erase all your personal information forever. The content you have published will remain, but it will be anonymised.",
   "mysettings.dangerzone.title": "Delete account",
-  "mysettings.message.avatar.custom": "We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.",
+  "mysettings.message.avatar.custom": "We accept JPG and PNG images, smaller than 5MB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.",
   "mysettings.message.avatar.gravatar": "A <0>Gravatar</0> will be used based on your email. If you don't have a Gravatar, a letter avatar based on your initials is generated for you.",
   "mysettings.message.avatar.letter": "A letter avatar based on your initials is generated for you.",
   "mysettings.message.noemail": "Your account doesn't have an email.",

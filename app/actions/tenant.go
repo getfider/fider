@@ -144,7 +144,7 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 		IsRequired:   false,
 		MinHeight:    200,
 		MinWidth:     200,
-		MaxKilobytes: 100,
+		MaxKilobytes: 5000,
 		ExactRatio:   true,
 	})
 	if err != nil {

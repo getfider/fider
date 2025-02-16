@@ -54,7 +54,7 @@ func (action *UpdateUserSettings) Validate(ctx context.Context, user *entity.Use
 		MinHeight:    50,
 		MinWidth:     50,
 		ExactRatio:   true,
-		MaxKilobytes: 100,
+		MaxKilobytes: 5000,
 	})
 	if err != nil {
 		return validate.Error(err)

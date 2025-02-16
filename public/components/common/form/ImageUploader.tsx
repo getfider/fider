@@ -146,7 +146,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
               </div>
             )}
 
-            <input ref={(e) => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/*" />
+            <input ref={(e) => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/png, image/jpeg" />
             {!hasFile && (
               <Button onClick={this.selectFile} disabled={this.props.disabled}>
                 <Icon sprite={IconPhotograph} />
