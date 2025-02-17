@@ -5,6 +5,7 @@ import React from "react"
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
 import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
+import IconChevronUp from "@fider/assets/images/heroicons-chevron-up.svg"
 
 import {
   ResponseDetails,
@@ -86,6 +87,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
   public componentWillUnmount() {
     window.removeEventListener("hashchange", this.handleHashChange)
+  }
+
+  private handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   private saveChanges = async () => {
@@ -294,6 +299,16 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
               <div className="p-show-post__discussion_col">
                 <DiscussionPanel post={this.props.post} comments={this.props.comments} highlightedComment={this.state.highlightedComment} />
+                <Button
+                  variant="secondary"
+                  onClick={this.handleScrollToTop}
+                  className="mt-4"
+                >
+                  <Icon sprite={IconChevronUp} />
+                  <span>
+                    <Trans id="returntop.button">Return to top</Trans>
+                  </span>
+                </Button>
               </div>
             </div>
             <div className="p-show-post__action-col">

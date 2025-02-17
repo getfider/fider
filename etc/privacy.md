@@ -82,7 +82,7 @@ _Last Updated: 2025-02-10_
 ---
 
 9. Open Source License  
-   - All of our code is licensed under the GNU Affero General Public License v3.0.  
+   - All of our code is licensed under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.html). 
    - You can view our source code and license details at our public repository:  
      [https://github.com/Spicy-Bush/fider-tarkov-community](https://github.com/Spicy-Bush/fider-tarkov-community)
 
