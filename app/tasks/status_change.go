@@ -47,6 +47,10 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 			}
 		}
 
+		tenant := c.Tenant()
+		logoURL := web.LogoURL(c)
+		baseURL := web.BaseURL(c)
+
 		// Email notification
 		if !env.Config.Email.DisableEmailNotifications {
 			users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventChangeStatus)
@@ -54,7 +58,6 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 				return c.Failure(err)
 			}
 
-			baseURL := web.BaseURL(c)
 			var duplicate string
 			if post.Status == enum.PostDuplicate {
 				duplicate = linkWithText(post.Response.Original.Title, baseURL, "/posts/%d/%s", post.Response.Original.Number, post.Response.Original.Slug)
@@ -66,9 +69,6 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 					to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 				}
 			}
-
-			tenant := c.Tenant()
-			logoURL := web.LogoURL(c)
 
 			props := dto.Props{
 				"title":       post.Title,
@@ -90,18 +90,19 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 				Props:        props,
 			})
 
-			webhookProps := webhook.Props{"post_old_status": prevStatus.Name()}
-			webhookProps.SetPost(post, "post", baseURL, true, true)
-			webhookProps.SetUser(author, "author")
-			webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
+		}
 
-			err = bus.Dispatch(c, &cmd.TriggerWebhooks{
-				Type:  enum.WebhookChangeStatus,
-				Props: webhookProps,
-			})
-			if err != nil {
-				return c.Failure(err)
-			}
+		webhookProps := webhook.Props{"post_old_status": prevStatus.Name()}
+		webhookProps.SetPost(post, "post", baseURL, true, true)
+		webhookProps.SetUser(author, "author")
+		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
+
+		err = bus.Dispatch(c, &cmd.TriggerWebhooks{
+			Type:  enum.WebhookChangeStatus,
+			Props: webhookProps,
+		})
+		if err != nil {
+			return c.Failure(err)
 		}
 		return nil
 	})

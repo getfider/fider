@@ -42,6 +42,8 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 			}
 		}
 
+		tenant := c.Tenant()
+		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
 		// Email notification
 		if !env.Config.Email.DisableEmailNotifications {
 			users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewPost)
@@ -55,9 +57,6 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 					to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 				}
 			}
-
-			tenant := c.Tenant()
-			baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
 
 			mailProps := dto.Props{
 				"title":    post.Title,
@@ -76,19 +75,19 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 				TemplateName: "new_post",
 				Props:        mailProps,
 			})
+		}
 
-			webhookProps := webhook.Props{}
-			webhookProps.SetPost(post, "post", baseURL, false, false)
-			webhookProps.SetUser(author, "author")
-			webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
+		webhookProps := webhook.Props{}
+		webhookProps.SetPost(post, "post", baseURL, false, false)
+		webhookProps.SetUser(author, "author")
+		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
 
-			err = bus.Dispatch(c, &cmd.TriggerWebhooks{
-				Type:  enum.WebhookNewPost,
-				Props: webhookProps,
-			})
-			if err != nil {
-				return c.Failure(err)
-			}
+		err = bus.Dispatch(c, &cmd.TriggerWebhooks{
+			Type:  enum.WebhookNewPost,
+			Props: webhookProps,
+		})
+		if err != nil {
+			return c.Failure(err)
 		}
 		return nil
 	})
