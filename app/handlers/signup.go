@@ -117,10 +117,6 @@ func CreateTenant() web.HandlerFunc {
 			c.Enqueue(tasks.SendSignUpEmail(action, siteURL))
 		}
 
-		if status == enum.TenantActive && user.Email != "" {
-			c.Enqueue(tasks.SendWelcomeEmail(user.Name, user.Email, siteURL))
-		}
-
 		// Handle userlist.
 		if env.Config.UserList.Enabled {
 			c.Enqueue(tasks.UserListCreateCompany(*createTenant.Result, *user))
@@ -196,8 +192,6 @@ func VerifySignUpKey() web.HandlerFunc {
 		}
 
 		webutil.AddAuthUserCookie(c, user)
-
-		c.Enqueue(tasks.SendWelcomeEmail(user.Name, user.Email, c.BaseURL()))
 
 		return c.Redirect(c.BaseURL())
 	}
