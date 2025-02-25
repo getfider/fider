@@ -6,15 +6,15 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/getfider/fider/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/services/email"
-	"github.com/getfider/fider/app/services/email/smtp"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/email"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/email/smtp"
 )
 
 type request struct {

@@ -3,22 +3,22 @@ package worker
 import (
 	"context"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/rand"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/rand"
 )
 
-//Context holds references to services available for jobs
+// Context holds references to services available for jobs
 type Context struct {
 	context.Context
 	workerID string
 	taskName string
 }
 
-//NewContext creates a new context
+// NewContext creates a new context
 func NewContext(ctx context.Context, workerID string, task Task) *Context {
 	ctx = log.WithProperty(ctx, log.PropertyKeyContextID, rand.String(32))
 
@@ -42,12 +42,12 @@ func NewContext(ctx context.Context, workerID string, task Task) *Context {
 	}
 }
 
-//WorkerID executing current context
+// WorkerID executing current context
 func (c *Context) WorkerID() string {
 	return c.workerID
 }
 
-//TaskName from current context
+// TaskName from current context
 func (c *Context) TaskName() string {
 	return c.taskName
 }
@@ -57,7 +57,7 @@ func (c *Context) Set(key any, val any) {
 	c.Context = context.WithValue(c.Context, key, val)
 }
 
-//User from current context
+// User from current context
 func (c *Context) User() *entity.User {
 	user, ok := c.Value(app.UserCtxKey).(*entity.User)
 	if ok {
@@ -66,7 +66,7 @@ func (c *Context) User() *entity.User {
 	return nil
 }
 
-//Tenant from current context
+// Tenant from current context
 func (c *Context) Tenant() *entity.Tenant {
 	tenant, ok := c.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
@@ -75,7 +75,7 @@ func (c *Context) Tenant() *entity.Tenant {
 	return nil
 }
 
-//Failure logs details of error
+// Failure logs details of error
 func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
 	log.Error(c, err)

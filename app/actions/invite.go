@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
 // InviteUsers is used to invite new users into Fider
@@ -87,28 +87,28 @@ func (action *InviteUsers) Validate(ctx context.Context, user *entity.User) *val
 	return result
 }
 
-//UserInvitation is the model used to register an invite sent to an user
+// UserInvitation is the model used to register an invite sent to an user
 type UserInvitation struct {
 	Email           string
 	VerificationKey string
 }
 
-//GetEmail returns the invited user's email
+// GetEmail returns the invited user's email
 func (e *UserInvitation) GetEmail() string {
 	return e.Email
 }
 
-//GetName returns empty for this kind of process
+// GetName returns empty for this kind of process
 func (e *UserInvitation) GetName() string {
 	return ""
 }
 
-//GetUser returns the current user performing this action
+// GetUser returns the current user performing this action
 func (e *UserInvitation) GetUser() *entity.User {
 	return nil
 }
 
-//GetKind returns EmailVerificationKindUserInvitation
+// GetKind returns EmailVerificationKindUserInvitation
 func (e *UserInvitation) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindUserInvitation
 }

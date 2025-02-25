@@ -3,11 +3,11 @@ package postgres
 import (
 	"context"
 
-	"github.com/getfider/fider/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
 
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
 )
 
 func init() {
@@ -62,6 +62,7 @@ func (s Service) Init() {
 	bus.AddHandler(getPostByID)
 	bus.AddHandler(getPostBySlug)
 	bus.AddHandler(getPostByNumber)
+	bus.AddHandler(getUserPostCount)
 	bus.AddHandler(searchPosts)
 	bus.AddHandler(getAllPosts)
 	bus.AddHandler(countPostPerStatus)
@@ -77,6 +78,7 @@ func (s Service) Init() {
 	bus.AddHandler(addNewComment)
 	bus.AddHandler(updateComment)
 	bus.AddHandler(toggleCommentReaction)
+	bus.AddHandler(getUserCommentCount)
 	bus.AddHandler(deleteComment)
 	bus.AddHandler(getCommentByID)
 	bus.AddHandler(getCommentsByPost)

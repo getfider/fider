@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/jobs"
-	"github.com/getfider/fider/app/models/cmd"
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/jobs"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 )
 
 func TestPurgeExpiredNotificationsJob_Schedule_IsCorrect(t *testing.T) {

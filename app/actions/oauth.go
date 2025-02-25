@@ -4,16 +4,16 @@ import (
 	"context"
 	"strings"
 
-	"github.com/getfider/fider/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 
-	"github.com/getfider/fider/app/pkg/rand"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/rand"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
 // CreateEditOAuthConfig is used to create/edit OAuth config
@@ -83,7 +83,7 @@ func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entity.
 		MinHeight:    24,
 		MinWidth:     24,
 		ExactRatio:   true,
-		MaxKilobytes: 50,
+		MaxKilobytes: 5000,
 	})
 	if err != nil {
 		return validate.Error(err)

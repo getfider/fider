@@ -4,7 +4,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/getfider/fider/app/pkg/markdown"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/markdown"
 )
 
 func GetTextTemplate(name string, rawText string) (*template.Template, error) {

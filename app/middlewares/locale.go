@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // SetLocale defines given locale in context for all subsequent operations

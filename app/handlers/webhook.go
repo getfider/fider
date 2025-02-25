@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // ManageWebhooks is the page used by administrators to configure webhooks

@@ -5,10 +5,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/getfider/fider/app/models/dto"
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
 func TestValidateImageUpload(t *testing.T) {

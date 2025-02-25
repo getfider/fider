@@ -90,7 +90,9 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     <>
       <Field label={t({ id: "label.notifications", message: "Notifications" })}>
         <p className="text-muted">
-          <Trans id="mysettings.notification.title">Use following panel to choose which events you&apos;d like to receive notification</Trans>
+          <Trans id="mysettings.notification.title">
+            Use following panel to choose which events you&apos;d like to receive notification
+          </Trans>
         </p>
 
         <div className="notifications-settings">
@@ -106,7 +108,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
               )}
               <HStack spacing={6}>
                 {icon("event_notification_new_post", WebChannel)}
-                {icon("event_notification_new_post", EmailChannel)}
+                {fider.session.user.isCollaborator || fider.session.user.isAdministrator ? icon("event_notification_new_post", EmailChannel) : null}
               </HStack>
             </div>
             <div>
@@ -120,7 +122,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
               )}
               <HStack spacing={6}>
                 {icon("event_notification_new_comment", WebChannel)}
-                {icon("event_notification_new_comment", EmailChannel)}
+                {fider.session.user.isCollaborator || fider.session.user.isAdministrator ? icon("event_notification_new_comment", EmailChannel) : null}
               </HStack>
             </div>
             <div>
@@ -134,7 +136,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
               )}
               <HStack spacing={6}>
                 {icon("event_notification_change_status", WebChannel)}
-                {icon("event_notification_change_status", EmailChannel)}
+                {fider.session.user.isCollaborator || fider.session.user.isAdministrator ? icon("event_notification_change_status", EmailChannel) : null}
               </HStack>
             </div>
           </VStack>

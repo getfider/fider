@@ -2,20 +2,21 @@ package actions
 
 import (
 	"context"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/i18n"
-	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/jwt"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
-//CreateTenant is the input model used to create a tenant
+// CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
 	Token           string `json:"token"`
 	Name            string `json:"name"`
@@ -89,27 +90,27 @@ func (action *CreateTenant) Validate(ctx context.Context, user *entity.User) *va
 	return result
 }
 
-//GetEmail returns the email being verified
+// GetEmail returns the email being verified
 func (action *CreateTenant) GetEmail() string {
 	return action.Email
 }
 
-//GetName returns the name of the email owner
+// GetName returns the name of the email owner
 func (action *CreateTenant) GetName() string {
 	return action.Name
 }
 
-//GetUser returns the current user performing this action
+// GetUser returns the current user performing this action
 func (action *CreateTenant) GetUser() *entity.User {
 	return nil
 }
 
-//GetKind returns EmailVerificationKindSignUp
+// GetKind returns EmailVerificationKindSignUp
 func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindSignUp
 }
 
-//UpdateTenantSettings is the input model used to update tenant settings
+// UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
 	Logo           *dto.ImageUpload `json:"logo"`
 	Title          string           `json:"title"`
@@ -143,7 +144,7 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 		IsRequired:   false,
 		MinHeight:    200,
 		MinWidth:     200,
-		MaxKilobytes: 100,
+		MaxKilobytes: 5000,
 		ExactRatio:   true,
 	})
 	if err != nil {
@@ -175,9 +176,10 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 	return result
 }
 
-//UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
+// UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
 type UpdateTenantAdvancedSettings struct {
-	CustomCSS string `json:"customCSS"`
+	CustomCSS      string `json:"customCSS"`
+	ProfanityWords string `json:"profanityWords"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -190,7 +192,7 @@ func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *
 	return validate.Success()
 }
 
-//UpdateTenantPrivacy is the input model used to update tenant privacy settings
+// UpdateTenantPrivacy is the input model used to update tenant privacy settings
 type UpdateTenantPrivacy struct {
 	IsPrivate bool `json:"isPrivate"`
 }

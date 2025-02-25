@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app/middlewares"
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/mock"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/middlewares"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/mock"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 func TestMaintenance_Disabled(t *testing.T) {

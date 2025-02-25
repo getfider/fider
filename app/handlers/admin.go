@@ -2,16 +2,17 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
-	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/tasks"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/tasks"
 )
 
 // GeneralSettingsPage is the general settings page
@@ -32,6 +33,8 @@ func AdvancedSettingsPage() web.HandlerFunc {
 			Title: "Advanced · Site Settings",
 			Data: web.Map{
 				"customCSS": c.Tenant().CustomCSS,
+				// replace commas with newlines makes it easier to edit for the user, we convert it back to commas when saving
+				"profanityWords": strings.ReplaceAll(c.Tenant().ProfanityWords, ",", "\n"),
 			},
 		})
 	}
@@ -81,9 +84,11 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
+		tenant := c.Tenant()
 
 		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{
-			CustomCSS: action.CustomCSS,
+			CustomCSS:      action.CustomCSS,
+			ProfanityWords: tenant.ProfanityWords,
 		}); err != nil {
 			return c.Failure(err)
 		}
@@ -222,6 +227,21 @@ func SaveOAuthConfig() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		return c.Ok(web.Map{})
+	}
+}
+
+// UpdateProfanityWords is used to update profanity words for the tenant
+func UpdateProfanityWords() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := actions.NewUpdateProfanityWords()
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		if err := action.Run(c); err != nil {
+			return c.Failure(err)
+		}
 		return c.Ok(web.Map{})
 	}
 }

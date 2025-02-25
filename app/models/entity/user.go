@@ -3,7 +3,7 @@ package entity
 import (
 	"encoding/json"
 
-	"github.com/getfider/fider/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 )
 
 // User represents an user inside our application
@@ -38,6 +38,11 @@ func (u *User) IsCollaborator() bool {
 // IsAdministrator returns true if user is administrator
 func (u *User) IsAdministrator() bool {
 	return u.Role == enum.RoleAdministrator
+}
+
+// IsModerator returns true if user is moderator
+func (u *User) IsModerator() bool {
+	return u.Role == enum.RoleModerator
 }
 
 // UserProvider represents the relationship between an User and an Authentication provide

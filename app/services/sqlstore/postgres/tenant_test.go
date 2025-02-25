@@ -4,18 +4,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 
-	. "github.com/getfider/fider/app/pkg/assert"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 func TestTenantStorage_Add_Activate(t *testing.T) {

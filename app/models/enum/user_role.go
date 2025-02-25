@@ -10,18 +10,22 @@ const (
 	RoleCollaborator Role = 2
 	//RoleAdministrator has full access to administrative console
 	RoleAdministrator Role = 3
+	//RoleModerator has access to moderate content
+	RoleModerator Role = 4
 )
 
 var roleIDs = map[Role]string{
 	RoleVisitor:       "visitor",
 	RoleCollaborator:  "collaborator",
 	RoleAdministrator: "administrator",
+	RoleModerator:     "moderator",
 }
 
 var roleNames = map[string]Role{
 	"visitor":       RoleVisitor,
 	"collaborator":  RoleCollaborator,
 	"administrator": RoleAdministrator,
+	"moderator":     RoleModerator,
 }
 
 // String returns the string version of the user role

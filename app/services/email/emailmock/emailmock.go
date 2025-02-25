@@ -3,13 +3,13 @@ package emailmock
 import (
 	"context"
 
-	"github.com/getfider/fider/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 )
 
 var MessageHistory = make([]*HistoryItem, 0)

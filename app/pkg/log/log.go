@@ -4,10 +4,10 @@ import (
 	"context"
 	"strings"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 )
 
 var CurrentLevel = parseLevel(strings.ToUpper(env.Config.Log.Level))

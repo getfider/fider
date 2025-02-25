@@ -8,7 +8,7 @@ import { Button, Icon, Modal } from "@fider/components"
 import { ImageUpload } from "@fider/models"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 
-const hardFileSizeLimit = 5 * 1024 * 1024
+const hardFileSizeLimit = 7.5 * 1024 * 1024
 
 interface ImageUploaderProps {
   instanceID?: string
@@ -41,7 +41,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       if (file.size > hardFileSizeLimit) {
-        alert("The image size must be smaller than 5MB.")
+        alert("The image size must be smaller than 7MB.")
         return
       }
 
@@ -146,7 +146,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
               </div>
             )}
 
-            <input ref={(e) => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/*" />
+            <input ref={(e) => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/png, image/jpeg" />
             {!hasFile && (
               <Button onClick={this.selectFile} disabled={this.props.disabled}>
                 <Icon sprite={IconPhotograph} />

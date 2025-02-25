@@ -7,17 +7,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/services/httpclient/httpclientmock"
-	"github.com/getfider/fider/app/services/userlist"
-	userlist_mock "github.com/getfider/fider/app/services/userlist/mocks"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/httpclient/httpclientmock"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/userlist"
+	userlist_mock "github.com/Spicy-Bush/fider-tarkov-community/app/services/userlist/mocks"
 
-	. "github.com/getfider/fider/app/pkg/assert"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 var ctx context.Context

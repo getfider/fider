@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/crypto"
-	"github.com/getfider/fider/app/pkg/i18n"
-	"github.com/getfider/fider/app/pkg/markdown"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/crypto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/markdown"
 	"github.com/microcosm-cc/bluemonday"
 )
 

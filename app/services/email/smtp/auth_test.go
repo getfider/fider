@@ -4,8 +4,8 @@ import (
 	gosmtp "net/smtp"
 	"testing"
 
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/services/email/smtp"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/email/smtp"
 )
 
 func TestAgnosticAuth_Login(t *testing.T) {

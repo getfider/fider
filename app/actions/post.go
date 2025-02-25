@@ -4,18 +4,19 @@ import (
 	"context"
 	"time"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/profanity"
 	"github.com/gosimple/slug"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
 // CreateNewPost is used to create a new post
@@ -37,11 +38,11 @@ func (input *CreateNewPost) OnPreExecute(ctx context.Context) error {
 			if err := bus.Dispatch(ctx, getTag); err != nil {
 				break
 			}
-			
+
 			input.Tags = append(input.Tags, getTag.Result)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -63,6 +64,20 @@ func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *entity.User
 func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
+	if user != nil && (!user.IsCollaborator() || !user.IsModerator() || !user.IsAdministrator()) {
+		q := &query.GetUserPostCount{
+			UserID: user.ID,
+			Since:  time.Now().Add(-24 * time.Hour),
+		}
+		if err := bus.Dispatch(ctx, q); err != nil {
+			return validate.Error(err)
+		}
+		if q.Result >= 10 {
+			result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.toomanyposts"))
+			return result
+		}
+	}
+
 	if action.Title == "" {
 		result.AddFieldFailure("title", propertyIsRequired(ctx, "title"))
 	} else if len(action.Title) < 10 {
@@ -71,6 +86,10 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *v
 		result.AddFieldFailure("title", propertyMaxStringLen(ctx, "title", 100))
 	} else if env.Config.PostCreationWithTagsEnabled && len(action.TagSlugs) != len(action.Tags) {
 		result.AddFieldFailure("tags", propertyIsInvalid(ctx, "tags"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Title); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.containsprofanity"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Description); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("description", i18n.T(ctx, "validation.custom.containsprofanity"))
 	} else {
 		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(action.Title)})
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
@@ -82,7 +101,7 @@ func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *v
 
 	messages, err := validate.MultiImageUpload(ctx, nil, action.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   3,
-		MaxKilobytes: 5120,
+		MaxKilobytes: 7500,
 		ExactRatio:   false,
 	})
 	if err != nil {
@@ -116,7 +135,7 @@ func (input *UpdatePost) OnPreExecute(ctx context.Context) error {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *UpdatePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	if user.IsCollaborator() {
+	if user != nil && (user.IsCollaborator() || user.IsModerator()) {
 		return true
 	}
 
@@ -134,6 +153,10 @@ func (action *UpdatePost) Validate(ctx context.Context, user *entity.User) *vali
 		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.descriptivetitle"))
 	} else if len(action.Title) > 100 {
 		result.AddFieldFailure("title", propertyMaxStringLen(ctx, "title", 100))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Title); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.containsprofanity"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Description); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("description", i18n.T(ctx, "validation.custom.containsprofanity"))
 	}
 
 	postBySlug := &query.GetPostBySlug{Slug: slug.Make(action.Title)}
@@ -153,7 +176,7 @@ func (action *UpdatePost) Validate(ctx context.Context, user *entity.User) *vali
 
 		messages, err := validate.MultiImageUpload(ctx, getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   3,
-			MaxKilobytes: 5120,
+			MaxKilobytes: 7500,
 			ExactRatio:   false,
 		})
 		if err != nil {
@@ -181,7 +204,7 @@ func (action *ToggleCommentReaction) Validate(ctx context.Context, user *entity.
 
 	result := validate.Success()
 
-	allowedEmojis := []string{"👍", "👎", "😄", "🎉", "😕", "❤️", "🚀", "👀"}
+	allowedEmojis := []string{"👍", "👎", "❤️", "🤔", "👏", "😂", "😲"}
 	isAllowed := false
 	for _, emoji := range allowedEmojis {
 		if action.Reaction == emoji {
@@ -213,13 +236,30 @@ func (action *AddNewComment) IsAuthorized(ctx context.Context, user *entity.User
 func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
+	// if not admin, collab or moderator, check if user has posted too many comments in the last 24 hours
+	if user != nil && (!user.IsCollaborator() || !user.IsModerator() || !user.IsAdministrator()) {
+		q := &query.GetUserCommentCount{
+			UserID: user.ID,
+			Since:  time.Now().Add(-24 * time.Hour),
+		}
+		if err := bus.Dispatch(ctx, q); err != nil {
+			return validate.Error(err)
+		}
+		if q.Result >= 50 {
+			result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.toomanycomments"))
+			return result
+		}
+	}
+
 	if action.Content == "" {
 		result.AddFieldFailure("content", propertyIsRequired(ctx, "comment"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Content); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.containsprofanity"))
 	}
 
 	messages, err := validate.MultiImageUpload(ctx, nil, action.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   2,
-		MaxKilobytes: 5120,
+		MaxKilobytes: 7500,
 		ExactRatio:   false,
 	})
 	if err != nil {
@@ -286,7 +326,7 @@ type DeletePost struct {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *DeletePost) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	return user != nil && user.IsAdministrator()
+	return user != nil && (user.IsAdministrator() || user.IsModerator() || user.IsCollaborator())
 }
 
 // Validate if current model is valid
@@ -331,7 +371,7 @@ func (action *EditComment) IsAuthorized(ctx context.Context, user *entity.User) 
 
 	action.Post = postByNumber.Result
 	action.Comment = commentByID.Result
-	return user.ID == action.Comment.User.ID || user.IsCollaborator()
+	return user.ID == action.Comment.User.ID || user.IsCollaborator() || user.IsModerator()
 }
 
 // Validate if current model is valid
@@ -340,6 +380,8 @@ func (action *EditComment) Validate(ctx context.Context, user *entity.User) *val
 
 	if action.Content == "" {
 		result.AddFieldFailure("content", propertyIsRequired(ctx, "comment"))
+	} else if matches, err := profanity.ContainsProfanity(ctx, action.Content); err == nil && len(matches) > 0 {
+		result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.containsprofanity"))
 	}
 
 	if len(action.Attachments) > 0 {
@@ -351,7 +393,7 @@ func (action *EditComment) Validate(ctx context.Context, user *entity.User) *val
 
 		messages, err := validate.MultiImageUpload(ctx, getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
 			MaxUploads:   2,
-			MaxKilobytes: 5120,
+			MaxKilobytes: 7500,
 			ExactRatio:   false,
 		})
 		if err != nil {
@@ -376,7 +418,7 @@ func (action *DeleteComment) IsAuthorized(ctx context.Context, user *entity.User
 		return false
 	}
 
-	return user.ID == commentByID.Result.User.ID || user.IsCollaborator()
+	return user.ID == commentByID.Result.User.ID || user.IsCollaborator() || user.IsModerator()
 }
 
 // Validate if current model is valid

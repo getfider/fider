@@ -4,8 +4,8 @@ import (
 	"context"
 	"hash/fnv"
 
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
 )
 
 func hash(s string) uint32 {

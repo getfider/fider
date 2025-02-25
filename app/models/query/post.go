@@ -1,8 +1,10 @@
 package query
 
 import (
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
+	"time"
+
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 )
 
 type PostIsReferenced struct {
@@ -40,8 +42,21 @@ type SearchPosts struct {
 	Statuses    []enum.PostStatus
 	Tags        []string
 	MyVotesOnly bool
+	Untagged    bool
 
 	Result []*entity.Post
+}
+
+type GetUserPostCount struct {
+	UserID int
+	Since  time.Time
+	Result int
+}
+
+type GetUserCommentCount struct {
+	UserID int
+	Since  time.Time
+	Result int
 }
 
 type GetAllPosts struct {

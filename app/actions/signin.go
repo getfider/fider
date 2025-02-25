@@ -3,13 +3,13 @@ package actions
 import (
 	"context"
 
-	"github.com/getfider/fider/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
 
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
 // SignInByEmail happens when user request to sign in by email
@@ -54,22 +54,22 @@ func (action *SignInByEmail) Validate(ctx context.Context, user *entity.User) *v
 	return result
 }
 
-//GetEmail returns the email being verified
+// GetEmail returns the email being verified
 func (action *SignInByEmail) GetEmail() string {
 	return action.Email
 }
 
-//GetName returns empty for this kind of process
+// GetName returns empty for this kind of process
 func (action *SignInByEmail) GetName() string {
 	return ""
 }
 
-//GetUser returns the current user performing this action
+// GetUser returns the current user performing this action
 func (action *SignInByEmail) GetUser() *entity.User {
 	return nil
 }
 
-//GetKind returns EmailVerificationKindSignIn
+// GetKind returns EmailVerificationKindSignIn
 func (action *SignInByEmail) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindSignIn
 }

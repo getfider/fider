@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/webhook"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/webhook"
 )
 
 type TestWebhook struct {

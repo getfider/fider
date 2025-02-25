@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/actions"
-	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 func TestSignInByEmail_EmptyEmail(t *testing.T) {

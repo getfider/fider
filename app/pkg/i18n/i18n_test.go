@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
 
-	. "github.com/getfider/fider/app/pkg/assert"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 var emptyContext = context.Background()

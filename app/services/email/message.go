@@ -5,8 +5,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/tpl"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/tpl"
 )
 
 // Message represents what is sent by email

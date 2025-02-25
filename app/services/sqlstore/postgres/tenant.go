@@ -2,18 +2,19 @@ package postgres
 
 import (
 	"context"
+	"strings"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
 
-	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 )
 
 type dbTenant struct {
@@ -28,6 +29,7 @@ type dbTenant struct {
 	IsPrivate          bool   `db:"is_private"`
 	LogoBlobKey        string `db:"logo_bkey"`
 	CustomCSS          string `db:"custom_css"`
+	ProfanityWords     string `db:"profanity_words"`
 	IsEmailAuthAllowed bool   `db:"is_email_auth_allowed"`
 }
 
@@ -48,6 +50,7 @@ func (t *dbTenant) toModel() *entity.Tenant {
 		IsPrivate:          t.IsPrivate,
 		LogoBlobKey:        t.LogoBlobKey,
 		CustomCSS:          t.CustomCSS,
+		ProfanityWords:     t.ProfanityWords,
 		IsEmailAuthAllowed: t.IsEmailAuthAllowed,
 	}
 
@@ -160,13 +163,20 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 
 func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvancedSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		query := "UPDATE tenants SET custom_css = $1 WHERE id = $2"
-		_, err := trx.Execute(query, c.CustomCSS, tenant.ID)
+		// Convert newline-separated text to comma-separated.
+		profanity := strings.TrimSpace(c.ProfanityWords)
+		if profanity != "" {
+			profanity = strings.ReplaceAll(profanity, "\n", ",")
+		}
+
+		query := "UPDATE tenants SET custom_css = $1, profanity_words = $2 WHERE id = $3"
+		_, err := trx.Execute(query, c.CustomCSS, profanity, tenant.ID)
 		if err != nil {
-			return errors.Wrap(err, "failed update tenant advanced settings")
+			return errors.Wrap(err, "failed to update tenant advanced settings")
 		}
 
 		tenant.CustomCSS = c.CustomCSS
+		tenant.ProfanityWords = profanity
 		return nil
 	})
 }
@@ -259,7 +269,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, profanity_words
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
@@ -278,7 +288,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, profanity_words
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 
 			ORDER BY cname DESC

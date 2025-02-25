@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/services/email"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/services/email"
 
-	. "github.com/getfider/fider/app/pkg/assert"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 func TestRenderMessage(t *testing.T) {

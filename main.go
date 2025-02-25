@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/getfider/fider/app/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/cmd"
 	_ "github.com/lib/pq"
 )
 

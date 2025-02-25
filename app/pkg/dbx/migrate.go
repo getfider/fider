@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
 )
 
 // ErrNoChanges means that the migration process didn't change execute any file

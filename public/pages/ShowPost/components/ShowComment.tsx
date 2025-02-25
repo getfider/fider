@@ -57,7 +57,7 @@ export const ShowComment = (props: ShowCommentProps) => {
 
   const canEditComment = (): boolean => {
     if (fider.session.isAuthenticated) {
-      return fider.session.user.isCollaborator || props.comment.user.id === fider.session.user.id
+      return (fider.session.user.isCollaborator || fider.session.user.isModerator) || props.comment.user.id === fider.session.user.id
     }
     return false
   }

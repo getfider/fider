@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/pkg/webhook"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/webhook"
 )
 
 type WebhookTriggerResult struct {

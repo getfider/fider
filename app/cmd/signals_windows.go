@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package cmd
@@ -5,7 +6,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 var extraSignals = []os.Signal{}

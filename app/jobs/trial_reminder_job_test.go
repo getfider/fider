@@ -5,13 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app/jobs"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/query"
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/jobs"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 )
 
 func TestTrialReminderJob_Schedule_IsCorrect(t *testing.T) {

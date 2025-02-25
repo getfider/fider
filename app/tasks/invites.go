@@ -5,17 +5,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/markdown"
-	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/markdown"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/worker"
 )
 
-//SendInvites sends one email to each invited recipient
+// SendInvites sends one email to each invited recipient
 func SendInvites(subject, message string, invitations []*actions.UserInvitation) worker.Task {
 	return describe("Send invites", func(c *worker.Context) error {
 		to := make([]dto.Recipient, len(invitations))

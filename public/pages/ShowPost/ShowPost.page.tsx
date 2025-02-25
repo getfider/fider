@@ -5,6 +5,7 @@ import React from "react"
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
 import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
+import IconChevronUp from "@fider/assets/images/heroicons-chevron-up.svg"
 
 import {
   ResponseDetails,
@@ -58,7 +59,7 @@ interface ShowPostPageState {
 
 const oneHour = 3600
 const canEditPost = (user: CurrentUser, post: Post) => {
-  if (user.isCollaborator) {
+  if (user.isCollaborator || user.isModerator) {
     return true
   }
 
@@ -86,6 +87,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
   public componentWillUnmount() {
     window.removeEventListener("hashchange", this.handleHashChange)
+  }
+
+  private handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
   private saveChanges = async () => {
@@ -236,9 +241,9 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   </div>
 
                   <DeletePostModal onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
-                  {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
+                    {Fider.session.isAuthenticated && (Fider.session.user.isCollaborator || Fider.session.user.isModerator) && (
                     <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
-                  )}
+                    )}
                   <VStack>
                     {this.state.editMode ? (
                       <Form error={this.state.error}>
@@ -294,6 +299,16 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
               <div className="p-show-post__discussion_col">
                 <DiscussionPanel post={this.props.post} comments={this.props.comments} highlightedComment={this.state.highlightedComment} />
+                <Button
+                  variant="secondary"
+                  onClick={this.handleScrollToTop}
+                  className="mt-4"
+                >
+                  <Icon sprite={IconChevronUp} />
+                  <span>
+                    <Trans id="returntop.button">Return to top</Trans>
+                  </span>
+                </Button>
               </div>
             </div>
             <div className="p-show-post__action-col">

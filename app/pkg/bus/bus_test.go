@@ -4,12 +4,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
 
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 
-	. "github.com/getfider/fider/app/pkg/assert"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
 )
 
 func TestBus_SimpleMessage(t *testing.T) {
@@ -31,7 +31,7 @@ func TestBus_MessageIsNotPointer_ShouldPanic(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			panicText := (r.(error)).Error()
-			Expect(panicText).Equals("'github.com/getfider/fider/app/pkg/bus_test.SayHelloCommand' is not a pointer")
+			Expect(panicText).Equals("'github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus_test.SayHelloCommand' is not a pointer")
 		}
 	}()
 

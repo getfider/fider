@@ -3,8 +3,8 @@ package crypto_test
 import (
 	"testing"
 
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/crypto"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/crypto"
 )
 
 func TestMD5Hash(t *testing.T) {

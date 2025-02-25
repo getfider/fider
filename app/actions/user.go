@@ -3,17 +3,17 @@ package actions
 import (
 	"context"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/i18n"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 )
 
-//CreateUser is the action to create a new user
+// CreateUser is the action to create a new user
 type CreateUser struct {
 	Name      string `json:"name"`
 	Email     string `json:"email"`
@@ -53,7 +53,7 @@ func (action *CreateUser) Validate(ctx context.Context, user *entity.User) *vali
 	return result
 }
 
-//ChangeUserRole is the input model change role of an user
+// ChangeUserRole is the input model change role of an user
 type ChangeUserRole struct {
 	Role   enum.Role `route:"role"`
 	UserID int       `json:"userID"`
@@ -70,7 +70,7 @@ func (action *ChangeUserRole) IsAuthorized(ctx context.Context, user *entity.Use
 // Validate if current model is valid
 func (action *ChangeUserRole) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
-	if action.Role < enum.RoleVisitor || action.Role > enum.RoleAdministrator {
+	if action.Role < enum.RoleVisitor || action.Role > enum.RoleModerator {
 		return validate.Error(app.ErrNotFound)
 	}
 
@@ -92,7 +92,7 @@ func (action *ChangeUserRole) Validate(ctx context.Context, user *entity.User) *
 	return result
 }
 
-//ChangeUserEmail is the action used to change current user's email
+// ChangeUserEmail is the action used to change current user's email
 type ChangeUserEmail struct {
 	Email           string `json:"email" format:"lower"`
 	VerificationKey string
@@ -143,22 +143,22 @@ func (action *ChangeUserEmail) Validate(ctx context.Context, user *entity.User) 
 	return result
 }
 
-//GetEmail returns the email being verified
+// GetEmail returns the email being verified
 func (action *ChangeUserEmail) GetEmail() string {
 	return action.Email
 }
 
-//GetName returns empty for this kind of process
+// GetName returns empty for this kind of process
 func (action *ChangeUserEmail) GetName() string {
 	return ""
 }
 
-//GetUser returns the current user performing this action
+// GetUser returns the current user performing this action
 func (action *ChangeUserEmail) GetUser() *entity.User {
 	return action.Requestor
 }
 
-//GetKind returns EmailVerificationKindSignIn
+// GetKind returns EmailVerificationKindSignIn
 func (action *ChangeUserEmail) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindChangeEmail
 }

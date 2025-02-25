@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/color"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/color"
 )
 
 var placeholderFinder = regexp.MustCompile("@{.*?}")

@@ -26,6 +26,7 @@ interface UserListItemProps {
 const UserListItem = (props: UserListItemProps) => {
   const admin = props.user.role === UserRole.Administrator && <span>administrator</span>
   const collaborator = props.user.role === UserRole.Collaborator && <span>collaborator</span>
+  const moderator = props.user.role === UserRole.Moderator && <span>moderator</span>
   const blocked = props.user.status === UserStatus.Blocked && <span className="text-red-700">blocked</span>
   const isVisitor = props.user.role === UserRole.Visitor
 
@@ -40,20 +41,40 @@ const UserListItem = (props: UserListItemProps) => {
         <VStack spacing={0}>
           <UserName user={props.user} showEmail={true} />
           <span className="text-muted">
-            {admin} {collaborator} {blocked}
+            {admin} {moderator} {collaborator} {blocked}
           </span>
         </VStack>
       </HStack>
       {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
         <Dropdown renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
-          {!blocked && (!!collaborator || isVisitor) && (
-            <Dropdown.ListItem onClick={actionSelected("to-administrator")}>Promote to Administrator</Dropdown.ListItem>
-          )}
-          {!blocked && (!!admin || isVisitor) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
-          {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Visitor</Dropdown.ListItem>}
-          {isVisitor && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
-          {isVisitor && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
-        </Dropdown>
+        {!blocked && (props.user.role !== UserRole.Administrator) && (
+          <Dropdown.ListItem onClick={actionSelected("to-administrator")}>
+            {props.user.role === UserRole.Moderator ? "Promote to Administrator" : "Promote to Administrator"}
+          </Dropdown.ListItem>
+        )}
+        {!blocked && (props.user.role !== UserRole.Moderator) && (
+          <Dropdown.ListItem onClick={actionSelected("to-moderator")}>
+            {props.user.role === UserRole.Administrator ? "Demote to Moderator" : "Promote to Moderator"}
+          </Dropdown.ListItem>
+        )}
+        {!blocked && (props.user.role !== UserRole.Collaborator) && (
+          <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>
+            {props.user.role === UserRole.Administrator ? "Demote to Collaborator" : "Promote to Collaborator"}
+          </Dropdown.ListItem>
+        )}
+        {!blocked && (props.user.role !== UserRole.Visitor) && (
+          <Dropdown.ListItem onClick={actionSelected("to-visitor")}>
+            Demote to Visitor
+          </Dropdown.ListItem>
+        )}
+        {isVisitor && !blocked && (
+          <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>
+        )}
+        {isVisitor && !!blocked && (
+          <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>
+        )}
+      </Dropdown>
+      
       )}
     </HStack>
   )
@@ -68,8 +89,9 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
   constructor(props: ManageMembersPageProps) {
     super(props)
 
+    // Sort the users using our custom sort order (see sortByStaff below)
     const users = this.props.users.sort(this.sortByStaff)
-
+    
     this.state = {
       query: "",
       users,
@@ -77,6 +99,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
     }
   }
 
+  
   private showMore = (): void => {
     this.setState({
       visibleUsers: this.state.users.slice(0, this.state.visibleUsers.length + 10),
@@ -88,11 +111,17 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
   }
 
   private memberFilter = (query: string, user: User): boolean => {
-    return user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || (user.email && user.email.toLowerCase().indexOf(query.toLowerCase()) >= 0) || false
+    return (
+      user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
+      (user.email && user.email.toLowerCase().indexOf(query.toLowerCase()) >= 0) ||
+      false
+    )
   }
 
   private handleSearchFilterChanged = (query: string) => {
-    const users = this.props.users.filter((x) => this.memberFilter(query, x)).sort(this.sortByStaff)
+    const users = this.props.users
+      .filter((x) => this.memberFilter(query, x))
+      .sort(this.sortByStaff)
     this.setState({ query, users, visibleUsers: users.slice(0, 10) })
   }
 
@@ -104,7 +133,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
       }
       this.handleSearchFilterChanged(this.state.query)
     }
-
+    
     const changeStatus = async (status: UserStatus) => {
       const action = status === UserStatus.Blocked ? actions.blockUser : actions.unblockUser
       const result = await action(user.id)
@@ -114,12 +143,14 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
       this.forceUpdate()
     }
 
-    if (actionName === "to-collaborator") {
+    if (actionName === "to-administrator") {
+      await changeRole(UserRole.Administrator)
+    } else if (actionName === "to-moderator") {
+      await changeRole(UserRole.Moderator)
+    } else if (actionName === "to-collaborator") {
       await changeRole(UserRole.Collaborator)
     } else if (actionName === "to-visitor") {
       await changeRole(UserRole.Visitor)
-    } else if (actionName === "to-administrator") {
-      await changeRole(UserRole.Administrator)
     } else if (actionName === "block") {
       await changeStatus(UserStatus.Blocked)
     } else if (actionName === "unblock") {
@@ -128,19 +159,17 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
   }
 
   private sortByStaff = (left: User, right: User) => {
-    if (right.role === left.role) {
-      if (left.name < right.name) {
-        return -1
-      } else if (left.name > right.name) {
-        return 1
-      }
-      return 0
+    const rolePriority: { [key in UserRole]: number } = {
+      [UserRole.Administrator]: 1,
+      [UserRole.Moderator]: 2,
+      [UserRole.Collaborator]: 3,
+      [UserRole.Visitor]: 4,
     }
 
-    if (right.role !== UserRole.Visitor) {
-      return 1
+    if (rolePriority[left.role] === rolePriority[right.role]) {
+      return left.name.localeCompare(right.name)
     }
-    return -1
+    return rolePriority[left.role] - rolePriority[right.role]
   }
 
   public content() {
@@ -181,6 +210,9 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
         <ul className="text-muted">
           <li>
             <strong>Administrators</strong> have full access to edit and manage content, permissions and all site settings.
+          </li>
+          <li>
+            <strong>Moderators</strong> can moderate discussions and manage community interactions.
           </li>
           <li>
             <strong>Collaborators</strong> can edit and manage content, but not permissions and settings.

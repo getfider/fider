@@ -11,7 +11,7 @@ import (
 
 	"path"
 
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 	"github.com/joeshaw/envdecode"
 )
 
@@ -49,7 +49,7 @@ type config struct {
 	Locale                      string `env:"LOCALE,default=en"`
 	JWTSecret                   string `env:"JWT_SECRET,required"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
-	Paddle     struct {
+	Paddle                      struct {
 		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
 		VendorID       string `env:"PADDLE_VENDOR_ID"`
 		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`
@@ -96,11 +96,12 @@ type config struct {
 		}
 	}
 	Email struct {
-		Type      string `env:"EMAIL"` // possible values: smtp, mailgun, awsses
-		NoReply   string `env:"EMAIL_NOREPLY,required"`
-		Allowlist string `env:"EMAIL_ALLOWLIST"`
-		Blocklist string `env:"EMAIL_BLOCKLIST"`
-		AWSSES    struct {
+		Type                      string `env:"EMAIL"` // possible values: smtp, mailgun, awsses
+		NoReply                   string `env:"EMAIL_NOREPLY,required"`
+		Allowlist                 string `env:"EMAIL_ALLOWLIST"`
+		Blocklist                 string `env:"EMAIL_BLOCKLIST"`
+		DisableEmailNotifications bool   `env:"DISABLE_EMAIL_NOTIFICATIONS,default=false"`
+		AWSSES                    struct {
 			Region          string `env:"EMAIL_AWSSES_REGION"`
 			AccessKeyID     string `env:"EMAIL_AWSSES_ACCESS_KEY_ID"`
 			SecretAccessKey string `env:"EMAIL_AWSSES_SECRET_ACCESS_KEY"`

@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app/metrics"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/metrics"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // Instrumentation adds Prometheus HTTP Middlewares

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getfider/fider/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 )
 
-//Post represents an post on a tenant board
+// Post represents an post on a tenant board
 type Post struct {
 	ID            int             `json:"id"`
 	Number        int             `json:"number"`
@@ -33,7 +33,7 @@ func (i *Post) Url(baseURL string) string {
 	return fmt.Sprintf("%s/posts/%d/%s", baseURL, i.Number, i.Slug)
 }
 
-//PostResponse is a staff response to a given post
+// PostResponse is a staff response to a given post
 type PostResponse struct {
 	Text        string        `json:"text"`
 	RespondedAt time.Time     `json:"respondedAt"`
@@ -41,7 +41,7 @@ type PostResponse struct {
 	Original    *OriginalPost `json:"original"`
 }
 
-//OriginalPost holds details of the original post of a duplicate
+// OriginalPost holds details of the original post of a duplicate
 type OriginalPost struct {
 	Number int             `json:"number"`
 	Title  string          `json:"title"`

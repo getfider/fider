@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/handlers/apiv1"
-	"github.com/getfider/fider/app/handlers/webhooks"
-	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/handlers"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/handlers/apiv1"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/handlers/webhooks"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/middlewares"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 func routes(r *web.Engine) *web.Engine {
@@ -42,6 +42,7 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Use(middlewares.ClientCache(365 * 24 * time.Hour))
 		assets.Get("/static/favicon", handlers.Favicon())
 		assets.Static("/assets/*filepath", "dist")
+		assets.Static("/misc/*filepath", "misc")
 	}
 
 	r.Use(middlewares.Session())
@@ -170,6 +171,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
+		ui.Post("/_api/admin/settings/profanity", handlers.UpdateProfanityWords())
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())
@@ -217,12 +219,10 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		staffApi.Use(middlewares.SetLocale("en"))
 		staffApi.Use(middlewares.IsAuthenticated())
-		staffApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
+		staffApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator, enum.RoleModerator))
 
 		staffApi.Get("/api/v1/users", apiv1.ListUsers())
 		staffApi.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
-		staffApi.Post("/api/v1/invitations/send", apiv1.SendInvites())
-		staffApi.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 
 		staffApi.Use(middlewares.BlockLockedTenants())
 		staffApi.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
@@ -236,6 +236,9 @@ func routes(r *web.Engine) *web.Engine {
 		adminApi.Use(middlewares.SetLocale("en"))
 		adminApi.Use(middlewares.IsAuthenticated())
 		adminApi.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
+
+		adminApi.Post("/api/v1/invitations/send", apiv1.SendInvites())
+		adminApi.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 
 		adminApi.Post("/api/v1/users", apiv1.CreateUser())
 		adminApi.Post("/api/v1/tags", apiv1.CreateEditTag())

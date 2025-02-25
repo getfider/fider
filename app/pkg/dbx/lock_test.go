@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/dbx"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
 )
 
 func TestTryLock_MultipleProcesses_SameKey(t *testing.T) {

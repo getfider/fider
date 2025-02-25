@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // IsAuthenticated blocks non-authenticated requests

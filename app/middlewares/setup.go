@@ -4,17 +4,17 @@ import (
 	"context"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/worker"
 )
 
-//WorkerSetup current context with some services
+// WorkerSetup current context with some services
 func WorkerSetup() worker.MiddlewareFunc {
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
@@ -84,7 +84,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 	}
 }
 
-//WebSetup current context with some services
+// WebSetup current context with some services
 func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {

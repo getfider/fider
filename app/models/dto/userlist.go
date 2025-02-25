@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/getfider/fider/app/models/enum"
+import "github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 
 type UserListUpdateCompany struct {
 	TenantID      int

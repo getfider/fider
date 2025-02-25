@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/getfider/fider/app/models/enum"
+import "github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 
 type UserListCreateCompany struct {
 	Name          string

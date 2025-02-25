@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 	jwtgo "github.com/golang-jwt/jwt/v4"
 )
 
@@ -45,8 +45,8 @@ type OAuthClaims struct {
 
 // OAuthStateClaims represents what goes into JWT tokens used for OAuth state parameter
 type OAuthStateClaims struct {
-	Redirect    string    `json:"oauthstate/redirect"`
-	Identifier  string `json:"oauthstate/identifier"`
+	Redirect   string `json:"oauthstate/redirect"`
+	Identifier string `json:"oauthstate/identifier"`
 	Metadata
 }
 

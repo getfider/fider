@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/getfider/fider/app/pkg/backup"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/backup"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // ExportBackupZip returns a Zip file with all content

@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/getfider/fider/app/models/entity"
+import "github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
 
 type ToggleCommentReaction struct {
 	Comment *entity.Comment

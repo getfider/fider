@@ -1,6 +1,6 @@
 package query
 
-import "github.com/getfider/fider/app/models/dto"
+import "github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
 
 type ListBlobs struct {
 	Prefix string

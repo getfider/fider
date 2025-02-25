@@ -93,7 +93,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
 
         <ImageUploader label="Logo" field="logo" bkey={logoBlobKey} disabled={!fider.session.user.isAdministrator} onChange={handleLogoChange}>
           <p className="text-muted">
-            We accept JPG, GIF and PNG images, smaller than 50KB and with an aspect ratio of 1:1 with minimum dimensions of 24x24 pixels.
+            We accept JPG and PNG images, smaller than 5MB and with an aspect ratio of 1:1 with minimum dimensions of 24x24 pixels.
           </p>
         </ImageUploader>
 

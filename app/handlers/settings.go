@@ -4,22 +4,26 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 
-	"github.com/getfider/fider/app/tasks"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/tasks"
 
-	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // ChangeUserEmail register the intent of changing user email
 func ChangeUserEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
+		if c.User().Role != enum.RoleAdministrator || c.User().Role != enum.RoleCollaborator {
+			return c.Redirect(c.BaseURL() + "/settings")
+		}
+
 		action := actions.NewChangeUserEmail()
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
@@ -43,6 +47,9 @@ func ChangeUserEmail() web.HandlerFunc {
 // VerifyChangeEmailKey checks if key is correct and update user's email
 func VerifyChangeEmailKey() web.HandlerFunc {
 	return func(c *web.Context) error {
+		if c.User().Role != enum.RoleAdministrator || c.User().Role != enum.RoleCollaborator {
+			return c.Redirect(c.BaseURL() + "/settings")
+		}
 		key := c.QueryParam("k")
 		result, err := validateKey(enum.EmailVerificationKindChangeEmail, key, c)
 		if result == nil {

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 	"github.com/gosimple/slug"
 )
 
@@ -67,7 +67,7 @@ func getAllTags(ctx context.Context, q *query.GetAllTags) error {
 		q.Result = make([]*entity.Tag, 0)
 
 		condition := `AND t.is_public = true`
-		if user != nil && user.IsCollaborator() {
+		if user != nil && (user.IsCollaborator() || user.IsModerator()) {
 			condition = ``
 		}
 

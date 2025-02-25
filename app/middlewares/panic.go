@@ -1,9 +1,9 @@
 package middlewares
 
 import (
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 func CatchPanic() web.MiddlewareFunc {

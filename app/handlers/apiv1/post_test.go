@@ -7,18 +7,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
 
-	"github.com/getfider/fider/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
 
-	"github.com/getfider/fider/app/handlers/apiv1"
-	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/handlers/apiv1"
+	. "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/assert"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/mock"
 )
 
 func TestCreatePostHandler(t *testing.T) {
@@ -67,14 +67,14 @@ func TestCreatePostHandler_WithoutTitle(t *testing.T) {
 func TestCreatePostHandler_WithNonExistentTag(t *testing.T) {
 	if env.Config.PostCreationWithTagsEnabled {
 		RegisterT(t)
-		
+
 		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
 			return app.ErrNotFound
 		})
 		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
 			return app.ErrNotFound
 		})
-		
+
 		code, _ := mock.NewServer().
 			OnTenant(mock.DemoTenant).
 			AsUser(mock.JonSnow).
@@ -87,7 +87,7 @@ func TestCreatePostHandler_WithNonExistentTag(t *testing.T) {
 func TestCreatePostHandler_WithPrivateTagAsVisitor(t *testing.T) {
 	if env.Config.PostCreationWithTagsEnabled {
 		RegisterT(t)
-		
+
 		privateTag := &entity.Tag{
 			ID:       1,
 			Name:     "private_tag",
@@ -102,11 +102,11 @@ func TestCreatePostHandler_WithPrivateTagAsVisitor(t *testing.T) {
 			}
 			return app.ErrNotFound
 		})
-		
+
 		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
 			return app.ErrNotFound
 		})
-		
+
 		code, _ := mock.NewServer().
 			OnTenant(mock.DemoTenant).
 			AsUser(mock.AryaStark).
@@ -119,7 +119,7 @@ func TestCreatePostHandler_WithPrivateTagAsVisitor(t *testing.T) {
 func TestCreatePostHandler_WithPublicTagAsVisitor(t *testing.T) {
 	if env.Config.PostCreationWithTagsEnabled {
 		RegisterT(t)
-		
+
 		var newPost *cmd.AddNewPost
 		bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
 			newPost = c
@@ -130,7 +130,7 @@ func TestCreatePostHandler_WithPublicTagAsVisitor(t *testing.T) {
 			}
 			return nil
 		})
-		
+
 		publicTag := &entity.Tag{
 			ID:       1,
 			Name:     "public_tag",
@@ -145,21 +145,21 @@ func TestCreatePostHandler_WithPublicTagAsVisitor(t *testing.T) {
 			}
 			return app.ErrNotFound
 		})
-		
+
 		var tagAssignment *cmd.AssignTag
 		bus.AddHandler(func(ctx context.Context, c *cmd.AssignTag) error {
 			tagAssignment = c
 			return nil
 		})
-		
+
 		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
 			return app.ErrNotFound
 		})
-		
+
 		bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
 		bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
 		bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
-		
+
 		code, _ := mock.NewServer().
 			OnTenant(mock.DemoTenant).
 			AsUser(mock.AryaStark).
@@ -174,7 +174,7 @@ func TestCreatePostHandler_WithPublicTagAsVisitor(t *testing.T) {
 func TestCreatePostHandler_WithPublicTagAndPrivateTagAsCollaborator(t *testing.T) {
 	if env.Config.PostCreationWithTagsEnabled {
 		RegisterT(t)
-		
+
 		var newPost *cmd.AddNewPost
 		bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
 			newPost = c
@@ -185,7 +185,7 @@ func TestCreatePostHandler_WithPublicTagAndPrivateTagAsCollaborator(t *testing.T
 			}
 			return nil
 		})
-		
+
 		publicTag := &entity.Tag{
 			ID:       1,
 			Name:     "public_tag",
@@ -211,7 +211,7 @@ func TestCreatePostHandler_WithPublicTagAndPrivateTagAsCollaborator(t *testing.T
 			}
 			return app.ErrNotFound
 		})
-		
+
 		tagAssignments := make([]*cmd.AssignTag, 2)
 		bus.AddHandler(func(ctx context.Context, c *cmd.AssignTag) error {
 			if c.Tag.Slug == "public_tag" {
@@ -221,15 +221,15 @@ func TestCreatePostHandler_WithPublicTagAndPrivateTagAsCollaborator(t *testing.T
 			}
 			return nil
 		})
-		
+
 		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
 			return app.ErrNotFound
 		})
-		
+
 		bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
 		bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
 		bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
-		
+
 		code, _ := mock.NewServer().
 			OnTenant(mock.DemoTenant).
 			AsUser(mock.JonSnow).

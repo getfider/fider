@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/worker"
 )
 
 // Worker is fake wrapper for background worker

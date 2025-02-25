@@ -4,26 +4,26 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/getfider/fider/app/metrics"
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/metrics"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
 
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
 
-	webutil "github.com/getfider/fider/app/pkg/web/util"
+	webutil "github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web/util"
 
-	"github.com/getfider/fider/app/tasks"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/tasks"
 
 	"strings"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/validate"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // CheckAvailability checks if given domain is available to be used

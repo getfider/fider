@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/getfider/fider/app/models/query"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/csv"
-	"github.com/getfider/fider/app/pkg/markdown"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/csv"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/markdown"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 // Index is the default home page

@@ -6,25 +6,25 @@ import (
 	"sync"
 	"time"
 
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/rand"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/rand"
 )
 
-//MiddlewareFunc is worker middleware
+// MiddlewareFunc is worker middleware
 type MiddlewareFunc func(Job) Job
 
-//Job is what's going to be run on background
+// Job is what's going to be run on background
 type Job func(c *Context) error
 
-//Task represents the Name and Job to be run on background
+// Task represents the Name and Job to be run on background
 type Task struct {
 	OriginContext context.Context
 	Name          string
 	Job           Job
 }
 
-//Worker is a process that runs tasks
+// Worker is a process that runs tasks
 type Worker interface {
 	Run(id string)
 	Enqueue(task Task)
@@ -33,7 +33,7 @@ type Worker interface {
 	Shutdown(ctx context.Context) error
 }
 
-//BackgroundWorker is a worker that runs tasks on background
+// BackgroundWorker is a worker that runs tasks on background
 type BackgroundWorker struct {
 	context.Context
 	queue      chan Task
@@ -44,7 +44,7 @@ type BackgroundWorker struct {
 
 var maxQueueSize = 100
 
-//New creates a new BackgroundWorker
+// New creates a new BackgroundWorker
 func New() *BackgroundWorker {
 	ctx := context.Background()
 
@@ -62,7 +62,7 @@ func New() *BackgroundWorker {
 	}
 }
 
-//Run initializes the worker loop
+// Run initializes the worker loop
 func (w *BackgroundWorker) Run(workerID string) {
 	log.Infof(w, "Starting worker @{WorkerID:magenta}.", dto.Props{
 		"WorkerID": workerID,
@@ -77,7 +77,7 @@ func (w *BackgroundWorker) Run(workerID string) {
 	}
 }
 
-//Shutdown current worker
+// Shutdown current worker
 func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 	if w.Length() > 0 {
 		ticker := time.NewTicker(500 * time.Millisecond)
@@ -102,7 +102,7 @@ func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-//Enqueue a task on current worker
+// Enqueue a task on current worker
 func (w *BackgroundWorker) Enqueue(task Task) {
 	w.Lock()
 	w.len = w.len + 1
@@ -110,14 +110,14 @@ func (w *BackgroundWorker) Enqueue(task Task) {
 	w.queue <- task
 }
 
-//Length from current queue length
+// Length from current queue length
 func (w *BackgroundWorker) Length() int64 {
 	w.RLock()
 	defer w.RUnlock()
 	return w.len
 }
 
-//Use this to inject worker dependencies
+// Use this to inject worker dependencies
 func (w *BackgroundWorker) Use(middleware MiddlewareFunc) {
 	w.middleware = middleware
 }

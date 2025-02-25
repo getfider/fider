@@ -4,13 +4,13 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/query"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/validate"
 	"github.com/gosimple/slug"
 )
 
@@ -104,7 +104,7 @@ type AssignUnassignTag struct {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *AssignUnassignTag) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	return user != nil && user.IsCollaborator()
+	return user != nil && (user.IsCollaborator() || user.IsModerator())
 }
 
 // Validate if current model is valid

@@ -3,8 +3,8 @@ package log
 import (
 	"context"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models/dto"
+	"github.com/Spicy-Bush/fider-tarkov-community/app"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
 )
 
 const (

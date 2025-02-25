@@ -1,3 +1,4 @@
+//go:build !windows
 // +build !windows
 
 package cmd
@@ -10,7 +11,7 @@ import (
 	"runtime/pprof"
 	"syscall"
 
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
 var extraSignals = []os.Signal{syscall.SIGUSR1}
