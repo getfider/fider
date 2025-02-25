@@ -21,7 +21,7 @@ x-common-env: &fider-env
   # EMAIL_MAILGUN_DOMAIN: yourdomain.com
   # EMAIL_MAILGUN_REGION: US
 
-  EMAIL_SMTP_HOST: mailhog
+  EMAIL_SMTP_HOST: ${mailhog_host}
   EMAIL_SMTP_PORT: ${mailhog_smtp_port}
   # EMAIL_SMTP_USERNAME: user@yourdomain.com
   # EMAIL_SMTP_PASSWORD: s0m3p4ssw0rd
