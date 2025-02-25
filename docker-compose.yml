@@ -104,7 +104,6 @@ services:
           - fider      
 
   tunnel:
-    container_name: cloudflared-tunnel
     image: cloudflare/cloudflared
     restart: unless-stopped
     command: tunnel run
