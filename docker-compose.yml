@@ -61,16 +61,6 @@ services:
       bw-services:
         aliases:
           - fider
-    labels:
-      - "USE_PROXY_PROTOCOL=yes"
-      - "API_WHITELIST_IP=127.0.0.0/8 10.20.30.0/24"
-      - "bunkerweb.USE_BROTLI=yes"
-      - "bunkerweb.USE_CLIENT_CACHE=yes"
-      - "bunkerweb.USE_REAL_IP=yes"
-      - "bunkerweb.BROTLI_COMP_LEVEL=8"
-      - "bunkerweb.USE_REVERSE_PROXY=yes"
-      - "bunkerweb.REVERSE_PROXY_URL=/"
-      - "bunkerweb.REVERSE_PROXY_HOST=http://fider:3011"
 
   mailhog:
     image: mailhog/mailhog:latest
