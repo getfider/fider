@@ -81,8 +81,8 @@ services:
     ports:
       - "${postgres_dev_db_port}:5432"
     environment:
-      POSTGRES_USER: fider
-      POSTGRES_PASSWORD: fider_pw
+      POSTGRES_USER: ${postgres_user}
+      POSTGRES_PASSWORD: ${postgres_password}
     networks:
       bw-services:
         aliases:
