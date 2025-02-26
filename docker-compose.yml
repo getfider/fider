@@ -1,5 +1,5 @@
 x-common-env: &fider-env
-  ENVIRONMENT: ${env_string}
+  GO_ENV: ${env_string}
   # Public Host Name
   BASE_URL: ${base_url}
 
