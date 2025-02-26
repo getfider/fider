@@ -143,6 +143,7 @@
   "page.pendingactivation.text": "Te hemos enviado un correo electrónico de confirmación con un enlace para activar tu sitio.",
   "page.pendingactivation.text2": "Por favor, revisa tu bandeja de entrada para activarla.",
   "page.pendingactivation.title": "Tu cuenta está pendiente de activación",
+  "returntop.button": "",
   "showpost.comment.copylink.error": "Failed to copy comment link, please copy page URL",
   "showpost.comment.copylink.success": "Comment link copied to clipboard",
   "showpost.comment.unknownhighlighted": "Invalid comment ID #{id}",

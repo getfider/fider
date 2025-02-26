@@ -143,6 +143,7 @@
   "page.pendingactivation.text": "Wysłaliśmy do Ciebie maila z linkiem do aktywowania Twojej strony.",
   "page.pendingactivation.text2": "Sprawdź swoją skrzynkę odbiorczą, aby ją aktywować.",
   "page.pendingactivation.title": "Twoje konto oczekuje na aktywację",
+  "returntop.button": "",
   "showpost.comment.copylink.error": "Failed to copy comment link, please copy page URL",
   "showpost.comment.copylink.success": "Comment link copied to clipboard",
   "showpost.comment.unknownhighlighted": "Invalid comment ID #{id}",

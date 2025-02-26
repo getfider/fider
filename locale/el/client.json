@@ -143,6 +143,7 @@
   "page.pendingactivation.text": "Σας στείλαμε ένα email επιβεβαίωσης με ένα σύνδεσμο για να ενεργοποιήσετε τον ιστότοπό σας.",
   "page.pendingactivation.text2": "Παρακαλώ ελέγξτε τα εισερχόμενά σας για να το ενεργοποιήσετε.",
   "page.pendingactivation.title": "Ο λογαριασμός σας εκκρεμεί ενεργοποίηση",
+  "returntop.button": "",
   "showpost.comment.copylink.error": "Failed to copy comment link, please copy page URL",
   "showpost.comment.copylink.success": "Comment link copied to clipboard",
   "showpost.comment.unknownhighlighted": "Invalid comment ID #{id}",

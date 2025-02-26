@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/getfider/fider/app/models/entity"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 

@@ -1,102 +1,102 @@
 {
-  "name": "fider",
-  "version": "0.0.0",
-  "repository": "https://github.com/getfider/fider",
-  "private": true,
-  "dependencies": {
-    "@lingui/format-json": "^5.1.2",
-    "@lingui/react": "^5.1.2",
-    "dompurify": "^2.3.6",
-    "marked": "^4.0.15",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-textarea-autosize": "^8.5.4",
-    "react-toastify": "^9.0.1",
-    "slate": "^0.110.2",
-    "slate-history": "^0.110.3",
-    "slate-react": "^0.111.0"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.26.4",
-    "@babel/core": "^7.26.0",
-    "@babel/preset-env": "7.17.10",
-    "@babel/preset-react": "7.16.7",
-    "@babel/preset-typescript": "7.16.7",
-    "@cucumber/cucumber": "8.2.0",
-    "@lingui/babel-plugin-lingui-macro": "^5.1.2",
-    "@lingui/cli": "^5.1.2",
-    "@lingui/loader": "^5.1.2",
-    "@lingui/macro": "^5.1.2",
-    "@playwright/test": "1.48",
-    "@testing-library/jest-dom": "5.16.4",
-    "@testing-library/react": "^16.0.1",
-    "@types/debug": "4.1.7",
-    "@types/dompurify": "2.3.3",
-    "@types/jsdom": "16.2.14",
-    "@types/marked": "4.0.3",
-    "@types/node": "17.0.31",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@types/react-textarea-autosize": "4.3.6",
-    "@typescript-eslint/eslint-plugin": "5.22.0",
-    "@typescript-eslint/parser": "5.22.0",
-    "autoprefixer": "10.4.7",
-    "babel-jest": "28.1.0",
-    "babel-loader": "8.2.5",
-    "babel-plugin-macros": "3.1.0",
-    "css-loader": "6.7.1",
-    "esbuild": "0.14.38",
-    "esbuild-plugin-babel": "0.2.3",
-    "eslint": "8.15.0",
-    "eslint-config-prettier": "8.5.0",
-    "eslint-plugin-prettier": "4.0.0",
-    "eslint-plugin-react": "7.29.4",
-    "eslint-plugin-react-hooks": "4.5.0",
-    "fork-ts-checker-webpack-plugin": "7.2.11",
-    "isomorphic-fetch": "3.0.0",
-    "jest": "28.1.0",
-    "jest-environment-jsdom": "28.1.0",
-    "mini-css-extract-plugin": "2.6.0",
-    "prettier": "2.6.2",
-    "purgecss-webpack-plugin": "4.1.3",
-    "sass": "1.51.0",
-    "sass-loader": "12.6.0",
-    "svg-sprite-loader": "6.0.11",
-    "svgo-loader": "3.0.0",
-    "typescript": "4.6.4",
-    "webpack": "5.94.0",
-    "webpack-bundle-analyzer": "4.5.0",
-    "webpack-cli": "4.9.2"
-  },
-  "browserslist": ">1%, not dead",
-  "jest": {
-    "testEnvironment": "jsdom",
-    "transform": {
-      ".+\\.(tsx|ts)?$": "babel-jest"
+    "name": "fider",
+    "version": "0.0.0",
+    "repository": "https://github.com/getfider/fider",
+    "private": true,
+    "dependencies": {
+      "@lingui/format-json": "^5.1.2",
+      "@lingui/react": "^5.1.2",
+      "dompurify": "^2.3.6",
+      "marked": "^4.0.15",
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1",
+      "react-textarea-autosize": "^8.5.4",
+      "react-toastify": "^9.0.1",
+      "slate": "^0.110.2",
+      "slate-history": "^0.110.3",
+      "slate-react": "^0.111.0"
     },
-    "setupFilesAfterEnv": [
-      "<rootDir>/public/jest.setup.tsx"
-    ],
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts|tsx|js|jsx)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "moduleNameMapper": {
-      ".*\\.(png|scss|svg)$": "<rootDir>/public/jest.assets.ts",
-      "@fider/(.*)": "<rootDir>/public/$1",
-      "@locale/(.*)": "<rootDir>/locale/$1"
+    "devDependencies": {
+      "@babel/cli": "^7.26.4",
+      "@babel/core": "^7.26.0",
+      "@babel/preset-env": "7.17.10",
+      "@babel/preset-react": "7.16.7",
+      "@babel/preset-typescript": "7.16.7",
+      "@cucumber/cucumber": "8.2.0",
+      "@lingui/babel-plugin-lingui-macro": "^5.1.2",
+      "@lingui/cli": "^5.1.2",
+      "@lingui/loader": "^5.1.2",
+      "@lingui/macro": "^5.1.2",
+      "@playwright/test": "1.48",
+      "@testing-library/jest-dom": "5.16.4",
+      "@testing-library/react": "^16.0.1",
+      "@types/debug": "4.1.7",
+      "@types/dompurify": "2.3.3",
+      "@types/jsdom": "16.2.14",
+      "@types/marked": "4.0.3",
+      "@types/node": "17.0.31",
+      "@types/react": "^18.3.12",
+      "@types/react-dom": "^18.3.1",
+      "@types/react-textarea-autosize": "4.3.6",
+      "@typescript-eslint/eslint-plugin": "5.22.0",
+      "@typescript-eslint/parser": "5.22.0",
+      "autoprefixer": "10.4.7",
+      "babel-jest": "28.1.0",
+      "babel-loader": "8.2.5",
+      "babel-plugin-macros": "3.1.0",
+      "css-loader": "6.7.1",
+      "esbuild": "0.14.38",
+      "esbuild-plugin-babel": "0.2.3",
+      "eslint": "8.15.0",
+      "eslint-config-prettier": "8.5.0",
+      "eslint-plugin-prettier": "4.0.0",
+      "eslint-plugin-react": "7.29.4",
+      "eslint-plugin-react-hooks": "4.5.0",
+      "fork-ts-checker-webpack-plugin": "7.2.11",
+      "isomorphic-fetch": "3.0.0",
+      "jest": "28.1.0",
+      "jest-environment-jsdom": "28.1.0",
+      "mini-css-extract-plugin": "2.6.0",
+      "prettier": "2.6.2",
+      "purgecss-webpack-plugin": "4.1.3",
+      "sass": "1.51.0",
+      "sass-loader": "12.6.0",
+      "svg-sprite-loader": "6.0.11",
+      "svgo-loader": "3.0.0",
+      "typescript": "4.6.4",
+      "webpack": "5.94.0",
+      "webpack-bundle-analyzer": "4.5.0",
+      "webpack-cli": "4.9.2"
+    },
+    "browserslist": ">1%, not dead",
+    "jest": {
+      "testEnvironment": "jsdom",
+      "transform": {
+        ".+\\.(tsx|ts)?$": "babel-jest"
+      },
+      "setupFilesAfterEnv": [
+        "<rootDir>/public/jest.setup.tsx"
+      ],
+      "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts|tsx|js|jsx)$",
+      "moduleFileExtensions": [
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "json",
+        "node"
+      ],
+      "moduleNameMapper": {
+        ".*\\.(png|scss|svg)$": "<rootDir>/public/jest.assets.ts",
+        "@fider/(.*)": "<rootDir>/public/$1",
+        "@locale/(.*)": "<rootDir>/locale/$1"
+      }
+    },
+    "engines": {
+      "npm": "10.x",
+      "node": "21.x || 22.x"
+    },
+    "scripts": {
+      "heroku-postbuild": "make build-ssr && make build-ui"
     }
-  },
-  "engines": {
-    "npm": "10.x",
-    "node": "21.x || 22.x"
-  },
-  "scripts": {
-    "heroku-postbuild": "make build-ssr && make build-ui"
-  }
 }

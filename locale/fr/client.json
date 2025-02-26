@@ -143,6 +143,7 @@
   "page.pendingactivation.text": "Nous vous avons envoyé un e-mail de confirmation avec un lien pour activer votre site.",
   "page.pendingactivation.text2": "Veuillez vérifier votre boîte de réception pour l'activer.",
   "page.pendingactivation.title": "Votre compte n'est pas activé",
+  "returntop.button": "",
   "showpost.comment.copylink.error": "Failed to copy comment link, please copy page URL",
   "showpost.comment.copylink.success": "Comment link copied to clipboard",
   "showpost.comment.unknownhighlighted": "Invalid comment ID #{id}",
