@@ -17,13 +17,13 @@ const Footer: React.FC = () => {
             <a href="mailto:contact@tarkov.community">Contact</a>
           </li>
           <li>
-            <a href="https://discord.gg/escapefromtarkovofficial" target="_blank" rel="noreferrer">
-              Official Tarkov Discord
+            <a href="https://discord.gg/q8YAK4Ekv2" target="_blank" rel="noreferrer">
+              Tarkov Community Discord
             </a>
           </li>
           <li>
-            <a href="https://discord.com/invite/7ZeEyfU" target="_blank" rel="noreferrer">
-              Tarkov Wiki Discord
+            <a href="https://discord.gg/escapefromtarkovofficial" target="_blank" rel="noreferrer">
+              Official Tarkov Discord
             </a>
           </li>
           <li>
