@@ -62,14 +62,6 @@ func startJobs(ctx context.Context) {
 
 	if env.IsBillingEnabled() {
 		_ = c.AddJob(jobs.NewJob(ctx, "LockExpiredTenantsJob", jobs.LockExpiredTenantsJobHandler{}))
-		_ = c.AddJob(jobs.NewJob(ctx, "TrialReminder7DaysJob", jobs.TrialReminderJobHandler{
-			Days:         7,
-			TemplateName: "trial_7days",
-		}))
-		_ = c.AddJob(jobs.NewJob(ctx, "TrialReminder1DayJob", jobs.TrialReminderJobHandler{
-			Days:         1,
-			TemplateName: "trial_1day",
-		}))
 	}
 
 	c.Start()

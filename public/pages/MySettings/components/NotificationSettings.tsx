@@ -2,9 +2,9 @@ import React, { useState } from "react"
 
 import { UserSettings } from "@fider/models"
 import { Toggle, Field } from "@fider/components"
-import { useFider } from "@fider/hooks"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 
 interface NotificationSettingsProps {
   userSettings: UserSettings
@@ -16,7 +16,6 @@ const WebChannel: Channel = 1
 const EmailChannel: Channel = 2
 
 export const NotificationSettings = (props: NotificationSettingsProps) => {
-  const fider = useFider()
   const [userSettings, setUserSettings] = useState(props.userSettings)
 
   const isEnabled = (settingsKey: string, channel: Channel): boolean => {
@@ -35,8 +34,8 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     props.settingsChanged(nextSettings)
   }
 
-  const labelWeb = t({ id: "mysettings.notification.channelweb", message: "Web" })
-  const labelEmail = t({ id: "mysettings.notification.channelemail", message: "Email" })
+  const labelWeb = i18n._("mysettings.notification.channelweb", { message: "Web" })
+  const labelEmail = i18n._("mysettings.notification.channelemail", { message: "Email" })
 
   const icon = (settingsKey: string, channel: Channel) => {
     const active = isEnabled(settingsKey, channel)
@@ -45,58 +44,15 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     return <Toggle key={`${settingsKey}_${channel}`} active={active} label={label} onToggle={onToggle} />
   }
 
-  const info = (settingsKey: string, aboutForVisitors: string, aboutForCollaborators: string) => {
-    const about = fider.session.user.isCollaborator ? aboutForCollaborators : aboutForVisitors
-    const webEnabled = isEnabled(settingsKey, WebChannel)
-    const emailEnabled = isEnabled(settingsKey, EmailChannel)
-
-    if (!webEnabled && !emailEnabled) {
-      return (
-        <p className="text-muted">
-          <Trans id="mysettings.notification.message.none">
-            You&apos;ll <strong>NOT</strong> receive any notification about this event.
-          </Trans>
-        </p>
-      )
-    } else if (webEnabled && !emailEnabled) {
-      return (
-        <p className="text-muted">
-          <Trans id="mysettings.notification.message.webonly">
-            You&apos;ll receive <strong>web</strong> notifications about {about}.
-          </Trans>
-        </p>
-      )
-    } else if (!webEnabled && emailEnabled) {
-      return (
-        <p className="text-muted">
-          <Trans id="mysettings.notification.message.emailonly">
-            You&apos;ll receive <strong>email</strong> notifications about {about}.
-          </Trans>
-        </p>
-      )
-    } else if (webEnabled && emailEnabled) {
-      return (
-        <p className="text-muted">
-          <Trans id="mysettings.notification.message.webandemail">
-            You&apos;ll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.
-          </Trans>
-        </p>
-      )
-    }
-    return null
-  }
-
   return (
     <>
-      <Field label={t({ id: "label.notifications", message: "Notifications" })}>
-        <p className="text-muted">
-          <Trans id="mysettings.notification.title">
-            Use following panel to choose which events you&apos;d like to receive notification
-          </Trans>
+      <Field label={i18n._("label.notifications", { message: "Notifications" })}>
+        <p className="text-muted mb-6">
+          <Trans id="mysettings.notification.title">Choose the events to recieve a notification for.</Trans>
         </p>
 
-        <div className="notifications-settings">
-          <VStack spacing={4} divide={true} className="p-2 rounded">
+        <div className="notifications-settings mt-4">
+          <VStack spacing={4} divide={true} className="rounded">
             <div>
               <div className="mb-1">
                 <Trans id="mysettings.notification.event.newpost">New Post</Trans>
@@ -136,7 +92,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
               )}
               <HStack spacing={6}>
                 {icon("event_notification_change_status", WebChannel)}
-                {fider.session.user.isCollaborator || fider.session.user.isAdministrator ? icon("event_notification_change_status", EmailChannel) : null}
+                {icon("event_notification_change_status", EmailChannel)}
               </HStack>
             </div>
           </VStack>

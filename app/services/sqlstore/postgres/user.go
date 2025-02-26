@@ -14,6 +14,7 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/dbx"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
+	"github.com/getfider/fider/app/models/dto"
 )
 
 type dbUser struct {
@@ -382,6 +383,30 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 		q.Result = make([]*entity.User, len(users))
 		for i, user := range users {
 			q.Result[i] = user.toModel(ctx)
+		}
+		return nil
+	})
+}
+
+func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		var users []*dbUser
+		err := trx.Select(&users, `
+			SELECT id, name
+			FROM users 
+			WHERE tenant_id = $1 
+			AND status != $2
+			ORDER BY id`, tenant.ID, enum.UserDeleted)
+		if err != nil {
+			return errors.Wrap(err, "failed to get all users")
+		}
+
+		q.Result = make([]*dto.UserNames, len(users))
+		for i, user := range users {
+			q.Result[i] = &dto.UserNames{
+				ID:   int(user.ID.Int64),
+				Name: user.Name.String,
+			}
 		}
 		return nil
 	})

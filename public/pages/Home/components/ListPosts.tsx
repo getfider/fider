@@ -37,7 +37,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         <Markdown className="text-gray-700" maxLength={300} text={props.post.description} style="plainText" />
         {props.post.status !== "open" && (
           <div className="mb-2 align-self-start">
-            <ResponseLozenge status={props.post.status} response={props.post.response} />
+            <ResponseLozenge status={props.post.status} response={props.post.response} small={true}/>
           </div>
         )}
       </VStack>

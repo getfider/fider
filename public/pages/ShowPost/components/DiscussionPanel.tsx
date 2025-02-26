@@ -3,7 +3,7 @@ import { CurrentUser, Comment, Post } from "@fider/models"
 import { ShowComment } from "./ShowComment"
 import { CommentInput } from "./CommentInput"
 import { VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 
 interface DiscussionPanelProps {
   user?: CurrentUser

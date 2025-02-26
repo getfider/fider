@@ -18,34 +18,34 @@ func caller(skip int) (string, int) {
 	return file, line
 }
 
-//New creates a new error
+// New creates a new error
 func New(format string, a ...any) error {
 	file, line := caller(2)
 	text := fmt.Sprintf(format, a...)
 	return fmt.Errorf("%s (%s:%d)", text, file, line)
 }
 
-//Wrap existing error with additional text
+// Wrap existing error with additional text
 func Wrap(err error, format string, a ...any) error {
 	return wrap(err, 0, format, a...)
 }
 
-//Panicked wraps panick errow with extra details of error
+// Panicked wraps panick errow with extra details of error
 func Panicked(r any) error {
 	err, ok := r.(error)
 	if !ok {
 		err = fmt.Errorf("%v", r)
 	}
-	err = Wrap(err, identifyPanic())
-	return Wrap(err, string(debug.Stack()))
+	err = Wrap(err, "%s", identifyPanic())
+	return Wrap(err, "%s", string(debug.Stack()))
 }
 
-//Stack add current code location without adding more info
+// Stack add current code location without adding more info
 func Stack(err error) error {
 	return wrap(err, 0, "")
 }
 
-//StackN add code location of N steps before without adding more info
+// StackN add code location of N steps before without adding more info
 func StackN(err error, skip int) error {
 	return wrap(err, skip, "")
 }
@@ -103,7 +103,7 @@ func identifyPanic() string {
 	return fmt.Sprintf("pc:%x", pc)
 }
 
-//Cause returns the original cause of the error stack
+// Cause returns the original cause of the error stack
 func Cause(err error) error {
 	casted, ok := err.(*theError)
 	if ok {
@@ -112,7 +112,7 @@ func Cause(err error) error {
 	return err
 }
 
-//Error formats the error trace into human readable
+// Error formats the error trace into human readable
 func (err *theError) Error() string {
 	return fmt.Sprintf("Error Trace: \n- %s\n- %v", err.text, err.cause)
 }

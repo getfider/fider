@@ -12,6 +12,7 @@ import { timeSince } from "@fider/services"
 interface PostResponseProps {
   status: string
   response: PostResponse | null
+  small?: boolean
 }
 
 export const ResponseDetails = (props: PostResponseProps): JSX.Element | null => {
@@ -68,8 +69,8 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
   return (
     <div>
       <HStack align="start" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
-        <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />
-        <span className={`text-semibold c-status-col--${status.value}`}>{status.title}</span>
+        {!props.small && <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />}
+        <span className={`c-status-col--${status.value} ${props.small ? "text-sm" : "text-semibold"}`}>{status.title}</span>
       </HStack>
     </div>
   )

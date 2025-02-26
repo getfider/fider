@@ -6,7 +6,6 @@ import {
   UserName,
   Moment,
   Form,
-  TextArea,
   Button,
   Markdown,
   Modal,
@@ -14,12 +13,14 @@ import {
   MultiImageUploader,
   Dropdown,
   Icon,
+  CommentEditor,
 } from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
-import { t, Trans } from "@lingui/macro"
+import { t } from "@lingui/core/macro"
+import { Trans } from "@lingui/react/macro"
 
 interface ShowCommentProps {
   post: Post
@@ -32,7 +33,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   const fider = useFider()
   const node = useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const [newContent, setNewContent] = useState("")
+  const [newContent, setNewContent] = useState<string>(props.comment.content)
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [localReactionCounts, setLocalReactionCounts] = useState(props.comment.reactionCounts)
@@ -66,7 +67,7 @@ export const ShowComment = (props: ShowCommentProps) => {
 
   const cancelEdit = async () => {
     setIsEditing(false)
-    setNewContent("")
+    setNewContent(props.comment.content)
     clearError()
   }
 
@@ -126,7 +127,6 @@ export const ShowComment = (props: ShowCommentProps) => {
       )
     } else if (action === "edit") {
       setIsEditing(true)
-      setNewContent(props.comment.content)
       clearError()
     } else if (action === "delete") {
       setIsDeleteConfirmationModalOpen(true)
@@ -210,7 +210,7 @@ export const ShowComment = (props: ShowCommentProps) => {
           <div>
             {isEditing ? (
               <Form error={error}>
-                <TextArea field="content" minRows={1} value={newContent} placeholder={comment.content} onChange={setNewContent} />
+                <CommentEditor initialValue={newContent} onChange={setNewContent} placeholder={comment.content} />
                 <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} />
                 <Button size="small" onClick={saveEdit} variant="primary">
                   <Trans id="action.save">Save</Trans>

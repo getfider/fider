@@ -54,6 +54,19 @@ var (
 		},
 		Validate: notificationEventValidation,
 	}
+	//NotificationEventMention is triggered when a new comment is posted with the user @-mentioned
+	NotificationEventMention = NotificationEvent{
+		UserSettingsKeyName: "event_notification_mention",
+		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
+		RequiresSubscriptionUserRoles: []Role{
+			RoleVisitor,
+		},
+		DefaultEnabledUserRoles: []Role{
+			RoleAdministrator,
+			RoleCollaborator,
+		},
+		Validate: notificationEventValidation,
+	}
 	//NotificationEventChangeStatus is triggered when a new post has its status changed
 	NotificationEventChangeStatus = NotificationEvent{
 		UserSettingsKeyName: "event_notification_change_status",
@@ -73,6 +86,7 @@ var (
 	AllNotificationEvents = []NotificationEvent{
 		NotificationEventNewPost,
 		NotificationEventNewComment,
+		NotificationEventMention,
 		NotificationEventChangeStatus,
 	}
 )
