@@ -8,6 +8,7 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/entity"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/enum"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/markdown"
@@ -207,6 +208,10 @@ func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
 }
 
 func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recipient, comment string, event enum.NotificationEvent) {
+	if !env.Config.Email.DisableEmailNotifications {
+		return
+	}
+
 	// Short circuit if there is no one to notify
 	if len(to) == 0 {
 		return
