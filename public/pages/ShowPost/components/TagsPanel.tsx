@@ -6,7 +6,7 @@ import { TagListItem } from "./TagListItem"
 import { useFider } from "@fider/hooks"
 
 import { HStack, VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 
 export interface TagsPanelProps {
   post: Post

@@ -9,6 +9,7 @@ interface ValidationContext {
 }
 
 interface FormProps {
+  children?: React.ReactNode
   className?: string
   error?: Failure
 }

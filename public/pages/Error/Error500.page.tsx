@@ -1,6 +1,6 @@
 import React from "react"
 import { ErrorPageWrapper } from "./components/ErrorPageWrapper"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 
 const Error500 = () => {
   return (

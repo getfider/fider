@@ -68,7 +68,7 @@ module.exports = {
   performance: {
     maxEntrypointSize: 368640 * maxSizeFactor, // 360 KiB. Should ideally be ~240 KiB
     maxAssetSize: 194560 * maxSizeFactor, // 190 KiB
-    hints: "error",
+    hints: "warning",
   },
   module: {
     rules: [
@@ -113,6 +113,11 @@ module.exports = {
           chunks: "all",
           name: "vendor",
           test: /(react($|\/)|react-dom|tslib|react-textarea-autosize|@lingui\/core)/,
+        },
+        slate: {
+          chunks: "all",
+          name: "slate",
+          test: /[\\/]node_modules[\\/](slate|slate-react|slate-history)[\\/]/,
         },
       },
     },

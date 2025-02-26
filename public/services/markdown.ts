@@ -26,6 +26,18 @@ const link = (href: string, title: string, text: string) => {
 const fullRenderer = new marked.Renderer()
 fullRenderer.image = () => ""
 fullRenderer.link = link
+fullRenderer.text = (text: string) => {
+  // Handling mention links (they're in the format @{id:1234, name:'John Doe'})
+  return text.replace(/@{([^}]+)}/g, (match) => {
+    try {
+      const json = match.substring(1).replace(/&quot;/g, '"')
+      const mention = JSON.parse(json)
+      return `<span class="text-blue-600">@${mention.name}</span>`
+    } catch {
+      return match
+    }
+  })
+}
 
 const plainTextRenderer = new marked.Renderer()
 plainTextRenderer.link = (_href, _title, text) => text

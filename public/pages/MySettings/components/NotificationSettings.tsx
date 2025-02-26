@@ -4,16 +4,17 @@ import { UserSettings } from "@fider/models"
 import { Toggle, Field } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack, VStack } from "@fider/components/layout"
+import { i18n } from "@lingui/core"
 import { t, Trans } from "@lingui/macro"
+
+type Channel = number
+const WebChannel: Channel = 1
+const EmailChannel: Channel = 2
 
 interface NotificationSettingsProps {
   userSettings: UserSettings
   settingsChanged: (settings: UserSettings) => void
 }
-
-type Channel = number
-const WebChannel: Channel = 1
-const EmailChannel: Channel = 2
 
 export const NotificationSettings = (props: NotificationSettingsProps) => {
   const fider = useFider()
@@ -35,8 +36,8 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     props.settingsChanged(nextSettings)
   }
 
-  const labelWeb = t({ id: "mysettings.notification.channelweb", message: "Web" })
-  const labelEmail = t({ id: "mysettings.notification.channelemail", message: "Email" })
+  const labelWeb = i18n._("mysettings.notification.channelweb", { message: "Web" })
+  const labelEmail = i18n._("mysettings.notification.channelemail", { message: "Email" })
 
   const icon = (settingsKey: string, channel: Channel) => {
     const active = isEnabled(settingsKey, channel)
@@ -88,15 +89,15 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
 
   return (
     <>
-      <Field label={t({ id: "label.notifications", message: "Notifications" })}>
-        <p className="text-muted">
+      <Field label={i18n._("label.notifications", { message: "Notifications" })}>
+        <p className="text-muted mb-6">
           <Trans id="mysettings.notification.title">
-            Use following panel to choose which events you&apos;d like to receive notification
+            Choose the events to receive a notification for.
           </Trans>
         </p>
 
-        <div className="notifications-settings">
-          <VStack spacing={4} divide={true} className="p-2 rounded">
+        <div className="notifications-settings mt-4">
+          <VStack spacing={4} divide={true} className="rounded">
             <div>
               <div className="mb-1">
                 <Trans id="mysettings.notification.event.newpost">New Post</Trans>
@@ -108,7 +109,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
               )}
               <HStack spacing={6}>
                 {icon("event_notification_new_post", WebChannel)}
-                {fider.session.user.isCollaborator || fider.session.user.isAdministrator ? icon("event_notification_new_post", EmailChannel) : null}
+                {(fider.session.user.isCollaborator || fider.session.user.isAdministrator) && icon("event_notification_new_post", EmailChannel)}
               </HStack>
             </div>
             <div>
@@ -122,7 +123,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
               )}
               <HStack spacing={6}>
                 {icon("event_notification_new_comment", WebChannel)}
-                {fider.session.user.isCollaborator || fider.session.user.isAdministrator ? icon("event_notification_new_comment", EmailChannel) : null}
+                {(fider.session.user.isCollaborator || fider.session.user.isAdministrator) && icon("event_notification_new_comment", EmailChannel)}
               </HStack>
             </div>
             <div>
@@ -136,7 +137,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
               )}
               <HStack spacing={6}>
                 {icon("event_notification_change_status", WebChannel)}
-                {fider.session.user.isCollaborator || fider.session.user.isAdministrator ? icon("event_notification_change_status", EmailChannel) : null}
+                {(fider.session.user.isCollaborator || fider.session.user.isAdministrator) && icon("event_notification_change_status", EmailChannel)}
               </HStack>
             </div>
           </VStack>

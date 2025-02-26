@@ -4,7 +4,7 @@ import { PageTitle, Loader } from "@fider/components"
 import { ListPosts } from "./ListPosts"
 import { actions } from "@fider/services"
 
-import { t } from "@lingui/macro"
+import { i18n } from "@lingui/core"
 
 interface SimilarPostsProps {
   title: string
@@ -58,8 +58,8 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   }
 
   public render() {
-    const title = t({ id: "home.similar.title", message: "Similar posts" })
-    const subtitle = t({ id: "home.similar.subtitle", message: "Consider voting on existing posts instead." })
+    const title = i18n._("home.similar.title", { message: "Similar posts" })
+    const subtitle = i18n._("home.similar.subtitle", { message: "Consider voting on existing posts instead." })
 
     return (
       <>

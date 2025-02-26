@@ -3,7 +3,7 @@ import { uploadedImageURL } from "@fider/services"
 import { Modal, Button, Loader } from "@fider/components"
 
 import "./ImageViewer.scss"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 
 interface ImageViewerModalProps {
   isOpen: boolean
