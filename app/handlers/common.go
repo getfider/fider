@@ -59,6 +59,10 @@ func Sitemap() web.HandlerFunc {
 			return c.NotFound()
 		}
 
+		if env.Config.Environment == "development" {
+			return c.NotFound()
+		}
+
 		allPosts := &query.GetAllPosts{}
 		if err := bus.Dispatch(c, allPosts); err != nil {
 			return c.Failure(err)
@@ -82,12 +86,23 @@ func Sitemap() web.HandlerFunc {
 // RobotsTXT return content of robots.txt file
 func RobotsTXT() web.HandlerFunc {
 	return func(c *web.Context) error {
-		bytes, err := os.ReadFile(env.Path("./robots.txt"))
+		var bytes []byte
+		var err error
+		if env.Config.Environment == "development" {
+			bytes, err = os.ReadFile(env.Path("./robots-dev.txt"))
+		} else {
+			bytes, err = os.ReadFile(env.Path("./robots.txt"))
+		}
 		if err != nil {
 			return c.NotFound()
 		}
-		sitemapURL := c.BaseURL() + "/sitemap.xml"
-		content := fmt.Sprintf("%s\nSitemap: %s", bytes, sitemapURL)
+		var content string
+		if env.Config.Environment == "development" {
+			content = string(bytes)
+		} else {
+			sitemapURL := c.BaseURL() + "/sitemap.xml"
+			content = fmt.Sprintf("%s\nSitemap: %s", bytes, sitemapURL)
+		}
 		return c.String(http.StatusOK, content)
 	}
 }

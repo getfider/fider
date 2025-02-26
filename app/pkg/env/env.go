@@ -138,6 +138,7 @@ type config struct {
 		Until   string `env:"MAINTENANCE_UNTIL"`
 	}
 	GoogleAnalytics string `env:"GOOGLE_ANALYTICS"`
+	GoogleAdSense   string `env:"GOOGLE_ADSENSE"`
 }
 
 // Config is a strongly typed reference to all configuration parsed from Environment Variables

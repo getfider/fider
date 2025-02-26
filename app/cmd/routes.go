@@ -54,6 +54,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
 	r.Use(middlewares.User())
+	r.Use(middlewares.FilterContext())
 
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
 

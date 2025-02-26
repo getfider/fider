@@ -51,6 +51,7 @@ COPY --from=server-builder /server/fider /app
 
 COPY --from=ui-builder /ui/favicon.png /app
 COPY --from=ui-builder /ui/dist /app/dist
+COPY --from=ui-builder /ui/robots-dev.txt /app
 COPY --from=ui-builder /ui/robots.txt /app
 COPY --from=ui-builder /ui/ssr.js /app
 

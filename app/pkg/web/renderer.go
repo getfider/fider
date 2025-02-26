@@ -207,6 +207,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 		"locale":           locale,
 		"environment":      env.Config.Environment,
 		"googleAnalytics":  env.Config.GoogleAnalytics,
+		"googleAdSense":    env.Config.GoogleAdSense,
 		"domain":           env.MultiTenantDomain(),
 		"hasLegal":         env.HasLegal(),
 		"isBillingEnabled": env.IsBillingEnabled(),
