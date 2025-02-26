@@ -33,7 +33,7 @@ var (
 	cspFont    = "font-src 'self' https://fonts.gstatic.com data: %[2]s"
 	cspImage   = "img-src 'self' https: data: https://pagead2.googlesyndication.com %[2]s"
 	cspObject  = "object-src 'none'"
-	cspFrame   = "frame-src 'self' https://*.paddle.com"
+	cspFrame   = "frame-src 'self' https://*.paddle.com https://googleads.g.doubleclick.net"
 	cspMedia   = "media-src 'none'"
 	cspConnect = "connect-src 'self' https://www.google-analytics.com %[2]s"
 

@@ -82,7 +82,13 @@ func Sitemap() web.HandlerFunc {
 // RobotsTXT return content of robots.txt file
 func RobotsTXT() web.HandlerFunc {
 	return func(c *web.Context) error {
-		bytes, err := os.ReadFile(env.Path("./robots.txt"))
+		var bytes []byte
+		var err error
+		if env.Config.Environment == "development" {
+			bytes, err = os.ReadFile(env.Path("./robots-dev.txt"))
+		} else {
+			bytes, err = os.ReadFile(env.Path("./robots.txt"))
+		}
 		if err != nil {
 			return c.NotFound()
 		}
