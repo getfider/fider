@@ -24,21 +24,26 @@ x-common-env: &fider-env
   EMAIL_SMTP_HOST: ${mailhog_host}
   EMAIL_SMTP_PORT: ${mailhog_smtp_port}
   # EMAIL_SMTP_USERNAME: user@yourdomain.com
-  # EMAIL_SMTP_PASSWORD: s0m3p4ssw0rd
+  # EMAIL_SMTP_PASSWORD: 
   # EMAIL_SMTP_ENABLE_STARTTLS: 'true'
 
   # EMAIL_AWSSES_REGION: us-east-1
   # EMAIL_AWSSES_ACCESS_KEY_ID: youraccesskeygoeshere
   # EMAIL_AWSSES_SECRET_ACCESS_KEY: yoursecretkeygoeshere  
-  LOG_LEVEL: DEBUG
+  LOG_LEVEL: ${fider_log_level}
   DISABLE_EMAIL_NOTIFICATIONS: true
   LOG_CONSOLE: true
-  LOG_SQL: true
+  LOG_SQL: ${fider_sql_log_level}
   LOG_FILE: false
   LOG_FILE_OUTPUT: logs/output.log  
 
   DATABASE_MAX_IDLE_CONNS: 50
   DATABASE_MAX_OPEN_CONNS: 100
+
+  GOOGLE_ANALYTICS: ${GOOGLE_ANALYTICS}
+  GOOGLE_ADSENSE: ${GOOGLE_ADSENSE}
+
+
 
 x-common-build-args: &common-build-args
   DOCKER_USER_GID: ${DOCKER_USER_GID}
