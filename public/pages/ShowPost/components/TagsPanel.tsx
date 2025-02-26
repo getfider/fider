@@ -15,7 +15,7 @@ export interface TagsPanelProps {
 
 export const TagsPanel = (props: TagsPanelProps) => {
   const fider = useFider()
-  const canEdit = fider.session.isAuthenticated && (fider.session.user.isCollaborator || fider.session.user.isModerator) && props.tags.length > 0
+  const canEdit = fider.session.isAuthenticated && (fider.session.user.isCollaborator || fider.session.user.isModerator || fider.session.user.isAdministrator) && props.tags.length > 0
 
   const [isEditing, setIsEditing] = useState(false)
   const [assignedTags, setAssignedTags] = useState(props.tags.filter((t) => props.post.tags.indexOf(t.slug) >= 0))
@@ -52,12 +52,15 @@ export const TagsPanel = (props: TagsPanelProps) => {
 
   const tagsList = (
     <HStack spacing={2} align="center">
-      {assignedTags.length > 0 && assignedTags.map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
-      <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
-        <span>
-          <Trans id="label.edittags">Edit tags</Trans>
-        </span>
-      </HStack>
+      {assignedTags.length > 0 &&
+        assignedTags.map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
+      {canEdit && (
+        <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
+          <span>
+            <Trans id="label.edittags">Edit tags</Trans>
+          </span>
+        </HStack>
+      )}
     </HStack>
   )
 
