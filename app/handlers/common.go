@@ -59,6 +59,10 @@ func Sitemap() web.HandlerFunc {
 			return c.NotFound()
 		}
 
+		if env.Config.Environment == "development" {
+			return c.NotFound()
+		}
+
 		allPosts := &query.GetAllPosts{}
 		if err := bus.Dispatch(c, allPosts); err != nil {
 			return c.Failure(err)
@@ -92,8 +96,13 @@ func RobotsTXT() web.HandlerFunc {
 		if err != nil {
 			return c.NotFound()
 		}
-		sitemapURL := c.BaseURL() + "/sitemap.xml"
-		content := fmt.Sprintf("%s\nSitemap: %s", bytes, sitemapURL)
+		var content string
+		if env.Config.Environment == "development" {
+			content = string(bytes)
+		} else {
+			sitemapURL := c.BaseURL() + "/sitemap.xml"
+			content = fmt.Sprintf("%s\nSitemap: %s", bytes, sitemapURL)
+		}
 		return c.String(http.StatusOK, content)
 	}
 }
