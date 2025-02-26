@@ -9,6 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+  {{ if ne .public.settings.googleAdSense "" }}
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ .public.settings.googleAdSense }}" crossorigin="anonymous"></script>
+  {{ end }}
   {{ if .private.canonicalURL }}
     <link rel="canonical" href="{{ .private.canonicalURL }}" />
   {{ end }}
