@@ -28,7 +28,11 @@ export const DeletePostModal = (props: DeletePostModalProps) => {
   }
 
   const status = PostStatus.Get(props.post.status)
-  if (!fider.session.isAuthenticated || !fider.session.user.isAdministrator || status.closed) {
+  if (
+    !fider.session.isAuthenticated ||
+    (!(fider.session.user.isAdministrator || fider.session.user.isCollaborator || fider.session.user.isModerator)) ||
+    status.closed
+  ) {
     return null
   }
 
