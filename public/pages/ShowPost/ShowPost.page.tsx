@@ -216,7 +216,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                             <Dropdown.ListItem onClick={this.onActionSelected("edit")}>
                               <Trans id="action.edit">Edit</Trans>
                             </Dropdown.ListItem>
-                            {(Fider.session.user.isCollaborator || Fider.session.user.isModerator) && (
+                            {(Fider.session.user.isCollaborator || Fider.session.user.isModerator || Fider.session.user.isAdministrator) && (
                               <Dropdown.ListItem onClick={this.onActionSelected("status")}>
                                 <Trans id="action.respond">Respond</Trans>
                               </Dropdown.ListItem>
@@ -245,8 +245,8 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                   </div>
 
                   <DeletePostModal onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
-                    {Fider.session.isAuthenticated && (Fider.session.user.isCollaborator || Fider.session.user.isModerator) && (
-                    <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
+                    {Fider.session.isAuthenticated && (Fider.session.user.isCollaborator || Fider.session.user.isModerator || Fider.session.user.isAdministrator) && (
+                      <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
                     )}
                   <VStack>
                     {this.state.editMode ? (
