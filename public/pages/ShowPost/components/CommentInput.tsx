@@ -6,11 +6,13 @@ import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
 import { HStack } from "@fider/components/layout"
-import { i18n } from "@lingui/core"
+// import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
-import { CommentEditor } from "@fider/components"
-import { useFider } from "@fider/hooks"
+// import { CommentEditor } from "@fider/components"
+// import { useFider } from "@fider/hooks"
+// import Tiptap from "@fider/components/common/form/CommentEditor2"
+import MemoizedTiptap from "@fider/components/common/form/CommentEditor2"
 
 interface CommentInputProps {
   post: Post
@@ -25,9 +27,9 @@ export const CommentInput = (props: CommentInputProps) => {
     return cache.session.get(getCacheKey())
   }
 
-  const fider = useFider()
+  // const fider = useFider()
   // const inputRef = useRef<HTMLTextAreaElement>()
-  const [content, setContent] = useState<string>((fider.session.isAuthenticated && getContentFromCache()) || "")
+  // const [content, setContent] = useState<string>((fider.session.isAuthenticated && getContentFromCache()) || "")
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
@@ -38,7 +40,7 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    const result = await actions.createComment(props.post.number, content, attachments)
+    const result = await actions.createComment(props.post.number, "hello", attachments)
     if (result.ok) {
       cache.session.remove(getCacheKey())
       location.reload()
@@ -47,19 +49,24 @@ export const CommentInput = (props: CommentInputProps) => {
     }
   }
 
-  const editorFocused = () => {
-    console.log("focused")
-    if (!fider.session.isAuthenticated) {
-      setIsSignInModalOpen(true)
-    }
-  }
+  // const editorFocused = () => {
+  //   console.log("focused")
+  //   if (!fider.session.isAuthenticated) {
+  //     setIsSignInModalOpen(true)
+  //   }
+  // }
 
-  const commentChanged = (newContent: string) => {
-    setContent(newContent)
-    cache.session.set(getCacheKey(), newContent)
-  }
+  // const commentChanged = (newContent: string) => {
+  //   setContent(newContent)
+  //   cache.session.set(getCacheKey(), newContent)
+  // }
 
-  const hasContent = content?.length > 0
+  const hasContent = true
+
+  function commentChanged2(value: string): void {
+    // setContent(value)
+    cache.session.set(getCacheKey(), value)
+  }
 
   return (
     <>
@@ -73,12 +80,14 @@ export const CommentInput = (props: CommentInputProps) => {
                 <UserName user={Fider.session.user} />
               </div>
             )}
-            <CommentEditor
+            {/* <CommentEditor
               initialValue={content}
               onChange={commentChanged}
               onFocus={editorFocused}
               placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
-            />
+            /> */}
+            <MemoizedTiptap onChange={commentChanged2} initialValue={getContentFromCache()} />
+
             {hasContent && (
               <>
                 <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />

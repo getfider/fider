@@ -6,6 +6,9 @@
   "dependencies": {
     "@lingui/format-json": "^5.1.2",
     "@lingui/react": "^5.1.2",
+    "@tiptap/pm": "^2.11.5",
+    "@tiptap/react": "^2.11.5",
+    "@tiptap/starter-kit": "^2.11.5",
     "dompurify": "^2.3.6",
     "marked": "^4.0.15",
     "react": "^18.3.1",
@@ -14,7 +17,8 @@
     "react-toastify": "^9.0.1",
     "slate": "^0.110.2",
     "slate-history": "^0.110.3",
-    "slate-react": "^0.111.0"
+    "slate-react": "^0.111.0",
+    "tiptap-markdown": "^0.8.10"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.4",

@@ -42,7 +42,107 @@
   background: get("colors.white");
   border-radius: 4px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-
-
 }
 
+/* Basic editor styling */
+.fider-tiptap-editor {
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fider-tiptap-editor .ProseMirror {
+  padding: 12px;
+  min-height: 120px;
+  outline: none;
+}
+
+/* Styling for content elements */
+.fider-tiptap-editor .ProseMirror p {
+  margin: 0 0 0.75em 0;
+}
+
+.fider-tiptap-editor .ProseMirror ul,
+.fider-tiptap-editor .ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.fider-tiptap-editor .ProseMirror a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+/* Menu styling */
+.fider-floating-menu {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 6px 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.fider-bubble-menu {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 6px 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// THese are the AI generated toolbar styles, I'll need to check these
+
+.c-editor-toolbar {
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.c-editor-button-group {
+  display: flex;
+  gap: 4px;
+}
+
+.c-editor-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+  }
+
+  &.is-active {
+    background-color: #e5e7eb;
+    color: #111827;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.fider-tiptap-editor {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+
+  .ProseMirror {
+    padding: 12px;
+    min-height: 120px;
+    outline: none;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
