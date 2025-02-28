@@ -106,7 +106,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
   private canDeletePost = () => {
     const status = PostStatus.Get(this.props.post.status)
-    if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
+    if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || !Fider.session.user.isModerator || !Fider.session.user.isCollaborator || status.closed) {
       return false
     }
     return true
@@ -212,7 +212,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                             <Dropdown.ListItem onClick={this.onActionSelected("edit")}>
                               <Trans id="action.edit">Edit</Trans>
                             </Dropdown.ListItem>
-                            {Fider.session.user.isCollaborator && (
+                            {Fider.session.user.isCollaborator || Fider.session.user.isModerator && (
                               <Dropdown.ListItem onClick={this.onActionSelected("status")}>
                                 <Trans id="action.respond">Respond</Trans>
                               </Dropdown.ListItem>
