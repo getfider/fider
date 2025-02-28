@@ -211,7 +211,7 @@ func routes(r *web.Engine) *web.Engine {
 		membersApi.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
 		membersApi.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
 
-		membersApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
+		membersApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator, enum.RoleModerator))
 		membersApi.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
 	}
 
@@ -229,6 +229,7 @@ func routes(r *web.Engine) *web.Engine {
 		staffApi.Use(middlewares.BlockLockedTenants())
 		staffApi.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
 		staffApi.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
+		staffApi.Delete("/api/v1/posts/:number", apiv1.DeletePost())
 	}
 
 	// Operations used to manage a site
@@ -248,7 +249,7 @@ func routes(r *web.Engine) *web.Engine {
 		adminApi.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
 
 		adminApi.Use(middlewares.BlockLockedTenants())
-		adminApi.Delete("/api/v1/posts/:number", apiv1.DeletePost())
+
 	}
 
 	return r
