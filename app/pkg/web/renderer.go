@@ -48,6 +48,7 @@ type Renderer struct {
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
 	mutex         sync.RWMutex
+	assetsOnce    sync.Once
 	reactRenderer *ReactRenderer
 }
 
@@ -66,13 +67,21 @@ func NewRenderer() *Renderer {
 }
 
 func (r *Renderer) loadAssets() error {
-	r.mutex.Lock()
-	defer r.mutex.Unlock()
-
-	if r.assets != nil && env.IsProduction() {
-		return nil
+	if env.IsProduction() {
+		// In production, load assets once and cache them to stop io bottleneck
+		var loadErr error
+		r.assetsOnce.Do(func() {
+			loadErr = r.loadAssetsFromFile()
+		})
+		return loadErr
 	}
 
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	return r.loadAssetsFromFile()
+}
+
+func (r *Renderer) loadAssetsFromFile() error {
 	assetsFilePath := "/dist/assets.json"
 	if env.IsTest() {
 		// Load a fake assets.json for Unit Testing
@@ -85,16 +94,14 @@ func (r *Renderer) loadAssets() error {
 	}
 	defer jsonFile.Close()
 
-	jsonBytes, _ := io.ReadAll(jsonFile)
-	file := &assetsFile{}
-	err = json.Unmarshal([]byte(jsonBytes), file)
+	jsonBytes, err := io.ReadAll(jsonFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse file: assets.json")
 	}
 
-	r.assets = &clientAssets{
-		CSS: make([]string, 0),
-		JS:  make([]string, 0),
+	file := &assetsFile{}
+	if err = json.Unmarshal(jsonBytes, file); err != nil {
+		return errors.Wrap(err, "failed to parse file: assets.json")
 	}
 
 	r.assets = getClientAssets(file.Entrypoints.Main.Assets)
