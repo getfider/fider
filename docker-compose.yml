@@ -44,6 +44,9 @@ x-common-env: &fider-env
   GOOGLE_ANALYTICS: ${GOOGLE_ANALYTICS}
   GOOGLE_ADSENSE: ${GOOGLE_ADSENSE}
 
+  METRICS_ENABLED: ${METRICS_ENABLED}
+  METRICS_PORT: 4000
+
 
 
 x-common-build-args: &common-build-args
@@ -59,7 +62,8 @@ services:
       args: *common-build-args
     environment: *fider-env
     ports:
-      - "${http_port}:3000"  
+      - "${http_port}:3000" 
+      - "${METRICS_PORT}:4000" 
     hostname: tarkov-community-${env_string}
     #container_name: fider
     restart: always
