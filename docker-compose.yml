@@ -37,8 +37,8 @@ x-common-env: &fider-env
   LOG_FILE: false
   LOG_FILE_OUTPUT: logs/output.log  
 
-  DATABASE_MAX_IDLE_CONNS: 50
-  DATABASE_MAX_OPEN_CONNS: 100
+  DATABASE_MAX_IDLE_CONNS: 800
+  DATABASE_MAX_OPEN_CONNS: 500
 
   GOOGLE_ANALYTICS: ${GOOGLE_ANALYTICS}
   GOOGLE_ADSENSE: ${GOOGLE_ADSENSE}
@@ -88,6 +88,7 @@ services:
     environment:
       POSTGRES_USER: ${postgres_user}
       POSTGRES_PASSWORD: ${postgres_password}
+      PG_MAX_CONNECTIONS: ${PG_MAX_CONNS}
     networks:
       bw-services:
         aliases:
