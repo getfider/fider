@@ -50,7 +50,7 @@ func (input *CreateNewPost) OnPreExecute(ctx context.Context) error {
 func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	if user == nil {
 		return false
-	} else if env.Config.PostCreationWithTagsEnabled && !user.IsCollaborator() {
+	} else if env.Config.PostCreationWithTagsEnabled && (!user.IsCollaborator() || !user.IsModerator()) {
 		for _, tag := range action.Tags {
 			if !tag.IsPublic {
 				return false
@@ -237,7 +237,7 @@ func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *v
 	result := validate.Success()
 
 	// if not admin, collab or moderator, check if user has posted too many comments in the last 24 hours
-	if user != nil && (!user.IsCollaborator() || !user.IsModerator() || !user.IsAdministrator()) {
+	if user != nil && !(user.IsCollaborator() || user.IsModerator() || user.IsAdministrator()) {
 		q := &query.GetUserCommentCount{
 			UserID: user.ID,
 			Since:  time.Now().Add(-24 * time.Hour),
