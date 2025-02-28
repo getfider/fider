@@ -208,7 +208,7 @@ func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
 }
 
 func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recipient, comment string, event enum.NotificationEvent) {
-	if !env.Config.Email.DisableEmailNotifications {
+	if env.Config.Email.DisableEmailNotifications {
 		return
 	}
 
