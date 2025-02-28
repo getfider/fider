@@ -82,7 +82,15 @@ services:
     #container_name: fider_pgdev
     restart: always
     image: postgres:12
-    command: postgres -c 'max_connections=${PG_MAX_CONNS}'    
+    command: >
+      postgres
+      -c max_connections=${PG_MAX_CONNS}
+      -c shared_buffers=${PG_SHARED_BUFFERS}
+      -c effective_cache_size=${PG_CACHE}
+      -c work_mem=${PG_WORK_MEM}
+      -c maintenance_work_mem=${PG_MAINTENANCE_WORK_MEM}
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=${PG_WAL_BUFF} 
     volumes:
       - pgdev-data:/var/lib/postgresql/data
     ports:
