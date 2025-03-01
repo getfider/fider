@@ -17,10 +17,11 @@ func Index() web.HandlerFunc {
 		c.SetCanonicalURL("")
 
 		searchPosts := &query.SearchPosts{
-			Query: c.QueryParam("query"),
-			View:  c.QueryParam("view"),
-			Limit: c.QueryParam("limit"),
-			Tags:  c.QueryParamAsArray("tags"),
+			Query:  c.QueryParam("query"),
+			View:   c.QueryParam("view"),
+			Limit:  c.QueryParam("limit"),
+			Tags:   c.QueryParamAsArray("tags"),
+			Offset: c.QueryParam("offset"),
 		}
 
 		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {

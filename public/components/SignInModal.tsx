@@ -40,7 +40,7 @@ export const SignInModal: React.FC<SignInModalProps> = (props) => {
       </p>
     </>
   ) : (
-    <SignInControl useEmail={false} onEmailSent={onEmailSent} />
+    <SignInControl useEmail={true} onEmailSent={onEmailSent} />
   )
 
   return (

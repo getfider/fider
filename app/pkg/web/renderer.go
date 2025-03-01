@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -10,15 +11,13 @@ import (
 	"sync"
 
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/dto"
-
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/query"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/bus"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
+	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/i18n"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/log"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/tpl"
-
-	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/env"
-	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/errors"
 )
 
 type clientAssets struct {
@@ -59,10 +58,35 @@ func NewRenderer() *Renderer {
 		panic(errors.Wrap(err, "failed to initialize SSR renderer"))
 	}
 
-	return &Renderer{
+	r := &Renderer{
 		templates:     make(map[string]*template.Template),
 		mutex:         sync.RWMutex{},
 		reactRenderer: reactRenderer,
+	}
+
+	if env.IsProduction() {
+		r.precompileTemplates()
+	}
+
+	return r
+}
+
+// precompileTemplates loads and caches templates at startup
+func (r *Renderer) precompileTemplates() {
+	baseTemplate := "/views/base.html"
+	templatesToCache := []string{"index.html", "ssr.html"}
+
+	for _, page := range templatesToCache {
+		tmpl := tpl.GetTemplate(baseTemplate, fmt.Sprintf("/views/%s", page))
+		if tmpl == nil {
+			log.Errorf(context.Background(), "Failed to precompile template %s", dto.Props{
+				"page": page,
+			})
+			continue
+		}
+		r.mutex.Lock()
+		r.templates[page] = tmpl
+		r.mutex.Unlock()
 	}
 }
 
@@ -255,7 +279,19 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 		}
 	}
 
-	tmpl := tpl.GetTemplate("/views/base.html", "/views/"+templateName)
+	var tmpl *template.Template
+	if env.IsProduction() {
+		r.mutex.RLock()
+		tmpl = r.templates[templateName]
+		r.mutex.RUnlock()
+		if tmpl == nil {
+			tmpl = tpl.GetTemplate("/views/base.html", fmt.Sprintf("/views/%s", templateName))
+		}
+	} else {
+		// In non-production environments, load the template dynamically
+		tmpl = tpl.GetTemplate("/views/base.html", fmt.Sprintf("/views/%s", templateName))
+	}
+
 	err = tpl.Render(ctx, tmpl, w, Map{
 		"public":  public,
 		"private": private,

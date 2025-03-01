@@ -39,10 +39,12 @@ type SearchPosts struct {
 	Query       string
 	View        string
 	Limit       string
+	Offset      string `json:"offset"`
 	Statuses    []enum.PostStatus
 	Tags        []string
 	MyVotesOnly bool
 	Untagged    bool
+	Count       int `json:"count,omitempty"`
 
 	Result []*entity.Post
 }

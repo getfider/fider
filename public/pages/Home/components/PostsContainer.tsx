@@ -1,7 +1,6 @@
 import "./PostsContainer.scss"
 
 import React from "react"
-
 import { Post, Tag, CurrentUser } from "@fider/models"
 import { Loader, Input } from "@fider/components"
 import { actions, navigator, querystring } from "@fider/services"
@@ -10,8 +9,13 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
 import { ListPosts } from "./ListPosts"
 import { i18n } from "@lingui/core"
-import { Trans } from "@lingui/react/macro"
 import { PostsSort } from "./PostsSort"
+
+export interface FilterState {
+  tags: string[]
+  statuses: string[]
+  myVotes: boolean
+}
 
 interface PostsContainerProps {
   user?: CurrentUser
@@ -25,41 +29,108 @@ interface PostsContainerState {
   posts?: Post[] // All posts
   view: string
   filterState: FilterState // Filter state
-  query: string // Seach query
-  limit?: number // Limit
+  query: string // Search query
+  offset: number // Offset for pagination
+  limit: number
+  hasMore: boolean
 }
 
 const untaggedTag: Tag = {
   id: -1,
   slug: "untagged",
   name: "untagged",
-  color: "#cccccc", // or any placeholder
+  color: "#cccccc",
   isPublic: false,
 }
 
-export interface FilterState {
-  tags: string[]
-  statuses: string[]
-  myVotes: boolean
-}
-
 export class PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
+  private timer?: number
+  private loadMoreRef = React.createRef<HTMLDivElement>()
+  private observer?: IntersectionObserver
+
   constructor(props: PostsContainerProps) {
     super(props)
-
-    const view = querystring.get("view")
-
+    const view = querystring.get("view") || "trending"
     this.state = {
       posts: this.props.posts,
       loading: false,
       view,
-      query: querystring.get("query"),
-      filterState: { tags: querystring.getArray("tags"), statuses: querystring.getArray("statuses"), myVotes: querystring.get("myvotes") === "true" },
-      limit: querystring.getNumber("limit"),
+      query: querystring.get("query") || "",
+      filterState: {
+        tags: querystring.getArray("tags"),
+        statuses: querystring.getArray("statuses"),
+        myVotes: querystring.get("myvotes") === "true",
+      },
+      limit: querystring.getNumber("limit") || 15,
+      offset: 0,
+      hasMore: true,
     }
   }
 
-  private changeFilterCriteria<K extends keyof PostsContainerState>(obj: Pick<PostsContainerState, K>, reset: boolean): void {
+  componentDidMount() {
+    this.observer = new IntersectionObserver(this.handleObserver, {
+      root: null,
+      rootMargin: "0px",
+      threshold: 1.0,
+    })
+    if (this.loadMoreRef.current) {
+      this.observer.observe(this.loadMoreRef.current)
+    }
+  }
+
+  componentDidUpdate(prevProps: PostsContainerProps, prevState: PostsContainerState) {
+    if (this.loadMoreRef.current && this.observer) {
+      this.observer.observe(this.loadMoreRef.current)
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.observer) {
+      this.observer.disconnect()
+    }
+    if (this.timer) clearTimeout(this.timer)
+  }
+
+  handleObserver = (entries: IntersectionObserverEntry[]) => {
+    const entry = entries[0]
+    if (entry.isIntersecting && !this.state.loading && this.state.hasMore) {
+      this.loadMore()
+    }
+  }
+
+  loadMore = () => {
+    const newOffset = (this.state.offset || 0) + this.state.limit
+    this.setState({ loading: true })
+    actions
+      .searchPosts({
+        query: this.state.query,
+        view: this.state.view,
+        limit: this.state.limit,
+        offset: newOffset,
+        tags: this.state.filterState.tags,
+        statuses: this.state.filterState.statuses,
+        myVotes: this.state.filterState.myVotes,
+      })
+      .then((response) => {
+        if (response.ok) {
+          const newPosts: Post[] = response.data || []
+          const hasMore = newPosts.length === this.state.limit
+          this.setState((prevState) => ({
+            posts: prevState.posts ? [...prevState.posts, ...newPosts] : newPosts,
+            offset: newOffset,
+            loading: false,
+            hasMore,
+          }))
+        } else {
+          this.setState({ loading: false })
+        }
+      })
+  }
+
+  private changeFilterCriteria<K extends keyof PostsContainerState>(
+    obj: Pick<PostsContainerState, K>,
+    reset: boolean
+  ): void {
     this.setState(obj, () => {
       const query = this.state.query.trim().toLowerCase()
       navigator.replaceState(
@@ -72,29 +143,41 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           limit: this.state.limit,
         })
       )
-
-      this.searchPosts(
-        query,
-        this.state.view || "trending",
-        this.state.limit,
-        this.state.filterState.tags,
-        this.state.filterState.statuses,
-        this.state.filterState.myVotes,
-        reset
-      )
+      this.setState({ offset: 0, hasMore: true }, () => {
+        this.searchPosts(
+          query,
+          this.state.view || "trending",
+          this.state.limit,
+          this.state.filterState.tags,
+          this.state.filterState.statuses,
+          this.state.filterState.myVotes,
+          reset
+        )
+      })
     })
   }
 
-  private timer?: number
-  private async searchPosts(query: string, view: string, limit: number | undefined, tags: string[], statuses: string[], myVotes: boolean, reset: boolean) {
+  private async searchPosts(
+    query: string,
+    view: string,
+    limit: number,
+    tags: string[],
+    statuses: string[],
+    myVotes: boolean,
+    reset: boolean
+  ) {
     window.clearTimeout(this.timer)
-    this.setState({ posts: reset ? undefined : this.state.posts, loading: true })
+    this.setState({ posts: reset ? undefined : this.state.posts, loading: true, offset: reset ? 0 : this.state.offset })
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view: view, limit, tags, statuses, myVotes }).then((response) => {
-        if (response.ok && this.state.loading) {
-          this.setState({ loading: false, posts: response.data })
-        }
-      })
+      actions
+        .searchPosts({ query, view, limit, tags, statuses, myVotes, offset: this.state.offset })
+        .then((response) => {
+          if (response.ok && this.state.loading) {
+            const posts: Post[] = response.data || []
+            const hasMore = posts.length === limit
+            this.setState({ loading: false, posts: reset ? posts : this.state.posts, hasMore })
+          }
+        })
     }, 500)
   }
 
@@ -114,20 +197,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     this.changeFilterCriteria({ query: "" }, true)
   }
 
-  private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
-    event.preventDefault()
-    this.changeFilterCriteria({ limit: (this.state.limit || 30) + 10 }, false)
-  }
-
-  private getShowMoreLink = (): string | undefined => {
-    if (this.state.posts && this.state.posts.length >= (this.state.limit || 30)) {
-      return querystring.set("limit", (this.state.limit || 30) + 10)
-    }
-  }
-
   public render() {
-    const showMoreLink = this.getShowMoreLink()
-
     return (
       <div className="c-posts-container">
         <div className="c-posts-container__header mb-5">
@@ -159,13 +229,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           emptyText={i18n._("home.postscontainer.label.noresults", { message: "No results matched your search, try something different." })}
         />
         {this.state.loading && <Loader />}
-        {showMoreLink && (
-          <div className="my-4 ml-4">
-            <a href={showMoreLink} className="text-primary-base text-medium hover:underline" onClick={this.showMore}>
-              <Trans id="home.postscontainer.label.viewmore">View more posts</Trans>
-            </a>
-          </div>
-        )}
+        {this.state.hasMore && <div ref={this.loadMoreRef} style={{ height: "1px" }}></div>}
       </div>
     )
   }

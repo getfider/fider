@@ -9,6 +9,7 @@ export interface SearchPostsParams {
   query?: string
   view?: string
   limit?: number
+  offset?: number
   tags?: string[]
   myVotes?: boolean
   statuses?: string[]
@@ -21,6 +22,7 @@ export const searchPosts = async (params: SearchPostsParams): Promise<Result<Pos
     query: params.query,
     view: params.view,
     limit: params.limit,
+    offset: params.offset,
   })
   if (params.myVotes) {
     qsParams += `&myvotes=true`

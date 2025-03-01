@@ -420,6 +420,10 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			}
 		}
 
+		if q.Offset == "" {
+			q.Offset = "0"
+		}
+
 		var (
 			posts []*dbPost
 			err   error
@@ -430,8 +434,8 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				SELECT * FROM (%s) AS q
 				WHERE %s > 0.1
 				ORDER BY %s DESC
-				LIMIT %s
-			`, innerQuery, scoreField, scoreField, q.Limit)
+				LIMIT %s OFFSET %s
+			`, innerQuery, scoreField, scoreField, q.Limit, q.Offset)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
@@ -448,8 +452,8 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				SELECT * FROM (%s) AS q
 				WHERE 1 = 1 %s
 				ORDER BY %s DESC
-				LIMIT %s
-			`, innerQuery, condition, sort, q.Limit)
+				LIMIT %s OFFSET %s
+			`, innerQuery, condition, sort, q.Limit, q.Offset)
 			params := []interface{}{tenant.ID, pq.Array(statuses)}
 			if len(q.Tags) > 0 {
 				params = append(params, pq.Array(q.Tags))

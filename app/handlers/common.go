@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
@@ -23,6 +24,13 @@ import (
 	"github.com/Spicy-Bush/fider-tarkov-community/app/pkg/web"
 )
 
+var (
+	robotsContent string
+	robotsOnce    sync.Once
+)
+
+var legalPagesCache sync.Map
+
 // Health always returns OK
 func Health() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -37,16 +45,30 @@ func Health() web.HandlerFunc {
 // LegalPage returns a legal page with content from a file
 func LegalPage(title, file string) web.HandlerFunc {
 	return func(c *web.Context) error {
-		bytes, err := os.ReadFile(env.Etc(file))
-		if err != nil {
-			return c.NotFound()
+		var content string
+		if env.Config.Environment == "development" {
+			bytes, err := os.ReadFile(env.Etc(file))
+			if err != nil {
+				return c.NotFound()
+			}
+			content = string(bytes)
+		} else {
+			if cached, ok := legalPagesCache.Load(file); ok {
+				content = cached.(string)
+			} else {
+				bytes, err := os.ReadFile(env.Etc(file))
+				if err != nil {
+					return c.NotFound()
+				}
+				content = string(bytes)
+				legalPagesCache.Store(file, content)
+			}
 		}
-
 		return c.Page(http.StatusOK, web.Props{
 			Page:  "Legal/Legal.page",
 			Title: title,
 			Data: web.Map{
-				"content": string(bytes),
+				"content": content,
 			},
 		})
 	}
@@ -86,22 +108,27 @@ func Sitemap() web.HandlerFunc {
 // RobotsTXT return content of robots.txt file
 func RobotsTXT() web.HandlerFunc {
 	return func(c *web.Context) error {
-		var bytes []byte
-		var err error
-		if env.Config.Environment == "development" {
-			bytes, err = os.ReadFile(env.Path("./robots-dev.txt"))
-		} else {
-			bytes, err = os.ReadFile(env.Path("./robots.txt"))
-		}
-		if err != nil {
-			return c.NotFound()
-		}
 		var content string
 		if env.Config.Environment == "development" {
+			bytes, err := os.ReadFile(env.Path("./robots-dev.txt"))
+			if err != nil {
+				return c.NotFound()
+			}
 			content = string(bytes)
 		} else {
-			sitemapURL := c.BaseURL() + "/sitemap.xml"
-			content = fmt.Sprintf("%s\nSitemap: %s", bytes, sitemapURL)
+			robotsOnce.Do(func() {
+				bytes, err := os.ReadFile(env.Path("./robots.txt"))
+				if err != nil {
+					log.Errorf(c, "Failed to read robots.txt: %{Error}", dto.Props{"Error": err.Error()})
+					return
+				}
+				sitemapURL := c.BaseURL() + "/sitemap.xml"
+				robotsContent = fmt.Sprintf("%s\nSitemap: %s", bytes, sitemapURL)
+			})
+			if robotsContent == "" {
+				return c.NotFound()
+			}
+			content = robotsContent
 		}
 		return c.String(http.StatusOK, content)
 	}
