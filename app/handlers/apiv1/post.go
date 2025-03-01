@@ -497,7 +497,7 @@ func ListVotes() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: true}
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: false}
 		err = bus.Dispatch(c, listVotes)
 		if err != nil {
 			return c.Failure(err)
