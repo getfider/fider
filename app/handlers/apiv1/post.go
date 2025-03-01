@@ -2,6 +2,7 @@ package apiv1
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/Spicy-Bush/fider-tarkov-community/app/actions"
 	"github.com/Spicy-Bush/fider-tarkov-community/app/metrics"
@@ -38,10 +39,47 @@ func SearchPosts() web.HandlerFunc {
 			filteredTags = nil
 		}
 
+		clientLimitParam := c.QueryParam("limit")
+		clientOffsetParam := c.QueryParam("offset")
+
+		var clientOffset int
+		if clientOffsetParam == "" {
+			clientOffset = 0
+		} else {
+			var err error
+			clientOffset, err = strconv.Atoi(clientOffsetParam)
+			if err != nil {
+				clientOffset = 0
+			}
+		}
+
+		var effectiveLimit int
+		if clientLimitParam == "" || clientLimitParam == "all" {
+			if env.Config.Environment == "development" {
+				effectiveLimit = 9999
+			} else {
+				effectiveLimit = 15
+			}
+		} else {
+			clientLimit, err := strconv.Atoi(clientLimitParam)
+			if err != nil {
+				effectiveLimit = 15
+			} else {
+				if clientLimit > 15 {
+					effectiveLimit = 15
+				} else if clientLimit < 5 {
+					effectiveLimit = 5
+				} else {
+					effectiveLimit = clientLimit
+				}
+			}
+		}
+
 		searchPosts := &query.SearchPosts{
 			Query:    c.QueryParam("query"),
 			View:     viewQueryParams,
-			Limit:    c.QueryParam("limit"),
+			Limit:    strconv.Itoa(effectiveLimit),
+			Offset:   strconv.Itoa(clientOffset),
 			Tags:     filteredTags,
 			Untagged: untagged,
 		}
