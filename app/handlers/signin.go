@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/Spicy-Bush/fider-tarkov-community/app/models/cmd"
@@ -152,6 +154,17 @@ func CompleteSignInProfile() web.HandlerFunc {
 func SignOut() web.HandlerFunc {
 	return func(c *web.Context) error {
 		c.RemoveCookie(web.CookieAuthName)
-		return c.Redirect(c.QueryParam("redirect"))
+		redirect := c.QueryParam("redirect")
+
+		u, err := url.Parse(redirect)
+		// Check if parsing failed, or if the URL is absolute (has a scheme) or includes a host.
+		if err != nil || u.IsAbs() || u.Host != "" {
+			redirect = "/"
+		} else if !strings.HasPrefix(u.Path, "/") {
+			// Ensure that relative paths always start with "/"
+			redirect = "/" + u.Path
+		}
+
+		return c.Redirect(redirect)
 	}
 }
