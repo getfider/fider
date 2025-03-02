@@ -146,3 +146,22 @@
     }
   }
 }
+
+// These are hacked in for mentions
+/* Basic editor styles */
+.tiptap {
+  :first-child {
+    margin-top: 0;
+  }
+
+  .mention {
+    background-color: get("colors.primary.light");
+    border-radius: get("border.radius.medium");
+    box-decoration-break: clone;
+    color: get("colors.primary.base");
+    padding: spacing(0.1) spacing(0.3);
+    &::after {
+      content: "\200B";
+    }
+  }
+}

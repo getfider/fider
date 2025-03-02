@@ -4,6 +4,7 @@ import StarterKit from "@tiptap/starter-kit"
 import React from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
+import Mention from "@tiptap/extension-mention"
 
 import "./CommentEditor.scss"
 
@@ -15,8 +16,19 @@ import IconBold from "@fider/assets/images/heroicons-bold.svg"
 import IconStrike from "@fider/assets/images/heroicons-strike.svg"
 import { Icon } from "@fider/components"
 
+import suggestion from "./suggestion"
+
 // define your extension array
-const extensions = [StarterKit, Markdown]
+const extensions = [
+  StarterKit,
+  Markdown,
+  Mention.configure({
+    HTMLAttributes: {
+      class: "mention",
+    },
+    suggestion,
+  }),
+]
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
