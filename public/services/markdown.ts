@@ -23,8 +23,8 @@ if (DOMPurify.isSupported) {
       "height",
       "title",
       "target",
-    ],
-    ALLOWED_URI_REGEXP: /^https:\/\/www\.youtube\.com\/embed\//,
+      "href",
+    ]
   })
 }
 
