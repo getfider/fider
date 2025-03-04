@@ -13,6 +13,7 @@ export interface SearchPostsParams {
   tags?: string[]
   myVotes?: boolean
   statuses?: string[]
+  includeDuplicates?: boolean
 }
 
 export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
@@ -26,6 +27,9 @@ export const searchPosts = async (params: SearchPostsParams): Promise<Result<Pos
   })
   if (params.myVotes) {
     qsParams += `&myvotes=true`
+  }
+  if (params.includeDuplicates !== undefined) {
+    qsParams += `&includeDuplicates=${params.includeDuplicates}`
   }
   return await http.get<Post[]>(`/api/v1/posts${qsParams}`)
 }

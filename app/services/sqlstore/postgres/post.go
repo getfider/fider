@@ -430,35 +430,61 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 		)
 		if q.Query != "" {
 			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
-			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q
-				WHERE %s > 0.1
-				ORDER BY %s DESC
-				LIMIT %s OFFSET %s
-			`, innerQuery, scoreField, scoreField, q.Limit, q.Offset)
-			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
-				enum.PostOpen,
-				enum.PostStarted,
-				enum.PostPlanned,
-				enum.PostCompleted,
-				enum.PostDeclined,
-			}), ToTSQuery(q.Query), SanitizeString(q.Query))
+			var sql string
+			if !q.IncludeDuplicates {
+				sql = fmt.Sprintf(`
+					SELECT DISTINCT ON (title) * FROM (%s) AS q
+					WHERE %s > 0.1
+					ORDER BY title, %s DESC
+					LIMIT %s OFFSET %s
+				`, innerQuery, scoreField, scoreField, q.Limit, q.Offset)
+				err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
+					enum.PostOpen,
+					enum.PostStarted,
+					enum.PostPlanned,
+					enum.PostCompleted,
+					enum.PostDeclined,
+				}), ToTSQuery(q.Query), SanitizeString(q.Query))
+			} else {
+				sql = fmt.Sprintf(`
+					SELECT * FROM (%s) AS q
+					WHERE %s > 0.1
+					ORDER BY %s DESC
+					LIMIT %s OFFSET %s
+				`, innerQuery, scoreField, scoreField, q.Limit, q.Offset)
+				err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
+					enum.PostOpen,
+					enum.PostStarted,
+					enum.PostPlanned,
+					enum.PostCompleted,
+					enum.PostDeclined,
+					enum.PostDuplicate,
+				}), ToTSQuery(q.Query), SanitizeString(q.Query))
+			}
 		} else {
 			condition, statuses, sort := getViewData(*q)
 			if q.Untagged {
 				condition += " AND NOT EXISTS (SELECT 1 FROM post_tags t WHERE t.post_id = q.id)"
 			}
-			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q
-				WHERE 1 = 1 %s
-				ORDER BY %s DESC
-				LIMIT %s OFFSET %s
-			`, innerQuery, condition, sort, q.Limit, q.Offset)
-			params := []interface{}{tenant.ID, pq.Array(statuses)}
-			if len(q.Tags) > 0 {
-				params = append(params, pq.Array(q.Tags))
+			var sql string
+			if !q.IncludeDuplicates {
+				sql = fmt.Sprintf(`
+					SELECT DISTINCT ON (title) * FROM (%s) AS q
+					WHERE 1 = 1 %s
+					ORDER BY title, %s DESC
+					LIMIT %s OFFSET %s
+				`, innerQuery, condition, sort, q.Limit, q.Offset)
+				err = trx.Select(&posts, sql, tenant.ID, pq.Array(statuses))
+			} else {
+				statuses = append(statuses, enum.PostDuplicate)
+				sql = fmt.Sprintf(`
+					SELECT * FROM (%s) AS q
+					WHERE 1 = 1 %s
+					ORDER BY %s DESC
+					LIMIT %s OFFSET %s
+				`, innerQuery, condition, sort, q.Limit, q.Offset)
+				err = trx.Select(&posts, sql, tenant.ID, pq.Array(statuses))
 			}
-			err = trx.Select(&posts, sql, params...)
 		}
 
 		if err != nil {

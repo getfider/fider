@@ -88,6 +88,12 @@ func SearchPosts() web.HandlerFunc {
 		}
 		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
 
+		if includeDuplicatesParam := c.QueryParam("includeDuplicates"); includeDuplicatesParam != "" {
+			if includeDuplicates, err := strconv.ParseBool(includeDuplicatesParam); err == nil {
+				searchPosts.IncludeDuplicates = includeDuplicates
+			}
+		}
+
 		if err := bus.Dispatch(c, searchPosts); err != nil {
 			return c.Failure(err)
 		}
