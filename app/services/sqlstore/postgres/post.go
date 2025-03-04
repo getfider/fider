@@ -438,13 +438,6 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 					ORDER BY title, %s DESC
 					LIMIT %s OFFSET %s
 				`, innerQuery, scoreField, scoreField, q.Limit, q.Offset)
-				err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
-					enum.PostOpen,
-					enum.PostStarted,
-					enum.PostPlanned,
-					enum.PostCompleted,
-					enum.PostDeclined,
-				}), ToTSQuery(q.Query), SanitizeString(q.Query))
 			} else {
 				sql = fmt.Sprintf(`
 					SELECT * FROM (%s) AS q
@@ -452,15 +445,14 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 					ORDER BY %s DESC
 					LIMIT %s OFFSET %s
 				`, innerQuery, scoreField, scoreField, q.Limit, q.Offset)
-				err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
-					enum.PostOpen,
-					enum.PostStarted,
-					enum.PostPlanned,
-					enum.PostCompleted,
-					enum.PostDeclined,
-					enum.PostDuplicate,
-				}), ToTSQuery(q.Query), SanitizeString(q.Query))
 			}
+			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
+				enum.PostOpen,
+				enum.PostStarted,
+				enum.PostPlanned,
+				enum.PostCompleted,
+				enum.PostDeclined,
+			}), ToTSQuery(q.Query), SanitizeString(q.Query))
 		} else {
 			condition, statuses, sort := getViewData(*q)
 			if q.Untagged {
@@ -469,22 +461,27 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			var sql string
 			if !q.IncludeDuplicates {
 				sql = fmt.Sprintf(`
-					SELECT DISTINCT ON (title) * FROM (%s) AS q
-					WHERE 1 = 1 %s
-					ORDER BY title, %s DESC
+					SELECT * FROM (
+						SELECT DISTINCT ON (title) * FROM (%s) AS q
+						WHERE 1 = 1 %s
+						ORDER BY title, %s DESC
+					) t
+					ORDER BY %s DESC
 					LIMIT %s OFFSET %s
-				`, innerQuery, condition, sort, q.Limit, q.Offset)
-				err = trx.Select(&posts, sql, tenant.ID, pq.Array(statuses))
+				`, innerQuery, condition, sort, sort, q.Limit, q.Offset)
 			} else {
-				statuses = append(statuses, enum.PostDuplicate)
 				sql = fmt.Sprintf(`
 					SELECT * FROM (%s) AS q
 					WHERE 1 = 1 %s
 					ORDER BY %s DESC
 					LIMIT %s OFFSET %s
 				`, innerQuery, condition, sort, q.Limit, q.Offset)
-				err = trx.Select(&posts, sql, tenant.ID, pq.Array(statuses))
 			}
+			params := []interface{}{tenant.ID, pq.Array(statuses)}
+			if len(q.Tags) > 0 {
+				params = append(params, pq.Array(q.Tags))
+			}
+			err = trx.Select(&posts, sql, params...)
 		}
 
 		if err != nil {
