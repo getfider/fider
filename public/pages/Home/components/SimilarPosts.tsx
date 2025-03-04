@@ -49,7 +49,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
 
   private loadSimilarPosts = () => {
     if (this.state.loading) {
-      actions.searchPosts({ query: this.state.title }).then((x) => {
+      actions.searchPosts({ query: this.state.title, includeDuplicates: true }).then((x) => {
         if (x.ok) {
           this.setState({ loading: false, posts: x.data })
         }
