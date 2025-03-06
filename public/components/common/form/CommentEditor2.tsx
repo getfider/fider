@@ -21,12 +21,17 @@ import suggestion from "./suggestion"
 // define your extension array
 const extensions = [
   StarterKit,
-  Markdown,
+  Markdown.configure({
+    html: true,
+  }),
   Mention.configure({
     HTMLAttributes: {
       class: "mention",
     },
     suggestion,
+    renderText: (props) => {
+      return "mushrooms"
+    },
   }),
 ]
 
@@ -87,8 +92,6 @@ interface CommentEditorProps2 {
   initialValue: string | null
   placeholder?: string
   onChange?: (value: string) => void
-  //   onFocus?: React.FocusEventHandler<HTMLDivElement>
-  //   className?: string
 }
 
 const Tiptap: React.FunctionComponent<CommentEditorProps2> = (props) => {

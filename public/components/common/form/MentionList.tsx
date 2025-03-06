@@ -1,22 +1,25 @@
+import { MentionNodeAttrs } from "@tiptap/extension-mention"
 import "./MentionList.scss"
 
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 
 interface Props {
-  items: any[]
-  command?: (item: any) => void
+  items: MentionNodeAttrs[]
+  command?: (item: MentionNodeAttrs) => void
 }
 
-export type Ref = any
+export interface MentionListHandle {
+  onKeyDown: (args: { event: KeyboardEvent }) => boolean
+}
 
-const MentionList = forwardRef<Ref, Props>((props, ref) => {
+const MentionList = forwardRef<MentionListHandle, Props>((props, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   const selectItem = (index: number) => {
     const item = props.items?.[index]
 
     if (item) {
-      props.command?.({ id: item })
+      props.command?.(item)
     }
   }
   const upHandler = () => {
@@ -59,7 +62,7 @@ const MentionList = forwardRef<Ref, Props>((props, ref) => {
       {props.items.length ? (
         props.items.map((item, index) => (
           <button className={`${index === selectedIndex ? "is-selected" : ""}`} key={index} onClick={() => selectItem(index)}>
-            {item}
+            {item.label}
           </button>
         ))
       ) : (

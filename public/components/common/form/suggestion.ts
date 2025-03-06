@@ -1,47 +1,41 @@
 import { ReactRenderer } from "@tiptap/react"
 import tippy from "tippy.js"
+import { actions } from "@fider/services"
 
-import MentionList from "./MentionList"
+import MentionList, { MentionListHandle } from "./MentionList"
+import { MentionNodeAttrs } from "@tiptap/extension-mention"
+interface MentionListProps {
+  items: any[]
+  command?: (item: MentionNodeAttrs) => void
+}
+// interface ReactRendererOptions {
+//   props: { editor: any; clientRect?: (() => DOMRect | null) | null }
+//   editor: any
+// }
+
+// Cache for storing users
+let cachedUsers: MentionNodeAttrs[] = []
 
 export default {
-  items: ({ query }: { query: string }) => {
-    return [
-      "Lea Thompson",
-      "Cyndi Lauper",
-      "Tom Cruise",
-      "Madonna",
-      "Jerry Hall",
-      "Joan Collins",
-      "Winona Ryder",
-      "Christina Applegate",
-      "Alyssa Milano",
-      "Molly Ringwald",
-      "Ally Sheedy",
-      "Debbie Harry",
-      "Olivia Newton-John",
-      "Elton John",
-      "Michael J. Fox",
-      "Axl Rose",
-      "Emilio Estevez",
-      "Ralph Macchio",
-      "Rob Lowe",
-      "Jennifer Grey",
-      "Mickey Rourke",
-      "John Cusack",
-      "Matthew Broderick",
-      "Justine Bateman",
-      "Lisa Bonet",
-    ]
-      .filter((item) => item.toLowerCase().startsWith(query.toLowerCase()))
-      .slice(0, 5)
+  items: async ({ query }: { query: string }) => {
+    // If we don't have cached users yet, fetch them
+    if (cachedUsers.length === 0) {
+      const result = await actions.getTaggableUsers("")
+      if (result.ok) {
+        cachedUsers = result.data.map((user) => ({ id: user.id.toString(), label: user.name }))
+      }
+    }
+
+    // Filter the cached users based on the query
+    return cachedUsers.filter((item) => item.label?.toLowerCase().startsWith(query.toLowerCase())).slice(0, 5)
   },
   render: () => {
-    let component: ReactRenderer
+    let reactRenderer: ReactRenderer<MentionListHandle, MentionListProps>
     let popup: any
 
     return {
       onStart: (props: { editor: any; clientRect?: (() => DOMRect | null) | null }) => {
-        component = new ReactRenderer(MentionList, {
+        reactRenderer = new ReactRenderer(MentionList, {
           props,
           editor: props.editor,
         })
@@ -53,7 +47,7 @@ export default {
         popup = tippy(document.body, {
           getReferenceClientRect: props.clientRect as () => DOMRect,
           appendTo: () => document.body,
-          content: component.element,
+          content: reactRenderer.element,
           showOnCreate: true,
           interactive: true,
           trigger: "manual",
@@ -70,7 +64,7 @@ export default {
           return
         }
 
-        component.updateProps(props)
+        reactRenderer.updateProps(props)
 
         popup.setProps({
           getReferenceClientRect: props.clientRect,
@@ -84,13 +78,12 @@ export default {
           return true
         }
 
-        // Todo: need to call onKeyDown on the MentionList, but not sure how to get it.
-        return false
+        return reactRenderer.ref?.onKeyDown(props) || false
       },
 
       onExit() {
         popup.destroy()
-        component.destroy()
+        reactRenderer.destroy()
       },
     }
   },

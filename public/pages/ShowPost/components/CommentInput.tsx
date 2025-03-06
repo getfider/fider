@@ -40,7 +40,10 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    const result = await actions.createComment(props.post.number, "hello", attachments)
+    // Since the comment is being cached, we can save the content that's in the cache
+    const content = getContentFromCache()
+
+    const result = await actions.createComment(props.post.number, content || "", attachments)
     if (result.ok) {
       cache.session.remove(getCacheKey())
       location.reload()
