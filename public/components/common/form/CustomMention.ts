@@ -6,7 +6,7 @@ export const CustomMention = Mention.extend({
   addStorage() {
     return {
       markdown: {
-        serialize: (state: any, node: { attrs: { id: string; label: string } }, parent: any) => {
+        serialize: (state: any, node: { attrs: { id: string; label: string } }) => {
           state.write(`@{"id":${node.attrs.id},"name":"${node.attrs.label}"}`)
         },
         parse: {
