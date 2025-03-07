@@ -6,7 +6,7 @@ import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
 import { HStack } from "@fider/components/layout"
-// import { i18n } from "@lingui/core"
+import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
 // import { CommentEditor } from "@fider/components"
@@ -74,7 +74,7 @@ export const CommentInput = (props: CommentInputProps) => {
   return (
     <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <HStack spacing={2} className="c-comment-input">
+      <HStack spacing={2} className="c-comment-input" align="start">
         {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
         <div className="flex-grow bg-gray-50 rounded-md p-2">
           <Form error={error}>
@@ -89,7 +89,11 @@ export const CommentInput = (props: CommentInputProps) => {
               onFocus={editorFocused}
               placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
             /> */}
-            <MemoizedTiptap onChange={commentChanged2} initialValue={getContentFromCache()} />
+            <MemoizedTiptap
+              onChange={commentChanged2}
+              initialValue={getContentFromCache()}
+              placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
+            />
 
             {hasContent && (
               <>

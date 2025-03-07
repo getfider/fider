@@ -4,6 +4,7 @@ import StarterKit from "@tiptap/starter-kit"
 import React from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
+import Placeholder from "@tiptap/extension-placeholder"
 // import Mention from "@tiptap/extension-mention"
 
 import "./CommentEditor.scss"
@@ -21,24 +22,6 @@ import { CustomMention } from "./CustomMention"
 // import CustomMarkdown from "./MentionMarkdown"
 
 // define your extension array
-const extensions = [
-  StarterKit,
-  Markdown.configure({
-    html: true,
-  }),
-  CustomMention.configure({
-    HTMLAttributes: {
-      class: "mention",
-    },
-    suggestion,
-  }),
-  // CustomMarkdown,
-  // Mention.configure({
-  //   HTMLAttributes: {
-  //     class: "mention",
-  //   },
-  //   suggestion,
-]
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) {
@@ -105,12 +88,40 @@ const Tiptap: React.FunctionComponent<CommentEditorProps2> = (props) => {
     console.log(markdown)
     props.onChange && props.onChange(markdown)
   }
-  const initialValue = props.initialValue ?? "Hello"
+  const initialValue = props.initialValue ?? ""
+  console.log(initialValue)
+
+  const extensions = [
+    StarterKit,
+    Markdown.configure({
+      html: true,
+    }),
+    CustomMention.configure({
+      HTMLAttributes: {
+        class: "mention",
+      },
+      suggestion,
+    }),
+    Placeholder.configure({
+      placeholder: props.placeholder ?? "Write your comment here...",
+    }),
+    // CustomMarkdown,
+    // Mention.configure({
+    //   HTMLAttributes: {
+    //     class: "mention",
+    //   },
+    //   suggestion,
+  ]
 
   const editor = useEditor({
     extensions,
-    content: initialValue,
+    // content: initialValue,
     onUpdate: updated,
+    editorProps: {
+      attributes: {
+        class: "no-focus",
+      },
+    },
   })
 
   return (
