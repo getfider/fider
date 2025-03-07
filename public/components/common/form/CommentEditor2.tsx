@@ -4,7 +4,7 @@ import StarterKit from "@tiptap/starter-kit"
 import React from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
-import Mention from "@tiptap/extension-mention"
+// import Mention from "@tiptap/extension-mention"
 
 import "./CommentEditor.scss"
 
@@ -17,6 +17,8 @@ import IconStrike from "@fider/assets/images/heroicons-strike.svg"
 import { Icon } from "@fider/components"
 
 import suggestion from "./suggestion"
+import { CustomMention } from "./CustomMention"
+// import CustomMarkdown from "./MentionMarkdown"
 
 // define your extension array
 const extensions = [
@@ -24,15 +26,18 @@ const extensions = [
   Markdown.configure({
     html: true,
   }),
-  Mention.configure({
+  CustomMention.configure({
     HTMLAttributes: {
       class: "mention",
     },
     suggestion,
-    renderText: (props) => {
-      return "mushrooms"
-    },
   }),
+  // CustomMarkdown,
+  // Mention.configure({
+  //   HTMLAttributes: {
+  //     class: "mention",
+  //   },
+  //   suggestion,
 ]
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
