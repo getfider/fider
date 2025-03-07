@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useCallback, useState } from "react"
 
 import { Post, ImageUpload } from "@fider/models"
 import { Avatar, UserName, Button, Form, MultiImageUploader } from "@fider/components"
@@ -66,10 +66,9 @@ export const CommentInput = (props: CommentInputProps) => {
 
   const hasContent = true
 
-  function commentChanged2(value: string): void {
-    // setContent(value)
+  const commentChanged = useCallback((value: string): void => {
     cache.session.set(getCacheKey(), value)
-  }
+  }, [])
 
   return (
     <>
@@ -90,7 +89,7 @@ export const CommentInput = (props: CommentInputProps) => {
               placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
             /> */}
             <MemoizedTiptap
-              onChange={commentChanged2}
+              onChange={commentChanged}
               initialValue={getContentFromCache()}
               placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
             />

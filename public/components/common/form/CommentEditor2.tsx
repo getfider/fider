@@ -15,6 +15,9 @@ import IconH3 from "@fider/assets/images/heroicons-h3.svg"
 import IconItalic from "@fider/assets/images/heroicons-italic.svg"
 import IconBold from "@fider/assets/images/heroicons-bold.svg"
 import IconStrike from "@fider/assets/images/heroicons-strike.svg"
+import IconCode from "@fider/assets/images/heroicons-code.svg"
+import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
+import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import { Icon } from "@fider/components"
 
 import suggestion from "./suggestion"
@@ -71,6 +74,30 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
         >
           <Icon sprite={IconStrike} />
         </button>
+        <button
+          type="button"
+          title="BulletList"
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={`c-editor-button ${editor.isActive("bulletList") ? "is-active" : ""}`}
+        >
+          <Icon sprite={IconBulletList} />
+        </button>
+        <button
+          type="button"
+          title="OrderedList"
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          className={`c-editor-button ${editor.isActive("orderedList") ? "is-active" : ""}`}
+        >
+          <Icon sprite={IconOrderedList} />
+        </button>
+        <button
+          type="button"
+          title="Code"
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          className={`c-editor-button ${editor.isActive("codeBlock") ? "is-active" : ""}`}
+        >
+          <Icon sprite={IconCode} />
+        </button>
       </div>
     </div>
   )
@@ -85,11 +112,9 @@ interface CommentEditorProps2 {
 const Tiptap: React.FunctionComponent<CommentEditorProps2> = (props) => {
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     const markdown = editor.storage.markdown.getMarkdown()
-    console.log(markdown)
     props.onChange && props.onChange(markdown)
   }
   const initialValue = props.initialValue ?? ""
-  console.log(initialValue)
 
   const extensions = [
     StarterKit,
@@ -105,17 +130,11 @@ const Tiptap: React.FunctionComponent<CommentEditorProps2> = (props) => {
     Placeholder.configure({
       placeholder: props.placeholder ?? "Write your comment here...",
     }),
-    // CustomMarkdown,
-    // Mention.configure({
-    //   HTMLAttributes: {
-    //     class: "mention",
-    //   },
-    //   suggestion,
   ]
 
   const editor = useEditor({
     extensions,
-    // content: initialValue,
+    content: initialValue,
     onUpdate: updated,
     editorProps: {
       attributes: {
@@ -132,6 +151,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps2> = (props) => {
   )
 }
 
-const MemoizedTiptap = React.memo(Tiptap)
+const MemoizedTiptap = React.memo(Tiptap, (prevProps, nextProps) => {
+  return prevProps.placeholder === nextProps.placeholder
+})
 
 export default MemoizedTiptap
