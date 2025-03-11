@@ -129,6 +129,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps2> = (props) => {
     }),
     Placeholder.configure({
       placeholder: props.placeholder ?? "Write your comment here...",
+      emptyEditorClass: "tiptap-is-empty",
     }),
   ]
 

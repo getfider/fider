@@ -1,55 +1,5 @@
 @import "~@fider/assets/styles/variables.scss";
 
-.slate-editor {
-  background-color: get("colors.white");
-  width: 100%;
-  line-height: get("font.size.xl");
-  padding: spacing(2);
-  resize: none;
-  border: 1px solid get("colors.gray.300");
-  border-radius: get("border.radius.medium");
-  -webkit-appearance: none;
-  appearance: none;
-  margin: spacing(3) 0;
-
-  &:disabled {
-    @include disabled();
-  }
-  &--error {
-    border-color: get("colors.red.600");
-  }
-  p {
-    // line-height: 9px;
-    margin-bottom: 0;
-  }
-}
-.slate-editor--mention {
-  // padding: 3px 3px 2px;
-  margin: 0 1px;
-  vertical-align: baseline;
-  display: inline-block;
-  border-radius: 4px;
-  background-color: get("colors.gray.100");
-  font-size: get("font.size.sm");
-}
-
-.slate-editor--mentions {
-  top: -9999px;
-  left: -9999px;
-  position: absolute;
-  z-index: 1;
-  padding: 3px;
-  background: get("colors.white");
-  border-radius: 4px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-}
-
-.fider-tiptap-editor .ProseMirror {
-  padding: 12px;
-  min-height: 120px;
-  outline: none;
-}
-
 /* Styling for content elements */
 .fider-tiptap-editor .ProseMirror p {
   margin: 0 0 0.75em 0;
@@ -109,7 +59,11 @@
   border-radius: 6px;
   overflow: hidden;
 
-  .ProseMirror {
+  .tiptap {
+    :first-child {
+      margin-top: 0;
+    }
+
     padding: 12px;
     min-height: 120px;
     outline: none;
@@ -117,30 +71,25 @@
     &:focus {
       outline: none;
     }
-  }
-}
 
-// These are hacked in for mentions
-/* Basic editor styles */
-.tiptap {
-  :first-child {
-    margin-top: 0;
-  }
-
-  .mention {
-    background-color: get("colors.primary.light");
-    border-radius: get("border.radius.medium");
-    box-decoration-break: clone;
-    color: get("colors.primary.base");
-    padding: spacing(0.1) spacing(0.3);
-    &::after {
-      content: "\200B";
+    .mention {
+      background-color: get("colors.blue.200");
+      border-radius: get("border.radius.medium");
+      box-decoration-break: clone;
+      color: get("colors.blue.600");
+      padding-left: spacing(1);
+      padding-right: spacing(1);
+      padding-top: 4px;
+      padding-bottom: 4px;
+      &::after {
+        content: "\200B";
+      }
     }
   }
 }
 
 // Placeholder
-.tiptap p.is-editor-empty:first-child::before {
+.tiptap p.tiptap-is-empty:first-child::before {
   color: get("colors.gray.400");
   content: attr(data-placeholder);
   float: left;
