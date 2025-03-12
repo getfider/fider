@@ -10,7 +10,7 @@ import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
 // import { CommentEditor } from "@fider/components"
-// import { useFider } from "@fider/hooks"
+import { useFider } from "@fider/hooks"
 // import Tiptap from "@fider/components/common/form/CommentEditor2"
 import MemoizedTiptap from "@fider/components/common/form/CommentEditor2"
 
@@ -27,7 +27,7 @@ export const CommentInput = (props: CommentInputProps) => {
     return cache.session.get(getCacheKey())
   }
 
-  // const fider = useFider()
+  const fider = useFider()
   // const inputRef = useRef<HTMLTextAreaElement>()
   // const [content, setContent] = useState<string>((fider.session.isAuthenticated && getContentFromCache()) || "")
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
@@ -52,17 +52,11 @@ export const CommentInput = (props: CommentInputProps) => {
     }
   }
 
-  // const editorFocused = () => {
-  //   console.log("focused")
-  //   if (!fider.session.isAuthenticated) {
-  //     setIsSignInModalOpen(true)
-  //   }
-  // }
-
-  // const commentChanged = (newContent: string) => {
-  //   setContent(newContent)
-  //   cache.session.set(getCacheKey(), newContent)
-  // }
+  const editorFocused = () => {
+    if (!fider.session.isAuthenticated) {
+      setIsSignInModalOpen(true)
+    }
+  }
 
   const hasContent = true
 
@@ -82,14 +76,9 @@ export const CommentInput = (props: CommentInputProps) => {
                 <UserName user={Fider.session.user} />
               </div>
             )}
-            {/* <CommentEditor
-              initialValue={content}
-              onChange={commentChanged}
-              onFocus={editorFocused}
-              placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
-            /> */}
             <MemoizedTiptap
               onChange={commentChanged}
+              onFocus={editorFocused}
               initialValue={getContentFromCache()}
               placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
             />

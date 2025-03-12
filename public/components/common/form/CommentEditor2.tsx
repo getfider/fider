@@ -107,6 +107,7 @@ interface CommentEditorProps2 {
   initialValue: string | null
   placeholder?: string
   onChange?: (value: string) => void
+  onFocus?: () => void
 }
 
 const Tiptap: React.FunctionComponent<CommentEditorProps2> = (props) => {
@@ -137,6 +138,11 @@ const Tiptap: React.FunctionComponent<CommentEditorProps2> = (props) => {
     extensions,
     content: initialValue,
     onUpdate: updated,
+    onFocus: () => {
+      if (props.onFocus) {
+        props.onFocus()
+      }
+    },
     editorProps: {
       attributes: {
         class: "no-focus",
