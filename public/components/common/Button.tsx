@@ -92,9 +92,3 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
 
   return buttonContent
 }
-
-Button.defaultProps = {
-  size: "default",
-  variant: "secondary",
-  type: "button",
-}
