@@ -1,21 +1,22 @@
 @import "~@fider/assets/styles/variables.scss";
 
 /* Styling for content elements */
-.fider-tiptap-editor .ProseMirror p {
-  margin: 0 0 0.75em 0;
+.fider-tiptap-editor .ProseMirror {
+  p {
+    margin: 0 0 0.75em 0;
+  }
+  ul,
+  ol {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+  }
+
+  a {
+    color: #3b82f6;
+    text-decoration: underline;
+  }
 }
 
-.fider-tiptap-editor .ProseMirror ul,
-.fider-tiptap-editor .ProseMirror ol {
-  padding-left: 1.5em;
-  margin: 0.5em 0;
-}
-
-.fider-tiptap-editor .ProseMirror a {
-  color: #3b82f6;
-  text-decoration: underline;
-}
-// THese are the AI generated toolbar styles, I'll need to check these
 .c-editor-toolbar {
   border-bottom: 1px solid get("colors.gray.300");
   padding: spacing(1);
@@ -85,14 +86,14 @@
         content: "\200B";
       }
     }
-  }
-}
 
-// Placeholder
-.tiptap p.tiptap-is-empty:first-child::before {
-  color: get("colors.gray.400");
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
+    // Placeholder
+    p.tiptap-is-empty:first-child::before {
+      color: get("colors.gray.400");
+      content: attr(data-placeholder);
+      float: left;
+      height: 0;
+      pointer-events: none;
+    }
+  }
 }
