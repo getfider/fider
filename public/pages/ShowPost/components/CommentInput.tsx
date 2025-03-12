@@ -12,7 +12,7 @@ import { Trans } from "@lingui/react/macro"
 // import { CommentEditor } from "@fider/components"
 import { useFider } from "@fider/hooks"
 // import Tiptap from "@fider/components/common/form/CommentEditor2"
-import MemoizedTiptap from "@fider/components/common/form/CommentEditor2"
+import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 interface CommentInputProps {
   post: Post
@@ -76,7 +76,7 @@ export const CommentInput = (props: CommentInputProps) => {
                 <UserName user={Fider.session.user} />
               </div>
             )}
-            <MemoizedTiptap
+            <CommentEditor
               onChange={commentChanged}
               onFocus={editorFocused}
               initialValue={getContentFromCache()}
