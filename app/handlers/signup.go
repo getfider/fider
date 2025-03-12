@@ -101,6 +101,11 @@ func CreateTenant() web.HandlerFunc {
 				webutil.SetSignUpAuthCookie(c, user)
 			}
 
+			// Handle userlist.
+			if env.Config.UserList.Enabled {
+				c.Enqueue(tasks.UserListCreateCompany(*createTenant.Result, *user))
+			}
+
 		} else {
 			user.Name = action.Name
 			user.Email = action.Email
@@ -115,11 +120,6 @@ func CreateTenant() web.HandlerFunc {
 			}
 
 			c.Enqueue(tasks.SendSignUpEmail(action, siteURL))
-		}
-
-		// Handle userlist.
-		if env.Config.UserList.Enabled {
-			c.Enqueue(tasks.UserListCreateCompany(*createTenant.Result, *user))
 		}
 
 		return c.Ok(web.Map{})
@@ -192,6 +192,11 @@ func VerifySignUpKey() web.HandlerFunc {
 		}
 
 		webutil.AddAuthUserCookie(c, user)
+
+		// Handle userlist.
+		if env.Config.UserList.Enabled {
+			c.Enqueue(tasks.UserListCreateCompany(*c.Tenant(), *user))
+		}
 
 		return c.Redirect(c.BaseURL())
 	}
