@@ -15,6 +15,7 @@ import IconItalic from "@fider/assets/images/heroicons-italic.svg"
 import IconBold from "@fider/assets/images/heroicons-bold.svg"
 import IconStrike from "@fider/assets/images/heroicons-strike.svg"
 import IconCode from "@fider/assets/images/heroicons-code.svg"
+import IconAt from "@fider/assets/images/heroicons-at.svg"
 import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import { Icon } from "@fider/components"
@@ -94,6 +95,17 @@ const MenuBar = ({ editor }: { editor: Editor | null }) => {
           className={`c-editor-button ${editor.isActive("codeBlock") ? "is-active" : ""}`}
         >
           <Icon sprite={IconCode} />
+        </button>
+        <button
+          type="button"
+          title="Mention"
+          onClick={() => {
+            // Insert @ character at current position and trigger mention suggestion
+            editor.chain().focus().insertContent("@").run()
+          }}
+          className="c-editor-button"
+        >
+          <Icon sprite={IconAt} />
         </button>
       </div>
     </div>
