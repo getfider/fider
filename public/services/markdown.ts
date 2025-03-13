@@ -54,8 +54,8 @@ plainTextRenderer.html = (html) => html
 plainTextRenderer.del = (text) => text
 
 const entities: { [key: string]: string } = {
-  "<": "&lt;",
-  ">": "&gt;",
+  // "<": "&lt;",
+  // ">": "&gt;",
 }
 
 const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag)

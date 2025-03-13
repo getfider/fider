@@ -1,4 +1,7 @@
+@import "~@fider/assets/styles/variables.scss";
+
 .c-multi-image-uploader {
+  padding-top: spacing(2);
   .c-multi-image-uploader-instances {
     display: flex;
     flex-wrap: wrap;

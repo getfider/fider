@@ -38,7 +38,7 @@ if (isProduction) {
     new PurgecssPlugin({
       paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
       defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
-      safelist: [/--/, /__/, /data-/],
+      safelist: [/--/, /__/, /data-/, /tiptap/],
     })
   )
 }

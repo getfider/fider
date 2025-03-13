@@ -5,7 +5,9 @@ global.frames = global
 global.self = global
 
 const document = {
-  documentElement: {},
+  documentElement: {
+    style: {},
+  },
   getElementById: () => undefined,
 }
 
