@@ -77,6 +77,7 @@ export const CommentInput = (props: CommentInputProps) => {
               </div>
             )}
             <CommentEditor
+              disabled={!Fider.session.isAuthenticated}
               onChange={commentChanged}
               onFocus={editorFocused}
               initialValue={getContentFromCache()}

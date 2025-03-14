@@ -29,7 +29,17 @@ import { CustomMention } from "./CustomMention"
 import { Trans } from "@lingui/react/macro"
 
 // define your extension array
-const MenuBar = ({ editor, isMarkdownMode, toggleMarkdownMode }: { editor: Editor | null; isMarkdownMode: boolean; toggleMarkdownMode: () => void }) => {
+const MenuBar = ({
+  editor,
+  isMarkdownMode,
+  toggleMarkdownMode,
+  disabled,
+}: {
+  editor: Editor | null
+  isMarkdownMode: boolean
+  disabled: boolean
+  toggleMarkdownMode: () => void
+}) => {
   if (!editor) {
     return null
   }
@@ -41,92 +51,102 @@ const MenuBar = ({ editor, isMarkdownMode, toggleMarkdownMode }: { editor: Edito
         {!isMarkdownMode && (
           <>
             <button
+              disabled={disabled}
               type="button"
               title="Heading 2"
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`c-editor-button ${editor.isActive("heading", { level: 2 }) ? "is-active" : ""}`}
+              className={`c-editor-button ${editor.isActive("heading", { level: 2 }) ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconH2} width="18" height="18" />
             </button>
             <button
+              disabled={disabled}
               type="button"
               title="Heading 3"
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-              className={`c-editor-button ${editor.isActive("heading", { level: 3 }) ? "is-active" : ""}`}
+              className={`c-editor-button ${editor.isActive("heading", { level: 3 }) ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconH3} />
             </button>
             <button
+              disabled={disabled}
               type="button"
               title="Bold"
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`c-editor-button ${editor.isActive("bold") ? "is-active" : ""}`}
+              className={`c-editor-button ${editor.isActive("bold") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconBold} />
             </button>
             <button
+              disabled={disabled}
               type="button"
               title="Italic"
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`c-editor-button ${editor.isActive("italic") ? "is-active" : ""}`}
+              className={`c-editor-button ${editor.isActive("italic") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconItalic} />
             </button>
             <button
+              disabled={disabled}
               type="button"
               title="Strikethrough"
               onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`c-editor-button ${editor.isActive("strike") ? "is-active" : ""}`}
+              className={`c-editor-button ${editor.isActive("strike") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconStrike} />
             </button>
             <button
+              disabled={disabled}
               type="button"
               title="BulletList"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`c-editor-button ${editor.isActive("bulletList") ? "is-active" : ""}`}
+              className={`c-editor-button ${editor.isActive("bulletList") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconBulletList} />
             </button>
             <button
+              disabled={disabled}
               type="button"
               title="OrderedList"
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`c-editor-button ${editor.isActive("orderedList") ? "is-active" : ""}`}
+              className={`c-editor-button ${editor.isActive("orderedList") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconOrderedList} />
             </button>
             <button
+              disabled={disabled}
               type="button"
               title="Code"
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={`c-editor-button ${editor.isActive("codeBlock") ? "is-active" : ""}`}
+              className={`c-editor-button ${editor.isActive("codeBlock") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconCode} />
             </button>
             <button
+              disabled={disabled}
               type="button"
               title="Mention"
               onClick={() => {
                 // Insert @ character at current position and trigger mention suggestion
                 editor.chain().focus().insertContent("@").run()
               }}
-              className="c-editor-button"
+              className={`c-editor-button ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconAt} />
             </button>
           </>
         )}
         <button
+          disabled={disabled}
           type="button"
           title={isMarkdownMode ? "Rich Text Mode" : "Markdown Mode"}
           onClick={toggleMarkdownMode}
-          className={`c-editor-button ${isMarkdownMode ? "is-active" : ""} ml-auto text-xs`}
+          className={`c-editor-button ${isMarkdownMode ? "is-active" : ""} ${disabled ? "is-disabled" : ""} ml-auto text-xs`}
         >
           <span className="c-editor-button-text">
             <Trans id="editor.markdownmode">Markdown editor</Trans>
           </span>
-        </button>
+        </button>{" "}
       </div>
     </div>
   )
@@ -136,6 +156,7 @@ interface CommentEditorProps {
   placeholder?: string
   onChange?: (value: string) => void
   onFocus?: () => void
+  disabled: boolean
 }
 
 const markdownToHtml = (markdownString: string) => {
@@ -228,7 +249,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   return (
     <div className="fider-tiptap-editor">
-      <MenuBar editor={editor} isMarkdownMode={isRawMarkdownMode} toggleMarkdownMode={toggleMarkdownMode} />
+      <MenuBar disabled={props.disabled} editor={editor} isMarkdownMode={isRawMarkdownMode} toggleMarkdownMode={toggleMarkdownMode} />
       <EditorContent editor={editor} />
     </div>
   )
