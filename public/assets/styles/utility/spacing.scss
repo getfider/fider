@@ -3,6 +3,10 @@
   margin-left: auto;
 }
 
+.ml-auto {
+  margin-left: auto;
+}
+
 @for $i from 0 through 9 {
   // Margin
   .m-#{$i} {
