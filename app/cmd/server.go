@@ -23,6 +23,7 @@ import (
 	_ "github.com/getfider/fider/app/services/blob/sql"
 	_ "github.com/getfider/fider/app/services/email/awsses"
 	_ "github.com/getfider/fider/app/services/email/mailgun"
+	_ "github.com/getfider/fider/app/services/email/resend"
 	_ "github.com/getfider/fider/app/services/email/smtp"
 	_ "github.com/getfider/fider/app/services/httpclient"
 	_ "github.com/getfider/fider/app/services/log/console"
