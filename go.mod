@@ -11,7 +11,7 @@ require (
 	github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/golangci/golangci-lint v1.59.1
-	github.com/gomarkdown/markdown v0.0.0-20240930133441-72d49d9543d8
+	github.com/gomarkdown/markdown v0.0.0-20250207164621-7a1f277a159e
 	github.com/gosimple/slug v1.11.0
 	github.com/gotnospirit/messageformat v0.0.0-20190719172517-c1d0bdacdea2
 	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
