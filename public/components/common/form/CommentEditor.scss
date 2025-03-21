@@ -21,11 +21,13 @@
 .c-editor-toolbar {
   border-bottom: 1px solid get("colors.gray.300");
   padding: spacing(1);
-  height: 40px;
+  min-height: 40px;
+  width: 100%;
 }
 
 .c-editor-button-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
 }
 
