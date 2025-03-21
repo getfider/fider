@@ -127,8 +127,16 @@ const MenuBar = ({
               type="button"
               title="Mention"
               onClick={() => {
-                // Insert @ character at current position and trigger mention suggestion
-                editor.chain().focus().insertContent("@").run()
+                // Get the current cursor position
+                const { from } = editor.state.selection
+                // Get the character before the cursor
+                const textBefore = editor.state.doc.textBetween(Math.max(0, from - 1), from)
+                // Insert space before @ only if the previous character isn't a space or the cursor is at the beginning
+                if (from === 0 || textBefore === " " || textBefore === "\n") {
+                  editor.chain().focus().insertContent("@").run()
+                } else {
+                  editor.chain().focus().insertContent(" @").run()
+                }
               }}
               className={`c-editor-button ${disabled ? "is-disabled" : ""}`}
             >
