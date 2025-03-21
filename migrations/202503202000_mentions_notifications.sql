@@ -12,4 +12,4 @@ create table
           constraint unique_mention_notification unique (tenant_id, user_id, comment_id)
      );
 
-create index idx_mention_notifications_tenant_user on notification_logs (tenant_id, user_id);
+create index idx_mention_notifications_tenant_user on mention_notifications (tenant_id, user_id);
