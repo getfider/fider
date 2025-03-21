@@ -38,7 +38,7 @@ if (isProduction) {
     new PurgecssPlugin({
       paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
       defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
-      safelist: [/--/, /__/, /data-/],
+      safelist: [/--/, /__/, /data-/, /tiptap/],
     })
   )
 }
@@ -113,11 +113,6 @@ module.exports = {
           chunks: "all",
           name: "vendor",
           test: /(react($|\/)|react-dom|tslib|react-textarea-autosize|@lingui\/core)/,
-        },
-        slate: {
-          chunks: "all",
-          name: "slate",
-          test: /[\\/]node_modules[\\/](slate|slate-react|slate-history)[\\/]/,
         },
       },
     },

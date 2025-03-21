@@ -1,6 +1,7 @@
 @import "~@fider/assets/styles/variables.scss";
 
-.c-markdown {
+.c-markdown,
+.tiptap {
   overflow-wrap: break-word;
   word-break: break-word;
 
@@ -42,8 +43,8 @@
   }
 
   pre {
-    overflow-x: scroll;
-    padding: 16px;
+    overflow-x: auto;
+    padding: spacing(2);
     line-height: 1.45;
     background-color: get("colors.gray.200");
     border-radius: 4px;
