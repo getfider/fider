@@ -20,7 +20,6 @@ import IconStrike from "@fider/assets/images/heroicons-strike.svg"
 import IconCode from "@fider/assets/images/heroicons-code.svg"
 import IconAt from "@fider/assets/images/heroicons-at.svg"
 import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
-// import IconMarkdown from "@fider/assets/images/heroicons-h2.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import { Icon } from "@fider/components"
 
@@ -161,7 +160,8 @@ interface CommentEditorProps {
 
 const markdownToHtml = (markdownString: string) => {
   return markdownString
-    .split("\n\n")
+    .replace("\n\n", "\n")
+    .split("\n")
     .map((line: string) => `<p>${line}</p>`)
     .join("")
 }
@@ -197,6 +197,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
+    console.log("updated", markdown)
     props.onChange && props.onChange(markdown)
   }
 

@@ -5,7 +5,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/getfider/fider/app/models/entity"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 
@@ -57,16 +56,4 @@ func Full(input string) template.HTML {
 	parser := mdparser.NewWithExtensions(mdExtns)
 	output := markdown.ToHTML([]byte(input), parser, fullRenderer)
 	return template.HTML(strings.TrimSpace(string(output)))
-}
-
-// StripMentionMetaData removes all mention metadata from a markdown string
-// Example input: Hello there @{\"id\":1,\"name\":\"John Doe\"}"
-// Example output: Hello there @John Doe
-func StripMentionMetaData(input string) string {
-
-	mentionString := entity.CommentString(input)
-	return mentionString.FormatMentionJson(func(mention entity.Mention) string {
-		return mention.Name
-	})
-
 }

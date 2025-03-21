@@ -1,69 +1,29 @@
 package entity
 
 import (
-	"encoding/json"
 	"regexp"
-	"strings"
 )
-
-type Mention struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	IsNew bool   `json:"isNew"`
-}
 
 type CommentString string
 
-const mentionRegex = `@{([^{}]+)}`
+const mentionRegex = `@\[(.*?)\]`
 
-func (commentString CommentString) ParseMentions() []Mention {
+func (commentString CommentString) ParseMentions() []string {
 	r, _ := regexp.Compile(mentionRegex)
+	matches := r.FindAllStringSubmatch(string(commentString), -1)
 
-	// Remove escaped quotes from the input string
-	input := strings.ReplaceAll(string(commentString), `\"`, `"`)
-
-	matches := r.FindAllString(input, -1)
-
-	mentions := []Mention{}
+	mentions := []string{}
 
 	for _, match := range matches {
-
-		jsonMention := match[1:]
-
-		var mention Mention
-		err := json.Unmarshal([]byte(jsonMention), &mention)
-		if err == nil {
-			if mention.ID > 0 && mention.Name != "" {
-				mentions = append(mentions, mention)
-			}
+		if len(match) >= 2 && match[1] != "" {
+			mentions = append(mentions, match[1])
 		}
 	}
 
 	return mentions
 }
 
-func (mentionString CommentString) FormatMentionJson(jsonOperator func(Mention) string) string {
-
+func (commentString CommentString) SanitizeMentions() string {
 	r, _ := regexp.Compile(mentionRegex)
-
-	// Remove escaped quotes from the input string
-	input := strings.ReplaceAll(string(mentionString), `\"`, `"`)
-
-	return r.ReplaceAllStringFunc(input, func(match string) string {
-		jsonMention := match[1:]
-
-		var mention Mention
-
-		err := json.Unmarshal([]byte(jsonMention), &mention)
-		if err != nil {
-			return match
-		}
-
-		if mention.ID == 0 || mention.Name == "" {
-			return match
-		}
-
-		return "@" + jsonOperator(mention)
-	})
-
+	return r.ReplaceAllString(string(commentString), "@$1")
 }

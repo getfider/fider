@@ -2,11 +2,13 @@ package tasks
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/log"
@@ -20,7 +22,9 @@ import (
 func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 
-		comment.ParseMentions()
+		// comment.ParseMentions()
+		contentString := entity.CommentString(comment.Content)
+		mentions := contentString.ParseMentions()
 
 		// Web notification
 		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewComment)
@@ -48,18 +52,31 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 		// Web notification - mentions
 		title = fmt.Sprintf("**%s** mentioned you in **%s**", author.Name, post.Title)
 
-		if comment.Mentions != nil {
+		if mentions != nil {
 
 			users, err = getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention)
 			if err != nil {
 				return c.Failure(err)
 			}
 
+			// Get the existing mentions that have been sent for this comment
+			mentionNotifications := &query.GetMentionNotifications{
+				CommentID: comment.ID,
+			}
+			err := bus.Dispatch(c, mentionNotifications)
+			if err != nil {
+				return c.Failure(err)
+			}
+
 			// Iterate the mentions
-			for _, mention := range comment.Mentions {
+			for _, mention := range mentions {
 				// Check if the user is in the list of mention subscribers (users)
 				for _, u := range users {
-					if u.ID == mention.ID && mention.IsNew {
+
+					if u.Name == mention && !slices.ContainsFunc(mentionNotifications.Result,
+						func(n *entity.MentionNotification) bool {
+							return n.UserID == u.ID
+						}) {
 						err = bus.Dispatch(c, &cmd.AddNewNotification{
 							User:   u,
 							Title:  title,
@@ -69,13 +86,22 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 						if err != nil {
 							return c.Failure(err)
 						}
+
+						// Also send the notification log
+						err = bus.Dispatch(c, &cmd.AddMentionNotification{
+							UserID:    u.ID,
+							CommentID: comment.ID,
+						})
+						if err != nil {
+							return c.Failure(err)
+						}
+
 					}
+
 				}
 			}
 
 		}
-
-		strippedContent := markdown.StripMentionMetaData(comment.Content)
 
 		// Standard email notitifications
 		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewComment)
@@ -90,37 +116,55 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 			}
 		}
 
-		sendEmailNotifications(c, post, to, strippedContent, enum.NotificationEventNewComment)
+		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventNewComment)
 
 		// Mentions
 		to = make([]dto.Recipient, 0)
-		if comment.Mentions != nil {
+		if mentions != nil {
 
 			users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention)
 			if err != nil {
 				return c.Failure(err)
 			}
 
-			// Iterate the mentions
-			for _, mention := range comment.Mentions {
+			// Get the existing mentions that have been sent for this comment
+			mentionNotifications := &query.GetMentionNotifications{
+				CommentID: comment.ID,
+			}
+			err = bus.Dispatch(c, mentionNotifications)
+			if err != nil {
+				return c.Failure(err)
+			}
 
-				// Check if the user is in the list of mention subscribers (users)
+			for _, mention := range mentions {
 				for _, u := range users {
-					if u.ID == mention.ID && mention.IsNew {
+
+					if u.Name == mention && !slices.ContainsFunc(mentionNotifications.Result,
+						func(n *entity.MentionNotification) bool {
+							return n.UserID == u.ID
+						}) {
 						to = append(to, dto.NewRecipient(u.Name, u.Email, dto.Props{}))
-						break
+
+						// Also send the notification log
+						err = bus.Dispatch(c, &cmd.AddMentionNotification{
+							UserID:    u.ID,
+							CommentID: comment.ID,
+						})
+						if err != nil {
+							return c.Failure(err)
+						}
 					}
 				}
 			}
 
 		}
 
-		sendEmailNotifications(c, post, to, strippedContent, enum.NotificationEventMention)
+		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention)
 
 		tenant := c.Tenant()
 		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
 
-		webhookProps := webhook.Props{"comment": strippedContent}
+		webhookProps := webhook.Props{"comment": contentString.SanitizeMentions()}
 		webhookProps.SetPost(post, "post", baseURL, true, true)
 		webhookProps.SetUser(author, "author")
 		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
@@ -137,10 +181,10 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 	})
 }
 
-func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
+func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worker.Task {
 	return describe("Notify about updated comment", func(c *worker.Context) error {
 
-		contentString := entity.CommentString(content)
+		contentString := entity.CommentString(comment.Content)
 		mentions := contentString.ParseMentions()
 
 		log.Infof(c, "Comment updated: @{Comment:Yellow}. Mentions @{MentionsCount}", dto.Props{
@@ -151,9 +195,19 @@ func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
 		author := c.User()
 		title := fmt.Sprintf("**%s** mentioned you in **%s**", author.Name, post.Title)
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
+		mentionNotificationSent := false
 		if mentions != nil {
 
 			users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention)
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			// Get the existing mentions that have been sent for this comment
+			mentionNotifications := &query.GetMentionNotifications{
+				CommentID: comment.ID,
+			}
+			err = bus.Dispatch(c, mentionNotifications)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -162,7 +216,10 @@ func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
 			for _, mention := range mentions {
 				// Check if the user is in the list of mention subscribers (users)
 				for _, u := range users {
-					if u.ID == mention.ID && mention.IsNew {
+					if u.Name == mention && !slices.ContainsFunc(mentionNotifications.Result,
+						func(n *entity.MentionNotification) bool {
+							return n.UserID == u.ID
+						}) {
 						err = bus.Dispatch(c, &cmd.AddNewNotification{
 							User:   u,
 							Title:  title,
@@ -172,13 +229,21 @@ func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
 						if err != nil {
 							return c.Failure(err)
 						}
+
+						// Also send the notification log
+						err = bus.Dispatch(c, &cmd.AddMentionNotification{
+							UserID:    u.ID,
+							CommentID: comment.ID,
+						})
+						if err != nil {
+							return c.Failure(err)
+						}
+						mentionNotificationSent = true
 					}
 				}
 			}
 
 		}
-
-		strippedContent := markdown.StripMentionMetaData(content)
 
 		to := make([]dto.Recipient, 0)
 		if mentions != nil {
@@ -188,19 +253,40 @@ func NotifyAboutUpdatedComment(content string, post *entity.Post) worker.Task {
 				return c.Failure(err)
 			}
 
+			// Get the existing mentions that have been sent for this comment
+			mentionNotifications := &query.GetMentionNotifications{
+				CommentID: comment.ID,
+			}
+			err = bus.Dispatch(c, mentionNotifications)
+			if err != nil {
+				return c.Failure(err)
+			}
+
 			for _, mention := range mentions {
 				// Check if the user is in the list of mention subscribers (users)
 				for _, u := range users {
-					if u.ID == mention.ID && mention.IsNew {
+					if u.Name == mention && !slices.ContainsFunc(mentionNotifications.Result,
+						func(n *entity.MentionNotification) bool {
+							return n.UserID == u.ID
+						}) {
 						to = append(to, dto.NewRecipient(u.Name, u.Email, dto.Props{}))
-						break
+
+						// Also send the notification log
+						if !mentionNotificationSent {
+							err = bus.Dispatch(c, &cmd.AddMentionNotification{
+								UserID:    u.ID,
+								CommentID: comment.ID,
+							})
+							if err != nil {
+								return c.Failure(err)
+							}
+						}
 					}
 				}
 			}
-
 		}
 
-		sendEmailNotifications(c, post, to, strippedContent, enum.NotificationEventMention)
+		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention)
 
 		return nil
 	})

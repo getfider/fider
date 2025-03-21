@@ -15,6 +15,7 @@
   "action.vote": "Vote for this idea",
   "action.voted": "Voted!",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
+  "editor.markdownmode": "Markdown editor",
   "enum.poststatus.completed": "Completed",
   "enum.poststatus.declined": "Declined",
   "enum.poststatus.deleted": "Deleted",
