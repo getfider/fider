@@ -8,6 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder"
 import Document from "@tiptap/extension-document"
 import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
+import HardBreak from "@tiptap/extension-hard-break"
 
 import "./CommentEditor.scss"
 
@@ -160,10 +161,11 @@ interface CommentEditorProps {
 
 const markdownToHtml = (markdownString: string) => {
   return markdownString
-    .replace("\n\n", "\n")
-    .split("\n")
+    .split("\n\n")
     .map((line: string) => `<p>${line}</p>`)
     .join("")
+    .replace(/\\\n/g, "<br>")
+    .replace(/\n/g, "<br>")
 }
 
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
@@ -197,7 +199,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
-    console.log("updated", markdown)
+    console.log("updated", JSON.stringify(markdown))
     props.onChange && props.onChange(markdown)
   }
 
@@ -207,6 +209,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         Document,
         Paragraph,
         Text,
+        HardBreak,
         Placeholder.configure({
           placeholder: props.placeholder ?? "Write your comment here...",
           emptyEditorClass: "tiptap-is-empty",
@@ -216,6 +219,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         StarterKit,
         Markdown.configure({
           html: true,
+          breaks: true,
         }),
         CustomMention.configure({
           HTMLAttributes: {

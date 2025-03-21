@@ -2,8 +2,9 @@
 
 /* Styling for content elements */
 .fider-tiptap-editor .ProseMirror {
-  p {
-    margin: 0 0 0.75em 0;
+  p,
+  pre {
+    margin: 0 0 0.25em 0;
   }
   ul,
   ol {
@@ -20,6 +21,7 @@
 .c-editor-toolbar {
   border-bottom: 1px solid get("colors.gray.300");
   padding: spacing(1);
+  height: 40px;
 }
 
 .c-editor-button-group {
