@@ -1,4 +1,3 @@
-// src/Tiptap.tsx
 import { Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import React, { useState } from "react"
@@ -28,7 +27,6 @@ import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
 import { Trans } from "@lingui/react/macro"
 
-// define your extension array
 const MenuBar = ({
   editor,
   isMarkdownMode,
@@ -207,7 +205,6 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
-    console.log("updated", JSON.stringify(markdown))
     props.onChange && props.onChange(markdown)
   }
 
