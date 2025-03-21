@@ -30,8 +30,8 @@
   flex-wrap: wrap;
   gap: 4px;
 }
-
-.c-editor-button {
+.c-editor-button,
+.c-markdown-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,21 +53,28 @@
     color: get("colors.gray.500");
   }
 
-  &.is-active {
-    background-color: get("colors.gray.300");
-    color: get("colors.gray.900");
-  }
-
   svg {
     width: spacing(4.5);
     height: spacing(4.5);
   }
 }
 
+.c-editor-button {
+  &.is-active {
+    background-color: get("colors.gray.300");
+    color: get("colors.gray.900");
+  }
+}
+
+.c-markdown-toggle {
+  height: 28px;
+}
+
 .fider-tiptap-editor {
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   overflow: hidden;
+  background-color: get("colors.white");
 
   .tiptap {
     :first-child {

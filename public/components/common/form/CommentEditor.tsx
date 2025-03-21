@@ -147,12 +147,16 @@ const MenuBar = ({
           type="button"
           title={isMarkdownMode ? "Rich Text Mode" : "Markdown Mode"}
           onClick={toggleMarkdownMode}
-          className={`c-editor-button ${isMarkdownMode ? "is-active" : ""} ${disabled ? "is-disabled" : ""} ml-auto text-xs`}
+          className={`no-focus c-markdown-toggle ${isMarkdownMode ? "is-active" : ""} ${disabled ? "is-disabled" : ""} ml-auto text-xs`}
         >
           <span className="c-editor-button-text">
-            <Trans id="editor.markdownmode">Markdown editor</Trans>
+            {isMarkdownMode ? (
+              <Trans id="editor.richtextmode">Switch to rich text editor</Trans>
+            ) : (
+              <Trans id="editor.markdownmode">Switch to markdown editor</Trans>
+            )}
           </span>
-        </button>{" "}
+        </button>
       </div>
     </div>
   )

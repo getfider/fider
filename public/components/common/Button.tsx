@@ -44,7 +44,6 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
     "c-button--loading": clicked,
     "c-button--disabled": clicked || props.disabled,
     [props.className || ""]: props.className,
-    "shadow-sm": variant == "primary" || variant == "secondary",
   })
 
   let buttonContent: JSX.Element
