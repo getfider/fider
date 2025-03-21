@@ -114,11 +114,6 @@ module.exports = {
           name: "vendor",
           test: /(react($|\/)|react-dom|tslib|react-textarea-autosize|@lingui\/core)/,
         },
-        slate: {
-          chunks: "all",
-          name: "slate",
-          test: /[\\/]node_modules[\\/](slate|slate-react|slate-history)[\\/]/,
-        },
       },
     },
   },
