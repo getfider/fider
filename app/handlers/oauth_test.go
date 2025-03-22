@@ -31,7 +31,7 @@ func TestSignOutHandler(t *testing.T) {
 
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/signout?redirect=/").
+		WithURL("http://demo.test.fider.io/signout").
 		AddCookie(web.CookieAuthName, "some-value").
 		Execute(handlers.SignOut())
 
