@@ -13,3 +13,14 @@ create table
      );
 
 create index idx_mention_notifications_tenant_user on mention_notifications (tenant_id, user_id);
+
+UPDATE comments
+SET
+     content = regexp_replace (
+          content,
+          '@{"id":([0-9]+),"name":"([^"]+)","isNew":(true|false)}',
+          '@[\2]',
+          'g'
+     )
+WHERE
+     content LIKE '%@{"id":%'
