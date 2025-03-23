@@ -25,6 +25,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 		// comment.ParseMentions()
 		contentString := entity.CommentString(comment.Content)
 		mentions := contentString.ParseMentions()
+		var mentionNotifications []*entity.MentionNotification
 
 		// Web notification
 		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewComment)
@@ -60,20 +61,21 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 			}
 
 			// Get the existing mentions that have been sent for this comment
-			mentionNotifications := &query.GetMentionNotifications{
+			mN := &query.GetMentionNotifications{
 				CommentID: comment.ID,
 			}
-			err := bus.Dispatch(c, mentionNotifications)
+			err := bus.Dispatch(c, mN)
 			if err != nil {
 				return c.Failure(err)
 			}
+			mentionNotifications = mN.Result
 
 			// Iterate the mentions
 			for _, mention := range mentions {
 				// Check if the user is in the list of mention subscribers (users)
 				for _, u := range users {
 
-					if u.Name == mention && !slices.ContainsFunc(mentionNotifications.Result,
+					if u.Name == mention && !slices.ContainsFunc(mentionNotifications,
 						func(n *entity.MentionNotification) bool {
 							return n.UserID == u.ID
 						}) {
@@ -127,19 +129,10 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 				return c.Failure(err)
 			}
 
-			// Get the existing mentions that have been sent for this comment
-			mentionNotifications := &query.GetMentionNotifications{
-				CommentID: comment.ID,
-			}
-			err = bus.Dispatch(c, mentionNotifications)
-			if err != nil {
-				return c.Failure(err)
-			}
-
 			for _, mention := range mentions {
 				for _, u := range users {
 
-					if u.Name == mention && !slices.ContainsFunc(mentionNotifications.Result,
+					if u.Name == mention && !slices.ContainsFunc(mentionNotifications,
 						func(n *entity.MentionNotification) bool {
 							return n.UserID == u.ID
 						}) {
@@ -186,6 +179,7 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 
 		contentString := entity.CommentString(comment.Content)
 		mentions := contentString.ParseMentions()
+		var mentionNotifications []*entity.MentionNotification
 
 		log.Infof(c, "Comment updated: @{Comment:Yellow}. Mentions @{MentionsCount}", dto.Props{
 			"Comment":       contentString,
@@ -204,19 +198,20 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 			}
 
 			// Get the existing mentions that have been sent for this comment
-			mentionNotifications := &query.GetMentionNotifications{
+			mN := &query.GetMentionNotifications{
 				CommentID: comment.ID,
 			}
-			err = bus.Dispatch(c, mentionNotifications)
+			err = bus.Dispatch(c, mN)
 			if err != nil {
 				return c.Failure(err)
 			}
+			mentionNotifications = mN.Result
 
 			// Iterate the mentions
 			for _, mention := range mentions {
 				// Check if the user is in the list of mention subscribers (users)
 				for _, u := range users {
-					if u.Name == mention && !slices.ContainsFunc(mentionNotifications.Result,
+					if u.Name == mention && !slices.ContainsFunc(mentionNotifications,
 						func(n *entity.MentionNotification) bool {
 							return n.UserID == u.ID
 						}) {
@@ -253,19 +248,10 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 				return c.Failure(err)
 			}
 
-			// Get the existing mentions that have been sent for this comment
-			mentionNotifications := &query.GetMentionNotifications{
-				CommentID: comment.ID,
-			}
-			err = bus.Dispatch(c, mentionNotifications)
-			if err != nil {
-				return c.Failure(err)
-			}
-
 			for _, mention := range mentions {
 				// Check if the user is in the list of mention subscribers (users)
 				for _, u := range users {
-					if u.Name == mention && !slices.ContainsFunc(mentionNotifications.Result,
+					if u.Name == mention && !slices.ContainsFunc(mentionNotifications,
 						func(n *entity.MentionNotification) bool {
 							return n.UserID == u.ID
 						}) {
