@@ -26,7 +26,7 @@ export const UserMenu = () => {
             <Dropdown.Divider />
           </>
         )}
-        <Dropdown.ListItem href="/signout?redirect=/">
+        <Dropdown.ListItem href="/signout">
           <Trans id="menu.signout">Sign out</Trans>
         </Dropdown.ListItem>
       </Dropdown>
