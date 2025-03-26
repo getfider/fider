@@ -158,6 +158,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
 
 		webhookProps := webhook.Props{"comment": contentString.SanitizeMentions()}
+		webhookProps["comment_id"] = comment.ID
 		webhookProps.SetPost(post, "post", baseURL, true, true)
 		webhookProps.SetUser(author, "author")
 		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
