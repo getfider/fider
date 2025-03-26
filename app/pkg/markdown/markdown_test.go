@@ -75,6 +75,7 @@ How are you?`: `Hello World
 How are you?`,
 		"### Hello World":         `Hello World`,
 		"Check this out: `HEEEY`": "Check this out: `HEEEY`",
+		"Bad links should be OK [link without actual link]()": "Bad links should be OK link without actual link",
 	} {
 		output := markdown.PlainText(input)
 		Expect(output).Equals(expected)
