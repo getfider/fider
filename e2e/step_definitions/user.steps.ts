@@ -9,7 +9,7 @@ Given("I sign in as {string}", async function (this: FiderWorld, userName: strin
 
   if (await isAuthenticated(this.page)) {
     await this.page.click(".c-menu-user .c-dropdown__handle")
-    await this.page.click("a[href='/signout?redirect=/']")
+    await this.page.click("a[href='/signout']")
   }
 
   const userEmail = `${userName}-${this.tenantName}@fider.io`
