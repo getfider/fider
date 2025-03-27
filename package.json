@@ -13,7 +13,7 @@
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
     "@tiptap/suggestion": "^2.11.5",
-    "dompurify": "^2.3.6",
+    "dompurify": "^3.2.4",
     "marked": "^4.0.15",
     "prosemirror-markdown": "^1.13.1",
     "react": "^18.3.1",
