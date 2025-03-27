@@ -27,15 +27,9 @@ const fullRenderer = new marked.Renderer()
 fullRenderer.image = () => ""
 fullRenderer.link = link
 fullRenderer.text = (text: string) => {
-  // Handling mention links (they're in the format @{id:1234, name:'John Doe'})
-  return text.replace(/@{([^}]+)}/g, (match) => {
-    try {
-      const json = match.substring(1).replace(/&quot;/g, '"')
-      const mention = JSON.parse(json)
-      return `<span class="text-blue-600">@${mention.name}</span>`
-    } catch {
-      return match
-    }
+  // Handling mention links (they're in the format @[name])
+  return text.replace(/@\[(.*?)\]/g, (match, name) => {
+    return `<span class="text-blue-600">@${name}</span>`
   })
 }
 
@@ -54,8 +48,8 @@ plainTextRenderer.html = (html) => html
 plainTextRenderer.del = (text) => text
 
 const entities: { [key: string]: string } = {
-  "<": "&lt;",
-  ">": "&gt;",
+  // "<": "&lt;",
+  // ">": "&gt;",
 }
 
 const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag)

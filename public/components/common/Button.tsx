@@ -44,7 +44,6 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
     "c-button--loading": clicked,
     "c-button--disabled": clicked || props.disabled,
     [props.className || ""]: props.className,
-    "shadow-sm": variant == "primary" || variant == "secondary",
   })
 
   let buttonContent: JSX.Element
@@ -91,10 +90,4 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
   }
 
   return buttonContent
-}
-
-Button.defaultProps = {
-  size: "default",
-  variant: "secondary",
-  type: "button",
 }

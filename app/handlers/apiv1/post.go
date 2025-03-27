@@ -1,8 +1,6 @@
 package apiv1
 
 import (
-	"fmt"
-
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/models/cmd"
@@ -11,7 +9,6 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -215,9 +212,9 @@ func ListComments() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		// the content of the comment needs to be sanitized before it is returned
 		for _, comment := range getComments.Result {
-			comment.Content = markdown.StripMentionMetaData(comment.Content)
+			commentString := entity.CommentString(comment.Content)
+			comment.Content = commentString.SanitizeMentions()
 		}
 
 		return c.Ok(getComments.Result)
@@ -237,7 +234,8 @@ func GetComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		commentByID.Result.Content = markdown.StripMentionMetaData(commentByID.Result.Content)
+		commentString := entity.CommentString(commentByID.Result.Content)
+		commentByID.Result.Content = commentString.SanitizeMentions()
 
 		return c.Ok(commentByID.Result)
 	}
@@ -289,10 +287,8 @@ func PostComment() web.HandlerFunc {
 		}
 
 		addNewComment := &cmd.AddNewComment{
-			Post: getPost.Result,
-			Content: entity.CommentString(action.Content).FormatMentionJson(func(mention entity.Mention) string {
-				return fmt.Sprintf(`{"id":%d,"name":"%s"}`, mention.ID, mention.Name)
-			}),
+			Post:    getPost.Result,
+			Content: action.Content,
 		}
 		if err := bus.Dispatch(c, addNewComment); err != nil {
 			return c.Failure(err)
@@ -331,9 +327,10 @@ func UpdateComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		contentToSave := entity.CommentString(action.Content).FormatMentionJson(func(mention entity.Mention) string {
-			return fmt.Sprintf(`{"id":%d,"name":"%s"}`, mention.ID, mention.Name)
-		})
+		comment := &entity.Comment{
+			ID:      action.ID,
+			Content: action.Content,
+		}
 
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
@@ -342,7 +339,7 @@ func UpdateComment() web.HandlerFunc {
 			},
 			&cmd.UpdateComment{
 				CommentID: action.ID,
-				Content:   contentToSave,
+				Content:   action.Content,
 			},
 			&cmd.SetAttachments{
 				Post:        action.Post,
@@ -356,7 +353,7 @@ func UpdateComment() web.HandlerFunc {
 
 		// Update the content
 
-		c.Enqueue(tasks.NotifyAboutUpdatedComment(action.Content, getPost.Result))
+		c.Enqueue(tasks.NotifyAboutUpdatedComment(getPost.Result, comment))
 
 		return c.Ok(web.Map{})
 	}

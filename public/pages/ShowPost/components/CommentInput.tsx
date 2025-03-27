@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useCallback, useState } from "react"
 
 import { Post, ImageUpload } from "@fider/models"
 import { Avatar, UserName, Button, Form, MultiImageUploader } from "@fider/components"
@@ -9,8 +9,10 @@ import { HStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
-import { CommentEditor } from "@fider/components"
+// import { CommentEditor } from "@fider/components"
 import { useFider } from "@fider/hooks"
+// import Tiptap from "@fider/components/common/form/CommentEditor2"
+import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 interface CommentInputProps {
   post: Post
@@ -27,7 +29,7 @@ export const CommentInput = (props: CommentInputProps) => {
 
   const fider = useFider()
   // const inputRef = useRef<HTMLTextAreaElement>()
-  const [content, setContent] = useState<string>((fider.session.isAuthenticated && getContentFromCache()) || "")
+  // const [content, setContent] = useState<string>((fider.session.isAuthenticated && getContentFromCache()) || "")
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
@@ -38,7 +40,10 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    const result = await actions.createComment(props.post.number, content, attachments)
+    // Since the comment is being cached, we can save the content that's in the cache
+    const content = getContentFromCache()
+
+    const result = await actions.createComment(props.post.number, content || "", attachments)
     if (result.ok) {
       cache.session.remove(getCacheKey())
       location.reload()
@@ -48,25 +53,23 @@ export const CommentInput = (props: CommentInputProps) => {
   }
 
   const editorFocused = () => {
-    console.log("focused")
     if (!fider.session.isAuthenticated) {
       setIsSignInModalOpen(true)
     }
   }
 
-  const commentChanged = (newContent: string) => {
-    setContent(newContent)
-    cache.session.set(getCacheKey(), newContent)
-  }
+  const hasContent = true
 
-  const hasContent = content?.length > 0
+  const commentChanged = useCallback((value: string): void => {
+    cache.session.set(getCacheKey(), value)
+  }, [])
 
   return (
     <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <HStack spacing={2} className="c-comment-input">
+      <HStack spacing={2} className="c-comment-input" align="start">
         {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
-        <div className="flex-grow bg-gray-50 rounded-md p-2">
+        <div className="flex-grow bg-gray-100 rounded-md p-2">
           <Form error={error}>
             {Fider.session.isAuthenticated && (
               <div className="mb-1">
@@ -74,11 +77,13 @@ export const CommentInput = (props: CommentInputProps) => {
               </div>
             )}
             <CommentEditor
-              initialValue={content}
+              disabled={!Fider.session.isAuthenticated}
               onChange={commentChanged}
               onFocus={editorFocused}
+              initialValue={getContentFromCache()}
               placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
             />
+
             {hasContent && (
               <>
                 <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />

@@ -1,26 +1,13 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Comment, Post, ImageUpload } from "@fider/models"
-import {
-  Reactions,
-  Avatar,
-  UserName,
-  Moment,
-  Form,
-  Button,
-  Markdown,
-  Modal,
-  ImageViewer,
-  MultiImageUploader,
-  Dropdown,
-  Icon,
-  CommentEditor,
-} from "@fider/components"
+import { Reactions, Avatar, UserName, Moment, Form, Button, Markdown, Modal, ImageViewer, MultiImageUploader, Dropdown, Icon } from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import { t } from "@lingui/core/macro"
 import { Trans } from "@lingui/react/macro"
+import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 interface ShowCommentProps {
   post: Post
@@ -210,7 +197,7 @@ export const ShowComment = (props: ShowCommentProps) => {
           <div>
             {isEditing ? (
               <Form error={error}>
-                <CommentEditor initialValue={newContent} onChange={setNewContent} placeholder={comment.content} />
+                <CommentEditor disabled={!fider.session.isAuthenticated} initialValue={newContent} onChange={setNewContent} placeholder={comment.content} />
                 <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} />
                 <Button size="small" onClick={saveEdit} variant="primary">
                   <Trans id="action.save">Save</Trans>
