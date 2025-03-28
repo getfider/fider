@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useState, useEffect } from "react"
 
 import { Post, ImageUpload } from "@fider/models"
 import { Avatar, UserName, Button, Form, MultiImageUploader } from "@fider/components"
@@ -33,6 +33,12 @@ export const CommentInput = (props: CommentInputProps) => {
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
+  const [isClient, setIsClient] = useState(false)
+
+  // Check if we're running on the client after component mounts
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const hideModal = () => setIsSignInModalOpen(false)
   const clearError = () => setError(undefined)
@@ -76,21 +82,30 @@ export const CommentInput = (props: CommentInputProps) => {
                 <UserName user={Fider.session.user} />
               </div>
             )}
-            <CommentEditor
-              disabled={!Fider.session.isAuthenticated}
-              onChange={commentChanged}
-              onFocus={editorFocused}
-              initialValue={getContentFromCache()}
-              placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
-            />
 
-            {hasContent && (
+            {/* Only render interactive components on the client side */}
+            {isClient ? (
               <>
-                <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
-                <Button variant="primary" onClick={submit}>
-                  <Trans id="action.submit">Submit</Trans>
-                </Button>
+                <CommentEditor
+                  disabled={!Fider.session.isAuthenticated}
+                  onChange={commentChanged}
+                  onFocus={editorFocused}
+                  initialValue={getContentFromCache()}
+                  placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
+                />
+
+                {hasContent && (
+                  <>
+                    <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
+                    <Button variant="primary" onClick={submit}>
+                      <Trans id="action.submit">Submit</Trans>
+                    </Button>
+                  </>
+                )}
               </>
+            ) : (
+              // Simple placeholder for SSR
+              <div className="comment-input-placeholder p-2">{i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}</div>
             )}
           </Form>
         </div>
