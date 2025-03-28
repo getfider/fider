@@ -18,7 +18,7 @@ UPDATE comments
 SET
      content = regexp_replace (
           content,
-          '@{"id":([0-9]+),"name":"([^"]+)","isNew":(true|false)}',
+          '@{"id":([0-9]+),"name":"([^"]+)"(,"isNew":(true|false))?}',
           '@[\2]',
           'g'
      )
