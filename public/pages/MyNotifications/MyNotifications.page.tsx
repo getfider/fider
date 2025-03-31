@@ -4,7 +4,8 @@ import { Notification } from "@fider/models"
 import { Header, Markdown, Moment, PageTitle } from "@fider/components"
 import { actions, Fider } from "@fider/services"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 
 interface MyNotificationsPageProps {
   notifications: Notification[]
@@ -63,8 +64,8 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
         <Header />
         <div id="p-my-notifications" className="page container">
           <PageTitle
-            title={t({ id: "mynotifications.page.title", message: "Notifications" })}
-            subtitle={t({ id: "mynotifications.page.subtitle", message: "Stay up to date with what's happening" })}
+            title={i18n._("mynotifications.page.title", { message: "Notifications" })}
+            subtitle={i18n._("mynotifications.page.subtitle", { message: "Stay up to date with what's happening" })}
           />
 
           <HStack spacing={4} className="mt-8 mb-2">

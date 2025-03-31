@@ -99,6 +99,7 @@ func (s Service) Init() {
 	bus.AddHandler(getUserByID)
 	bus.AddHandler(getUserByProvider)
 	bus.AddHandler(getAllUsers)
+	bus.AddHandler(getAllUsersNames)
 
 	bus.AddHandler(createTenant)
 	bus.AddHandler(getFirstTenant)
@@ -135,6 +136,8 @@ func (s Service) Init() {
 
 	bus.AddHandler(setSystemSettings)
 	bus.AddHandler(getSystemSettings)
+	bus.AddHandler(AddMentionNotification)
+	bus.AddHandler(getMentionsNotifications)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error

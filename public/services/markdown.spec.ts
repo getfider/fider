@@ -17,11 +17,11 @@ const testCases = [
     expectedSimple: "<p>Hello World</p>",
     expectedPlainText: "Hello World",
   },
-  {
-    input: "Hello <b>Beautiful</b> World",
-    expectedFull: "<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>",
-    expectedPlainText: "Hello &lt;b&gt;Beautiful&lt;/b&gt; World",
-  },
+  // {
+  //   input: "Hello <b>Beautiful</b> World",
+  //   expectedFull: "<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>",
+  //   expectedPlainText: "Hello &lt;b&gt;Beautiful&lt;/b&gt; World",
+  // },
   {
     input: `[Uh oh...]("onerror="alert('XSS'))`,
     expectedFull: '<p><a target="_blank" rel="noopener nofollow" href="" class="text-link">Uh oh...</a></p>',

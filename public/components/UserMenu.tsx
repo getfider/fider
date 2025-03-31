@@ -1,7 +1,7 @@
 import React from "react"
 import { useFider } from "@fider/hooks"
 import { Avatar, Dropdown } from "./common"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 
 export const UserMenu = () => {
   const fider = useFider()
@@ -26,7 +26,7 @@ export const UserMenu = () => {
             <Dropdown.Divider />
           </>
         )}
-        <Dropdown.ListItem href="/signout?redirect=/">
+        <Dropdown.ListItem href="/signout">
           <Trans id="menu.signout">Sign out</Trans>
         </Dropdown.ListItem>
       </Dropdown>

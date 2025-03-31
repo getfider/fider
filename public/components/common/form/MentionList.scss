@@ -1,0 +1,39 @@
+@import "~@fider/assets/styles/variables.scss";
+
+/* Dropdown menu */
+.dropdown-menu {
+  background: get("colors.white");
+  border: 1px solid get("colors.gray.200");
+  border-radius: get("border.radius.large");
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow: auto;
+  padding: spacing(1);
+  position: relative;
+
+  button {
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    display: flex;
+    gap: spacing(0.5);
+    text-align: left;
+    padding: 8px 16px;
+    font-weight: 500;
+    width: 100%;
+    color: get("colors.gray.900");
+    background-color: transparent;
+
+    &:hover,
+    &:hover.is-selected {
+      text-decoration: none;
+      background-color: get("colors.gray.300");
+    }
+
+    &.is-selected {
+      background-color: get("colors.gray.200");
+    }
+  }
+}

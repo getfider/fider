@@ -6,7 +6,7 @@ import { useFider } from "@fider/hooks"
 import IconVolumeOn from "@fider/assets/images/heroicons-volume-on.svg"
 import IconVolumeOff from "@fider/assets/images/heroicons-volume-off.svg"
 import { VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 
 interface NotificationsPanelProps {
   post: Post

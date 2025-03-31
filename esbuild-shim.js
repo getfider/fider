@@ -5,8 +5,14 @@ global.frames = global
 global.self = global
 
 const document = {
-  documentElement: {},
+  documentElement: {
+    style: {},
+  },
   getElementById: () => undefined,
+}
+
+const navigator = {
+  platform: "win32",
 }
 
 const window = {
@@ -14,9 +20,9 @@ const window = {
   location: {
     href: "",
   },
+  navigator,
 }
 
-const navigator = {}
 global.navigator = navigator
 global.window = window
 global.document = document
@@ -32,3 +38,14 @@ global.Intl = {
   NumberFormat: NoopFormat,
   DateTimeFormat: NoopFormat,
 }
+
+class TextEncoder {
+  encode(str) {
+    const arr = new Uint8Array(str.length)
+    for (let i = 0; i < str.length; i++) {
+      arr[i] = str.charCodeAt(i)
+    }
+    return arr
+  }
+}
+global.TextEncoder = TextEncoder

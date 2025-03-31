@@ -28,7 +28,6 @@ var htmlFlags = 0 |
 	htmlrenderer.SmartypantsFractions |
 	htmlrenderer.SmartypantsDashes |
 	htmlrenderer.SmartypantsLatexDashes |
-	htmlrenderer.Safelink |
 	htmlrenderer.NofollowLinks |
 	htmlrenderer.NoreferrerLinks
 

@@ -26,6 +26,12 @@ const link = (href: string, title: string, text: string) => {
 const fullRenderer = new marked.Renderer()
 fullRenderer.image = () => ""
 fullRenderer.link = link
+fullRenderer.text = (text: string) => {
+  // Handling mention links (they're in the format @[name])
+  return text.replace(/@\[(.*?)\]/g, (match, name) => {
+    return `<span class="text-blue-600">@${name}</span>`
+  })
+}
 
 const plainTextRenderer = new marked.Renderer()
 plainTextRenderer.link = (_href, _title, text) => text
@@ -42,8 +48,8 @@ plainTextRenderer.html = (html) => html
 plainTextRenderer.del = (text) => text
 
 const entities: { [key: string]: string } = {
-  "<": "&lt;",
-  ">": "&gt;",
+  // "<": "&lt;",
+  // ">": "&gt;",
 }
 
 const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag)

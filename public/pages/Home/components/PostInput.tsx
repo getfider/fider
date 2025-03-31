@@ -4,8 +4,9 @@ import { SignInModal } from "@fider/components"
 import { cache, actions, classSet, Failure, navigator, querystring } from "@fider/services"
 import { ImageUpload, Tag } from "@fider/models"
 import { useFider } from "@fider/hooks"
-import { t, Trans } from "@lingui/macro"
 import { TagsFilter } from "./TagsFilter"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 
 interface PostInputProps {
   placeholder: string
@@ -92,7 +93,7 @@ export const PostInput = (props: PostInputProps) => {
         onChange={handleDescriptionChange}
         value={description}
         minRows={5}
-        placeholder={t({ id: "home.postinput.description.placeholder", message: "Describe your suggestion (optional)" })}
+        placeholder={i18n._("home.postinput.description.placeholder", { message: "Describe your suggestion (optional)" })}
       />
       {fider.settings.postWithTags && <div className={classSet({"c-form-field": true})}><TagsFilter tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} /></div>}
       <MultiImageUploader field="attachments" maxUploads={3} onChange={setAttachments} />

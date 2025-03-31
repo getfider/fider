@@ -26,6 +26,11 @@ func SearchPosts() web.HandlerFunc {
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
+		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
+			searchPosts.MyVotesOnly = myVotesOnly
+		}
+		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
+
 		if err := bus.Dispatch(c, searchPosts); err != nil {
 			return c.Failure(err)
 		}
@@ -60,7 +65,7 @@ func CreatePost() web.HandlerFunc {
 		if err = bus.Dispatch(c, setAttachments, addVote); err != nil {
 			return c.Failure(err)
 		}
-		
+
 		if env.Config.PostCreationWithTagsEnabled {
 			for _, tag := range action.Tags {
 				assignTag := &cmd.AssignTag{Tag: tag, Post: newPost.Result}
@@ -207,6 +212,11 @@ func ListComments() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		for _, comment := range getComments.Result {
+			commentString := entity.CommentString(comment.Content)
+			comment.Content = commentString.SanitizeMentions()
+		}
+
 		return c.Ok(getComments.Result)
 	}
 }
@@ -223,6 +233,9 @@ func GetComment() web.HandlerFunc {
 		if err := bus.Dispatch(c, commentByID); err != nil {
 			return c.Failure(err)
 		}
+
+		commentString := entity.CommentString(commentByID.Result.Content)
+		commentByID.Result.Content = commentString.SanitizeMentions()
 
 		return c.Ok(commentByID.Result)
 	}
@@ -281,6 +294,9 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		// For processing, restore the original content
+		addNewComment.Result.Content = action.Content
+
 		if err := bus.Dispatch(c, &cmd.SetAttachments{
 			Post:        getPost.Result,
 			Comment:     addNewComment.Result,
@@ -289,7 +305,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Content))
+		c.Enqueue(tasks.NotifyAboutNewComment(addNewComment.Result, getPost.Result))
 
 		metrics.TotalComments.Inc()
 		return c.Ok(web.Map{
@@ -304,6 +320,16 @@ func UpdateComment() web.HandlerFunc {
 		action := new(actions.EditComment)
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
+		}
+
+		getPost := &query.GetPostByID{PostID: action.Post.ID}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		comment := &entity.Comment{
+			ID:      action.ID,
+			Content: action.Content,
 		}
 
 		err := bus.Dispatch(c,
@@ -324,6 +350,10 @@ func UpdateComment() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		// Update the content
+
+		c.Enqueue(tasks.NotifyAboutUpdatedComment(getPost.Result, comment))
 
 		return c.Ok(web.Map{})
 	}
@@ -369,6 +399,52 @@ func RemoveVote() web.HandlerFunc {
 		return addOrRemove(c, func(post *entity.Post, user *entity.User) bus.Msg {
 			return &cmd.RemoveVote{Post: post, User: user}
 		})
+	}
+}
+
+func ToggleVote() web.HandlerFunc {
+	return func(c *web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		if getPost.Result == nil {
+			return c.NotFound()
+		}
+
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID}
+		if err := bus.Dispatch(c, listVotes); err != nil {
+			return c.Failure(err)
+		}
+
+		hasVoted := false
+		for _, vote := range listVotes.Result {
+			if vote.User.ID == c.User().ID {
+				hasVoted = true
+				break
+			}
+		}
+
+		if hasVoted {
+			err := bus.Dispatch(c, &cmd.RemoveVote{Post: getPost.Result, User: c.User()})
+			if err != nil {
+				return c.Failure(err)
+			}
+			return c.Ok(web.Map{"voted": false})
+		}
+
+		err = bus.Dispatch(c, &cmd.AddVote{Post: getPost.Result, User: c.User()})
+		if err != nil {
+			return c.Failure(err)
+		}
+		metrics.TotalVotes.Inc()
+		return c.Ok(web.Map{"voted": true})
 	}
 }
 

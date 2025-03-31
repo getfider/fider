@@ -1,6 +1,6 @@
 import { Then } from "@cucumber/cucumber"
 import { FiderWorld } from "../world"
-import expect from "expect"
+import { expect } from "@playwright/test"
 
 Then("I should be on the show post page", async function (this: FiderWorld) {
   const container = await this.page.$$("#p-show-post")
@@ -13,6 +13,5 @@ Then("I should see {string} as the post title", async function (this: FiderWorld
 })
 
 Then("I should see {int} vote\\(s)", async function (this: FiderWorld, voteCount: number) {
-  const postVoteCount = await this.page.innerText("#p-show-post .c-vote-counter__button")
-  expect(postVoteCount).toBe(voteCount.toString())
+  await expect(this.page.getByText(`${voteCount}${voteCount === 1 ? "Vote" : "Votes"}`, { exact: true })).toBeVisible()
 })

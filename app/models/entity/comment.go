@@ -1,6 +1,8 @@
 package entity
 
-import "time"
+import (
+	"time"
+)
 
 type ReactionCounts struct {
 	Emoji      string `json:"emoji"`

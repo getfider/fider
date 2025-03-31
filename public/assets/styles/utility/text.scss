@@ -9,6 +9,13 @@ pre:last-child {
   margin-bottom: 0;
 }
 
+.text-large {
+  font-size: get("font.size.2xl");
+  color: get("colors.gray.900");
+  font-weight: get("font.weight.bold");
+  letter-spacing: -1px;
+}
+
 .text-display2 {
   font-size: get("font.size.xl");
   font-weight: get("font.weight.medium");
@@ -22,25 +29,37 @@ pre:last-child {
 
 .text-header {
   font-size: get("font.size.xl");
+  color: get("colors.gray.900");
   font-weight: get("font.weight.medium");
 }
 
 .text-title {
   font-size: get("font.size.lg");
+  color: get("colors.gray.900");
   font-weight: get("font.weight.medium");
 }
 
 .text-subtitle {
   font-size: get("font.size.base");
+  color: get("colors.gray.900");
   font-weight: get("font.weight.medium");
 }
 
 .text-body {
   font-size: get("font.size.base");
+  color: get("colors.gray.700");
 }
 
 .text-sm {
   font-size: get("font.size.sm");
+}
+
+.text-lg {
+  font-size: get("font.size.lg");
+}
+
+.text-2xl {
+  font-size: get("font.size.2xl");
 }
 
 .text-category {
@@ -80,6 +99,10 @@ pre:last-child {
 
 .text-2xs {
   font-size: get("font.size.2xs");
+}
+
+.text-xl {
+  font-size: get("font.size.xl");
 }
 
 .hover\:underline:hover {

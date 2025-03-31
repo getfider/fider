@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react"
 import { Modal, SignInControl, LegalFooter } from "@fider/components"
 import { Button } from "./common"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 
 interface SignInModalProps {
   isOpen: boolean
   onClose: () => void
 }
 
-export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) => {
+export const SignInModal: React.FC<SignInModalProps> = (props) => {
   const [email, setEmail] = useState("")
 
   useEffect(() => {
