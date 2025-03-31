@@ -94,7 +94,7 @@ export const PostInput = (props: PostInputProps) => {
         minRows={5}
         placeholder={t({ id: "home.postinput.description.placeholder", message: "Describe your suggestion (optional)" })}
       />
-      <div className={classSet({"c-form-field": true})}><TagsFilter tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} /></div>
+      {fider.settings.postWithTags && <div className={classSet({"c-form-field": true})}><TagsFilter tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} /></div>}
       <MultiImageUploader field="attachments" maxUploads={3} onChange={setAttachments} />
       <Button type="submit" variant="primary" onClick={submit}>
         <Trans id="action.submit">Submit</Trans>
