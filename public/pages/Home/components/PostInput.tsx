@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { Button, ButtonClickEvent, Input, Form, TextArea, MultiImageUploader } from "@fider/components"
 import { SignInModal } from "@fider/components"
-import { cache, actions, Failure, navigator, querystring } from "@fider/services"
+import { cache, actions, classSet, Failure, navigator, querystring } from "@fider/services"
 import { ImageUpload, Tag } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { t, Trans } from "@lingui/macro"
@@ -94,7 +94,7 @@ export const PostInput = (props: PostInputProps) => {
         minRows={5}
         placeholder={t({ id: "home.postinput.description.placeholder", message: "Describe your suggestion (optional)" })}
       />
-      <TagsFilter tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} />
+      <div className={classSet({"c-form-field": true})}><TagsFilter tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} /></div>
       <MultiImageUploader field="attachments" maxUploads={3} onChange={setAttachments} />
       <Button type="submit" variant="primary" onClick={submit}>
         <Trans id="action.submit">Submit</Trans>
