@@ -80,8 +80,8 @@ $c-modal-dimmer-padding: 1em;
   .c-modal-header {
     font-size: get("font.size.lg");
     font-weight: 600;
-    padding: 15px 20px;
-    border-bottom: 1px solid get("colors.gray.200");
+    padding: 20px;
+    // border-bottom: 1px solid get("colors.gray.200");
   }
 
   .c-modal-content {

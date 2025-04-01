@@ -46,7 +46,7 @@ export const SignInModal: React.FC<SignInModalProps> = (props) => {
   return (
     <Modal.Window isOpen={props.isOpen} onClose={closeModal}>
       <Modal.Header>
-        <Trans id="modal.signin.header">Sign in to participate and vote</Trans>
+        <Trans id="modal.signin.header">Submit your feedback</Trans>
       </Modal.Header>
       <Modal.Content>{content}</Modal.Content>
       <LegalFooter />

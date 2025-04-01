@@ -15,7 +15,8 @@ interface SignInControlProps {
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
   const fider = useFider()
-  const [showEmailForm, setShowEmailForm] = useState(fider.session.tenant ? fider.session.tenant.isEmailAuthAllowed : true)
+  const emailFormAllowed = fider.session.tenant ? fider.session.tenant.isEmailAuthAllowed : true
+  const [showEmailForm, setShowEmailForm] = useState(false)
   const [email, setEmail] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
 
@@ -49,10 +50,10 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   return (
-    <div className="c-signin-control">
+    <div className="c-signin-control px-8 pb-6">
       {providersLen > 0 && (
         <>
-          <div className="c-signin-control__oauth mb-2">
+          <div className="c-signin-control__oauth pb-3">
             {fider.settings.oauth.map((o) => (
               <React.Fragment key={o.provider}>
                 <SocialSignInButton option={o} redirectTo={props.redirectTo} />
@@ -64,25 +65,31 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       )}
 
       {props.useEmail &&
-        (showEmailForm ? (
+        (emailFormAllowed ? (
           <div>
-            <p>
-              <Trans id="signin.message.email">Enter your email address to sign in</Trans>
-            </p>
-            <Form error={error}>
-              <Input
-                field="email"
-                value={email}
-                autoFocus={!device.isTouch()}
-                onChange={setEmail}
-                placeholder="yourname@example.com"
-                suffix={
-                  <Button type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                    <Trans id="action.signin">Sign in</Trans>
-                  </Button>
-                }
-              />
-            </Form>
+            {!showEmailForm && (
+              <p>
+                <a className="text-link clickable" onClick={() => setShowEmailForm(true)}>
+                  <Trans id="signin.message.email">Continue with email</Trans>
+                </a>
+              </p>
+            )}
+            {showEmailForm && (
+              <Form error={error}>
+                <Input
+                  field="email"
+                  value={email}
+                  autoFocus={!device.isTouch()}
+                  onChange={setEmail}
+                  placeholder="yourname@example.com"
+                  suffix={
+                    <Button type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
+                      <Trans id="action.signin">Sign in</Trans>
+                    </Button>
+                  }
+                />
+              </Form>
+            )}
             {!fider.session.tenant.isEmailAuthAllowed && (
               <p className="text-red-700 mt-1">
                 <Trans id="signin.message.onlyadmins">Currently only allowed to sign in to an administrator account</Trans>
