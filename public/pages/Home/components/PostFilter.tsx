@@ -96,9 +96,7 @@ export const PostFilter = (props: PostFilterProps) => {
     })
   })
 
-  const filteredOptions = options.filter((o) =>
-    o.label.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredOptions = options.filter((o) => o.label.toLowerCase().includes(searchTerm.toLowerCase()))
 
   const filterCount = filterItems.length
 
