@@ -52,7 +52,7 @@ interface DropdownContextFuncs {
   close(): void
 }
 
-const DropdownContext = createContext<DropdownContextFuncs | null>(null)
+export const DropdownContext = createContext<DropdownContextFuncs | null>(null)
 DropdownContext.displayName = "DropdownContext"
 
 export const Dropdown = (props: DropdownProps) => {
@@ -101,10 +101,17 @@ export const Dropdown = (props: DropdownProps) => {
   return (
     <DropdownContext.Provider value={{ close }}>
       <div ref={node} className="c-dropdown">
-        <button type="button" className="c-dropdown__handle" onClick={toggleIsOpen}>
-          {props.renderHandle}
-        </button>
-        {isOpen && <div className={listClassName}>{props.children}</div>}
+        {/* Only render the handle when closed */}
+        {!isOpen && (
+          <button type="button" className="c-dropdown__handle" onClick={toggleIsOpen}>
+            {props.renderHandle}
+          </button>
+        )}
+        {isOpen && (
+          <div className={listClassName} style={{ position: "static" }}>
+            {props.children}
+          </div>
+        )}
       </div>
     </DropdownContext.Provider>
   )
