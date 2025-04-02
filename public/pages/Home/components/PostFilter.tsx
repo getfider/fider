@@ -60,7 +60,6 @@ const FilterItemsToFilterState = (filterItems: FilterItem[]): FilterState => {
 
 export const PostFilter = (props: PostFilterProps) => {
   const fider = useFider()
-  const [searchTerm, setSearchTerm] = React.useState("")
 
   const filterItems: FilterItem[] = FilterStateToFilterItems(props.activeFilter)
 
@@ -96,8 +95,6 @@ export const PostFilter = (props: PostFilterProps) => {
     })
   })
 
-  const filteredOptions = options.filter((o) => o.label.toLowerCase().includes(searchTerm.toLowerCase()))
-
   const filterCount = filterItems.length
 
   return (
@@ -111,16 +108,7 @@ export const PostFilter = (props: PostFilterProps) => {
           </HStack>
         }
       >
-        <div className="p-2">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search filters..."
-            className="w-full border border-gray-300 rounded p-1"
-          />
-        </div>
-        {filteredOptions.map((o) => {
+        {options.map((o) => {
           const isChecked = filterItems.find((f) => f.type === o.type && f.value === o.value) !== undefined
 
           return (
