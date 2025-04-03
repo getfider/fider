@@ -1,6 +1,12 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-signin-control {
+  padding-left: 45px;
+  padding-right: 45px;
+
+  padding-top: spacing(5);
+  padding-bottom: 40px;
+
   &__oauth {
     display: flex;
     flex-direction: column;
@@ -17,14 +23,14 @@
 }
 
 .c-signin-social-button {
-  margin: 0 spacing(9);
   background: none;
   border: 2px solid get("colors.gray.700");
   border-radius: 15px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: spacing(3);
+  padding-top: spacing(3);
+  padding-bottom: spacing(3);
   img {
     height: sizing(5);
     padding-right: spacing(3);

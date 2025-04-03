@@ -6,6 +6,7 @@ import { Divider } from "@fider/components/layout"
 import { device, actions, Failure, isCookieEnabled } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 
 interface SignInControlProps {
   useEmail: boolean
@@ -15,8 +16,7 @@ interface SignInControlProps {
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
   const fider = useFider()
-  const emailFormAllowed = fider.session.tenant ? fider.session.tenant.isEmailAuthAllowed : true
-  const [showEmailForm, setShowEmailForm] = useState(false)
+  const [showEmailForm, setShowEmailForm] = useState(fider.session.tenant ? fider.session.tenant.isEmailAuthAllowed : true)
   const [email, setEmail] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
 
@@ -50,7 +50,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   return (
-    <div className="c-signin-control px-8 pb-6">
+    <div className="c-signin-control">
       {providersLen > 0 && (
         <>
           <div className="c-signin-control__oauth pb-3">
@@ -65,31 +65,22 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       )}
 
       {props.useEmail &&
-        (emailFormAllowed ? (
-          <div>
-            {!showEmailForm && (
-              <p>
-                <a className="text-link clickable" onClick={() => setShowEmailForm(true)}>
-                  <Trans id="signin.message.email">Continue with email</Trans>
-                </a>
-              </p>
-            )}
-            {showEmailForm && (
-              <Form error={error}>
-                <Input
-                  field="email"
-                  value={email}
-                  autoFocus={!device.isTouch()}
-                  onChange={setEmail}
-                  placeholder="yourname@example.com"
-                  suffix={
-                    <Button type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                      <Trans id="action.signin">Sign in</Trans>
-                    </Button>
-                  }
-                />
-              </Form>
-            )}
+        (showEmailForm ? (
+          <div className="pt-3">
+            <Form error={error}>
+              <Input
+                className="text-left"
+                label={i18n._("signin.message.email", { message: "Continue with email" })}
+                field="email"
+                value={email}
+                autoFocus={!device.isTouch()}
+                onChange={setEmail}
+                placeholder="yourname@example.com"
+              />
+              <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
+                <Trans id="action.signin">Sign in</Trans>
+              </Button>
+            </Form>
             {!fider.session.tenant.isEmailAuthAllowed && (
               <p className="text-red-700 mt-1">
                 <Trans id="signin.message.onlyadmins">Currently only allowed to sign in to an administrator account</Trans>
