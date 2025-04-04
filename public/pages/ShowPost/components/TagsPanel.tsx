@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Post, Tag } from "@fider/models"
-import { actions } from "@fider/services"
+import { actions, sortTags } from "@fider/services"
 import { ShowTag } from "@fider/components"
 import { useFider } from "@fider/hooks"
 
@@ -94,7 +94,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
 
   const tagsList = (
     <div className="tags-list">
-      {assignedTags.length > 0 && assignedTags.map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
+      {assignedTags.length > 0 && sortTags(assignedTags).map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
       <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
         <span>
           <Trans id="label.edittags">Edit tags</Trans>
@@ -108,7 +108,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
     <div className="dropdown-wrapper" ref={dropdownRef}>
       {/* Selected options and search input */}
       <div className="selected-options-container">
-        {assignedTags.map((tag) => (
+        {sortTags(assignedTags).map((tag) => (
           <div key={tag.id} className="selected-option">
             <ShowTag key={tag.id} tag={tag} link />
             <button onClick={() => handleOptionClick(tag)} className="remove-button">
@@ -117,27 +117,31 @@ export const TagsPanel = (props: TagsPanelProps) => {
           </div>
         ))}
         {/* Search box to enter query string */}
-        <input
-          type="text"
-          value={query}
-          ref={inputRef}
-          onChange={(e) => setQuery(e.target.value)}
-          className="search-input"
-          placeholder={assignedTags.length ? "" : "Select options..."}
-        />
+        <Trans id="label.selecttags">
+          <input
+            type="text"
+            value={query}
+            ref={inputRef}
+            onChange={(e) => setQuery(e.target.value)}
+            className="search-input"
+            placeholder={assignedTags.length ? "" : "Select tags..."}
+          />
+        </Trans>
       </div>
 
       {/* Dropdown options after items are filtered */}
       {isEditing && (
         <div className="options-container">
           {filteredOptions.length > 0 ? (
-            filteredOptions.map((tag) => (
+            sortTags(filteredOptions).map((tag) => (
               <div key={tag.id} className="option-item" onClick={() => handleOptionClick(tag)}>
                 <ShowTag key={tag.id} tag={tag} />
               </div>
             ))
           ) : (
-            <div className="no-options">No options available</div>
+            <div className="no-options">
+              <Trans id="labels.notagsavailable">No tags available</Trans>
+            </div>
           )}
         </div>
       )}
