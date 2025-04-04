@@ -5,7 +5,7 @@ import { ShowTag } from "@fider/components"
 import { useFider } from "@fider/hooks"
 
 import { HStack, VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/react/macro"
+import { Trans, useLingui } from "@lingui/react/macro"
 
 import "./TagsPanel.scss"
 
@@ -17,6 +17,7 @@ export interface TagsPanelProps {
 export const TagsPanel = (props: TagsPanelProps) => {
   const fider = useFider()
   const canEdit = fider.session.isAuthenticated && fider.session.user.isCollaborator && props.tags.length > 0
+  const { t } = useLingui()
 
   const [isEditing, setIsEditing] = useState(false)
   const [assignedTags, setAssignedTags] = useState(props.tags.filter((t) => props.post.tags.indexOf(t.slug) >= 0))
@@ -117,16 +118,14 @@ export const TagsPanel = (props: TagsPanelProps) => {
           </div>
         ))}
         {/* Search box to enter query string */}
-        <Trans id="label.selecttags">
-          <input
-            type="text"
-            value={query}
-            ref={inputRef}
-            onChange={(e) => setQuery(e.target.value)}
-            className="search-input"
-            placeholder={assignedTags.length ? "" : "Select tags..."}
-          />
-        </Trans>
+        <input
+          type="text"
+          value={query}
+          ref={inputRef}
+          onChange={(e) => setQuery(e.target.value)}
+          className="search-input"
+          placeholder={assignedTags.length ? "" : t`Select Tags...`}
+        />
       </div>
 
       {/* Dropdown options after items are filtered */}
