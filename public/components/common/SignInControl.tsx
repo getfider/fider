@@ -70,12 +70,11 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
             <Form error={error}>
               <Input
                 className="text-left"
-                label={i18n._("signin.message.email", { message: "Continue with email" })}
                 field="email"
                 value={email}
                 autoFocus={!device.isTouch()}
                 onChange={setEmail}
-                placeholder="yourname@example.com"
+                placeholder={i18n._("signin.email.placeholder", { message: "Email address" })}
               />
               <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
                 <Trans id="action.signin">Sign in</Trans>

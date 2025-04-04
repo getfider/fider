@@ -4,7 +4,7 @@
   padding-left: 45px;
   padding-right: 45px;
 
-  padding-top: spacing(5);
+  // padding-top: spacing(5);
   padding-bottom: 40px;
 
   &__oauth {
@@ -24,8 +24,8 @@
 
 .c-signin-social-button {
   background: none;
-  border: 2px solid get("colors.gray.700");
-  border-radius: 15px;
+  border: 1px solid get("colors.gray.700");
+  border-radius: 6px;
   display: inline-flex;
   justify-content: center;
   align-items: center;

@@ -166,6 +166,7 @@
   "showpost.responseform.text.placeholder": "Čo sa deje s týmto príspevkom? Dajte svojim používateľom vedieť, aké máte plány...",
   "showpost.votespanel.more": "+{extraVotesCount} viac",
   "showpost.votespanel.seedetails": "pozri detaily",
+  "signin.email.placeholder": "",
   "signin.message.email": "Prihláste sa zadaním svojej emailovej adresy",
   "signin.message.emaildisabled": "Správca zakázal overovanie emailu. Ak máte účet správcu a potrebujete obísť toto obmedzenie, <0>kliknite sem</0>.",
   "signin.message.emailsent": "Práve sme odoslali potvrdzovací odkaz na adresu <0>{email}</0>. Kliknite na odkaz a budete prihlásení.",
@@ -174,5 +175,6 @@
   "signin.message.onlyadmins": "V súčasnosti je povolené iba prihlásenie do účtu správcu",
   "signin.message.private.text": "Ak máte účet alebo pozvánku, na prihlásenie môžete použiť nasledujúce možnosti.",
   "signin.message.private.title": "<0>{0}</0> je súkromný priestor, ak sa chcete zúčastniť diskusie a hlasovať, musíte sa prihlásiť.",
+  "signin.message.socialbutton.intro": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

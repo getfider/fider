@@ -166,6 +166,7 @@
   "showpost.responseform.text.placeholder": "Что произойдёт с этим предложением? Дайте людям знать о ваших планах...",
   "showpost.votespanel.more": "и ещё {extraVotesCount}",
   "showpost.votespanel.seedetails": "подробнее",
+  "signin.email.placeholder": "",
   "signin.message.email": "Введите ваш адрес электронной почты, чтобы войти",
   "signin.message.emaildisabled": "Аутентификация по адресу электронной почты отключена. <0>Я администратор и мне нужно обойти это ограничение</0>.",
   "signin.message.emailsent": "Мы отправили ссылку для подтверждения на <0>{email}</0>. Перейдите по ней, чтобы войти.",
@@ -174,5 +175,6 @@
   "signin.message.onlyadmins": "Сейчас войти можно только с аккаунта администратора",
   "signin.message.private.text": "Если у вас есть аккаунт или приглашение, вы можете использовать их для входа.",
   "signin.message.private.title": "<0>{0}</0> является приватным пространством, вы должны войти в систему, чтобы принять участие и проголосовать.",
+  "signin.message.socialbutton.intro": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

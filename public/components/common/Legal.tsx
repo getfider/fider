@@ -41,7 +41,7 @@ export const LegalNotice = () => {
       <p className="px-9">
         <Trans id="legal.notice">
           By signing in, you agree to the
-          <PrivacyPolicy /> and <TermsOfService />.
+          <PrivacyPolicy /> and <TermsOfService /> <br />.
         </Trans>
       </p>
     )

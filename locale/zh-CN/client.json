@@ -166,6 +166,7 @@
   "showpost.responseform.text.placeholder": "这篇文章怎么了？让你的用户知道你的计划是什么...",
   "showpost.votespanel.more": "+{extraVotesCount} 更多",
   "showpost.votespanel.seedetails": "查看详细信息",
+  "signin.email.placeholder": "",
   "signin.message.email": "输入您的电子邮件地址以登录",
   "signin.message.emaildisabled": "管理员已禁用电子邮件身份验证。如果您有管理员帐户并且需要绕过此限制，请 <0>点击这里</0>.",
   "signin.message.emailsent": "我们刚刚向发送了一个确认链接 <0>{email}</0>. 单击链接，您将登录.",
@@ -174,5 +175,6 @@
   "signin.message.onlyadmins": "目前只允许登录管理员帐户",
   "signin.message.private.text": "如果您有帐户或邀请，您可以使用以下选项登录.",
   "signin.message.private.title": "<0>{0}</0> 这是一个私人空间，您必须登录才能参与和投票.",
+  "signin.message.socialbutton.intro": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

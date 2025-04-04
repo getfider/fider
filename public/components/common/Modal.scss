@@ -56,7 +56,7 @@ $c-modal-dimmer-padding: 1em;
   text-align: left;
   background: #fff;
   border: none;
-  border-radius: 3px;
+  border-radius: 12px;
   animation: windowfadeIn 0.5s;
 
   &--small {
@@ -86,6 +86,16 @@ $c-modal-dimmer-padding: 1em;
 
   .c-modal-content {
     padding: 15px 20px;
+  }
+
+  .c-modal-closeicon {
+    color: get("colors.gray.400");
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: get("colors.gray.600");
+    }
   }
 
   .c-modal-footer {
