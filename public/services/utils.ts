@@ -1,3 +1,4 @@
+import { Tag } from "@fider/models"
 import { Fider } from "."
 
 export const delay = (ms: number) => {
@@ -148,4 +149,17 @@ export const clearUrlHash = (replace?: boolean) => {
     // Event got cancelled
     window.history.replaceState("", document.title, oldURL)
   }
+}
+
+// Helper function to sort tags by 'isPublic' status and then by name
+export const sortTags = (tags: Tag[]) => {
+  return tags.sort((a, b) => {
+    // First compare by 'isPublic' status (false comes before true)
+    if (a.isPublic !== b.isPublic) {
+      return a.isPublic ? 1 : -1
+    }
+
+    // If 'isPublic' status is the same, sort alphabetically by name
+    return a.name.localeCompare(b.name)
+  })
 }
