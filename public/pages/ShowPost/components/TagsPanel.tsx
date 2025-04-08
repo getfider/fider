@@ -5,7 +5,8 @@ import { ShowTag } from "@fider/components"
 import { useFider } from "@fider/hooks"
 
 import { HStack, VStack } from "@fider/components/layout"
-import { Trans, useLingui } from "@lingui/react/macro"
+import { Trans } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 
 import "./TagsPanel.scss"
 
@@ -17,7 +18,6 @@ export interface TagsPanelProps {
 export const TagsPanel = (props: TagsPanelProps) => {
   const fider = useFider()
   const canEdit = fider.session.isAuthenticated && fider.session.user.isCollaborator && props.tags.length > 0
-  const { t } = useLingui()
 
   const [isEditing, setIsEditing] = useState(false)
   const [assignedTags, setAssignedTags] = useState(props.tags.filter((t) => props.post.tags.indexOf(t.slug) >= 0))
@@ -124,7 +124,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
           ref={inputRef}
           onChange={(e) => setQuery(e.target.value)}
           className="search-input"
-          placeholder={assignedTags.length ? "" : t`Select Tags...`}
+          placeholder={assignedTags.length ? "" : i18n._("label.selecttags", { message: "Select Tags..." })}
         />
       </div>
 
