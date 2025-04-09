@@ -1,12 +1,14 @@
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Post, Tag } from "@fider/models"
-import { actions } from "@fider/services"
-import { ShowTag, Button } from "@fider/components"
-import { TagListItem } from "./TagListItem"
+import { actions, sortTags } from "@fider/services"
+import { ShowTag } from "@fider/components"
 import { useFider } from "@fider/hooks"
 
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
+
+import "./TagsPanel.scss"
 
 export interface TagsPanelProps {
   post: Post
@@ -19,6 +21,10 @@ export const TagsPanel = (props: TagsPanelProps) => {
 
   const [isEditing, setIsEditing] = useState(false)
   const [assignedTags, setAssignedTags] = useState(props.tags.filter((t) => props.post.tags.indexOf(t.slug) >= 0))
+  const [query, setQuery] = useState("")
+
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const assignOrUnassignTag = async (tag: Tag) => {
     const idx = assignedTags.indexOf(tag)
@@ -43,33 +49,102 @@ export const TagsPanel = (props: TagsPanelProps) => {
   const onSubtitleClick = () => {
     if (canEdit) {
       setIsEditing(!isEditing)
+      // Immediately focus on the input element when editing starts
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+      setQuery("")
     }
   }
+
+  const handleOptionClick = (tag: Tag) => {
+    assignOrUnassignTag(tag)
+    // Keep focus on the input element after selection
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
+  const filteredOptions = props.tags.filter(
+    (option) => option.name.toLowerCase().includes(query.toLowerCase()) && !assignedTags.some((tag) => tag.slug === option.slug)
+  )
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: { target: any }) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsEditing(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [isEditing])
 
   if (!canEdit && assignedTags.length === 0) {
     return null
   }
 
   const tagsList = (
-    <HStack spacing={2} align="center">
-      {assignedTags.length > 0 && assignedTags.map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
+    <div className="tags-list">
+      {assignedTags.length > 0 && sortTags(assignedTags).map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
       <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
         <span>
           <Trans id="label.edittags">Edit tags</Trans>
         </span>
       </HStack>
-    </HStack>
+    </div>
   )
 
+  // Dynamic multiselect dropdown for tags selection
   const editTagsList = props.tags.length > 0 && (
-    <VStack justify="between" className="flex-items-start">
-      {props.tags.map((tag) => (
-        <TagListItem key={tag.id} tag={tag} assigned={assignedTags.indexOf(tag) >= 0} onClick={assignOrUnassignTag} />
-      ))}
-      <Button variant="secondary" size="small" onClick={onSubtitleClick}>
-        <Trans id="action.close">Close</Trans>
-      </Button>
-    </VStack>
+    <div className="dropdown-wrapper" ref={dropdownRef}>
+      {/* Selected options and search input */}
+      <div className="selected-options-container">
+        {sortTags(assignedTags).map((tag) => (
+          <div key={tag.id} className="selected-option">
+            <ShowTag key={tag.id} tag={tag} link />
+            <button onClick={() => handleOptionClick(tag)} className="remove-button">
+              x
+            </button>
+          </div>
+        ))}
+        {/* Search box to enter query string */}
+        <input
+          type="text"
+          value={query}
+          ref={inputRef}
+          onChange={(e) => setQuery(e.target.value)}
+          className="search-input"
+          placeholder={assignedTags.length ? "" : i18n._("label.selecttags", { message: "Select Tags..." })}
+        />
+      </div>
+
+      {/* Dropdown options after items are filtered */}
+      {isEditing && (
+        <div className="options-container">
+          {filteredOptions.length > 0 ? (
+            sortTags(filteredOptions).map((tag) => (
+              <div key={tag.id} className="option-item" onClick={() => handleOptionClick(tag)}>
+                <ShowTag key={tag.id} tag={tag} />
+              </div>
+            ))
+          ) : (
+            <div className="no-options">
+              <Trans id="labels.notagsavailable">No tags available</Trans>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 
   if (fider.isReadOnly) {
