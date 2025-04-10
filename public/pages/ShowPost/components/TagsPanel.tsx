@@ -96,11 +96,13 @@ export const TagsPanel = (props: TagsPanelProps) => {
   const tagsList = (
     <div className="tags-list">
       {assignedTags.length > 0 && sortTags(assignedTags).map((tag) => <ShowTag key={tag.id} tag={tag} link />)}
-      <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
-        <span>
-          <Trans id="label.edittags">Edit tags</Trans>
-        </span>
-      </HStack>
+      {canEdit && (
+        <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
+          <span>
+            <Trans id="label.edittags">Edit tags</Trans>
+          </span>
+        </HStack>
+      )}
     </div>
   )
 
