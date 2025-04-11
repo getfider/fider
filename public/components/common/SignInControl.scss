@@ -3,8 +3,6 @@
 .c-signin-control {
   padding-left: 45px;
   padding-right: 45px;
-
-  // padding-top: spacing(5);
   padding-bottom: 40px;
 
   &__oauth {
@@ -12,9 +10,6 @@
     flex-direction: column;
     align-content: stretch;
     width: 100%;
-
-    // grid-template-columns: 1fr 1fr 1fr;
-    // gap: spacing(2);
 
     > *:not(:last-child) {
       margin-bottom: spacing(3);
