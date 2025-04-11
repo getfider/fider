@@ -166,6 +166,7 @@
   "showpost.responseform.text.placeholder": "Was passiert in diesem Beitrag? Lassen Sie Ihre Benutzer wissen, was Ihre Pläne sind...",
   "showpost.votespanel.more": "+{extraVotesCount} mehr",
   "showpost.votespanel.seedetails": "siehe Details",
+  "signin.email.placeholder": "",
   "signin.message.email": "Gebe Deine E-Mail-Adresse ein, um Dich anzumelden",
   "signin.message.emaildisabled": "Die E-Mail-Authentifizierung wurde von einem Administrator deaktiviert. Wenn Sie ein Administrator-Konto haben und diese Einschränkung umgehen müssen, klicken Sie bitte <0>hier</0>.",
   "signin.message.emailsent": "Wir haben soeben einen Bestätigungslink an <0>{email}</0> gesendet. Klicken Sie auf den Link und Sie werden angemeldet.",
@@ -174,5 +175,6 @@
   "signin.message.onlyadmins": "Derzeit darf sich nur mit einem Administratorkonto anmelden",
   "signin.message.private.text": "Wenn Sie ein Konto oder eine Einladung haben, können Sie folgende Optionen nutzen, um sich anzumelden.",
   "signin.message.private.title": "<0>{0}</0> ist ein privater Raum, du musst dich anmelden, um teilnehmen und abstimmen zu können.",
+  "signin.message.socialbutton.intro": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# Tag} other {# Tags}}"
 }

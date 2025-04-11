@@ -3,6 +3,8 @@ import "./Modal.scss"
 import React, { useEffect, useRef } from "react"
 import ReactDOM from "react-dom"
 import { classSet } from "@fider/services"
+import { Icon } from "@fider/components"
+import IconX from "@fider/assets/images/heroicons-x.svg"
 
 interface ModalWindowProps {
   children?: React.ReactNode
@@ -81,6 +83,10 @@ const Footer = (props: ModalFooterProps) => {
   })
   return <div className={className}>{props.children}</div>
 }
+
+export const CloseIcon = ({ closeModal }: { closeModal: () => void }) => (
+  <Icon sprite={IconX} height="30" width="30" onClick={closeModal} className="c-modal-closeicon" />
+)
 
 export const Modal = {
   Window: ModalWindow,

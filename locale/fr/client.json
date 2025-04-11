@@ -166,6 +166,7 @@
   "showpost.responseform.text.placeholder": "Que se passe-t-il avec ce message ? Faites savoir à vos utilisateurs quels sont vos plans...",
   "showpost.votespanel.more": "+{extraVotesCount} de plus",
   "showpost.votespanel.seedetails": "voir les détails",
+  "signin.email.placeholder": "",
   "signin.message.email": "Entrez votre adresse e-mail pour vous connecter",
   "signin.message.emaildisabled": "L'authentification par e-mail a été désactivée par un administrateur. Si vous avez un compte administrateur, <0>cliquez ici</0> pour vous connecter.",
   "signin.message.emailsent": "Nous venons d'envoyer un lien de confirmation à <0>{email}</0>. Cliquez sur le lien et vous serez connecté.",
@@ -174,5 +175,6 @@
   "signin.message.onlyadmins": "Seuls les comptes administrateurs peuvent se connecter en ce moment",
   "signin.message.private.text": "Si vous avez un compte ou une invitation, vous pouvez utiliser les options suivantes pour vous connecter.",
   "signin.message.private.title": "<0>{0}</0> est un espace privé, vous devez vous connecter pour participer et voter.",
+  "signin.message.socialbutton.intro": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

@@ -6,6 +6,7 @@ import { Divider } from "@fider/components/layout"
 import { device, actions, Failure, isCookieEnabled } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 
 interface SignInControlProps {
   useEmail: boolean
@@ -52,7 +53,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     <div className="c-signin-control">
       {providersLen > 0 && (
         <>
-          <div className="c-signin-control__oauth mb-2">
+          <div className="c-signin-control__oauth pb-3">
             {fider.settings.oauth.map((o) => (
               <React.Fragment key={o.provider}>
                 <SocialSignInButton option={o} redirectTo={props.redirectTo} />
@@ -65,23 +66,19 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
 
       {props.useEmail &&
         (showEmailForm ? (
-          <div>
-            <p>
-              <Trans id="signin.message.email">Enter your email address to sign in</Trans>
-            </p>
+          <div className="pt-3">
             <Form error={error}>
               <Input
+                className="text-left"
                 field="email"
                 value={email}
                 autoFocus={!device.isTouch()}
                 onChange={setEmail}
-                placeholder="yourname@example.com"
-                suffix={
-                  <Button type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                    <Trans id="action.signin">Sign in</Trans>
-                  </Button>
-                }
+                placeholder={i18n._("signin.email.placeholder", { message: "Email address" })}
               />
+              <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
+                <Trans id="action.signin">Sign in</Trans>
+              </Button>
             </Form>
             {!fider.session.tenant.isEmailAuthAllowed && (
               <p className="text-red-700 mt-1">
