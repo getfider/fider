@@ -3,6 +3,7 @@
 .c-input {
   line-height: get("font.size.xl");
   background-color: get("colors.white");
+  color: get("colors.black");
   width: 100%;
   padding: sizing(2);
   border: 1px solid get("colors.gray.300");

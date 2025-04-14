@@ -11,6 +11,7 @@
     border: none;
     padding: 0;
     cursor: pointer;
+    color: get("colors.black");
   }
 
   &__list {
@@ -35,13 +36,12 @@
     }
 
     &--fullscreen-small {
-        @include media("sm") {
-          position: fixed;
-          left: 0;
-          width: 100vw;
-        }
+      @include media("sm") {
+        position: fixed;
+        left: 0;
+        width: 100vw;
+      }
     }
-
   }
 
   &__listitem {

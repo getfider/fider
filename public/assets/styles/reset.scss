@@ -21,6 +21,10 @@ body {
   font-family: $font-base;
 }
 
+body.dark-theme {
+  color: get("colors.gray.900");
+}
+
 code {
   font-family: $font-code;
 }

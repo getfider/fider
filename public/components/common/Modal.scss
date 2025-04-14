@@ -54,7 +54,7 @@ $c-modal-dimmer-padding: 1em;
 .c-modal-window {
   z-index: 101;
   text-align: left;
-  background: #fff;
+  background: get("colors.white");
   border: none;
   border-radius: 3px;
   animation: windowfadeIn 0.5s;

@@ -54,6 +54,8 @@
   margin: 0.25rem;
   padding: 0.25rem;
   border: none;
+  background-color: get("colors.white");
+  color: get("colors.black");
   outline: none;
 }
 

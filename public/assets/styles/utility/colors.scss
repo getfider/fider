@@ -1,31 +1,6 @@
-@each $name, $shades in $colors {
-  @if type-of($shades) == "map" {
-    @each $shade, $color in $shades {
-      .text-#{$name}-#{$shade} {
-        color: #{$color};
-      }
-      .hover\:text-#{$name}-#{$shade}:hover {
-        color: #{$color};
-      }
-      .bg-#{$name}-#{$shade} {
-        background-color: #{$color};
-      }
-      .hover\:bg-#{$name}-#{$shade}:hover {
-        background-color: #{$color};
-      }
-      .border-#{$name}-#{$shade} {
-        border-color: #{$color};
-      }
-    }
-  } @else {
-    .text-#{$name} {
-      color: #{$shades};
-    }
-    .bg-#{$name} {
-      background-color: #{$shades};
-    }
-    .border-#{$name} {
-      border-color: #{$shades};
-    }
-  }
-}
+@import "../variables/_colors.scss";
+@import "../variables/_dark-colors.scss";
+@import "../utility/_theme.scss";
+
+@include set-theme("dark");
+@include theme($dark-colors); // Default theme

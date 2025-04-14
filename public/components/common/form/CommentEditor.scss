@@ -71,7 +71,7 @@
 }
 
 .fider-tiptap-editor {
-  border: 1px solid #e5e7eb;
+  border: 1px solid get("colors.gray.400");
   border-radius: 6px;
   overflow: hidden;
   background-color: get("colors.white");

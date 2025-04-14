@@ -2,7 +2,7 @@
 
 .c-avatar-stack {
   > * {
-    border: 2px solid white;
+    border: 1px solid get("colors.gray.300");
   }
 
   &--overlap & > * + * {

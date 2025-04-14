@@ -39,6 +39,7 @@ window.addEventListener("error", (evt: ErrorEvent) => {
 const bootstrapApp = (i18n: I18n) => {
   const component = AsyncPage(fider.session.page)
   document.body.className = classSet({
+    "dark-theme": true,
     "is-authenticated": fider.session.isAuthenticated,
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
   })

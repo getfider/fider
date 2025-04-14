@@ -38,7 +38,7 @@ export const FollowButton = (props: NotificationsPanelProps) => {
       </span>
     </Button>
   ) : (
-    <Button className="w-full text-blue-500 bg-white border border-blue-500 no-focus" onClick={subscribeOrUnsubscribe} disabled={fider.isReadOnly}>
+    <Button className="w-full text-blue-600 bg-white border border-blue-600 no-focus" onClick={subscribeOrUnsubscribe} disabled={fider.isReadOnly}>
       <Icon sprite={IconPlus} />
       <span>
         <Trans id="label.follow">Follow</Trans>

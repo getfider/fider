@@ -2,6 +2,7 @@
 
 .c-textarea {
   background-color: get("colors.white");
+  color: get("colors.black");
   width: 100%;
   line-height: get("font.size.xl");
   padding: spacing(2);
