@@ -18,9 +18,9 @@
   min-height: 3rem;
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid get("colors.gray.500");
+  border: 1px solid var(--colors-gray-500);
   border-radius: 0.25rem;
-  background-color: get("colors.white");
+  background-color: var(--colors-white);
   cursor: pointer;
 }
 
@@ -28,14 +28,14 @@
   display: flex;
   align-items: center;
   margin: 0.25rem;
-  background-color: get("colors.gray.200");
+  background-color: var(--colors-gray-200);
   border-radius: 0.25rem;
-  color: get("colors.gray.900");
+  color: var(--colors-gray-900);
 }
 
 .remove-button {
   margin: 0 0.25rem;
-  color: get("colors.gray.600");
+  color: var(--colors-gray-600);
   background: none;
   border: none;
   font-size: 1rem;
@@ -45,7 +45,7 @@
 }
 
 .remove-button:hover {
-  color: get("colors.red.500");
+  color: var(--colors-red-500);
 }
 
 .search-input {
@@ -54,8 +54,8 @@
   margin: 0.25rem;
   padding: 0.25rem;
   border: none;
-  background-color: get("colors.white");
-  color: get("colors.black");
+  background-color: var(--colors-white);
+  color: var(--colors-black);
   outline: none;
 }
 
@@ -68,8 +68,8 @@
   z-index: 10;
   width: 100%;
   margin-top: 0.25rem;
-  background-color: get("colors.white");
-  border: 1px solid get("colors.gray.500");
+  background-color: var(--colors-white);
+  border: 1px solid var(--colors-gray-500);
   border-radius: 0.25rem;
   max-height: 15rem;
   overflow-y: auto;
@@ -81,10 +81,10 @@
 }
 
 .option-item:hover {
-  background-color: get("colors.gray.100");
+  background-color: var(--colors-gray-100);
 }
 
 .no-options {
   padding: 0.5rem;
-  color: get("colors.gray.900");
+  color: var(--colors-gray-900);
 }

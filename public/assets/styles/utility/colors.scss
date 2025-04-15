@@ -1,6 +1,3 @@
 @import "../variables/_colors.scss";
 @import "../variables/_dark-colors.scss";
 @import "../utility/_theme.scss";
-
-@include set-theme("dark");
-@include theme($dark-colors); // Default theme

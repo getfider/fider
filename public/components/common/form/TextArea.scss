@@ -1,13 +1,13 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-textarea {
-  background-color: get("colors.white");
-  color: get("colors.black");
+  background-color: var(--colors-white);
+  color: var(--colors-black);
   width: 100%;
   line-height: get("font.size.xl");
   padding: spacing(2);
   resize: none;
-  border: 1px solid get("colors.gray.300");
+  border: 1px solid var(--colors-gray-300);
   border-radius: get("border.radius.medium");
   -webkit-appearance: none;
   appearance: none;
@@ -16,6 +16,6 @@
     @include disabled();
   }
   &--error {
-    border-color: get("colors.red.600");
+    border-color: var(--colors-red-600);
   }
 }

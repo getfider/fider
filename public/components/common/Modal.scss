@@ -54,7 +54,7 @@ $c-modal-dimmer-padding: 1em;
 .c-modal-window {
   z-index: 101;
   text-align: left;
-  background: get("colors.white");
+  background: var(--colors-white);
   border: none;
   border-radius: 3px;
   animation: windowfadeIn 0.5s;
@@ -81,7 +81,7 @@ $c-modal-dimmer-padding: 1em;
     font-size: get("font.size.lg");
     font-weight: 600;
     padding: 15px 20px;
-    border-bottom: 1px solid get("colors.gray.200");
+    border-bottom: 1px solid var(--colors-gray-200);
   }
 
   .c-modal-content {
@@ -89,11 +89,11 @@ $c-modal-dimmer-padding: 1em;
   }
 
   .c-modal-footer {
-    background: get("colors.gray.100");
+    background: var(--colors-gray-100);
     padding: 10px;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
-    border-top: 1px solid get("colors.gray.300");
+    border-top: 1px solid var(--colors-gray-300);
     &--right {
       text-align: right;
     }

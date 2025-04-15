@@ -2,8 +2,8 @@
   position: relative;
 
   &::before {
-    background-color: get("colors.gray.700");
-    color: get("colors.white");
+    background-color: var(--colors-gray-700);
+    color: var(--colors-white);
     font-size: 11px;
     padding: 4px 6px;
     width: max-content;

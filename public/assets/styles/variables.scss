@@ -8,7 +8,8 @@
 
 /* @include get-theme("dark"); */
 $colors: $dark-colors;
-@include theme($colors); // Default theme
+@include theme($light-colors, '[data-theme="light"]');
+@include theme($dark-colors, '[data-theme="dark"]');
 
 $all: (
   colors: $colors,

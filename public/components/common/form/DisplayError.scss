@@ -1,7 +1,7 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-form-error {
-  color: get("colors.red.600");
+  color: var(--colors-red-600);
   font-size: get("font.size.sm");
   ul {
     list-style: none;

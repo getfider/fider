@@ -13,7 +13,7 @@
   height: sizing(5);
   width: sizing(9);
   border: 2px solid transparent;
-  background-color: get("colors.gray.200");
+  background-color: var(--colors-gray-200);
   border-radius: 50px;
   cursor: pointer;
   @include transition();
@@ -24,7 +24,7 @@
     width: sizing(4);
     display: inline-block;
     border-radius: 50px;
-    background-color: get("colors.white");
+    background-color: var(--colors-white);
     transform: matrix(1, 0, 0, 1, 0, 0);
     @include transition();
   }
@@ -34,7 +34,7 @@
   }
 
   &--enabled {
-    background-color: get("colors.green.600");
+    background-color: var(--colors-green-600);
 
     span {
       transform: matrix(1, 0, 0, 1, 16, 0);

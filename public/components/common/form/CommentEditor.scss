@@ -19,7 +19,7 @@
 }
 
 .c-editor-toolbar {
-  border-bottom: 1px solid get("colors.gray.300");
+  border-bottom: 1px solid var(--colors-gray-300);
   padding: spacing(1);
   min-height: 40px;
   width: 100%;
@@ -39,18 +39,18 @@
   border-radius: get("border.radius.small");
   background: transparent;
   border: none;
-  color: get("colors.gray.700");
+  color: var(--colors-gray-700);
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: get("colors.gray.100");
-    color: get("colors.gray.900");
+    background-color: var(--colors-gray-100);
+    color: var(--colors-gray-900);
   }
 
   &.is-disabled {
-    // background-color: get("colors.gray.300");
-    color: get("colors.gray.500");
+    // background-color: var(--colors-gray-300);
+    color: var(--colors-gray-500);
   }
 
   svg {
@@ -61,8 +61,8 @@
 
 .c-editor-button {
   &.is-active {
-    background-color: get("colors.gray.300");
-    color: get("colors.gray.900");
+    background-color: var(--colors-gray-300);
+    color: var(--colors-gray-900);
   }
 }
 
@@ -71,10 +71,10 @@
 }
 
 .fider-tiptap-editor {
-  border: 1px solid get("colors.gray.400");
+  border: 1px solid var(--colors-gray-400);
   border-radius: 6px;
   overflow: hidden;
-  background-color: get("colors.white");
+  background-color: var(--colors-white);
 
   .tiptap {
     :first-child {
@@ -90,10 +90,10 @@
     }
 
     .mention {
-      background-color: get("colors.blue.200");
+      background-color: var(--colors-blue-200);
       border-radius: get("border.radius.medium");
       box-decoration-break: clone;
-      color: get("colors.blue.600");
+      color: var(--colors-blue-600);
       padding-left: spacing(1);
       padding-right: spacing(1);
       padding-top: 4px;
@@ -105,7 +105,7 @@
 
     // Placeholder
     p.tiptap-is-empty:first-child::before {
-      color: get("colors.gray.400");
+      color: var(--colors-gray-400);
       content: attr(data-placeholder);
       float: left;
       height: 0;
