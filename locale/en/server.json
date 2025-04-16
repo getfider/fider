@@ -43,6 +43,7 @@
   "email.subscription.change": "change your notification preferences",
   "email.subscription.unsubscribe": "unsubscribe from it",
   "email.greetings": "Hello!",
+  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Hello, {name}!",
   "email.operation_confirmation": "Click the link below to confirm this operation.",
   "email.footer.noreply": "This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.",
