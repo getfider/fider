@@ -134,7 +134,7 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 	ExpectHandler(&cmd.UploadImage{}).CalledOnce()
 }
 
-func TestUpdatePrivacyHandler(t *testing.T) {
+func TestUpdatePrivacySettingsHandler(t *testing.T) {
 	RegisterT(t)
 
 	var updateCmd *cmd.UpdateTenantPrivacySettings
@@ -148,12 +148,53 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.UpdatePrivacy(),
-			`{ "isPrivate": true }`,
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": true, "isFeedEnabled": false }`,
 		)
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(updateCmd.IsPrivate).IsTrue()
+	Expect(updateCmd.IsFeedEnabled).IsFalse()
+
+	server = mock.NewServer()
+	code, _ = server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": false, "isFeedEnabled": false }`,
+		)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(updateCmd.IsPrivate).IsFalse()
+	Expect(updateCmd.IsFeedEnabled).IsFalse()
+
+	server = mock.NewServer()
+	code, _ = server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": false, "isFeedEnabled": true }`,
+		)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(updateCmd.IsPrivate).IsFalse()
+	Expect(updateCmd.IsFeedEnabled).IsTrue()
+
+	server = mock.NewServer()
+	code, _ = server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": true, "isFeedEnabled": true }`,
+		)
+
+	Expect(code).Equals(http.StatusBadRequest)
+	// Should be same as last request
+	Expect(updateCmd.IsPrivate).IsFalse()
+	Expect(updateCmd.IsFeedEnabled).IsTrue()
 }
 
 func TestManageMembersHandler(t *testing.T) {
