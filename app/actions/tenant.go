@@ -15,7 +15,7 @@ import (
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
-//CreateTenant is the input model used to create a tenant
+// CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
 	Token           string `json:"token"`
 	Name            string `json:"name"`
@@ -89,27 +89,27 @@ func (action *CreateTenant) Validate(ctx context.Context, user *entity.User) *va
 	return result
 }
 
-//GetEmail returns the email being verified
+// GetEmail returns the email being verified
 func (action *CreateTenant) GetEmail() string {
 	return action.Email
 }
 
-//GetName returns the name of the email owner
+// GetName returns the name of the email owner
 func (action *CreateTenant) GetName() string {
 	return action.Name
 }
 
-//GetUser returns the current user performing this action
+// GetUser returns the current user performing this action
 func (action *CreateTenant) GetUser() *entity.User {
 	return nil
 }
 
-//GetKind returns EmailVerificationKindSignUp
+// GetKind returns EmailVerificationKindSignUp
 func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindSignUp
 }
 
-//UpdateTenantSettings is the input model used to update tenant settings
+// UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
 	Logo           *dto.ImageUpload `json:"logo"`
 	Title          string           `json:"title"`
@@ -175,7 +175,7 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 	return result
 }
 
-//UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
+// UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
 type UpdateTenantAdvancedSettings struct {
 	CustomCSS string `json:"customCSS"`
 }
@@ -190,18 +190,22 @@ func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *
 	return validate.Success()
 }
 
-//UpdateTenantPrivacy is the input model used to update tenant privacy settings
-type UpdateTenantPrivacy struct {
-	IsPrivate bool `json:"isPrivate"`
+// UpdateTenantPrivacySettings is the input model used to update tenant privacy settings
+type UpdateTenantPrivacySettings struct {
+	IsPrivate     bool `json:"isPrivate"`
+	IsFeedEnabled bool `json:"isFeedEnabled"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *UpdateTenantPrivacy) IsAuthorized(ctx context.Context, user *entity.User) bool {
+func (action *UpdateTenantPrivacySettings) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (action *UpdateTenantPrivacy) Validate(ctx context.Context, user *entity.User) *validate.Result {
+func (action *UpdateTenantPrivacySettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	if action.IsPrivate && action.IsFeedEnabled {
+		return validate.Failed("Feed can not be enabled when set to private.")
+	}
 	return validate.Success()
 }
 
