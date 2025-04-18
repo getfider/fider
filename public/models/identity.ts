@@ -10,6 +10,7 @@ export interface Tenant {
   isPrivate: boolean
   logoBlobKey: string
   isEmailAuthAllowed: boolean
+  isFeedEnabled: boolean
 }
 
 export enum TenantStatus {

@@ -44,6 +44,17 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Static("/assets/*filepath", "dist")
 	}
 
+	feed := r.Group()
+	{
+		feed.Use(middlewares.CORS())
+		feed.Use(middlewares.WebSetup())
+		feed.Use(middlewares.Tenant())
+		feed.Use(middlewares.ClientCache(5 * time.Minute))
+
+		feed.Get("/feed/global.atom", handlers.GlobalFeed())
+		feed.Get("/feed/posts/:path", handlers.CommentFeed())
+	}
+
 	r.Use(middlewares.Session())
 
 	r.Get("/robots.txt", handlers.RobotsTXT())
@@ -164,7 +175,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/_api/admin/webhook/props/:type", handlers.GetWebhookProps())
 		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
-		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
+		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacySettings())
 		ui.Post("/_api/admin/settings/emailauth", handlers.UpdateEmailAuthAllowed())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
