@@ -8,7 +8,7 @@
   blockquote {
     padding: 0 spacing(2);
     color: get("colors.gray.900");
-    border-left: 4px solid get("colors.gray.300");
+    border-inline-start: 4px solid get("colors.gray.300");
     margin: spacing(1) 0;
   }
 
@@ -26,7 +26,7 @@
 
   ul,
   ol {
-    padding-left: spacing(8);
+    padding-inline-start: spacing(8);
     margin: 0 0 spacing(3);
 
     &:first-child {

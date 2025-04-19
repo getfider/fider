@@ -6,6 +6,6 @@
   }
 
   &--overlap & > * + * {
-    margin-left: spacing(-3);
+    margin-inline-start: spacing(-3);
   }
 }

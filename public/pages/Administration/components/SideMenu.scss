@@ -16,7 +16,7 @@
 
     &--active {
       color: get("colors.primary.base");
-      border-left: 2px solid get("colors.primary.base");
+      border-inline-start: 2px solid get("colors.primary.base");
       font-weight: 600;
       background-color: get("colors.white");
       &:hover {
