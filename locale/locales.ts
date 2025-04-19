@@ -24,6 +24,9 @@ const locales: { [key: string]: Locale } = {
   it: {
     text: "Italian",
   },
+  ja: {
+    text: "Japanese",
+  },
   nl: {
     text: "Dutch",
   },
