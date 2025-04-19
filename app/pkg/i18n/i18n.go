@@ -30,6 +30,7 @@ var localeToPlurals = map[string]string{
 	"tr":    "tr",
 	"ja":    "ja",
 	"zh-CN": "zh",
+	"ar":	 "ar",
 }
 
 type Params map[string]any
