@@ -22,15 +22,14 @@ import (
 	cache "github.com/patrickmn/go-cache"
 )
 
-// fonts.gstatic.com and fonts.googleapis.com are required for Custom CSS to work with Google Fonts
 // unsafe-inline on Style is required for rendering Tags on SSR
 
 var (
 	cspBase    = "base-uri 'self'"
 	cspDefault = "default-src 'self'"
-	cspStyle   = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.paddle.com %[2]s"
+	cspStyle   = "style-src 'self' 'unsafe-inline' https://*.paddle.com %[2]s"
 	cspScript  = "script-src 'self' 'nonce-%[1]s' https://www.google-analytics.com https://*.paddle.com %[2]s"
-	cspFont    = "font-src 'self' https://fonts.gstatic.com data: %[2]s"
+	cspFont    = "font-src 'self' data: %[2]s"
 	cspImage   = "img-src 'self' https: data: %[2]s"
 	cspObject  = "object-src 'none'"
 	cspFrame   = "frame-src 'self' https://*.paddle.com"
