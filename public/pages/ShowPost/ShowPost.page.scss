@@ -7,7 +7,7 @@
 
   .p-show-post {
     &__main-col {
-      // background-color: get("colors.white");
+      // background-color: var(--colors-white);
       padding: spacing(4);
       border-radius: get("border.radius.large");
       margin-bottom: spacing(4);
@@ -15,7 +15,7 @@
 
     &__action-col {
       > :first-child {
-        // background-color: get("colors.white");
+        // background-color: var(--colors-white);
         padding: spacing(4);
         // border-radius: get("border.radius.large");
       }

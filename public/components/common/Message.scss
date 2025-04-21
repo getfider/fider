@@ -10,20 +10,20 @@
   }
 
   &--success {
-    color: get("colors.green.800");
-    border-color: get("colors.green.800");
-    background-color: get("colors.green.50");
+    color: var(--colors-green-800);
+    border-color: var(--colors-green-800);
+    background-color: var(--colors-green-50);
   }
 
   &--warning {
-    color: get("colors.yellow.800");
-    border-color: get("colors.yellow.800");
-    background-color: get("colors.yellow.50");
+    color: var(--colors-yellow-800);
+    border-color: var(--colors-yellow-800);
+    background-color: var(--colors-yellow-50);
   }
 
   &--error {
-    color: get("colors.red.800");
-    border-color: get("colors.red.800");
-    background-color: get("colors.red.50");
+    color: var(--colors-red-800);
+    border-color: var(--colors-red-800);
+    background-color: var(--colors-red-50);
   }
 }

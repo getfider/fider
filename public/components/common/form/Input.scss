@@ -2,10 +2,11 @@
 
 .c-input {
   line-height: get("font.size.xl");
-  background-color: get("colors.white");
+  background-color: var(--colors-white);
+  color: var(--colors-black);
   width: 100%;
   padding: sizing(2);
-  border: 1px solid get("colors.gray.300");
+  border: 1px solid var(--colors-gray-300);
   border-radius: get("border.radius.medium");
   -webkit-appearance: none;
   appearance: none;
@@ -26,7 +27,7 @@
   &__suffix {
     display: flex;
     align-items: center;
-    background-color: get("colors.gray.200");
+    background-color: var(--colors-gray-200);
     padding: spacing(2);
     border-top-right-radius: get("border.radius.medium");
     border-bottom-right-radius: get("border.radius.medium");
@@ -37,7 +38,7 @@
   }
 
   &--error {
-    border-color: get("colors.red.600");
+    border-color: var(--colors-red-600);
   }
 
   &--suffixed {

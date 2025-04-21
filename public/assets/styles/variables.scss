@@ -10,9 +10,16 @@
 
 @import "variables/_functions";
 @import "variables/_colors";
+@import "variables/_dark-colors";
 @import "variables/_spacing";
 @import "variables/_sizing";
 @import "variables/_text";
+@import "utility/_theme.scss";
+
+/* @include get-theme("dark"); */
+$colors: $dark-colors;
+@include theme($light-colors, '[data-theme="light"]');
+@include theme($dark-colors, '[data-theme="dark"]');
 
 @include default.all;
 @include variable.all;

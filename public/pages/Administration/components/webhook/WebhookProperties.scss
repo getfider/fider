@@ -44,7 +44,7 @@
     @each $color in ("gray", "blue", "green", "red") {
       &--#{$color} {
         font-family: get("font.family.code");
-        color: get("colors.#{$color}.600");
+        color: var(--colors-#{$color}-600);
       }
     }
 
