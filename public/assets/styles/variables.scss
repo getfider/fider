@@ -1,3 +1,13 @@
+@use "~inter-ui/default" with (
+  $inter-font-display: swap,
+  $inter-font-path: "~inter-ui/web"
+);
+
+@use "~inter-ui/variable" with (
+  $inter-font-display: swap,
+  $inter-font-path: "~inter-ui/variable"
+);
+
 @import "variables/_functions";
 @import "variables/_colors";
 @import "variables/_dark-colors";
@@ -10,6 +20,9 @@
 $colors: $dark-colors;
 @include theme($light-colors, '[data-theme="light"]');
 @include theme($dark-colors, '[data-theme="dark"]');
+
+@include default.all;
+@include variable.all;
 
 $all: (
   colors: $colors,
