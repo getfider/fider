@@ -7,8 +7,8 @@
 
   blockquote {
     padding: 0 spacing(2);
-    color: get("colors.gray.900");
-    border-inline-start: 4px solid get("colors.gray.300");
+    color: var(--colors-gray-900);
+    border-inline-start: 4px solid var(--colors-gray-300);
     margin: spacing(1) 0;
   }
 
@@ -46,7 +46,7 @@
     overflow-x: auto;
     padding: spacing(2);
     line-height: 1.45;
-    background-color: get("colors.gray.200");
+    background-color: var(--colors-gray-200);
     border-radius: 4px;
     code {
       display: inline;
@@ -65,7 +65,7 @@
     padding: 0.2em;
     font-size: 85%;
     margin: 0;
-    background-color: get("colors.gray.200");
+    background-color: var(--colors-gray-200);
     border-radius: 4px;
   }
 }

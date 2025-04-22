@@ -69,8 +69,8 @@
 
 .box {
   border-radius: get("border.radius.large");
-  background-color: get("colors.white");
-  border: 1px solid get("colors.gray.200");
+  background-color: var(--colors-white);
+  border: 1px solid var(--colors-gray-200);
   padding: spacing(4);
 }
 
@@ -150,7 +150,7 @@
   .flex-x.flex--divide-#{$i} > * + * {
     padding-inline-end: spacing($i);
     padding-inline-start: spacing($i);
-    border: 0 solid get("colors.gray.200");
+    border: 0 solid var(--colors-gray-200);
     border-inline-start-width: 1px;
   }
   .flex-x.flex--divide-#{$i} > *:last-child {
@@ -162,7 +162,7 @@
   .flex-y.flex--divide-#{$i} > * + * {
     padding-top: spacing($i);
     padding-bottom: spacing($i);
-    border: 0 solid get("colors.gray.200");
+    border: 0 solid var(--colors-gray-200);
     border-top-width: 1px;
   }
   .flex-y.flex--divide-#{$i} > *:last-child {
@@ -219,7 +219,6 @@
   border: 1px solid transparent;
 }
 
-
 @each $i in 2, 3, 4, 6 {
   .border-#{$i} {
     border: #{$i}px solid transparent;
@@ -233,7 +232,6 @@
 
 .hover {
   &:hover {
-    background-color: get("colors.gray.100");
+    background-color: var(--colors-gray-100);
   }
 }
-

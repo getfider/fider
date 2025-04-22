@@ -3,11 +3,11 @@
 .c-side-menu {
   &__item {
     padding: spacing(4);
-    border-bottom: 1px solid get("colors.gray.200");
-    color: get("colors.gray.900");
+    border-bottom: 1px solid var(--colors-gray-200);
+    color: var(--colors-gray-900);
 
     &:hover {
-      background-color: get("colors.gray.100");
+      background-color: var(--colors-gray-100);
     }
 
     &:last-child {
@@ -15,12 +15,12 @@
     }
 
     &--active {
-      color: get("colors.primary.base");
-      border-inline-start: 2px solid get("colors.primary.base");
+      color: var(--colors-primary-base);
+      border-inline-start: 2px solid var(--colors-primary-base);
       font-weight: 600;
-      background-color: get("colors.white");
+      background-color: var(--colors-white);
       &:hover {
-        color: get("colors.primary.base");
+        color: var(--colors-primary-base);
       }
     }
   }

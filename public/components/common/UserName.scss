@@ -1,21 +1,21 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-username {
-  color: get("colors.gray.900");
+  color: var(--colors-gray-900);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
 
   &--email {
     margin-inline-start: 10px;
-    color: get("colors.gray.600");
+    color: var(--colors-gray-600);
     font-size: get("font.size.xs");
     font-weight: 400;
   }
 
   &--staff {
-    color: get("colors.primary.base");
-    border-color: get("colors.primary.base");
+    color: var(--colors-primary-base);
+    border-color: var(--colors-primary-base);
 
     div {
       svg {

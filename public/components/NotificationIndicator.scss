@@ -7,7 +7,7 @@
     position: absolute;
     top: 2px;
     right: 2px;
-    background-color: get("colors.red.500");
+    background-color: var(--colors-red-500);
     height: sizing(2);
     width: sizing(2);
     border-radius: 100%;

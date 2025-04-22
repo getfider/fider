@@ -1,13 +1,13 @@
-$colors: (
+$light-colors: (
   "gray": (
-    "100": #FCFAFA,
-    "200": #EEEBEB,
-    "300": #E0DCDD,
-    "400": #D2CDCF,
-    "500": #C4BEC0,
-    "600": #9D9598,
-    "700": #756E71,
-    "800": #4E474B,
+    "100": #fcfafa,
+    "200": #eeebeb,
+    "300": #e0dcdd,
+    "400": #d2cdcf,
+    "500": #c4bec0,
+    "600": #9d9598,
+    "700": #756e71,
+    "800": #4e474b,
     "900": #262225,
     "50": #f9fafb,
   ),
@@ -66,5 +66,5 @@ $colors: (
     "dark": var(--primary-color-dark, #03308a),
   ),
   "white": #fff,
+  "black": #262225,
 );
-
