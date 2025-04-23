@@ -18,7 +18,7 @@
 
   svg + *,
   img + * {
-    margin-left: spacing(1);
+    margin-inline-start: spacing(1);
   }
 
   &--tertiary {

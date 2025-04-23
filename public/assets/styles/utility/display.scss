@@ -136,7 +136,7 @@
 
 @each $i in 0, 1, 2, 4, 6, 8 {
   .flex-x.flex--spacing-#{$i} > * + * {
-    margin-left: spacing($i);
+    margin-inline-start: spacing($i);
   }
   .flex-y.flex--spacing-#{$i} > * + * {
     margin-top: spacing($i);
@@ -145,16 +145,16 @@
 
 @each $i in 2, 4, 6 {
   .flex-x.flex--divide-#{$i} > *:first-child {
-    padding-right: spacing($i);
+    padding-inline-end: spacing($i);
   }
   .flex-x.flex--divide-#{$i} > * + * {
-    padding-right: spacing($i);
-    padding-left: spacing($i);
+    padding-inline-end: spacing($i);
+    padding-inline-start: spacing($i);
     border: 0 solid var(--colors-gray-200);
-    border-left-width: 1px;
+    border-inline-start-width: 1px;
   }
   .flex-x.flex--divide-#{$i} > *:last-child {
-    padding-right: 0;
+    padding-inline-end: 0;
   }
   .flex-y.flex--divide-#{$i} > *:first-child {
     padding-bottom: spacing($i);
@@ -204,7 +204,7 @@
 }
 
 .bl {
-  border-left: 1px solid;
+  border-inline-start: 1px solid;
 }
 
 .overflow-scroll {

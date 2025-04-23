@@ -16,7 +16,7 @@
 
     &--active {
       color: var(--colors-primary-base);
-      border-left: 2px solid var(--colors-primary-base);
+      border-inline-start: 2px solid var(--colors-primary-base);
       font-weight: 600;
       background-color: var(--colors-white);
       &:hover {
