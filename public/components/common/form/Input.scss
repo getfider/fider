@@ -22,6 +22,7 @@
     padding: spacing(2);
     margin: 0;
     right: 0;
+    left: unset;
   }
 
   &__suffix {
@@ -34,7 +35,7 @@
   }
 
   &--icon {
-    padding-right: spacing(8);
+    padding-inline-end: spacing(8);
   }
 
   &--error {
@@ -52,5 +53,13 @@
         border-bottom-right-radius: 0;
       }
     }
+  }
+}
+
+:dir(rtl) .c-input {
+  & + svg,
+  & + img {
+    left: 0;
+    right: unset;
   }
 }
