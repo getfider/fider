@@ -4,11 +4,13 @@ import React, { useEffect, useState } from "react"
 import { Icon } from "./common"
 import "./ThemeSwitcher.scss"
 
+type themeType = "light" | "dark"
+
 export const ThemeSwitcher = () => {
-  const [currentTheme, setCurrentTheme] = useState(localStorage.getItem("theme") || "light")
+  // Lazy initialization of the theme state
+  const [currentTheme, setCurrentTheme] = useState<themeType>((localStorage.getItem("theme") as themeType) || "light")
 
   const toggleTheme = () => {
-    const currentTheme = localStorage.getItem("theme") || "light"
     const newTheme = currentTheme === "light" ? "dark" : "light"
     setCurrentTheme(newTheme)
   }
