@@ -2,10 +2,10 @@
 
 .c-avatar-stack {
   > * {
-    border: 2px solid white;
+    border: 1px solid var(--colors-gray-300);
   }
 
   &--overlap & > * + * {
-    margin-left: spacing(-3);
+    margin-inline-start: spacing(-3);
   }
 }

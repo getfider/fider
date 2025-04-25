@@ -11,7 +11,7 @@ pre:last-child {
 
 .text-large {
   font-size: get("font.size.2xl");
-  color: get("colors.gray.900");
+  color: var(--colors-gray-900);
   font-weight: get("font.weight.bold");
   letter-spacing: -1px;
 }
@@ -29,25 +29,25 @@ pre:last-child {
 
 .text-header {
   font-size: get("font.size.xl");
-  color: get("colors.gray.900");
+  color: var(--colors-gray-900);
   font-weight: get("font.weight.medium");
 }
 
 .text-title {
   font-size: get("font.size.lg");
-  color: get("colors.gray.900");
+  color: var(--colors-gray-900);
   font-weight: get("font.weight.medium");
 }
 
 .text-subtitle {
   font-size: get("font.size.base");
-  color: get("colors.gray.900");
+  color: var(--colors-gray-900);
   font-weight: get("font.weight.medium");
 }
 
 .text-body {
   font-size: get("font.size.base");
-  color: get("colors.gray.700");
+  color: var(--colors-gray-700);
 }
 
 .text-sm {
@@ -65,17 +65,17 @@ pre:last-child {
 .text-category {
   font-size: get("font.size.xs");
   font-weight: get("font.weight.semibold");
-  color: get("colors.gray.600");
+  color: var(--colors-gray-600);
   text-transform: uppercase;
 }
 
 .text-muted {
   font-size: get("font.size.xs");
-  color: get("colors.gray.700");
+  color: var(--colors-gray-700);
 }
 
 .text-link {
-  color: get("colors.blue.600");
+  color: var(--colors-primary-base);
 }
 
 .nowrap {
@@ -85,7 +85,7 @@ pre:last-child {
 }
 
 .text-link:hover {
-  color: get("colors.blue.800");
+  color: var(--colors-blue-800);
   text-decoration: underline;
 }
 

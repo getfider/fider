@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/getfider/fider/app"
@@ -28,7 +29,12 @@ var localeToPlurals = map[string]string{
 	"sk":    "sk",
 	"it":    "it",
 	"tr":    "tr",
+	"ja":    "ja",
 	"zh-CN": "zh",
+}
+
+var rtlLocales = map[string]bool{
+    "ar": true,
 }
 
 type Params map[string]any
@@ -113,6 +119,21 @@ func GetLocale(ctx context.Context) string {
 	}
 	return env.Config.Locale
 }
+
+func GetLocaleDirection(ctx context.Context) string {
+    locale := GetLocale(ctx)
+    
+    parts := strings.Split(locale, "-")
+    baseLocale := parts[0]
+    
+    // Check if baseLocale is in rtlLocales map
+    if isRTL, exists := rtlLocales[baseLocale]; exists && isRTL {
+        return "rtl"
+    }
+    
+    return "ltr"
+}
+
 
 // T translates a given key to current locale
 // Params is used to replace variables and pluralize
