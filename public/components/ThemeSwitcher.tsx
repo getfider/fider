@@ -3,12 +3,13 @@ import IconSun from "@fider/assets/images/heroicons-sun.svg"
 import React, { useEffect, useState } from "react"
 import { Icon } from "./common"
 import "./ThemeSwitcher.scss"
+import { cache } from "@fider/services/cache"
 
 type themeType = "light" | "dark"
 
 export const ThemeSwitcher = () => {
   // Lazy initialization of the theme state
-  const [currentTheme, setCurrentTheme] = useState<themeType>((localStorage.getItem("theme") as themeType) || "light")
+  const [currentTheme, setCurrentTheme] = useState<themeType>((cache.local.get("theme") as themeType) || "light")
 
   const toggleTheme = () => {
     const newTheme = currentTheme === "light" ? "dark" : "light"
@@ -16,7 +17,7 @@ export const ThemeSwitcher = () => {
   }
 
   useEffect(() => {
-    localStorage.setItem("theme", currentTheme)
+    cache.local.set("theme", currentTheme)
     document.body.setAttribute("data-theme", currentTheme)
   }, [currentTheme])
 

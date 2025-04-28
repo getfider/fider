@@ -1,6 +1,6 @@
 import "./ShowPost.page.scss"
 
-import React from "react"
+import React, { useState, useEffect, useCallback } from "react"
 
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
 import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
@@ -45,17 +45,6 @@ interface ShowPostPageProps {
   attachments: string[]
 }
 
-interface ShowPostPageState {
-  editMode: boolean
-  newTitle: string
-  showDeleteModal: boolean
-  showResponseModal: boolean
-  attachments: ImageUpload[]
-  newDescription: string
-  highlightedComment?: number
-  error?: Failure
-}
-
 const oneHour = 3600
 const canEditPost = (user: CurrentUser, post: Post) => {
   if (user.isCollaborator) {
@@ -65,244 +54,219 @@ const canEditPost = (user: CurrentUser, post: Post) => {
   return user.id === post.user.id && timeAgo(post.createdAt) <= oneHour
 }
 
-export default class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
-  constructor(props: ShowPostPageProps) {
-    super(props)
+export default function ShowPostPage(props: ShowPostPageProps) {
+  const [editMode, setEditMode] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showResponseModal, setShowResponseModal] = useState(false)
+  const [newTitle, setNewTitle] = useState(props.post.title)
+  const [newDescription, setNewDescription] = useState(props.post.description)
+  const [attachments, setAttachments] = useState<ImageUpload[]>([])
+  const [highlightedComment, setHighlightedComment] = useState<number | undefined>(undefined)
+  const [error, setError] = useState<Failure | undefined>(undefined)
 
-    this.state = {
-      editMode: false,
-      showDeleteModal: false,
-      showResponseModal: false,
-      newTitle: this.props.post.title,
-      newDescription: this.props.post.description,
-      attachments: [],
+  const handleHashChange = useCallback(
+    (e?: Event) => {
+      const hash = window.location.hash
+      const result = /#comment-([0-9]+)/.exec(hash)
+
+      let newHighlightedComment
+      if (result === null) {
+        // No match
+        newHighlightedComment = undefined
+      } else {
+        // Match, extract numeric ID
+        const id = parseInt(result[1])
+        if (props.comments.map((comment) => comment.id).includes(id)) {
+          newHighlightedComment = id
+        } else {
+          // Unknown comment
+          if (e?.cancelable) {
+            e.preventDefault()
+          } else {
+            clearUrlHash(true)
+          }
+          notify.error(<Trans id="showpost.comment.unknownhighlighted">Unknown comment ID #{id}</Trans>)
+          newHighlightedComment = undefined
+        }
+      }
+      setHighlightedComment(newHighlightedComment)
+    },
+    [props.comments]
+  )
+
+  useEffect(() => {
+    handleHashChange()
+    window.addEventListener("hashchange", handleHashChange)
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange)
     }
-  }
+  }, [handleHashChange])
 
-  public componentDidMount() {
-    this.handleHashChange()
-    window.addEventListener("hashchange", this.handleHashChange)
-  }
-
-  public componentWillUnmount() {
-    window.removeEventListener("hashchange", this.handleHashChange)
-  }
-
-  private saveChanges = async () => {
-    const result = await actions.updatePost(this.props.post.number, this.state.newTitle, this.state.newDescription, this.state.attachments)
+  const saveChanges = async () => {
+    const result = await actions.updatePost(props.post.number, newTitle, newDescription, attachments)
     if (result.ok) {
       location.reload()
     } else {
-      this.setState({
-        error: result.error,
-      })
+      setError(result.error)
     }
   }
 
-  private canDeletePost = () => {
-    const status = PostStatus.Get(this.props.post.status)
+  const canDeletePost = () => {
+    const status = PostStatus.Get(props.post.status)
     if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
       return false
     }
     return true
   }
 
-  private setNewTitle = (newTitle: string) => {
-    this.setState({ newTitle })
+  const cancelEdit = () => {
+    setError(undefined)
+    setEditMode(false)
   }
 
-  private setNewDescription = (newDescription: string) => {
-    this.setState({ newDescription })
+  const startEdit = () => {
+    setEditMode(true)
   }
 
-  private setAttachments = (attachments: ImageUpload[]) => {
-    this.setState({ attachments })
-  }
-
-  private setShowDeleteModal = (showDeleteModal: boolean) => {
-    this.setState({ showDeleteModal })
-  }
-
-  private setShowResponseModal = (showResponseModal: boolean) => {
-    this.setState({ showResponseModal })
-  }
-
-  private cancelEdit = async () => {
-    this.setState({ error: undefined, editMode: false })
-  }
-
-  private startEdit = async () => {
-    this.setState({ editMode: true })
-  }
-
-  private handleHashChange = (e?: Event) => {
-    const hash = window.location.hash
-    const result = /#comment-([0-9]+)/.exec(hash)
-
-    let highlightedComment
-    if (result === null) {
-      // No match
-      highlightedComment = undefined
-    } else {
-      // Match, extract numeric ID
-      const id = parseInt(result[1])
-      if (this.props.comments.map((comment) => comment.id).includes(id)) {
-        highlightedComment = id
-      } else {
-        // Unknown comment
-        if (e?.cancelable) {
-          e.preventDefault()
-        } else {
-          clearUrlHash(true)
-        }
-        notify.error(<Trans id="showpost.comment.unknownhighlighted">Unknown comment ID #{id}</Trans>)
-        highlightedComment = undefined
-      }
-    }
-    this.setState({ highlightedComment })
-  }
-
-  public onActionSelected = (action: "copy" | "delete" | "status" | "edit") => () => {
+  const onActionSelected = (action: "copy" | "delete" | "status" | "edit") => () => {
     if (action === "copy") {
       navigator.clipboard.writeText(window.location.href)
       notify.success(<Trans id="showpost.copylink.success">Link copied to clipboard</Trans>)
     } else if (action === "delete") {
-      this.setShowDeleteModal(true)
+      setShowDeleteModal(true)
     } else if (action === "status") {
-      this.setShowResponseModal(true)
+      setShowResponseModal(true)
     } else if (action === "edit") {
-      this.startEdit()
+      startEdit()
     }
   }
 
-  public render() {
-    return (
-      <>
-        <Header />
-        <div id="p-show-post" className="page container">
-          <div className="p-show-post">
-            <div className="p-show-post__main-col">
-              <div className="p-show-post__header-col">
-                <VStack spacing={8}>
-                  <HStack justify="between">
-                    <VStack align="start">
-                      {!this.state.editMode && (
-                        <HStack>
-                          <Avatar user={this.props.post.user} />
-                          <VStack spacing={1}>
-                            <UserName user={this.props.post.user} />
-                            <Moment className="text-muted" locale={Fider.currentLocale} date={this.props.post.createdAt} />
-                          </VStack>
-                        </HStack>
-                      )}
-                    </VStack>
-
-                    {!this.state.editMode && (
-                      <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
-                        <Dropdown.ListItem onClick={this.onActionSelected("copy")}>
-                          <Trans id="action.copylink">Copy link</Trans>
-                        </Dropdown.ListItem>
-                        {Fider.session.isAuthenticated && canEditPost(Fider.session.user, this.props.post) && (
-                          <>
-                            <Dropdown.ListItem onClick={this.onActionSelected("edit")}>
-                              <Trans id="action.edit">Edit</Trans>
-                            </Dropdown.ListItem>
-                            {Fider.session.user.isCollaborator && (
-                              <Dropdown.ListItem onClick={this.onActionSelected("status")}>
-                                <Trans id="action.respond">Respond</Trans>
-                              </Dropdown.ListItem>
-                            )}
-                          </>
-                        )}
-                        {this.canDeletePost() && (
-                          <Dropdown.ListItem onClick={this.onActionSelected("delete")} className="text-red-700">
-                            <Trans id="action.delete">Delete</Trans>
-                          </Dropdown.ListItem>
-                        )}
-                      </Dropdown>
-                    )}
-                  </HStack>
-
-                  <div className="flex-grow">
-                    {this.state.editMode ? (
-                      <Form error={this.state.error}>
-                        <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
-                      </Form>
-                    ) : (
-                      <>
-                        <h1 className="text-large">{this.props.post.title}</h1>
-                      </>
-                    )}
-                  </div>
-
-                  <DeletePostModal onModalClose={() => this.setShowDeleteModal(false)} showModal={this.state.showDeleteModal} post={this.props.post} />
-                  {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
-                    <ResponseModal onCloseModal={() => this.setShowResponseModal(false)} showModal={this.state.showResponseModal} post={this.props.post} />
-                  )}
-                  <VStack>
-                    {this.state.editMode ? (
-                      <Form error={this.state.error}>
-                        <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
-                        <MultiImageUploader field="attachments" bkeys={this.props.attachments} maxUploads={3} onChange={this.setAttachments} />
-                      </Form>
-                    ) : (
-                      <>
-                        {this.props.post.description && <Markdown className="description" text={this.props.post.description} style="full" />}
-                        {!this.props.post.description && (
-                          <em className="text-muted">
-                            <Trans id="showpost.message.nodescription">No description provided.</Trans>
-                          </em>
-                        )}
-                        {this.props.attachments.map((x) => (
-                          <ImageViewer key={x} bkey={x} />
-                        ))}
-                      </>
-                    )}
-                  </VStack>
-                  <div className="mt-2">
-                    <TagsPanel post={this.props.post} tags={this.props.tags} />
-                  </div>
-
-                  <VStack spacing={4}>
-                    {!this.state.editMode ? (
-                      <HStack justify="between" align="start">
-                        <VoteSection post={this.props.post} votes={this.props.post.votesCount} />
-                        <FollowButton post={this.props.post} subscribed={this.props.subscribed} />
-                      </HStack>
-                    ) : (
+  return (
+    <>
+      <Header />
+      <div id="p-show-post" className="page container">
+        <div className="p-show-post">
+          <div className="p-show-post__main-col">
+            <div className="p-show-post__header-col">
+              <VStack spacing={8}>
+                <HStack justify="between">
+                  <VStack align="start">
+                    {!editMode && (
                       <HStack>
-                        <Button variant="primary" onClick={this.saveChanges} disabled={Fider.isReadOnly}>
-                          <Icon sprite={IconThumbsUp} />{" "}
-                          <span>
-                            <Trans id="action.save">Save</Trans>
-                          </span>
-                        </Button>
-                        <Button onClick={this.cancelEdit} disabled={Fider.isReadOnly}>
-                          <Icon sprite={IconX} />
-                          <span>
-                            <Trans id="action.cancel">Cancel</Trans>
-                          </span>
-                        </Button>
+                        <Avatar user={props.post.user} />
+                        <VStack spacing={1}>
+                          <UserName user={props.post.user} />
+                          <Moment className="text-muted" locale={Fider.currentLocale} date={props.post.createdAt} />
+                        </VStack>
                       </HStack>
                     )}
-                    <div className="border-4 border-blue-500" />
                   </VStack>
 
-                  <ResponseDetails status={this.props.post.status} response={this.props.post.response} />
-                </VStack>
-              </div>
+                  {!editMode && (
+                    <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
+                      <Dropdown.ListItem onClick={onActionSelected("copy")}>
+                        <Trans id="action.copylink">Copy link</Trans>
+                      </Dropdown.ListItem>
+                      {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
+                        <>
+                          <Dropdown.ListItem onClick={onActionSelected("edit")}>
+                            <Trans id="action.edit">Edit</Trans>
+                          </Dropdown.ListItem>
+                          {Fider.session.user.isCollaborator && (
+                            <Dropdown.ListItem onClick={onActionSelected("status")}>
+                              <Trans id="action.respond">Respond</Trans>
+                            </Dropdown.ListItem>
+                          )}
+                        </>
+                      )}
+                      {canDeletePost() && (
+                        <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700">
+                          <Trans id="action.delete">Delete</Trans>
+                        </Dropdown.ListItem>
+                      )}
+                    </Dropdown>
+                  )}
+                </HStack>
 
-              <div className="p-show-post__discussion_col">
-                <DiscussionPanel post={this.props.post} comments={this.props.comments} highlightedComment={this.state.highlightedComment} />
-              </div>
+                <div className="flex-grow">
+                  {editMode ? (
+                    <Form error={error}>
+                      <Input field="title" maxLength={100} value={newTitle} onChange={setNewTitle} />
+                    </Form>
+                  ) : (
+                    <>
+                      <h1 className="text-large">{props.post.title}</h1>
+                    </>
+                  )}
+                </div>
+
+                <DeletePostModal onModalClose={() => setShowDeleteModal(false)} showModal={showDeleteModal} post={props.post} />
+                {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
+                  <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={props.post} />
+                )}
+                <VStack>
+                  {editMode ? (
+                    <Form error={error}>
+                      <TextArea field="description" value={newDescription} onChange={setNewDescription} />
+                      <MultiImageUploader field="attachments" bkeys={props.attachments} maxUploads={3} onChange={setAttachments} />
+                    </Form>
+                  ) : (
+                    <>
+                      {props.post.description && <Markdown className="description" text={props.post.description} style="full" />}
+                      {!props.post.description && (
+                        <em className="text-muted">
+                          <Trans id="showpost.message.nodescription">No description provided.</Trans>
+                        </em>
+                      )}
+                      {props.attachments.map((x) => (
+                        <ImageViewer key={x} bkey={x} />
+                      ))}
+                    </>
+                  )}
+                </VStack>
+                <div className="mt-2">
+                  <TagsPanel post={props.post} tags={props.tags} />
+                </div>
+
+                <VStack spacing={4}>
+                  {!editMode ? (
+                    <HStack justify="between" align="start">
+                      <VoteSection post={props.post} votes={props.post.votesCount} />
+                      <FollowButton post={props.post} subscribed={props.subscribed} />
+                    </HStack>
+                  ) : (
+                    <HStack>
+                      <Button variant="primary" onClick={saveChanges} disabled={Fider.isReadOnly}>
+                        <Icon sprite={IconThumbsUp} />{" "}
+                        <span>
+                          <Trans id="action.save">Save</Trans>
+                        </span>
+                      </Button>
+                      <Button onClick={cancelEdit} disabled={Fider.isReadOnly}>
+                        <Icon sprite={IconX} />
+                        <span>
+                          <Trans id="action.cancel">Cancel</Trans>
+                        </span>
+                      </Button>
+                    </HStack>
+                  )}
+                  <div className="border-4 border-blue-500" />
+                </VStack>
+
+                <ResponseDetails status={props.post.status} response={props.post.response} />
+              </VStack>
             </div>
-            <div className="p-show-post__action-col">
-              <VotesPanel post={this.props.post} votes={this.props.votes} />
-              <PoweredByFider slot="show-post" className="mt-3" />
+
+            <div className="p-show-post__discussion_col">
+              <DiscussionPanel post={props.post} comments={props.comments} highlightedComment={highlightedComment} />
             </div>
           </div>
+          <div className="p-show-post__action-col">
+            <VotesPanel post={props.post} votes={props.votes} />
+            <PoweredByFider slot="show-post" className="mt-3" />
+          </div>
         </div>
-      </>
-    )
-  }
+      </div>
+    </>
+  )
 }

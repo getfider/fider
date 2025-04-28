@@ -33,9 +33,12 @@ export const Header = () => {
               </HStack>
             )}
             {!fider.session.isAuthenticated && (
-              <a href="#" className="uppercase text-sm" onClick={showModal}>
-                <Trans id="action.signin">Sign in</Trans>
-              </a>
+              <HStack spacing={2}>
+                <ThemeSwitcher />
+                <a href="#" className="uppercase text-sm" onClick={showModal}>
+                  <Trans id="action.signin">Sign in</Trans>
+                </a>
+              </HStack>
             )}
           </HStack>
         </div>

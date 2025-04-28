@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react"
-import { Modal, SignInControl, LegalFooter } from "@fider/components"
-import { Button } from "./common"
+import { Modal, SignInControl, LegalFooter, TenantLogo } from "@fider/components"
+import { Button, CloseIcon } from "./common"
 import { Trans } from "@lingui/react/macro"
+import { HStack, VStack } from "./layout"
 
 interface SignInModalProps {
   isOpen: boolean
@@ -46,7 +47,15 @@ export const SignInModal: React.FC<SignInModalProps> = (props) => {
   return (
     <Modal.Window isOpen={props.isOpen} onClose={closeModal}>
       <Modal.Header>
-        <Trans id="modal.signin.header">Sign in to participate and vote</Trans>
+        <VStack spacing={8}>
+          <HStack justify="between">
+            <TenantLogo size={24} useFiderIfEmpty={true} />
+            <CloseIcon closeModal={closeModal} />
+          </HStack>
+          <p>
+            <Trans id="modal.signin.header">Submit your feedback</Trans>
+          </p>
+        </VStack>
       </Modal.Header>
       <Modal.Content>{content}</Modal.Content>
       <LegalFooter />
