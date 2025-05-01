@@ -1,0 +1,23 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-share-feedback {
+  background-color: var(--colors-gray-200);
+
+  &__content {
+    background-color: var(--colors-white);
+    padding: spacing(6);
+    border-radius: get("border.radius.large");
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+.c-share-feedback-form {
+  padding-bottom: sizing(6);
+  border-bottom: 1px solid var(--colors-gray-200);
+}
+
+.c-share-feedback-signin {
+  padding-top: sizing(6);
+}

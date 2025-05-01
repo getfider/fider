@@ -130,6 +130,10 @@
   justify-content: center;
 }
 
+.justify-end {
+  justify-content: end;
+}
+
 .justify-full > * {
   flex: 1 1 0;
 }

@@ -9,6 +9,7 @@ import { PostInput } from "./components/PostInput"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
+import { ShareFeedback } from "@fider/components/ShareFeedback"
 
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
@@ -47,6 +48,7 @@ const Lonely = () => {
 const HomePage = (props: HomePageProps) => {
   const fider = useFider()
   const [title, setTitle] = useState("")
+  const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(false)
 
   const defaultWelcomeMessage = i18n._("home.form.defaultwelcomemessage", {
     message: `We'd love to hear what you're thinking about.
@@ -73,6 +75,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
 
   return (
     <>
+      <ShareFeedback isOpen={isShareFeedbackOpen} onClose={() => setIsShareFeedbackOpen(false)} />
       <Header />
       <div id="p-home" className="page container">
         <div className="p-home__welcome-col">
@@ -80,7 +83,9 @@ What can we do better? This is the place for you to vote, discuss and share idea
             <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
             <PostInput placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} />
           </VStack>
-          <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+          <div onClick={() => setIsShareFeedbackOpen(true)}>
+            <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+          </div>
         </div>
         <div className="p-home__posts-col p-4">
           {isLonely() ? (
