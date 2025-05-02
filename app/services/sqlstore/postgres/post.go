@@ -312,20 +312,27 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 
 func addNewDraftPost(ctx context.Context, c *cmd.AddNewDraftPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		var id int
-		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, created_at, status, tenant_id)
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts), $3, $4, 0,0)
-			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, time.Now())
+		type result struct {
+			ID   int    `db:"id"`
+			Code string `db:"code"`
+		}
+
+		var r result
+		err := trx.Get(&r,
+			`INSERT INTO draft_posts (title, description, created_at, code)
+			 VALUES ($1, $2, $3, $4)
+			 RETURNING id, code`, c.Title, c.Description, time.Now(), c.Code)
 		if err != nil {
 			return errors.Wrap(err, "failed add new draft post")
 		}
 
-		q := &query.GetPostByID{PostID: id}
-		if err := getDraftPostByID(ctx, q); err != nil {
-			return err
+		c.Result = &entity.DraftPost{
+			ID:          r.ID,
+			Code:        r.Code,
+			Title:       c.Title,
+			Description: c.Description,
+			CreatedAt:   time.Now(),
 		}
-		c.Result = q.Result
 
 		return nil
 	})

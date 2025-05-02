@@ -103,22 +103,22 @@ func CreateDraftPost() web.HandlerFunc {
 		newDraftPost := &cmd.AddNewDraftPost{
 			Title:       action.Title,
 			Description: action.Description,
+			Code:        cmd.GenerateNewCode(),
 		}
 		err := bus.Dispatch(c, newDraftPost)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		setAttachments := &cmd.SetAttachments{Post: newDraftPost.Result, Attachments: action.Attachments}
-		if err = bus.Dispatch(c, setAttachments); err != nil {
+		setDraftAttachments := &cmd.SetDraftAttachments{DraftPost: newDraftPost.Result, Attachments: action.Attachments}
+		if err = bus.Dispatch(c, setDraftAttachments); err != nil {
 			return c.Failure(err)
 		}
 
 		return c.Ok(web.Map{
-			"id":     newDraftPost.Result.ID,
-			"number": newDraftPost.Result.Number,
-			"title":  newDraftPost.Result.Title,
-			"slug":   newDraftPost.Result.Slug,
+			"id":    newDraftPost.Result.ID,
+			"code":  newDraftPost.Result.Code,
+			"title": newDraftPost.Result.Title,
 		})
 	}
 }
