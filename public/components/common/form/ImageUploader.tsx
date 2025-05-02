@@ -17,6 +17,7 @@ interface ImageUploaderProps {
   label?: string
   bkey?: string
   disabled?: boolean
+  addImageButton?: React.ReactNode
   onChange(state: ImageUpload, instanceID?: string, previewURL?: string): void
 }
 
@@ -148,11 +149,14 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
             )}
 
             <input ref={(e) => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/*" />
-            {!hasFile && (
-              <Button onClick={this.selectFile} disabled={this.props.disabled}>
-                <Icon sprite={IconPhotograph} />
-              </Button>
-            )}
+            {!hasFile &&
+              (this.props.addImageButton ? (
+                <div onClick={this.selectFile}>{this.props.addImageButton}</div>
+              ) : (
+                <Button onClick={this.selectFile} disabled={this.props.disabled}>
+                  <Icon sprite={IconPhotograph} />
+                </Button>
+              ))}
             <DisplayError fields={[this.props.field]} error={ctx.error} />
             {this.props.children}
           </div>

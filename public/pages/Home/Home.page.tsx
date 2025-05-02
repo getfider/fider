@@ -75,7 +75,11 @@ What can we do better? This is the place for you to vote, discuss and share idea
 
   return (
     <>
-      <ShareFeedback isOpen={isShareFeedbackOpen} onClose={() => setIsShareFeedbackOpen(false)} />
+      <ShareFeedback
+        placeholder={fider.session.tenant.invitation || defaultInvitation}
+        isOpen={isShareFeedbackOpen}
+        onClose={() => setIsShareFeedbackOpen(false)}
+      />
       <Header />
       <div id="p-home" className="page container">
         <div className="p-home__welcome-col">

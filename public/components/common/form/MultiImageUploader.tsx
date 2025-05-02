@@ -10,6 +10,7 @@ interface MultiImageUploaderProps {
   field: string
   maxUploads: number
   bkeys?: string[]
+  addImageButton?: React.ReactNode
   onChange?: (uploads: ImageUpload[]) => void
 }
 
@@ -81,7 +82,9 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
   private addNewElement(instances: MultiImageUploaderInstances, bkey?: string) {
     const id = btoa(Math.random().toString())
     instances[id] = {
-      element: <ImageUploader key={id} bkey={bkey} instanceID={id} field="attachment" onChange={this.imageUploaded} />,
+      element: (
+        <ImageUploader key={id} bkey={bkey} instanceID={id} field="attachment" onChange={this.imageUploaded} addImageButton={this.props.addImageButton} />
+      ),
     }
   }
 

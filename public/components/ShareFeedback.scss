@@ -16,8 +16,12 @@
 .c-share-feedback-form {
   padding-bottom: sizing(6);
   border-bottom: 1px solid var(--colors-gray-200);
-}
 
-.c-share-feedback-signin {
-  padding-top: sizing(6);
+  .c-form-field {
+    margin-bottom: spacing(6);
+
+    label {
+      padding-bottom: spacing(2);
+    }
+  }
 }
