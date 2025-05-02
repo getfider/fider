@@ -58,6 +58,7 @@ func (s Service) Init() {
 	bus.AddHandler(listPostVotes)
 
 	bus.AddHandler(addNewPost)
+	bus.AddHandler(addNewDraftPost)
 	bus.AddHandler(updatePost)
 	bus.AddHandler(getPostByID)
 	bus.AddHandler(getPostBySlug)

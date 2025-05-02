@@ -61,7 +61,7 @@ export const PostInputAnonymous = (props: PostInputProps) => {
 
   const submit = async (event: ButtonClickEvent) => {
     if (title) {
-      const result = await actions.createPost(title, description, attachments)
+      const result = await actions.createAnonymousPost(title, description, attachments)
       if (result.ok) {
         clearError()
         cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY)

@@ -87,6 +87,42 @@ func CreatePost() web.HandlerFunc {
 	}
 }
 
+// CreateDraftPost creates a new draft post without requiring authentication
+func CreateDraftPost() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.CreateNewPost)
+		action.IsDraft = true
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Attachments, Folder: "attachments"}); err != nil {
+			return c.Failure(err)
+		}
+
+		newDraftPost := &cmd.AddNewDraftPost{
+			Title:       action.Title,
+			Description: action.Description,
+		}
+		err := bus.Dispatch(c, newDraftPost)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		setAttachments := &cmd.SetAttachments{Post: newDraftPost.Result, Attachments: action.Attachments}
+		if err = bus.Dispatch(c, setAttachments); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{
+			"id":     newDraftPost.Result.ID,
+			"number": newDraftPost.Result.Number,
+			"title":  newDraftPost.Result.Title,
+			"slug":   newDraftPost.Result.Slug,
+		})
+	}
+}
+
 // GetPost retrieves the existing post by number
 func GetPost() web.HandlerFunc {
 	return func(c *web.Context) error {

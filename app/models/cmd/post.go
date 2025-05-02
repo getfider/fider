@@ -12,6 +12,13 @@ type AddNewPost struct {
 	Result *entity.Post
 }
 
+type AddNewDraftPost struct {
+	Title       string
+	Description string
+
+	Result *entity.Post
+}
+
 type UpdatePost struct {
 	Post        *entity.Post
 	Title       string
