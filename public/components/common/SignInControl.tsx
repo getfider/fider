@@ -11,6 +11,7 @@ import { i18n } from "@lingui/core"
 interface SignInControlProps {
   useEmail: boolean
   redirectTo?: string
+  onSubmit?: () => Promise<boolean>
   onEmailSent?: (email: string) => void
   signInButtonText?: string
 }
@@ -31,6 +32,13 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   const signIn = async () => {
+    let okToSignin = true
+    if (props.onSubmit) {
+      okToSignin = await props.onSubmit()
+    }
+    if (!okToSignin) {
+      return
+    }
     const result = await actions.signIn(email)
     if (result.ok) {
       setEmail("")

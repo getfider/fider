@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"
-import { Button, ButtonClickEvent, Input, Form, TextArea, MultiImageUploader, Icon } from "@fider/components"
-import { cache, actions, Failure } from "@fider/services"
+import { Input, Form, TextArea, MultiImageUploader, Icon } from "@fider/components"
+import { cache, Failure } from "@fider/services"
 import { ImageUpload } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
@@ -9,6 +9,10 @@ import IconAttach from "@fider/assets/images/heroicons-paperclip.svg"
 
 interface PostInputProps {
   placeholder: string
+  onTitleChange?: (title: string) => void
+  onDescriptionChange?: (description: string) => void
+  onAttachmentsChange?: (attachments: ImageUpload[]) => void
+  error?: Failure
 }
 
 const CACHE_TITLE_KEY = "PostInput-Title"
@@ -26,8 +30,9 @@ export const PostInputAnonymous = (props: PostInputProps) => {
   const titleRef = useRef<HTMLInputElement>()
   const [title, setTitle] = useState(getCachedValue(CACHE_TITLE_KEY))
   const [description, setDescription] = useState(getCachedValue(CACHE_DESCRIPTION_KEY))
-  const [attachments, setAttachments] = useState<ImageUpload[]>([])
-  const [error, setError] = useState<Failure | undefined>(undefined)
+  // We need to maintain attachments state even though we pass it to parent via callback
+  const [, setAttachments] = useState<ImageUpload[]>([])
+  const error = props.error
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
 
   // Auto-populate title with first 80 characters of description if title hasn't been manually edited
@@ -50,26 +55,26 @@ export const PostInputAnonymous = (props: PostInputProps) => {
     if (isManualEdit) {
       setTitleManuallyEdited(true)
     }
-  }
 
-  const clearError = () => setError(undefined)
+    if (props.onTitleChange) {
+      props.onTitleChange(value)
+    }
+  }
 
   const handleDescriptionChange = (value: string) => {
     cache.session.set(CACHE_DESCRIPTION_KEY, value)
     setDescription(value)
+
+    if (props.onDescriptionChange) {
+      props.onDescriptionChange(value)
+    }
   }
 
-  const submit = async (event: ButtonClickEvent) => {
-    if (title) {
-      const result = await actions.createAnonymousPost(title, description, attachments)
-      if (result.ok) {
-        clearError()
-        cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY)
-        location.href = `/draft/${result.data.code}`
-        event.preventEnable()
-      } else if (result.error) {
-        setError(result.error)
-      }
+  const handleAttachmentsChange = (uploads: ImageUpload[]) => {
+    setAttachments(uploads)
+
+    if (props.onAttachmentsChange) {
+      props.onAttachmentsChange(uploads)
     }
   }
 
@@ -90,7 +95,7 @@ export const PostInputAnonymous = (props: PostInputProps) => {
         <MultiImageUploader
           field="attachments"
           maxUploads={3}
-          onChange={setAttachments}
+          onChange={handleAttachmentsChange}
           addImageButton={
             <a className="flex items-center clickable">
               <Icon sprite={IconAttach} height="18" width="18" />
@@ -109,10 +114,6 @@ export const PostInputAnonymous = (props: PostInputProps) => {
           onChange={handleTitleChange}
           placeholder={i18n._({ id: "newpost.modal.title.placeholder", message: "Something short and snappy, sum it up in a few words" })}
         />
-
-        <Button type="submit" variant="primary" onClick={submit}>
-          <Trans id="action.submit">Submit</Trans>
-        </Button>
       </Form>
     </>
   )

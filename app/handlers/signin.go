@@ -33,6 +33,20 @@ func SignInPage() web.HandlerFunc {
 	}
 }
 
+func LoginEmailSentPage() web.HandlerFunc {
+	return func(c *web.Context) error {
+
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "SignIn/LoginEmailSent.page",
+			Title: "Login email sent",
+			Data: web.Map{
+				"email": "bob@bob.com",
+			},
+		})
+
+	}
+}
+
 // NotInvitedPage renders the not invited page
 func NotInvitedPage() web.HandlerFunc {
 	return func(c *web.Context) error {
