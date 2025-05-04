@@ -1,8 +1,28 @@
+@use "~inter-ui/default" with (
+  $inter-font-display: swap,
+  $inter-font-path: "~inter-ui/web"
+);
+
+@use "~inter-ui/variable" with (
+  $inter-font-display: swap,
+  $inter-font-path: "~inter-ui/variable"
+);
+
 @import "variables/_functions";
 @import "variables/_colors";
+@import "variables/_dark-colors";
 @import "variables/_spacing";
 @import "variables/_sizing";
 @import "variables/_text";
+@import "utility/_theme.scss";
+
+/* @include get-theme("dark"); */
+$colors: $dark-colors;
+@include theme($light-colors, '[data-theme="light"]');
+@include theme($dark-colors, '[data-theme="dark"]');
+
+@include default.all;
+@include variable.all;
 
 $all: (
   colors: $colors,

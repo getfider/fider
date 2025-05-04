@@ -1,5 +1,6 @@
 import React from "react"
-import { Button, OAuthProviderLogo } from "@fider/components"
+import { OAuthProviderLogo } from "@fider/components"
+import { Trans } from "@lingui/react/macro"
 
 interface SocialSignInButtonProps {
   option: {
@@ -18,9 +19,13 @@ export const SocialSignInButton = (props: SocialSignInButtonProps) => {
   const href = props.option.url ? `${props.option.url}?redirect=${redirectTo}` : undefined
 
   return (
-    <Button href={href} rel="nofollow" className={props.className}>
+    <a rel="nofollow" className="c-signin-social-button" href={href}>
       {props.option.logoURL ? <img alt={props.option.displayName} src={props.option.logoURL} /> : <OAuthProviderLogo option={props.option} />}
-      <span>{props.option.displayName}</span>
-    </Button>
+      <span>
+        <Trans id="signin.message.socialbutton.intro">Sign in with</Trans>
+        &nbsp;
+        {props.option.displayName}
+      </span>
+    </a>
   )
 }

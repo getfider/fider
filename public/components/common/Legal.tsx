@@ -38,9 +38,10 @@ export const LegalNotice = () => {
 
   if (fider.settings.hasLegal) {
     return (
-      <p className="text-muted">
+      <p className="px-9">
         <Trans id="legal.notice">
-          By signing in, you agree to the <PrivacyPolicy /> and <TermsOfService />.
+          By signing in, you agree to the
+          <PrivacyPolicy /> and <TermsOfService /> <br />.
         </Trans>
       </p>
     )

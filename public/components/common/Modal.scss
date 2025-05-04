@@ -54,9 +54,9 @@ $c-modal-dimmer-padding: 1em;
 .c-modal-window {
   z-index: 101;
   text-align: left;
-  background: #fff;
+  background: var(--colors-white);
   border: none;
-  border-radius: 3px;
+  border-radius: 12px;
   animation: windowfadeIn 0.5s;
 
   &--small {
@@ -80,20 +80,30 @@ $c-modal-dimmer-padding: 1em;
   .c-modal-header {
     font-size: get("font.size.lg");
     font-weight: 600;
-    padding: 15px 20px;
-    border-bottom: 1px solid get("colors.gray.200");
+    padding: 20px;
+    // border-bottom: 1px solid get("colors.gray.200");
   }
 
   .c-modal-content {
     padding: 15px 20px;
   }
 
+  .c-modal-closeicon {
+    color: get("colors.gray.400");
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: get("colors.gray.600");
+    }
+  }
+
   .c-modal-footer {
-    background: get("colors.gray.100");
+    // background: get("colors.gray.100");
     padding: 10px;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
-    border-top: 1px solid get("colors.gray.300");
+    // border-top: 1px solid get("colors.gray.300");
     &--right {
       text-align: right;
     }

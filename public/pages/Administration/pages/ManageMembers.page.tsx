@@ -186,7 +186,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
             <strong>Collaborators</strong> can edit and manage content, but not permissions and settings.
           </li>
           <li>
-            <strong>Blocked</strong> users are unable to log into this site.
+            <strong>Blocked</strong> users are unable to sign into this site.
           </li>
         </ul>
       </>
