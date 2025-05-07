@@ -40,8 +40,7 @@ func LoginEmailSentPage() web.HandlerFunc {
 			Page:  "SignIn/LoginEmailSent.page",
 			Title: "Login email sent",
 			Data: web.Map{
-				"email": "bob@bob.com",
-			},
+				"email": c.QueryParam("email")},
 		})
 
 	}
@@ -75,7 +74,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationKey))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.Code, action.VerificationKey))
 
 		return c.Ok(web.Map{})
 	}
@@ -104,6 +103,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 					Data: web.Map{
 						"kind": kind,
 						"k":    key,
+						"c":    c.QueryParam("c"),
 					},
 				})
 			}

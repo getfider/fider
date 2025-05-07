@@ -18,7 +18,7 @@ interface PostInputProps {
 const CACHE_TITLE_KEY = "PostInput-Title"
 const CACHE_DESCRIPTION_KEY = "PostInput-Description"
 
-export const PostInputAnonymous = (props: PostInputProps) => {
+export const ShareFeedbackForm = (props: PostInputProps) => {
   const fider = useFider()
   const getCachedValue = (key: string): string => {
     if (fider.session.isAuthenticated) {

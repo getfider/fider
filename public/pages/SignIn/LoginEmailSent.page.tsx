@@ -12,7 +12,9 @@ const LoginEmailSentPage = ({ email }: { email: string }) => {
       <div id="p-email-sent" className="page container w-max-6xl bg-gray-100">
         <div className="flex flex-y justify-center flex-items-center full-height py-4">
           <div className="text-center mb-8">
-            <TenantLogo size={50} />
+            <a href="/">
+              <TenantLogo size={50} />
+            </a>
           </div>
 
           <div className="box shadow-sm text-center w-full">

@@ -11,9 +11,14 @@ import { i18n } from "@lingui/core"
 interface SignInControlProps {
   useEmail: boolean
   redirectTo?: string
-  onSubmit?: () => Promise<boolean>
+  onSubmit?: () => Promise<SignInSubmitResponse>
   onEmailSent?: (email: string) => void
   signInButtonText?: string
+}
+
+export interface SignInSubmitResponse {
+  ok: boolean
+  code?: string
 }
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
@@ -32,14 +37,14 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   const signIn = async () => {
-    let okToSignin = true
+    let signInResponse: SignInSubmitResponse = { ok: false }
     if (props.onSubmit) {
-      okToSignin = await props.onSubmit()
+      signInResponse = await props.onSubmit()
     }
-    if (!okToSignin) {
+    if (!signInResponse.ok) {
       return
     }
-    const result = await actions.signIn(email)
+    const result = await actions.signIn(email, signInResponse.code)
     if (result.ok) {
       setEmail("")
       setError(undefined)

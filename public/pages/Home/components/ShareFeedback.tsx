@@ -1,12 +1,12 @@
 import "./ShareFeedback.scss"
 
 import React, { useState } from "react"
-import { PostInputAnonymous } from "@fider/pages/Home/components/PostInputAnonymous"
-import { SignInControl } from "@fider/components/common/SignInControl"
-import { Modal, CloseIcon, Form } from "@fider/components/common"
+import { ShareFeedbackForm } from "@fider/pages/Home/components/ShareFeedbackForm"
+import { SignInControl, SignInSubmitResponse } from "@fider/components/common/SignInControl"
+import { Modal, CloseIcon, Form, Button } from "@fider/components/common"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
-import { actions, Failure } from "@fider/services"
+import { actions, Failure, cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { ImageUpload } from "@fider/models"
 
@@ -39,21 +39,38 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     setAttachments(value)
   }
 
-  const onSubmitFeedback = async (): Promise<boolean> => {
+  const onSubmitFeedback = async (): Promise<SignInSubmitResponse> => {
     // Always try to save the post first
     const postResult = await actions.createAnonymousPost(title, description, attachments)
 
     if (postResult.ok) {
       // Post saved successfully, now proceed with sign in
-      return true
+      return { ok: true, code: postResult.data.code }
     } else if (postResult.error) {
       setError(postResult.error)
     }
-    return false
+    return { ok: false }
   }
 
-  const onEmailSent = () => {
-    window.location.href = "/loginemailsent"
+  const clearError = () => setError(undefined)
+  const CACHE_TITLE_KEY = "PostInput-Title"
+  const CACHE_DESCRIPTION_KEY = "PostInput-Description"
+
+  const finaliseFeedback = async () => {
+    if (title) {
+      const result = await actions.createPost(title, description, attachments)
+      if (result.ok) {
+        clearError()
+        cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY)
+        location.href = `/posts/${result.data.number}/${result.data.slug}`
+      } else if (result.error) {
+        setError(result.error)
+      }
+    }
+  }
+
+  const onEmailSent = (email: string) => {
+    window.location.href = "/loginemailsent?email=" + encodeURIComponent(email)
   }
 
   return (
@@ -70,7 +87,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
           </h2>
           <div className="c-share-feedback-form">
             <Form error={error}>
-              <PostInputAnonymous
+              <ShareFeedbackForm
                 placeholder={props.placeholder}
                 onTitleChange={handleTitleChange}
                 onDescriptionChange={handleDescriptionChange}
@@ -89,13 +106,19 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
               to fully implement saving the post before OAuth redirect.
               Currently, only the email sign-in flow will work as expected.
             */}
-            <SignInControl
-              onSubmit={onSubmitFeedback}
-              onEmailSent={onEmailSent}
-              signInButtonText={i18n._({ id: "signin.message.email", message: "Continue with Email" })}
-              useEmail={true}
-              redirectTo={fider.settings.baseURL}
-            />
+            {!fider.session.isAuthenticated ? (
+              <SignInControl
+                onSubmit={onSubmitFeedback}
+                onEmailSent={onEmailSent}
+                signInButtonText={i18n._({ id: "signin.message.email", message: "Continue with Email" })}
+                useEmail={true}
+                redirectTo={fider.settings.baseURL}
+              />
+            ) : (
+              <Button variant="primary" onClick={finaliseFeedback}>
+                <Trans id="action.submit">Submit</Trans>
+              </Button>
+            )}
           </div>
         </div>
       </Modal.Content>

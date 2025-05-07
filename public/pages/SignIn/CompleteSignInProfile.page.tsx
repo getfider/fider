@@ -12,6 +12,7 @@ import "./CompleteSignInProfile.page.scss"
 interface CompleteSignInProfilePageProps {
   kind: EmailVerificationKind
   k: string
+  c?: string
 }
 
 const CompleteSignInProfilePage = (props: CompleteSignInProfilePageProps) => {
@@ -21,7 +22,11 @@ const CompleteSignInProfilePage = (props: CompleteSignInProfilePageProps) => {
   const submit = async () => {
     const result = await actions.completeProfile(props.kind, props.k, name)
     if (result.ok) {
-      location.href = "/"
+      if (props.c !== undefined) {
+        location.href = "/?c=" + props.c
+      } else {
+        location.href = "/"
+      }
     } else if (result.error) {
       setError(result.error)
     }

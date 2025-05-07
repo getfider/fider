@@ -9,7 +9,7 @@ import { PostInput } from "./components/PostInput"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
-import { ShareFeedback } from "@fider/components/ShareFeedback"
+import { ShareFeedback } from "./components/ShareFeedback"
 
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
