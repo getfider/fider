@@ -8,14 +8,13 @@
     padding: spacing(6);
     border-radius: get("border.radius.large");
     max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
+    margin: 0 auto spacing(4);
   }
 }
 
 .c-share-feedback-form {
-  padding-bottom: sizing(6);
-  border-bottom: 1px solid var(--colors-gray-200);
+  // padding-bottom: sizing(6);
+  // border-bottom: 1px solid var(--colors-gray-200);
 
   .c-form-field {
     margin-bottom: spacing(6);

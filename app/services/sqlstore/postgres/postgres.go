@@ -61,6 +61,8 @@ func (s Service) Init() {
 	bus.AddHandler(addNewDraftPost)
 	bus.AddHandler(updatePost)
 	bus.AddHandler(setDraftAttachments)
+	bus.AddHandler(getDraftPostByCode)
+	bus.AddHandler(getDraftAttachments)
 	bus.AddHandler(getPostByID)
 	bus.AddHandler(getPostBySlug)
 	bus.AddHandler(getPostByNumber)

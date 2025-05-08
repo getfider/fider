@@ -22,7 +22,7 @@ const LoginEmailSentPage = ({ email }: { email: string }) => {
 
             <p className="text-xl text-center mb-4 text-gray-800">
               <Trans id="signin.message.emailsent">
-                We have just sent a confirmation link to <b>{email}</b>. Click the link and you&apos;ll be signed in.
+                We have just sent a confirmation link to <b>{email}</b>. Click the link and you’ll be signed in.
               </Trans>
             </p>
 

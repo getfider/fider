@@ -18,6 +18,13 @@ export interface HomePageProps {
   posts: Post[]
   tags: Tag[]
   countPerStatus: { [key: string]: number }
+  draftPost?: {
+    id: number
+    code: string
+    title: string
+    description: string
+  }
+  draftAttachments?: string[]
 }
 
 export interface HomePageState {
@@ -48,7 +55,7 @@ const Lonely = () => {
 const HomePage = (props: HomePageProps) => {
   const fider = useFider()
   const [title, setTitle] = useState("")
-  const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(false)
+  const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(props.draftPost !== undefined)
 
   const defaultWelcomeMessage = i18n._("home.form.defaultwelcomemessage", {
     message: `We'd love to hear what you're thinking about.
@@ -79,6 +86,8 @@ What can we do better? This is the place for you to vote, discuss and share idea
         placeholder={fider.session.tenant.invitation || defaultInvitation}
         isOpen={isShareFeedbackOpen}
         onClose={() => setIsShareFeedbackOpen(false)}
+        draftPost={props.draftPost}
+        draftAttachments={props.draftAttachments}
       />
       <Header />
       <div id="p-home" className="page container">
