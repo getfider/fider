@@ -20,6 +20,7 @@ export interface SystemSettings {
   baseURL: string
   assetsURL: string
   oauth: OAuthProviderOption[]
+  postWithTags: boolean
 }
 
 export interface UserSettings {
