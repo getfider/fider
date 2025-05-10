@@ -36,11 +36,20 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     setShowEmailForm(true)
   }
 
-  const signIn = async () => {
-    let signInResponse: SignInSubmitResponse = { ok: false }
+  const doPreSigninAction = async (): Promise<SignInSubmitResponse> => {
+    let signInResponse: SignInSubmitResponse = { ok: true }
     if (props.onSubmit) {
       signInResponse = await props.onSubmit()
     }
+    return signInResponse
+  }
+
+  const onSocialSignin = async () => {
+    return await doPreSigninAction()
+  }
+
+  const signIn = async () => {
+    const signInResponse = await doPreSigninAction()
     if (!signInResponse.ok) {
       return
     }
@@ -74,7 +83,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
           <div className="c-signin-control__oauth pb-3">
             {fider.settings.oauth.map((o) => (
               <React.Fragment key={o.provider}>
-                <SocialSignInButton option={o} redirectTo={props.redirectTo} />
+                <SocialSignInButton onClick={onSocialSignin} option={o} redirectTo={props.redirectTo} />
               </React.Fragment>
             ))}
           </div>

@@ -19,6 +19,8 @@ type GetOAuthAuthorizationURL struct {
 	Provider   string
 	Redirect   string
 	Identifier string
+	// Code is optional, used to store code of the draft post in the state that is passed through the OAuth flow
+	Code string
 
 	Result string
 }

@@ -160,8 +160,9 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 	state, err := jwt.Encode(jwt.OAuthStateClaims{
 		Redirect:   q.Redirect,
 		Identifier: q.Identifier,
+		Code:       q.Code,
 	})
-	
+
 	if err != nil {
 		return err
 	}
