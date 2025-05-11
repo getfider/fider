@@ -44,6 +44,25 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Static("/assets/*filepath", "dist")
 	}
 
+	feed := r.Group()
+	{
+		feed.Use(middlewares.CORS())
+		feed.Use(middlewares.WebSetup())
+		feed.Use(middlewares.Tenant())
+		feed.Use(func(next web.HandlerFunc) web.HandlerFunc {
+			return func(c *web.Context) error {
+				if c.Tenant().IsPrivate {
+					return c.NotFound() // disable feed in private mode
+				}
+				return next(c)
+			}
+		})
+		//feed.Use(middlewares.ClientCache(5 * time.Minute)) TODO: dont forget to enable
+
+		feed.Get("/feed/global.atom", handlers.GlobalFeed())
+		feed.Get("/feed/posts/:path", handlers.CommentFeed())
+	}
+
 	r.Use(middlewares.Session())
 
 	r.Get("/robots.txt", handlers.RobotsTXT())
