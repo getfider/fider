@@ -32,7 +32,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
             </HStack>
           )}
         </HStack>
-        <Markdown className="text-gray-700" maxLength={300} text={props.post.description} style="plainText" />
+        <Markdown className="c-posts-container__postdescription" maxLength={300} text={props.post.description} style="plainText" />
         {props.tags.length >= 1 && (
           <HStack spacing={0} className="gap-2 flex-wrap">
             {props.tags.map((tag) => (

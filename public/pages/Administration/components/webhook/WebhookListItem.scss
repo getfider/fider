@@ -5,15 +5,15 @@
     vertical-align: middle;
 
     &--enabled {
-      color: get("colors.green.500");
+      color: var(--colors-green-500);
     }
 
     &--disabled {
-      color: get("colors.yellow.500");
+      color: var(--colors-yellow-500);
     }
 
     &--failed {
-      color: get("colors.red.500");
+      color: var(--colors-red-500);
     }
   }
 }

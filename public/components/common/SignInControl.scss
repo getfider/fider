@@ -1,9 +1,38 @@
 @import "~@fider/assets/styles/variables.scss";
 
 .c-signin-control {
+  padding-left: 45px;
+  padding-right: 45px;
+  padding-bottom: 40px;
+
   &__oauth {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: spacing(2);
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+    width: 100%;
+
+    > *:not(:last-child) {
+      margin-bottom: spacing(3);
+    }
+  }
+}
+
+.c-signin-social-button {
+  background: none;
+  border: 1px solid get("colors.gray.700");
+  border-radius: 6px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: spacing(3);
+  padding-bottom: spacing(3);
+  img {
+    height: sizing(5);
+    padding-right: spacing(3);
+  }
+  span {
+    color: get("colors.gray.700");
+    font-size: get("font.size.base");
+    font-weight: 500;
   }
 }

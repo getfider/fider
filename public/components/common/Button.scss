@@ -18,11 +18,11 @@
 
   svg + *,
   img + * {
-    margin-left: spacing(1);
+    margin-inline-start: spacing(1);
   }
 
   &--tertiary {
-    color: get("colors.gray.900");
+    color: var(--colors-gray-900);
     background-color: transparent;
 
     &:hover {
@@ -31,34 +31,34 @@
   }
 
   &--secondary {
-    color: get("colors.gray.900");
-    background-color: get("colors.gray.100");
-    border: 1px solid get("colors.gray.300");
+    color: var(--colors-gray-900);
+    background-color: var(--colors-gray-100);
+    border: 1px solid var(--colors-gray-300);
 
     &:hover {
-      background-color: get("colors.gray.100");
+      background-color: var(--colors-gray-100);
     }
   }
 
   &--primary {
-    color: get("colors.white");
-    background-color: get("colors.primary.base");
-    border: 1px solid get("colors.primary.base");
+    color: var(--colors-white);
+    background-color: var(--colors-primary-base);
+    border: 1px solid var(--colors-primary-base);
 
     &:hover {
-      background-color: get("colors.primary.dark");
+      background-color: var(--colors-primary-dark);
     }
   }
 
   &--danger {
-    color: get("colors.red.600");
-    border: 1px solid get("colors.gray.300");
-    background-color: get("colors.white");
+    color: var(--colors-red-600);
+    border: 1px solid var(--colors-gray-300);
+    background-color: var(--colors-white);
 
     &:hover {
-      color: get("colors.white");
-      border: 1px solid get("colors.red.600");
-      background-color: get("colors.red.600");
+      color: var(--colors-white);
+      border: 1px solid var(--colors-red-600);
+      background-color: var(--colors-red-600);
     }
   }
 
@@ -73,7 +73,7 @@
   }
 
   &--default {
-    padding: 8px 12px;
+    padding: 11px 12px;
     font-size: get("font.size.sm");
 
     svg,
@@ -109,7 +109,7 @@
       width: 1.28571429em;
       height: 1.28571429em;
       border-radius: 500rem;
-      border: 0.2em solid get("colors.gray.500");
+      border: 0.2em solid var(--colors-gray-500);
     }
 
     &:after {

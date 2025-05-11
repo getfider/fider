@@ -4,10 +4,10 @@
   text-align: center;
 
   a {
-    color: get("colors.blue.700");
+    color: var(--colors-blue-700);
     font-size: 12px;
   }
   a:hover {
-    color: get("colors.gray.900");
+    color: var(--colors-gray-900);
   }
 }

@@ -167,6 +167,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 	private["logo"] = LogoURL(ctx)
 
 	locale := i18n.GetLocale(ctx)
+	localeDirection := i18n.GetLocaleDirection(ctx)
 	localeChunkName := fmt.Sprintf("locale-%s-client-json", locale)
 
 	// webpack replaces "/" and "." with "-", so we do the same here
@@ -205,6 +206,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 	public["settings"] = &Map{
 		"mode":             env.Config.HostMode,
 		"locale":           locale,
+		"localeDirection":  localeDirection,
 		"environment":      env.Config.Environment,
 		"googleAnalytics":  env.Config.GoogleAnalytics,
 		"domain":           env.MultiTenantDomain(),

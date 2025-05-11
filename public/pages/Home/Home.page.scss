@@ -15,9 +15,9 @@
   .p-home {
     &__welcome-col {
       > :first-child {
-        background-color: get("colors.white");
+        background-color: var(--colors-white);
         border-radius: get("border.radius.large");
-        border: 1px solid get("colors.gray.200");
+        border: 1px solid var(--colors-gray-200);
 
         @include media("lg") {
         }
@@ -25,9 +25,9 @@
     }
 
     &__posts-col {
-      background-color: get("colors.white");
+      background-color: var(--colors-white);
       border-radius: get("border.radius.large");
-      border: 1px solid get("colors.gray.200");
+      border: 1px solid var(--colors-gray-200);
 
       @include media("lg") {
       }

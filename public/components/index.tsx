@@ -1,4 +1,5 @@
 export * from "./ErrorBoundary"
+export * from "./ThemeSwitcher"
 export * from "./ShowPostResponse"
 export * from "./ShowPostStatus"
 export * from "./ShowTag"

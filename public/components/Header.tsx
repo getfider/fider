@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { SignInModal, TenantLogo, NotificationIndicator, UserMenu } from "@fider/components"
+import { SignInModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
@@ -27,14 +27,18 @@ export const Header = () => {
             </a>
             {fider.session.isAuthenticated && (
               <HStack spacing={2}>
+                <ThemeSwitcher />
                 <NotificationIndicator />
                 <UserMenu />
               </HStack>
             )}
             {!fider.session.isAuthenticated && (
-              <a href="#" className="uppercase text-sm" onClick={showModal}>
-                <Trans id="action.signin">Sign in</Trans>
-              </a>
+              <HStack spacing={2}>
+                <ThemeSwitcher />
+                <a href="#" className="uppercase text-sm" onClick={showModal}>
+                  <Trans id="action.signin">Sign in</Trans>
+                </a>
+              </HStack>
             )}
           </HStack>
         </div>

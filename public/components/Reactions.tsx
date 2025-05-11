@@ -39,7 +39,7 @@ export const Reactions: React.FC<ReactionsProps> = ({ emojiSelectorRef, toggleRe
           <>
             <span
               onClick={() => setIsEmojiSelectorOpen(!isEmojiSelectorOpen)}
-              className="c-reactions-add-reaction relative text-gray-600 clickable inline-flex items-center px-1 py-1 rounded-full text-xs bg-blue-100 hover:bg-blue-200"
+              className="c-reactions-add-reaction relative text-gray-600 clickable inline-flex items-center px-1 py-1 rounded-full text-xs bg-gray-100 hover:bg-gray-200"
             >
               <Icon width="18" height="18" sprite={ReactionAdd} className="" />
             </span>

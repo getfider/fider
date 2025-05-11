@@ -18,7 +18,7 @@
       width: 100%;
       height: 100%;
       border-radius: 500rem;
-      border: 0.2em solid get("colors.gray.300");
+      border: 0.2em solid var(--colors-gray-300);
     }
 
     &:after {
@@ -49,7 +49,7 @@
     display: block;
     text-align: center;
     font-size: get("font.size.xs");
-    color: get("colors.gray.700");
+    color: var(--colors-gray-700);
   }
 }
 
