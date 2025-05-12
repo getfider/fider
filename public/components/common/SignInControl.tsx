@@ -27,9 +27,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   const [email, setEmail] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
 
-  if (!props.signInButtonText) {
-    props.signInButtonText = i18n._({ id: "action.signin", message: "Sign in" })
-  }
+  const signInText = props.signInButtonText || i18n._({ id: "action.signin", message: "Sign in" })
 
   const forceShowEmailForm = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -104,7 +102,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
                 placeholder={i18n._("signin.email.placeholder", { message: "Email address" })}
               />
               <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                {props.signInButtonText}
+                {signInText}
               </Button>
             </Form>
             {!fider.session.tenant.isEmailAuthAllowed && (
