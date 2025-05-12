@@ -9,6 +9,7 @@ import { actions, Failure, cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { ImageUpload } from "@fider/models"
 import IconAttach from "@fider/assets/images/heroicons-paperclip.svg"
+import { SimilarPosts } from "../components/SimilarPosts"
 
 interface ShareFeedbackProps {
   isOpen: boolean
@@ -123,6 +124,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                   message: "Tell us about your idea. Explain it fully, don't hold back, the more information the better.",
                 })}
               />
+              {title && <SimilarPosts title={title} tags={[]} />}
               <MultiImageUploader
                 field="attachments"
                 maxUploads={3}
