@@ -9,10 +9,12 @@ import HeroIconThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
 import { HStack, VStack } from "./layout"
 import { timeSince } from "@fider/services"
 
+type Size = "micro" | "small" | "normal"
+
 interface PostResponseProps {
   status: string
   response: PostResponse | null
-  small?: boolean
+  size?: Size
 }
 
 export const ResponseDetails = (props: PostResponseProps): JSX.Element | null => {
@@ -66,11 +68,15 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
     return <div />
   }
 
+  if (props.size == "micro") {
+    return <span className={`${color} p-1 px-3 text-sm`}>{status.title}</span>
+  }
+
   return (
     <div>
       <HStack align="start" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
-        {!props.small && <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />}
-        <span className={`c-status-col--${status.value} ${props.small ? "text-sm" : "text-semibold"}`}>{status.title}</span>
+        {!props.size && <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />}
+        <span className={`c-status-col--${status.value} ${props.size === "small" ? "text-sm" : "text-semibold"}`}>{status.title}</span>
       </HStack>
     </div>
   )

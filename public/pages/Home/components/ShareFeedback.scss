@@ -2,6 +2,9 @@
 
 .c-share-feedback {
   background-color: var(--colors-gray-200);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 
   &__content {
     background-color: var(--colors-white);
@@ -9,13 +12,16 @@
     border-radius: get("border.radius.large");
     max-width: 600px;
     margin: 0 auto spacing(4);
+    flex-shrink: 0;
+  }
+
+  .c-modal-content {
+    flex: 1;
+    overflow-y: auto;
   }
 }
 
 .c-share-feedback-form {
-  // padding-bottom: sizing(6);
-  // border-bottom: 1px solid var(--colors-gray-200);
-
   .c-form-field {
     margin-bottom: spacing(6);
 

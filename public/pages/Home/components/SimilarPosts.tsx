@@ -1,6 +1,5 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { PageTitle, Loader } from "@fider/components"
 import { ListPosts } from "./ListPosts"
 import { actions } from "@fider/services"
 
@@ -44,12 +43,12 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   private timer?: number
   public componentDidUpdate() {
     window.clearTimeout(this.timer)
-    this.timer = window.setTimeout(this.loadSimilarPosts, 500)
+    this.timer = window.setTimeout(this.loadSimilarPosts, 1000)
   }
 
   private loadSimilarPosts = () => {
     if (this.state.loading) {
-      actions.searchPosts({ query: this.state.title }).then((x) => {
+      actions.searchPosts({ query: this.state.title, limit: 5 }).then((x) => {
         if (x.ok) {
           this.setState({ loading: false, posts: x.data })
         }
@@ -63,11 +62,15 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
 
     return (
       <>
-        <PageTitle title={title} subtitle={subtitle} />
-        {this.state.loading ? (
-          <Loader />
-        ) : (
-          <ListPosts posts={this.state.posts} tags={this.props.tags} emptyText={`No similar posts matched '${this.props.title}'.`} />
+        {this.state.posts.length > 0 && (
+          <div className="mb-4">
+            <div className="mb-4 text-gray-700">
+              {title} - {subtitle}
+            </div>
+            {!this.state.loading && (
+              <ListPosts posts={this.state.posts} tags={this.props.tags} emptyText={`No similar posts matched '${this.props.title}'.`} minimalView={true} />
+            )}
+          </div>
         )}
       </>
     )
