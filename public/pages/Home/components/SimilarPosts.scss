@@ -1,0 +1,14 @@
+.similar-posts-container {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: top center;
+}
+
+.similar-posts-hidden {
+  //   transform: translateY(-20px);
+  opacity: 0;
+}
+
+.similar-posts-visible {
+  //   transform: translateY(0);
+  opacity: 1;
+}

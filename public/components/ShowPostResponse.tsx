@@ -69,7 +69,7 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
   }
 
   if (props.size == "micro") {
-    return <span className={`${color} p-1 px-3 text-sm`}>{status.title}</span>
+    return <span className={`${color} px-3 text-sm`}>{status.title}</span>
   }
 
   return (
