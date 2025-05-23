@@ -112,9 +112,21 @@ func addOrRemoveUserListUser(ctx context.Context, u *cmd.UserListHandleRoleChang
 
 func updateUserListUser(ctx context.Context, u *cmd.UserListUpdateUser) error {
 
+	dbUser := &query.GetUserByID{
+		UserID: u.Id,
+	}
+	err := bus.Dispatch(ctx, dbUser)
+	if err != nil {
+		return err
+	}
+
+	if dbUser.Result.Role != enum.RoleAdministrator {
+		return nil
+	}
+
 	user := &UserListUser{
 		Identifier: strconv.Itoa(u.Id),
-		Company:    strconv.Itoa(u.TenantId),
+		Company:    strconv.Itoa(dbUser.Result.Tenant.ID),
 	}
 
 	if len(u.Email) > 0 {
@@ -127,7 +139,7 @@ func updateUserListUser(ctx context.Context, u *cmd.UserListUpdateUser) error {
 		}
 	}
 
-	err := pushUserListUpdate(user, ctx)
+	err = pushUserListUpdate(user, ctx)
 	if err != nil {
 		return err
 	}
