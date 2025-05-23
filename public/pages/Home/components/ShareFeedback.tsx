@@ -15,26 +15,43 @@ interface ShareFeedbackProps {
   isOpen: boolean
   placeholder: string
   onClose: () => void
-  draftPost?: {
-    id: number
-    code: string
-    title: string
-    description: string
-  }
-  draftAttachments?: string[]
+  // draftPost?: {
+  //   id: number
+  //   code: string
+  //   title: string
+  //   description: string
+  // }
+  // draftAttachments?: string[]
 }
+
+export const CACHE_TITLE_KEY = "PostInput-Title"
+export const CACHE_DESCRIPTION_KEY = "PostInput-Description"
+export const CACHE_ATTACHMENT_KEY = "PostInput-Attachment"
 
 export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const fider = useFider()
-  const { isOpen, onClose, draftPost, draftAttachments } = props
+  const { isOpen, onClose } = props
 
-  // State for the post form
-  const [title, setTitle] = useState(draftPost?.title || "")
-  const [description, setDescription] = useState(draftPost?.description || "")
-  const [attachments, setAttachments] = useState<ImageUpload[]>(draftAttachments ? draftAttachments.map((bkey) => ({ bkey, url: "", remove: false })) : [])
+  const getCachedValue = (key: string): string => {
+    return cache.session.get(key) || ""
+  }
+
+  const getDraftAttachments = (): ImageUpload[] => {
+    const json = getCachedValue(CACHE_ATTACHMENT_KEY)
+    if (!json) return []
+    const bkeys = JSON.parse(json)
+    return bkeys.map((bkey: string) => ({ bkey, url: "", remove: false }))
+  }
+
+  const [title, setTitle] = useState(getCachedValue(CACHE_TITLE_KEY))
+  const [description, setDescription] = useState(getCachedValue(CACHE_DESCRIPTION_KEY))
+  const [attachments, setAttachments] = useState<ImageUpload[]>(getDraftAttachments())
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
+
+  const cachedBkeys = getCachedValue(CACHE_ATTACHMENT_KEY)
+  const bkeys = cachedBkeys.length > 0 ? cachedBkeys.split(",") : []
 
   useEffect(() => {
     if (!titleManuallyEdited) {
@@ -50,6 +67,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   // Handlers for post input changes
   const handleTitleChange = (value: string, isManualEdit = true) => {
     setTitle(value)
+    cache.session.set(CACHE_TITLE_KEY, value)
     // If this is a manual edit (not auto-generated from description),
     // mark the title as manually edited so we stop auto-populating
     if (isManualEdit) {
@@ -59,10 +77,11 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const handleDescriptionChange = (value: string) => {
     setDescription(value)
+    cache.session.set(CACHE_DESCRIPTION_KEY, value)
   }
 
-  const handleAttachmentsChange = (value: ImageUpload[]) => {
-    setAttachments(value)
+  const handleAttachmentsChange = (images: ImageUpload[]) => {
+    setAttachments(images)
   }
 
   const onSubmitFeedback = async (): Promise<SignInSubmitResponse> => {
@@ -79,8 +98,6 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   const clearError = () => setError(undefined)
-  const CACHE_TITLE_KEY = "PostInput-Title"
-  const CACHE_DESCRIPTION_KEY = "PostInput-Description"
 
   const finaliseFeedback = async () => {
     if (title) {
@@ -124,11 +141,11 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                   message: "Tell us about your idea. Explain it fully, don't hold back, the more information the better.",
                 })}
               />
-              {title && <SimilarPosts title={title} tags={[]} />}
+              <SimilarPosts title={title} tags={[]} />
               <MultiImageUploader
                 field="attachments"
                 maxUploads={3}
-                bkeys={props.draftAttachments}
+                bkeys={bkeys}
                 onChange={handleAttachmentsChange}
                 addImageButton={
                   <a className="flex items-center clickable">

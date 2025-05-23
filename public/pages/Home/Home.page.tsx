@@ -1,16 +1,17 @@
 import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
-import React, { useState } from "react"
-import { Post, Tag, PostStatus } from "@fider/models"
+import React, { useEffect, useState } from "react"
+import { Post, Tag, PostStatus, ImageUpload } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
 import { ShareFeedback } from "./components/ShareFeedback"
-
+import { cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
+import { CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY } from "./components/ShareFeedback"
 
 export interface HomePageProps {
   posts: Post[]
@@ -82,14 +83,25 @@ What can we do better? This is the place for you to vote, discuss and share idea
     setIsShareFeedbackOpen(true)
   }
 
+  useEffect(() => {
+    if (props.draftPost) {
+      // Need to store the details of the draft post in the cache
+      cache.session.set(CACHE_TITLE_KEY, props.draftPost.title)
+      cache.session.set(CACHE_DESCRIPTION_KEY, props.draftPost.description)
+      cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(props.draftAttachments)
+      if (props.draftAttachments) {
+        const images: ImageUpload[] = props.draftAttachments.map((bkey: string) => ({ bkey, url: "", remove: false }))
+        cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(images))
+      }
+    }
+  }, [props.draftPost])
+
   return (
     <>
       <ShareFeedback
         placeholder={fider.session.tenant.invitation || defaultInvitation}
         isOpen={isShareFeedbackOpen}
         onClose={() => setIsShareFeedbackOpen(false)}
-        draftPost={props.draftPost}
-        draftAttachments={props.draftAttachments}
       />
       <Header />
       <div id="p-home" className="page container">
