@@ -17,7 +17,8 @@ RUN go mod download
 COPY . ./
 
 ARG COMMITHASH
-RUN COMMITHASH=${COMMITHASH} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
+ARG VERSION
+RUN COMMITHASH=${COMMITHASH} VERSION=${VERSION} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
 #################
 ### UI Build Step
 #################

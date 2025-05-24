@@ -16,17 +16,22 @@ import (
 )
 
 var (
-	// this value is set by the CI build
+	// these values are set by the CI build
 	commithash = ""
-	version    = "0.22.0"
+	version    = ""
 )
 
 func Version() string {
-	if commithash == "" {
-		return fmt.Sprintf("%s-dev", version)
+	v := version
+	if v == "" {
+		v = "dev"
 	}
 
-	return fmt.Sprintf("%s-%s", version, commithash)
+	if commithash == "" {
+		return v
+	}
+
+	return fmt.Sprintf("%s-%s", v, commithash)
 }
 
 type config struct {
@@ -49,7 +54,7 @@ type config struct {
 	Locale                      string `env:"LOCALE,default=en"`
 	JWTSecret                   string `env:"JWT_SECRET,required"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
-	Paddle     struct {
+	Paddle                      struct {
 		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
 		VendorID       string `env:"PADDLE_VENDOR_ID"`
 		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`

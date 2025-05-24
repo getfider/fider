@@ -65,7 +65,9 @@ jobs:
         with:
           push: true
           context: .
-          build-args: COMMITHASH=${{ github.event.workflow_run.head_sha }}
+          build-args: |
+            COMMITHASH=${{ github.event.workflow_run.head_sha }}
+            VERSION=${{ github.event.workflow_run.display_title }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:${{ github.event.workflow_run.display_title }}
           cache-from: type=gha
