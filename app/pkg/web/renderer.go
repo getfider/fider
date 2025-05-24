@@ -215,6 +215,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 		"baseURL":          ctx.BaseURL(),
 		"assetsURL":        AssetsURL(ctx, ""),
 		"oauth":            oauthProviders.Result,
+		"postWithTags":     env.Config.PostCreationWithTagsEnabled,
 	}
 
 	if ctx.IsAuthenticated() {
