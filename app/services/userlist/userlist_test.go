@@ -11,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/services/httpclient/httpclientmock"
@@ -200,6 +201,33 @@ func TestUpdateUser_EmailOnly(t *testing.T) {
 
 	containsEmail := strings.Contains(string(body), "email")
 	Expect(containsEmail).IsTrue()
+}
+
+func TestDoNothingIfUserNotAdmin(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "multi"
+	reset()
+
+	// Change the DB hit to return a visitor
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		q.Result = &entity.User{
+			ID:    1,
+			Name:  "John Doe",
+			Email: "john.doe@example.com",
+			Role:  enum.RoleVisitor,
+		}
+		return nil
+	})
+
+	err := bus.Dispatch(ctx, &cmd.UserListUpdateUser{
+		Id:       1,
+		TenantId: 1,
+		Email:    "Freddy@example.com",
+	})
+	Expect(err).IsNil()
+
+	Expect(httpclientmock.RequestsHistory).HasLen(0)
+
 }
 
 func TestMakeUserAdministrator(t *testing.T) {
