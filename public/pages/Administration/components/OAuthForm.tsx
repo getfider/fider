@@ -173,8 +173,8 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             onChange={setJSONUserNamePath}
           >
             <p className="text-muted">
-              Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong> recommended. For the example below, the path would
-              be <strong>profile.name</strong>.
+              Path to extract user Display Name from the JSON. Optional, but <strong>highly</strong> recommended. <br />
+              E.g. <strong>profile.name</strong>. Composite names are supported, e.g. <strong>profile.firstname + &apos; &apos; + profile.lastname</strong>.
             </p>
           </Input>
           <Input
