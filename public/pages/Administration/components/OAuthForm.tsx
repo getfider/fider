@@ -86,7 +86,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             disabled={!fider.session.user.isAdministrator}
             onChange={setDisplayName}
           />
-          <Field label="Button Preview">
+          <Field className="flex flex-y" label="Button Preview">
             <SocialSignInButton option={{ displayName: displayName || "Button", provider, logoBlobKey, logoURL }} />
           </Field>
         </div>
@@ -149,6 +149,13 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
         </Input>
 
         <h3 className="text-title mt-8 mb-2">JSON Path</h3>
+        <p>
+          Find out more about{" "}
+          <a rel="noopener" className="text-link" target="_blank" href="https://fider.io/docs/configuring-oauth#configuring-the-json-paths">
+            configuring the JSON Paths
+          </a>
+          .
+        </p>
 
         <div className="grid grid-cols-3 gap-4">
           <Input
@@ -159,10 +166,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             disabled={!fider.session.user.isAdministrator}
             onChange={setJSONUserIDPath}
           >
-            <p className="text-muted">
-              Path to extract User ID from the JSON. This ID <strong>must</strong> be unique within the provider or unexpected side effects might happen. For
-              example below, the path would be <strong>id</strong>.
-            </p>
+            <p className="text-muted">Make sure it&apos;s unique. </p>
           </Input>
           <Input
             field="jsonUserNamePath"
@@ -173,8 +177,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             onChange={setJSONUserNamePath}
           >
             <p className="text-muted">
-              Path to extract user Display Name from the JSON. Optional, but <strong>highly</strong> recommended. <br />
-              E.g. <strong>profile.name</strong>. Composite names are supported, e.g. <strong>profile.firstname + &apos; &apos; + profile.lastname</strong>.
+              Optional, but <strong>highly</strong> recommended.
             </p>
           </Input>
           <Input
@@ -186,28 +189,10 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             onChange={setJSONUserEmailPath}
           >
             <p className="text-muted">
-              Path to extract user Email from the JSON. This is optional, but <strong>highly</strong> recommended. For the example below, the path would be{" "}
-              <strong>profile.emails[0]</strong>.
+              Optional, but <strong>highly</strong> recommended.
             </p>
           </Input>
         </div>
-
-        <h3 className="text-title mb-2">Example Response</h3>
-
-        <pre>
-          {`{ 
-  id: "35235"
-  title: "Sr. Account Manager",
-  profile: {
-    dob: "01/05/2018",
-    name: "John Doe"
-    emails: [
-      "john.doe@company.com"
-    ]
-  }
-}
-          `}
-        </pre>
 
         <Field label="Trusted Source">
           <Toggle field="isTrusted" active={isTrusted} onToggle={setTrusted} label={isTrusted ? "Yes" : "No"} />
