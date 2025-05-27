@@ -116,9 +116,13 @@ func parseOAuthRawProfile(ctx context.Context, c *cmd.ParseOAuthRawProfile) erro
 	}
 
 	query := jsonq.New(c.Body)
+
+	// Extract and combine name parts
+	name := extractCompositeName(query, config.JSONUserNamePath)
+
 	profile := &dto.OAuthUserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
-		Name:  strings.TrimSpace(query.String(config.JSONUserNamePath)),
+		Name:  name,
 		Email: strings.ToLower(strings.TrimSpace(query.String(config.JSONUserEmailPath))),
 	}
 
@@ -143,6 +147,52 @@ func parseOAuthRawProfile(ctx context.Context, c *cmd.ParseOAuthRawProfile) erro
 	return nil
 }
 
+// extractCompositeName handles composite name selectors
+// Format can be:
+// - Simple path: "name"
+// - Fallback paths: "name, login" (tries name, if empty tries login)
+// - Composite paths: "firstname + ' ' + lastname" (combines multiple fields)
+func extractCompositeName(query *jsonq.Query, namePath string) string {
+	// Check if it's a composite path (contains '+')
+	if strings.Contains(namePath, "+") {
+		// Split by '+' and process each part
+		parts := strings.Split(namePath, "+")
+		var result strings.Builder
+
+		for _, part := range parts {
+			part = strings.TrimSpace(part)
+
+			// If it's a string literal (enclosed in quotes or single quotes)
+			if (strings.HasPrefix(part, "'") && strings.HasSuffix(part, "'")) ||
+				(strings.HasPrefix(part, "\"") && strings.HasSuffix(part, "\"")) {
+				// Extract the literal without quotes
+				literal := part[1 : len(part)-1]
+				result.WriteString(literal)
+			} else {
+				// It's a JSON path
+				value := strings.TrimSpace(query.String(part))
+				if value != "" {
+					result.WriteString(value)
+				}
+			}
+		}
+
+		return strings.TrimSpace(result.String())
+	}
+
+	// Handle fallback paths (comma-separated)
+	paths := strings.Split(namePath, ",")
+	for _, path := range paths {
+		path = strings.TrimSpace(path)
+		value := strings.TrimSpace(query.String(path))
+		if value != "" {
+			return value
+		}
+	}
+
+	return ""
+}
+
 func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizationURL) error {
 	config, err := getConfig(ctx, q.Provider)
 	if err != nil {
@@ -161,7 +211,7 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 		Redirect:   q.Redirect,
 		Identifier: q.Identifier,
 	})
-	
+
 	if err != nil {
 		return err
 	}
