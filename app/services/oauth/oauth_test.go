@@ -54,7 +54,7 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state="+expectedState)
+	Expect(authURL.Result).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=" + expectedState)
 }
 
 func TestGetAuthURL_Google(t *testing.T) {
@@ -76,7 +76,7 @@ func TestGetAuthURL_Google(t *testing.T) {
 
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://accounts.google.com/o/oauth2/v2/auth?client_id=GO_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=profile+email&state="+expectedState)
+	Expect(authURL.Result).Equals("https://accounts.google.com/o/oauth2/v2/auth?client_id=GO_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=profile+email&state=" + expectedState)
 }
 
 func TestGetAuthURL_GitHub(t *testing.T) {
@@ -98,7 +98,7 @@ func TestGetAuthURL_GitHub(t *testing.T) {
 
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://github.com/login/oauth/authorize?client_id=GH_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state="+expectedState)
+	Expect(authURL.Result).Equals("https://github.com/login/oauth/authorize?client_id=GH_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=" + expectedState)
 }
 
 func TestGetAuthURL_Custom(t *testing.T) {
@@ -131,7 +131,7 @@ func TestGetAuthURL_Custom(t *testing.T) {
 
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state="+expectedState)
+	Expect(authURL.Result).Equals("https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state=" + expectedState)
 }
 
 func TestGetAuthURL_Twitch(t *testing.T) {
@@ -164,7 +164,7 @@ func TestGetAuthURL_Twitch(t *testing.T) {
 
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state="+expectedState)
+	Expect(authURL.Result).Equals("https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state=" + expectedState)
 }
 
 func TestParseProfileResponse_AllFields(t *testing.T) {
@@ -455,4 +455,189 @@ func TestCustomOAuth_Disabled(t *testing.T) {
 	err = bus.Dispatch(ctx, oauthProfile)
 	Expect(err).IsNotNil()
 	Expect(oauthProfile.Result).IsNil()
+}
+
+func TestParseOAuthRawProfile_CompositeName(t *testing.T) {
+	RegisterT(t)
+
+	// Initialize the OAuth service
+	bus.Init(&oauth.Service{})
+
+	testCases := []struct {
+		name          string
+		jsonBody      string
+		jsonNamePath  string
+		expectedName  string
+		expectedEmail string
+		expectedID    string
+	}{
+		{
+			name:          "Simple path",
+			jsonBody:      `{"id": "123", "name": "Jon Snow", "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "name",
+			expectedName:  "Jon Snow",
+			expectedEmail: "jon.snow@got.com",
+			expectedID:    "123",
+		},
+		{
+			name:          "Fallback path - first exists",
+			jsonBody:      `{"id": "123", "name": "Jon Snow", "login": "jonsnow", "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "name, login",
+			expectedName:  "Jon Snow",
+			expectedEmail: "jon.snow@got.com",
+			expectedID:    "123",
+		},
+		{
+			name:          "Fallback path - first missing",
+			jsonBody:      `{"id": "123", "login": "jonsnow", "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "name, login",
+			expectedName:  "jonsnow",
+			expectedEmail: "jon.snow@got.com",
+			expectedID:    "123",
+		},
+		{
+			name:          "Composite path with space",
+			jsonBody:      `{"id": "123", "firstname": "Jon", "lastname": "Snow", "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "firstname + ' ' + lastname",
+			expectedName:  "Jon Snow",
+			expectedEmail: "jon.snow@got.com",
+			expectedID:    "123",
+		},
+		{
+			name:          "Composite path with comma",
+			jsonBody:      `{"id": "123", "firstname": "Jon", "lastname": "Snow", "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "lastname + ', ' + firstname",
+			expectedName:  "Snow, Jon",
+			expectedEmail: "jon.snow@got.com",
+			expectedID:    "123",
+		},
+		{
+			name:          "Composite path with missing field",
+			jsonBody:      `{"id": "123", "firstname": "Jon", "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "firstname + ' ' + lastname",
+			expectedName:  "Jon", // lastname is missing, so only firstname is used
+			expectedEmail: "jon.snow@got.com",
+			expectedID:    "123",
+		},
+		{
+			name:          "Nested JSON path",
+			jsonBody:      `{"id": "123", "profile": {"name": {"first": "Jon", "last": "Snow"}}, "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "profile.name.first + ' ' + profile.name.last",
+			expectedName:  "Jon Snow",
+			expectedEmail: "jon.snow@got.com",
+			expectedID:    "123",
+		},
+		{
+			name:          "Empty name with email fallback",
+			jsonBody:      `{"id": "123", "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "name",
+			expectedName:  "jon.snow", // Should use part before @ in email
+			expectedEmail: "jon.snow@got.com",
+			expectedID:    "123",
+		},
+		{
+			name:          "Empty name and email",
+			jsonBody:      `{"id": "123"}`,
+			jsonNamePath:  "name",
+			expectedName:  "Anonymous", // Should use "Anonymous"
+			expectedEmail: "",
+			expectedID:    "123",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Create a mock config for this test case
+			mockConfig := &entity.OAuthConfig{
+				JSONUserIDPath:    "id",
+				JSONUserNamePath:  tc.jsonNamePath,
+				JSONUserEmailPath: "email",
+			}
+
+			// Register a mock handler for getConfig
+			bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+				q.Result = mockConfig
+				return nil
+			})
+
+			// Create the parse command
+			parseCmd := &cmd.ParseOAuthRawProfile{
+				Provider: "test_provider",
+				Body:     tc.jsonBody,
+			}
+
+			// Execute the command
+			err := bus.Dispatch(context.Background(), parseCmd)
+			Expect(err).IsNil()
+
+			// Verify the result
+			profile := parseCmd.Result
+			Expect(profile).IsNotNil()
+			Expect(profile.ID).Equals(tc.expectedID)
+			Expect(profile.Name).Equals(tc.expectedName)
+			Expect(profile.Email).Equals(tc.expectedEmail)
+		})
+	}
+}
+
+// Test for invalid inputs
+func TestParseOAuthRawProfile_InvalidInputs(t *testing.T) {
+	RegisterT(t)
+
+	// Initialize the OAuth service
+	bus.Init(&oauth.Service{})
+
+	testCases := []struct {
+		name          string
+		jsonBody      string
+		jsonNamePath  string
+		expectedError bool
+	}{
+		{
+			name:          "Missing ID",
+			jsonBody:      `{"name": "Jon Snow", "email": "jon.snow@got.com"}`,
+			jsonNamePath:  "name",
+			expectedError: true,
+		},
+		{
+			name:          "Invalid email",
+			jsonBody:      `{"id": "123", "name": "Jon Snow", "email": "not-an-email"}`,
+			jsonNamePath:  "name",
+			expectedError: false, // Should not error, but email should be empty
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Create a mock config for this test case
+			mockConfig := &entity.OAuthConfig{
+				JSONUserIDPath:    "id",
+				JSONUserNamePath:  tc.jsonNamePath,
+				JSONUserEmailPath: "email",
+			}
+
+			// Register a mock handler for getConfig
+			bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+				q.Result = mockConfig
+				return nil
+			})
+
+			// Create the parse command
+			parseCmd := &cmd.ParseOAuthRawProfile{
+				Provider: "test_provider",
+				Body:     tc.jsonBody,
+			}
+
+			// Execute the command
+			err := bus.Dispatch(context.Background(), parseCmd)
+
+			if tc.expectedError {
+				Expect(err).IsNotNil()
+			} else {
+				Expect(err).IsNil()
+				profile := parseCmd.Result
+				Expect(profile).IsNotNil()
+			}
+		})
+	}
 }
