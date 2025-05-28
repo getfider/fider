@@ -37,4 +37,12 @@
     border-radius: 50%;
     padding: 6px;
   }
+
+  &--transparent {
+    background: transparent;
+
+    span {
+      margin-inline-end: 0;
+    }
+  }
 }

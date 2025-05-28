@@ -10,6 +10,7 @@ interface TagProps {
   tag: Tag
   circular?: boolean
   link?: boolean
+  noBackground?: boolean
 }
 
 // const textColor = (color: string) => {
@@ -22,6 +23,7 @@ export const ShowTag = (props: TagProps) => {
   const className = classSet({
     "c-tag": true,
     "c-tag--circular": props.circular === true,
+    "c-tag--transparent": props.noBackground === true,
   })
 
   return (
