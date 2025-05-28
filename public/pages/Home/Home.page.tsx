@@ -78,7 +78,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
         <div className="p-home__welcome-col">
           <VStack spacing={2} className="p-4">
             <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
-            <PostInput placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} />
+            <PostInput tags={props.tags} placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} />
           </VStack>
           <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
         </div>
