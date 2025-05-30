@@ -148,7 +148,7 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.UpdatePrivacy(),
+			handlers.UpdatePrivacySettings(),
 			`{ "isPrivate": true }`,
 		)
 
