@@ -43,7 +43,7 @@
   "email.subscription.change": "changez vos préférences de notification",
   "email.subscription.unsubscribe": "me désabonner",
   "email.greetings": "Bonjour !",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> vous a mentionné dans <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Bonjour, {name} !",
   "email.operation_confirmation": "Cliquez sur le lien ci-dessous pour confirmer cette action.",
   "email.footer.noreply": "Cet e-mail a été envoyé à partir d'une adresse automatique qui ne peut pas recevoir d'e-mail. Veuillez ne pas répondre à ce message.",

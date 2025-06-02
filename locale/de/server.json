@@ -43,7 +43,7 @@
   "email.subscription.change": "E-Mail-Benachrichtigungseinstellungen ändern",
   "email.subscription.unsubscribe": "abbestellen",
   "email.greetings": "Hallo!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> hat dich in <strong>{title} ({postLink})</strong> erwähnt.",
   "email.greetings_name": "Hallo, {name}!",
   "email.operation_confirmation": "Klicken Sie auf den Link unten, um diesen Vorgang zu bestätigen.",
   "email.footer.noreply": "Diese E-Mail wurde von einer Benachrichtigungs-Adresse versendet, die eingehende E-Mails nicht akzeptieren kann. Bitte antworten Sie nicht auf diese Nachricht.",
