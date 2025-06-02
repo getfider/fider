@@ -1,8 +1,9 @@
 import React, { useState } from "react"
-import { SignInModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher } from "@fider/components"
+import { SignInModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher, Icon } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
+import IconRss from "@fider/assets/images/heroicons-rss.svg"
 
 export const Header = () => {
   const fider = useFider()
@@ -27,6 +28,11 @@ export const Header = () => {
             </a>
             {fider.session.isAuthenticated && (
               <HStack spacing={2}>
+                {fider.session.tenant.isFeedEnabled && (
+                  <a title="ATOM Feed (All Posts)" type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
+                    <Icon sprite={IconRss} className="h-6" />
+                  </a>
+                )}
                 <ThemeSwitcher />
                 <NotificationIndicator />
                 <UserMenu />
@@ -34,6 +40,11 @@ export const Header = () => {
             )}
             {!fider.session.isAuthenticated && (
               <HStack spacing={2}>
+                {fider.session.tenant.isFeedEnabled && (
+                  <a title="ATOM Feed (All Posts)" type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
+                    <Icon sprite={IconRss} className="h-6" />
+                  </a>
+                )}
                 <ThemeSwitcher />
                 <a href="#" className="uppercase text-sm" onClick={showModal}>
                   <Trans id="action.signin">Sign in</Trans>
