@@ -26,15 +26,21 @@ export const PostInput = (props: PostInputProps) => {
     return ""
   }
 
-  const getTagsCachedValue = (): string[] => {
+  const getTagsCachedValue = (): Tag[] => {
+    if (!canEditTags) {
+      return []
+    }
+
     const cacheValue = getCachedValue(CACHE_TAGS_KEY)
     const urlValue = querystring.get("tags")
     const combined = [...cacheValue.split(","), ...urlValue.split(",")]
-    // Filter out empty strings
-    return Array.from(new Set(combined.map((s) => s.trim()).filter((s) => s.length > 0)))
+    const tagsAsStrings = Array.from(new Set(combined.map((s) => s.trim()).filter((s) => s.length > 0)))
+
+    return props.tags.filter((tag) => tagsAsStrings.includes(tag.slug))
   }
 
   const fider = useFider()
+  const canEditTags = fider.session.isAuthenticated && fider.settings.postWithTags && props.tags.length > 0
   const titleRef = useRef<HTMLInputElement>()
   const [title, setTitle] = useState(getCachedValue(CACHE_TITLE_KEY))
   const [description, setDescription] = useState(getCachedValue(CACHE_DESCRIPTION_KEY))
@@ -70,7 +76,12 @@ export const PostInput = (props: PostInputProps) => {
 
   const submit = async (event: ButtonClickEvent) => {
     if (title) {
-      const result = await actions.createPost(title, description, attachments, tags)
+      const result = await actions.createPost(
+        title,
+        description,
+        attachments,
+        tags.map((tag) => tag.slug)
+      )
       if (result.ok) {
         clearError()
         cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_TAGS_KEY)
@@ -82,10 +93,9 @@ export const PostInput = (props: PostInputProps) => {
     }
   }
 
-  const handleTagsChanged = (newTags: string[]) => {
-    const newTagsFiltered = newTags.filter((tag) => tag.trim() !== "")
-    cache.session.set(CACHE_TAGS_KEY, newTagsFiltered.join(","))
-    setTags(newTagsFiltered)
+  const handleTagsChanged = (newTags: Tag[]) => {
+    cache.session.set(CACHE_TAGS_KEY, newTags.map((tag) => tag.slug).join(","))
+    setTags(newTags)
   }
 
   const details = () => (
@@ -97,7 +107,7 @@ export const PostInput = (props: PostInputProps) => {
         minRows={5}
         placeholder={i18n._("home.postinput.description.placeholder", { message: "Describe your suggestion (optional)" })}
       />
-      {fider.settings.postWithTags && (
+      {canEditTags && (
         <div className={classSet({ "c-form-field": true })}>
           <TagsFilter tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} />
         </div>
