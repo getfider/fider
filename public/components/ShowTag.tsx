@@ -28,7 +28,8 @@ export const ShowTag = (props: TagProps) => {
 
   return (
     <a
-      href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : undefined}
+      // always add an href, so the tag can be selected by keyboard in the TagsSelect
+      href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : ""}
       title={`${props.tag.name}${props.tag.isPublic ? "" : " (Private)"}`}
       className={className}
     >
