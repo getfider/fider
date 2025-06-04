@@ -34,8 +34,7 @@ import { VoteSection } from "./components/VoteSection"
 import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
-import { TagsSelect } from "@fider/components/common/TagsSelect"
-import { useFider } from "@fider/hooks"
+import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
 
 interface ShowPostPageProps {
   post: Post
@@ -64,8 +63,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [highlightedComment, setHighlightedComment] = useState<number | undefined>(undefined)
   const [error, setError] = useState<Failure | undefined>(undefined)
-  const fider = useFider()
-  const canEdit = fider.session.isAuthenticated && fider.session.user.isCollaborator && props.tags.length > 0
 
   const handleHashChange = useCallback(
     (e?: Event) => {
@@ -228,7 +225,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                   )}
                 </VStack>
                 <div className="mt-2">
-                  <TagsSelect post={props.post} tags={props.tags} asLinks canEdit={canEdit} selected={[]} />
+                  <TagsPanel post={props.post} tags={props.tags} />
                 </div>
 
                 <VStack spacing={4}>

@@ -109,7 +109,7 @@ export const PostInput = (props: PostInputProps) => {
       />
       {canEditTags && (
         <div className={classSet({ "c-form-field": true })}>
-          <TagsSelect tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} canEdit={canEditTags} />
+          <TagsSelect tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} canEdit={true} />
         </div>
       )}
       <MultiImageUploader field="attachments" maxUploads={3} onChange={setAttachments} noPadding />

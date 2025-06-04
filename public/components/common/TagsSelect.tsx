@@ -1,6 +1,6 @@
 import React, { KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from "react"
-import { Post, Tag } from "@fider/models"
-import { actions, sortTags } from "@fider/services"
+import { Tag } from "@fider/models"
+import { sortTags } from "@fider/services"
 import { Button, ShowTag } from "@fider/components"
 import { useFider } from "@fider/hooks"
 
@@ -11,10 +11,9 @@ import { i18n } from "@lingui/core"
 import "./TagsSelect.scss"
 
 export interface TagsSelectProps {
-  post?: Post
   tags: Tag[]
   selected: Tag[]
-  selectionChanged?: (selected: Tag[]) => void
+  selectionChanged: (selected: Tag[]) => void
   canEdit: boolean
   asLinks?: boolean
 }
@@ -22,45 +21,15 @@ export interface TagsSelectProps {
 export const TagsSelect = (props: TagsSelectProps) => {
   const fider = useFider()
   const [isEditing, setIsEditing] = useState(false)
-  const [assignedTags, setAssignedTags] = useState(
-    props.post == null
-      ? props.selected
-      : props.tags.filter((t) => props.post!.tags.indexOf(t.slug) >= 0)
-  )
   const [query, setQuery] = useState("")
 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const assignOrUnassignTag = async (tag: Tag) => {
-    const idx = assignedTags.indexOf(tag)
-    let nextAssignedTags: Tag[] = []
-
-    if (props.post == null) {
-      const next = idx >= 0 ? assignedTags.filter((x) => x != tag) : assignedTags.concat(tag)
-      setAssignedTags(next)
-
-      if (props.selectionChanged) {
-        props.selectionChanged(next)
-      }
-
-      return
-    }
-
-    if (idx >= 0) {
-      const response = await actions.unassignTag(tag.slug, props.post.number)
-      if (response.ok) {
-        nextAssignedTags = [...assignedTags]
-        nextAssignedTags.splice(idx, 1)
-      }
-    } else {
-      const response = await actions.assignTag(tag.slug, props.post.number)
-      if (response.ok) {
-        nextAssignedTags = [...assignedTags, tag]
-      }
-    }
-
-    setAssignedTags(nextAssignedTags)
+    const idx = props.selected.indexOf(tag)
+    const next = idx >= 0 ? props.selected.filter((x) => x != tag) : props.selected.concat(tag)
+    props.selectionChanged(next)
   }
 
   const onSubtitleClick = () => {
@@ -95,7 +64,7 @@ export const TagsSelect = (props: TagsSelectProps) => {
   }
 
   const filteredOptions = props.tags.filter(
-    (option) => option.name.toLowerCase().includes(query.toLowerCase()) && !assignedTags.some((tag) => tag.slug === option.slug)
+    (option) => option.name.toLowerCase().includes(query.toLowerCase()) && !props.selected.some((tag) => tag.slug === option.slug)
   )
 
   const handleEsc = (event: KeyboardEvent | ReactKeyboardEvent) => {
@@ -128,13 +97,13 @@ export const TagsSelect = (props: TagsSelectProps) => {
     }
   }, [isEditing])
 
-  if (!props.canEdit && assignedTags.length === 0) {
+  if (!props.canEdit && props.selected.length === 0) {
     return null
   }
 
   const tagsList = (
     <div className="tags-list">
-      {assignedTags.length > 0 && sortTags(assignedTags).map((tag) => <ShowTag key={tag.id} tag={tag} {...(props.asLinks ? { link: true } : {})} />)}
+      {props.selected.length > 0 && sortTags(props.selected).map((tag) => <ShowTag key={tag.id} tag={tag} link={props.asLinks} />)}
       {props.canEdit && (
         <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
           <Button variant={"link"} size={"no-padding"}>
@@ -150,12 +119,12 @@ export const TagsSelect = (props: TagsSelectProps) => {
     <div className="dropdown-wrapper" ref={dropdownRef}>
       {/* Selected options and search input */}
       <div className="selected-options-container">
-        {assignedTags.length === 0 && (
+        {props.selected.length === 0 && (
           <span className="text-muted">
             <Trans id="labels.notagsselected">No tags selected</Trans>
           </span>
         )}
-        {sortTags(assignedTags).map((tag) => (
+        {sortTags(props.selected).map((tag) => (
           <div key={tag.id} className="selected-option">
             <ShowTag tag={tag} />
             <button onClick={() => handleOptionClick(tag)} className="remove-button">
@@ -170,7 +139,6 @@ export const TagsSelect = (props: TagsSelectProps) => {
         <div className="options-container">
           {/* Search box to enter query string */}
           <input
-            id="tagsSelectInput"
             type="text"
             value={query}
             ref={inputRef}
