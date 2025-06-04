@@ -11,17 +11,22 @@ import { i18n } from "@lingui/core"
 import "./TagsSelect.scss"
 
 export interface TagsSelectProps {
-  post: Post
+  post?: Post
   tags: Tag[]
+  selected: Tag[]
+  selectionChanged?: (selected: Tag[]) => void
+  canEdit: boolean
   asLinks?: boolean
 }
 
 export const TagsSelect = (props: TagsSelectProps) => {
   const fider = useFider()
-  const canEdit = fider.session.isAuthenticated && fider.session.user.isCollaborator && props.tags.length > 0
-
   const [isEditing, setIsEditing] = useState(false)
-  const [assignedTags, setAssignedTags] = useState(props.tags.filter((t) => props.post.tags.indexOf(t.slug) >= 0))
+  const [assignedTags, setAssignedTags] = useState(
+    props.post == null
+      ? props.selected
+      : props.tags.filter((t) => props.post!.tags.indexOf(t.slug) >= 0)
+  )
   const [query, setQuery] = useState("")
 
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -30,6 +35,17 @@ export const TagsSelect = (props: TagsSelectProps) => {
   const assignOrUnassignTag = async (tag: Tag) => {
     const idx = assignedTags.indexOf(tag)
     let nextAssignedTags: Tag[] = []
+
+    if (props.post == null) {
+      const next = idx >= 0 ? assignedTags.filter((x) => x != tag) : assignedTags.concat(tag)
+      setAssignedTags(next)
+
+      if (props.selectionChanged) {
+        props.selectionChanged(next)
+      }
+
+      return
+    }
 
     if (idx >= 0) {
       const response = await actions.unassignTag(tag.slug, props.post.number)
@@ -48,7 +64,7 @@ export const TagsSelect = (props: TagsSelectProps) => {
   }
 
   const onSubtitleClick = () => {
-    if (canEdit) {
+    if (props.canEdit) {
       setIsEditing(!isEditing)
       // Immediately focus on the input element when editing starts
       if (inputRef.current) {
@@ -112,14 +128,14 @@ export const TagsSelect = (props: TagsSelectProps) => {
     }
   }, [isEditing])
 
-  if (!canEdit && assignedTags.length === 0) {
+  if (!props.canEdit && assignedTags.length === 0) {
     return null
   }
 
   const tagsList = (
     <div className="tags-list">
       {assignedTags.length > 0 && sortTags(assignedTags).map((tag) => <ShowTag key={tag.id} tag={tag} {...(props.asLinks ? { link: true } : {})} />)}
-      {canEdit && (
+      {props.canEdit && (
         <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
           <Button variant={"link"} size={"no-padding"}>
             <Trans id="label.edittags">Edit tags</Trans>
@@ -134,7 +150,11 @@ export const TagsSelect = (props: TagsSelectProps) => {
     <div className="dropdown-wrapper" ref={dropdownRef}>
       {/* Selected options and search input */}
       <div className="selected-options-container">
-        {assignedTags.length === 0 && <Trans id="labels.notagsselected">No tags selected</Trans>}
+        {assignedTags.length === 0 && (
+          <span className="text-muted">
+            <Trans id="labels.notagsselected">No tags selected</Trans>
+          </span>
+        )}
         {sortTags(assignedTags).map((tag) => (
           <div key={tag.id} className="selected-option">
             <ShowTag tag={tag} />

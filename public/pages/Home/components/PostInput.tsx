@@ -4,9 +4,9 @@ import { SignInModal } from "@fider/components"
 import { cache, actions, classSet, Failure, querystring } from "@fider/services"
 import { ImageUpload, Tag } from "@fider/models"
 import { useFider } from "@fider/hooks"
-import { TagsFilter } from "./TagsFilter"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
+import { TagsSelect } from "@fider/components/common/TagsSelect"
 
 interface PostInputProps {
   placeholder: string
@@ -109,7 +109,7 @@ export const PostInput = (props: PostInputProps) => {
       />
       {canEditTags && (
         <div className={classSet({ "c-form-field": true })}>
-          <TagsFilter tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} />
+          <TagsSelect tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} canEdit={canEditTags} />
         </div>
       )}
       <MultiImageUploader field="attachments" maxUploads={3} onChange={setAttachments} noPadding />
