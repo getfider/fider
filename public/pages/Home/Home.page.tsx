@@ -1,7 +1,7 @@
 import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { Post, Tag, PostStatus, ImageUpload } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
@@ -52,6 +52,16 @@ const Lonely = () => {
 }
 
 const HomePage = (props: HomePageProps) => {
+  if (props.draftPost) {
+    // Need to store the details of the draft post in the cache
+    cache.session.set(CACHE_TITLE_KEY, props.draftPost.title)
+    cache.session.set(CACHE_DESCRIPTION_KEY, props.draftPost.description)
+    if (props.draftAttachments?.length) {
+      const images: ImageUpload[] = props.draftAttachments.map((bkey: string) => ({ bkey, remove: false }))
+      cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(images))
+    }
+  }
+
   const fider = useFider()
   // const [title, setTitle] = useState("")
   const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(props.draftPost !== undefined)
@@ -82,19 +92,6 @@ What can we do better? This is the place for you to vote, discuss and share idea
   const handleNewPost = () => {
     setIsShareFeedbackOpen(true)
   }
-
-  useEffect(() => {
-    if (props.draftPost) {
-      // Need to store the details of the draft post in the cache
-      cache.session.set(CACHE_TITLE_KEY, props.draftPost.title)
-      cache.session.set(CACHE_DESCRIPTION_KEY, props.draftPost.description)
-      cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(props.draftAttachments)
-      if (props.draftAttachments) {
-        const images: ImageUpload[] = props.draftAttachments.map((bkey: string) => ({ bkey, url: "", remove: false }))
-        cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(images))
-      }
-    }
-  }, [props.draftPost])
 
   return (
     <>

@@ -6,6 +6,7 @@ import { ImageUpload } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
+import { CACHE_ATTACHMENT_KEY } from "./ShareFeedback"
 
 interface PostInputProps {
   placeholder: string
@@ -61,7 +62,7 @@ export const PostInput = (props: PostInputProps) => {
       const result = await actions.createPost(title, description, attachments)
       if (result.ok) {
         clearError()
-        cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY)
+        cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY)
         location.href = `/posts/${result.data.number}/${result.data.slug}`
         event.preventEnable()
       } else if (result.error) {

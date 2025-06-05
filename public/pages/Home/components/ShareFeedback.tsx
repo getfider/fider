@@ -15,13 +15,6 @@ interface ShareFeedbackProps {
   isOpen: boolean
   placeholder: string
   onClose: () => void
-  // draftPost?: {
-  //   id: number
-  //   code: string
-  //   title: string
-  //   description: string
-  // }
-  // draftAttachments?: string[]
 }
 
 export const CACHE_TITLE_KEY = "PostInput-Title"
@@ -38,9 +31,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const getDraftAttachments = (): ImageUpload[] => {
     const json = getCachedValue(CACHE_ATTACHMENT_KEY)
-    if (!json) return []
-    const bkeys = JSON.parse(json)
-    return bkeys.map((bkey: string) => ({ bkey, url: "", remove: false }))
+    return json.length ? JSON.parse(json) : []
   }
 
   const [title, setTitle] = useState(getCachedValue(CACHE_TITLE_KEY))
@@ -49,9 +40,6 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
-
-  const cachedBkeys = getCachedValue(CACHE_ATTACHMENT_KEY)
-  const bkeys = cachedBkeys.length > 0 ? cachedBkeys.split(",") : []
 
   useEffect(() => {
     if (!titleManuallyEdited) {
@@ -145,7 +133,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
               <MultiImageUploader
                 field="attachments"
                 maxUploads={3}
-                bkeys={bkeys}
+                bkeys={attachments.filter((a) => a.bkey).map((a) => a.bkey ?? "")}
                 onChange={handleAttachmentsChange}
                 addImageButton={
                   <a className="flex items-center clickable">
