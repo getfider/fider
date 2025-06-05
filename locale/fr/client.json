@@ -103,7 +103,7 @@
   "modal.notifications.unread": "Notifications non lues",
   "modal.showvotes.message.zeromatches": "Aucun utilisateur correspondant à <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Rechercher des utilisateurs par nom...",
-  "modal.signin.header": "Submit your feedback",
+  "modal.signin.header": "Envoyer vos commentaires",
   "mynotifications.label.readrecently": "Lu sur les 30 dernier jours.",
   "mynotifications.message.nounread": "Pas de notification non lue.",
   "mynotifications.page.subtitle": "Restez au courant de ce qui se passe",
@@ -169,8 +169,8 @@
   "showpost.responseform.text.placeholder": "Que se passe-t-il avec ce message ? Faites savoir à vos utilisateurs quels sont vos plans...",
   "showpost.votespanel.more": "+{extraVotesCount} de plus",
   "showpost.votespanel.seedetails": "voir les détails",
-  "signin.email.placeholder": "Email address",
-  "signin.message.email": "Continue with email",
+  "signin.email.placeholder": "Adresse email",
+  "signin.message.email": "Continuer avec une addresse email",
   "signin.message.emaildisabled": "L'authentification par e-mail a été désactivée par un administrateur. Si vous avez un compte administrateur, <0>cliquez ici</0> pour vous connecter.",
   "signin.message.emailsent": "Nous venons d'envoyer un lien de confirmation à <0>{email}</0>. Cliquez sur le lien et vous serez connecté.",
   "signin.message.locked.text": "Pour réactiver ce site, connectez-vous avec un compte administrateur et mettez à jour les paramètres requis.",
@@ -178,6 +178,6 @@
   "signin.message.onlyadmins": "Seuls les comptes administrateurs peuvent se connecter en ce moment",
   "signin.message.private.text": "Si vous avez un compte ou une invitation, vous pouvez utiliser les options suivantes pour vous connecter.",
   "signin.message.private.title": "<0>{0}</0> est un espace privé, vous devez vous connecter pour participer et voter.",
-  "signin.message.socialbutton.intro": "Log in with",
+  "signin.message.socialbutton.intro": "Se connecter avec",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }
