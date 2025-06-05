@@ -18,8 +18,6 @@
 
 /* @include get-theme("dark"); */
 $colors: $dark-colors;
-@include theme($light-colors, '[data-theme="light"]');
-@include theme($dark-colors, '[data-theme="dark"]');
 
 @include default.all;
 @include variable.all;
