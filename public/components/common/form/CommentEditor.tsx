@@ -21,11 +21,12 @@ import IconCode from "@fider/assets/images/heroicons-code.svg"
 import IconAt from "@fider/assets/images/heroicons-at.svg"
 import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
-import { Icon } from "@fider/components"
+import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
 import { Trans } from "@lingui/react/macro"
+import { classSet } from "@fider/services"
 
 const MenuBar = ({
   editor,
@@ -167,6 +168,7 @@ interface CommentEditorProps {
   onChange?: (value: string) => void
   onFocus?: () => void
   disabled: boolean
+  field: string
 }
 
 const markdownToHtml = (markdownString: string) => {
@@ -262,10 +264,22 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   ) // Re-initialize when mode changes
 
   return (
-    <div className="fider-tiptap-editor">
-      <MenuBar disabled={props.disabled} editor={editor} isMarkdownMode={isRawMarkdownMode} toggleMarkdownMode={toggleMarkdownMode} />
-      <EditorContent editor={editor} />
-    </div>
+    <ValidationContext.Consumer>
+      {(ctx) => (
+        <div>
+          <div
+            className={classSet({
+              "fider-tiptap-editor": true,
+              "m-error": hasError(props.field, ctx.error),
+            })}
+          >
+            <MenuBar disabled={props.disabled} editor={editor} isMarkdownMode={isRawMarkdownMode} toggleMarkdownMode={toggleMarkdownMode} />
+            <EditorContent editor={editor} />
+          </div>
+          <DisplayError fields={[props.field]} error={ctx.error} />
+        </div>
+      )}
+    </ValidationContext.Consumer>
   )
 }
 

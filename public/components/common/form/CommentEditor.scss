@@ -76,6 +76,10 @@
   overflow: hidden;
   background-color: var(--colors-white);
 
+  &.m-error {
+    border-color: var(--colors-red-600);
+  }
+
   .tiptap {
     :first-child {
       margin-top: 0;
