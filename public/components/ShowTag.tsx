@@ -1,6 +1,6 @@
 import "./ShowTag.scss"
 
-import React from "react"
+import React, { MouseEvent } from "react"
 import { Tag } from "@fider/models"
 import { classSet } from "@fider/services"
 import ShieldCheck from "@fider/assets/images/heroicons-shieldcheck.svg"
@@ -24,11 +24,19 @@ export const ShowTag = (props: TagProps) => {
     "c-tag--circular": props.circular === true,
   })
 
+  const clickHandler = (event: MouseEvent) => {
+    if (!props.link) {
+      event.preventDefault()
+    }
+  }
+
   return (
     <a
-      href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : undefined}
+      // always add an href, so the tag can be selected by keyboard in the TagsSelect
+      href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : ""}
       title={`${props.tag.name}${props.tag.isPublic ? "" : " (Private)"}`}
       className={className}
+      onClick={clickHandler}
     >
       <span
         style={{

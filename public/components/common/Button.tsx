@@ -11,8 +11,8 @@ interface ButtonProps {
   rel?: "nofollow"
   target?: "_self" | "_blank" | "_parent" | "_top"
   type?: "button" | "submit"
-  variant?: "primary" | "danger" | "secondary" | "tertiary"
-  size?: "small" | "default" | "large"
+  variant?: "primary" | "danger" | "secondary" | "tertiary" | "link"
+  size?: "small" | "default" | "large" | "no-padding"
   style?: React.CSSProperties
   onClick?: (event: ButtonClickEvent) => Promise<any> | void
 }
