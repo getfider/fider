@@ -29,9 +29,10 @@ export class ButtonClickEvent {
 
 export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "secondary", type = "button", ...props }) => {
   const [clicked, setClicked] = useState(false)
-  const unmountedContainer = useRef(false)
+  const unmountedContainer = useRef(true)
 
   useEffect(() => {
+    unmountedContainer.current = false
     return () => {
       unmountedContainer.current = true
     }
