@@ -37,6 +37,7 @@
   "error.unauthorized.text": "Você não está autorizado a visualizar esta página.",
   "error.unauthorized.title": "Não autorizado",
   "home.filter.label": "Filtrar",
+  "home.filter.search.label": "Search in filters...",
   "home.form.defaultinvitation": "Insira sua sugestão aqui...",
   "home.form.defaultwelcomemessage": "Gostaríamos de ouvir sobre o que você está pensando.\n\nO que podemos fazer melhor? Este é o lugar para você votar, discutir e compartilhar ideias.",
   "home.lonely.suggestion": "É recomendável que você crie <0>pelo menos 3</0> sugestões aqui antes de compartilhar este site. O conteúdo inicial é importante para começar a engajar seu público.",

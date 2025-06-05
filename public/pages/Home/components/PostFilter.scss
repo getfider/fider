@@ -1,0 +1,6 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+.filter-input {
+  margin: spacing(2);
+  width: calc(100% - spacing(4));
+}
