@@ -37,6 +37,7 @@
   "error.unauthorized.text": "您无权查看此页面.",
   "error.unauthorized.title": "未经授权",
   "home.filter.label": "Filter",
+  "home.filter.search.label": "Search in filters...",
   "home.form.defaultinvitation": "在此处输入您的建议...",
   "home.form.defaultwelcomemessage": "我们很想听听你在想什么。\n\n我们能做得更好吗？这是您投票、讨论和分享想法的地方.",
   "home.lonely.suggestion": "建议您在共享此网站之前，在此处创建<0>至少3个</0>建议。初始内容对于开始吸引观众很重要.",
