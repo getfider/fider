@@ -28,7 +28,7 @@ export const TagsSelect = (props: TagsSelectProps) => {
 
   const assignOrUnassignTag = async (tag: Tag) => {
     const idx = props.selected.indexOf(tag)
-    const next = idx >= 0 ? props.selected.filter((x) => x != tag) : props.selected.concat(tag)
+    const next = idx >= 0 ? props.selected.filter((x) => x !== tag) : props.selected.concat(tag)
     props.selectionChanged(next)
   }
 
@@ -105,11 +105,9 @@ export const TagsSelect = (props: TagsSelectProps) => {
     <div className="tags-list">
       {props.selected.length > 0 && sortTags(props.selected).map((tag) => <ShowTag key={tag.id} tag={tag} link={props.asLinks} />)}
       {props.canEdit && (
-        <HStack spacing={1} align="center" className="clickable" onClick={onSubtitleClick}>
-          <Button variant={"link"} size={"no-padding"}>
-            <Trans id="label.edittags">Edit tags</Trans>
-          </Button>
-        </HStack>
+        <Button variant={"link"} size={"no-padding"} onClick={onSubtitleClick}>
+          <Trans id="label.edittags">Edit tags</Trans>
+        </Button>
       )}
     </div>
   )
