@@ -3,11 +3,11 @@ Feature: Post
   Scenario: Admin can create a post
     Given I go to the home page
     And I sign in as "admin"
-    And I type "Feature Request Example" as the title
+    And I click enter your suggestion
     And I type "This is just an example of a feature suggestion in fider" as the description
-    And I click submit new post
+    And I click submit your feedback
     Then I should be on the show post page
-    And I should see "Feature Request Example" as the post title
+    And I should see "This is just an example of a feature suggestion in fider" as the post title
     And I should see 1 vote(s)
 
   Scenario: Non-logged in user can view a post
@@ -15,5 +15,20 @@ Feature: Post
     And I search for "Feature Request Example"
     And I click on the first post
     Then I should be on the show post page
-    And I should see "Feature Request Example" as the post title
+    And I should see "This is just an example of a feature suggestion in fider" as the post title
     And I should see 1 vote(s)
+
+  Scenario: Non-logged in user can draft a post and submit once signed up
+    Given I go to the home page
+    And I click enter your suggestion
+    And I type "This is a draft post from a new user" as the description
+    And I type my email address
+    And I click continue with email
+    Then I should be on the confirmation link page
+    Given I click on the confirmation link
+    Then I should be on the complete profile page
+    Given I enter my name as "Matt"
+    And I click submit
+    Then I should be on the home page
+    And I should see the new post modal
+    And I should see "This is a draft post from a new user" as the draft post title

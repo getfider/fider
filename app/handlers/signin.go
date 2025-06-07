@@ -33,6 +33,19 @@ func SignInPage() web.HandlerFunc {
 	}
 }
 
+func LoginEmailSentPage() web.HandlerFunc {
+	return func(c *web.Context) error {
+
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "SignIn/LoginEmailSent.page",
+			Title: "Login email sent",
+			Data: web.Map{
+				"email": c.QueryParam("email")},
+		})
+
+	}
+}
+
 // NotInvitedPage renders the not invited page
 func NotInvitedPage() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -61,7 +74,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationKey))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.Code, action.VerificationKey))
 
 		return c.Ok(web.Map{})
 	}
@@ -90,6 +103,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 					Data: web.Map{
 						"kind": kind,
 						"k":    key,
+						"c":    c.QueryParam("c"),
 					},
 				})
 			}
