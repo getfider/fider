@@ -338,54 +338,6 @@ func addNewDraftPost(ctx context.Context, c *cmd.AddNewDraftPost) error {
 	})
 }
 
-func getDraftPostByID(ctx context.Context, q *query.GetPostByID) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		post := dbPost{}
-		err := trx.Get(&post, `
-			SELECT p.id,
-				p.number,
-				p.title,
-				p.slug,
-				p.description,
-				p.created_at,
-				0 as votes_count,
-				0 as comments_count,
-				0 AS recent_votes_count,
-				0 AS recent_comments_count,
-				p.status,
-				NULL AS user_id,
-				NULL AS user_name,
-				NULL AS user_email,
-				NULL AS user_role,
-				NULL AS user_status,
-				NULL AS user_avatar_type,
-				NULL AS user_avatar_bkey,
-				p.response,
-				p.response_date,
-				NULL AS response_user_id,
-				NULL AS response_user_name,
-				NULL AS response_user_email,
-				NULL AS response_user_role,
-				NULL AS response_user_status,
-				NULL AS response_user_avatar_type,
-				NULL AS response_user_avatar_bkey,
-				NULL AS original_number,
-				NULL AS original_title,
-				NULL AS original_slug,
-				NULL AS original_status,
-				ARRAY[]::text[] AS tags,
-				false AS has_voted
-			FROM posts p
-			WHERE p.id = $1
-		`, q.PostID)
-		if err != nil {
-			return errors.Wrap(err, "failed to get draft post with id '%d'", q.PostID)
-		}
-		q.Result = post.toModel(ctx)
-		return nil
-	})
-}
-
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
