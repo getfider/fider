@@ -8,8 +8,8 @@ Given("I go to the home page", async function (this: FiderWorld) {
 })
 
 Then("I should be on the home page", async function (this: FiderWorld) {
-  const container = await this.page.$$("#p-home")
-  expect(container).toBeDefined()
+  const container = await this.page.locator("#p-home")
+  await expect(container).toBeVisible()
 })
 
 Then("I click on the first post", async function (this: FiderWorld) {
@@ -53,12 +53,12 @@ Given("I click on the confirmation link", async function (this: FiderWorld) {
 
 Then("I should be on the complete profile page", async function (this: FiderWorld) {
   const container = await this.page.$$("#p-complete-profile")
-  expect(container).toBeDefined()
+  await expect(container).toBeDefined()
 })
 
 Then("I should see the new post modal", async function (this: FiderWorld) {
-  const container = await this.page.$$(".c-share-feedback")
-  expect(container).toBeDefined()
+  const container = await this.page.getByTestId("modal")
+  await expect(container).toBeVisible()
 })
 
 Given("I enter my name as {string}", async function (this: FiderWorld, name: string) {
@@ -76,5 +76,5 @@ Then("I should be on the confirmation link page", async function (this: FiderWor
 
 Then("I should see {string} as the draft post title", async function (this: FiderWorld, title: string) {
   const postTitle = await this.page.locator("#input-title").inputValue()
-  expect(postTitle).toBe(title)
+  await expect(postTitle).toBe(title)
 })
