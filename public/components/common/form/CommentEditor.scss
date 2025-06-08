@@ -1,4 +1,4 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 /* Styling for content elements */
 .fider-tiptap-editor .ProseMirror {
