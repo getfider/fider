@@ -197,7 +197,13 @@ export const ShowComment = (props: ShowCommentProps) => {
           <div>
             {isEditing ? (
               <Form error={error}>
-                <CommentEditor disabled={!fider.session.isAuthenticated} initialValue={newContent} onChange={setNewContent} placeholder={comment.content} />
+                <CommentEditor
+                  field="content"
+                  disabled={!fider.session.isAuthenticated}
+                  initialValue={newContent}
+                  onChange={setNewContent}
+                  placeholder={comment.content}
+                />
                 <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} />
                 <Button size="small" onClick={saveEdit} variant="primary">
                   <Trans id="action.save">Save</Trans>

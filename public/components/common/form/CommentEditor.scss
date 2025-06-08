@@ -1,4 +1,4 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 /* Styling for content elements */
 .fider-tiptap-editor .ProseMirror {
@@ -75,6 +75,10 @@
   border-radius: 6px;
   overflow: hidden;
   background-color: var(--colors-white);
+
+  &.m-error {
+    border-color: var(--colors-red-600);
+  }
 
   .tiptap {
     :first-child {

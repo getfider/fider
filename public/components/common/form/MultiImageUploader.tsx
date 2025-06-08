@@ -16,13 +16,12 @@ interface MultiImageUploaderProps {
 
 interface MultiImageUploaderInstances {
   [key: string]: {
-    element: JSX.Element
+    element: React.JSX.Element
     upload?: ImageUpload
   }
 }
 
 interface MultiImageUploaderState {
-  count: number
   instances: MultiImageUploaderInstances
   removed: ImageUpload[]
 }
@@ -31,42 +30,35 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
   constructor(props: MultiImageUploaderProps) {
     super(props)
 
-    let count = 1
     const instances = {}
     if (props.bkeys) {
       for (const bkey of props.bkeys) {
-        count++
         this.addNewElement(instances, bkey)
       }
     }
 
-    if (count <= this.props.maxUploads) {
-      count++
+    if (Object.keys(instances).length <= this.props.maxUploads) {
       this.addNewElement(instances)
     }
 
-    this.state = { instances, count, removed: [] }
+    this.state = { instances, removed: [] }
   }
 
   private imageUploaded = (upload: ImageUpload, instanceID: string) => {
     const instances = { ...this.state.instances }
     const removed = [...this.state.removed]
-    let count = this.state.count
     if (upload.remove) {
       if (upload.bkey) {
         removed.push(upload)
       }
       delete instances[instanceID]
-      if (--count === this.props.maxUploads) {
-        this.addNewElement(instances)
-      }
     } else {
       instances[instanceID].upload = upload
-      if (count++ <= this.props.maxUploads) {
-        this.addNewElement(instances)
-      }
     }
-    this.setState({ instances, count, removed }, this.triggerOnChange)
+    if (Object.keys(instances).length < this.props.maxUploads && !this.hasUploadButton(instances)) {
+      this.addNewElement(instances)
+    }
+    this.setState({ instances, removed }, this.triggerOnChange)
   }
 
   private triggerOnChange() {
@@ -84,6 +76,15 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
     instances[id] = {
       element: <ImageUploader key={id} bkey={bkey} instanceID={id} field="attachment" onChange={this.imageUploaded} />,
     }
+  }
+
+  private hasUploadButton(instances: MultiImageUploaderInstances) {
+    for (const instance of Object.values(instances)) {
+      if (instance.upload == null) {
+        return true
+      }
+    }
+    return false
   }
 
   public render() {
