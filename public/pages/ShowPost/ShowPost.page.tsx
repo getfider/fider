@@ -29,12 +29,12 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/react/macro"
-import { TagsPanel } from "./components/TagsPanel"
 import { FollowButton } from "./components/FollowButton"
 import { VoteSection } from "./components/VoteSection"
 import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
+import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
 
 interface ShowPostPageProps {
   post: Post

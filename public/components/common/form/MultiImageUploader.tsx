@@ -11,6 +11,7 @@ interface MultiImageUploaderProps {
   maxUploads: number
   bkeys?: string[]
   onChange?: (uploads: ImageUpload[]) => void
+  noPadding?: boolean
 }
 
 interface MultiImageUploaderInstances {
@@ -96,6 +97,7 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
               "c-form-field": true,
               "c-multi-image-uploader": true,
               "m-error": hasError(this.props.field, ctx.error),
+              "pt-0": this.props.noPadding,
             })}
           >
             <div className="c-multi-image-uploader-instances">{elements}</div>

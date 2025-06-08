@@ -71,6 +71,7 @@
   "label.name": "Nazwa",
   "label.none": "Brak",
   "label.notagsavailable": "No tags available",
+  "label.notagsselected": "No tags selected",
   "label.notifications": "Powiadomienia",
   "label.or": "LUB",
   "label.selecttags": "Select tags...",
