@@ -72,6 +72,7 @@
   "label.name": "Имя пользователя",
   "label.none": "Нет",
   "label.notagsavailable": "No tags available",
+  "label.notagsselected": "No tags selected",
   "label.notifications": "Уведомления",
   "label.or": "ИЛИ",
   "label.selecttags": "Select tags...",

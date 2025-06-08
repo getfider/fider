@@ -62,6 +62,22 @@
     }
   }
 
+  &--link {
+    border: none;
+    color: var(--colors-primary-base);
+    background-color: transparent;
+  }
+
+  &--no-padding {
+    padding: 0;
+    font-size: get("font.size.sm");
+
+    svg,
+    img {
+      height: sizing(4);
+    }
+  }
+
   &--small {
     padding: 6px 10px;
     font-size: 11px;

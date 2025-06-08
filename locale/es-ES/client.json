@@ -72,6 +72,7 @@
   "label.name": "Nombre",
   "label.none": "Ninguno",
   "label.notagsavailable": "No tags available",
+  "label.notagsselected": "No tags selected",
   "label.notifications": "Notificaciones",
   "label.or": "O",
   "label.selecttags": "Select tags...",

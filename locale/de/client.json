@@ -72,6 +72,7 @@
   "label.name": "Name",
   "label.none": "Keine",
   "label.notagsavailable": "Keine Tags verfügbar",
+  "label.notagsselected": "Keine Tags ausgewählt",
   "label.notifications": "Benachrichtigungen",
   "label.or": "ODER",
   "label.selecttags": "Tags auswählen...",

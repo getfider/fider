@@ -72,6 +72,7 @@
   "label.name": "名前",
   "label.none": "該当なし",
   "label.notagsavailable": "No tags available",
+  "label.notagsselected": "No tags selected",
   "label.notifications": "通知",
   "label.or": "または",
   "label.selecttags": "Select tags...",

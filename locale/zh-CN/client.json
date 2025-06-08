@@ -72,6 +72,7 @@
   "label.name": "名称",
   "label.none": "None",
   "label.notagsavailable": "No tags available",
+  "label.notagsselected": "No tags selected",
   "label.notifications": "通知",
   "label.or": "或者",
   "label.selecttags": "Select tags...",

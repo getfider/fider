@@ -19,9 +19,9 @@
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--colors-gray-500);
-  border-radius: 0.25rem;
+  border-radius: get("border.radius.small");
   background-color: var(--colors-white);
-  cursor: pointer;
+  color: var(--colors-gray-900);
 }
 
 .selected-option {
@@ -29,7 +29,7 @@
   align-items: center;
   margin: 0.25rem;
   background-color: var(--colors-gray-200);
-  border-radius: 0.25rem;
+  border-radius: get("border.radius.small");
   color: var(--colors-gray-900);
 }
 
@@ -48,21 +48,6 @@
   color: var(--colors-red-500);
 }
 
-.search-input {
-  flex-grow: 1;
-  min-width: 5rem;
-  margin: 0.25rem;
-  padding: 0.25rem;
-  border: none;
-  background-color: var(--colors-white);
-  color: var(--colors-black);
-  outline: none;
-}
-
-.search-input:focus {
-  outline: none;
-}
-
 .options-container {
   position: absolute;
   z-index: 10;
@@ -70,13 +55,18 @@
   margin-top: 0.25rem;
   background-color: var(--colors-white);
   border: 1px solid var(--colors-gray-500);
-  border-radius: 0.25rem;
+  border-radius: get("border.radius.small");
   max-height: 15rem;
   overflow-y: auto;
 }
 
+.search-input {
+  margin: spacing(2);
+  width: calc(100% - spacing(4));
+}
+
 .option-item {
-  padding: 0.5rem;
+  padding: spacing(2);
   cursor: pointer;
 }
 
