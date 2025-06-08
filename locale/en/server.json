@@ -60,5 +60,12 @@
   "email.signup_email.confirmation": "Through the link below you can verify your email address and complete the activation process.",
   "email.footer.subscription_notice": "You are receiving this email because you are subscribed to this post. You can {view}, {unsubscribe} or {change}.",
   "email.footer.subscription_notice2": "You are receiving this email because you are subscribed to this post. You can {change}.",
-  "email.footer.subscription_notice3": "You are receiving this email because you are subscribed to this post. You can {view} or {change}."
+  "email.footer.subscription_notice3": "You are receiving this email because you are subscribed to this post. You can {view} or {change}.",
+  "feed.global.title": "{count, plural, one {({count} Vote) {title}} other {({count} Votes) {title}}}",
+  "feed.comment.title": "Comment by {author}",
+  "feed.comment.op": "Original Post by {author}",
+  "feed.comment.response": "Response by {author}",
+  "feed.post.title": "# {title}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}}\n\n---\n",
+  "feed.post.footer.response": "Response by {responder} on {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - view [in the web]({web_link}) or [as a feed]({feed_link})"
 }
