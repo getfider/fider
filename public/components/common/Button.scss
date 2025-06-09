@@ -1,4 +1,4 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-button {
   line-height: 1.15;
@@ -59,6 +59,22 @@
       color: var(--colors-white);
       border: 1px solid var(--colors-red-600);
       background-color: var(--colors-red-600);
+    }
+  }
+
+  &--link {
+    border: none;
+    color: var(--colors-primary-base);
+    background-color: transparent;
+  }
+
+  &--no-padding {
+    padding: 0;
+    font-size: get("font.size.sm");
+
+    svg,
+    img {
+      height: sizing(4);
     }
   }
 

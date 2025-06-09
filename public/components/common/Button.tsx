@@ -11,8 +11,8 @@ interface ButtonProps {
   rel?: "nofollow"
   target?: "_self" | "_blank" | "_parent" | "_top"
   type?: "button" | "submit"
-  variant?: "primary" | "danger" | "secondary" | "tertiary"
-  size?: "small" | "default" | "large"
+  variant?: "primary" | "danger" | "secondary" | "tertiary" | "link"
+  size?: "small" | "default" | "large" | "no-padding"
   style?: React.CSSProperties
   onClick?: (event: ButtonClickEvent) => Promise<any> | void
 }
@@ -29,9 +29,10 @@ export class ButtonClickEvent {
 
 export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "secondary", type = "button", ...props }) => {
   const [clicked, setClicked] = useState(false)
-  const unmountedContainer = useRef(false)
+  const unmountedContainer = useRef(true)
 
   useEffect(() => {
+    unmountedContainer.current = false
     return () => {
       unmountedContainer.current = true
     }

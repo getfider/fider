@@ -52,6 +52,7 @@ func seed() {
 		Subdomain:          "demo",
 		Status:             enum.TenantActive,
 		IsEmailAuthAllowed: true,
+		IsFeedEnabled:      true,
 	}
 	AvengersTenant = &entity.Tenant{
 		ID:        2,

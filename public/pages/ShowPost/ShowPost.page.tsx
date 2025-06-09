@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback } from "react"
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
 import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
+import IconRss from "@fider/assets/images/heroicons-rss.svg"
 
 import {
   ResponseDetails,
@@ -29,12 +30,12 @@ import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/react/macro"
-import { TagsPanel } from "./components/TagsPanel"
 import { FollowButton } from "./components/FollowButton"
 import { VoteSection } from "./components/VoteSection"
 import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
+import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
 
 interface ShowPostPageProps {
   post: Post
@@ -163,28 +164,35 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                   </VStack>
 
                   {!editMode && (
-                    <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
-                      <Dropdown.ListItem onClick={onActionSelected("copy")}>
-                        <Trans id="action.copylink">Copy link</Trans>
-                      </Dropdown.ListItem>
-                      {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
-                        <>
-                          <Dropdown.ListItem onClick={onActionSelected("edit")}>
-                            <Trans id="action.edit">Edit</Trans>
-                          </Dropdown.ListItem>
-                          {Fider.session.user.isCollaborator && (
-                            <Dropdown.ListItem onClick={onActionSelected("status")}>
-                              <Trans id="action.respond">Respond</Trans>
-                            </Dropdown.ListItem>
-                          )}
-                        </>
+                    <HStack>
+                      {Fider.session.tenant.isFeedEnabled && (
+                        <a title="ATOM Feed (Comments)" type="application/atom+xml" href={`/feed/posts/${props.post.id}.atom`}>
+                          <Icon sprite={IconRss} width="24" height="24" />
+                        </a>
                       )}
-                      {canDeletePost() && (
-                        <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700">
-                          <Trans id="action.delete">Delete</Trans>
+                      <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
+                        <Dropdown.ListItem onClick={onActionSelected("copy")}>
+                          <Trans id="action.copylink">Copy link</Trans>
                         </Dropdown.ListItem>
-                      )}
-                    </Dropdown>
+                        {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
+                          <>
+                            <Dropdown.ListItem onClick={onActionSelected("edit")}>
+                              <Trans id="action.edit">Edit</Trans>
+                            </Dropdown.ListItem>
+                            {Fider.session.user.isCollaborator && (
+                              <Dropdown.ListItem onClick={onActionSelected("status")}>
+                                <Trans id="action.respond">Respond</Trans>
+                              </Dropdown.ListItem>
+                            )}
+                          </>
+                        )}
+                        {canDeletePost() && (
+                          <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700">
+                            <Trans id="action.delete">Delete</Trans>
+                          </Dropdown.ListItem>
+                        )}
+                      </Dropdown>
+                    </HStack>
                   )}
                 </HStack>
 

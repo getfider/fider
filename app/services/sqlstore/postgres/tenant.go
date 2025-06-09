@@ -29,6 +29,7 @@ type dbTenant struct {
 	LogoBlobKey        string `db:"logo_bkey"`
 	CustomCSS          string `db:"custom_css"`
 	IsEmailAuthAllowed bool   `db:"is_email_auth_allowed"`
+	IsFeedEnabled      bool   `db:"is_feed_enabled"`
 }
 
 func (t *dbTenant) toModel() *entity.Tenant {
@@ -49,6 +50,7 @@ func (t *dbTenant) toModel() *entity.Tenant {
 		LogoBlobKey:        t.LogoBlobKey,
 		CustomCSS:          t.CustomCSS,
 		IsEmailAuthAllowed: t.IsEmailAuthAllowed,
+		IsFeedEnabled:      t.IsFeedEnabled,
 	}
 
 	return tenant
@@ -121,7 +123,11 @@ func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacy
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute("UPDATE tenants SET is_private = $1 WHERE id = $2", c.IsPrivate, tenant.ID)
 		if err != nil {
-			return errors.Wrap(err, "failed update tenant privacy settings")
+			return errors.Wrap(err, "failed update tenant privacy setting")
+		}
+		_, err = trx.Execute("UPDATE tenants SET is_feed_enabled = $1 WHERE id = $2", c.IsFeedEnabled, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant feed setting")
 		}
 		return nil
 	})
@@ -230,8 +236,8 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed) 
-			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true) 
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled) 
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true) 
 			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
 			return err
@@ -259,7 +265,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
@@ -278,7 +284,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 
 			ORDER BY cname DESC

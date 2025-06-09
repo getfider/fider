@@ -92,16 +92,17 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 	}
 }
 
-// UpdatePrivacy update current tenant's privacy settings
-func UpdatePrivacy() web.HandlerFunc {
+// UpdatePrivacySettings update current tenant's privacy settings
+func UpdatePrivacySettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		action := new(actions.UpdateTenantPrivacy)
+		action := new(actions.UpdateTenantPrivacySettings)
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		updateSettings := &cmd.UpdateTenantPrivacySettings{
-			IsPrivate: action.IsPrivate,
+			IsPrivate:     action.IsPrivate,
+			IsFeedEnabled: action.IsFeedEnabled,
 		}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)

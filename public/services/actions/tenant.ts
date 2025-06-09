@@ -1,5 +1,6 @@
 import { http, Result } from "@fider/services/http"
 import { UserRole, OAuthConfig, ImageUpload, EmailVerificationKind } from "@fider/models"
+import { PrivacySettingsPageState } from "@fider/pages/Administration/pages/PrivacySettings.page"
 
 export interface CheckAvailabilityResponse {
   message: string
@@ -39,10 +40,8 @@ export const updateTenantAdvancedSettings = async (customCSS: string): Promise<R
   return await http.post("/_api/admin/settings/advanced", { customCSS })
 }
 
-export const updateTenantPrivacy = async (isPrivate: boolean): Promise<Result> => {
-  return await http.post("/_api/admin/settings/privacy", {
-    isPrivate,
-  })
+export const updateTenantPrivacy = async (request: PrivacySettingsPageState): Promise<Result> => {
+  return await http.post("/_api/admin/settings/privacy", request)
 }
 
 export const updateTenantEmailAuthAllowed = async (isEmailAuthAllowed: boolean): Promise<Result> => {

@@ -87,6 +87,7 @@ export const CommentInput = (props: CommentInputProps) => {
             {isClient ? (
               <>
                 <CommentEditor
+                  field="content"
                   disabled={!Fider.session.isAuthenticated}
                   onChange={commentChanged}
                   onFocus={editorFocused}
