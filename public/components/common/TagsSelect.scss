@@ -1,18 +1,18 @@
 @use "~@fider/assets/styles/variables.scss" as *;
 
-.dropdown-wrapper {
+.c-tags-select__dropdown {
   position: relative;
   width: 100%;
 }
 
-.tags-list {
+.c-tags-select__list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
 }
 
-.selected-options-container {
+.c-tags-select__selected-container {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -25,7 +25,7 @@
   color: var(--colors-gray-900);
 }
 
-.selected-option {
+.c-tags-select__selected-item {
   display: flex;
   align-items: center;
   margin: 0.25rem;
@@ -34,7 +34,7 @@
   color: var(--colors-gray-900);
 }
 
-.remove-button {
+.c-tags-select__remove-button {
   margin: 0 0.25rem;
   color: var(--colors-gray-600);
   background: none;
@@ -45,11 +45,11 @@
   padding: 0 0.25rem;
 }
 
-.remove-button:hover {
+.c-tags-select__remove-button:hover {
   color: var(--colors-red-500);
 }
 
-.options-container {
+.c-tags-select__options {
   position: absolute;
   z-index: 10;
   width: 100%;
@@ -61,21 +61,21 @@
   overflow-y: auto;
 }
 
-.search-input {
+.c-tags-select__search-input {
   margin: spacing(2);
   width: calc(100% - spacing(4));
 }
 
-.option-item {
+.c-tags-select__option {
   padding: spacing(2);
   cursor: pointer;
 }
 
-.option-item:hover {
+.c-tags-select__option:hover {
   background-color: var(--colors-gray-100);
 }
 
-.no-options {
+.c-tags-select__no-options {
   padding: 0.5rem;
   color: var(--colors-gray-900);
 }
