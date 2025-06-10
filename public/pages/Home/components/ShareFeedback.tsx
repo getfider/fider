@@ -5,21 +5,24 @@ import { SignInControl, SignInSubmitResponse } from "@fider/components/common/Si
 import { Modal, CloseIcon, Form, Button, TextArea, MultiImageUploader, Input, Icon, LegalFooter } from "@fider/components/common"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
-import { actions, Failure, cache } from "@fider/services"
+import { actions, Failure, cache, querystring, classSet } from "@fider/services"
 import { i18n } from "@lingui/core"
-import { ImageUpload } from "@fider/models"
+import { ImageUpload, Tag } from "@fider/models"
 import IconAttach from "@fider/assets/images/heroicons-paperclip.svg"
 import { SimilarPosts } from "../components/SimilarPosts"
+import { TagsSelect } from "@fider/components/common/TagsSelect"
 
 interface ShareFeedbackProps {
   isOpen: boolean
   placeholder: string
   onClose: () => void
+  tags: Tag[]
 }
 
 export const CACHE_TITLE_KEY = "PostInput-Title"
 export const CACHE_DESCRIPTION_KEY = "PostInput-Description"
 export const CACHE_ATTACHMENT_KEY = "PostInput-Attachment"
+export const CACHE_TAGS_KEY = "PostInput-Tags"
 
 export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const fider = useFider()
@@ -34,9 +37,24 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     return json.length ? JSON.parse(json) : []
   }
 
+  const getTagsCachedValue = (): Tag[] => {
+    if (!canEditTags) {
+      return []
+    }
+
+    const cacheValue = getCachedValue(CACHE_TAGS_KEY)
+    const urlValue = querystring.get("tags")
+    const combined = [...cacheValue.split(","), ...urlValue.split(",")]
+    const tagsAsStrings = Array.from(new Set(combined.map((s) => s.trim()).filter((s) => s.length > 0)))
+
+    return props.tags.filter((tag) => tagsAsStrings.includes(tag.slug))
+  }
+
+  const canEditTags = fider.session.isAuthenticated && fider.settings.postWithTags && props.tags.length > 0
   const [title, setTitle] = useState(getCachedValue(CACHE_TITLE_KEY))
   const [description, setDescription] = useState(getCachedValue(CACHE_DESCRIPTION_KEY))
   const [attachments, setAttachments] = useState<ImageUpload[]>(getDraftAttachments())
+  const [tags, setTags] = useState(getTagsCachedValue())
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
@@ -61,6 +79,11 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     if (isManualEdit) {
       setTitleManuallyEdited(true)
     }
+  }
+
+  const handleTagsChanged = (newTags: Tag[]) => {
+    cache.session.set(CACHE_TAGS_KEY, newTags.map((tag) => tag.slug).join(","))
+    setTags(newTags)
   }
 
   const handleDescriptionChange = (value: string) => {
@@ -89,10 +112,15 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const finaliseFeedback = async () => {
     if (title) {
-      const result = await actions.createPost(title, description, attachments)
+      const result = await actions.createPost(
+        title,
+        description,
+        attachments,
+        tags.map((tag) => tag.slug)
+      )
       if (result.ok) {
         clearError()
-        cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY)
+        cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY, CACHE_TAGS_KEY)
         location.href = `/posts/${result.data.number}/${result.data.slug}`
       } else if (result.error) {
         setError(result.error)
@@ -129,7 +157,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                   message: "Tell us about your idea. Explain it fully, don't hold back, the more information the better.",
                 })}
               />
-              <SimilarPosts title={title} tags={[]} />
+              <SimilarPosts title={title} tags={props.tags} />
               <MultiImageUploader
                 field="attachments"
                 maxUploads={3}
@@ -153,6 +181,16 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 onChange={handleTitleChange}
                 placeholder={i18n._({ id: "newpost.modal.title.placeholder", message: "Something short and snappy, sum it up in a few words" })}
               />
+              {canEditTags && (
+                <div className="c-form-field">
+                  <label>
+                    <Trans id="label.tags">Tags</Trans>
+                  </label>
+                  <div className={classSet({ "c-form-field": true })}>
+                    <TagsSelect tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} canEdit={true} />
+                  </div>
+                </div>
+              )}
             </Form>
           </div>
         </div>

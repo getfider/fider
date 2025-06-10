@@ -9,17 +9,18 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .selected-options-container {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  min-height: 3rem;
+  min-height: 40px;
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--colors-gray-500);
-  border-radius: get("border.radius.small");
+  padding: 0 spacing(1);
+  border: 1px solid var(--colors-gray-300);
+  border-radius: get("border.radius.medium");
   background-color: var(--colors-white);
   color: var(--colors-gray-900);
 }

@@ -96,6 +96,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
   return (
     <>
       <ShareFeedback
+        tags={props.tags}
         placeholder={fider.session.tenant.invitation || defaultInvitation}
         isOpen={isShareFeedbackOpen}
         onClose={() => setIsShareFeedbackOpen(false)}
@@ -105,7 +106,6 @@ What can we do better? This is the place for you to vote, discuss and share idea
         <div className="p-home__welcome-col">
           <VStack spacing={2} className="p-4">
             <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
-            {/* <PostInput placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} /> */}
             <Button className="c-input" type="submit" variant="secondary" onClick={handleNewPost}>
               {fider.session.tenant.invitation || defaultInvitation}
             </Button>
