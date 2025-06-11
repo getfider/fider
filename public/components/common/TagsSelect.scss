@@ -1,6 +1,6 @@
 @use "~@fider/assets/styles/variables.scss" as *;
 
-.c-tags-select__dropdown {
+.c-tags-select__container {
   position: relative;
   width: 100%;
 }
@@ -10,6 +10,9 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
+  min-height: 40px;
+  width: 100%;
+  padding: 0 spacing(1);
 }
 
 .c-tags-select__selected-container {

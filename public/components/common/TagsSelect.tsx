@@ -104,21 +104,23 @@ export const TagsSelect = (props: TagsSelectProps) => {
   }
 
   const viewModeTagsList = (
-    <div className="c-tags-select__list">
-      {props.selected.length > 0 && sortTags(props.selected).map((tag) => <ShowTag key={tag.id} tag={tag} link={props.asLinks} />)}
-      {props.canEdit && (
-        <div>
-          <Button variant={"link"} size={"no-padding"} onClick={onSubtitleClick}>
-            {props.selected.length ? <Trans id="label.edittags">Edit tags</Trans> : <Trans id="label.addtags">Add tags...</Trans>}
-          </Button>
-        </div>
-      )}
+    <div className="c-tags-select__container">
+      <div className="c-tags-select__list">
+        {props.selected.length > 0 && sortTags(props.selected).map((tag) => <ShowTag key={tag.id} tag={tag} link={props.asLinks} />)}
+        {props.canEdit && (
+          <div>
+            <Button variant={"link"} size={"no-padding"} onClick={onSubtitleClick}>
+              {props.selected.length ? <Trans id="label.edittags">Edit tags</Trans> : <Trans id="label.addtags">Add tags...</Trans>}
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   )
 
   // Dynamic multiselect dropdown for tags selection
   const editTagsList = props.tags.length > 0 && (
-    <div className="c-tags-select__dropdown" ref={dropdownRef} onClick={props.canEdit && !isEditing ? onSubtitleClick : undefined}>
+    <div className="c-tags-select__container" ref={dropdownRef} onClick={props.canEdit && !isEditing ? onSubtitleClick : undefined}>
       <div className="c-tags-select__selected-container">
         {props.selected.length === 0 && props.canEdit && (
           <Button className="text-gray-600" variant={"link"} size={"no-padding"} onClick={onSubtitleClick}>
@@ -145,7 +147,7 @@ export const TagsSelect = (props: TagsSelectProps) => {
             ref={inputRef}
             onChange={(e) => setQuery(e.target.value)}
             className="c-input c-tags-select__search-input"
-            placeholder={i18n._("label.selecttags", { message: "Select Tags..." })}
+            placeholder={i18n._({ id: "label.searchtags", message: "Search tags..." })}
             onKeyDown={() => handleEsc}
           />
           {filteredOptions.length > 0 ? (

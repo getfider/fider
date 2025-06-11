@@ -187,7 +187,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                     <Trans id="label.tags">Tags</Trans>
                   </label>
                   <div className={classSet({ "c-form-field": true })}>
-                    <TagsSelect tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} canEdit={true} />
+                    <TagsSelect tags={props.tags} selectionChanged={handleTagsChanged} selected={tags} alwaysEditing={true} canEdit={true} />
                   </div>
                 </div>
               )}
