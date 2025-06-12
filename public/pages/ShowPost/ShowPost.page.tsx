@@ -3,7 +3,7 @@ import "./ShowPost.page.scss"
 import React, { useState, useEffect, useCallback } from "react"
 
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
-import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
+import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import IconRss from "@fider/assets/images/heroicons-rss.svg"
 
@@ -36,6 +36,7 @@ import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
 import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
+import { t } from "@lingui/macro"
 
 interface ShowPostPageProps {
   post: Post
@@ -102,6 +103,15 @@ export default function ShowPostPage(props: ShowPostPageProps) {
       window.removeEventListener("hashchange", handleHashChange)
     }
   }, [handleHashChange])
+
+  useEffect(() => {
+    const showSuccess = cache.session.get("POST_CREATED_SUCCESS")
+    if (showSuccess) {
+      cache.session.remove("POST_CREATED_SUCCESS")
+      // Show success message/toast
+      notify.success(t({ id: "mysettings.notification.event.newpostcreated", message: "Thanks! Your post has been added 👍" }))
+    }
+  }, [])
 
   const saveChanges = async () => {
     const result = await actions.updatePost(props.post.number, newTitle, newDescription, attachments)

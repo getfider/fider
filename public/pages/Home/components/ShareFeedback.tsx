@@ -57,6 +57,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const [tags, setTags] = useState(getTagsCachedValue())
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
+  const descriptionRef = useRef<HTMLTextAreaElement>()
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
 
   useEffect(() => {
@@ -69,6 +70,15 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
       handleTitleChange(autoTitle, false)
     }
   }, [description, titleManuallyEdited])
+
+  useEffect(() => {
+    if (isOpen && descriptionRef.current) {
+      // Small delay to ensure modal is fully rendered
+      setTimeout(() => {
+        descriptionRef.current?.focus()
+      }, 100)
+    }
+  }, [isOpen])
 
   // Handlers for post input changes
   const handleTitleChange = (value: string, isManualEdit = true) => {
@@ -127,6 +137,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
       if (result.ok) {
         clearError()
         cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY, CACHE_TAGS_KEY)
+        cache.session.set("POST_CREATED_SUCCESS", "true")
         location.href = `/posts/${result.data.number}/${result.data.slug}`
       } else if (result.error) {
         setError(result.error)
@@ -158,6 +169,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 onChange={handleDescriptionChange}
                 value={description}
                 minRows={5}
+                inputRef={descriptionRef}
                 placeholder={i18n._({
                   id: "newpost.modal.description.placeholder",
                   message: "Tell us about your idea. Explain it fully, don't hold back, the more information the better.",
