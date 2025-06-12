@@ -50,7 +50,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     return props.tags.filter((tag) => tagsAsStrings.includes(tag.slug))
   }
 
-  const canEditTags = fider.session.isAuthenticated && fider.settings.postWithTags && props.tags.length > 0
+  const canEditTags = fider.settings.postWithTags && props.tags.length > 0
   const [title, setTitle] = useState(getCachedValue(CACHE_TITLE_KEY))
   const [description, setDescription] = useState(getCachedValue(CACHE_DESCRIPTION_KEY))
   const [attachments, setAttachments] = useState<ImageUpload[]>(getDraftAttachments())
@@ -112,12 +112,18 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const finaliseFeedback = async () => {
     if (title) {
-      const result = await actions.createPost(
-        title,
-        description,
-        attachments,
-        tags.map((tag) => tag.slug)
-      )
+      const minDelay = new Promise((resolve) => setTimeout(resolve, 1000))
+
+      const [result] = await Promise.all([
+        actions.createPost(
+          title,
+          description,
+          attachments,
+          tags.map((tag) => tag.slug)
+        ),
+        minDelay,
+      ])
+
       if (result.ok) {
         clearError()
         cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY, CACHE_TAGS_KEY)
