@@ -66,7 +66,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
       // Push a new state when modal opens
       window.history.pushState({ modalOpen: true }, "", window.location.href)
 
-      const handlePopState = (event: PopStateEvent) => {
+      const handlePopState = () => {
         // If we're going back and the modal is open, close it
         if (isOpen) {
           onClose()
