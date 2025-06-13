@@ -60,6 +60,37 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const descriptionRef = useRef<HTMLTextAreaElement>()
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
 
+  // Handle browser back button
+  useEffect(() => {
+    if (isOpen) {
+      // Push a new state when modal opens
+      window.history.pushState({ modalOpen: true }, "", window.location.href)
+
+      const handlePopState = (event: PopStateEvent) => {
+        // If we're going back and the modal is open, close it
+        if (isOpen) {
+          onClose()
+        }
+      }
+
+      window.addEventListener("popstate", handlePopState)
+
+      return () => {
+        window.removeEventListener("popstate", handlePopState)
+      }
+    }
+  }, [isOpen, onClose])
+
+  // Handle modal close - go back in history if we pushed a state
+  const handleClose = () => {
+    // Check if we can go back (and if the previous state was pushed by us)
+    if (window.history.state?.modalOpen) {
+      window.history.back()
+    } else {
+      onClose()
+    }
+  }
+
   useEffect(() => {
     if (!titleManuallyEdited) {
       let newlineIndex = Math.min(description.indexOf("\n"), 80)
@@ -150,10 +181,10 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   return (
-    <Modal.Window className="c-share-feedback" isOpen={isOpen} onClose={onClose} size="fullscreen" center={false}>
+    <Modal.Window className="c-share-feedback" isOpen={isOpen} onClose={handleClose} size="fullscreen" center={false}>
       <Modal.Header>
         <div className="flex flex-items-center justify-end">
-          <CloseIcon closeModal={onClose} />
+          <CloseIcon closeModal={handleClose} />
         </div>
       </Modal.Header>
       <Modal.Content>
