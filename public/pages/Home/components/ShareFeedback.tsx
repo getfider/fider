@@ -158,9 +158,9 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
       </Modal.Header>
       <Modal.Content>
         <div className="c-share-feedback__content mb-4">
-          <h2 className="text-title pb-6">
+          <h1 className="text-large pb-6">
             <Trans id="newpost.modal.title">Share your feedback...</Trans>
-          </h2>
+          </h1>
           <div className="c-share-feedback-form">
             <Form error={error}>
               <TextArea
@@ -235,7 +235,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
               </>
             ) : (
               <div className="flex justify-center">
-                <Button variant="primary" onClick={finaliseFeedback}>
+                <Button variant="primary" onClick={finaliseFeedback} disabled={title.length < 10}>
                   <Trans id="modal.signin.header">Submit your feedback</Trans>
                 </Button>
               </div>
