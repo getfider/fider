@@ -16,6 +16,8 @@ export interface TagsSelectProps {
   selectionChanged: (selected: Tag[]) => void
   canEdit: boolean
   asLinks?: boolean
+  // If true, you always see the tags edit box, rather than having to put the tags list into "edit mode"
+  alwaysEditing?: boolean
 }
 
 export const TagsSelect = (props: TagsSelectProps) => {
@@ -101,31 +103,34 @@ export const TagsSelect = (props: TagsSelectProps) => {
     return null
   }
 
-  const tagsList = (
-    <div className="tags-list">
-      {props.selected.length > 0 && sortTags(props.selected).map((tag) => <ShowTag key={tag.id} tag={tag} link={props.asLinks} />)}
-      {props.canEdit && (
-        <Button variant={"link"} size={"no-padding"} onClick={onSubtitleClick}>
-          <Trans id="label.edittags">Edit tags</Trans>
-        </Button>
-      )}
+  const viewModeTagsList = (
+    <div className="c-tags-select__container">
+      <div className="c-tags-select__list">
+        {props.selected.length > 0 && sortTags(props.selected).map((tag) => <ShowTag key={tag.id} tag={tag} link={props.asLinks} />)}
+        {props.canEdit && (
+          <div>
+            <Button variant={"link"} size={"no-padding"} onClick={onSubtitleClick}>
+              {props.selected.length ? <Trans id="label.edittags">Edit tags</Trans> : <Trans id="label.addtags">Add tags...</Trans>}
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   )
 
   // Dynamic multiselect dropdown for tags selection
   const editTagsList = props.tags.length > 0 && (
-    <div className="dropdown-wrapper" ref={dropdownRef}>
-      {/* Selected options and search input */}
-      <div className="selected-options-container">
-        {props.selected.length === 0 && (
-          <span className="text-muted">
-            <Trans id="labels.notagsselected">No tags selected</Trans>
-          </span>
+    <div className="c-tags-select__container" ref={dropdownRef} onClick={props.canEdit && !isEditing ? onSubtitleClick : undefined}>
+      <div className="c-tags-select__selected-container">
+        {props.selected.length === 0 && props.canEdit && (
+          <Button className="text-gray-600" variant={"link"} size={"no-padding"} onClick={onSubtitleClick}>
+            <Trans id="label.addtags">Add tags...</Trans>
+          </Button>
         )}
         {sortTags(props.selected).map((tag) => (
-          <div key={tag.id} className="selected-option">
+          <div key={tag.id} className="c-tags-select__selected-item">
             <ShowTag tag={tag} />
-            <button onClick={() => handleOptionClick(tag)} className="remove-button">
+            <button onClick={() => handleOptionClick(tag)} className="c-tags-select__remove-button">
               x
             </button>
           </div>
@@ -134,25 +139,25 @@ export const TagsSelect = (props: TagsSelectProps) => {
 
       {/* Dropdown options after items are filtered */}
       {isEditing && (
-        <div className="options-container">
+        <div className="c-tags-select__options">
           {/* Search box to enter query string */}
           <input
             type="text"
             value={query}
             ref={inputRef}
             onChange={(e) => setQuery(e.target.value)}
-            className="c-input search-input"
-            placeholder={i18n._("label.selecttags", { message: "Select Tags..." })}
+            className="c-input c-tags-select__search-input"
+            placeholder={i18n._({ id: "label.searchtags", message: "Search tags..." })}
             onKeyDown={() => handleEsc}
           />
           {filteredOptions.length > 0 ? (
             sortTags(filteredOptions).map((tag) => (
-              <div key={tag.id} className="option-item" onClick={() => handleOptionClick(tag)} onKeyDown={(event) => handleOptionKey(event, tag)}>
+              <div key={tag.id} className="c-tags-select__option" onClick={() => handleOptionClick(tag)} onKeyDown={(event) => handleOptionKey(event, tag)}>
                 <ShowTag tag={tag} />
               </div>
             ))
           ) : (
-            <div className="no-options">
+            <div className="c-tags-select__no-options">
               <Trans id="labels.notagsavailable">No tags available</Trans>
             </div>
           )}
@@ -167,16 +172,15 @@ export const TagsSelect = (props: TagsSelectProps) => {
         <HStack spacing={2} className="text-category">
           <Trans id="label.tags">Tags</Trans>
         </HStack>
-        {tagsList}
+        {viewModeTagsList}
       </VStack>
     )
   }
 
   return (
-    <VStack>
+    <VStack className="c-tags-select">
       <HStack spacing={2} align="center" className="text-primary-base text-xs">
-        {!isEditing && tagsList}
-        {isEditing && editTagsList}
+        {isEditing || props.alwaysEditing ? editTagsList : viewModeTagsList}
       </HStack>
     </VStack>
   )

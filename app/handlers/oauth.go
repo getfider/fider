@@ -140,6 +140,14 @@ func OAuthToken() web.HandlerFunc {
 
 		webutil.AddAuthUserCookie(c, user)
 
+		// Check for custom code - this is used to pass through the code for a draft post that needs to be finalised when you're signed in.
+		customCode := c.QueryParam("custom_code")
+		if customCode != "" {
+			var finalQuery = redirectURL.Query()
+			finalQuery.Set("c", customCode)
+			redirectURL.RawQuery = finalQuery.Encode()
+		}
+
 		return c.Redirect(redirectURL.String())
 	}
 }
@@ -222,8 +230,11 @@ func OAuthCallback() web.HandlerFunc {
 
 		//Sign in process
 		var query = redirectURL.Query()
-		query.Set("code", code)
+		if claims.Code != "" {
+			query.Set("custom_code", claims.Code)
+		}
 		query.Set("redirect", redirectURL.RequestURI())
+		query.Set("code", code)
 		query.Set("identifier", claims.Identifier)
 		redirectURL.RawQuery = query.Encode()
 		redirectURL.Path = fmt.Sprintf("/oauth/%s/token", provider)
@@ -239,6 +250,7 @@ func SignInByOAuth() web.HandlerFunc {
 
 		provider := c.Param("provider")
 		redirect := c.QueryParam("redirect")
+		code := c.QueryParam("code")
 
 		if redirect == "" {
 			redirect = c.BaseURL()
@@ -256,6 +268,7 @@ func SignInByOAuth() web.HandlerFunc {
 		authURL := &query.GetOAuthAuthorizationURL{
 			Provider:   provider,
 			Redirect:   redirect,
+			Code:       code,
 			Identifier: c.SessionID(),
 		}
 		if err := bus.Dispatch(c, authURL); err != nil {

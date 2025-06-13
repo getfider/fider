@@ -3,7 +3,8 @@ import "./ShowTag.scss"
 import React, { MouseEvent } from "react"
 import { Tag } from "@fider/models"
 import { classSet } from "@fider/services"
-import ShieldCheck from "@fider/assets/images/heroicons-shieldcheck.svg"
+import EyeSlash from "@fider/assets/images/heroicons-eyeslash.svg"
+import TagSolid from "@fider/assets/images/heroicons-tagsolid.svg"
 import { Icon } from "./common"
 
 interface TagProps {
@@ -38,12 +39,8 @@ export const ShowTag = (props: TagProps) => {
       className={className}
       onClick={clickHandler}
     >
-      <span
-        style={{
-          backgroundColor: `#${props.tag.color}`,
-        }}
-      ></span>
-      {!props.tag.isPublic && !props.circular && <Icon height="14" width="14" sprite={ShieldCheck} className="mr-1" />}
+      <Icon style={{ color: `#${props.tag.color}` }} className="pr-1" height="18" width="18" sprite={TagSolid}></Icon>
+      {!props.tag.isPublic && !props.circular && <Icon height="14" width="14" sprite={EyeSlash} className="mr-1" />}
       {props.circular ? "" : props.tag.name || "Tag"}
     </a>
   )

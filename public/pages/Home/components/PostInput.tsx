@@ -6,6 +6,7 @@ import { ImageUpload, Tag } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
+// import { CACHE_ATTACHMENT_KEY } from "./ShareFeedback"
 import { TagsSelect } from "@fider/components/common/TagsSelect"
 
 interface PostInputProps {

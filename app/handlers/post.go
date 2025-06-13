@@ -42,14 +42,32 @@ func Index() web.HandlerFunc {
 			description = "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share posts."
 		}
 
+		data := web.Map{
+			"posts":          searchPosts.Result,
+			"tags":           getAllTags.Result,
+			"countPerStatus": countPerStatus.Result,
+		}
+
+		// Check if there's a draft post code in the query string
+		draftCode := c.QueryParam("c")
+		if draftCode != "" {
+			// Get the draft post by code
+			getDraftPost := &query.GetDraftPostByCode{Code: draftCode}
+			if err := bus.Dispatch(c, getDraftPost); err == nil && getDraftPost.Result != nil {
+				// Get attachments for the draft post
+				getDraftAttachments := &query.GetDraftAttachments{DraftPost: getDraftPost.Result}
+				if err := bus.Dispatch(c, getDraftAttachments); err == nil {
+					// Add draft post data to the page data
+					data["draftPost"] = getDraftPost.Result
+					data["draftAttachments"] = getDraftAttachments.Result
+				}
+			}
+		}
+
 		return c.Page(http.StatusOK, web.Props{
 			Page:        "Home/Home.page",
 			Description: description,
-			Data: web.Map{
-				"posts":          searchPosts.Result,
-				"tags":           getAllTags.Result,
-				"countPerStatus": countPerStatus.Result,
-			},
+			Data:        data,
 		})
 	}
 }
