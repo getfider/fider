@@ -45,6 +45,17 @@ export const SignInPage = () => {
     )
   }
 
+  const getRedirectToUrl = () => {
+    const fider = useFider()
+    const redirect = new URLSearchParams(window.location.search).get("redirect")
+
+    if (redirect && redirect.startsWith("/")) {
+      return fider.settings.baseURL + redirect
+    }
+
+    return fider.settings.baseURL
+  }
+
   return (
     <div id="p-signin" className="page container w-max-6xl">
       <div className="h-20 text-center mb-4">
@@ -52,7 +63,7 @@ export const SignInPage = () => {
       </div>
       <div className="text-center w-max-4xl mx-auto mb-4">{fider.session.tenant.isPrivate ? <Private /> : <Locked />}</div>
 
-      <SignInControl onEmailSent={onEmailSent} useEmail={true} redirectTo={fider.settings.baseURL} />
+      <SignInControl onEmailSent={onEmailSent} useEmail={true} redirectTo={getRedirectToUrl()} />
       <LegalNotice />
     </div>
   )

@@ -2,6 +2,8 @@ package middlewares
 
 import (
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -107,6 +109,21 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			if c.Tenant().IsPrivate && !c.IsAuthenticated() {
+				parsedURL, err := url.Parse(c.Request.URL.String())
+				if err != nil {
+					return c.Failure(err)
+				}
+
+				uri := parsedURL.RequestURI()
+				redirectTarget := ""
+				if uri != "" && uri != "/" && !strings.HasPrefix(uri, "/signin") && !strings.HasPrefix(uri, "/signout") {
+					if !strings.HasPrefix(uri, "http://") && !strings.HasPrefix(uri, "https://") && !strings.Contains(uri, "../") {
+						redirectTarget = uri
+					}
+				}
+				if redirectTarget != "" {
+					return c.Redirect("/signin?redirect=" + url.QueryEscape(redirectTarget))
+				}
 				return c.Redirect("/signin")
 			}
 			return next(c)
