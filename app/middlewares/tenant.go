@@ -114,8 +114,15 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 					return c.Failure(err)
 				}
 
-				if parsedURL.RequestURI() != "" && parsedURL.RequestURI() != "/" && !strings.HasPrefix(parsedURL.RequestURI(), "/signin") && !strings.HasPrefix(parsedURL.RequestURI(), "/signout") {
-					return c.Redirect("/signin?redirect=" + url.QueryEscape(c.Request.URL.String()))
+				uri := parsedURL.RequestURI()
+				redirectTarget := ""
+				if uri != "" && uri != "/" && !strings.HasPrefix(uri, "/signin") && !strings.HasPrefix(uri, "/signout") {
+					if !strings.HasPrefix(uri, "http://") && !strings.HasPrefix(uri, "https://") && !strings.Contains(uri, "../") {
+						redirectTarget = uri
+					}
+				}
+				if redirectTarget != "" {
+					return c.Redirect("/signin?redirect=" + url.QueryEscape(redirectTarget))
 				}
 				return c.Redirect("/signin")
 			}
