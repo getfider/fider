@@ -115,13 +115,6 @@ const GeneralSettingsPage = () => {
         >
           {locale !== "en" && (
             <>
-              <p className="text-muted">
-                This language is translated by the Open Source community. If you find a mistake or would like to improve its quality, visit{" "}
-                <a className="text-link" target="_blank" rel="noopener" href="https://crowdin.com/project/fider">
-                  Crowdin
-                </a>{" "}
-                and contribute with your own translations. No technical knowledge is required.
-              </p>
               <p className="text-muted">Only public pages are translated. Internal and/or administrative pages will remain in English.</p>
             </>
           )}

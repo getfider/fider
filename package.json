@@ -60,6 +60,7 @@
     "eslint-plugin-react": "7.29.4",
     "eslint-plugin-react-hooks": "4.5.0",
     "fork-ts-checker-webpack-plugin": "7.2.11",
+    "google-translate-api-x": "^10.7.2",
     "isomorphic-fetch": "3.0.0",
     "jest": "28.1.0",
     "jest-environment-jsdom": "28.1.0",
