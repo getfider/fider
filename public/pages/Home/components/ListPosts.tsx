@@ -48,15 +48,18 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
 
 const MinimalListPostItem = (props: { post: Post; tags: Tag[] }) => {
   return (
-    <HStack spacing={4} align="center" className="c-posts-container__post">
-      <div className="text-muted" style={{ width: "30px" }}>
-        +{props.post.votesCount}
-      </div>
-      <HStack className="w-full" justify="between" align="center">
+    <HStack spacing={4} align="start" className="c-posts-container__post">
+      <HStack className="w-full" justify="between" align="start">
         <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
           {props.post.title}
         </a>
-        {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"micro"} />}
+        {props.post.status !== "open" ? (
+          <div>
+            <ResponseLozenge status={props.post.status} response={props.post.response} size={"micro"} />
+          </div>
+        ) : (
+          <span className="text-gray-700 text-sm">+{props.post.votesCount}</span>
+        )}
       </HStack>
     </HStack>
   )
