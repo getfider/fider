@@ -10,26 +10,49 @@ const localesDir = path.resolve(__dirname, "../locale")
 const baseLang = "en"
 const files = ["client.json", "server.json"]
 
-function extractPlaceholders(str) {
-  return [...str.matchAll(/{[^}]+}/g)].map((m) => m[0])
+// 🧠 Safely freeze all top-level {...} blocks, even with nested ICU braces
+function freezePlaceholders(input) {
+  const replacements = {}
+  let output = ""
+  let index = 0
+  let i = 0
+
+  while (i < input.length) {
+    if (input[i] === "{") {
+      let depth = 1
+      let j = i + 1
+      while (j < input.length && depth > 0) {
+        if (input[j] === "{") depth++
+        else if (input[j] === "}") depth--
+        j++
+      }
+
+      const raw = input.slice(i, j)
+      const token = `[[${index++}]]`
+      replacements[token] = raw
+      output += token
+      i = j
+    } else {
+      output += input[i]
+      i++
+    }
+  }
+
+  output = output.replace(/\n/g, "[[*]]")
+
+  return { frozen: output, replacements }
 }
 
-async function translateWithPlaceholders(text, from, to) {
-  const placeholders = extractPlaceholders(text)
-  let safeInput = text
-
-  placeholders.forEach((p, i) => {
-    safeInput = safeInput.replace(p, `__VAR_${i}__`)
-  })
-
-  const { text: raw } = await translate(safeInput, { from, to })
-
-  let restored = raw
-  placeholders.forEach((p, i) => {
-    restored = restored.replace(new RegExp(`__VAR_${i}__`, "i"), p)
-  })
-
+function restorePlaceholders(str, replacements) {
+  let restored = Object.entries(replacements).reduce((out, [token, original]) => out.replace(token, original), str)
+  restored = restored.replace(/\[\[\*\]\]/g, "\n")
   return restored
+}
+
+async function translatePreservingPlaceholders(text, from, to) {
+  const { frozen, replacements } = freezePlaceholders(text)
+  const { text: raw } = await translate(frozen, { from, to, forceTo: true })
+  return restorePlaceholders(raw, replacements)
 }
 
 ;(async () => {
@@ -45,7 +68,7 @@ async function translateWithPlaceholders(text, from, to) {
       if (!fs.existsSync(localePath)) continue
 
       const localeJson = JSON.parse(fs.readFileSync(localePath, "utf8"))
-      const targetLang = locale.split("-")[0]
+      const targetLang = locale
 
       let changed = false
 
@@ -54,11 +77,11 @@ async function translateWithPlaceholders(text, from, to) {
         if (locVal && locVal !== enVal) continue
 
         try {
-          const translated = await translateWithPlaceholders(enVal, "en", targetLang)
+          const translated = await translatePreservingPlaceholders(enVal, "en", targetLang)
 
           if (translated && translated !== enVal) {
             if (dryRun) {
-              console.log(`[DRY RUN] ${locale}/${file} - ${key}: "${enVal}" → "${translated}"`)
+              console.log(`[DRY RUN] ${locale}/${file} - ${key}: "${enVal.replace(/\n/g, "\\n")}" → "${translated.replace(/\n/g, "\\n")}"`)
             } else {
               localeJson[key] = translated
               changed = true
