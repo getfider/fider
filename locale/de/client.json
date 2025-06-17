@@ -77,7 +77,7 @@
   "label.or": "ODER",
   "label.selecttags": "Tags auswählen...",
   "label.subscribe": "Abonnieren",
-  "label.tags": "Schlagwörter",
+  "label.tags": "Tags",
   "label.unfollow": "Entfolgen",
   "label.unread": "Ungelesen",
   "label.unsubscribe": "Abbestellen",
@@ -183,3 +183,4 @@
   "signin.message.socialbutton.intro": "Einloggen mit",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# Tag} other {# Tags}}"
 }
+
