@@ -4,7 +4,7 @@
   "property.image": "Εικόνα",
   "property.customdomain": "Προσαρμοσμένο domain",
   "property.key": "Κλειδί",
-  "property.email": "Email",
+  "property.email": "E-mail",
   "property.title": "Τίτλος",
   "property.comment": "Σχόλιο",
   "property.status": "Κατάσταση",
@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "Η εικόνα πρέπει να έχει ελάχιστες διαστάσεις {width}x{height} pixels.",
   "validation.custom.imagesquareratio": "Η εικόνα πρέπει να έχει αναλογία διαστάσεων 1:1.",
   "validation.custom.maximagesize": "Το μέγεθος της εικόνας πρέπει να είναι μικρότερο από {kilobytes}KB.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Μη έγκυρο emoji αντίδρασης.",
   "enum.poststatus.open": "Άνοιγμα",
   "enum.poststatus.started": "Ξεκίνησε",
   "enum.poststatus.completed": "Ολοκληρώθηκε",
@@ -43,7 +43,7 @@
   "email.subscription.change": "αλλάξτε τις προτιμήσεις ειδοποιήσεων",
   "email.subscription.unsubscribe": "κατάργηση συνδρομής",
   "email.greetings": "Γεια σας!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "Ο χρήστης <strong>{userName}</strong> σας ανέφερε στο <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Γεια σας, {name}!",
   "email.operation_confirmation": "Κάντε κλικ στον παρακάτω σύνδεσμο για να επιβεβαιώσετε αυτή τη λειτουργία.",
   "email.footer.noreply": "Αυτό το email στάλθηκε από μια διεύθυνση που δεν λαμβάνει email. Παρακαλώ μην απαντήσετε σε αυτό το μήνυμα.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Μέσω του παρακάτω συνδέσμου, μπορείτε να επαληθεύσετε τη διεύθυνση ηλεκτρονικού ταχυδρομείου σας και να ολοκληρώσετε τη διαδικασία ενεργοποίησης.",
   "email.footer.subscription_notice": "Λαμβάνετε αυτό το μήνυμα επειδή έχετε εγγραφεί σε αυτό το μήνυμα. Μπορείτε να {view}, {unsubscribe} ή {change}.",
   "email.footer.subscription_notice2": "Λαμβάνετε αυτό το μήνυμα επειδή έχετε εγγραφεί σε αυτή τη δημοσίευση. Μπορείτε να {change}.",
-  "email.footer.subscription_notice3": "Λαμβάνετε αυτό το μήνυμα επειδή είστε εγγεγραμμένοι σε αυτό το μήνυμα. Μπορείτε να {view} ή {change}."
+  "email.footer.subscription_notice3": "Λαμβάνετε αυτό το μήνυμα επειδή είστε εγγεγραμμένοι σε αυτό το μήνυμα. Μπορείτε να {view} ή {change}.",
+  "feed.comment.title": "Σχόλιο από {author}",
+  "feed.comment.op": "Αρχική ανάρτηση από {author}",
+  "feed.comment.response": "Απάντηση από {author}",
+  "feed.post.footer.response": "Απάντηση από {responder} στις {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - προβολή [στον ιστό]({web_link}) ή [ως ροή]({feed_link})"
 }

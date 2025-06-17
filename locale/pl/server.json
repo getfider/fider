@@ -4,7 +4,7 @@
   "property.image": "Obraz",
   "property.customdomain": "Niestandardowa Domena",
   "property.key": "Klucz",
-  "property.email": "Email",
+  "property.email": "E-mail",
   "property.title": "Tytuł",
   "property.comment": "Komentarz",
   "property.status": "Status",
@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "Obraz musi mieć minimalne wymiary {width}x{height} pikseli.",
   "validation.custom.imagesquareratio": "Obraz musi mieć proporcje 1:1.",
   "validation.custom.maximagesize": "Obraz musi być mniejszy niż {kilobytes}KB.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Nieprawidłowa reakcja emoji.",
   "enum.poststatus.open": "Otwórz",
   "enum.poststatus.started": "Rozpoczęte",
   "enum.poststatus.completed": "Ukończono",
@@ -43,7 +43,7 @@
   "email.subscription.change": "zmień ustawienia powiadomień",
   "email.subscription.unsubscribe": "odsubskrybuj",
   "email.greetings": "Dzień dobry!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> wspomniał o Tobie w <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Cześć, {name}!",
   "email.operation_confirmation": "Kliknij poniższy link, aby potwierdzić tę operację.",
   "email.footer.noreply": "Ta wiadomość została wysłana z adresu do powiadomień, który nie akceptuje poczty przychodzącej. Prosimy na niego nie odpowiadać.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Za pomocą poniższego linku możesz zweryfikować swój adres e-mail i zakończyć proces aktywacji.",
   "email.footer.subscription_notice": "Otrzymujesz ten e-mail, ponieważ subskrybujesz ten post. Możesz wykonać następujące czynności: {view}, {unsubscribe}, {change}.",
   "email.footer.subscription_notice2": "Otrzymujesz ten e-mail, ponieważ subskrybujesz ten post. Możesz wykonać następujące czynności: {change}.",
-  "email.footer.subscription_notice3": "Otrzymujesz ten e-mail, ponieważ subskrybujesz ten post. Możesz wykonać następujące czynności: {view}, {change}."
+  "email.footer.subscription_notice3": "Otrzymujesz ten e-mail, ponieważ subskrybujesz ten post. Możesz wykonać następujące czynności: {view}, {change}.",
+  "feed.comment.title": "Komentarz użytkownika {author}",
+  "feed.comment.op": "Oryginalny post autorstwa {author}",
+  "feed.comment.response": "Odpowiedź użytkownika {author}",
+  "feed.post.footer.response": "Odpowiedź użytkownika {responder} w dniu {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - wyświetl [w sieci]({web_link}) lub [jako kanał]({feed_link})"
 }

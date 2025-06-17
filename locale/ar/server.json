@@ -60,5 +60,11 @@
   "email.signup_email.confirmation": "من خلال الرابط أدناه يمكنك التحقق من عنوان البريد الإلكتروني الخاص بك وإكمال عملية التنشيط.",
   "email.footer.subscription_notice": "أنت تتلقى هذا البريد الإلكتروني لأنك مشترك في هذا المنشور. يمكنك الحصول على {view} أو {unsubscribe} أو {change}.",
   "email.footer.subscription_notice2": "أنت تستلم هذا البريد الإلكتروني لأنك مشترك في هذا المنشور. يمكنك {change}.",
-  "email.footer.subscription_notice3": "أنت تتلقى هذا البريد الإلكتروني لأنك مشترك في هذا المنشور. يمكنك أن {view} أو {change}."
+  "email.footer.subscription_notice3": "أنت تتلقى هذا البريد الإلكتروني لأنك مشترك في هذا المنشور. يمكنك أن {view} أو {change}.",
+  "feed.comment.title": "تعليق بواسطة {author}",
+  "feed.comment.op": "المنشور الأصلي بواسطة {author}",
+  "feed.comment.response": "الرد بواسطة {author}",
+  "feed.post.title": "# {title}\n{votes, plural, one {# vote} other {# votes}}، {comments, plural, one {# comment} other {# comments}}\n\n---\n",
+  "feed.post.footer.response": "رد من {responder} على {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}، {comments, plural, one {# comment} other {# comments}} - عرض [على الويب]({web_link}) أو [كموجز]({feed_link})"
 }

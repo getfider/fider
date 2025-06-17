@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "La imagen debe tener dimensiones mínimas de {width}x{height} píxeles.",
   "validation.custom.imagesquareratio": "La imagen debe tener una relación de aspecto de 1:1.",
   "validation.custom.maximagesize": "El tamaño de la imagen debe ser menor de {kilobytes}KB.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Emoji de reacción no válido.",
   "enum.poststatus.open": "Abierto",
   "enum.poststatus.started": "Iniciado",
   "enum.poststatus.completed": "Completado",
@@ -43,7 +43,7 @@
   "email.subscription.change": "cambiar tus preferencias de notificación",
   "email.subscription.unsubscribe": "desuscribirse de la lista",
   "email.greetings": "¡Hola!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> te mencionó en <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "¡Hola, {name}!",
   "email.operation_confirmation": "Haga clic en el siguiente enlace para confirmar esta operación.",
   "email.footer.noreply": "Este correo electrónico ha sido enviado desde una dirección de sólo notificación que no puede aceptar correos entrantes. Por favor, no responda a este mensaje.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "A través del enlace de abajo puedes verificar tu dirección de correo electrónico y completar el proceso de activación.",
   "email.footer.subscription_notice": "Has recibido este correo electrónico porque estás suscrito a esta publicación. Puedes {view}, {unsubscribe} o {change}.",
   "email.footer.subscription_notice2": "Estás recibiendo este correo electrónico porque estás suscrito a este mensaje. Puedes {change}.",
-  "email.footer.subscription_notice3": "Has recibido este mensaje porque tienes suscripción a este canal."
+  "email.footer.subscription_notice3": "Has recibido este mensaje porque tienes suscripción a este canal.",
+  "feed.comment.title": "Comentario de {author}",
+  "feed.comment.op": "Publicación original de {author}",
+  "feed.comment.response": "Respuesta de {author}",
+  "feed.post.footer.response": "Respuesta de {responder} a {date}:\n\n>{response}",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - ver [en la web]({web_link}) o [como feed]({feed_link})"
 }
