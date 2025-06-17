@@ -1,6 +1,8 @@
 const fs = require("fs")
 const path = require("path")
-const translate = require("google-translate-api-x")
+const { TranslationServiceClient } = require("@google-cloud/translate").v3
+
+const client = new TranslationServiceClient()
 
 const args = process.argv.slice(2)
 const dryRun = args.includes("--dry")
@@ -10,12 +12,11 @@ const localesDir = path.resolve(__dirname, "../locale")
 const baseLang = "en"
 const files = ["client.json", "server.json"]
 
-// 🧠 Safely freeze all top-level {...} blocks, even with nested ICU braces
-function freezePlaceholders(input) {
-  const replacements = {}
+function extractPlaceholders(input) {
+  const placeholders = []
   let output = ""
-  let index = 0
   let i = 0
+  let tokenIndex = 0
 
   while (i < input.length) {
     if (input[i] === "{") {
@@ -28,8 +29,8 @@ function freezePlaceholders(input) {
       }
 
       const raw = input.slice(i, j)
-      const token = `[[${index++}]]`
-      replacements[token] = raw
+      const token = `__PH_${tokenIndex++}__`
+      placeholders.push({ token, value: raw })
       output += token
       i = j
     } else {
@@ -38,21 +39,28 @@ function freezePlaceholders(input) {
     }
   }
 
-  output = output.replace(/\n/g, "[[*]]")
-
-  return { frozen: output, replacements }
+  return { cleaned: output, placeholders }
 }
 
-function restorePlaceholders(str, replacements) {
-  let restored = Object.entries(replacements).reduce((out, [token, original]) => out.replace(token, original), str)
-  restored = restored.replace(/\[\[\*\]\]/g, "\n")
-  return restored
+function restorePlaceholders(text, placeholders) {
+  return placeholders.reduce((acc, { token, value }) => acc.replace(token, value), text)
 }
 
-async function translatePreservingPlaceholders(text, from, to) {
-  const { frozen, replacements } = freezePlaceholders(text)
-  const { text: raw } = await translate(frozen, { from, to, forceTo: true })
-  return restorePlaceholders(raw, replacements)
+async function translateText(text, targetLang) {
+  const projectId = await client.getProjectId()
+  const parent = `projects/${projectId}/locations/global`
+
+  const { cleaned, placeholders } = extractPlaceholders(text)
+
+  const [response] = await client.translateText({
+    parent,
+    contents: [cleaned],
+    mimeType: "text/plain",
+    targetLanguageCode: targetLang,
+  })
+
+  const translated = response.translations[0].translatedText
+  return restorePlaceholders(translated, placeholders)
 }
 
 ;(async () => {
@@ -77,7 +85,7 @@ async function translatePreservingPlaceholders(text, from, to) {
         if (locVal && locVal !== enVal) continue
 
         try {
-          const translated = await translatePreservingPlaceholders(enVal, "en", targetLang)
+          const translated = await translateText(enVal, targetLang)
 
           if (translated && translated !== enVal) {
             if (dryRun) {
