@@ -10,7 +10,7 @@ on:
 
   push:
     paths:
-      - "locales/en/**.json"
+      - "locale/en/**.json"
 
 jobs:
   translate:
@@ -27,14 +27,13 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Install Lingui CLI
-        run: npm install --global @lingui/cli
-
-      - name: Install Google Translate client
-        run: npm install --save google-translate-api-x
+      - name: Write GCP credentials
+        run: echo "${{ secrets.GCP_TRANSLATE_KEY }}" > gcloud-key.json
 
       - name: Run auto-translate script
-        run: node scripts/translate.js ${{ inputs.dry == 'true' && '--dry' || '' }}
+        run: |
+          GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json \
+          node scripts/translate.js ${{ inputs.dry == 'true' && '--dry' || '' }}
 
       - name: Create Pull Request
         if: ${{ inputs.dry != 'true' }}
