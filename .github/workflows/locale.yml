@@ -28,8 +28,10 @@ jobs:
         run: npm ci
 
       - name: Write GCP credentials
-        run: echo "${{ secrets.GCP_TRANSLATE_KEY }}" > gcloud-key.json
-
+        run: |
+          echo "$GCP_TRANSLATE_KEY" > gcloud-key.json
+        env:
+          GCP_TRANSLATE_KEY: ${{ secrets.GCP_TRANSLATE_KEY }}
       - name: Run auto-translate script
         run: |
           GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json \
