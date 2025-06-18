@@ -85,7 +85,7 @@ async function translateText(text, targetLang) {
 
       for (const [key, enVal] of Object.entries(enJson)) {
         const locVal = localeJson[key]
-        if (locVal && locVal !== enVal) continue
+        if (locVal) continue // There is already a translation, skip it
 
         try {
           const translated = await translateText(enVal, targetLang)
