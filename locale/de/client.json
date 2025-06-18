@@ -83,7 +83,6 @@
   "label.unsubscribe": "Abbestellen",
   "label.voters": "Wähler",
   "labels.notagsavailable": "Keine Tags verfügbar",
-  "labels.notagsselected": "",
   "legal.agreement": "Ich habe die <0/> und <1/> gelesen und akzeptiere sie.",
   "legal.notice": "Mit der Anmeldung stimmst du den <2/><0/> und <1/> zu.",
   "legal.privacypolicy": "Datenschutzerklärung",
@@ -184,3 +183,4 @@
   "signin.message.socialbutton.intro": "Einloggen mit",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# Tag} other {# Tags}}"
 }
+
