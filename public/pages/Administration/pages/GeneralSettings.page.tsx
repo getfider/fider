@@ -115,6 +115,14 @@ const GeneralSettingsPage = () => {
         >
           {locale !== "en" && (
             <>
+              <p className="text-muted">
+                This language is translated by the Open Source community. If you find a mistake or would like to improve its quality, you can find the
+                translations on{" "}
+                <a className="text-link" target="_blank" rel="noopener" href="https://github.com/getfider/fider/tree/main/locale">
+                  GitHub
+                </a>{" "}
+                and contribute with your own translations.
+              </p>
               <p className="text-muted">Only public pages are translated. Internal and/or administrative pages will remain in English.</p>
             </>
           )}
