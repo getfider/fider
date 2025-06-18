@@ -43,3 +43,6 @@ jobs:
           title: "Auto-translate missing keys in locales"
           body: "This PR adds machine-translated values for any missing locale keys."
           branch: auto/translate-missing-keys
+          add-paths: |
+            locale/**/client.json
+            locale/**/server.json

@@ -55,6 +55,8 @@ async function translateText(text, targetLang) {
 
   const { cleaned, placeholders } = extractPlaceholders(text)
 
+  console.log(`Translating "${cleaned}" to ${targetLang}...`)
+
   const [response] = await client.translateText({
     parent,
     contents: [cleaned],
@@ -63,7 +65,9 @@ async function translateText(text, targetLang) {
   })
 
   const translated = response.translations[0].translatedText
-  return restorePlaceholders(translated, placeholders)
+  const result = restorePlaceholders(translated, placeholders)
+  console.log(`... done, result was ${translated}, final result is ${result}`)
+  return result
 }
 
 ;(async () => {
@@ -88,6 +92,7 @@ async function translateText(text, targetLang) {
         if (locVal) continue // There is already a translation, skip it
 
         try {
+          console.log(`New key: translating "${enVal}" to ${targetLang}...`)
           const translated = await translateText(enVal, targetLang)
 
           if (translated && translated !== enVal) {
