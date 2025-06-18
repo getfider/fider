@@ -92,7 +92,7 @@ async function translateText(text, targetLang) {
         if (locVal) continue // There is already a translation, skip it
 
         try {
-          console.log(`New key: translating "${enVal}" to ${targetLang}...`)
+          console.log(`New key: translating "${enVal} (${key})" to ${targetLang}...`)
           const translated = await translateText(enVal, targetLang)
 
           if (translated && translated !== enVal) {
