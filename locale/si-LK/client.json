@@ -181,5 +181,6 @@
   "signin.message.private.text": "ඔබට ගිණුමක් හෝ ආරාධනාවක් තිබේ නම්, ඔබට පුරනය වීමට පහත විකල්ප භාවිතා කළ හැකිය.",
   "signin.message.private.title": "<0>{0}</0> යනු පුද්ගලික අවකාශයකි, සහභාගී වී ඡන්දය දීමට ඔබ පුරනය විය යුතුය.",
   "signin.message.socialbutton.intro": "සමඟ ලොග් වන්න",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
+  "labels.notagsselected": "ටැග් කිසිවක් තෝරාගෙන නැත."
 }

@@ -181,5 +181,6 @@
   "signin.message.private.text": "Pokud máte účet nebo pozvánku, můžete se přihlásit pomocí následujících možností.",
   "signin.message.private.title": "<0>{0}</0> je soukromý prostor, pro účast a hlasování se musíte přihlásit.",
   "signin.message.socialbutton.intro": "Přihlásit se pomocí",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
+  "labels.notagsselected": "Žádné štítky nejsou vybrány"
 }

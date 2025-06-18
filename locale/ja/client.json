@@ -83,7 +83,7 @@
   "label.unsubscribe": "購読の解除",
   "label.voters": "投票者",
   "labels.notagsavailable": "利用可能なタグはありません",
-  "labels.notagsselected": "",
+  "labels.notagsselected": "タグが選択されていません",
   "legal.agreement": "私は<0/>と<1/>を読み、同意しました。",
   "legal.notice": "サインインすると、<2/><0/> および <1/> に同意したことになります。",
   "legal.privacypolicy": "プライバシーポリシー",
