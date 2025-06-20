@@ -181,5 +181,6 @@
   "signin.message.private.text": "계정이나 초대장이 있는 경우 다음 옵션을 사용하여 로그인할 수 있습니다.",
   "signin.message.private.title": "<0>{0}</0>은 비공개 공간이므로 참여하고 투표하려면 로그인해야 합니다.",
   "signin.message.socialbutton.intro": "로그인하세요",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
+  "labels.notagsselected": "선택된 태그가 없습니다"
 }
