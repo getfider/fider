@@ -61,17 +61,14 @@ export const SimilarPosts: React.FC<SimilarPostsProps> = (props) => {
     }
   }
 
-  const title_text = i18n._("home.similar.title", { message: "Similar posts" })
-  const subtitle = i18n._("home.similar.subtitle", { message: "Consider voting on existing posts instead." })
+  const title_text = i18n._("home.similar.title", { message: "We have similar posts, is your idea already on the list?" })
 
   const animationClass = isVisible ? "similar-posts-visible" : "similar-posts-hidden"
 
   return (
     <>
       <div className={`similar-posts-container overflow-auto ${animationClass}`}>
-        <div className="mb-4 text-gray-700">
-          {title_text} - {subtitle}
-        </div>
+        <div className="mb-4 text-gray-700">{title_text}</div>
         <div className="mb-6">
           <ListPosts posts={posts} tags={props.tags} emptyText="" minimalView={true} />
         </div>
