@@ -4,7 +4,7 @@
   "property.image": "Immagine",
   "property.customdomain": "Dominio Personalizzato",
   "property.key": "Chiave",
-  "property.email": "Email",
+  "property.email": "E-mail",
   "property.title": "Titolo",
   "property.comment": "Commento",
   "property.status": "Stato",
@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "L'immagine deve avere dimensioni minime di {width}x{height} pixel.",
   "validation.custom.imagesquareratio": "L'immagine deve avere un rapporto di aspetto di 1:1.",
   "validation.custom.maximagesize": "La dimensione dell'immagine deve essere minore di {kilobytes}KB.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Emoji di reazione non valida.",
   "enum.poststatus.open": "Aperto",
   "enum.poststatus.started": "Iniziato",
   "enum.poststatus.completed": "Completato",
@@ -43,7 +43,7 @@
   "email.subscription.change": "modifica le preferenze di notifica",
   "email.subscription.unsubscribe": "cancellare dalla lista",
   "email.greetings": "Ciao!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> ti ha menzionato in <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Ciao, {name}!",
   "email.operation_confirmation": "Clicca sul link qui sotto per confermare questa operazione.",
   "email.footer.noreply": "Questa email è stata inviata da un indirizzo di sola notifica che non può accettare email in arrivo. Si prega di non rispondere a questo messaggio.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Attraverso il link qui sotto puoi verificare il tuo indirizzo email e completare il processo di attivazione.",
   "email.footer.subscription_notice": "Stai ricevendo questa email perché sei iscritto a questo post. Puoi {view}, {unsubscribe} o {change}.",
   "email.footer.subscription_notice2": "Stai ricevendo questa email perché sei iscritto a questo post. Puoi {change}.",
-  "email.footer.subscription_notice3": "Stai ricevendo questa email perché sei iscritto a questo post. Puoi {view} o {change}."
+  "email.footer.subscription_notice3": "Stai ricevendo questa email perché sei iscritto a questo post. Puoi {view} o {change}.",
+  "feed.comment.title": "Commento di {author}",
+  "feed.comment.op": "Post originale di {author}",
+  "feed.comment.response": "Risposta di {author}",
+  "feed.post.footer.response": "Risposta di {responder} del {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visualizza [sul web]({web_link}) o [come feed]({feed_link})"
 }

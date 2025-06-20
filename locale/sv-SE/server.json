@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "Bilden måste ha minsta mått på {width}x{height} pixlar.",
   "validation.custom.imagesquareratio": "Bilden måste ha ett bildförhållande på 1:1.",
   "validation.custom.maximagesize": "Bilden måste vara mindre än {kilobytes}kB.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Ogiltig reaktionsemoji.",
   "enum.poststatus.open": "Öppen",
   "enum.poststatus.started": "Påbörjad",
   "enum.poststatus.completed": "Avslutad",
@@ -43,7 +43,7 @@
   "email.subscription.change": "ändra dina inställningar för aviseringar",
   "email.subscription.unsubscribe": "avregistrera dig",
   "email.greetings": "Hej!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> nämnde dig i <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Hej {name}!",
   "email.operation_confirmation": "Klicka på länken nedan för att bekräfta denna åtgärd.",
   "email.footer.noreply": "Detta e-postmeddelande har skickats från en adress som inte accepterar inkommande e-post. Du kan inte svara på detta meddelande.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Via länken nedan kan du bekräfta din e-postadress och slutföra aktiveringsprocessen.",
   "email.footer.subscription_notice": "Du får detta e-postmeddelande eftersom du prenumererar på det här inlägget. Du kan {view}, {unsubscribe} eller {change}.",
   "email.footer.subscription_notice2": "Du får detta e-postmeddelande eftersom du prenumererar på det här inlägget. Du kan {change}.",
-  "email.footer.subscription_notice3": "Du får detta e-postmeddelande eftersom du prenumererar på det här inlägget. Du kan {view} eller {change}."
+  "email.footer.subscription_notice3": "Du får detta e-postmeddelande eftersom du prenumererar på det här inlägget. Du kan {view} eller {change}.",
+  "feed.comment.title": "Kommentar av {author}",
+  "feed.comment.op": "Ursprungligt inlägg av {author}",
+  "feed.comment.response": "Svar från {author}",
+  "feed.post.footer.response": "Svar från {responder} den {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visa [på webben]({web_link}) eller [som ett flöde]({feed_link})"
 }
