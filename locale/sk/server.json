@@ -4,7 +4,7 @@
   "property.image": "Obrázok",
   "property.customdomain": "Vlastná doména",
   "property.key": "Kľúč",
-  "property.email": "Email",
+  "property.email": "E-mail",
   "property.title": "Názov",
   "property.comment": "Komentovať",
   "property.status": "Stav",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Prostredníctvom nižšie uvedeného odkazu si môžete overiť svoju emailovú adresu a dokončiť proces aktivácie.",
   "email.footer.subscription_notice": "Tento email ste dostali, pretože ste sa prihlásili na odber tohto príspevku. Môžete {view}, {unsubscribe} or {change}.",
   "email.footer.subscription_notice2": "Tento email ste dostali, pretože ste sa prihlásili na odber tohto príspevku. Môžete {change}.",
-  "email.footer.subscription_notice3": "Tento email ste dostali, pretože ste sa prihlásili na odber tohto príspevku. Môžete {view} alebo {change}."
+  "email.footer.subscription_notice3": "Tento email ste dostali, pretože ste sa prihlásili na odber tohto príspevku. Môžete {view} alebo {change}.",
+  "feed.comment.title": "Komentár od {author}",
+  "feed.comment.op": "Pôvodný príspevok od {author}",
+  "feed.comment.response": "Odpoveď od {author}",
+  "feed.post.footer.response": "Odpoveď od {responder} dňa {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - zobraziť [na webe]({web_link}) alebo [ako informačný kanál]({feed_link})"
 }

@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "A imagem deve ter dimensões mínimas de {width}x{height} pixels.",
   "validation.custom.imagesquareratio": "A imagem deve ter uma relação de proporção de 1:1.",
   "validation.custom.maximagesize": "O tamanho da imagem deve ser inferior a {kilobytes}KB.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Emoji de reação inválido.",
   "enum.poststatus.open": "Aberto",
   "enum.poststatus.started": "Iniciado",
   "enum.poststatus.completed": "Completado",
@@ -43,7 +43,7 @@
   "email.subscription.change": "alterar suas preferências de notificação",
   "email.subscription.unsubscribe": "desinscrever-se desta postagem",
   "email.greetings": "Olá!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> mencionou você em <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Olá, {name}!",
   "email.operation_confirmation": "Clique no link abaixo para confirmar esta operação.",
   "email.footer.noreply": "Este email foi enviado de uma caixa postal que não pode receber e-mails. Favor não responder este e-mail.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Através do link abaixo você irá verificar o seu e-mail e completar o processo de ativação.",
   "email.footer.subscription_notice": "Você está recebendo este e-mail porque se inscreveu nesta postagem. Você pode {view}, {unsubscribe} ou {change}.",
   "email.footer.subscription_notice2": "Você está recebendo este e-mail porque se inscreveu nesta postagem. Você pode {change}.",
-  "email.footer.subscription_notice3": "Você está recebendo este e-mail porque se inscreveu nesta postagem. Você pode {view} ou {change}."
+  "email.footer.subscription_notice3": "Você está recebendo este e-mail porque se inscreveu nesta postagem. Você pode {view} ou {change}.",
+  "feed.comment.title": "Comentário de {author}",
+  "feed.comment.op": "Postagem original de {author}",
+  "feed.comment.response": "Resposta de {author}",
+  "feed.post.footer.response": "Resposta de {responder} em {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visualizar [na web]({web_link}) ou [como um feed]({feed_link})"
 }

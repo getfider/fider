@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "De afbeelding moet minimaal een afmeting van {width}x{height} pixels hebben.",
   "validation.custom.imagesquareratio": "De afbeelding moet een hoogte-breedteverhouding hebben van 1:1.",
   "validation.custom.maximagesize": "De afbeelding moet kleiner zijn dan {kilobytes}KB.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Ongeldige reactie-emoji.",
   "enum.poststatus.open": "Open",
   "enum.poststatus.started": "Gestart",
   "enum.poststatus.completed": "Voltooid",
@@ -43,7 +43,7 @@
   "email.subscription.change": "update je voorkeuren voor meldingen",
   "email.subscription.unsubscribe": "afmelden",
   "email.greetings": "Hallo!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> heeft je genoemd in <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Hallo, {name}!",
   "email.operation_confirmation": "Klik op de link hieronder om deze actie te bevestigen.",
   "email.footer.noreply": "Deze e-mail is verzonden vanuit een adres dat geen inkomende e-mail kan accepteren. Reageer niet op dit bericht.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Via de onderstaande link kun je jouw emailadres bevestigen en de activatie voltooien.",
   "email.footer.subscription_notice": "Je ontvangt deze e-mail omdat je bent geabonneerd op dit bericht. Je kunt {view}, {unsubscribe} of {change}.",
   "email.footer.subscription_notice2": "Je ontvangt deze e-mail omdat je bent geabonneerd op dit bericht. Je kunt {change}.",
-  "email.footer.subscription_notice3": "Je ontvangt deze e-mail omdat je bent geabonneerd op dit bericht. Je kunt {view} of {change}."
+  "email.footer.subscription_notice3": "Je ontvangt deze e-mail omdat je bent geabonneerd op dit bericht. Je kunt {view} of {change}.",
+  "feed.comment.title": "Commentaar van {author}",
+  "feed.comment.op": "Origineel bericht van {author}",
+  "feed.comment.response": "Reactie van {author}",
+  "feed.post.footer.response": "Reactie van {responder} op {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - bekijken [op het web]({web_link}) of [als feed]({feed_link})"
 }
