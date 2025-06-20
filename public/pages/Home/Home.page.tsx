@@ -16,6 +16,7 @@ import { CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY } from "./
 export interface HomePageProps {
   posts: Post[]
   tags: Tag[]
+  searchNoiseWords: string[]
   countPerStatus: { [key: string]: number }
   draftPost?: {
     id: number

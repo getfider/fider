@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models/entity"
@@ -388,6 +389,29 @@ func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
 	})
 }
 
+func preprocessSearchQuery(query string) string {
+	// Common noise words that don't add search value
+	noiseWords := []string{"add", "support", "for", "implement", "create", "make", "allow", "enable", "provide"}
+
+	words := strings.Fields(strings.ToLower(query))
+	var filteredWords []string
+
+	for _, word := range words {
+		isNoise := false
+		for _, noise := range noiseWords {
+			if word == noise {
+				isNoise = true
+				break
+			}
+		}
+		if !isNoise && len(word) > 2 { // Also filter very short words
+			filteredWords = append(filteredWords, word)
+		}
+	}
+
+	return strings.Join(filteredWords, " ")
+}
+
 func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
@@ -406,15 +430,17 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			}
 		}
 
+		filteredQuery := preprocessSearchQuery(q.Query)
+
 		var (
 			posts []*dbPost
 			err   error
 		)
-		if q.Query != "" {
+		if filteredQuery != "" {
 			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
-				WHERE %s > 0.1
+				WHERE %s > 0.5
 				ORDER BY %s DESC
 				LIMIT %s
 			`, innerQuery, scoreField, scoreField, q.Limit)
@@ -424,7 +450,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(q.Query), SanitizeString(q.Query))
+			}), ToTSQuery(filteredQuery), SanitizeString(filteredQuery))
 		} else {
 			condition, statuses, sort := getViewData(*q)
 			sql := fmt.Sprintf(`

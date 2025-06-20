@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/csv"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -43,9 +44,10 @@ func Index() web.HandlerFunc {
 		}
 
 		data := web.Map{
-			"posts":          searchPosts.Result,
-			"tags":           getAllTags.Result,
-			"countPerStatus": countPerStatus.Result,
+			"searchNoiseWords": env.SearchNoiseWords(),
+			"posts":            searchPosts.Result,
+			"tags":             getAllTags.Result,
+			"countPerStatus":   countPerStatus.Result,
 		}
 
 		// Check if there's a draft post code in the query string

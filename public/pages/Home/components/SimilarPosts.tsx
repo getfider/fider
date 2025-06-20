@@ -44,13 +44,28 @@ export const SimilarPosts: React.FC<SimilarPostsProps> = (props) => {
     }
   }, [title])
 
+  const preprocessSearchQuery = (query: string) => {
+    const noiseWords = ["add", "support", "for", "implement", "create", "make", "allow", "enable", "provide"]
+    return query
+      .split(" ")
+      .filter((x) => !noiseWords.includes(x))
+      .join(" ")
+  }
+
   const loadSimilarPosts = () => {
     if (loading) {
       if (title.length < 2) {
         setLoading(false)
         setIsVisible(false)
       } else {
-        actions.searchPosts({ query: title, limit: 5 }).then((x) => {
+        const query = preprocessSearchQuery(title)
+        console.log("Query:", query)
+        if (query.length < 2) {
+          setLoading(false)
+          setIsVisible(false)
+          return
+        }
+        actions.searchPosts({ query, limit: 5 }).then((x) => {
           if (x.ok) {
             setLoading(false)
             setIsVisible(x.data.length > 0)
