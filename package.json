@@ -32,7 +32,7 @@
     "@cucumber/cucumber": "8.2.0",
     "@google-cloud/translate": "^9.1.0",
     "@lingui/babel-plugin-lingui-macro": "^5.1.2",
-    "@lingui/cli": "^5.1.2",
+    "@lingui/cli": "^5.3.2",
     "@lingui/loader": "^5.1.2",
     "@lingui/macro": "^5.1.2",
     "@playwright/test": "1.48",
