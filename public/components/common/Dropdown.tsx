@@ -5,6 +5,7 @@ import { classSet } from "@fider/services"
 
 interface DropdownListItemProps {
   href?: string
+  type?: string
   onClick?: () => void
   className?: string
   children: React.ReactNode
@@ -22,7 +23,7 @@ const ListItem = (props: DropdownListItemProps) => {
 
   if (props.href) {
     return (
-      <a href={props.href} className={`c-dropdown__listitem ${props.className}`}>
+      <a href={props.href} className={`c-dropdown__listitem ${props.className}`} type={props.type || "button"}>
         {props.children}
       </a>
     )
