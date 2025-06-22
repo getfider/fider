@@ -65,7 +65,7 @@ export const SimilarPosts: React.FC<SimilarPostsProps> = (props) => {
           setIsVisible(false)
           return
         }
-        actions.searchPosts({ query, limit: 5 }).then((x) => {
+        actions.findSimilarPosts(query).then((x) => {
           if (x.ok) {
             setLoading(false)
             setIsVisible(x.data.length > 0)

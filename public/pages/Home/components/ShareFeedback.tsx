@@ -273,7 +273,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
             )}
           </div>
         </div>
-        <LegalFooter />
+        {!fider.session.isAuthenticated ? <LegalFooter /> : null}
       </Modal.Content>
     </Modal.Window>
   )

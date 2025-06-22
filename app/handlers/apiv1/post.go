@@ -39,6 +39,19 @@ func SearchPosts() web.HandlerFunc {
 	}
 }
 
+// FindSimilarPosts return posts similar to query
+func FindSimilarPosts() web.HandlerFunc {
+	return func(c *web.Context) error {
+		searchPosts := &query.FindSimilarPosts{
+			Query: c.QueryParam("query"),
+		}
+		if err := bus.Dispatch(c, searchPosts); err != nil {
+			return c.Failure(err)
+		}
+		return c.Ok(searchPosts.Result)
+	}
+}
+
 // CreatePost creates a new post on current tenant
 func CreatePost() web.HandlerFunc {
 	return func(c *web.Context) error {

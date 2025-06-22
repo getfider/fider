@@ -142,7 +142,7 @@ type config struct {
 		Until   string `env:"MAINTENANCE_UNTIL"`
 	}
 	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
-	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add,support,for,implement,create,make,allow,enable,provide,some,also,include,very,make,and,for,to,a,able,function,feature"`
+	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature"`
 }
 
 // Config is a strongly typed reference to all configuration parsed from Environment Variables
@@ -250,7 +250,7 @@ func IsProduction() bool {
 
 // SearchNoiseWords returns a list of words that should be ignored on search
 func SearchNoiseWords() []string {
-	return strings.Split(Config.SearchNoiseWords, ",")
+	return strings.Split(Config.SearchNoiseWords, "|")
 }
 
 // IsTest returns true on Fider test environment

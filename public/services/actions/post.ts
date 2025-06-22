@@ -28,6 +28,11 @@ export const searchPosts = async (params: SearchPostsParams): Promise<Result<Pos
   return await http.get<Post[]>(`/api/v1/posts${qsParams}`)
 }
 
+export const findSimilarPosts = async (query: string): Promise<Result<Post[]>> => {
+  const params = querystring.stringify({ query: query })
+  return await http.get<Post[]>(`/api/v1/similarposts${params}`)
+}
+
 export const deletePost = async (postNumber: number, text: string): Promise<Result> => {
   return http
     .delete(`/api/v1/posts/${postNumber}`, {

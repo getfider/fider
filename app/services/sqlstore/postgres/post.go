@@ -15,6 +15,7 @@ import (
 	"github.com/lib/pq"
 
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -391,7 +392,8 @@ func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
 
 func preprocessSearchQuery(query string) string {
 	// Common noise words that don't add search value
-	noiseWords := []string{"add", "support", "for", "implement", "create", "make", "allow", "enable", "provide"}
+
+	noiseWords := env.SearchNoiseWords()
 
 	words := strings.Fields(strings.ToLower(query))
 	var filteredWords []string
@@ -412,6 +414,47 @@ func preprocessSearchQuery(query string) string {
 	return strings.Join(filteredWords, " ")
 }
 
+func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
+
+		filteredQuery := preprocessSearchQuery(q.Query)
+
+		var (
+			posts []*dbPost
+			err   error
+		)
+
+		if filteredQuery == "" {
+			q.Result = make([]*entity.Post, 0)
+		} else {
+			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
+			sql := fmt.Sprintf(`
+				SELECT * FROM (%s) AS q 
+				WHERE %s > 0.5
+				ORDER BY %s DESC
+				LIMIT 5
+			`, innerQuery, scoreField, scoreField)
+			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
+				enum.PostOpen,
+				enum.PostStarted,
+				enum.PostPlanned,
+				enum.PostCompleted,
+				enum.PostDeclined,
+			}), ToTSQuery(filteredQuery), SanitizeString(filteredQuery))
+		}
+		if err != nil {
+			return errors.Wrap(err, "failed to find similar posts")
+		}
+
+		q.Result = make([]*entity.Post, len(posts))
+		for i, post := range posts {
+			q.Result[i] = post.toModel(ctx)
+		}
+		return nil
+	})
+}
+
 func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
@@ -430,17 +473,15 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			}
 		}
 
-		filteredQuery := preprocessSearchQuery(q.Query)
-
 		var (
 			posts []*dbPost
 			err   error
 		)
-		if filteredQuery != "" {
+		if q.Query != "" {
 			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
-				WHERE %s > 0.5
+				WHERE %s > 0.4
 				ORDER BY %s DESC
 				LIMIT %s
 			`, innerQuery, scoreField, scoreField, q.Limit)
@@ -450,7 +491,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(filteredQuery), SanitizeString(filteredQuery))
+			}), ToTSQuery(q.Query), SanitizeString(q.Query))
 		} else {
 			condition, statuses, sort := getViewData(*q)
 			sql := fmt.Sprintf(`

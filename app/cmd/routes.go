@@ -193,6 +193,7 @@ func routes(r *web.Engine) *web.Engine {
 	// Does not require authentication
 	publicApi := r.Group()
 	{
+		publicApi.Get("/api/v1/similarposts", apiv1.FindSimilarPosts())
 		publicApi.Get("/api/v1/posts", apiv1.SearchPosts())
 		publicApi.Get("/api/v1/tags", apiv1.ListTags())
 		publicApi.Get("/api/v1/posts/:number", apiv1.GetPost())
