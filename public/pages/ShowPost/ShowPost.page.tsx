@@ -5,6 +5,10 @@ import React, { useState, useEffect, useCallback } from "react"
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
 import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
+import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
+import IconRSS from "@fider/assets/images/heroicons-rss.svg"
+import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
+import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
 import {
   ResponseDetails,
@@ -175,28 +179,28 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                   {!editMode && (
                     <HStack>
                       <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
-                        <Dropdown.ListItem onClick={onActionSelected("copy")}>
+                        <Dropdown.ListItem onClick={onActionSelected("copy")} icon={IconDuplicate}>
                           <Trans id="action.copylink">Copy link</Trans>
                         </Dropdown.ListItem>
                         {Fider.session.tenant.isFeedEnabled && (
-                          <Dropdown.ListItem type="application/atom+xml" href={`/feed/posts/${props.post.number}.atom`}>
+                          <Dropdown.ListItem type="application/atom+xml" href={`/feed/posts/${props.post.number}.atom`} icon={IconRSS}>
                             <Trans id="action.commentsfeed">Comments ATOM Feed</Trans>
                           </Dropdown.ListItem>
                         )}
                         {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
                           <>
-                            <Dropdown.ListItem onClick={onActionSelected("edit")}>
+                            <Dropdown.ListItem onClick={onActionSelected("edit")} icon={IconPencil}>
                               <Trans id="action.edit">Edit</Trans>
                             </Dropdown.ListItem>
                             {Fider.session.user.isCollaborator && (
-                              <Dropdown.ListItem onClick={onActionSelected("status")}>
+                              <Dropdown.ListItem onClick={onActionSelected("status")} icon={IconChat}>
                                 <Trans id="action.respond">Respond</Trans>
                               </Dropdown.ListItem>
                             )}
                           </>
                         )}
                         {canDeletePost() && (
-                          <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700">
+                          <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700" icon={IconX}>
                             <Trans id="action.delete">Delete</Trans>
                           </Dropdown.ListItem>
                         )}
