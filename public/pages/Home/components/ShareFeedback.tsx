@@ -265,11 +265,15 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 />
               </>
             ) : (
-              <div className="flex justify-center">
-                <Button variant="primary" onClick={finaliseFeedback} disabled={title.length < 10}>
-                  <Trans id="modal.signin.header">Submit your feedback</Trans>
-                </Button>
-              </div>
+              <>
+                {title.length > 9 && (
+                  <div className="flex justify-center animate-fade-in">
+                    <Button variant="primary" onClick={finaliseFeedback}>
+                      <Trans id="modal.signin.header">Submit your feedback</Trans>
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
