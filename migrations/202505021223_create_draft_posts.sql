@@ -15,3 +15,11 @@ CREATE TABLE
         primary key (id),
         foreign key (draft_post_id) references draft_posts (id)
     );
+
+create table
+    if not exists draft_post_tags (
+        tag_id int not null,
+        post_id int not null,
+        primary key (tag_id, post_id),
+        foreign key (post_id) references draft_posts (id)
+    );

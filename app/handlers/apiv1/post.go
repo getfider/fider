@@ -128,6 +128,14 @@ func CreateDraftPost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		// Handle tags if post creation with tags is enabled
+		if env.Config.PostCreationWithTagsEnabled && len(action.Tags) > 0 {
+			setDraftTags := &cmd.SetDraftTags{DraftPost: newDraftPost.Result, Tags: action.Tags}
+			if err = bus.Dispatch(c, setDraftTags); err != nil {
+				return c.Failure(err)
+			}
+		}
+
 		return c.Ok(web.Map{
 			"id":    newDraftPost.Result.ID,
 			"code":  newDraftPost.Result.Code,

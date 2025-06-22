@@ -138,7 +138,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const onSubmitFeedback = async (): Promise<SignInSubmitResponse> => {
     // Always try to save the post first
-    const postResult = await actions.createAnonymousPost(title, description, attachments)
+    const postResult = await actions.createAnonymousPost(title, description, attachments, canEditTags ? tags.map((tag) => tag.slug) : undefined)
 
     if (postResult.ok) {
       // Post saved successfully, now proceed with sign in

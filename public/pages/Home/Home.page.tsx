@@ -11,7 +11,7 @@ import { ShareFeedback } from "./components/ShareFeedback"
 import { cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
-import { CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY } from "./components/ShareFeedback"
+import { CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY, CACHE_TAGS_KEY } from "./components/ShareFeedback"
 
 export interface HomePageProps {
   posts: Post[]
@@ -25,6 +25,7 @@ export interface HomePageProps {
     description: string
   }
   draftAttachments?: string[]
+  draftTags?: Tag[]
 }
 
 export interface HomePageState {
@@ -60,6 +61,9 @@ const HomePage = (props: HomePageProps) => {
     if (props.draftAttachments?.length) {
       const images: ImageUpload[] = props.draftAttachments.map((bkey: string) => ({ bkey, remove: false }))
       cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(images))
+    }
+    if (props.draftTags?.length) {
+      cache.session.set(CACHE_TAGS_KEY, props.draftTags.map((tag) => tag.slug).join(","))
     }
   }
 

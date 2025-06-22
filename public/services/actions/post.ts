@@ -121,8 +121,13 @@ interface CreateDraftPostResponse {
   title: string
 }
 
-export const createAnonymousPost = async (title: string, description: string, attachments: ImageUpload[]): Promise<Result<CreateDraftPostResponse>> => {
-  return http.post<CreateDraftPostResponse>(`/api/v1/draftposts`, { title, description, attachments }).then(http.event("post", "create-anonymous"))
+export const createAnonymousPost = async (
+  title: string,
+  description: string,
+  attachments: ImageUpload[],
+  tags?: string[]
+): Promise<Result<CreateDraftPostResponse>> => {
+  return http.post<CreateDraftPostResponse>(`/api/v1/draftposts`, { title, description, attachments, tags }).then(http.event("post", "create-anonymous"))
 }
 
 export const updatePost = async (postNumber: number, title: string, description: string, attachments: ImageUpload[]): Promise<Result> => {
