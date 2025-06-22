@@ -5,7 +5,6 @@ import React, { useState, useEffect, useCallback } from "react"
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
 import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
-import IconRss from "@fider/assets/images/heroicons-rss.svg"
 
 import {
   ResponseDetails,
@@ -175,15 +174,15 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
                   {!editMode && (
                     <HStack>
-                      {Fider.session.tenant.isFeedEnabled && (
-                        <a title="ATOM Feed (Comments)" type="application/atom+xml" href={`/feed/posts/${props.post.id}.atom`}>
-                          <Icon sprite={IconRss} width="24" height="24" />
-                        </a>
-                      )}
                       <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
                         <Dropdown.ListItem onClick={onActionSelected("copy")}>
                           <Trans id="action.copylink">Copy link</Trans>
                         </Dropdown.ListItem>
+                        {Fider.session.tenant.isFeedEnabled && (
+                          <Dropdown.ListItem type="application/atom+xml" href={`/feed/posts/${props.post.number}.atom`}>
+                            <Trans id="action.commentsfeed">Comments ATOM Feed</Trans>
+                          </Dropdown.ListItem>
+                        )}
                         {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
                           <>
                             <Dropdown.ListItem onClick={onActionSelected("edit")}>
