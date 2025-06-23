@@ -3,7 +3,7 @@
   "property.name": "İsim",
   "property.image": "Resim",
   "property.customdomain": "Özel Domain",
-  "property.key": "Key",
+  "property.key": "Anahtar",
   "property.email": "E-posta",
   "property.title": "Başlık",
   "property.comment": "Yorum",
@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "Resim boyutları en az {width}x{height} pixel olmalı.",
   "validation.custom.imagesquareratio": "Resmin en-boy oranı 1:1 olmalı.",
   "validation.custom.maximagesize": "Resmin büyüklüğü {kilobytes}KB dan az olmalı.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Geçersiz tepki emojisi.",
   "enum.poststatus.open": "Açık",
   "enum.poststatus.started": "Başlatıldı",
   "enum.poststatus.completed": "Tamamlandı",
@@ -43,7 +43,7 @@
   "email.subscription.change": "bildirim tercihlerinizi değiştirin",
   "email.subscription.unsubscribe": "takip etmeyi bırak",
   "email.greetings": "Merhaba!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> sizden <strong>{title} ({postLink})</strong> adresinde bahsetti.",
   "email.greetings_name": "Merhaba, {name}!",
   "email.operation_confirmation": "Bu işlemi onaylamak için aşağıdaki bağlantıyı tıklayın.",
   "email.footer.noreply": "Bu e-posta yalnızca bildirim amaçlı tanımlanmış bir adresten gelmiştir. Lütfen bu mesaja cevap vermeyin.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Aşağıdaki bağlantıya tıklayarak e-posta adresinizi doğrulayabilir ve aktivasyon sürecini tamamlayabilirsiniz.",
   "email.footer.subscription_notice": "Bu e-postayı, bu öneriye dair bildirimlere abone olduğunuz için aldınız. {view}, {unsubscribe} veya {change}.",
   "email.footer.subscription_notice2": "Bu e-postayı, bu öneriye dair bildirimlere abone olduğunuz için aldınız. {change} ebilirsiniz.",
-  "email.footer.subscription_notice3": "Bu e-postayı, bu öneriye dair bildirimlere abone olduğunuz için aldınız. {view} yebilir veya {change} ebilirsiniz."
+  "email.footer.subscription_notice3": "Bu e-postayı, bu öneriye dair bildirimlere abone olduğunuz için aldınız. {view} yebilir veya {change} ebilirsiniz.",
+  "feed.comment.title": "{author} tarafından yapılan yorum",
+  "feed.comment.op": "Orijinal Mesaj {author} tarafından",
+  "feed.comment.response": "{author} tarafından yanıtlandı",
+  "feed.post.footer.response": "{responder} tarafından {date} hakkında yanıt:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [web'de]({web_link}) veya [besleme olarak]({feed_link}) görüntüle"
 }

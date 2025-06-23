@@ -19,6 +19,7 @@ debug
 debug.test
 .DS_Store
 cover.out
+gcloud-key.json
 coverage.tmp
 tsconfig.tsbuildinfo
 etc/*.pem

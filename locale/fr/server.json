@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "En cliquant sur le lien ci-dessous, vous pouvez vérifier votre adresse e-mail et terminer le processus d'activation.",
   "email.footer.subscription_notice": "Vous recevez cet e-mail parce que vous êtes abonné à ce message. Vous pouvez {view}, {unsubscribe} ou {change}.",
   "email.footer.subscription_notice2": "Vous recevez cet e-mail parce que vous êtes abonné à ce message. Vous pouvez {change}.",
-  "email.footer.subscription_notice3": "Vous recevez cet e-mail parce que vous êtes abonné à ce message. Vous pouvez {view} ou {change}."
+  "email.footer.subscription_notice3": "Vous recevez cet e-mail parce que vous êtes abonné à ce message. Vous pouvez {view} ou {change}.",
+  "feed.comment.title": "Commentaire de {author}",
+  "feed.comment.op": "Message original de {author}",
+  "feed.comment.response": "Réponse de {author}",
+  "feed.post.footer.response": "Réponse de {responder} le {date} :\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - voir [sur le Web]({web_link}) ou [sous forme de flux]({feed_link})"
 }

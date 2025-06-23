@@ -29,7 +29,7 @@
   "validation.custom.minimagedimensions": "Изображение должно иметь размер не менее {width}x{height} пикселей.",
   "validation.custom.imagesquareratio": "Изображение должно иметь соотношение сторон 1:1.",
   "validation.custom.maximagesize": "Изображение должно иметь объём меньше {kilobytes} КБ.",
-  "validation.custom.invalidemoji": "Invalid reaction emoji.",
+  "validation.custom.invalidemoji": "Недопустимый смайлик реакции.",
   "enum.poststatus.open": "Открыто",
   "enum.poststatus.started": "Начато",
   "enum.poststatus.completed": "Выполнено",
@@ -43,7 +43,7 @@
   "email.subscription.change": "изменить настройки уведомлений",
   "email.subscription.unsubscribe": "отписаться",
   "email.greetings": "Привет!",
-  "email.new_mention.text": "<strong>{userName}</strong> mentioned you in <strong>{title} ({postLink})</strong>.",
+  "email.new_mention.text": "<strong>{userName}</strong> упомянул вас в <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Привет, {name}!",
   "email.operation_confirmation": "Перейдите по ссылке ниже, чтобы подтвердить это действие.",
   "email.footer.noreply": "Это письмо было отправлено с адреса, через который мы не принимаем входящие сообщения. Пожалуйста, не отвечайте на это сообщение.",
@@ -60,5 +60,10 @@
   "email.signup_email.confirmation": "Перейдите по ссылке ниже, чтобы подтвердить ваш адрес электронной почты и завершить активацию.",
   "email.footer.subscription_notice": "Вы получили это сообщение, потому что подписаны на этот пост. Вы можете {view}, {unsubscribe} или {change}.",
   "email.footer.subscription_notice2": "Вы получили это сообщение, потому что подписаны на этот пост. Вы можете {change}.",
-  "email.footer.subscription_notice3": "Вы получили это сообщение, потому что подписаны на этот пост. Вы можете {view} или {change}."
+  "email.footer.subscription_notice3": "Вы получили это сообщение, потому что подписаны на этот пост. Вы можете {view} или {change}.",
+  "feed.comment.title": "Комментарий пользователя {author}",
+  "feed.comment.op": "Оригинальный пост от {author}",
+  "feed.comment.response": "Ответ от {author}",
+  "feed.post.footer.response": "Ответ {responder} на {date}:\n\n>{response}\n",
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - просмотр [в сети]({web_link}) или [как лента]({feed_link})"
 }

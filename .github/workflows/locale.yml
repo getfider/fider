@@ -1,0 +1,50 @@
+name: Auto-Translate Missing Keys
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "Run in dry mode (do not write files)"
+        required: false
+        default: "false"
+
+  push:
+    paths:
+      - "locale/en/**.json"
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Write GCP credentials
+        run: |
+          echo "$GCP_TRANSLATE_KEY" > gcloud-key.json
+        env:
+          GCP_TRANSLATE_KEY: ${{ secrets.GCP_TRANSLATE_KEY }}
+      - name: Run auto-translate script
+        run: |
+          GOOGLE_APPLICATION_CREDENTIALS=gcloud-key.json \
+          node scripts/translate.js ${{ inputs.dry == 'true' && '--dry' || '' }}
+
+      - name: Create Pull Request
+        if: ${{ inputs.dry != 'true' }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Auto-translate missing keys in locales"
+          title: "Auto-translate missing keys in locales"
+          body: "This PR adds machine-translated values for any missing locale keys."
+          branch: auto/translate-missing-keys
+          add-paths: |
+            locale/**/client.json
+            locale/**/server.json
