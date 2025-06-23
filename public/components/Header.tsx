@@ -15,7 +15,7 @@ export const Header = () => {
     setIsSignInModalOpen(true)
   }
 
-  const atomFeedTitle = i18n._({ id: "action.postsfeed", message: "ATOM Feed (All Posts)" })
+  const atomFeedTitle = i18n._({ id: "action.postsfeed", message: "Posts Feed" })
   const hideModal = () => setIsSignInModalOpen(false)
 
   return (
@@ -43,7 +43,7 @@ export const Header = () => {
             {!fider.session.isAuthenticated && (
               <HStack spacing={2}>
                 {fider.session.tenant.isFeedEnabled && (
-                  <a title="ATOM Feed (All Posts)" type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
+                  <a title={atomFeedTitle} type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
                     <Icon sprite={IconRss} className="h-6 text-gray-500" />
                   </a>
                 )}

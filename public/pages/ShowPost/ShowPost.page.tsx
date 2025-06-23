@@ -184,7 +184,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                         </Dropdown.ListItem>
                         {Fider.session.tenant.isFeedEnabled && (
                           <Dropdown.ListItem type="application/atom+xml" href={`/feed/posts/${props.post.number}.atom`} icon={IconRSS}>
-                            <Trans id="action.commentsfeed">Comments ATOM Feed</Trans>
+                            <Trans id="action.commentsfeed">Comment Feed</Trans>
                           </Dropdown.ListItem>
                         )}
                         {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
