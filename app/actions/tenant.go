@@ -177,7 +177,8 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 
 // UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
 type UpdateTenantAdvancedSettings struct {
-	CustomCSS string `json:"customCSS"`
+	CustomCSS      string `json:"customCSS"`
+	AllowedSchemes string `json:"allowedSchemes"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
