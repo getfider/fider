@@ -50,6 +50,11 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     return props.tags.filter((tag) => tagsAsStrings.includes(tag.slug))
   }
 
+  const getTitleManuallyEditedValue = (): boolean => {
+    // If the cached title deviates from the description, it means the user manually edited it
+    return getCachedValue(CACHE_TITLE_KEY) !== getCachedValue(CACHE_DESCRIPTION_KEY)
+  }
+
   const canEditTags = fider.settings.postWithTags && props.tags.length > 0
   const [title, setTitle] = useState(getCachedValue(CACHE_TITLE_KEY))
   const [description, setDescription] = useState(getCachedValue(CACHE_DESCRIPTION_KEY))
@@ -58,7 +63,12 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
   const descriptionRef = useRef<HTMLTextAreaElement>()
-  const [titleManuallyEdited, setTitleManuallyEdited] = useState(false)
+  const [titleManuallyEdited, setTitleManuallyEdited] = useState(getTitleManuallyEditedValue())
+  const [isInitialMount, setIsInitialMount] = useState(true)
+
+  useEffect(() => {
+    setIsInitialMount(false)
+  }, [])
 
   // Handle browser back button
   useEffect(() => {
@@ -92,7 +102,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   useEffect(() => {
-    if (!titleManuallyEdited) {
+    if (!titleManuallyEdited && !isInitialMount) {
       let newlineIndex = Math.min(description.indexOf("\n"), 80)
       if (newlineIndex == -1) {
         newlineIndex = 80
@@ -128,8 +138,8 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   const handleDescriptionChange = (value: string) => {
-    setDescription(value)
     cache.session.set(CACHE_DESCRIPTION_KEY, value)
+    setDescription(value)
   }
 
   const handleAttachmentsChange = (images: ImageUpload[]) => {
