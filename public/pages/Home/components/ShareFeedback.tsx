@@ -253,40 +253,36 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
             </Form>
           </div>
         </div>
-        <div className="c-share-feedback__content">
-          <div className="c-share-feedback-signin">
-            {/*
-              Note: The email sign-in flow will save the post before signing in.
-              For OAuth sign-in buttons, additional server-side changes would be needed
-              to fully implement saving the post before OAuth redirect.
-              Currently, only the email sign-in flow will work as expected.
-            */}
-            {!fider.session.isAuthenticated ? (
-              <>
-                <h2 className="text-title text-center mb-4">
-                  <Trans id="modal.signin.header">Submit your feedback</Trans>
-                </h2>
-                <SignInControl
-                  onSubmit={onSubmitFeedback}
-                  onEmailSent={onEmailSent}
-                  signInButtonText={i18n._({ id: "signin.message.email", message: "Continue with Email" })}
-                  useEmail={true}
-                  redirectTo={fider.settings.baseURL}
-                />
-              </>
-            ) : (
-              <>
-                {title.length > 9 && (
-                  <div className="flex justify-center animate-fade-in">
-                    <Button variant="primary" onClick={finaliseFeedback}>
-                      <Trans id="modal.signin.header">Submit your feedback</Trans>
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
+        {/* For unauthenticated users, always show the sign-in control */}
+        {!fider.session.isAuthenticated ? (
+          <div className="c-share-feedback__content">
+            <div className="c-share-feedback-signin">
+              <h2 className="text-title text-center mb-4">
+                <Trans id="modal.signin.header">Submit your feedback</Trans>
+              </h2>
+              <SignInControl
+                onSubmit={onSubmitFeedback}
+                onEmailSent={onEmailSent}
+                signInButtonText={i18n._({ id: "signin.message.email", message: "Continue with Email" })}
+                useEmail={true}
+                redirectTo={fider.settings.baseURL}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          /* For authenticated users, only show the submit button container when title is long enough */
+          title.length > 9 && (
+            <div className="c-share-feedback__content animate-fade-in">
+              <div className="c-share-feedback-signin">
+                <div className="flex justify-center">
+                  <Button variant="primary" onClick={finaliseFeedback}>
+                    <Trans id="modal.signin.header">Submit your feedback</Trans>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )
+        )}
         {!fider.session.isAuthenticated ? <LegalFooter /> : null}
       </Modal.Content>
     </Modal.Window>
