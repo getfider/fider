@@ -44,7 +44,7 @@ export const Header = () => {
               <HStack spacing={2}>
                 {fider.session.tenant.isFeedEnabled && (
                   <a title="ATOM Feed (All Posts)" type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
-                    <Icon sprite={IconRss} className="h-6" />
+                    <Icon sprite={IconRss} className="h-6 text-gray-500" />
                   </a>
                 )}
                 <ThemeSwitcher />
