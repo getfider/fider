@@ -1,5 +1,5 @@
-$spacing-inc: 4px;
+$sizing-inc: 4px;
 
-@function spacing($i) {
-  @return $spacing-inc * $i;
+@function sizing($i) {
+  @return $sizing-inc * $i;
 }
