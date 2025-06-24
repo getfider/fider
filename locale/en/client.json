@@ -138,7 +138,7 @@
   "mysettings.notification.event.newpost": "New Post",
   "mysettings.notification.event.newpost.staff": "new posts on this site",
   "mysettings.notification.event.newpost.visitors": "new posts on this site",
-  "mysettings.notification.event.newpostcreated": "Thanks! Your post has been added 👍",
+  "mysettings.notification.event.newpostcreated": "Your idea has been added 👍",
   "mysettings.notification.event.statuschanged": "Status Changed",
   "mysettings.notification.event.statuschanged.staff": "status change on all posts unless individually unsubscribed",
   "mysettings.notification.event.statuschanged.visitors": "status change on posts you've subscribed to",

@@ -112,7 +112,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     if (showSuccess) {
       cache.session.remove("POST_CREATED_SUCCESS")
       // Show success message/toast
-      notify.success(t({ id: "mysettings.notification.event.newpostcreated", message: "Thanks! Your post has been added 👍" }))
+      notify.success(t({ id: "mysettings.notification.event.newpostcreated", message: "Your idea has been added 👍" }))
     }
   }, [])
 
