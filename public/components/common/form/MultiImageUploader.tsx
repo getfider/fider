@@ -45,7 +45,12 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
     this.state = { instances, removed: [] }
   }
 
-  private imageUploaded = (upload: ImageUpload, instanceID: string) => {
+  private imageUploaded = (upload: ImageUpload, instanceID: string, ctx?: React.ContextType<typeof ValidationContext>) => {
+    // Clear error for this field when user interacts with it
+    if (ctx?.clearError && hasError(this.props.field, ctx.error)) {
+      ctx.clearError(this.props.field)
+    }
+
     const instances = { ...this.state.instances }
     const removed = [...this.state.removed]
     if (upload.remove) {
@@ -76,7 +81,18 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
     const id = btoa(Math.random().toString())
     instances[id] = {
       element: (
-        <ImageUploader key={id} bkey={bkey} instanceID={id} field="attachment" onChange={this.imageUploaded} addImageButton={this.props.addImageButton} />
+        <ValidationContext.Consumer>
+          {(ctx) => (
+            <ImageUploader
+              key={id}
+              bkey={bkey}
+              instanceID={id}
+              field="attachment"
+              onChange={(upload, instanceID) => this.imageUploaded(upload, instanceID || "", ctx)}
+              addImageButton={this.props.addImageButton}
+            />
+          )}
+        </ValidationContext.Consumer>
       ),
     }
   }

@@ -39,7 +39,12 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     }
   }
 
-  public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>, ctx?: React.ContextType<typeof ValidationContext>) => {
+    // Clear error for this field when user interacts with it
+    if (ctx?.clearError && hasError(this.props.field, ctx.error)) {
+      ctx.clearError(this.props.field)
+    }
+
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       if (file.size > hardFileSizeLimit) {
@@ -66,7 +71,12 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     }
   }
 
-  public removeFile = async () => {
+  public removeFile = async (ctx?: React.ContextType<typeof ValidationContext>) => {
+    // Clear error for this field when user interacts with it
+    if (ctx?.clearError && hasError(this.props.field, ctx.error)) {
+      ctx.clearError(this.props.field)
+    }
+
     if (this.fileSelector) {
       this.fileSelector.value = ""
     }
@@ -141,14 +151,14 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
               <div className="preview h-20">
                 <img alt="" onClick={this.openModal} src={this.state.previewURL} />
                 {!this.props.disabled && (
-                  <Button onClick={this.removeFile} variant="danger">
+                  <Button onClick={() => this.removeFile(ctx)} variant="danger">
                     X
                   </Button>
                 )}
               </div>
             )}
 
-            <input ref={(e) => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/*" />
+            <input ref={(e) => (this.fileSelector = e)} type="file" onChange={(e) => this.fileChanged(e, ctx)} accept="image/*" />
             {!hasFile &&
               (this.props.addImageButton ? (
                 <div onClick={this.selectFile}>{this.props.addImageButton}</div>
