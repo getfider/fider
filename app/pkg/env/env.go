@@ -142,7 +142,7 @@ type config struct {
 		Until   string `env:"MAINTENANCE_UNTIL"`
 	}
 	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
-	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature"`
+	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
 }
 
 // Config is a strongly typed reference to all configuration parsed from Environment Variables
