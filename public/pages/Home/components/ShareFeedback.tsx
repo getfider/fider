@@ -200,12 +200,11 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
       <Modal.Content>
         <div className="c-share-feedback__content mb-4">
           <h1 className="text-large pb-6">
-            <Trans id="newpost.modal.title">Share your feedback...</Trans>
+            <Trans id="newpost.modal.title">Share your idea...</Trans>
           </h1>
           <div className="c-share-feedback-form">
             <Form error={error}>
               <TextArea
-                label={props.placeholder}
                 field="description"
                 onChange={handleDescriptionChange}
                 value={description}
@@ -213,7 +212,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 inputRef={descriptionRef}
                 placeholder={i18n._({
                   id: "newpost.modal.description.placeholder",
-                  message: "Tell us about your idea. Explain it fully, don't hold back, the more information the better.",
+                  message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
                 })}
               />
               <SimilarPosts title={title} tags={props.tags} />
@@ -235,7 +234,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 field="title"
                 inputRef={titleRef}
                 maxLength={255}
-                label={i18n._({ id: "newpost.modal.title.label", message: "Give your suggestion a title" })}
+                label={i18n._({ id: "newpost.modal.title.label", message: "Give your idea a title" })}
                 value={title}
                 onChange={handleTitleChange}
                 placeholder={i18n._({ id: "newpost.modal.title.placeholder", message: "Something short and snappy, sum it up in a few words" })}
@@ -258,7 +257,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
           <div className="c-share-feedback__content">
             <div className="c-share-feedback-signin">
               <h2 className="text-title text-center mb-4">
-                <Trans id="modal.signin.header">Submit your feedback</Trans>
+                <Trans id="newpost.modal.submit">Submit your idea</Trans>
               </h2>
               <SignInControl
                 onSubmit={onSubmitFeedback}
@@ -276,7 +275,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
               <div className="c-share-feedback-signin">
                 <div className="flex justify-center">
                   <Button variant="primary" onClick={finaliseFeedback}>
-                    <Trans id="modal.signin.header">Submit your feedback</Trans>
+                    <Trans id="newpost.modal.submit">Submit your idea</Trans>
                   </Button>
                 </div>
               </div>
