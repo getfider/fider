@@ -8,6 +8,7 @@ import Document from "@tiptap/extension-document"
 import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
 import HardBreak from "@tiptap/extension-hard-break"
+import Image from "@tiptap/extension-image"
 
 import "./CommentEditor.scss"
 
@@ -21,7 +22,10 @@ import IconCode from "@fider/assets/images/heroicons-code.svg"
 import IconAt from "@fider/assets/images/heroicons-at.svg"
 import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
+import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
+import { fileToBase64 } from "@fider/services"
+import { ImageUpload } from "@fider/models"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
@@ -33,14 +37,36 @@ const MenuBar = ({
   isMarkdownMode,
   toggleMarkdownMode,
   disabled,
+  onImageUpload,
 }: {
   editor: Editor | null
   isMarkdownMode: boolean
   disabled: boolean
   toggleMarkdownMode: () => void
+  onImageUpload: (file: File) => Promise<void>
 }) => {
   if (!editor) {
     return null
+  }
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  const handleImageClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      await onImageUpload(file)
+
+      // Reset the input value so the same file can be selected again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    }
   }
 
   return (
@@ -141,6 +167,16 @@ const MenuBar = ({
             >
               <Icon sprite={IconAt} />
             </button>
+            <button
+              disabled={disabled}
+              type="button"
+              title="Insert Image"
+              onClick={handleImageClick}
+              className={`c-editor-button ${disabled ? "is-disabled" : ""}`}
+            >
+              <Icon sprite={IconPhotograph} />
+            </button>
+            <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
           </>
         )}
         <button
@@ -169,6 +205,7 @@ interface CommentEditorProps {
   onFocus?: () => void
   disabled: boolean
   field: string
+  onImageUploaded?: (upload: ImageUpload) => void
 }
 
 const markdownToHtml = (markdownString: string) => {
@@ -182,6 +219,7 @@ const markdownToHtml = (markdownString: string) => {
 
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
+  const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
 
   const getIntialContent = () => {
     if (isRawMarkdownMode) {
@@ -212,6 +250,14 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
     props.onChange && props.onChange(markdown)
+
+    // Also pass any image uploads to the parent component
+    if (props.onImageUploaded && imageUploads.length > 0) {
+      imageUploads.forEach((upload) => {
+        props.onImageUploaded && props.onImageUploaded(upload)
+      })
+      setImageUploads([])
+    }
   }
 
   const extensions = isRawMarkdownMode
@@ -238,6 +284,10 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           },
           suggestion,
         }),
+        Image.configure({
+          inline: true,
+          allowBase64: true,
+        }),
         Placeholder.configure({
           placeholder: props.placeholder ?? "Write your comment here...",
           emptyEditorClass: "tiptap-is-empty",
@@ -263,6 +313,44 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     [isRawMarkdownMode, editorContent]
   ) // Re-initialize when mode changes
 
+  const handleImageUpload = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
+      alert("The image size must be smaller than 5MB.")
+      return
+    }
+
+    try {
+      const base64 = await fileToBase64(file)
+
+      // Insert the image into the editor
+      if (editor) {
+        editor
+          .chain()
+          .focus()
+          .setImage({
+            src: `data:${file.type};base64,${base64}`,
+          })
+          .run()
+      }
+
+      // Create an ImageUpload object to be sent to the server
+      const newUpload: ImageUpload = {
+        upload: {
+          fileName: file.name,
+          content: base64,
+          contentType: file.type,
+        },
+        remove: false,
+      }
+
+      // Add to the uploads array to be processed on next update
+      setImageUploads((prev) => [...prev, newUpload])
+    } catch (error) {
+      console.error("Error uploading image:", error)
+    }
+  }
+
   return (
     <ValidationContext.Consumer>
       {(ctx) => (
@@ -273,7 +361,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
               "m-error": hasError(props.field, ctx.error),
             })}
           >
-            <MenuBar disabled={props.disabled} editor={editor} isMarkdownMode={isRawMarkdownMode} toggleMarkdownMode={toggleMarkdownMode} />
+            <MenuBar
+              disabled={props.disabled}
+              editor={editor}
+              isMarkdownMode={isRawMarkdownMode}
+              toggleMarkdownMode={toggleMarkdownMode}
+              onImageUpload={handleImageUpload}
+            />
             <EditorContent editor={editor} />
           </div>
           <DisplayError fields={[props.field]} error={ctx.error} />

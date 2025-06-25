@@ -216,6 +216,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                   {editMode ? (
                     <Form error={error}>
                       <TextArea field="description" value={newDescription} onChange={setNewDescription} />
+                      {/* Note: We're keeping the MultiImageUploader here for post editing since it's not using the TipTap editor */}
                       <MultiImageUploader field="attachments" bkeys={props.attachments} maxUploads={3} onChange={setAttachments} />
                     </Form>
                   ) : (

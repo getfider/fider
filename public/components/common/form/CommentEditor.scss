@@ -107,6 +107,15 @@
       }
     }
 
+    // Inline images
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin: 8px 0;
+      display: block;
+    }
+
     // Placeholder
     p.tiptap-is-empty:first-child::before {
       color: var(--colors-gray-400);

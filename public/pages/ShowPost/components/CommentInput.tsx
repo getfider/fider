@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react"
 
 import { Post, ImageUpload } from "@fider/models"
-import { Avatar, UserName, Button, Form, MultiImageUploader } from "@fider/components"
+import { Avatar, UserName, Button, Form } from "@fider/components"
 import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
@@ -9,9 +9,7 @@ import { HStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
-// import { CommentEditor } from "@fider/components"
 import { useFider } from "@fider/hooks"
-// import Tiptap from "@fider/components/common/form/CommentEditor2"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 interface CommentInputProps {
@@ -93,11 +91,13 @@ export const CommentInput = (props: CommentInputProps) => {
                   onFocus={editorFocused}
                   initialValue={getContentFromCache()}
                   placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
+                  onImageUploaded={(upload) => {
+                    setAttachments((prev) => [...prev, upload])
+                  }}
                 />
 
                 {hasContent && (
                   <>
-                    <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
                     <Button variant="primary" onClick={submit}>
                       <Trans id="action.submit">Submit</Trans>
                     </Button>
