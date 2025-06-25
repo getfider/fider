@@ -117,7 +117,11 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 
 		webutil.AddAuthUserCookie(c, userByEmail.Result)
 
-		return c.Redirect(c.BaseURL())
+		baseURL := c.BaseURL()
+		if codeQs := c.QueryParam("c"); codeQs != "" {
+			return c.Redirect(baseURL + "?c=" + codeQs)
+		}
+		return c.Redirect(baseURL)
 	}
 }
 

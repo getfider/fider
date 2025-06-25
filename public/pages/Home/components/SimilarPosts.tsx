@@ -59,7 +59,6 @@ export const SimilarPosts: React.FC<SimilarPostsProps> = (props) => {
         setIsVisible(false)
       } else {
         const query = preprocessSearchQuery(title)
-        console.log("Query:", query)
         if (query.length < 2) {
           setLoading(false)
           setIsVisible(false)
