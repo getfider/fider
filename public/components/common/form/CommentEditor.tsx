@@ -24,6 +24,7 @@ import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
 import { fileToBase64 } from "@fider/services"
+import { generateBkey } from "@fider/services/bkey"
 import { ImageUpload } from "@fider/models"
 import { CustomImage } from "./CustomImage"
 
@@ -328,11 +329,12 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     try {
       const base64 = await fileToBase64(file)
 
-      // Generate a unique ID for this image
-      const imageId = `img_${Math.random().toString(36).substring(2, 15)}`
+      // Generate a bkey for this image that matches the server-side format
+      const bkey = generateBkey(file.name)
 
       // Create an ImageUpload object to be sent to the server
       const newUpload: ImageUpload = {
+        bkey,
         upload: {
           fileName: file.name,
           content: base64,
@@ -341,14 +343,14 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         remove: false,
       }
 
-      // Insert the image into the editor with our custom ID
+      // Insert the image into the editor with the bkey as the ID
       if (editor) {
         editor
           .chain()
           .focus()
           .setImage({
             src: `data:${file.type};base64,${base64}`,
-            ...({ id: imageId } as unknown as Record<string, string>),
+            ...({ id: bkey, bkey } as unknown as Record<string, string>),
           })
           .run()
 

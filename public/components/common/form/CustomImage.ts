@@ -60,14 +60,16 @@ export const CustomImage = Image.extend<CustomImageOptions>({
       images: {},
       markdown: {
         serialize: (state: any, node: any) => {
-          // When serializing to markdown, we use a special syntax: ![](fider-image:id)
-          state.write(`![](fider-image:${node.attrs.id || generateImageId()})`)
+          // When serializing to markdown, we use a special syntax: ![](fider-image:bkey)
+          // Use bkey if available, otherwise fall back to id
+          const imageId = node.attrs.bkey || node.attrs.id || generateImageId()
+          state.write(`![](fider-image:${imageId})`)
         },
         parse: {
           setup(markdownit: MarkdownIt) {
             // Custom rule to parse our special image syntax
             markdownit.inline.ruler.before("text", "fider-image", (state: MarkdownIt.StateInline, silent: boolean) => {
-              const match = state.src.slice(state.pos).match(/^!\[\]\(fider-image:([a-zA-Z0-9_]+)\)/)
+              const match = state.src.slice(state.pos).match(/^!\[\]\(fider-image:([a-zA-Z0-9_/.-]+)\)/)
               if (!match) return false
 
               if (!silent) {
@@ -76,6 +78,7 @@ export const CustomImage = Image.extend<CustomImageOptions>({
                 token.attrs = [
                   ["src", ""], // Empty src, will be filled by the renderer
                   ["data-id", id],
+                  ["data-bkey", id], // Store as both id and bkey
                   ["alt", ""],
                 ]
               }
