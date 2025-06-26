@@ -24,7 +24,14 @@ const link = (href: string, title: string, text: string) => {
 }
 
 const fullRenderer = new marked.Renderer()
-fullRenderer.image = () => ""
+fullRenderer.image = (href, title, alt) => {
+  // Check if this is our special fider-image syntax
+  if (href && href.startsWith("fider-image:")) {
+    const imageId = href.substring("fider-image:".length)
+    return `<img src="/static/images/${imageId}" alt="${alt || ""}" class="fider-inline-image" data-id="${imageId}" />`
+  }
+  return "" // Ignore other images
+}
 fullRenderer.link = link
 fullRenderer.text = (text: string) => {
   // Handling mention links (they're in the format @[name])

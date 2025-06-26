@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
 import Placeholder from "@tiptap/extension-placeholder"
@@ -8,7 +8,6 @@ import Document from "@tiptap/extension-document"
 import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
 import HardBreak from "@tiptap/extension-hard-break"
-import Image from "@tiptap/extension-image"
 
 import "./CommentEditor.scss"
 
@@ -26,6 +25,7 @@ import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
 import { fileToBase64 } from "@fider/services"
 import { ImageUpload } from "@fider/models"
+import { CustomImage } from "./CustomImage"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
@@ -49,7 +49,7 @@ const MenuBar = ({
     return null
   }
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageClick = () => {
     if (fileInputRef.current) {
@@ -284,9 +284,14 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           },
           suggestion,
         }),
-        Image.configure({
-          inline: true,
+        CustomImage.configure({
+          HTMLAttributes: {},
           allowBase64: true,
+          onImageUpload: (upload) => {
+            if (props.onImageUploaded) {
+              props.onImageUploaded(upload)
+            }
+          },
         }),
         Placeholder.configure({
           placeholder: props.placeholder ?? "Write your comment here...",
@@ -323,16 +328,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     try {
       const base64 = await fileToBase64(file)
 
-      // Insert the image into the editor
-      if (editor) {
-        editor
-          .chain()
-          .focus()
-          .setImage({
-            src: `data:${file.type};base64,${base64}`,
-          })
-          .run()
-      }
+      // Generate a unique ID for this image
+      const imageId = `img_${Math.random().toString(36).substring(2, 15)}`
 
       // Create an ImageUpload object to be sent to the server
       const newUpload: ImageUpload = {
@@ -344,8 +341,23 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         remove: false,
       }
 
-      // Add to the uploads array to be processed on next update
-      setImageUploads((prev) => [...prev, newUpload])
+      // Insert the image into the editor with our custom ID
+      if (editor) {
+        editor
+          .chain()
+          .focus()
+          .setImage({
+            src: `data:${file.type};base64,${base64}`,
+            ...({ id: imageId } as unknown as Record<string, string>),
+          })
+          .run()
+
+        // Manually pass the upload to the parent component
+        // since the updated() handler might not fire immediately
+        if (props.onImageUploaded) {
+          props.onImageUploaded(newUpload)
+        }
+      }
     } catch (error) {
       console.error("Error uploading image:", error)
     }

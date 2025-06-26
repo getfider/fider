@@ -26,8 +26,6 @@ export const CommentInput = (props: CommentInputProps) => {
   }
 
   const fider = useFider()
-  // const inputRef = useRef<HTMLTextAreaElement>()
-  // const [content, setContent] = useState<string>((fider.session.isAuthenticated && getContentFromCache()) || "")
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
@@ -92,7 +90,15 @@ export const CommentInput = (props: CommentInputProps) => {
                   initialValue={getContentFromCache()}
                   placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
                   onImageUploaded={(upload) => {
-                    setAttachments((prev) => [...prev, upload])
+                    // Handle image uploads and removals
+                    setAttachments((prev) => {
+                      // If this is a removal request, find and mark the attachment for removal
+                      if (upload.remove && upload.bkey) {
+                        return prev.map((att) => (att.bkey === upload.bkey ? { ...att, remove: true } : att))
+                      }
+                      // Otherwise add the new upload
+                      return [...prev, upload]
+                    })
                   }}
                 />
 
