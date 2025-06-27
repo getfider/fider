@@ -2,9 +2,6 @@ import Image from "@tiptap/extension-image"
 import * as MarkdownIt from "markdown-it"
 import { ImageUpload } from "@fider/models"
 
-// This is a unique ID generator for images
-const generateImageId = () => `img_${Math.random().toString(36).substring(2, 15)}`
-
 export interface CustomImageOptions {
   HTMLAttributes?: Record<string, any>
   allowBase64?: boolean
@@ -25,35 +22,35 @@ export const CustomImage = Image.extend<CustomImageOptions>({
     }
   },
 
-  // addAttributes() {
-  //   return {
-  //     ...this.parent?.(),
-  //     id: {
-  //       default: null,
-  //       parseHTML: (element) => element.getAttribute("data-id"),
-  //       renderHTML: (attributes) => {
-  //         if (!attributes.id) {
-  //           return {}
-  //         }
-  //         return {
-  //           "data-id": attributes.id,
-  //         }
-  //       },
-  //     },
-  //     bkey: {
-  //       default: null,
-  //       parseHTML: (element) => element.getAttribute("data-bkey"),
-  //       renderHTML: (attributes) => {
-  //         if (!attributes.bkey) {
-  //           return {}
-  //         }
-  //         return {
-  //           "data-bkey": attributes.bkey,
-  //         }
-  //       },
-  //     },
-  //   }
-  // },
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      id: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-id"),
+        renderHTML: (attributes) => {
+          if (!attributes.id) {
+            return {}
+          }
+          return {
+            "data-id": attributes.id,
+          }
+        },
+      },
+      bkey: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-bkey"),
+        renderHTML: (attributes) => {
+          if (!attributes.bkey) {
+            return {}
+          }
+          return {
+            "data-bkey": attributes.bkey,
+          }
+        },
+      },
+    }
+  },
 
   addStorage() {
     return {
@@ -62,7 +59,7 @@ export const CustomImage = Image.extend<CustomImageOptions>({
         serialize: (state: any, node: any) => {
           // When serializing to markdown, we use a special syntax: ![](fider-image:bkey)
           // Use bkey if available, otherwise fall back to id
-          const imageId = node.attrs.bkey || node.attrs.id || generateImageId()
+          const imageId = node.attrs.bkey || node.attrs.id || ""
           state.write(`![](fider-image:${imageId})`)
         },
         parse: {
@@ -80,10 +77,7 @@ export const CustomImage = Image.extend<CustomImageOptions>({
                 token.attrs = []
 
                 // Use attrSet method to properly set attributes
-                token.attrSet(
-                  "src",
-                  "https://feedback.dev.fider.io:3000/static/images/logos/2U3dJ3Pf9NT9BlkqiVgL1rOZlcbRes7O9DAYb0wpdlSNkedzRAz9yCMBuYahTvaX-sillyface.jpeg?size=100"
-                )
+                token.attrSet("src", `/static/images/${imageId}`)
                 token.attrSet("alt", "")
                 token.attrSet("data-id", imageId)
                 token.attrSet("data-bkey", imageId)
@@ -107,17 +101,15 @@ export const CustomImage = Image.extend<CustomImageOptions>({
       setImage:
         (options: any) =>
         ({ tr, dispatch }) => {
-          const { src, alt, title, id } = options
-
-          // Generate a unique ID for this image if not provided
-          const imageId = id || generateImageId()
+          const { src, alt, title, id, bkey } = options
 
           // Create a node with our custom attributes
           const node = this.type.create({
             src,
             alt,
             title,
-            id: imageId,
+            id,
+            bkey,
           })
 
           if (dispatch) {

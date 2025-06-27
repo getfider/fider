@@ -1,0 +1,34 @@
+package actions
+
+import (
+	"context"
+
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/pkg/validate"
+)
+
+// UploadImage is used to upload an image without associating it with a post or comment
+type UploadImage struct {
+	Image *dto.ImageUpload `json:"image"`
+}
+
+// Initialize the model
+func (input *UploadImage) Initialize() {}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *UploadImage) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return user != nil
+}
+
+// Validate if current model is valid
+func (input *UploadImage) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	result := validate.Success()
+
+	if input.Image == nil {
+		result.AddFieldFailure("image", "Image is required.")
+		return result
+	}
+
+	return result
+}

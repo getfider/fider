@@ -24,9 +24,9 @@ import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
 import { fileToBase64 } from "@fider/services"
-import { generateBkey } from "@fider/services/bkey"
 import { ImageUpload } from "@fider/models"
 import { CustomImage } from "./CustomImage"
+import { uploadImage } from "@fider/services/actions/image"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
@@ -332,12 +332,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     try {
       const base64 = await fileToBase64(file)
 
-      // Generate a bkey for this image that matches the server-side format
-      const bkey = generateBkey(file.name)
-
       // Create an ImageUpload object to be sent to the server
       const newUpload: ImageUpload = {
-        bkey,
         upload: {
           fileName: file.name,
           content: base64,
@@ -346,22 +342,36 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         remove: false,
       }
 
-      // Insert the image into the editor with the bkey as the ID
-      if (editor) {
-        editor
-          .chain()
-          .focus()
-          .setImage({
-            src: `data:${file.type};base64,${base64}`,
-            ...({ id: bkey, bkey } as unknown as Record<string, string>),
-          })
-          .run()
+      // Upload the image to the server
+      const result = await uploadImage(newUpload)
 
-        // Manually pass the upload to the parent component
-        // since the updated() handler might not fire immediately
-        if (props.onImageUploaded) {
-          props.onImageUploaded(newUpload)
+      if (result.ok) {
+        const bkey = result.data.bkey
+
+        // Insert the image into the editor with the server-provided bkey
+        if (editor) {
+          editor
+            .chain()
+            .focus()
+            .setImage({
+              src: `data:${file.type};base64,${base64}`,
+              alt: file.name,
+              ...({ bkey } as any),
+            })
+            .run()
+
+          // Add the bkey to the upload object for the parent component
+          newUpload.bkey = bkey
+
+          // Manually pass the upload to the parent component
+          // since the updated() handler might not fire immediately
+          if (props.onImageUploaded) {
+            props.onImageUploaded(newUpload)
+          }
         }
+      } else {
+        console.error("Error uploading image:", result.error)
+        alert("Failed to upload image. Please try again.")
       }
     } catch (error) {
       console.error("Error uploading image:", error)
