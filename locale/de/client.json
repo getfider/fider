@@ -139,7 +139,7 @@
   "mysettings.notification.event.newpost": "Neuer Beitrag",
   "mysettings.notification.event.newpost.staff": "neue Beiträge auf dieser Seite",
   "mysettings.notification.event.newpost.visitors": "neue Beiträge auf dieser Seite",
-  "mysettings.notification.event.newpostcreated": "Ihre Idee wurde hinzugefügt 👍",
+  "mysettings.notification.event.newpostcreated": "Deine Idee wurde hinzugefügt 👍",
   "mysettings.notification.event.statuschanged": "Status geändert",
   "mysettings.notification.event.statuschanged.staff": "Status bei allen Beiträgen ändern, es sei denn, sie wurden einzeln abgemeldet",
   "mysettings.notification.event.statuschanged.visitors": "Status Änderungen bei Beiträgen, die du abonniert hast",
