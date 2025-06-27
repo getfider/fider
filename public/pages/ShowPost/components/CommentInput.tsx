@@ -18,6 +18,21 @@ interface CommentInputProps {
 
 const CACHE_TITLE_KEY = "CommentInput-Comment-"
 
+// Helper function to extract bkeys from markdown content
+const extractImageBkeys = (content: string): string[] => {
+  if (!content) return []
+
+  const regex = /!\[\]\(fider-image:([a-zA-Z0-9_/.-]+)\)/g
+  const bkeys: string[] = []
+  let match
+
+  while ((match = regex.exec(content)) !== null) {
+    bkeys.push(match[1])
+  }
+
+  return bkeys
+}
+
 export const CommentInput = (props: CommentInputProps) => {
   const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`
 
@@ -35,6 +50,29 @@ export const CommentInput = (props: CommentInputProps) => {
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // Extract existing image references from cached content
+  useEffect(() => {
+    if (isClient) {
+      const cachedContent = getContentFromCache()
+      if (cachedContent) {
+        const bkeys = extractImageBkeys(cachedContent)
+        if (bkeys.length > 0) {
+          // Create ImageUpload objects for each bkey found in the cached content
+          const existingAttachments = bkeys.map(
+            (bkey) =>
+              ({
+                bkey,
+                remove: false,
+              } as ImageUpload)
+          )
+
+          // Initialize attachments state with existing images
+          setAttachments(existingAttachments)
+        }
+      }
+    }
+  }, [isClient])
 
   const hideModal = () => setIsSignInModalOpen(false)
   const clearError = () => setError(undefined)
