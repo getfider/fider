@@ -261,6 +261,62 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }
 
+  const handleImageUpload = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
+      alert("The image size must be smaller than 5MB.")
+      return
+    }
+
+    try {
+      const base64 = await fileToBase64(file)
+
+      // Create an ImageUpload object to be sent to the server
+      const newUpload: ImageUpload = {
+        upload: {
+          fileName: file.name,
+          content: base64,
+          contentType: file.type,
+        },
+        remove: false,
+      }
+
+      // Upload the image to the server
+      const result = await uploadImage(newUpload)
+
+      if (result.ok) {
+        const bkey = result.data.bkey
+
+        // Insert the image into the editor with the server-provided bkey
+        if (editor) {
+          editor
+            .chain()
+            .focus()
+            .setImage({
+              src: `data:${file.type};base64,${base64}`,
+              alt: file.name,
+              ...({ bkey } as any),
+            })
+            .run()
+
+          // Add the bkey to the upload object for the parent component
+          newUpload.bkey = bkey
+
+          // Manually pass the upload to the parent component
+          // since the updated() handler might not fire immediately
+          if (props.onImageUploaded) {
+            props.onImageUploaded(newUpload)
+          }
+        }
+      } else {
+        console.error("Error uploading image:", result.error)
+        alert("Failed to upload image. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error)
+    }
+  }
+
   const extensions = isRawMarkdownMode
     ? [
         // Minimal extensions for markdown mode
@@ -317,66 +373,50 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         attributes: {
           class: isRawMarkdownMode ? "markdown-mode no-focus" : "no-focus",
         },
+        handlePaste: (view, event) => {
+          // Check if the clipboard has files
+          if (event.clipboardData && event.clipboardData.files && event.clipboardData.files.length > 0) {
+            // Get the first file (assuming it's an image)
+            const file = event.clipboardData.files[0]
+
+            // Check if it's an image
+            if (file.type.startsWith("image/")) {
+              // Prevent the default paste behavior
+              event.preventDefault()
+
+              // Upload the image
+              handleImageUpload(file)
+              return true
+            }
+          }
+
+          // Check for pasted image data URLs
+          if (event.clipboardData) {
+            const items = event.clipboardData.items
+
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].type.indexOf("image") !== -1) {
+                // Get the image as a blob
+                const blob = items[i].getAsFile()
+
+                if (blob) {
+                  // Prevent the default paste behavior
+                  event.preventDefault()
+
+                  // Upload the image
+                  handleImageUpload(blob)
+                  return true
+                }
+              }
+            }
+          }
+
+          return false
+        },
       },
     },
     [isRawMarkdownMode, editorContent]
   ) // Re-initialize when mode changes
-
-  const handleImageUpload = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
-      // 5MB limit
-      alert("The image size must be smaller than 5MB.")
-      return
-    }
-
-    try {
-      const base64 = await fileToBase64(file)
-
-      // Create an ImageUpload object to be sent to the server
-      const newUpload: ImageUpload = {
-        upload: {
-          fileName: file.name,
-          content: base64,
-          contentType: file.type,
-        },
-        remove: false,
-      }
-
-      // Upload the image to the server
-      const result = await uploadImage(newUpload)
-
-      if (result.ok) {
-        const bkey = result.data.bkey
-
-        // Insert the image into the editor with the server-provided bkey
-        if (editor) {
-          editor
-            .chain()
-            .focus()
-            .setImage({
-              src: `data:${file.type};base64,${base64}`,
-              alt: file.name,
-              ...({ bkey } as any),
-            })
-            .run()
-
-          // Add the bkey to the upload object for the parent component
-          newUpload.bkey = bkey
-
-          // Manually pass the upload to the parent component
-          // since the updated() handler might not fire immediately
-          if (props.onImageUploaded) {
-            props.onImageUploaded(newUpload)
-          }
-        }
-      } else {
-        console.error("Error uploading image:", result.error)
-        alert("Failed to upload image. Please try again.")
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error)
-    }
-  }
 
   return (
     <ValidationContext.Consumer>

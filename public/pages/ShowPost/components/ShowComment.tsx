@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Comment, Post, ImageUpload } from "@fider/models"
-import { Reactions, Avatar, UserName, Moment, Form, Button, Markdown, Modal, ImageViewer, MultiImageUploader, Dropdown, Icon } from "@fider/components"
+import { Reactions, Avatar, UserName, Moment, Form, Button, Markdown, Modal, Dropdown, Icon } from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash } from "@fider/services"
 import { useFider } from "@fider/hooks"
@@ -22,7 +22,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [newContent, setNewContent] = useState<string>(props.comment.content)
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false)
-  const [attachments, setAttachments] = useState<ImageUpload[]>([])
+  const [attachments, _] = useState<ImageUpload[]>([])
   const [localReactionCounts, setLocalReactionCounts] = useState(props.comment.reactionCounts)
   const emojiSelectorRef = useRef<HTMLDivElement>(null)
 
@@ -204,7 +204,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                   onChange={setNewContent}
                   placeholder={comment.content}
                 />
-                <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} />
+                {/* <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} /> */}
                 <Button size="small" onClick={saveEdit} variant="primary">
                   <Trans id="action.save">Save</Trans>
                 </Button>
@@ -215,7 +215,6 @@ export const ShowComment = (props: ShowCommentProps) => {
             ) : (
               <>
                 <Markdown text={comment.content} style="full" />
-                {comment.attachments && comment.attachments.map((x) => <ImageViewer key={x} bkey={x} />)}
                 <Reactions reactions={localReactionCounts} emojiSelectorRef={emojiSelectorRef} toggleReaction={toggleReaction} />
               </>
             )}
