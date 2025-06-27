@@ -289,7 +289,10 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           HTMLAttributes: {},
           allowBase64: true,
           onImageUpload: (upload) => {
+            console.log("Uploaded image:", upload)
             if (props.onImageUploaded) {
+              console.log("Uploaded image:", upload)
+              // Initialize other required properties
               props.onImageUploaded(upload)
             }
           },

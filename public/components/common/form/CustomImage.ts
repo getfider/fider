@@ -25,35 +25,35 @@ export const CustomImage = Image.extend<CustomImageOptions>({
     }
   },
 
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      id: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-id"),
-        renderHTML: (attributes) => {
-          if (!attributes.id) {
-            return {}
-          }
-          return {
-            "data-id": attributes.id,
-          }
-        },
-      },
-      bkey: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-bkey"),
-        renderHTML: (attributes) => {
-          if (!attributes.bkey) {
-            return {}
-          }
-          return {
-            "data-bkey": attributes.bkey,
-          }
-        },
-      },
-    }
-  },
+  // addAttributes() {
+  //   return {
+  //     ...this.parent?.(),
+  //     id: {
+  //       default: null,
+  //       parseHTML: (element) => element.getAttribute("data-id"),
+  //       renderHTML: (attributes) => {
+  //         if (!attributes.id) {
+  //           return {}
+  //         }
+  //         return {
+  //           "data-id": attributes.id,
+  //         }
+  //       },
+  //     },
+  //     bkey: {
+  //       default: null,
+  //       parseHTML: (element) => element.getAttribute("data-bkey"),
+  //       renderHTML: (attributes) => {
+  //         if (!attributes.bkey) {
+  //           return {}
+  //         }
+  //         return {
+  //           "data-bkey": attributes.bkey,
+  //         }
+  //       },
+  //     },
+  //   }
+  // },
 
   addStorage() {
     return {
@@ -68,19 +68,28 @@ export const CustomImage = Image.extend<CustomImageOptions>({
         parse: {
           setup(markdownit: MarkdownIt) {
             // Custom rule to parse our special image syntax
-            markdownit.inline.ruler.before("text", "fider-image", (state: MarkdownIt.StateInline, silent: boolean) => {
+            markdownit.inline.ruler.before("image", "fider-image", (state: MarkdownIt.StateInline, silent: boolean) => {
               const match = state.src.slice(state.pos).match(/^!\[\]\(fider-image:([a-zA-Z0-9_/.-]+)\)/)
               if (!match) return false
 
               if (!silent) {
-                const id = match[1]
+                const imageId = match[1]
                 const token = state.push("image", "img", 0)
-                token.attrs = [
-                  ["src", ""], // Empty src, will be filled by the renderer
-                  ["data-id", id],
-                  ["data-bkey", id], // Store as both id and bkey
-                  ["alt", ""],
-                ]
+
+                // Initialize attrs as an empty array first
+                token.attrs = []
+
+                // Use attrSet method to properly set attributes
+                token.attrSet(
+                  "src",
+                  "https://feedback.dev.fider.io:3000/static/images/logos/2U3dJ3Pf9NT9BlkqiVgL1rOZlcbRes7O9DAYb0wpdlSNkedzRAz9yCMBuYahTvaX-sillyface.jpeg?size=100"
+                )
+                token.attrSet("alt", "")
+                token.attrSet("data-id", imageId)
+                token.attrSet("data-bkey", imageId)
+
+                token.children = []
+                token.content = ""
               }
 
               state.pos += match[0].length
