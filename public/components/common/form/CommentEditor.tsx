@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
 import Placeholder from "@tiptap/extension-placeholder"
@@ -222,6 +222,10 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
   const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
 
+  // Use a ref instead of state for tracking document images
+  // This avoids the async state update issue and prevents unnecessary re-renders
+  const documentImagesRef = useRef<Map<string, boolean>>(new Map())
+
   const getIntialContent = () => {
     if (isRawMarkdownMode) {
       return markdownToHtml(props.initialValue ?? "")
@@ -248,9 +252,69 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }
 
+  // Handle image deletion
+  const handleImageRemove = (bkey: string) => {
+    console.log("Image removed:", bkey)
+
+    // Create an ImageUpload object with remove flag set to true
+    const removeUpload: ImageUpload = {
+      bkey,
+      remove: true,
+    }
+
+    // Pass the removal request to the parent component
+    if (props.onImageUploaded) {
+      props.onImageUploaded(removeUpload)
+    }
+  }
+
+  // Track all images in the document using the ref
+  const trackDocumentImages = (editor: Editor) => {
+    if (!editor) return
+
+    // Create a new map for the current state
+    const newImages = new Map<string, boolean>()
+
+    // Find all image nodes in the document
+    editor.state.doc.descendants((node) => {
+      if (node.type.name === "customImage" || node.type.name === "image") {
+        const bkey = node.attrs.bkey
+        if (bkey) {
+          newImages.set(bkey, true)
+        }
+      }
+      return true
+    })
+
+    // Store the previous images for comparison
+    const prevImages = new Map(documentImagesRef.current)
+
+    // Update the ref with the new images
+    documentImagesRef.current = newImages
+
+    // Check for removed images
+    checkForRemovedImages(prevImages, newImages)
+  }
+
+  // Check for removed images by comparing previous and current document images
+  const checkForRemovedImages = (prevImages: Map<string, boolean>, currentImages: Map<string, boolean>) => {
+    // Find images that were in the previous state but not in the current state
+    prevImages.forEach((_, bkey) => {
+      if (!currentImages.has(bkey)) {
+        // This image was removed
+        handleImageRemove(bkey)
+      }
+    })
+  }
+
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
+    // Get the current markdown content
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
     props.onChange && props.onChange(markdown)
+
+    // Track the current state of images in the document
+    // This will also check for removed images
+    trackDocumentImages(editor)
 
     // Also pass any image uploads to the parent component
     if (props.onImageUploaded && imageUploads.length > 0) {
@@ -307,6 +371,9 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           if (props.onImageUploaded) {
             props.onImageUploaded(newUpload)
           }
+
+          // Update the document images ref
+          documentImagesRef.current.set(bkey, true)
         }
       } else {
         console.error("Error uploading image:", result.error)
@@ -351,6 +418,10 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
               // Initialize other required properties
               props.onImageUploaded(upload)
             }
+          },
+          onImageRemove: (id) => {
+            // This is called when an image is removed from the editor
+            handleImageRemove(id)
           },
         }),
         Placeholder.configure({
@@ -417,6 +488,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     },
     [isRawMarkdownMode, editorContent]
   ) // Re-initialize when mode changes
+
+  // Initialize document images when editor is ready
+  useEffect(() => {
+    if (editor) {
+      trackDocumentImages(editor)
+    }
+  }, [editor])
 
   return (
     <ValidationContext.Consumer>

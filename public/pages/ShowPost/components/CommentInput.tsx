@@ -11,27 +11,13 @@ import { Trans } from "@lingui/react/macro"
 
 import { useFider } from "@fider/hooks"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
+import { extractImageBkeys } from "@fider/services/bkey"
 
 interface CommentInputProps {
   post: Post
 }
 
 const CACHE_TITLE_KEY = "CommentInput-Comment-"
-
-// Helper function to extract bkeys from markdown content
-const extractImageBkeys = (content: string): string[] => {
-  if (!content) return []
-
-  const regex = /!\[\]\(fider-image:([a-zA-Z0-9_/.-]+)\)/g
-  const bkeys: string[] = []
-  let match
-
-  while ((match = regex.exec(content)) !== null) {
-    bkeys.push(match[1])
-  }
-
-  return bkeys
-}
 
 export const CommentInput = (props: CommentInputProps) => {
   const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`

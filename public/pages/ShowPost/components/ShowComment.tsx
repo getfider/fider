@@ -8,6 +8,7 @@ import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.s
 import { t } from "@lingui/core/macro"
 import { Trans } from "@lingui/react/macro"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
+import { extractImageBkeys } from "@fider/services/bkey"
 
 interface ShowCommentProps {
   post: Post
@@ -22,7 +23,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [newContent, setNewContent] = useState<string>(props.comment.content)
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false)
-  const [attachments, _] = useState<ImageUpload[]>([])
+  const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [localReactionCounts, setLocalReactionCounts] = useState(props.comment.reactionCounts)
   const emojiSelectorRef = useRef<HTMLDivElement>(null)
 
@@ -42,6 +43,25 @@ export const ShowComment = (props: ShowCommentProps) => {
       }
     }
   }, [props.highlighted])
+
+  useEffect(() => {
+    if (isEditing) {
+      const bkeys = extractImageBkeys(props.comment.content)
+      if (bkeys.length > 0) {
+        // Create ImageUpload objects for each bkey found in the comment
+        const existingAttachments = bkeys.map(
+          (bkey) =>
+            ({
+              bkey,
+              remove: false,
+            } as ImageUpload)
+        )
+
+        // Initialize attachments state with existing images
+        setAttachments(existingAttachments)
+      }
+    }
+  }, [isEditing])
 
   const canEditComment = (): boolean => {
     if (fider.session.isAuthenticated) {
@@ -203,8 +223,18 @@ export const ShowComment = (props: ShowCommentProps) => {
                   initialValue={newContent}
                   onChange={setNewContent}
                   placeholder={comment.content}
+                  onImageUploaded={(upload) => {
+                    // Handle image uploads and removals
+                    setAttachments((prev) => {
+                      // If this is a removal request, find and mark the attachment for removal
+                      if (upload.remove && upload.bkey) {
+                        return prev.map((att) => (att.bkey === upload.bkey ? { ...att, remove: true } : att))
+                      }
+                      // Otherwise add the new upload
+                      return [...prev, upload]
+                    })
+                  }}
                 />
-                {/* <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} /> */}
                 <Button size="small" onClick={saveEdit} variant="primary">
                   <Trans id="action.save">Save</Trans>
                 </Button>

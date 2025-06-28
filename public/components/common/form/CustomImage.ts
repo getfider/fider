@@ -100,7 +100,7 @@ export const CustomImage = Image.extend<CustomImageOptions>({
     return {
       setImage:
         (options: any) =>
-        ({ tr, dispatch }) => {
+        ({ tr, dispatch }: { tr: any; dispatch: any }) => {
           const { src, alt, title, id, bkey } = options
 
           // Create a node with our custom attributes
@@ -119,5 +119,11 @@ export const CustomImage = Image.extend<CustomImageOptions>({
           return true
         },
     }
+  },
+
+  // Add event handlers to the editor
+  onSelectionUpdate() {
+    // When an image is selected, we can add a delete button or handle keyboard events
+    // This is a placeholder for future implementation
   },
 })
