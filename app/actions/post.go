@@ -37,11 +37,11 @@ func (input *CreateNewPost) OnPreExecute(ctx context.Context) error {
 			if err := bus.Dispatch(ctx, getTag); err != nil {
 				break
 			}
-			
+
 			input.Tags = append(input.Tags, getTag.Result)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -343,21 +343,18 @@ func (action *EditComment) Validate(ctx context.Context, user *entity.User) *val
 	}
 
 	if len(action.Attachments) > 0 {
-		getAttachments := &query.GetAttachments{Post: action.Post, Comment: action.Comment}
-		err := bus.Dispatch(ctx, getAttachments)
-		if err != nil {
-			return validate.Error(err)
+
+		nonRemovedCount := 0
+		for _, v := range action.Attachments {
+			if !v.Remove {
+				nonRemovedCount++
+			}
 		}
 
-		messages, err := validate.MultiImageUpload(ctx, getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
-			MaxUploads:   2,
-			MaxKilobytes: 5120,
-			ExactRatio:   false,
-		})
-		if err != nil {
-			return validate.Error(err)
+		if nonRemovedCount > 2 {
+			result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.maxattachments", i18n.Params{"number": 2}))
 		}
-		result.AddFieldFailure("attachments", messages...)
+
 	}
 
 	return result

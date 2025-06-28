@@ -1,12 +1,12 @@
+import { InlineImage } from "@fider/models/post"
 import Image from "@tiptap/extension-image"
 import * as MarkdownIt from "markdown-it"
-import { ImageUpload } from "@fider/models"
 
 export interface CustomImageOptions {
   HTMLAttributes?: Record<string, any>
   allowBase64?: boolean
-  onImageUpload?: (upload: ImageUpload) => void
-  onImageRemove?: (id: string) => void
+  onImageUpload?: (upload: InlineImage) => void
+  onImageRemove?: (bkey: string) => void
 }
 
 export const CustomImage = Image.extend<CustomImageOptions>({

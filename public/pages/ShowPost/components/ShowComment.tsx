@@ -235,12 +235,14 @@ export const ShowComment = (props: ShowCommentProps) => {
                     })
                   }}
                 />
-                <Button size="small" onClick={saveEdit} variant="primary">
-                  <Trans id="action.save">Save</Trans>
-                </Button>
-                <Button variant="tertiary" size="small" onClick={cancelEdit}>
-                  <Trans id="action.cancel">Cancel</Trans>
-                </Button>
+                <div className="mt-2">
+                  <Button size="small" onClick={saveEdit} variant="primary">
+                    <Trans id="action.save">Save</Trans>
+                  </Button>
+                  <Button variant="tertiary" size="small" onClick={cancelEdit}>
+                    <Trans id="action.cancel">Cancel</Trans>
+                  </Button>
+                </div>
               </Form>
             ) : (
               <>

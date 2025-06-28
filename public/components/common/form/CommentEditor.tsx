@@ -24,7 +24,7 @@ import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
 import { fileToBase64 } from "@fider/services"
-import { ImageUpload } from "@fider/models"
+import { ImageUpload, InlineImage } from "@fider/models"
 import { CustomImage } from "./CustomImage"
 import { uploadImage } from "@fider/services/actions/image"
 
@@ -206,7 +206,7 @@ interface CommentEditorProps {
   onFocus?: () => void
   disabled: boolean
   field: string
-  onImageUploaded?: (upload: ImageUpload) => void
+  onImageUploaded?: (upload: InlineImage) => void
 }
 
 const markdownToHtml = (markdownString: string) => {
@@ -220,7 +220,7 @@ const markdownToHtml = (markdownString: string) => {
 
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
-  const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
+  const [imageUploads, setImageUploads] = useState<InlineImage[]>([])
 
   // Use a ref instead of state for tracking document images
   // This avoids the async state update issue and prevents unnecessary re-renders
@@ -254,10 +254,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   // Handle image deletion
   const handleImageRemove = (bkey: string) => {
-    console.log("Image removed:", bkey)
-
     // Create an ImageUpload object with remove flag set to true
-    const removeUpload: ImageUpload = {
+    const removeUpload: InlineImage = {
       bkey,
       remove: true,
     }
@@ -326,16 +324,16 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   }
 
   const handleImageUpload = async (file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
-      // 5MB limit
-      alert("The image size must be smaller than 5MB.")
-      return
-    }
+    // if (file.size > 5 * 1024 * 1024) {
+    //   // 5MB limit
+    //   alert("The image size must be smaller than 5MB.")
+    //   return
+    // }
 
     try {
       const base64 = await fileToBase64(file)
 
-      // Create an ImageUpload object to be sent to the server
+      // Create an InlineImage object to be sent to the server
       const newUpload: ImageUpload = {
         upload: {
           fileName: file.name,
@@ -369,15 +367,15 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           // Manually pass the upload to the parent component
           // since the updated() handler might not fire immediately
           if (props.onImageUploaded) {
-            props.onImageUploaded(newUpload)
+            props.onImageUploaded({ bkey, remove: false })
           }
 
           // Update the document images ref
           documentImagesRef.current.set(bkey, true)
         }
       } else {
-        console.error("Error uploading image:", result.error)
-        alert("Failed to upload image. Please try again.")
+        const errorMessage = result.error?.errors?.[0]?.message || "Failed to upload image"
+        alert(errorMessage)
       }
     } catch (error) {
       console.error("Error uploading image:", error)
@@ -412,9 +410,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           HTMLAttributes: {},
           allowBase64: true,
           onImageUpload: (upload) => {
-            console.log("Uploaded image:", upload)
             if (props.onImageUploaded) {
-              console.log("Uploaded image:", upload)
               // Initialize other required properties
               props.onImageUploaded(upload)
             }

@@ -128,7 +128,7 @@ export const CommentInput = (props: CommentInputProps) => {
 
                 {hasContent && (
                   <>
-                    <Button variant="primary" onClick={submit}>
+                    <Button variant="primary" onClick={submit} className="mt-2">
                       <Trans id="action.submit">Submit</Trans>
                     </Button>
                   </>

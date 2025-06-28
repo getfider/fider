@@ -25,10 +25,17 @@ func (input *UploadImage) IsAuthorized(ctx context.Context, user *entity.User) b
 func (input *UploadImage) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Image == nil {
-		result.AddFieldFailure("image", "Image is required.")
-		return result
-	}
+	messages, err := validate.ImageUpload(ctx, input.Image, validate.ImageUploadOpts{
+		IsRequired:   true,
+		MinHeight:    50,
+		MinWidth:     50,
+		ExactRatio:   false,
+		MaxKilobytes: 5120,
+	})
 
+	if err != nil {
+		return validate.Error(err)
+	}
+	result.AddFieldFailure("image", messages...)
 	return result
 }
