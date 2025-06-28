@@ -128,7 +128,7 @@
 
     // Placeholder
     p.tiptap-is-empty:first-child::before {
-      color: var(--colors-gray-400);
+      color: var(--colors-gray-600);
       content: attr(data-placeholder);
       float: left;
       height: 0;
