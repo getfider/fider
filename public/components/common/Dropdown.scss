@@ -45,7 +45,8 @@
   }
 
   &__listitem {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: spacing(2);
     &:hover {
       cursor: pointer;

@@ -73,6 +73,16 @@ $c-modal-dimmer-padding: 1em;
     }
   }
 
+  &--fullscreen {
+    animation: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+  }
+
   &--center {
     text-align: center;
   }

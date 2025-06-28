@@ -24,6 +24,7 @@ type CreateNewPost struct {
 	Description string             `json:"description"`
 	TagSlugs    []string           `json:"tags"`
 	Attachments []*dto.ImageUpload `json:"attachments"`
+	IsDraft     bool
 
 	Tags []*entity.Tag
 }
@@ -47,6 +48,12 @@ func (input *CreateNewPost) OnPreExecute(ctx context.Context) error {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *entity.User) bool {
+
+	if action.IsDraft {
+		// Draft posts can be done by not logged in users
+		return true
+	}
+
 	if user == nil {
 		return false
 	} else if env.Config.PostCreationWithTagsEnabled && !user.IsCollaborator() {

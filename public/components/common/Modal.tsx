@@ -10,7 +10,7 @@ interface ModalWindowProps {
   children?: React.ReactNode
   className?: string
   isOpen: boolean
-  size?: "small" | "large" | "fluid"
+  size?: "small" | "large" | "fluid" | "fullscreen"
   canClose?: boolean
   center?: boolean
   onClose: () => void

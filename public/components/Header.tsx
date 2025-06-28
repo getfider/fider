@@ -3,6 +3,7 @@ import { SignInModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher
 import { useFider } from "@fider/hooks"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 import IconRss from "@fider/assets/images/heroicons-rss.svg"
 
 export const Header = () => {
@@ -14,6 +15,7 @@ export const Header = () => {
     setIsSignInModalOpen(true)
   }
 
+  const atomFeedTitle = i18n._({ id: "action.postsfeed", message: "Posts Feed" })
   const hideModal = () => setIsSignInModalOpen(false)
 
   return (
@@ -29,8 +31,8 @@ export const Header = () => {
             {fider.session.isAuthenticated && (
               <HStack spacing={2}>
                 {fider.session.tenant.isFeedEnabled && (
-                  <a title="ATOM Feed (All Posts)" type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
-                    <Icon sprite={IconRss} className="h-6" />
+                  <a title={atomFeedTitle} type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
+                    <Icon sprite={IconRss} className="h-6 text-gray-500" />
                   </a>
                 )}
                 <ThemeSwitcher />
@@ -41,8 +43,8 @@ export const Header = () => {
             {!fider.session.isAuthenticated && (
               <HStack spacing={2}>
                 {fider.session.tenant.isFeedEnabled && (
-                  <a title="ATOM Feed (All Posts)" type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
-                    <Icon sprite={IconRss} className="h-6" />
+                  <a title={atomFeedTitle} type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
+                    <Icon sprite={IconRss} className="h-6 text-gray-500" />
                   </a>
                 )}
                 <ThemeSwitcher />

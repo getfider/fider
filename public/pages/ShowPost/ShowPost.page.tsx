@@ -3,9 +3,12 @@ import "./ShowPost.page.scss"
 import React, { useState, useEffect, useCallback } from "react"
 
 import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
-import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
+import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
-import IconRss from "@fider/assets/images/heroicons-rss.svg"
+import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
+import IconRSS from "@fider/assets/images/heroicons-rss.svg"
+import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
+import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
 import {
   ResponseDetails,
@@ -36,6 +39,7 @@ import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
 import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
+import { t } from "@lingui/macro"
 
 interface ShowPostPageProps {
   post: Post
@@ -103,6 +107,15 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     }
   }, [handleHashChange])
 
+  useEffect(() => {
+    const showSuccess = cache.session.get("POST_CREATED_SUCCESS")
+    if (showSuccess) {
+      cache.session.remove("POST_CREATED_SUCCESS")
+      // Show success message/toast
+      notify.success(t({ id: "mysettings.notification.event.newpostcreated", message: "Your idea has been added 👍" }))
+    }
+  }, [])
+
   const saveChanges = async () => {
     const result = await actions.updatePost(props.post.number, newTitle, newDescription, attachments)
     if (result.ok) {
@@ -165,29 +178,29 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
                   {!editMode && (
                     <HStack>
-                      {Fider.session.tenant.isFeedEnabled && (
-                        <a title="ATOM Feed (Comments)" type="application/atom+xml" href={`/feed/posts/${props.post.id}.atom`}>
-                          <Icon sprite={IconRss} width="24" height="24" />
-                        </a>
-                      )}
                       <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
-                        <Dropdown.ListItem onClick={onActionSelected("copy")}>
+                        <Dropdown.ListItem onClick={onActionSelected("copy")} icon={IconDuplicate}>
                           <Trans id="action.copylink">Copy link</Trans>
                         </Dropdown.ListItem>
+                        {Fider.session.tenant.isFeedEnabled && (
+                          <Dropdown.ListItem type="application/atom+xml" href={`/feed/posts/${props.post.number}.atom`} icon={IconRSS}>
+                            <Trans id="action.commentsfeed">Comment Feed</Trans>
+                          </Dropdown.ListItem>
+                        )}
                         {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
                           <>
-                            <Dropdown.ListItem onClick={onActionSelected("edit")}>
+                            <Dropdown.ListItem onClick={onActionSelected("edit")} icon={IconPencil}>
                               <Trans id="action.edit">Edit</Trans>
                             </Dropdown.ListItem>
                             {Fider.session.user.isCollaborator && (
-                              <Dropdown.ListItem onClick={onActionSelected("status")}>
+                              <Dropdown.ListItem onClick={onActionSelected("status")} icon={IconChat}>
                                 <Trans id="action.respond">Respond</Trans>
                               </Dropdown.ListItem>
                             )}
                           </>
                         )}
                         {canDeletePost() && (
-                          <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700">
+                          <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700" icon={IconX}>
                             <Trans id="action.delete">Delete</Trans>
                           </Dropdown.ListItem>
                         )}

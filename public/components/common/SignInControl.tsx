@@ -11,7 +11,14 @@ import { i18n } from "@lingui/core"
 interface SignInControlProps {
   useEmail: boolean
   redirectTo?: string
+  onSubmit?: () => Promise<SignInSubmitResponse>
   onEmailSent?: (email: string) => void
+  signInButtonText?: string
+}
+
+export interface SignInSubmitResponse {
+  ok: boolean
+  code?: string
 }
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
@@ -20,13 +27,31 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   const [email, setEmail] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
 
+  const signInText = props.signInButtonText || i18n._({ id: "action.signin", message: "Sign in" })
+
   const forceShowEmailForm = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
     setShowEmailForm(true)
   }
 
+  const doPreSigninAction = async (): Promise<SignInSubmitResponse> => {
+    let signInResponse: SignInSubmitResponse = { ok: true }
+    if (props.onSubmit) {
+      signInResponse = await props.onSubmit()
+    }
+    return signInResponse
+  }
+
+  const onSocialSignin = async () => {
+    return await doPreSigninAction()
+  }
+
   const signIn = async () => {
-    const result = await actions.signIn(email)
+    const signInResponse = await doPreSigninAction()
+    if (!signInResponse.ok) {
+      return
+    }
+    const result = await actions.signIn(email, signInResponse.code)
     if (result.ok) {
       setEmail("")
       setError(undefined)
@@ -56,7 +81,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
           <div className="c-signin-control__oauth pb-3">
             {fider.settings.oauth.map((o) => (
               <React.Fragment key={o.provider}>
-                <SocialSignInButton option={o} redirectTo={props.redirectTo} />
+                <SocialSignInButton onClick={onSocialSignin} option={o} redirectTo={props.redirectTo} />
               </React.Fragment>
             ))}
           </div>
@@ -77,7 +102,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
                 placeholder={i18n._("signin.email.placeholder", { message: "Email address" })}
               />
               <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                <Trans id="action.signin">Sign in</Trans>
+                {signInText}
               </Button>
             </Form>
             {!fider.session.tenant.isEmailAuthAllowed && (

@@ -1,0 +1,47 @@
+@import "~@fider/assets/styles/variables.scss";
+
+.c-share-feedback {
+  background-color: var(--colors-gray-200);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__content {
+    background-color: var(--colors-white);
+    padding: spacing(6);
+    border-radius: get("border.radius.large");
+    max-width: 600px;
+    margin: 0 auto spacing(4);
+    flex-shrink: 0;
+  }
+
+  .c-modal-content {
+    flex: 1;
+    overflow-y: auto;
+  }
+}
+
+.c-share-feedback-form {
+  .c-form-field {
+    margin-bottom: spacing(6);
+
+    label {
+      padding-bottom: spacing(2);
+    }
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

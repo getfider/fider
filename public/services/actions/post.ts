@@ -28,6 +28,11 @@ export const searchPosts = async (params: SearchPostsParams): Promise<Result<Pos
   return await http.get<Post[]>(`/api/v1/posts${qsParams}`)
 }
 
+export const findSimilarPosts = async (query: string): Promise<Result<Post[]>> => {
+  const params = querystring.stringify({ query: query })
+  return await http.get<Post[]>(`/api/v1/similarposts${params}`)
+}
+
 export const deletePost = async (postNumber: number, text: string): Promise<Result> => {
   return http
     .delete(`/api/v1/posts/${postNumber}`, {
@@ -108,6 +113,21 @@ interface CreatePostResponse {
 
 export const createPost = async (title: string, description: string, attachments: ImageUpload[], tags: string[]): Promise<Result<CreatePostResponse>> => {
   return http.post<CreatePostResponse>(`/api/v1/posts`, { title, description, attachments, tags }).then(http.event("post", "create"))
+}
+
+interface CreateDraftPostResponse {
+  id: number
+  code: string
+  title: string
+}
+
+export const createAnonymousPost = async (
+  title: string,
+  description: string,
+  attachments: ImageUpload[],
+  tags?: string[]
+): Promise<Result<CreateDraftPostResponse>> => {
+  return http.post<CreateDraftPostResponse>(`/api/v1/draftposts`, { title, description, attachments, tags }).then(http.event("post", "create-anonymous"))
 }
 
 export const updatePost = async (postNumber: number, title: string, description: string, attachments: ImageUpload[]): Promise<Result> => {

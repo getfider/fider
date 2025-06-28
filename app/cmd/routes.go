@@ -113,6 +113,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.BlockPendingTenants())
 
 	r.Get("/signin", handlers.SignInPage())
+	r.Get("/loginemailsent", handlers.LoginEmailSentPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
 	r.Get("/signin/verify", handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
 	r.Get("/invite/verify", handlers.VerifySignInKey(enum.EmailVerificationKindUserInvitation))
@@ -192,11 +193,13 @@ func routes(r *web.Engine) *web.Engine {
 	// Does not require authentication
 	publicApi := r.Group()
 	{
+		publicApi.Get("/api/v1/similarposts", apiv1.FindSimilarPosts())
 		publicApi.Get("/api/v1/posts", apiv1.SearchPosts())
 		publicApi.Get("/api/v1/tags", apiv1.ListTags())
 		publicApi.Get("/api/v1/posts/:number", apiv1.GetPost())
 		publicApi.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		publicApi.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
+		publicApi.Post("/api/v1/draftposts", apiv1.CreateDraftPost())
 	}
 
 	// Operations used to manage the content of a site

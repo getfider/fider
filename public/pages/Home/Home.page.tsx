@@ -2,21 +2,30 @@ import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
 import React, { useState } from "react"
-import { Post, Tag, PostStatus } from "@fider/models"
-import { Markdown, Hint, PoweredByFider, Icon, Header } from "@fider/components"
-import { SimilarPosts } from "./components/SimilarPosts"
-import { PostInput } from "./components/PostInput"
+import { Post, Tag, PostStatus, ImageUpload } from "@fider/models"
+import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
-
+import { ShareFeedback } from "./components/ShareFeedback"
+import { cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
+import { CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY, CACHE_TAGS_KEY } from "./components/ShareFeedback"
 
 export interface HomePageProps {
   posts: Post[]
   tags: Tag[]
+  searchNoiseWords: string[]
   countPerStatus: { [key: string]: number }
+  draftPost?: {
+    id: number
+    code: string
+    title: string
+    description: string
+  }
+  draftAttachments?: string[]
+  draftTags?: Tag[]
 }
 
 export interface HomePageState {
@@ -45,8 +54,22 @@ const Lonely = () => {
 }
 
 const HomePage = (props: HomePageProps) => {
+  if (props.draftPost) {
+    // Need to store the details of the draft post in the cache
+    cache.session.set(CACHE_TITLE_KEY, props.draftPost.title)
+    cache.session.set(CACHE_DESCRIPTION_KEY, props.draftPost.description)
+    if (props.draftAttachments?.length) {
+      const images: ImageUpload[] = props.draftAttachments.map((bkey: string) => ({ bkey, remove: false }))
+      cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(images))
+    }
+    if (props.draftTags?.length) {
+      cache.session.set(CACHE_TAGS_KEY, props.draftTags.map((tag) => tag.slug).join(","))
+    }
+  }
+
   const fider = useFider()
-  const [title, setTitle] = useState("")
+  // const [title, setTitle] = useState("")
+  const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(props.draftPost !== undefined)
 
   const defaultWelcomeMessage = i18n._("home.form.defaultwelcomemessage", {
     message: `We'd love to hear what you're thinking about.
@@ -71,25 +94,34 @@ What can we do better? This is the place for you to vote, discuss and share idea
     return false
   }
 
+  const handleNewPost = () => {
+    setIsShareFeedbackOpen(true)
+  }
+
   return (
     <>
+      <ShareFeedback
+        tags={props.tags}
+        placeholder={fider.session.tenant.invitation || defaultInvitation}
+        isOpen={isShareFeedbackOpen}
+        onClose={() => setIsShareFeedbackOpen(false)}
+      />
       <Header />
       <div id="p-home" className="page container">
         <div className="p-home__welcome-col">
           <VStack spacing={2} className="p-4">
             <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
-            <PostInput tags={props.tags} placeholder={fider.session.tenant.invitation || defaultInvitation} onTitleChanged={setTitle} />
+            <Button className="c-input" type="submit" variant="secondary" onClick={handleNewPost}>
+              {fider.session.tenant.invitation || defaultInvitation}
+            </Button>
           </VStack>
-          <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+          <div onClick={() => setIsShareFeedbackOpen(true)}>
+            <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+          </div>
         </div>
         <div className="p-home__posts-col p-4">
-          {isLonely() ? (
-            <Lonely />
-          ) : title ? (
-            <SimilarPosts title={title} tags={props.tags} />
-          ) : (
-            <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
-          )}
+          {isLonely() && <Lonely />}
+          <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
           <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
         </div>
       </div>
