@@ -8,6 +8,7 @@ import Document from "@tiptap/extension-document"
 import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
 import HardBreak from "@tiptap/extension-hard-break"
+import { i18n } from "@lingui/core"
 
 import "./CommentEditor.scss"
 
@@ -207,6 +208,8 @@ interface CommentEditorProps {
   disabled: boolean
   field: string
   onImageUploaded?: (upload: InlineImage) => void
+  maxAttachments?: number
+  maxImageSizeKB?: number
 }
 
 const markdownToHtml = (markdownString: string) => {
@@ -323,12 +326,40 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }
 
+  const validateImageUpload = (file: File): string => {
+    // Default max size is 5MB (5 * 1024 KB)
+    const maxSizeKB = props.maxImageSizeKB || 5 * 1024
+
+    // Check file size
+    if (file.size > maxSizeKB * 1024) {
+      return i18n._({
+        id: "validation.custom.maximagesize",
+        values: { kilobytes: maxSizeKB },
+        message: "The image size must be smaller than {kilobytes}KB.",
+      })
+    }
+
+    // Check max attachments if specified
+    if (props.maxAttachments) {
+      if (documentImagesRef.current.size >= props.maxAttachments) {
+        return i18n._({
+          id: "validation.custom.maxattachments",
+          values: { number: props.maxAttachments },
+          message: "A maximum of {number} attachments are allowed.",
+        })
+      }
+    }
+
+    return "" // No error
+  }
+
   const handleImageUpload = async (file: File) => {
-    // if (file.size > 5 * 1024 * 1024) {
-    //   // 5MB limit
-    //   alert("The image size must be smaller than 5MB.")
-    //   return
-    // }
+    // Validate the image upload
+    const errorMessage = validateImageUpload(file)
+    if (errorMessage) {
+      alert(errorMessage)
+      return
+    }
 
     try {
       const base64 = await fileToBase64(file)
@@ -451,6 +482,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
               // Prevent the default paste behavior
               event.preventDefault()
 
+              // Validate and upload the image
+              const errorMessage = validateImageUpload(file)
+              if (errorMessage) {
+                alert(errorMessage)
+                return true
+              }
+
               // Upload the image
               handleImageUpload(file)
               return true
@@ -469,6 +507,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
                 if (blob) {
                   // Prevent the default paste behavior
                   event.preventDefault()
+
+                  // Validate and upload the image
+                  const errorMessage = validateImageUpload(blob)
+                  if (errorMessage) {
+                    alert(errorMessage)
+                    return true
+                  }
 
                   // Upload the image
                   handleImageUpload(blob)

@@ -223,6 +223,8 @@ export const ShowComment = (props: ShowCommentProps) => {
                   initialValue={newContent}
                   onChange={setNewContent}
                   placeholder={comment.content}
+                  maxAttachments={2}
+                  maxImageSizeKB={5 * 1024}
                   onImageUploaded={(upload) => {
                     // Handle image uploads and removals
                     setAttachments((prev) => {

@@ -113,6 +113,8 @@ export const CommentInput = (props: CommentInputProps) => {
                   onFocus={editorFocused}
                   initialValue={getContentFromCache()}
                   placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
+                  maxAttachments={2}
+                  maxImageSizeKB={5 * 1024}
                   onImageUploaded={(upload) => {
                     // Handle image uploads and removals
                     setAttachments((prev) => {

@@ -232,6 +232,8 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                   onFocus={handleEditorFocus}
                   initialValue={description}
                   disabled={false}
+                  maxAttachments={3}
+                  maxImageSizeKB={5 * 1024}
                   placeholder={i18n._({
                     id: "newpost.modal.description.placeholder",
                     message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",

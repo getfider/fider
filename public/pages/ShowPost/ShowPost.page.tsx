@@ -6,6 +6,7 @@ import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "
 import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
+import { i18n } from "@lingui/core"
 import IconRSS from "@fider/assets/images/heroicons-rss.svg"
 import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
@@ -18,8 +19,6 @@ import {
   Markdown,
   Input,
   Form,
-  TextArea,
-  MultiImageUploader,
   ImageViewer,
   Icon,
   Header,
@@ -28,6 +27,7 @@ import {
   Dropdown,
 } from "@fider/components"
 import { DiscussionPanel } from "./components/DiscussionPanel"
+import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
@@ -116,6 +116,19 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     }
   }, [])
 
+  // Initialize attachments from props when entering edit mode
+  useEffect(() => {
+    if (editMode) {
+      // Convert attachment bkeys to ImageUpload objects
+      const initialAttachments = props.attachments.map((bkey) => ({
+        bkey,
+        remove: false,
+      })) as ImageUpload[]
+
+      setAttachments(initialAttachments)
+    }
+  }, [editMode, props.attachments])
+
   const saveChanges = async () => {
     const result = await actions.updatePost(props.post.number, newTitle, newDescription, attachments)
     if (result.ok) {
@@ -140,6 +153,21 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
   const startEdit = () => {
     setEditMode(true)
+  }
+
+  const handleDescriptionChange = (value: string) => {
+    setNewDescription(value)
+  }
+
+  const handleImageUploaded = (image: ImageUpload) => {
+    setAttachments((prev) => {
+      // If this is a removal request, find and mark the attachment for removal
+      if (image.remove && image.bkey) {
+        return prev.map((att) => (att.bkey === image.bkey ? { ...att, remove: true } : att))
+      }
+      // Otherwise add the new upload
+      return [...prev, image]
+    })
   }
 
   const onActionSelected = (action: "copy" | "delete" | "status" | "edit") => () => {
@@ -228,9 +256,19 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                 <VStack>
                   {editMode ? (
                     <Form error={error}>
-                      <TextArea field="description" value={newDescription} onChange={setNewDescription} />
-                      {/* Note: We're keeping the MultiImageUploader here for post editing since it's not using the TipTap editor */}
-                      <MultiImageUploader field="attachments" bkeys={props.attachments} maxUploads={3} onChange={setAttachments} />
+                      <CommentEditor
+                        field="description"
+                        onChange={handleDescriptionChange}
+                        initialValue={newDescription}
+                        disabled={false}
+                        maxAttachments={3}
+                        maxImageSizeKB={5 * 1024}
+                        placeholder={i18n._({
+                          id: "newpost.modal.description.placeholder",
+                          message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
+                        })}
+                        onImageUploaded={handleImageUploaded}
+                      />
                     </Form>
                   ) : (
                     <>
