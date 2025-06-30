@@ -12,8 +12,8 @@ import { cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 import { CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY, CACHE_TAGS_KEY } from "./components/ShareFeedback"
-import { PostDetails } from "@fider/components/common/PostModal"
-import { getPostNumberFromURL, isHomePage, setupHistoryHandling } from "@fider/services/post-modal-handler"
+import ShowPostPage from "@fider/pages/ShowPost/ShowPost.page"
+import { getPostNumberFromURL, isHomePage, setupHistoryHandling, updateURLForPost } from "@fider/services/post-urlhelpers"
 
 export interface HomePageProps {
   posts: Post[]
@@ -128,6 +128,8 @@ What can we do better? This is the place for you to vote, discuss and share idea
   const handlePostClick = (post: Post) => {
     setDirectPostNumber(post.number)
     setShowPostDetails(true)
+
+    updateURLForPost(post.number, post.slug)
   }
 
   return (
@@ -159,7 +161,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
           </div>
         </div>
       )}
-      {showPostDetails && directPostNumber && <PostDetails postNumber={directPostNumber} />}
+      {showPostDetails && directPostNumber && <ShowPostPage postNumber={directPostNumber} />}
     </>
   )
 }

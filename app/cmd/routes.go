@@ -124,8 +124,8 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.CheckTenantPrivacy())
 
 	r.Get("/", handlers.Index())
-	r.Get("/posts/:number", handlers.PostDetails())
-	r.Get("/posts/:number/:slug", handlers.PostDetails())
+	r.Get("/posts/:number", handlers.Index())
+	r.Get("/posts/:number/:slug", handlers.Index())
 
 	ui := r.Group()
 	{

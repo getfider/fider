@@ -28,6 +28,21 @@ export const isHomePage = (): boolean => {
 }
 
 /**
+ * Updates the URL and browser history when a post is opened
+ *
+ * @param postNumber The post number to add to the URL
+ * @param postSlug Optional post slug to add to the URL
+ */
+export const updateURLForPost = (postNumber: number, postSlug?: string): void => {
+  if (isHomePage()) {
+    const url = postSlug ? `/posts/${postNumber}/${postSlug}` : `/posts/${postNumber}`
+
+    // Push the new URL to the browser history
+    window.history.pushState({ postNumber }, "", url)
+  }
+}
+
+/**
  * Sets up browser history handling for post modals
  *
  * @param onPopState Function to call when the user navigates back/forward
