@@ -554,7 +554,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
               toggleMarkdownMode={toggleMarkdownMode}
               onImageUpload={handleImageUpload}
             />
-            <EditorContent editor={editor} />
+            <EditorContent editor={editor} data-testid="tiptap-editor" />
           </div>
           <DisplayError fields={[props.field]} error={ctx.error} />
         </div>
