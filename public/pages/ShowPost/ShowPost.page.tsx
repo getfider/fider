@@ -11,21 +11,7 @@ import IconRSS from "@fider/assets/images/heroicons-rss.svg"
 import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
-import {
-  ResponseDetails,
-  Button,
-  UserName,
-  Moment,
-  Markdown,
-  Input,
-  Form,
-  ImageViewer,
-  Icon,
-  Header,
-  PoweredByFider,
-  Avatar,
-  Dropdown,
-} from "@fider/components"
+import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, ImageViewer, Icon, PoweredByFider, Avatar, Dropdown } from "@fider/components"
 import { DiscussionPanel } from "./components/DiscussionPanel"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 
@@ -68,6 +54,8 @@ export default function ShowPostPage(props: ShowPostPageProps) {
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [highlightedComment, setHighlightedComment] = useState<number | undefined>(undefined)
   const [error, setError] = useState<Failure | undefined>(undefined)
+
+  console.log("hello this is the show post page", props)
 
   const handleHashChange = useCallback(
     (e?: Event) => {
@@ -185,7 +173,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
   return (
     <>
-      <Header />
       <div id="p-show-post" className="page container">
         <div className="p-show-post">
           <div className="p-show-post__main-col">

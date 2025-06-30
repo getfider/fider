@@ -8,7 +8,7 @@ import { actions, navigator, querystring } from "@fider/services"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
-import { ListPosts } from "./ListPosts"
+import { ListPostsWithModal } from "./ListPostsWithModal"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 import { PostsSort } from "./PostsSort"
@@ -18,6 +18,7 @@ interface PostsContainerProps {
   posts: Post[]
   tags: Tag[]
   countPerStatus: { [key: string]: number }
+  onPostClick: (post: Post) => void
 }
 
 interface PostsContainerState {
@@ -117,6 +118,10 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     }
   }
 
+  private handlePostClick = (post: Post) => {
+    this.props.onPostClick(post)
+  }
+
   public render() {
     const showMoreLink = this.getShowMoreLink()
 
@@ -145,7 +150,8 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
             />
           </div>
         </div>
-        <ListPosts
+        <ListPostsWithModal
+          onPostClick={this.handlePostClick}
           posts={this.state.posts}
           tags={this.props.tags}
           emptyText={i18n._("home.postscontainer.label.noresults", { message: "No results matched your search, try something different." })}

@@ -1,7 +1,7 @@
 import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Post, Tag, PostStatus, ImageUpload } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
@@ -12,6 +12,8 @@ import { cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 import { CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY, CACHE_TAGS_KEY } from "./components/ShareFeedback"
+import { PostDetails } from "@fider/components/common/PostModal"
+import { getPostNumberFromURL, isHomePage, setupHistoryHandling } from "@fider/services/post-modal-handler"
 
 export interface HomePageProps {
   posts: Post[]
@@ -70,6 +72,31 @@ const HomePage = (props: HomePageProps) => {
   const fider = useFider()
   // const [title, setTitle] = useState("")
   const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(props.draftPost !== undefined)
+  const [directPostNumber, setDirectPostNumber] = useState<number | null>(null)
+  const [showPostDetails, setShowPostDetails] = useState(false)
+
+  // Check if the URL is a direct post URL and handle browser history
+  useEffect(() => {
+    if (isHomePage()) {
+      const postNumber = getPostNumberFromURL()
+      if (postNumber) {
+        setDirectPostNumber(postNumber)
+        setShowPostDetails(true)
+      }
+
+      // Set up history handling for back/forward navigation
+      const cleanup = setupHistoryHandling((postNumber) => {
+        if (postNumber) {
+          setDirectPostNumber(postNumber)
+          setShowPostDetails(true)
+        } else {
+          setShowPostDetails(false)
+        }
+      })
+
+      return cleanup
+    }
+  }, [])
 
   const defaultWelcomeMessage = i18n._("home.form.defaultwelcomemessage", {
     message: `We'd love to hear what you're thinking about.
@@ -98,6 +125,11 @@ What can we do better? This is the place for you to vote, discuss and share idea
     setIsShareFeedbackOpen(true)
   }
 
+  const handlePostClick = (post: Post) => {
+    setDirectPostNumber(post.number)
+    setShowPostDetails(true)
+  }
+
   return (
     <>
       <ShareFeedback
@@ -107,24 +139,27 @@ What can we do better? This is the place for you to vote, discuss and share idea
         onClose={() => setIsShareFeedbackOpen(false)}
       />
       <Header />
-      <div id="p-home" className="page container">
-        <div className="p-home__welcome-col">
-          <VStack spacing={2} className="p-4">
-            <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
-            <Button className="c-input" type="submit" variant="secondary" onClick={handleNewPost}>
-              {fider.session.tenant.invitation || defaultInvitation}
-            </Button>
-          </VStack>
-          <div onClick={() => setIsShareFeedbackOpen(true)}>
-            <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+      {!showPostDetails && (
+        <div id="p-home" className="page container">
+          <div className="p-home__welcome-col">
+            <VStack spacing={2} className="p-4">
+              <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
+              <Button className="c-input" type="submit" variant="secondary" onClick={handleNewPost}>
+                {fider.session.tenant.invitation || defaultInvitation}
+              </Button>
+            </VStack>
+            <div onClick={() => setIsShareFeedbackOpen(true)}>
+              <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+            </div>
+          </div>
+          <div className="p-home__posts-col p-4">
+            {isLonely() && <Lonely />}
+            <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} onPostClick={handlePostClick} />
+            <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
           </div>
         </div>
-        <div className="p-home__posts-col p-4">
-          {isLonely() && <Lonely />}
-          <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
-          <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
-        </div>
-      </div>
+      )}
+      {showPostDetails && directPostNumber && <PostDetails postNumber={directPostNumber} />}
     </>
   )
 }
