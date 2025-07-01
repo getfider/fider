@@ -11,21 +11,7 @@ import IconRSS from "@fider/assets/images/heroicons-rss.svg"
 import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
-import {
-  ResponseDetails,
-  Button,
-  UserName,
-  Moment,
-  Markdown,
-  Input,
-  Form,
-  ImageViewer,
-  Icon,
-  Header,
-  PoweredByFider,
-  Avatar,
-  Dropdown,
-} from "@fider/components"
+import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, Icon, Header, PoweredByFider, Avatar, Dropdown } from "@fider/components"
 import { DiscussionPanel } from "./components/DiscussionPanel"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 
@@ -278,9 +264,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                           <Trans id="showpost.message.nodescription">No description provided.</Trans>
                         </em>
                       )}
-                      {props.attachments.map((x) => (
-                        <ImageViewer key={x} bkey={x} />
-                      ))}
                     </>
                   )}
                 </VStack>
