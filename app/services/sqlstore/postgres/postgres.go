@@ -139,6 +139,14 @@ func (s Service) Init() {
 	bus.AddHandler(getSystemSettings)
 	bus.AddHandler(AddMentionNotification)
 	bus.AddHandler(getMentionsNotifications)
+
+	bus.AddHandler(approvePost)
+	bus.AddHandler(declinePost)
+	bus.AddHandler(approveComment)
+	bus.AddHandler(declineComment)
+	bus.AddHandler(bulkApproveItems)
+	bus.AddHandler(bulkDeclineItems)
+	bus.AddHandler(getModerationItems)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error

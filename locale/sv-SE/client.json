@@ -198,4 +198,3 @@
   "validation.custom.maxattachments": "Maximalt {number} bilagor är tillåtna.",
   "validation.custom.maximagesize": "Bildstorleken måste vara mindre än {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, =1 {# etikett} other {# etiketter}}"
-}

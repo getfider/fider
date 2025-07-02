@@ -198,4 +198,3 @@
   "validation.custom.maxattachments": "En fazla {number} ek dosyaya izin verilir.",
   "validation.custom.maximagesize": "Resim boyutu {kilobytes}KB'den küçük olmalıdır.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiket} other {# etiket}}"
-}

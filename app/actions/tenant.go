@@ -193,8 +193,9 @@ func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *
 
 // UpdateTenantPrivacySettings is the input model used to update tenant privacy settings
 type UpdateTenantPrivacySettings struct {
-	IsPrivate     bool `json:"isPrivate"`
-	IsFeedEnabled bool `json:"isFeedEnabled"`
+	IsPrivate           bool `json:"isPrivate"`
+	IsFeedEnabled       bool `json:"isFeedEnabled"`
+	IsModerationEnabled bool `json:"isModerationEnabled"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action

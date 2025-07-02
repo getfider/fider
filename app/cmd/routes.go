@@ -161,6 +161,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", "", "Administration/pages/Invitations.page"))
 		ui.Get("/admin/members", handlers.ManageMembers())
 		ui.Get("/admin/tags", handlers.ManageTags())
+		ui.Get("/admin/moderation", handlers.ModerationPage())
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
 		ui.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 
@@ -185,6 +186,13 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
+		ui.Get("/_api/admin/moderation/items", handlers.GetModerationItems())
+		ui.Post("/_api/admin/moderation/posts/:id/approve", handlers.ApprovePost())
+		ui.Post("/_api/admin/moderation/posts/:id/decline", handlers.DeclinePost())
+		ui.Post("/_api/admin/moderation/comments/:id/approve", handlers.ApproveComment())
+		ui.Post("/_api/admin/moderation/comments/:id/decline", handlers.DeclineComment())
+		ui.Post("/_api/admin/moderation/bulk/approve", handlers.BulkApproveItems())
+		ui.Post("/_api/admin/moderation/bulk/decline", handlers.BulkDeclineItems())
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())

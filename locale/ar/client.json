@@ -198,4 +198,3 @@
   "validation.custom.maxattachments": "يُسمح بحد أقصى {number} من المرفقات.",
   "validation.custom.maximagesize": "يجب أن يكون حجم الصورة أصغر من {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}"
-}

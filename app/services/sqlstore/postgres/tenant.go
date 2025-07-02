@@ -133,6 +133,10 @@ func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacy
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant feed setting")
 		}
+		_, err = trx.Execute("UPDATE tenants SET is_moderation_enabled = $1 WHERE id = $2", c.IsModerationEnabled, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant moderation setting")
+		}
 		return nil
 	})
 }

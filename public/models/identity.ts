@@ -12,6 +12,7 @@ export interface Tenant {
   allowedSchemes: string
   isEmailAuthAllowed: boolean
   isFeedEnabled: boolean
+  isModerationEnabled: boolean
 }
 
 export enum TenantStatus {

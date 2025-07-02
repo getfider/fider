@@ -44,6 +44,7 @@ type dbPost struct {
 	OriginalSlug   sql.NullString `db:"original_slug"`
 	OriginalStatus sql.NullInt64  `db:"original_status"`
 	Tags           []string       `db:"tags"`
+	IsApproved     bool           `db:"is_approved"`
 }
 
 func (i *dbPost) toModel(ctx context.Context) *entity.Post {
@@ -60,6 +61,7 @@ func (i *dbPost) toModel(ctx context.Context) *entity.Post {
 		Status:        enum.PostStatus(i.Status),
 		User:          i.User.toModel(ctx),
 		Tags:          i.Tags,
+		IsApproved:    i.IsApproved,
 	}
 
 	if i.Response.Valid {
@@ -289,11 +291,12 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		isApproved := !tenant.IsModerationEnabled
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status) 
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0) 
-			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now())
+			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status, is_approved) 
+			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0, $7) 
+			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now(), isApproved)
 		if err != nil {
 			return errors.Wrap(err, "failed add new post")
 		}

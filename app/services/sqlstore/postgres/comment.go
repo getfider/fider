@@ -21,6 +21,7 @@ type dbComment struct {
 	EditedAt       dbx.NullTime   `db:"edited_at"`
 	EditedBy       *dbUser        `db:"edited_by"`
 	ReactionCounts dbx.NullString `db:"reaction_counts"`
+	IsApproved     bool           `db:"is_approved"`
 }
 
 func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
@@ -30,6 +31,7 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 		CreatedAt:   c.CreatedAt,
 		User:        c.User.toModel(ctx),
 		Attachments: c.Attachments,
+		IsApproved:  c.IsApproved,
 	}
 	if c.EditedAt.Valid {
 		comment.EditedBy = c.EditedBy.toModel(ctx)
@@ -44,12 +46,13 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 
 func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		isApproved := !tenant.IsModerationEnabled
 		var id int
 		if err := trx.Get(&id, `
-			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) 
-			VALUES ($1, $2, $3, $4, $5) 
+			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at, is_approved) 
+			VALUES ($1, $2, $3, $4, $5, $6) 
 			RETURNING id
-		`, tenant.ID, c.Post.ID, c.Content, user.ID, time.Now()); err != nil {
+		`, tenant.ID, c.Post.ID, c.Content, user.ID, time.Now(), isApproved); err != nil {
 			return errors.Wrap(err, "failed add new comment")
 		}
 
@@ -129,6 +132,7 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 							c.content, 
 							c.created_at, 
 							c.edited_at, 
+							c.is_approved,
 							u.id AS user_id, 
 							u.name AS user_name,
 							u.email AS user_email,
@@ -212,6 +216,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 					c.content, 
 					c.created_at, 
 					c.edited_at, 
+					c.is_approved,
 					u.id AS user_id, 
 					u.name AS user_name,
 					u.email AS user_email,

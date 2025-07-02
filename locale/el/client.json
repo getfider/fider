@@ -198,4 +198,3 @@
   "validation.custom.maxattachments": "Επιτρέπονται έως {number} συνημμένα.",
   "validation.custom.maximagesize": "Το μέγεθος της εικόνας πρέπει να είναι μικρότερο από {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# ετικέτα} other {# ετικέτες}}"
-}

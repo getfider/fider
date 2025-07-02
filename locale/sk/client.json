@@ -198,4 +198,3 @@
   "validation.custom.maxattachments": "Maximálny počet príloh je {number}.",
   "validation.custom.maximagesize": "Veľkosť obrázka musí byť menšia ako {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
-}
