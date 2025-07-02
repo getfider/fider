@@ -134,3 +134,11 @@ export const approveComment = async (commentID: number): Promise<Result> => {
 export const declineComment = async (commentID: number): Promise<Result> => {
   return http.post(`/api/v1/admin/moderation/comments/${commentID}/decline`).then(http.event("comment", "decline"))
 }
+
+export const bulkApproveItems = async (postIDs: number[], commentIDs: number[]): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/bulk/approve`, { postIDs, commentIDs }).then(http.event("moderation", "bulk-approve"))
+}
+
+export const bulkDeclineItems = async (postIDs: number[], commentIDs: number[]): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/bulk/decline`, { postIDs, commentIDs }).then(http.event("moderation", "bulk-decline"))
+}
