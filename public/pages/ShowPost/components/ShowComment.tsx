@@ -83,6 +83,26 @@ export const ShowComment = (props: ShowCommentProps) => {
     }
   }
 
+  const handleApproveComment = async () => {
+    const result = await actions.approveComment(props.comment.id)
+    if (result.ok) {
+      notify.success(<Trans id="showpost.moderation.comment.approved">Comment approved successfully</Trans>)
+      setTimeout(() => location.reload(), 1500)
+    } else {
+      notify.error(<Trans id="showpost.moderation.comment.approveerror">Failed to approve comment</Trans>)
+    }
+  }
+
+  const handleDeclineComment = async () => {
+    const result = await actions.declineComment(props.comment.id)
+    if (result.ok) {
+      notify.success(<Trans id="showpost.moderation.comment.declined">Comment declined successfully</Trans>)
+      setTimeout(() => location.reload(), 1500)
+    } else {
+      notify.error(<Trans id="showpost.moderation.comment.declineerror">Failed to decline comment</Trans>)
+    }
+  }
+
   const toggleReaction = async (emoji: string) => {
     const response = await actions.toggleCommentReaction(props.post.number, comment.id, emoji)
     if (response.ok) {
@@ -225,6 +245,42 @@ export const ShowComment = (props: ShowCommentProps) => {
             ) : (
               <>
                 <Markdown text={comment.content} style="full" />
+                
+                {/* Moderation status banner for unapproved comments */}
+                {fider.session.tenant.isModerationEnabled && !comment.isApproved && (
+                  <div className="mt-3">
+                    {fider.session.isAuthenticated && fider.session.user.id === comment.user.id && (
+                      <div className="text-muted text-xs p-2 bg-yellow-50 rounded border-l-4 border-yellow-500">
+                        <Trans id="showpost.moderation.comment.awaiting">
+                          This comment is awaiting moderation by an administrator before being visible to other users.
+                        </Trans>
+                      </div>
+                    )}
+                    
+                    {/* Admin moderation buttons */}
+                    {fider.session.isAuthenticated && fider.session.user.isCollaborator && (
+                      <div className="p-2 bg-blue-50 rounded border-l-4 border-blue-500">
+                        <div className="mb-1 text-xs font-medium text-blue-800">
+                          <Trans id="showpost.moderation.comment.admin.title">Comment Moderation</Trans>
+                        </div>
+                        <div className="text-xs text-blue-700 mb-2">
+                          <Trans id="showpost.moderation.comment.admin.description">
+                            This comment is awaiting your approval to be visible to all users.
+                          </Trans>
+                        </div>
+                        <HStack spacing={1}>
+                          <Button variant="primary" size="small" onClick={handleApproveComment}>
+                            <Trans id="action.approve">Approve</Trans>
+                          </Button>
+                          <Button variant="danger" size="small" onClick={handleDeclineComment}>
+                            <Trans id="action.decline">Decline</Trans>
+                          </Button>
+                        </HStack>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <Reactions reactions={localReactionCounts} emojiSelectorRef={emojiSelectorRef} toggleReaction={toggleReaction} />
               </>
             )}

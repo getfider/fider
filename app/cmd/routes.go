@@ -187,12 +187,6 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
 		ui.Get("/_api/admin/moderation/items", handlers.GetModerationItems())
-		ui.Post("/_api/admin/moderation/posts/:id/approve", handlers.ApprovePost())
-		ui.Post("/_api/admin/moderation/posts/:id/decline", handlers.DeclinePost())
-		ui.Post("/_api/admin/moderation/comments/:id/approve", handlers.ApproveComment())
-		ui.Post("/_api/admin/moderation/comments/:id/decline", handlers.DeclineComment())
-		ui.Post("/_api/admin/moderation/bulk/approve", handlers.BulkApproveItems())
-		ui.Post("/_api/admin/moderation/bulk/decline", handlers.BulkDeclineItems())
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())
@@ -266,6 +260,13 @@ func routes(r *web.Engine) *web.Engine {
 		adminApi.Post("/api/v1/tags", apiv1.CreateEditTag())
 		adminApi.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		adminApi.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
+
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve", handlers.ApprovePost())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline", handlers.DeclinePost())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve", handlers.ApproveComment())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline", handlers.DeclineComment())
+		adminApi.Post("/api/v1/admin/moderation/bulk/approve", handlers.BulkApproveItems())
+		adminApi.Post("/api/v1/admin/moderation/bulk/decline", handlers.BulkDeclineItems())
 
 		adminApi.Use(middlewares.BlockLockedTenants())
 		adminApi.Delete("/api/v1/posts/:number", apiv1.DeletePost())

@@ -31,6 +31,7 @@ beforeEach(() => {
     votesCount: 5,
     commentsCount: 2,
     tags: [],
+    isApproved: true,
   }
 })
 

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -46,7 +47,7 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 
 func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		isApproved := !tenant.IsModerationEnabled
+		isApproved := !tenant.IsModerationEnabled || user.IsCollaborator()
 		var id int
 		if err := trx.Get(&id, `
 			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at, is_approved) 
@@ -176,8 +177,21 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 		if user != nil {
 			userId = user.ID
 		}
-		err := trx.Select(&comments,
-			`
+		
+		// Build approval filter based on user permissions
+		approvalFilter := ""
+		if user != nil && user.IsCollaborator() {
+			// Admins and collaborators can see all comments
+			approvalFilter = ""
+		} else if user != nil {
+			// Regular users can see approved comments + their own unapproved comments
+			approvalFilter = fmt.Sprintf(" AND (c.is_approved = true OR c.user_id = %d)", user.ID)
+		} else {
+			// Anonymous users can only see approved comments
+			approvalFilter = " AND c.is_approved = true"
+		}
+		
+		query := fmt.Sprintf(`
 			WITH agg_attachments AS ( 
 					SELECT 
 							c.id as comment_id, 
@@ -249,8 +263,10 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			ON ar.comment_id = c.id
 			WHERE p.id = $1
 			AND p.tenant_id = $2
-			AND c.deleted_at IS NULL
-			ORDER BY c.created_at ASC`, q.Post.ID, tenant.ID, userId)
+			AND c.deleted_at IS NULL%s
+			ORDER BY c.created_at ASC`, approvalFilter)
+		
+		err := trx.Select(&comments, query, q.Post.ID, tenant.ID, userId)
 		if err != nil {
 			return errors.Wrap(err, "failed get comments of post with id '%d'", q.Post.ID)
 		}

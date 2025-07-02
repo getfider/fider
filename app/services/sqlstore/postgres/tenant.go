@@ -17,21 +17,22 @@ import (
 )
 
 type dbTenant struct {
-	ID                 int    `db:"id"`
-	Name               string `db:"name"`
-	Subdomain          string `db:"subdomain"`
-	CNAME              string `db:"cname"`
-	Invitation         string `db:"invitation"`
-	WelcomeMessage     string `db:"welcome_message"`
-	Status             int    `db:"status"`
-	Locale             string `db:"locale"`
-	IsPrivate          bool   `db:"is_private"`
-	LogoBlobKey        string `db:"logo_bkey"`
-	CustomCSS          string `db:"custom_css"`
-	AllowedSchemes     string `db:"allowed_schemes"`
-	IsEmailAuthAllowed bool   `db:"is_email_auth_allowed"`
-	IsFeedEnabled      bool   `db:"is_feed_enabled"`
-	PreventIndexing    bool   `db:"prevent_indexing"`
+	ID                  int    `db:"id"`
+	Name                string `db:"name"`
+	Subdomain           string `db:"subdomain"`
+	CNAME               string `db:"cname"`
+	Invitation          string `db:"invitation"`
+	WelcomeMessage      string `db:"welcome_message"`
+	Status              int    `db:"status"`
+	Locale              string `db:"locale"`
+	IsPrivate           bool   `db:"is_private"`
+	LogoBlobKey         string `db:"logo_bkey"`
+	CustomCSS           string `db:"custom_css"`
+	AllowedSchemes      string `db:"allowed_schemes"`
+	IsEmailAuthAllowed  bool   `db:"is_email_auth_allowed"`
+	IsFeedEnabled       bool   `db:"is_feed_enabled"`
+	PreventIndexing     bool   `db:"prevent_indexing"`
+	IsModerationEnabled bool   `db:"is_moderation_enabled"`
 }
 
 func (t *dbTenant) toModel() *entity.Tenant {
@@ -40,21 +41,22 @@ func (t *dbTenant) toModel() *entity.Tenant {
 	}
 
 	tenant := &entity.Tenant{
-		ID:                 t.ID,
-		Name:               t.Name,
-		Subdomain:          t.Subdomain,
-		CNAME:              t.CNAME,
-		Invitation:         t.Invitation,
-		WelcomeMessage:     t.WelcomeMessage,
-		Status:             enum.TenantStatus(t.Status),
-		Locale:             t.Locale,
-		IsPrivate:          t.IsPrivate,
-		LogoBlobKey:        t.LogoBlobKey,
-		CustomCSS:          t.CustomCSS,
-		AllowedSchemes:     t.AllowedSchemes,
-		IsEmailAuthAllowed: t.IsEmailAuthAllowed,
-		IsFeedEnabled:      t.IsFeedEnabled,
-		PreventIndexing:    t.PreventIndexing,
+		ID:                  t.ID,
+		Name:                t.Name,
+		Subdomain:           t.Subdomain,
+		CNAME:               t.CNAME,
+		Invitation:          t.Invitation,
+		WelcomeMessage:      t.WelcomeMessage,
+		Status:              enum.TenantStatus(t.Status),
+		Locale:              t.Locale,
+		IsPrivate:           t.IsPrivate,
+		LogoBlobKey:         t.LogoBlobKey,
+		CustomCSS:           t.CustomCSS,
+		AllowedSchemes:      t.AllowedSchemes,
+		IsEmailAuthAllowed:  t.IsEmailAuthAllowed,
+		IsFeedEnabled:       t.IsFeedEnabled,
+		PreventIndexing:     t.PreventIndexing,
+		IsModerationEnabled: t.IsModerationEnabled,
 	}
 
 	return tenant
@@ -283,7 +285,6 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
-
 		if err != nil {
 			return errors.Wrap(err, "failed to get first tenant")
 		}
@@ -298,7 +299,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, prevent_indexing
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
 			ORDER BY cname DESC

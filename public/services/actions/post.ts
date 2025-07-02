@@ -118,3 +118,19 @@ export const createPost = async (title: string, description: string, attachments
 export const updatePost = async (postNumber: number, title: string, description: string, attachments: ImageUpload[]): Promise<Result> => {
   return http.put(`/api/v1/posts/${postNumber}`, { title, description, attachments }).then(http.event("post", "update"))
 }
+
+export const approvePost = async (postID: number): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/posts/${postID}/approve`).then(http.event("post", "approve"))
+}
+
+export const declinePost = async (postID: number): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/posts/${postID}/decline`).then(http.event("post", "decline"))
+}
+
+export const approveComment = async (commentID: number): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/comments/${commentID}/approve`).then(http.event("comment", "approve"))
+}
+
+export const declineComment = async (commentID: number): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/comments/${commentID}/decline`).then(http.event("comment", "decline"))
+}

@@ -99,8 +99,8 @@ var (
 													agg_comments AS (
 															SELECT 
 																	post_id, 
-																	COUNT(CASE WHEN comments.created_at > CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent,
-																	COUNT(*) as all
+																	COUNT(CASE WHEN comments.created_at > CURRENT_DATE - INTERVAL '30 days' AND comments.is_approved = true THEN 1 END) as recent,
+																	COUNT(CASE WHEN comments.is_approved = true THEN 1 END) as all
 															FROM comments 
 															INNER JOIN posts
 															ON posts.id = comments.post_id
@@ -153,7 +153,8 @@ var (
 																d.slug AS original_slug,
 																d.status AS original_status,
 																COALESCE(agg_t.tags, ARRAY[]::text[]) AS tags,
-																COALESCE(%s, false) AS has_voted
+																COALESCE(%s, false) AS has_voted,
+																p.is_approved
 													FROM posts p
 													INNER JOIN users u
 													ON u.id = p.user_id
@@ -291,7 +292,7 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		isApproved := !tenant.IsModerationEnabled
+		isApproved := !tenant.IsModerationEnabled || user.IsCollaborator()
 		var id int
 		err := trx.Get(&id,
 			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status, is_approved) 
@@ -524,5 +525,20 @@ func buildPostQuery(user *entity.User, filter string) string {
 	if user != nil {
 		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", user.ID)
 	}
-	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, filter)
+	
+	// Add approval filtering based on user permissions
+	approvalFilter := ""
+	if user != nil && user.IsCollaborator() {
+		// Admins and collaborators can see all posts
+		approvalFilter = ""
+	} else if user != nil {
+		// Regular users can see approved posts + their own unapproved posts
+		approvalFilter = fmt.Sprintf(" AND (p.is_approved = true OR p.user_id = %d)", user.ID)
+	} else {
+		// Anonymous users can only see approved posts
+		approvalFilter = " AND p.is_approved = true"
+	}
+	
+	combinedFilter := filter + approvalFilter
+	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, combinedFilter)
 }

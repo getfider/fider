@@ -5,7 +5,7 @@ import { SignInControl } from "@fider/components/common/SignInControl"
 import { Modal, CloseIcon, Form, Button, Input, LegalFooter } from "@fider/components/common"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
-import { actions, Failure, querystring, classSet } from "@fider/services"
+import { actions, Failure, querystring, classSet, cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { Tag } from "@fider/models"
 import { SimilarPosts } from "../components/SimilarPosts"
@@ -183,7 +183,11 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
         clearError()
         clearCache()
         clearAttachments()
-        setPostCreated()
+        if (fider.session.tenant.isModerationEnabled && !fider.session.user.isCollaborator) {
+          cache.session.set("POST_CREATED_MODERATION", "true")
+        } else {
+          cache.session.set("POST_CREATED_SUCCESS", "true")
+        }
         location.href = `/posts/${result.data.number}/${result.data.slug}`
       } else if (result.error) {
         setError(result.error)
@@ -253,6 +257,13 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 </div>
               )}
             </Form>
+            {fider.session.tenant.isModerationEnabled && fider.session.isAuthenticated && !fider.session.user.isCollaborator && (
+              <div className="c-form-field">
+                <div className="text-muted text-sm p-2 bg-gray-100 rounded border-l-4 border-yellow-500">
+                  <Trans id="newpost.moderation.notice">Your post will be reviewed by an administrator before being visible to other users.</Trans>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         {/* For unauthenticated users, always show the sign-in control */}

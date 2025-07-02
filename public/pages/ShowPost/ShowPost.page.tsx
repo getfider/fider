@@ -48,6 +48,7 @@ const canEditPost = (user: CurrentUser, post: Post) => {
 }
 
 export default function ShowPostPage(props: ShowPostPageProps) {
+  const fider = useFider()
   const [editMode, setEditMode] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
@@ -101,10 +102,22 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
   useEffect(() => {
     const showSuccess = cache.session.get("POST_CREATED_SUCCESS")
+    const showModeration = cache.session.get("POST_CREATED_MODERATION")
+    const showCommentModeration = cache.session.get("COMMENT_CREATED_MODERATION")
+
     if (showSuccess) {
       cache.session.remove("POST_CREATED_SUCCESS")
-      // Show success message/toast
       notify.success(t({ id: "mysettings.notification.event.newpostcreated", message: "Your idea has been added 👍" }))
+    }
+
+    if (showModeration) {
+      cache.session.remove("POST_CREATED_MODERATION")
+      notify.success(t({ id: "showpost.moderation.postsuccess", message: "Your idea has been submitted and is awaiting moderation 📝" }))
+    }
+
+    if (showCommentModeration) {
+      cache.session.remove("COMMENT_CREATED_MODERATION")
+      notify.success(t({ id: "showpost.moderation.commentsuccess", message: "Your comment has been submitted and is awaiting moderation 📝" }))
     }
   }, [])
 
@@ -136,6 +149,26 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
   const handleDescriptionChange = (value: string) => {
     setNewDescription(value)
+  }
+
+  const handleApprovePost = async () => {
+    const result = await actions.approvePost(props.post.id)
+    if (result.ok) {
+      notify.success(<Trans id="showpost.moderation.approved">Post approved successfully</Trans>)
+      setTimeout(() => location.reload(), 1500)
+    } else {
+      notify.error(<Trans id="showpost.moderation.approveerror">Failed to approve post</Trans>)
+    }
+  }
+
+  const handleDeclinePost = async () => {
+    const result = await actions.declinePost(props.post.id)
+    if (result.ok) {
+      notify.success(<Trans id="showpost.moderation.declined">Post declined successfully</Trans>)
+      setTimeout(() => location.reload(), 1500)
+    } else {
+      notify.error(<Trans id="showpost.moderation.declineerror">Failed to decline post</Trans>)
+    }
   }
 
   const onActionSelected = (action: "copy" | "delete" | "status" | "feed" | "edit") => () => {
@@ -218,6 +251,39 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                   ) : (
                     <>
                       <h1 className="text-large text-break">{props.post.title}</h1>
+
+                      {/* Moderation status banner for unapproved posts */}
+                      {fider.session.tenant.isModerationEnabled && !props.post.isApproved && (
+                        <div className="mt-4">
+                          {fider.session.isAuthenticated && fider.session.user.id === props.post.user.id && (
+                            <div className="text-muted text-sm p-3 bg-yellow-50 rounded border-l-4 border-yellow-500">
+                              <Trans id="showpost.moderation.awaiting">
+                                This post is awaiting moderation by an administrator before being visible to other users.
+                              </Trans>
+                            </div>
+                          )}
+
+                          {/* Admin moderation buttons */}
+                          {fider.session.isAuthenticated && fider.session.user.isCollaborator && (
+                            <div className="p-3 bg-blue-50 rounded border-l-4 border-blue-500">
+                              <div className="mb-2 text-sm font-medium text-blue-800">
+                                <Trans id="showpost.moderation.admin.title">Post Moderation</Trans>
+                              </div>
+                              <div className="text-sm text-blue-700 mb-3">
+                                <Trans id="showpost.moderation.admin.description">This post is awaiting your approval to be visible to all users.</Trans>
+                              </div>
+                              <HStack spacing={2}>
+                                <Button variant="primary" size="small" onClick={handleApprovePost}>
+                                  <Trans id="action.approve">Approve</Trans>
+                                </Button>
+                                <Button variant="danger" size="small" onClick={handleDeclinePost}>
+                                  <Trans id="action.decline">Decline</Trans>
+                                </Button>
+                              </HStack>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
