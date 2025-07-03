@@ -1,8 +1,8 @@
 interface Locale {
-  text: string;
+  text: string
 }
 
-const locales: { [key: string]: Locale; } = {
+const locales: { [key: string]: Locale } = {
   en: {
     text: "English",
   },
@@ -52,8 +52,8 @@ const locales: { [key: string]: Locale; } = {
     text: "Chinese (Simplified)",
   },
   fa: {
-    text: "Persian (پارسی)"
-  }
-};
+    text: "Persian (پارسی)",
+  },
+}
 
-export default locales;
+export default locales
