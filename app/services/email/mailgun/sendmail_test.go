@@ -70,6 +70,25 @@ func TestSend_Success(t *testing.T) {
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<style>
+			.user-content {
+				text-align: left;
+				padding: 20px;
+				margin: 10px;
+				border-radius: 5px;
+				color: #1c262d;
+				border: 1px solid #ECECEC;
+				min-width: 320px;
+				max-width: 660px;
+				overflow-wrap: break-word;
+				word-break: break-word;
+				table-layout: fixed;
+
+				pre:has(code) {
+					white-space: break-spaces;
+				}
+			}
+		</style>
 	</head>
 	<body bgcolor="#F7F7F7" style="font-size:18px">
 		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:18px;">
@@ -79,7 +98,7 @@ func TestSend_Success(t *testing.T) {
 			
 			<tr>
 				<td align="center">
-					<table bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;min-width:320px;max-width:660px;">
+					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0">
 						
 Hello World Hello!
 
@@ -196,6 +215,25 @@ func TestBatch_Success(t *testing.T) {
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<style>
+			.user-content {
+				text-align: left;
+				padding: 20px;
+				margin: 10px;
+				border-radius: 5px;
+				color: #1c262d;
+				border: 1px solid #ECECEC;
+				min-width: 320px;
+				max-width: 660px;
+				overflow-wrap: break-word;
+				word-break: break-word;
+				table-layout: fixed;
+
+				pre:has(code) {
+					white-space: break-spaces;
+				}
+			}
+		</style>
 	</head>
 	<body bgcolor="#F7F7F7" style="font-size:18px">
 		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:18px;">
@@ -205,7 +243,7 @@ func TestBatch_Success(t *testing.T) {
 			
 			<tr>
 				<td align="center">
-					<table bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;min-width:320px;max-width:660px;">
+					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0">
 						
 Hello World %recipient.name%!
 
