@@ -20,3 +20,7 @@ type ModerationItem struct {
 type GetModerationItems struct {
 	Result []*ModerationItem
 }
+
+type GetModerationCount struct {
+	Result int
+}

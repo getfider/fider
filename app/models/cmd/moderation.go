@@ -25,3 +25,23 @@ type BulkDeclineItems struct {
 	PostIDs    []int
 	CommentIDs []int
 }
+
+type DeclinePostAndBlock struct {
+	PostID int
+}
+
+type DeclineCommentAndBlock struct {
+	CommentID int
+}
+
+type ApprovePostAndVerify struct {
+	PostID int
+}
+
+type ApproveCommentAndVerify struct {
+	CommentID int
+}
+
+type VerifyUser struct {
+	UserID int
+}

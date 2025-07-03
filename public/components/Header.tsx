@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher, Icon } from "@fider/components"
+import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, ModerationIndicator, UserMenu, ThemeSwitcher, Icon } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
@@ -44,6 +44,7 @@ export const Header = () => {
                   </button>
                 )}
                 <ThemeSwitcher />
+                <ModerationIndicator />
                 <NotificationIndicator />
                 <UserMenu />
               </HStack>

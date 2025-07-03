@@ -187,6 +187,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
 		ui.Get("/_api/admin/moderation/items", handlers.GetModerationItems())
+		ui.Get("/_api/admin/moderation/count", handlers.GetModerationCount())
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())

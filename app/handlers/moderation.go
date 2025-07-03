@@ -34,6 +34,20 @@ func GetModerationItems() web.HandlerFunc {
 	}
 }
 
+// GetModerationCount returns the count of items awaiting moderation
+func GetModerationCount() web.HandlerFunc {
+	return func(c *web.Context) error {
+		q := &query.GetModerationCount{}
+		if err := bus.Dispatch(c, q); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{
+			"count": q.Result,
+		})
+	}
+}
+
 // ApprovePost approves a post
 func ApprovePost() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -165,6 +179,70 @@ func BulkDeclineItems() web.HandlerFunc {
 			PostIDs:    postIDs,
 			CommentIDs: commentIDs,
 		}); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// DeclinePostAndBlock declines (deletes) a post and blocks the user
+func DeclinePostAndBlock() web.HandlerFunc {
+	return func(c *web.Context) error {
+		postID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.BadRequest(web.Map{"error": "Invalid post ID"})
+		}
+
+		if err := bus.Dispatch(c, &cmd.DeclinePostAndBlock{PostID: postID}); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// DeclineCommentAndBlock declines (deletes) a comment and blocks the user
+func DeclineCommentAndBlock() web.HandlerFunc {
+	return func(c *web.Context) error {
+		commentID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.BadRequest(web.Map{"error": "Invalid comment ID"})
+		}
+
+		if err := bus.Dispatch(c, &cmd.DeclineCommentAndBlock{CommentID: commentID}); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// ApprovePostAndVerify approves a post and verifies the user
+func ApprovePostAndVerify() web.HandlerFunc {
+	return func(c *web.Context) error {
+		postID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.BadRequest(web.Map{"error": "Invalid post ID"})
+		}
+
+		if err := bus.Dispatch(c, &cmd.ApprovePostAndVerify{PostID: postID}); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// ApproveCommentAndVerify approves a comment and verifies the user
+func ApproveCommentAndVerify() web.HandlerFunc {
+	return func(c *web.Context) error {
+		commentID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.BadRequest(web.Map{"error": "Invalid comment ID"})
+		}
+
+		if err := bus.Dispatch(c, &cmd.ApproveCommentAndVerify{CommentID: commentID}); err != nil {
 			return c.Failure(err)
 		}
 

@@ -26,6 +26,7 @@ type dbUser struct {
 	Status        sql.NullInt64  `db:"status"`
 	AvatarType    sql.NullInt64  `db:"avatar_type"`
 	AvatarBlobKey sql.NullString `db:"avatar_bkey"`
+	IsVerified    sql.NullBool   `db:"is_verified"`
 	Providers     []*dbUserProvider
 }
 
@@ -56,6 +57,7 @@ func (u *dbUser) toModel(ctx context.Context) *entity.User {
 		AvatarType:    avatarType,
 		AvatarBlobKey: u.AvatarBlobKey.String,
 		AvatarURL:     avatarURL,
+		IsVerified:    u.IsVerified.Bool,
 	}
 
 	for i, p := range u.Providers {
@@ -413,7 +415,7 @@ func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
 
 func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*entity.User, error) {
 	user := dbUser{}
-	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey FROM users WHERE status != %d AND ", enum.UserDeleted)
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_verified FROM users WHERE status != %d AND ", enum.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
 		return nil, err

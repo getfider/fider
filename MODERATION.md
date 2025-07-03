@@ -43,3 +43,15 @@ Here is a screenshot showing the inspiration we found for the moderation page
 ![alt text](<CleanShot 2025-07-01 at 20.54.06@2x.png>)
 
 You can see the bulk actions on this screenshot, we're interested in having bulk actions to approve or decline too to make it easier, plus a "select all" to highlight them all. The UI for the bulk actions should be like the "Sort by" options on the post listing in public/pages/Home/components/PostsSort.tsx
+
+## Moderation Changes 1
+
+We've decided to make some changes to the moderation admin:
+
+1. Rather than have it part of the admin menu, remove the entry from the side menu in admin. Instead, we want an icon in the top Header (public/components/Header.tsx) that when clicked, takes you to the moderation admin page, without the side menu. Ideally the icon will have a little counter in the top-right of how many items are awaiting moderation.
+
+2. We've decided to make the moderation less onourous to the admins by making some more changes:
+
+   2.1) As well as decline, you have another option - "decline and block". This option will decline the post or comment, and block the user who made it from posting again. We already have the ability to block users in Fider (see BlockUser in app/handlers/user.go), so we can hook into that. So if you had 1 user who had 5 posts and some comments, and you declined and blocked them, we would also decline all other posts and comments they made, and block them from posting again.
+
+   2.2) As well as "approve", you have another option - "approve and verify". This option will approve the post (or comment) and ALL other posts and comments from this user. It will also make the user "verified" for posting, meaning that any future posts or comments from that user can bypass moderation. To facilitate this, we're going to need a new column on the user, which will work similar to how blocking a user works, except that it will do the opposite. You can't be both blocked and verified, so if you "approve and verify" we'll need to unset any blocked status for that user.

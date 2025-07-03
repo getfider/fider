@@ -7,7 +7,9 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -26,13 +28,20 @@ func approvePost(ctx context.Context, c *cmd.ApprovePost) error {
 
 func declinePost(ctx context.Context, c *cmd.DeclinePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`
-			DELETE FROM posts 
-			WHERE id = $1 AND tenant_id = $2`, c.PostID, tenant.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed to decline post")
+		// Use existing query to get the post
+		getPost := &query.GetPostByID{PostID: c.PostID}
+		if err := bus.Dispatch(ctx, getPost); err != nil {
+			return err
 		}
-		return nil
+		
+		// Use SetPostResponse to properly delete the post
+		setResponse := &cmd.SetPostResponse{
+			Post:   getPost.Result,
+			Text:   "Post declined during moderation",
+			Status: enum.PostDeleted,
+		}
+		
+		return bus.Dispatch(ctx, setResponse)
 	})
 }
 
@@ -50,13 +59,9 @@ func approveComment(ctx context.Context, c *cmd.ApproveComment) error {
 
 func declineComment(ctx context.Context, c *cmd.DeclineComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`
-			DELETE FROM comments 
-			WHERE id = $1 AND tenant_id = $2`, c.CommentID, tenant.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed to decline comment")
-		}
-		return nil
+		// Use existing delete command
+		deleteComment := &cmd.DeleteComment{CommentID: c.CommentID}
+		return bus.Dispatch(ctx, deleteComment)
 	})
 }
 
@@ -101,34 +106,34 @@ func bulkApproveItems(ctx context.Context, c *cmd.BulkApproveItems) error {
 func bulkDeclineItems(ctx context.Context, c *cmd.BulkDeclineItems) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if len(c.PostIDs) > 0 {
-			postIDsStr := ""
-			for i, id := range c.PostIDs {
-				if i > 0 {
-					postIDsStr += ","
+			// Use existing commands to properly delete each post
+			for _, postID := range c.PostIDs {
+				// Use existing query to get the post
+				getPost := &query.GetPostByID{PostID: postID}
+				if err := bus.Dispatch(ctx, getPost); err != nil {
+					return errors.Wrap(err, "failed to get post for bulk decline")
 				}
-				postIDsStr += fmt.Sprintf("%d", id)
-			}
-			_, err := trx.Execute(fmt.Sprintf(`
-				DELETE FROM posts 
-				WHERE id IN (%s) AND tenant_id = $1`, postIDsStr), tenant.ID)
-			if err != nil {
-				return errors.Wrap(err, "failed to bulk decline posts")
+				
+				// Use SetPostResponse to properly delete the post
+				setResponse := &cmd.SetPostResponse{
+					Post:   getPost.Result,
+					Text:   "Post declined during bulk moderation",
+					Status: enum.PostDeleted,
+				}
+				
+				if err := bus.Dispatch(ctx, setResponse); err != nil {
+					return errors.Wrap(err, "failed to bulk decline post")
+				}
 			}
 		}
 
 		if len(c.CommentIDs) > 0 {
-			commentIDsStr := ""
-			for i, id := range c.CommentIDs {
-				if i > 0 {
-					commentIDsStr += ","
+			// Use existing delete command for each comment
+			for _, commentID := range c.CommentIDs {
+				deleteComment := &cmd.DeleteComment{CommentID: commentID}
+				if err := bus.Dispatch(ctx, deleteComment); err != nil {
+					return errors.Wrap(err, "failed to bulk decline comment")
 				}
-				commentIDsStr += fmt.Sprintf("%d", id)
-			}
-			_, err := trx.Execute(fmt.Sprintf(`
-				DELETE FROM comments 
-				WHERE id IN (%s) AND tenant_id = $1`, commentIDsStr), tenant.ID)
-			if err != nil {
-				return errors.Wrap(err, "failed to bulk decline comments")
 			}
 		}
 
@@ -228,6 +233,255 @@ func getModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 					Email: comment.UserEmail,
 				},
 			})
+		}
+
+		return nil
+	})
+}
+
+func getModerationCount(ctx context.Context, q *query.GetModerationCount) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		var count int
+		
+		err := trx.Get(&count, `
+			SELECT 
+				(SELECT COUNT(*) FROM posts WHERE tenant_id = $1 AND is_approved = false) +
+				(SELECT COUNT(*) FROM comments WHERE tenant_id = $1 AND is_approved = false)
+		`, tenant.ID)
+		
+		if err != nil {
+			return errors.Wrap(err, "failed to get moderation count")
+		}
+		
+		q.Result = count
+		return nil
+	})
+}
+
+func declinePostAndBlock(ctx context.Context, c *cmd.DeclinePostAndBlock) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		// Get the post and user info first
+		var postUserID int
+		err := trx.Get(&postUserID, `
+			SELECT user_id FROM posts 
+			WHERE id = $1 AND tenant_id = $2`, c.PostID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get post user")
+		}
+
+		// Block the user
+		_, err = trx.Execute(`
+			UPDATE users SET status = $1 
+			WHERE id = $2 AND tenant_id = $3`, enum.UserBlocked, postUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to block user")
+		}
+
+		// Get all unmoderated posts by this user
+		var postIDs []int
+		err = trx.Select(&postIDs, `
+			SELECT id FROM posts 
+			WHERE user_id = $1 AND tenant_id = $2 AND is_approved = false`, postUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user posts")
+		}
+
+		// Soft-delete all unmoderated posts by this user using existing commands
+		for _, postID := range postIDs {
+			// Use existing query to get the post
+			getPost := &query.GetPostByID{PostID: postID}
+			if err := bus.Dispatch(ctx, getPost); err != nil {
+				return errors.Wrap(err, "failed to get user post")
+			}
+			
+			// Use SetPostResponse to properly delete the post
+			setResponse := &cmd.SetPostResponse{
+				Post:   getPost.Result,
+				Text:   "Post removed due to user block during moderation",
+				Status: enum.PostDeleted,
+			}
+			
+			if err := bus.Dispatch(ctx, setResponse); err != nil {
+				return errors.Wrap(err, "failed to delete user post")
+			}
+		}
+
+		// Get all unmoderated comments by this user and use proper delete command
+		var commentIDs []int
+		err = trx.Select(&commentIDs, `
+			SELECT id FROM comments 
+			WHERE user_id = $1 AND tenant_id = $2 AND is_approved = false`, postUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user comments")
+		}
+
+		// Soft-delete all unmoderated comments using existing delete command
+		for _, commentID := range commentIDs {
+			deleteComment := &cmd.DeleteComment{CommentID: commentID}
+			if err := bus.Dispatch(ctx, deleteComment); err != nil {
+				return errors.Wrap(err, "failed to delete user comment")
+			}
+		}
+
+		return nil
+	})
+}
+
+func declineCommentAndBlock(ctx context.Context, c *cmd.DeclineCommentAndBlock) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		// Get the comment and user info first
+		var commentUserID int
+		err := trx.Get(&commentUserID, `
+			SELECT user_id FROM comments 
+			WHERE id = $1 AND tenant_id = $2`, c.CommentID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get comment user")
+		}
+
+		// Block the user
+		_, err = trx.Execute(`
+			UPDATE users SET status = $1 
+			WHERE id = $2 AND tenant_id = $3`, enum.UserBlocked, commentUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to block user")
+		}
+
+		// Get all unmoderated posts by this user
+		var postIDs []int
+		err = trx.Select(&postIDs, `
+			SELECT id FROM posts 
+			WHERE user_id = $1 AND tenant_id = $2 AND is_approved = false`, commentUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user posts")
+		}
+
+		// Soft-delete all unmoderated posts by this user using existing commands
+		for _, postID := range postIDs {
+			// Use existing query to get the post
+			getPost := &query.GetPostByID{PostID: postID}
+			if err := bus.Dispatch(ctx, getPost); err != nil {
+				return errors.Wrap(err, "failed to get user post")
+			}
+			
+			// Use SetPostResponse to properly delete the post
+			setResponse := &cmd.SetPostResponse{
+				Post:   getPost.Result,
+				Text:   "Post removed due to user block during moderation",
+				Status: enum.PostDeleted,
+			}
+			
+			if err := bus.Dispatch(ctx, setResponse); err != nil {
+				return errors.Wrap(err, "failed to delete user post")
+			}
+		}
+
+		// Get all unmoderated comments by this user
+		var commentIDs []int
+		err = trx.Select(&commentIDs, `
+			SELECT id FROM comments 
+			WHERE user_id = $1 AND tenant_id = $2 AND is_approved = false`, commentUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user comments")
+		}
+
+		// Soft-delete all unmoderated comments using existing delete command
+		for _, commentID := range commentIDs {
+			deleteComment := &cmd.DeleteComment{CommentID: commentID}
+			if err := bus.Dispatch(ctx, deleteComment); err != nil {
+				return errors.Wrap(err, "failed to delete user comment")
+			}
+		}
+
+		return nil
+	})
+}
+
+func approvePostAndVerify(ctx context.Context, c *cmd.ApprovePostAndVerify) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		// Get the post and user info first
+		var postUserID int
+		err := trx.Get(&postUserID, `
+			SELECT user_id FROM posts 
+			WHERE id = $1 AND tenant_id = $2`, c.PostID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get post user")
+		}
+
+		// Verify and unblock the user (can't be both blocked and verified)
+		_, err = trx.Execute(`
+			UPDATE users SET is_verified = true, status = $1 
+			WHERE id = $2 AND tenant_id = $3`, enum.UserActive, postUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to verify user")
+		}
+
+		// Approve all unmoderated posts by this user
+		_, err = trx.Execute(`
+			UPDATE posts SET is_approved = true 
+			WHERE user_id = $1 AND tenant_id = $2 AND is_approved = false`, postUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to approve user posts")
+		}
+
+		// Approve all unmoderated comments by this user
+		_, err = trx.Execute(`
+			UPDATE comments SET is_approved = true 
+			WHERE user_id = $1 AND tenant_id = $2 AND is_approved = false`, postUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to approve user comments")
+		}
+
+		return nil
+	})
+}
+
+func approveCommentAndVerify(ctx context.Context, c *cmd.ApproveCommentAndVerify) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		// Get the comment and user info first
+		var commentUserID int
+		err := trx.Get(&commentUserID, `
+			SELECT user_id FROM comments 
+			WHERE id = $1 AND tenant_id = $2`, c.CommentID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get comment user")
+		}
+
+		// Verify and unblock the user (can't be both blocked and verified)
+		_, err = trx.Execute(`
+			UPDATE users SET is_verified = true, status = $1 
+			WHERE id = $2 AND tenant_id = $3`, enum.UserActive, commentUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to verify user")
+		}
+
+		// Approve all unmoderated posts by this user
+		_, err = trx.Execute(`
+			UPDATE posts SET is_approved = true 
+			WHERE user_id = $1 AND tenant_id = $2 AND is_approved = false`, commentUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to approve user posts")
+		}
+
+		// Approve all unmoderated comments by this user
+		_, err = trx.Execute(`
+			UPDATE comments SET is_approved = true 
+			WHERE user_id = $1 AND tenant_id = $2 AND is_approved = false`, commentUserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to approve user comments")
+		}
+
+		return nil
+	})
+}
+
+func verifyUser(ctx context.Context, c *cmd.VerifyUser) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		// Verify and unblock the user (can't be both blocked and verified)
+		_, err := trx.Execute(`
+			UPDATE users SET is_verified = true, status = $1 
+			WHERE id = $2 AND tenant_id = $3`, enum.UserActive, c.UserID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to verify user")
 		}
 
 		return nil
