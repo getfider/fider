@@ -152,7 +152,7 @@
   "mysettings.page.title": "إعدادات",
   "newpost.modal.addimage": "إضافة الصور",
   "newpost.modal.description.placeholder": "أخبرنا عنها. اشرحها بالتفصيل، لا تتردد، فكلما زادت المعلومات كان ذلك أفضل.",
-  "newpost.modal.submit": "",
+  "newpost.modal.submit": "أرسل فكرتك",
   "newpost.modal.title": "شارك بفكرتك...",
   "newpost.modal.title.label": "أعط فكرتك عنوانًا",
   "newpost.modal.title.placeholder": "شيء قصير وموجز، لخصه في بضع كلمات",
@@ -193,7 +193,7 @@
   "signin.message.private.text": "إذا كان لديك حساب أو دعوت، فيمكنك استخدام الخيارات التالية لتسجيل الدخول.",
   "signin.message.private.title": "<0>{0}</0> مساحة خاصة، يجب عليك تسجيل الدخول للمشاركة والتصويت.",
   "signin.message.socialbutton.intro": "تسجيل الدخول بواسطة",
-  "validation.custom.maxattachments": "",
-  "validation.custom.maximagesize": "",
+  "validation.custom.maxattachments": "يُسمح بحد أقصى {number} من المرفقات.",
+  "validation.custom.maximagesize": "يجب أن يكون حجم الصورة أصغر من {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}"
 }

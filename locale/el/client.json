@@ -152,7 +152,7 @@
   "mysettings.page.title": "Ρυθμίσεις",
   "newpost.modal.addimage": "Προσθήκη εικόνων",
   "newpost.modal.description.placeholder": "Πείτε μας γι' αυτό. Εξηγήστε το πλήρως, μην διστάζετε, όσο περισσότερες πληροφορίες τόσο το καλύτερο.",
-  "newpost.modal.submit": "",
+  "newpost.modal.submit": "Υποβάλετε την ιδέα σας",
   "newpost.modal.title": "Μοιραστείτε την ιδέα σας...",
   "newpost.modal.title.label": "Δώστε έναν τίτλο στην ιδέα σας",
   "newpost.modal.title.placeholder": "Κάτι σύντομο και περιεκτικό, συνοψίστε το σε λίγες λέξεις",
@@ -193,7 +193,7 @@
   "signin.message.private.text": "Αν έχετε λογαριασμό ή πρόσκληση, μπορείτε να χρησιμοποιήσετε τις παρακάτω επιλογές για να συνδεθείτε.",
   "signin.message.private.title": "<0>{0}</0> είναι ένας ιδιωτικός χώρος, πρέπει να συνδεθείτε για να συμμετάσχετε και να ψηφίσετε.",
   "signin.message.socialbutton.intro": "Συνδεθείτε με",
-  "validation.custom.maxattachments": "",
-  "validation.custom.maximagesize": "",
+  "validation.custom.maxattachments": "Επιτρέπονται έως {number} συνημμένα.",
+  "validation.custom.maximagesize": "Το μέγεθος της εικόνας πρέπει να είναι μικρότερο από {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# ετικέτα} other {# ετικέτες}}"
 }

@@ -192,5 +192,8 @@
   "newpost.modal.description.placeholder": "자세히 설명해 주세요. 숨기지 말고, 정보가 많을수록 좋습니다.",
   "newpost.modal.title": "여러분의 아이디어를 공유해 보세요...",
   "newpost.modal.title.label": "당신의 아이디어에 제목을 붙이세요",
-  "newpost.modal.title.placeholder": "짧고 간결하게 요약하자면 몇 마디로 요약할 수 있습니다."
+  "newpost.modal.title.placeholder": "짧고 간결하게 요약하자면 몇 마디로 요약할 수 있습니다.",
+  "newpost.modal.submit": "아이디어를 제출하세요",
+  "validation.custom.maxattachments": "최대 {number}개의 첨부 파일이 허용됩니다.",
+  "validation.custom.maximagesize": "이미지 크기는 {kilobytes}KB보다 작아야 합니다."
 }

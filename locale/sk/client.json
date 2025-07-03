@@ -152,7 +152,7 @@
   "mysettings.page.title": "Nastavenie",
   "newpost.modal.addimage": "Pridať obrázky",
   "newpost.modal.description.placeholder": "Povedzte nám o tom. Vysvetlite to podrobne, nezdržujte sa, čím viac informácií, tým lepšie.",
-  "newpost.modal.submit": "",
+  "newpost.modal.submit": "Odošlite svoj nápad",
   "newpost.modal.title": "Podeľte sa o svoj nápad...",
   "newpost.modal.title.label": "Dajte svojmu nápadu názov",
   "newpost.modal.title.placeholder": "Niečo krátke a výstižné, zhrňte to pár slovami",
@@ -193,7 +193,7 @@
   "signin.message.private.text": "Ak máte účet alebo pozvánku, na prihlásenie môžete použiť nasledujúce možnosti.",
   "signin.message.private.title": "<0>{0}</0> je súkromný priestor, ak sa chcete zúčastniť diskusie a hlasovať, musíte sa prihlásiť.",
   "signin.message.socialbutton.intro": "Prihlásiť sa pomocou",
-  "validation.custom.maxattachments": "",
-  "validation.custom.maximagesize": "",
+  "validation.custom.maxattachments": "Maximálny počet príloh je {number}.",
+  "validation.custom.maximagesize": "Veľkosť obrázka musí byť menšia ako {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }
