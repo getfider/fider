@@ -34,7 +34,7 @@ export const SocialSignInButton = (props: SocialSignInButtonProps) => {
     <a rel="nofollow" className="c-signin-social-button" href={href} onClick={handleClick}>
       {props.option.logoURL ? <img alt={props.option.displayName} src={props.option.logoURL} /> : <OAuthProviderLogo option={props.option} />}
       <span>
-        <Trans id="signin.message.socialbutton.intro">Sign in with</Trans>
+        <Trans id="signin.message.socialbutton.intro">Continue with</Trans>
         &nbsp;
         {props.option.displayName}
       </span>

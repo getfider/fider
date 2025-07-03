@@ -152,6 +152,7 @@
   "mysettings.page.title": "设置",
   "newpost.modal.addimage": "添加图像",
   "newpost.modal.description.placeholder": "告诉我们吧。请完整解释，不要隐瞒，信息越多越好。",
+  "newpost.modal.submit": "",
   "newpost.modal.title": "分享你的想法...",
   "newpost.modal.title.label": "给你的想法起个标题",
   "newpost.modal.title.placeholder": "简短而活泼，用几句话概括",
@@ -192,5 +193,7 @@
   "signin.message.private.text": "如果您有帐户或邀请，您可以使用以下选项登录.",
   "signin.message.private.title": "<0>{0}</0> 这是一个私人空间，您必须登录才能参与和投票.",
   "signin.message.socialbutton.intro": "使用以下方式登录",
+  "validation.custom.maxattachments": "",
+  "validation.custom.maximagesize": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

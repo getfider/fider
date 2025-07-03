@@ -152,6 +152,7 @@
   "mysettings.page.title": "Configuración",
   "newpost.modal.addimage": "Agregar imágenes",
   "newpost.modal.description.placeholder": "Cuéntanoslo. Explícalo con todo detalle, sin reservas. Cuanta más información, mejor.",
+  "newpost.modal.submit": "",
   "newpost.modal.title": "Comparte tu idea...",
   "newpost.modal.title.label": "Dale un título a tu idea",
   "newpost.modal.title.placeholder": "Algo corto y conciso, resúmalo en pocas palabras.",
@@ -192,5 +193,7 @@
   "signin.message.private.text": "Si tienes una cuenta o una invitación, puedes usar las siguientes opciones para iniciar sesión.",
   "signin.message.private.title": "<0>{0}</0> es un espacio privado, debes iniciar sesión para participar y votar.",
   "signin.message.socialbutton.intro": "Iniciar sesión con",
+  "validation.custom.maxattachments": "",
+  "validation.custom.maximagesize": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiqueta} other {# etiquetas}}"
 }

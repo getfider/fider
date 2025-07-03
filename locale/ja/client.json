@@ -152,6 +152,7 @@
   "mysettings.page.title": "設定",
   "newpost.modal.addimage": "画像を追加する",
   "newpost.modal.description.placeholder": "教えてください。遠慮せずに、詳しく説明してください。情報が多ければ多いほど良いです。",
+  "newpost.modal.submit": "",
   "newpost.modal.title": "あなたのアイデアを共有してください...",
   "newpost.modal.title.label": "アイデアにタイトルをつける",
   "newpost.modal.title.placeholder": "短くて簡潔なもの、一言でまとめましょう",
@@ -192,5 +193,7 @@
   "signin.message.private.text": "アカウントや招待状をお持ちの場合は、以下のオプションを使用してサインインできます。",
   "signin.message.private.title": "<0>{0}</0> はプライベートなスペースです。サインインして投票してください。",
   "signin.message.socialbutton.intro": "ログイン",
+  "validation.custom.maxattachments": "",
+  "validation.custom.maximagesize": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

@@ -112,7 +112,7 @@ export const CommentInput = (props: CommentInputProps) => {
                   onChange={commentChanged}
                   onFocus={editorFocused}
                   initialValue={getContentFromCache()}
-                  placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
+                  placeholder={i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
                   maxAttachments={2}
                   maxImageSizeKB={5 * 1024}
                   onImageUploaded={(upload) => {
@@ -138,7 +138,7 @@ export const CommentInput = (props: CommentInputProps) => {
               </>
             ) : (
               // Simple placeholder for SSR
-              <div className="comment-input-placeholder p-2">{i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}</div>
+              <div className="comment-input-placeholder p-2">{i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}</div>
             )}
           </Form>
         </div>

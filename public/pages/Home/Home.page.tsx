@@ -71,15 +71,14 @@ const HomePage = (props: HomePageProps) => {
   // const [title, setTitle] = useState("")
   const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(props.draftPost !== undefined)
 
-  const defaultWelcomeMessage = i18n._("home.form.defaultwelcomemessage", {
+  const defaultWelcomeMessage = i18n._({
+    id: "home.form.defaultwelcomemessage",
     message: `We'd love to hear what you're thinking about.
 
 What can we do better? This is the place for you to vote, discuss and share ideas.`,
   })
 
-  const defaultInvitation = i18n._("home.form.defaultinvitation", {
-    message: "Enter your suggestion here...",
-  })
+  const defaultInvitation = i18n._({ id: "home.form.defaultinvitation", message: "Enter your suggestion here..." })
 
   const isLonely = () => {
     const len = Object.keys(props.countPerStatus).length

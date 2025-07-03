@@ -152,6 +152,7 @@
   "mysettings.page.title": "Inställningar",
   "newpost.modal.addimage": "Lägg till bilder",
   "newpost.modal.description.placeholder": "Berätta om det. Förklara det utförligt, tveka inte, ju mer information desto bättre.",
+  "newpost.modal.submit": "",
   "newpost.modal.title": "Dela din idé...",
   "newpost.modal.title.label": "Ge din idé en titel",
   "newpost.modal.title.placeholder": "Något kort och rappt, sammanfatta det med några få ord",
@@ -192,5 +193,7 @@
   "signin.message.private.text": "Om du har ett konto eller en inbjudan kan du använda följande alternativ för att logga in.",
   "signin.message.private.title": "<0>{0}</0> är ett privat utrymme, du måste logga in för att delta och rösta.",
   "signin.message.socialbutton.intro": "Logga in med",
+  "validation.custom.maxattachments": "",
+  "validation.custom.maximagesize": "",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, =1 {# etikett} other {# etiketter}}"
 }

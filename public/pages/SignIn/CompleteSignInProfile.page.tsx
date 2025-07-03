@@ -55,7 +55,7 @@ const CompleteSignInProfilePage = (props: CompleteSignInProfilePageProps) => {
                 field="name"
                 onChange={setName}
                 maxLength={100}
-                placeholder={i18n._("modal.completeprofile.name.placeholder", { message: "Name" })}
+                placeholder={i18n._({ id: "modal.completeprofile.name.placeholder", message: "Name" })}
                 suffix={
                   <Button type="submit" onClick={submit} variant="primary" disabled={name === ""}>
                     <Trans id="action.submit">Submit</Trans>
