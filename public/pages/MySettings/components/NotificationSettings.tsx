@@ -48,7 +48,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     <>
       <Field label={i18n._({ id: "label.notifications", message: "Notifications" })}>
         <p className="text-muted mb-6">
-          <Trans id="mysettings.notification.title">Choose the events to recieve a notification for.</Trans>
+          <Trans id="mysettings.notification.title">Choose the events to receive a notification for.</Trans>
         </p>
 
         <div className="notifications-settings mt-4">

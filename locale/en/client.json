@@ -146,7 +146,7 @@
   "mysettings.notification.message.none": "You'll <0>NOT</0> receive any notification about this event.",
   "mysettings.notification.message.webandemail": "You'll receive <0>web</0> and <1>email</1> notifications about {about}.",
   "mysettings.notification.message.webonly": "You'll receive <0>web</0> notifications about {about}.",
-  "mysettings.notification.title": "Choose the events to recieve a notification for.",
+  "mysettings.notification.title": "Choose the events to receive a notification for.",
   "mysettings.page.subtitle": "Manage your profile settings",
   "mysettings.page.title": "Settings",
   "newpost.modal.addimage": "Add Images",
