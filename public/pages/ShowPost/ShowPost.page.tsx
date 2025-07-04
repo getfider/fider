@@ -11,7 +11,7 @@ import IconRSS from "@fider/assets/images/heroicons-rss.svg"
 import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
-import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, Icon, Header, PoweredByFider, Avatar, Dropdown } from "@fider/components"
+import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, Icon, Header, PoweredByFider, Avatar, Dropdown, RSSModal } from "@fider/components"
 import { DiscussionPanel } from "./components/DiscussionPanel"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 
@@ -26,6 +26,7 @@ import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
 import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
 import { t } from "@lingui/macro"
+import { useFider } from "@fider/hooks"
 
 interface ShowPostPageProps {
   post: Post
@@ -48,12 +49,14 @@ const canEditPost = (user: CurrentUser, post: Post) => {
 export default function ShowPostPage(props: ShowPostPageProps) {
   const [editMode, setEditMode] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
   const [showResponseModal, setShowResponseModal] = useState(false)
   const [newTitle, setNewTitle] = useState(props.post.title)
   const [newDescription, setNewDescription] = useState(props.post.description)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [highlightedComment, setHighlightedComment] = useState<number | undefined>(undefined)
   const [error, setError] = useState<Failure | undefined>(undefined)
+  const fider = useFider()
 
   const handleHashChange = useCallback(
     (e?: Event) => {
@@ -156,7 +159,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     })
   }
 
-  const onActionSelected = (action: "copy" | "delete" | "status" | "edit") => () => {
+  const onActionSelected = (action: "copy" | "delete" | "status" | "feed" | "edit") => () => {
     if (action === "copy") {
       navigator.clipboard.writeText(window.location.href)
       notify.success(<Trans id="showpost.copylink.success">Link copied to clipboard</Trans>)
@@ -166,8 +169,12 @@ export default function ShowPostPage(props: ShowPostPageProps) {
       setShowResponseModal(true)
     } else if (action === "edit") {
       startEdit()
+    } else if (action == "feed") {
+      setIsRSSModalOpen(true)
     }
   }
+
+  const hideRSSModal = () => setIsRSSModalOpen(false)
 
   return (
     <>
@@ -189,6 +196,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                       </HStack>
                     )}
                   </VStack>
+                  <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${props.post.number}.atom`} />
 
                   {!editMode && (
                     <HStack>
@@ -197,7 +205,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                           <Trans id="action.copylink">Copy link</Trans>
                         </Dropdown.ListItem>
                         {Fider.session.tenant.isFeedEnabled && (
-                          <Dropdown.ListItem type="application/atom+xml" href={`/feed/posts/${props.post.number}.atom`} icon={IconRSS}>
+                          <Dropdown.ListItem onClick={onActionSelected("feed")} icon={IconRSS}>
                             <Trans id="action.commentsfeed">Comment Feed</Trans>
                           </Dropdown.ListItem>
                         )}

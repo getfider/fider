@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { SignInModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher, Icon } from "@fider/components"
+import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher, Icon } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
@@ -9,18 +9,26 @@ import IconRss from "@fider/assets/images/heroicons-rss.svg"
 export const Header = () => {
   const fider = useFider()
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
+  const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
 
-  const showModal = (e: React.MouseEvent) => {
+  const showSignInModal = (e: React.MouseEvent) => {
     e.preventDefault()
     setIsSignInModalOpen(true)
   }
 
+  const showRSSModal = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsRSSModalOpen(true)
+  }
+
   const atomFeedTitle = i18n._({ id: "action.postsfeed", message: "Posts Feed" })
-  const hideModal = () => setIsSignInModalOpen(false)
+  const hideSignInModal = () => setIsSignInModalOpen(false)
+  const hideRSSModal = () => setIsRSSModalOpen(false)
 
   return (
     <div id="c-header" className="bg-white">
-      <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
+      <SignInModal isOpen={isSignInModalOpen} onClose={hideSignInModal} />
+      <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/global.atom`} />
       <HStack className="c-menu shadow p-4 w-full">
         <div className="container">
           <HStack justify="between">
@@ -31,9 +39,9 @@ export const Header = () => {
             {fider.session.isAuthenticated && (
               <HStack spacing={2}>
                 {fider.session.tenant.isFeedEnabled && (
-                  <a title={atomFeedTitle} type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
+                  <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
                     <Icon sprite={IconRss} className="h-6 text-gray-500" />
-                  </a>
+                  </button>
                 )}
                 <ThemeSwitcher />
                 <NotificationIndicator />
@@ -43,12 +51,12 @@ export const Header = () => {
             {!fider.session.isAuthenticated && (
               <HStack spacing={2}>
                 {fider.session.tenant.isFeedEnabled && (
-                  <a title={atomFeedTitle} type="application/atom+xml" className="c-themeswitcher" href="/feed/global.atom">
+                  <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
                     <Icon sprite={IconRss} className="h-6 text-gray-500" />
-                  </a>
+                  </button>
                 )}
                 <ThemeSwitcher />
-                <a href="#" className="uppercase text-sm" onClick={showModal}>
+                <a href="#" className="uppercase text-sm" onClick={showSignInModal}>
                   <Trans id="action.signin">Sign in</Trans>
                 </a>
               </HStack>
