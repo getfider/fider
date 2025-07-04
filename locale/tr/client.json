@@ -152,7 +152,7 @@
   "mysettings.page.title": "Ayarlar",
   "newpost.modal.addimage": "Resim Ekle",
   "newpost.modal.description.placeholder": "Bize anlatın. Tam olarak açıklayın, saklamayın, ne kadar çok bilgi o kadar iyi.",
-  "newpost.modal.submit": "",
+  "newpost.modal.submit": "Fikrinizi gönderin",
   "newpost.modal.title": "Fikrinizi paylaşın...",
   "newpost.modal.title.label": "Fikrinize bir başlık verin",
   "newpost.modal.title.placeholder": "Kısa ve öz bir şey, birkaç kelimeyle özetleyin",
@@ -193,7 +193,7 @@
   "signin.message.private.text": "Eğer bir hesabınız ya da davetiyeniz varsa aşağıdaki seçenekleri kullanarak giriş yapabilirsiniz.",
   "signin.message.private.title": "<0>{0}</0> özel bir alandır ve katılabilmek için davetiye almanız gerekir.",
   "signin.message.socialbutton.intro": "İle giriş yapın",
-  "validation.custom.maxattachments": "",
-  "validation.custom.maximagesize": "",
+  "validation.custom.maxattachments": "En fazla {number} ek dosyaya izin verilir.",
+  "validation.custom.maximagesize": "Resim boyutu {kilobytes}KB'den küçük olmalıdır.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiket} other {# etiket}}"
 }

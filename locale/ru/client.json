@@ -152,7 +152,7 @@
   "mysettings.page.title": "Настройки",
   "newpost.modal.addimage": "Добавить изображения",
   "newpost.modal.description.placeholder": "Расскажите нам об этом. Объясните подробно, не сдерживайтесь, чем больше информации, тем лучше.",
-  "newpost.modal.submit": "",
+  "newpost.modal.submit": "Предложите свою идею",
   "newpost.modal.title": "Поделитесь своей идеей...",
   "newpost.modal.title.label": "Дайте название своей идее",
   "newpost.modal.title.placeholder": "Что-то короткое и емкое, изложите это в нескольких словах.",
@@ -193,7 +193,7 @@
   "signin.message.private.text": "Если у вас есть аккаунт или приглашение, вы можете использовать их для входа.",
   "signin.message.private.title": "<0>{0}</0> является приватным пространством, вы должны войти в систему, чтобы принять участие и проголосовать.",
   "signin.message.socialbutton.intro": "Войти с помощью",
-  "validation.custom.maxattachments": "",
-  "validation.custom.maximagesize": "",
+  "validation.custom.maxattachments": "Разрешено максимум {number} вложений.",
+  "validation.custom.maximagesize": "Размер изображения должен быть меньше {kilobytes}КБ.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

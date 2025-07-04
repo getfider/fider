@@ -152,7 +152,7 @@
   "mysettings.page.title": "Einstellungen",
   "newpost.modal.addimage": "Bilder hinzufügen",
   "newpost.modal.description.placeholder": "Erzähl uns von deiner Idee. Erkläre sie ausführlich, halte dich nicht zurück, je mehr Informationen, umso besser.",
-  "newpost.modal.submit": "",
+  "newpost.modal.submit": "Reiche deine Idee ein",
   "newpost.modal.title": "Teile deine Idee ...",
   "newpost.modal.title.label": "Gebe deiner Idee einen Titel",
   "newpost.modal.title.placeholder": "Eine kurze und knappe Zusammenfassung in wenigen Worten",
@@ -193,7 +193,7 @@
   "signin.message.private.text": "Wenn du ein Konto oder eine Einladung hast, kannst du folgende Optionen nutzen, um dich anzumelden.",
   "signin.message.private.title": "<0>{0}</0> ist ein privater Raum, du musst dich anmelden, um teilzunehmen und abstimmen zu können.",
   "signin.message.socialbutton.intro": "Einloggen mit",
-  "validation.custom.maxattachments": "",
-  "validation.custom.maximagesize": "",
+  "validation.custom.maxattachments": "Es sind maximal {number} Anhänge zulässig.",
+  "validation.custom.maximagesize": "Die Bildgröße muss kleiner als {kilobytes}KB sein.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# Tag} other {# Tags}}"
 }

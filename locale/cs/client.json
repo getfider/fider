@@ -192,5 +192,8 @@
   "newpost.modal.description.placeholder": "Řekněte nám o tom. Vysvětlete to podrobně, nezdráhejte se, čím více informací, tím lépe.",
   "newpost.modal.title": "Podělte se o svůj nápad...",
   "newpost.modal.title.label": "Dejte svému nápadu název",
-  "newpost.modal.title.placeholder": "Něco krátkého a výstižného, ​​shrňte to do pár slov"
+  "newpost.modal.title.placeholder": "Něco krátkého a výstižného, ​​shrňte to do pár slov",
+  "newpost.modal.submit": "Odešlete svůj nápad",
+  "validation.custom.maxattachments": "Maximální povolený počet příloh je {number}.",
+  "validation.custom.maximagesize": "Velikost obrázku musí být menší než {kilobytes}KB."
 }
