@@ -16,6 +16,19 @@ if (DOMPurify.isSupported) {
     },
     ADD_ATTR: ["target"],
   })
+
+  let allow: RegExp[] | undefined
+  DOMPurify.addHook("uponSanitizeAttribute", (currentNode, hookEvent) => {
+    if (allow === undefined && window.MARKDOWN_ALLOW !== undefined)
+      allow = window.MARKDOWN_ALLOW.split("\n")
+        .filter((s) => s)
+        .map((s) => new RegExp(s, "i"))
+
+    if (allow && hookEvent.attrName === "href") {
+      const href = currentNode.getAttribute("href")
+      if (href !== null && !href.startsWith("javascript")) hookEvent.forceKeepAttr = allow.some((r) => href.match(r))
+    }
+  })
 }
 
 const link = (href: string, title: string, text: string) => {

@@ -32,6 +32,7 @@ func AdvancedSettingsPage() web.HandlerFunc {
 			Title: "Advanced · Site Settings",
 			Data: web.Map{
 				"customCSS": c.Tenant().CustomCSS,
+				"allowedSchemes": c.Tenant().AllowedSchemes,
 			},
 		})
 	}
@@ -84,6 +85,7 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 
 		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{
 			CustomCSS: action.CustomCSS,
+			AllowedSchemes: action.AllowedSchemes,
 		}); err != nil {
 			return c.Failure(err)
 		}

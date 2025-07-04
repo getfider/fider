@@ -22,6 +22,7 @@ declare interface Window {
   ga?: (cmd: string, evt: string, args?: any) => void
   set: (key: string, value: any) => void
   Paddle: PaddleSdk
+  MARKDOWN_ALLOW?: string
 }
 
 interface SpriteSymbol {

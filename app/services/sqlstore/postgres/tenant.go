@@ -28,6 +28,7 @@ type dbTenant struct {
 	IsPrivate          bool   `db:"is_private"`
 	LogoBlobKey        string `db:"logo_bkey"`
 	CustomCSS          string `db:"custom_css"`
+	AllowedSchemes     string `db:"allowed_schemes"`
 	IsEmailAuthAllowed bool   `db:"is_email_auth_allowed"`
 	IsFeedEnabled      bool   `db:"is_feed_enabled"`
 }
@@ -49,6 +50,7 @@ func (t *dbTenant) toModel() *entity.Tenant {
 		IsPrivate:          t.IsPrivate,
 		LogoBlobKey:        t.LogoBlobKey,
 		CustomCSS:          t.CustomCSS,
+		AllowedSchemes:     t.AllowedSchemes,
 		IsEmailAuthAllowed: t.IsEmailAuthAllowed,
 		IsFeedEnabled:      t.IsFeedEnabled,
 	}
@@ -166,13 +168,14 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 
 func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvancedSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		query := "UPDATE tenants SET custom_css = $1 WHERE id = $2"
-		_, err := trx.Execute(query, c.CustomCSS, tenant.ID)
+		query := "UPDATE tenants SET custom_css = $1, allowed_schemes = $2 WHERE id = $3"
+		_, err := trx.Execute(query, c.CustomCSS, c.AllowedSchemes, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant advanced settings")
 		}
 
 		tenant.CustomCSS = c.CustomCSS
+		tenant.AllowedSchemes = c.AllowedSchemes
 		return nil
 	})
 }
@@ -236,8 +239,8 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled) 
-			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true) 
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled)
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true)
 			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
 			return err
@@ -246,7 +249,7 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 		if env.IsBillingEnabled() {
 			trialEndsAt := time.Now().AddDate(0, 0, 15) // 15 days
 			_, err := trx.Execute(
-				`INSERT INTO tenants_billing (tenant_id, trial_ends_at, status, paddle_subscription_id, paddle_plan_id) 
+				`INSERT INTO tenants_billing (tenant_id, trial_ends_at, status, paddle_subscription_id, paddle_plan_id)
 				 VALUES ($1, $2, $3, '', '')`, id, trialEndsAt, enum.BillingTrial)
 			if err != nil {
 				return err
@@ -265,7 +268,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
@@ -284,9 +287,9 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled
 			FROM tenants t
-			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 
+			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
 			ORDER BY cname DESC
 		`, env.Subdomain(q.Domain), q.Domain, q.Domain)
 		if err != nil {

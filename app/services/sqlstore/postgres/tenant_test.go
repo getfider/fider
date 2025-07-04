@@ -223,6 +223,7 @@ func TestTenantStorage_AdvancedSettings(t *testing.T) {
 
 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantAdvancedSettings{
 		CustomCSS: ".primary { color: red; }",
+		AllowedSchemes: "^monero:[48]\n^bitcoin:(1|3|bc1)",
 	})
 	Expect(err).IsNil()
 
@@ -230,6 +231,7 @@ func TestTenantStorage_AdvancedSettings(t *testing.T) {
 	err = bus.Dispatch(demoTenantCtx, getByDomain)
 	Expect(err).IsNil()
 	Expect(getByDomain.Result.CustomCSS).Equals(".primary { color: red; }")
+	Expect(getByDomain.Result.AllowedSchemes).Equals("^monero:[48]\n^bitcoin:(1|3|bc1)")
 }
 
 func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {

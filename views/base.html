@@ -72,12 +72,14 @@
         } catch (e) {
           document.body.setAttribute("data-theme", "light")
         }
+
+        window.MARKDOWN_ALLOW = {{ if .public.tenant }}{{ .public.tenant.AllowedSchemes }}{{ else }}""{{ end }}
       })()
     </script>
 
   {{template "end-of-body" .}}
-  {{ if .public.tenant }} 
-    {{ if .public.tenant.CustomCSS }} 
+  {{ if .public.tenant }}
+    {{ if .public.tenant.CustomCSS }}
     <link rel="stylesheet" href="{{ .public.settings.assetsURL }}/static/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
     {{ end }}
   {{ end }}
