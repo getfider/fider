@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react"
 
 import { Post, ImageUpload } from "@fider/models"
-import { Avatar, UserName, Button, Form, MultiImageUploader } from "@fider/components"
+import { Avatar, UserName, Button, Form } from "@fider/components"
 import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
@@ -9,10 +9,9 @@ import { HStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
-// import { CommentEditor } from "@fider/components"
 import { useFider } from "@fider/hooks"
-// import Tiptap from "@fider/components/common/form/CommentEditor2"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
+import { extractImageBkeys } from "@fider/services/bkey"
 
 interface CommentInputProps {
   post: Post
@@ -28,8 +27,6 @@ export const CommentInput = (props: CommentInputProps) => {
   }
 
   const fider = useFider()
-  // const inputRef = useRef<HTMLTextAreaElement>()
-  // const [content, setContent] = useState<string>((fider.session.isAuthenticated && getContentFromCache()) || "")
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
@@ -39,6 +36,29 @@ export const CommentInput = (props: CommentInputProps) => {
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // Extract existing image references from cached content
+  useEffect(() => {
+    if (isClient) {
+      const cachedContent = getContentFromCache()
+      if (cachedContent) {
+        const bkeys = extractImageBkeys(cachedContent)
+        if (bkeys.length > 0) {
+          // Create ImageUpload objects for each bkey found in the cached content
+          const existingAttachments = bkeys.map(
+            (bkey) =>
+              ({
+                bkey,
+                remove: false,
+              } as ImageUpload)
+          )
+
+          // Initialize attachments state with existing images
+          setAttachments(existingAttachments)
+        }
+      }
+    }
+  }, [isClient])
 
   const hideModal = () => setIsSignInModalOpen(false)
   const clearError = () => setError(undefined)
@@ -92,13 +112,25 @@ export const CommentInput = (props: CommentInputProps) => {
                   onChange={commentChanged}
                   onFocus={editorFocused}
                   initialValue={getContentFromCache()}
-                  placeholder={i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}
+                  placeholder={i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
+                  maxAttachments={2}
+                  maxImageSizeKB={5 * 1024}
+                  onImageUploaded={(upload) => {
+                    // Handle image uploads and removals
+                    setAttachments((prev) => {
+                      // If this is a removal request, find and mark the attachment for removal
+                      if (upload.remove && upload.bkey) {
+                        return prev.map((att) => (att.bkey === upload.bkey ? { ...att, remove: true } : att))
+                      }
+                      // Otherwise add the new upload
+                      return [...prev, upload]
+                    })
+                  }}
                 />
 
                 {hasContent && (
                   <>
-                    <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
-                    <Button variant="primary" onClick={submit}>
+                    <Button variant="primary" onClick={submit} className="mt-2">
                       <Trans id="action.submit">Submit</Trans>
                     </Button>
                   </>
@@ -106,7 +138,7 @@ export const CommentInput = (props: CommentInputProps) => {
               </>
             ) : (
               // Simple placeholder for SSR
-              <div className="comment-input-placeholder p-2">{i18n._("showpost.commentinput.placeholder", { message: "Leave a comment" })}</div>
+              <div className="comment-input-placeholder p-2">{i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}</div>
             )}
           </Form>
         </div>

@@ -85,3 +85,8 @@ export interface Vote {
     avatarURL: string
   }
 }
+
+export interface InlineImage {
+  bkey: string
+  remove: boolean
+}

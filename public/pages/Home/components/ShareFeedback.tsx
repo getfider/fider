@@ -2,15 +2,15 @@ import "./ShareFeedback.scss"
 
 import React, { useEffect, useRef, useState } from "react"
 import { SignInControl, SignInSubmitResponse } from "@fider/components/common/SignInControl"
-import { Modal, CloseIcon, Form, Button, TextArea, MultiImageUploader, Input, Icon, LegalFooter } from "@fider/components/common"
+import { Modal, CloseIcon, Form, Button, Input, LegalFooter } from "@fider/components/common"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
 import { actions, Failure, cache, querystring, classSet } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { ImageUpload, Tag } from "@fider/models"
-import IconAttach from "@fider/assets/images/heroicons-paperclip.svg"
 import { SimilarPosts } from "../components/SimilarPosts"
 import { TagsSelect } from "@fider/components/common/TagsSelect"
+import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 interface ShareFeedbackProps {
   isOpen: boolean
@@ -62,7 +62,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const [tags, setTags] = useState(getTagsCachedValue())
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
-  const descriptionRef = useRef<HTMLTextAreaElement>()
+  const editorRef = useRef<HTMLDivElement>(null)
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(getTitleManuallyEditedValue())
   const [isInitialMount, setIsInitialMount] = useState(true)
 
@@ -113,10 +113,14 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }, [description, titleManuallyEdited])
 
   useEffect(() => {
-    if (isOpen && descriptionRef.current) {
+    if (isOpen && editorRef.current) {
       // Small delay to ensure modal is fully rendered
       setTimeout(() => {
-        descriptionRef.current?.focus()
+        // Focus the editor
+        const editorContent = editorRef.current?.querySelector(".ProseMirror")
+        if (editorContent) {
+          ;(editorContent as HTMLElement).focus()
+        }
       }, 100)
     }
   }, [isOpen])
@@ -142,8 +146,20 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     setDescription(value)
   }
 
-  const handleAttachmentsChange = (images: ImageUpload[]) => {
-    setAttachments(images)
+  const handleImageUploaded = (image: ImageUpload) => {
+    setAttachments((prev) => {
+      // If this is a removal request, find and mark the attachment for removal
+      if (image.remove && image.bkey) {
+        return prev.map((att) => (att.bkey === image.bkey ? { ...att, remove: true } : att))
+      }
+      // Otherwise add the new upload
+      const newAttachments = [...prev, image]
+
+      // Update the cache
+      cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(newAttachments))
+
+      return newAttachments
+    })
   }
 
   const onSubmitFeedback = async (): Promise<SignInSubmitResponse> => {
@@ -190,6 +206,11 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     window.location.href = "/loginemailsent?email=" + encodeURIComponent(email)
   }
 
+  const handleEditorFocus = () => {
+    // This function is called when the editor is focused
+    // We don't need to do anything special here
+  }
+
   return (
     <Modal.Window className="c-share-feedback" isOpen={isOpen} onClose={handleClose} size="fullscreen" center={false}>
       <Modal.Header>
@@ -204,32 +225,23 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
           </h1>
           <div className="c-share-feedback-form">
             <Form error={error}>
-              <TextArea
-                field="description"
-                onChange={handleDescriptionChange}
-                value={description}
-                minRows={5}
-                inputRef={descriptionRef}
-                placeholder={i18n._({
-                  id: "newpost.modal.description.placeholder",
-                  message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
-                })}
-              />
+              <div ref={editorRef} className="mb-4">
+                <CommentEditor
+                  field="description"
+                  onChange={handleDescriptionChange}
+                  onFocus={handleEditorFocus}
+                  initialValue={description}
+                  disabled={false}
+                  maxAttachments={3}
+                  maxImageSizeKB={5 * 1024}
+                  placeholder={i18n._({
+                    id: "newpost.modal.description.placeholder",
+                    message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
+                  })}
+                  onImageUploaded={handleImageUploaded}
+                />
+              </div>
               <SimilarPosts title={title} tags={props.tags} />
-              <MultiImageUploader
-                field="attachments"
-                maxUploads={3}
-                bkeys={attachments.filter((a) => a.bkey).map((a) => a.bkey ?? "")}
-                onChange={handleAttachmentsChange}
-                addImageButton={
-                  <a className="flex items-center clickable">
-                    <Icon sprite={IconAttach} height="18" width="18" />
-                    <span className="ml-1">
-                      <Trans id="newpost.modal.addimage">Add Images</Trans>
-                    </span>
-                  </a>
-                }
-              />
               <Input
                 field="title"
                 inputRef={titleRef}

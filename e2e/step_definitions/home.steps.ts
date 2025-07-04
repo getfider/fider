@@ -25,7 +25,10 @@ Given("I type {string} as the title", async function (this: FiderWorld, title: s
 })
 
 Given("I type {string} as the description", async function (this: FiderWorld, description: string) {
-  await this.page.type("#input-description", description)
+  const editor = this.page.getByTestId("tiptap-editor")
+  // Click to focus, then type
+  await editor.click()
+  await this.page.keyboard.type(description)
 })
 
 Given("I click enter your suggestion", async function () {

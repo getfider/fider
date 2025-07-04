@@ -47,7 +47,7 @@ export const PostSearch = (props: PostSearchProps) => {
       <Input
         field="query"
         icon={IconSearch}
-        placeholder={i18n._("showpost.postsearch.query.placeholder", { message: "Search original post..." })}
+        placeholder={i18n._({ id: "showpost.postsearch.query.placeholder", message: "Search original post..." })}
         value={query}
         onChange={setQuery}
       />

@@ -3,8 +3,8 @@ import { useFider } from "@fider/hooks"
 import { Avatar, Dropdown } from "./common"
 import { Trans } from "@lingui/react/macro"
 import IconCog from "@fider/assets/images/heroicons-cog.svg"
-import IconShieldCheck from "@fider/assets/images/heroicons-shieldcheck.svg"
-import IconXCircle from "@fider/assets/images/heroicons-x-circle.svg"
+import IconWrench from "@fider/assets/images/heroicons-wrenchscrewdriver.svg"
+import IconLeft from "@fider/assets/images/heroicons-arrowleft.svg"
 
 export const UserMenu = () => {
   const fider = useFider()
@@ -23,13 +23,13 @@ export const UserMenu = () => {
             <div className="p-2 text-medium uppercase">
               <Trans id="menu.administration">Administration</Trans>
             </div>
-            <Dropdown.ListItem href="/admin" icon={IconShieldCheck}>
+            <Dropdown.ListItem href="/admin" icon={IconWrench}>
               <Trans id="menu.sitesettings">Site Settings</Trans>
             </Dropdown.ListItem>
             <Dropdown.Divider />
           </>
         )}
-        <Dropdown.ListItem href="/signout" icon={IconXCircle}>
+        <Dropdown.ListItem href="/signout" icon={IconLeft}>
           <Trans id="menu.signout">Sign out</Trans>
         </Dropdown.ListItem>
       </Dropdown>

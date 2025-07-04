@@ -6,28 +6,14 @@ import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "
 import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
+import { i18n } from "@lingui/core"
 import IconRSS from "@fider/assets/images/heroicons-rss.svg"
 import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
-import {
-  ResponseDetails,
-  Button,
-  UserName,
-  Moment,
-  Markdown,
-  Input,
-  Form,
-  TextArea,
-  MultiImageUploader,
-  ImageViewer,
-  Icon,
-  Header,
-  PoweredByFider,
-  Avatar,
-  Dropdown,
-} from "@fider/components"
+import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, Icon, Header, PoweredByFider, Avatar, Dropdown, RSSModal } from "@fider/components"
 import { DiscussionPanel } from "./components/DiscussionPanel"
+import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
@@ -40,6 +26,7 @@ import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
 import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
 import { t } from "@lingui/macro"
+import { useFider } from "@fider/hooks"
 
 interface ShowPostPageProps {
   post: Post
@@ -62,12 +49,14 @@ const canEditPost = (user: CurrentUser, post: Post) => {
 export default function ShowPostPage(props: ShowPostPageProps) {
   const [editMode, setEditMode] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
   const [showResponseModal, setShowResponseModal] = useState(false)
   const [newTitle, setNewTitle] = useState(props.post.title)
   const [newDescription, setNewDescription] = useState(props.post.description)
   const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [highlightedComment, setHighlightedComment] = useState<number | undefined>(undefined)
   const [error, setError] = useState<Failure | undefined>(undefined)
+  const fider = useFider()
 
   const handleHashChange = useCallback(
     (e?: Event) => {
@@ -116,6 +105,19 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     }
   }, [])
 
+  // Initialize attachments from props when entering edit mode
+  useEffect(() => {
+    if (editMode) {
+      // Convert attachment bkeys to ImageUpload objects
+      const initialAttachments = props.attachments.map((bkey) => ({
+        bkey,
+        remove: false,
+      })) as ImageUpload[]
+
+      setAttachments(initialAttachments)
+    }
+  }, [editMode, props.attachments])
+
   const saveChanges = async () => {
     const result = await actions.updatePost(props.post.number, newTitle, newDescription, attachments)
     if (result.ok) {
@@ -142,7 +144,22 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     setEditMode(true)
   }
 
-  const onActionSelected = (action: "copy" | "delete" | "status" | "edit") => () => {
+  const handleDescriptionChange = (value: string) => {
+    setNewDescription(value)
+  }
+
+  const handleImageUploaded = (image: ImageUpload) => {
+    setAttachments((prev) => {
+      // If this is a removal request, find and mark the attachment for removal
+      if (image.remove && image.bkey) {
+        return prev.map((att) => (att.bkey === image.bkey ? { ...att, remove: true } : att))
+      }
+      // Otherwise add the new upload
+      return [...prev, image]
+    })
+  }
+
+  const onActionSelected = (action: "copy" | "delete" | "status" | "feed" | "edit") => () => {
     if (action === "copy") {
       navigator.clipboard.writeText(window.location.href)
       notify.success(<Trans id="showpost.copylink.success">Link copied to clipboard</Trans>)
@@ -152,8 +169,12 @@ export default function ShowPostPage(props: ShowPostPageProps) {
       setShowResponseModal(true)
     } else if (action === "edit") {
       startEdit()
+    } else if (action == "feed") {
+      setIsRSSModalOpen(true)
     }
   }
+
+  const hideRSSModal = () => setIsRSSModalOpen(false)
 
   return (
     <>
@@ -175,6 +196,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                       </HStack>
                     )}
                   </VStack>
+                  <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${props.post.number}.atom`} />
 
                   {!editMode && (
                     <HStack>
@@ -183,7 +205,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                           <Trans id="action.copylink">Copy link</Trans>
                         </Dropdown.ListItem>
                         {Fider.session.tenant.isFeedEnabled && (
-                          <Dropdown.ListItem type="application/atom+xml" href={`/feed/posts/${props.post.number}.atom`} icon={IconRSS}>
+                          <Dropdown.ListItem onClick={onActionSelected("feed")} icon={IconRSS}>
                             <Trans id="action.commentsfeed">Comment Feed</Trans>
                           </Dropdown.ListItem>
                         )}
@@ -228,8 +250,19 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                 <VStack>
                   {editMode ? (
                     <Form error={error}>
-                      <TextArea field="description" value={newDescription} onChange={setNewDescription} />
-                      <MultiImageUploader field="attachments" bkeys={props.attachments} maxUploads={3} onChange={setAttachments} />
+                      <CommentEditor
+                        field="description"
+                        onChange={handleDescriptionChange}
+                        initialValue={newDescription}
+                        disabled={false}
+                        maxAttachments={3}
+                        maxImageSizeKB={5 * 1024}
+                        placeholder={i18n._({
+                          id: "newpost.modal.description.placeholder",
+                          message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
+                        })}
+                        onImageUploaded={handleImageUploaded}
+                      />
                     </Form>
                   ) : (
                     <>
@@ -239,9 +272,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                           <Trans id="showpost.message.nodescription">No description provided.</Trans>
                         </em>
                       )}
-                      {props.attachments.map((x) => (
-                        <ImageViewer key={x} bkey={x} />
-                      ))}
                     </>
                   )}
                 </VStack>

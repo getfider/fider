@@ -152,6 +152,7 @@
   "mysettings.page.title": "Instellingen",
   "newpost.modal.addimage": "Afbeeldingen toevoegen",
   "newpost.modal.description.placeholder": "Vertel het ons. Leg het volledig uit, houd je niet in, hoe meer informatie hoe beter.",
+  "newpost.modal.submit": "Dien uw idee in",
   "newpost.modal.title": "Deel uw idee...",
   "newpost.modal.title.label": "Geef je idee een titel",
   "newpost.modal.title.placeholder": "Iets kort en krachtigs, vat het samen in een paar woorden",
@@ -192,5 +193,7 @@
   "signin.message.private.text": "Als je een account of een uitnodiging hebt, kun je de volgende methodes gebruiken om in te loggen.",
   "signin.message.private.title": "<0>{0}</0> is een privéruimte. U moet ingelogd zijn om deel te nemen en te stemmen.",
   "signin.message.socialbutton.intro": "Inloggen met",
+  "validation.custom.maxattachments": "Er zijn maximaal {number} bijlagen toegestaan.",
+  "validation.custom.maximagesize": "De afbeeldingsgrootte moet kleiner zijn dan {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

@@ -60,10 +60,6 @@ func CreatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Attachments, Folder: "attachments"}); err != nil {
-			return c.Failure(err)
-		}
-
 		newPost := &cmd.AddNewPost{
 			Title:       action.Title,
 			Description: action.Description,
@@ -170,10 +166,6 @@ func UpdatePost() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c,
-			&cmd.UploadImages{
-				Images: action.Attachments,
-				Folder: "attachments",
-			},
 			&cmd.UpdatePost{
 				Post:        action.Post,
 				Title:       action.Title,

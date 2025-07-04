@@ -106,7 +106,7 @@ export const PostInput = (props: PostInputProps) => {
         onChange={handleDescriptionChange}
         value={description}
         minRows={5}
-        placeholder={i18n._("home.postinput.description.placeholder", { message: "Describe your suggestion (optional)" })}
+        placeholder={i18n._({ id: "home.postinput.description.placeholder", message: "Describe your suggestion (optional)" })}
       />
       {canEditTags && (
         <div className={classSet({ "c-form-field": true })}>

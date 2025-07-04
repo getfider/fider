@@ -221,6 +221,7 @@ func routes(r *web.Engine) *web.Engine {
 		membersApi.Post("/api/v1/posts/:number/votes/toggle", apiv1.ToggleVote())
 		membersApi.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
 		membersApi.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
+		membersApi.Post("/api/v1/images", apiv1.UploadImage())
 
 		membersApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
 		membersApi.Put("/api/v1/posts/:number/status", apiv1.SetResponse())

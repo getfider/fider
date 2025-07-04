@@ -99,7 +99,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
                 value={email}
                 autoFocus={!device.isTouch()}
                 onChange={setEmail}
-                placeholder={i18n._("signin.email.placeholder", { message: "Email address" })}
+                placeholder={i18n._({ id: "signin.email.placeholder", message: "Email address" })}
               />
               <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
                 {signInText}

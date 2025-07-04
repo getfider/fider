@@ -75,7 +75,7 @@ export const SimilarPosts: React.FC<SimilarPostsProps> = (props) => {
     }
   }
 
-  const title_text = i18n._("home.similar.title", { message: "We have similar posts, is your idea already on the list?" })
+  const title_text = i18n._({ id: "home.similar.title", message: "We have similar posts, is your idea already on the list?" })
 
   const animationClass = isVisible ? "similar-posts-visible" : "similar-posts-hidden"
 
