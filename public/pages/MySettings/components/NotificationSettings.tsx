@@ -34,8 +34,8 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     props.settingsChanged(nextSettings)
   }
 
-  const labelWeb = i18n._("mysettings.notification.channelweb", { message: "Web" })
-  const labelEmail = i18n._("mysettings.notification.channelemail", { message: "Email" })
+  const labelWeb = i18n._({ id: "mysettings.notification.channelweb", message: "Web" })
+  const labelEmail = i18n._({ id: "mysettings.notification.channelemail", message: "Email" })
 
   const icon = (settingsKey: string, channel: Channel) => {
     const active = isEnabled(settingsKey, channel)
@@ -46,9 +46,9 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
 
   return (
     <>
-      <Field label={i18n._("label.notifications", { message: "Notifications" })}>
+      <Field label={i18n._({ id: "label.notifications", message: "Notifications" })}>
         <p className="text-muted mb-6">
-          <Trans id="mysettings.notification.title">Choose the events to recieve a notification for.</Trans>
+          <Trans id="mysettings.notification.title">Choose the events to receive a notification for.</Trans>
         </p>
 
         <div className="notifications-settings mt-4">

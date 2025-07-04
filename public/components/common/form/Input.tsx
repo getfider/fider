@@ -29,9 +29,17 @@ interface InputProps {
 }
 
 export const Input: React.FunctionComponent<InputProps> = (props) => {
+  // Original onChange handler
   const onChange = (e: React.FormEvent<HTMLInputElement>) => {
     if (props.onChange) {
       props.onChange(e.currentTarget.value)
+    }
+  }
+
+  // Original onFocus handler
+  const onFocus = () => {
+    if (props.onFocus) {
+      props.onFocus()
     }
   }
 
@@ -68,12 +76,20 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
               tabIndex={props.noTabFocus ? -1 : undefined}
               ref={props.inputRef}
               autoFocus={props.autoFocus}
-              onFocus={props.onFocus}
+              onFocus={onFocus}
               maxLength={props.maxLength}
               disabled={props.disabled}
               value={props.value}
               placeholder={props.placeholder}
-              onChange={onChange}
+              onChange={(e) => {
+                // Clear error for this field when user interacts with it
+                if (ctx.clearError && hasError(props.field, ctx.error)) {
+                  ctx.clearError(props.field)
+                }
+
+                // Call the original onChange handler
+                onChange(e)
+              }}
             />
             {icon}
             {suffix}

@@ -21,7 +21,7 @@ export const ThemeSwitcher = () => {
     document.body.setAttribute("data-theme", currentTheme)
   }, [currentTheme])
 
-  const icon = currentTheme === "light" ? <Icon sprite={IconMoon} className="h-6" /> : <Icon sprite={IconSun} className="h-6" />
+  const icon = currentTheme === "light" ? <Icon sprite={IconMoon} className="h-6 text-gray-500" /> : <Icon sprite={IconSun} className="h-6 text-gray-500" />
 
   return (
     <button onClick={toggleTheme} aria-label="Toggle theme" className="c-themeswitcher">

@@ -182,5 +182,18 @@
   "signin.message.private.title": "<0>{0}</0> යනු පුද්ගලික අවකාශයකි, සහභාගී වී ඡන්දය දීමට ඔබ පුරනය විය යුතුය.",
   "signin.message.socialbutton.intro": "සමඟ ලොග් වන්න",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "labels.notagsselected": "ටැග් කිසිවක් තෝරාගෙන නැත."
+  "labels.notagsselected": "ටැග් කිසිවක් තෝරාගෙන නැත.",
+  "action.commentsfeed": "අදහස් සංග්‍රහය",
+  "action.postsfeed": "පළ කිරීම් සංග්‍රහය",
+  "label.addtags": "ටැග් එකතු කරන්න...",
+  "label.searchtags": "ටැග සොයන්න...",
+  "mysettings.notification.event.newpostcreated": "ඔබේ අදහස එකතු කර ඇත 👍",
+  "newpost.modal.addimage": "රූප එකතු කරන්න",
+  "newpost.modal.description.placeholder": "ඒ ගැන අපට කියන්න. එය සම්පූර්ණයෙන්ම පැහැදිලි කරන්න, පසුබට නොවන්න, වැඩි තොරතුරු ලැබෙන තරමට වඩා හොඳය.",
+  "newpost.modal.title": "ඔබේ අදහස බෙදා ගන්න...",
+  "newpost.modal.title.label": "ඔබේ අදහසට මාතෘකාවක් දෙන්න.",
+  "newpost.modal.title.placeholder": "කෙටි හා වේගවත් දෙයක්, වචන කිහිපයකින් සාරාංශ කරන්න.",
+  "newpost.modal.submit": "ඔබේ අදහස ඉදිරිපත් කරන්න.",
+  "validation.custom.maxattachments": "උපරිම වශයෙන් ඇමුණුම් {number} ක් සඳහා අවසර ඇත.",
+  "validation.custom.maximagesize": "රූපයේ ප්‍රමාණය {kilobytes}KB ට වඩා කුඩා විය යුතුය."
 }

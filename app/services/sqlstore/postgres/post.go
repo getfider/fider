@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models/entity"
@@ -14,6 +15,7 @@ import (
 	"github.com/lib/pq"
 
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -310,6 +312,34 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	})
 }
 
+func addNewDraftPost(ctx context.Context, c *cmd.AddNewDraftPost) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		type result struct {
+			ID   int    `db:"id"`
+			Code string `db:"code"`
+		}
+
+		var r result
+		err := trx.Get(&r,
+			`INSERT INTO draft_posts (title, description, created_at, code)
+			 VALUES ($1, $2, $3, $4)
+			 RETURNING id, code`, c.Title, c.Description, time.Now(), c.Code)
+		if err != nil {
+			return errors.Wrap(err, "failed add new draft post")
+		}
+
+		c.Result = &entity.DraftPost{
+			ID:          r.ID,
+			Code:        r.Code,
+			Title:       c.Title,
+			Description: c.Description,
+			CreatedAt:   time.Now(),
+		}
+
+		return nil
+	})
+}
+
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
@@ -360,6 +390,71 @@ func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
 	})
 }
 
+func preprocessSearchQuery(query string) string {
+	// Common noise words that don't add search value
+
+	noiseWords := env.SearchNoiseWords()
+
+	words := strings.Fields(strings.ToLower(query))
+	var filteredWords []string
+
+	for _, word := range words {
+		isNoise := false
+		for _, noise := range noiseWords {
+			if word == noise {
+				isNoise = true
+				break
+			}
+		}
+		if !isNoise && len(word) > 2 { // Also filter very short words
+			filteredWords = append(filteredWords, word)
+		}
+	}
+
+	return strings.Join(filteredWords, " ")
+}
+
+func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
+
+		filteredQuery := preprocessSearchQuery(q.Query)
+
+		var (
+			posts []*dbPost
+			err   error
+		)
+
+		if filteredQuery == "" {
+			q.Result = make([]*entity.Post, 0)
+		} else {
+			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
+			sql := fmt.Sprintf(`
+				SELECT * FROM (%s) AS q 
+				WHERE %s > 0.5
+				ORDER BY %s DESC
+				LIMIT 5
+			`, innerQuery, scoreField, scoreField)
+			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
+				enum.PostOpen,
+				enum.PostStarted,
+				enum.PostPlanned,
+				enum.PostCompleted,
+				enum.PostDeclined,
+			}), ToTSQuery(filteredQuery), SanitizeString(filteredQuery))
+		}
+		if err != nil {
+			return errors.Wrap(err, "failed to find similar posts")
+		}
+
+		q.Result = make([]*entity.Post, len(posts))
+		for i, post := range posts {
+			q.Result[i] = post.toModel(ctx)
+		}
+		return nil
+	})
+}
+
 func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
@@ -386,7 +481,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
-				WHERE %s > 0.1
+				WHERE %s > 0.4
 				ORDER BY %s DESC
 				LIMIT %s
 			`, innerQuery, scoreField, scoreField, q.Limit)

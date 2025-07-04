@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/csv"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -42,14 +43,37 @@ func Index() web.HandlerFunc {
 			description = "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share posts."
 		}
 
+		data := web.Map{
+			"searchNoiseWords": env.SearchNoiseWords(),
+			"posts":            searchPosts.Result,
+			"tags":             getAllTags.Result,
+			"countPerStatus":   countPerStatus.Result,
+		}
+
+		draftCode := c.QueryParam("c")
+		if draftCode != "" {
+			// Get the draft post by code
+			getDraftPost := &query.GetDraftPostByCode{Code: draftCode}
+			if err := bus.Dispatch(c, getDraftPost); err == nil && getDraftPost.Result != nil {
+				data["draftPost"] = getDraftPost.Result
+				// Get attachments for the draft post
+				getDraftAttachments := &query.GetDraftAttachments{DraftPost: getDraftPost.Result}
+				if err := bus.Dispatch(c, getDraftAttachments); err == nil {
+					// Add draft post data to the page data
+					data["draftAttachments"] = getDraftAttachments.Result
+				}
+				getDraftTags := &query.GetDraftTags{DraftPost: getDraftPost.Result}
+				if err := bus.Dispatch(c, getDraftTags); err == nil {
+					// Add draft post data to the page data
+					data["draftTags"] = getDraftTags.Result
+				}
+			}
+		}
+
 		return c.Page(http.StatusOK, web.Props{
 			Page:        "Home/Home.page",
 			Description: description,
-			Data: web.Map{
-				"posts":          searchPosts.Result,
-				"tags":           getAllTags.Result,
-				"countPerStatus": countPerStatus.Result,
-			},
+			Data:        data,
 		})
 	}
 }

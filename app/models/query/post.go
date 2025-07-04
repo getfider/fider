@@ -44,6 +44,12 @@ type SearchPosts struct {
 	Result []*entity.Post
 }
 
+type FindSimilarPosts struct {
+	Query string
+
+	Result []*entity.Post
+}
+
 type GetAllPosts struct {
 	Result []*entity.Post
 }

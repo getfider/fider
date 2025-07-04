@@ -61,7 +61,7 @@ export const VotesModal: React.FC<VotesModalProps> = (props) => {
               field="query"
               icon={query ? IconX : IconSearch}
               onIconClick={query ? clearSearch : undefined}
-              placeholder={i18n._("modal.showvotes.query.placeholder", { message: "Search for users by name..." })}
+              placeholder={i18n._({ id: "modal.showvotes.query.placeholder", message: "Search for users by name..." })}
               value={query}
               onChange={handleSearchFilterChanged}
             />

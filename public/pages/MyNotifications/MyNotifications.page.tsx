@@ -64,8 +64,8 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
         <Header />
         <div id="p-my-notifications" className="page container">
           <PageTitle
-            title={i18n._("mynotifications.page.title", { message: "Notifications" })}
-            subtitle={i18n._("mynotifications.page.subtitle", { message: "Stay up to date with what's happening" })}
+            title={i18n._({ id: "mynotifications.page.title", message: "Notifications" })}
+            subtitle={i18n._({ id: "mynotifications.page.subtitle", message: "Stay up to date with what's happening" })}
           />
 
           <HStack spacing={4} className="mt-8 mb-2">

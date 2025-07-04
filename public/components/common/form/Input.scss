@@ -15,6 +15,10 @@
     @include disabled();
   }
 
+  &::placeholder {
+    color: var(--colors-gray-600);
+  }
+
   & + svg,
   & + img {
     position: absolute;

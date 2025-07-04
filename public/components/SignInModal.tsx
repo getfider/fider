@@ -53,7 +53,7 @@ export const SignInModal: React.FC<SignInModalProps> = (props) => {
             <CloseIcon closeModal={closeModal} />
           </HStack>
           <p>
-            <Trans id="modal.signin.header">Submit your feedback</Trans>
+            <Trans id="modal.signin.header">Join the conversation</Trans>
           </p>
         </VStack>
       </Modal.Header>

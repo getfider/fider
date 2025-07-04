@@ -135,14 +135,14 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
           </Modal.Window>
 
           <PageTitle
-            title={i18n._("mysettings.page.title", { message: "Settings" })}
-            subtitle={i18n._("mysettings.page.subtitle", { message: "Manage your profile settings" })}
+            title={i18n._({ id: "mysettings.page.title", message: "Settings" })}
+            subtitle={i18n._({ id: "mysettings.page.subtitle", message: "Manage your profile settings" })}
           />
 
           <div className="w-max-7xl">
             <Form error={this.state.error}>
               <Input
-                label={i18n._("label.email", { message: "Email" })}
+                label={i18n._({ id: "label.email", message: "Email" })}
                 field="email"
                 value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
                 maxLength={200}
@@ -169,16 +169,16 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 )}
               </Input>
 
-              <Input label={i18n._("label.name", { message: "Name" })} field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
+              <Input label={i18n._({ id: "label.name", message: "Name" })} field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
 
               <Select
-                label={i18n._("label.avatar", { message: "Avatar" })}
+                label={i18n._({ id: "label.avatar", message: "Avatar" })}
                 field="avatarType"
                 defaultValue={this.state.avatarType}
                 options={[
-                  { label: i18n._("label.letter", { message: "Letter" }), value: UserAvatarType.Letter },
-                  { label: i18n._("label.gravatar", { message: "Gravatar" }), value: UserAvatarType.Gravatar },
-                  { label: i18n._("label.custom", { message: "Custom" }), value: UserAvatarType.Custom },
+                  { label: i18n._({ id: "label.letter", message: "Letter" }), value: UserAvatarType.Letter },
+                  { label: i18n._({ id: "label.gravatar", message: "Gravatar" }), value: UserAvatarType.Gravatar },
+                  { label: i18n._({ id: "label.custom", message: "Custom" }), value: UserAvatarType.Custom },
                 ]}
                 onChange={this.avatarTypeChanged}
               >

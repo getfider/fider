@@ -6,6 +6,7 @@ import { ImageUpload, Tag } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
+// import { CACHE_ATTACHMENT_KEY } from "./ShareFeedback"
 import { TagsSelect } from "@fider/components/common/TagsSelect"
 
 interface PostInputProps {
@@ -105,7 +106,7 @@ export const PostInput = (props: PostInputProps) => {
         onChange={handleDescriptionChange}
         value={description}
         minRows={5}
-        placeholder={i18n._("home.postinput.description.placeholder", { message: "Describe your suggestion (optional)" })}
+        placeholder={i18n._({ id: "home.postinput.description.placeholder", message: "Describe your suggestion (optional)" })}
       />
       {canEditTags && (
         <div className={classSet({ "c-form-field": true })}>
