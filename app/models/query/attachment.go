@@ -10,3 +10,10 @@ type GetAttachments struct {
 
 	Result []string
 }
+
+// IsAttachmentReferenced checks if a blob key is referenced in the attachments table
+type IsAttachmentReferenced struct {
+	BlobKey string
+
+	Result bool
+}

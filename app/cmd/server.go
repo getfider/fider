@@ -59,6 +59,7 @@ func startJobs(ctx context.Context) {
 	c := cron.New()
 	_ = c.AddJob(jobs.NewJob(ctx, "PurgeExpiredNotificationsJob", jobs.PurgeExpiredNotificationsJobHandler{}))
 	_ = c.AddJob(jobs.NewJob(ctx, "EmailSupressionJob", jobs.EmailSupressionJobHandler{}))
+	_ = c.AddJob(jobs.NewJob(ctx, "DeleteOrphanedAttachmentsJob", jobs.DeleteOrphanedAttachmentsJobHandler{}))
 
 	if env.IsBillingEnabled() {
 		_ = c.AddJob(jobs.NewJob(ctx, "LockExpiredTenantsJob", jobs.LockExpiredTenantsJobHandler{}))

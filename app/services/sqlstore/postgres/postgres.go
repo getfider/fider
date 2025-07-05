@@ -78,6 +78,7 @@ func (s Service) Init() {
 
 	bus.AddHandler(setAttachments)
 	bus.AddHandler(getAttachments)
+	bus.AddHandler(isAttachmentReferenced)
 	bus.AddHandler(uploadImage)
 	bus.AddHandler(uploadImages)
 
