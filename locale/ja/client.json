@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "新しい通知はありません",
   "modal.notifications.previous": "過去の通知",
   "modal.notifications.unread": "未読通知",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "<0>{0}</0>に一致するユーザーは見つかりませんでした。",
   "modal.showvotes.query.placeholder": "名前でユーザーを検索...",
   "modal.signin.header": "フィードバックを送信",

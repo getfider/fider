@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "No hay nuevas notificaciones",
   "modal.notifications.previous": "Notificaciones anteriores",
   "modal.notifications.unread": "Notificaciones no leídas",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "No se encontraron usuarios que coincidan con <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Buscar usuarios por nombre...",
   "modal.signin.header": "Envíe sus comentarios",

@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "Brak nowych powiadomień",
   "modal.notifications.previous": "Poprzednie powiadomienia",
   "modal.notifications.unread": "Nieprzeczytane powiadomienia",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "Nie znaleziono użytkowników pasujących do <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Wyszukaj użytkowników według nazwy...",
   "modal.signin.header": "Prześlij swoją opinię",

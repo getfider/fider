@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "Keine neuen Benachrichtigungen",
   "modal.notifications.previous": "Vorherige Benachrichtigungen",
   "modal.notifications.unread": "Ungelesene Benachrichtigungen",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "Keine Benutzer gefunden, die <0>{0}</0> entsprechen.",
   "modal.showvotes.query.placeholder": "Suche nach Benutzern nach Namen...",
   "modal.signin.header": "Reiche dein Feedback ein",

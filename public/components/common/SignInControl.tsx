@@ -11,14 +11,9 @@ import { i18n } from "@lingui/core"
 interface SignInControlProps {
   useEmail: boolean
   redirectTo?: string
-  onSubmit?: () => Promise<SignInSubmitResponse>
+  onSubmit?: () => void
   onEmailSent?: (email: string) => void
   signInButtonText?: string
-}
-
-export interface SignInSubmitResponse {
-  ok: boolean
-  code?: string
 }
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
@@ -34,24 +29,19 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     setShowEmailForm(true)
   }
 
-  const doPreSigninAction = async (): Promise<SignInSubmitResponse> => {
-    let signInResponse: SignInSubmitResponse = { ok: true }
+  const doPreSigninAction = () => {
     if (props.onSubmit) {
-      signInResponse = await props.onSubmit()
+      props.onSubmit()
     }
-    return signInResponse
   }
 
-  const onSocialSignin = async () => {
-    return await doPreSigninAction()
+  const onSocialSignin = () => {
+    doPreSigninAction()
   }
 
   const signIn = async () => {
-    const signInResponse = await doPreSigninAction()
-    if (!signInResponse.ok) {
-      return
-    }
-    const result = await actions.signIn(email, signInResponse.code)
+    await doPreSigninAction()
+    const result = await actions.signIn(email)
     if (result.ok) {
       setEmail("")
       setError(undefined)

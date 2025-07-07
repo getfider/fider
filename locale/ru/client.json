@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "Нет новых уведомлений",
   "modal.notifications.previous": "Предыдущие уведомления",
   "modal.notifications.unread": "Непрочитанные уведомления",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "Не удалось найти пользователей с <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Найдите пользователей по их имени...",
   "modal.signin.header": "Оставьте свой отзыв",

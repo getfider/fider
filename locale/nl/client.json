@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "Geen nieuwe meldingen",
   "modal.notifications.previous": "Eerdere meldingen",
   "modal.notifications.unread": "Ongelezen meldingen",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "Geen gebruikers gevonden voor <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Zoek gebruikers op naam...",
   "modal.signin.header": "Geef uw feedback",

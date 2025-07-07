@@ -1,5 +1,5 @@
 import React from "react"
-import { OAuthProviderLogo, SignInSubmitResponse } from "@fider/components"
+import { OAuthProviderLogo } from "@fider/components"
 import { Trans } from "@lingui/react/macro"
 
 interface SocialSignInButtonProps {
@@ -12,21 +12,19 @@ interface SocialSignInButtonProps {
   }
   className?: string
   redirectTo?: string
-  onClick?: () => Promise<SignInSubmitResponse>
+  onClick?: () => void
 }
 
 export const SocialSignInButton = (props: SocialSignInButtonProps) => {
   const redirectTo = props.redirectTo || window.location.href
-  const href = props.option.url ? `${props.option.url}?redirect=${redirectTo}` : undefined
+  const href = props.option.url ? `${props.option.url}?redirect=${redirectTo}` : ""
 
   const handleClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     // If there is an onClick then let that run and check it finishes OK before doing the oauth.
     if (props.onClick) {
       e.preventDefault()
-      const response = await props.onClick()
-      if (response.ok && href) {
-        window.location.href = `${href}&code=${response.code}`
-      }
+      props.onClick()
+      window.location.href = href
     }
   }
 

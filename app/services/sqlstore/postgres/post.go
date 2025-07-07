@@ -312,34 +312,6 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	})
 }
 
-func addNewDraftPost(ctx context.Context, c *cmd.AddNewDraftPost) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		type result struct {
-			ID   int    `db:"id"`
-			Code string `db:"code"`
-		}
-
-		var r result
-		err := trx.Get(&r,
-			`INSERT INTO draft_posts (title, description, created_at, code)
-			 VALUES ($1, $2, $3, $4)
-			 RETURNING id, code`, c.Title, c.Description, time.Now(), c.Code)
-		if err != nil {
-			return errors.Wrap(err, "failed add new draft post")
-		}
-
-		c.Result = &entity.DraftPost{
-			ID:          r.ID,
-			Code:        r.Code,
-			Title:       c.Title,
-			Description: c.Description,
-			CreatedAt:   time.Now(),
-		}
-
-		return nil
-	})
-}
-
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 

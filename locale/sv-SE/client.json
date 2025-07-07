@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "Inga nya aviseringar",
   "modal.notifications.previous": "Tidigare aviseringar",
   "modal.notifications.unread": "Olästa aviseringar",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "Inga användare hittades som matchar <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Sök efter användare med namn...",
   "modal.signin.header": "Skicka in din feedback",

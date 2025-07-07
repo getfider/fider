@@ -24,10 +24,10 @@ import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
-import { fileToBase64 } from "@fider/services"
+import { actions, fileToBase64 } from "@fider/services"
 import { ImageUpload, InlineImage } from "@fider/models"
 import { CustomImage } from "./CustomImage"
-import { uploadImage } from "@fider/services/actions/image"
+import { deleteImage, uploadImage } from "@fider/services/actions/image"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
@@ -256,16 +256,19 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   }
 
   // Handle image deletion
-  const handleImageRemove = (bkey: string) => {
+  const handleImageRemove = async (bkey: string) => {
     // Create an ImageUpload object with remove flag set to true
     const removeUpload: InlineImage = {
       bkey,
       remove: true,
     }
 
-    // Pass the removal request to the parent component
-    if (props.onImageUploaded) {
+    const result = await deleteImage(bkey)
+
+    if (result.ok) {
       props.onImageUploaded(removeUpload)
+    } else {
+      console.error("Failed to delete image", result.error)
     }
   }
 

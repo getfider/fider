@@ -8,6 +8,18 @@ import (
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
+type DeleteImage struct {
+	BlobKey string `route:"bkey"`
+}
+
+func (input *DeleteImage) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return user != nil
+}
+
+func (input *DeleteImage) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	return validate.Success()
+}
+
 // UploadImage is used to upload an image without associating it with a post or comment
 type UploadImage struct {
 	Image *dto.ImageUpload `json:"image"`

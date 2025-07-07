@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "Yeni bildirim yok",
   "modal.notifications.previous": "Önceki bildirimler",
   "modal.notifications.unread": "Okunmamış bildirimler",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "Eşleşen kullanıcı bulunamadı <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Kullanıcıları ismiyle arayın...",
   "modal.signin.header": "Geri bildiriminizi gönderin",

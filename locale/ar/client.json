@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "لا توجد إشعارات جديدة",
   "modal.notifications.previous": "الإشعارات السابقة",
   "modal.notifications.unread": "إشعارات غير مقروءة",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "لم يتم العثور على مستخدمين مطابقين ل <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "البحث عن المستخدمين بالاسم...",
   "modal.signin.header": "أرسل ملاحظاتك",

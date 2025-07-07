@@ -199,7 +199,6 @@ func routes(r *web.Engine) *web.Engine {
 		publicApi.Get("/api/v1/posts/:number", apiv1.GetPost())
 		publicApi.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		publicApi.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
-		publicApi.Post("/api/v1/draftposts", apiv1.CreateDraftPost())
 	}
 
 	// Operations used to manage the content of a site

@@ -107,6 +107,8 @@
   "modal.notifications.nonew": "No new notifications",
   "modal.notifications.previous": "Previous notifications",
   "modal.notifications.unread": "Unread notifications",
+  "modal.rss.description": "To subscribe to this ATOM feed, copy and paste this URL into your RSS/ATOM reader.",
+  "modal.rss.title": "Subscribe to ATOM feed",
   "modal.showvotes.message.zeromatches": "No users found matching <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Search for users by name...",
   "modal.signin.header": "Join the conversation",

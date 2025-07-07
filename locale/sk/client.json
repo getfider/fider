@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "Žiadne nové oznámenia",
   "modal.notifications.previous": "Predošlé oznámenia",
   "modal.notifications.unread": "Neprečítané oznámenia",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "Nenašli sa žiadni používatelia <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Vyhľadajte používateľov podľa mena...",
   "modal.signin.header": "Odoslať spätnú väzbu",

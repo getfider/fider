@@ -108,6 +108,8 @@
   "modal.notifications.nonew": "Δεν υπάρχουν νέες ειδοποιήσεις",
   "modal.notifications.previous": "Προηγούμενες ειδοποιήσεις",
   "modal.notifications.unread": "Μη αναγνωσμένες ειδοποιήσεις",
+  "modal.rss.description": "",
+  "modal.rss.title": "",
   "modal.showvotes.message.zeromatches": "Δεν βρέθηκαν χρήστες που να ταιριάζουν <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "Αναζήτηση χρηστών με όνομα...",
   "modal.signin.header": "Υποβάλετε τα σχόλιά σας",

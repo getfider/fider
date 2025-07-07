@@ -2,30 +2,21 @@ import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
 import React, { useState } from "react"
-import { Post, Tag, PostStatus, ImageUpload } from "@fider/models"
+import { Post, Tag, PostStatus } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
 import { VStack } from "@fider/components/layout"
 import { ShareFeedback } from "./components/ShareFeedback"
-import { cache } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
-import { CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY, CACHE_ATTACHMENT_KEY, CACHE_TAGS_KEY } from "./components/ShareFeedback"
+import { isPostPending } from "./components/PostCache"
 
 export interface HomePageProps {
   posts: Post[]
   tags: Tag[]
   searchNoiseWords: string[]
   countPerStatus: { [key: string]: number }
-  draftPost?: {
-    id: number
-    code: string
-    title: string
-    description: string
-  }
-  draftAttachments?: string[]
-  draftTags?: Tag[]
 }
 
 export interface HomePageState {
@@ -54,22 +45,9 @@ const Lonely = () => {
 }
 
 const HomePage = (props: HomePageProps) => {
-  if (props.draftPost) {
-    // Need to store the details of the draft post in the cache
-    cache.session.set(CACHE_TITLE_KEY, props.draftPost.title)
-    cache.session.set(CACHE_DESCRIPTION_KEY, props.draftPost.description)
-    if (props.draftAttachments?.length) {
-      const images: ImageUpload[] = props.draftAttachments.map((bkey: string) => ({ bkey, remove: false }))
-      cache.session.set(CACHE_ATTACHMENT_KEY, JSON.stringify(images))
-    }
-    if (props.draftTags?.length) {
-      cache.session.set(CACHE_TAGS_KEY, props.draftTags.map((tag) => tag.slug).join(","))
-    }
-  }
-
   const fider = useFider()
   // const [title, setTitle] = useState("")
-  const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(props.draftPost !== undefined)
+  const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(isPostPending())
 
   const defaultWelcomeMessage = i18n._({
     id: "home.form.defaultwelcomemessage",

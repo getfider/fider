@@ -12,3 +12,7 @@ export interface UploadImageResponse {
 export const uploadImage = async (image: ImageUpload): Promise<Result<UploadImageResponse>> => {
   return http.post<UploadImageResponse>("/api/v1/images", { image })
 }
+
+export const deleteImage = async (bkey: string): Promise<Result> => {
+  return http.delete(`/api/v1/images/${bkey}`)
+}

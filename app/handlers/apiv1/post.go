@@ -96,50 +96,6 @@ func CreatePost() web.HandlerFunc {
 	}
 }
 
-// CreateDraftPost creates a new draft post without requiring authentication
-func CreateDraftPost() web.HandlerFunc {
-	return func(c *web.Context) error {
-		action := new(actions.CreateNewPost)
-		action.IsDraft = true
-		if result := c.BindTo(action); !result.Ok {
-			return c.HandleValidation(result)
-		}
-
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Attachments, Folder: "attachments"}); err != nil {
-			return c.Failure(err)
-		}
-
-		newDraftPost := &cmd.AddNewDraftPost{
-			Title:       action.Title,
-			Description: action.Description,
-			Code:        cmd.GenerateNewCode(),
-		}
-		err := bus.Dispatch(c, newDraftPost)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		setDraftAttachments := &cmd.SetDraftAttachments{DraftPost: newDraftPost.Result, Attachments: action.Attachments}
-		if err = bus.Dispatch(c, setDraftAttachments); err != nil {
-			return c.Failure(err)
-		}
-
-		// Handle tags if post creation with tags is enabled
-		if env.Config.PostCreationWithTagsEnabled && len(action.Tags) > 0 {
-			setDraftTags := &cmd.SetDraftTags{DraftPost: newDraftPost.Result, Tags: action.Tags}
-			if err = bus.Dispatch(c, setDraftTags); err != nil {
-				return c.Failure(err)
-			}
-		}
-
-		return c.Ok(web.Map{
-			"id":    newDraftPost.Result.ID,
-			"code":  newDraftPost.Result.Code,
-			"title": newDraftPost.Result.Title,
-		})
-	}
-}
-
 // GetPost retrieves the existing post by number
 func GetPost() web.HandlerFunc {
 	return func(c *web.Context) error {

@@ -50,26 +50,6 @@ func Index() web.HandlerFunc {
 			"countPerStatus":   countPerStatus.Result,
 		}
 
-		draftCode := c.QueryParam("c")
-		if draftCode != "" {
-			// Get the draft post by code
-			getDraftPost := &query.GetDraftPostByCode{Code: draftCode}
-			if err := bus.Dispatch(c, getDraftPost); err == nil && getDraftPost.Result != nil {
-				data["draftPost"] = getDraftPost.Result
-				// Get attachments for the draft post
-				getDraftAttachments := &query.GetDraftAttachments{DraftPost: getDraftPost.Result}
-				if err := bus.Dispatch(c, getDraftAttachments); err == nil {
-					// Add draft post data to the page data
-					data["draftAttachments"] = getDraftAttachments.Result
-				}
-				getDraftTags := &query.GetDraftTags{DraftPost: getDraftPost.Result}
-				if err := bus.Dispatch(c, getDraftTags); err == nil {
-					// Add draft post data to the page data
-					data["draftTags"] = getDraftTags.Result
-				}
-			}
-		}
-
 		return c.Page(http.StatusOK, web.Props{
 			Page:        "Home/Home.page",
 			Description: description,
