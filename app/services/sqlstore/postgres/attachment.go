@@ -35,23 +35,20 @@ func setAttachments(ctx context.Context, c *cmd.SetAttachments) error {
 					return errors.Wrap(err, "failed to delete attachment")
 				}
 			} else {
-				rowsAffected, err := trx.Execute(
-					`UPDATE attachments 
-					 SET post_id = $2, comment_id = $3, user_id = $4
-					 WHERE tenant_id = $1 AND attachment_bkey = $5`,
-					tenant.ID, postID, commentID, user.ID, attachment.BlobKey,
-				)
-				if err != nil {
-					return errors.Wrap(err, "failed to update attachment")
-				}
-
-				if rowsAffected == 0 {
-					if _, err := trx.Execute(
-						"INSERT INTO attachments (tenant_id, post_id, comment_id, user_id, attachment_bkey) VALUES ($1, $2, $3, $4, $5)",
-						tenant.ID, postID, commentID, user.ID, attachment.BlobKey,
-					); err != nil {
-						return errors.Wrap(err, "failed to insert attachment")
-					}
+				// Use a conditional INSERT that only adds the attachment if it doesn't already exist
+				if _, err := trx.Execute(`
+					INSERT INTO attachments (tenant_id, post_id, comment_id, user_id, attachment_bkey)
+					SELECT $1, $2, $3, $4, $5
+					WHERE NOT EXISTS (
+						SELECT 1 FROM attachments
+						WHERE tenant_id = $6
+						AND post_id = $7
+						AND (comment_id = $8 OR ($8 IS NULL AND comment_id IS NULL))
+						AND attachment_bkey = $9
+					)
+				`, tenant.ID, postID, commentID, user.ID, attachment.BlobKey,
+					tenant.ID, postID, commentID, attachment.BlobKey); err != nil {
+					return errors.Wrap(err, "failed to insert attachment")
 				}
 			}
 		}
@@ -97,30 +94,20 @@ func getAttachments(ctx context.Context, q *query.GetAttachments) error {
 }
 
 func uploadImage(ctx context.Context, c *cmd.UploadImage) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		if c.Image.Upload != nil && len(c.Image.Upload.Content) > 0 {
-			bkey := fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
-			err := bus.Dispatch(ctx, &cmd.StoreBlob{
-				Key:         bkey,
-				Content:     c.Image.Upload.Content,
-				ContentType: c.Image.Upload.ContentType,
-			})
-			if err != nil {
-				return errors.Wrap(err, "failed to upload new blob")
-			}
-
-			// "Prep" the image in the attachments table, so it can be associated with a post or comment later
-			// Store with a post of 0, so we know it's not yet been "saved" from the user.
-			if _, err := trx.Execute(
-				"INSERT INTO attachments (tenant_id, post_id, comment_id, user_id, attachment_bkey) VALUES ($1, $2, $3, $4, $5)",
-				tenant.ID, 0, 0, user.ID, bkey,
-			); err != nil {
-				return errors.Wrap(err, "failed to insert 'prep' attachment")
-			}
-			c.Image.BlobKey = bkey
+	if c.Image.Upload != nil && len(c.Image.Upload.Content) > 0 {
+		if c.Image.BlobKey == "" {
+			c.Image.BlobKey = fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
 		}
-		return nil
-	})
+		err := bus.Dispatch(ctx, &cmd.StoreBlob{
+			Key:         c.Image.BlobKey,
+			Content:     c.Image.Upload.Content,
+			ContentType: c.Image.Upload.ContentType,
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to upload new blob")
+		}
+	}
+	return nil
 }
 
 func uploadImages(ctx context.Context, c *cmd.UploadImages) error {
@@ -133,23 +120,4 @@ func uploadImages(ctx context.Context, c *cmd.UploadImages) error {
 		}
 	}
 	return nil
-}
-
-func isAttachmentReferenced(ctx context.Context, q *query.IsAttachmentReferenced) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		exists, err := trx.Exists(`
-			SELECT 1 FROM attachments
-			WHERE attachment_bkey = $1
-			UNION
-			SELECT 1 FROM draft_attachments
-			WHERE attachment_bkey = $1
-		`, q.BlobKey)
-
-		if err != nil {
-			return errors.Wrap(err, "failed to check if attachment is referenced")
-		}
-
-		q.Result = exists
-		return nil
-	})
 }

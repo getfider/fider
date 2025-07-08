@@ -1,12 +1,13 @@
-import { InlineImage } from "@fider/models/post"
+import { ImageUpload } from "@fider/models"
 import Image from "@tiptap/extension-image"
 import * as MarkdownIt from "markdown-it"
 
 export interface CustomImageOptions {
   HTMLAttributes?: Record<string, any>
   allowBase64?: boolean
-  onImageUpload?: (upload: InlineImage) => void
+  onImageUpload?: (upload: ImageUpload) => void
   onImageRemove?: (bkey: string) => void
+  onGetImageSrc?: (bkey: string) => string
 }
 
 export const CustomImage = Image.extend<CustomImageOptions>({
@@ -19,6 +20,7 @@ export const CustomImage = Image.extend<CustomImageOptions>({
       allowBase64: true,
       onImageUpload: undefined,
       onImageRemove: undefined,
+      onGetImageSrc: undefined,
     }
   },
 
@@ -63,7 +65,7 @@ export const CustomImage = Image.extend<CustomImageOptions>({
           state.write(`![](fider-image:${imageId})`)
         },
         parse: {
-          setup(markdownit: MarkdownIt) {
+          setup: (markdownit: MarkdownIt) => {
             // Custom rule to parse our special image syntax
             markdownit.inline.ruler.before("image", "fider-image", (state: MarkdownIt.StateInline, silent: boolean) => {
               const match = state.src.slice(state.pos).match(/^!\[\]\(fider-image:([a-zA-Z0-9_/.-]+)\)/)
@@ -76,8 +78,12 @@ export const CustomImage = Image.extend<CustomImageOptions>({
                 // Initialize attrs as an empty array first
                 token.attrs = []
 
-                // Use attrSet method to properly set attributes
-                token.attrSet("src", `/static/images/${imageId}`)
+                let imageSrc = this.options.onGetImageSrc ? this.options.onGetImageSrc(imageId) : ""
+                if (imageSrc.length === 0) {
+                  imageSrc = `/static/images/${imageId}`
+                }
+
+                token.attrSet("src", imageSrc)
                 token.attrSet("alt", "")
                 token.attrSet("data-id", imageId)
                 token.attrSet("data-bkey", imageId)

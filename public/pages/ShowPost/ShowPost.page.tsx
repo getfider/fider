@@ -2,7 +2,7 @@ import "./ShowPost.page.scss"
 
 import React, { useState, useEffect, useCallback } from "react"
 
-import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
+import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
 import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
@@ -27,6 +27,7 @@ import { VotesPanel } from "./components/VotesPanel"
 import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
 import { t } from "@lingui/macro"
 import { useFider } from "@fider/hooks"
+import { useAttachments } from "@fider/hooks/useAttachments"
 
 interface ShowPostPageProps {
   post: Post
@@ -53,7 +54,9 @@ export default function ShowPostPage(props: ShowPostPageProps) {
   const [showResponseModal, setShowResponseModal] = useState(false)
   const [newTitle, setNewTitle] = useState(props.post.title)
   const [newDescription, setNewDescription] = useState(props.post.description)
-  const [attachments, setAttachments] = useState<ImageUpload[]>([])
+  const { attachments, handleImageUploaded, getImageSrc } = useAttachments({
+    maxAttachments: 3,
+  })
   const [highlightedComment, setHighlightedComment] = useState<number | undefined>(undefined)
   const [error, setError] = useState<Failure | undefined>(undefined)
   const fider = useFider()
@@ -105,19 +108,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     }
   }, [])
 
-  // Initialize attachments from props when entering edit mode
-  useEffect(() => {
-    if (editMode) {
-      // Convert attachment bkeys to ImageUpload objects
-      const initialAttachments = props.attachments.map((bkey) => ({
-        bkey,
-        remove: false,
-      })) as ImageUpload[]
-
-      setAttachments(initialAttachments)
-    }
-  }, [editMode, props.attachments])
-
   const saveChanges = async () => {
     const result = await actions.updatePost(props.post.number, newTitle, newDescription, attachments)
     if (result.ok) {
@@ -146,17 +136,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
   const handleDescriptionChange = (value: string) => {
     setNewDescription(value)
-  }
-
-  const handleImageUploaded = (image: ImageUpload) => {
-    setAttachments((prev) => {
-      // If this is a removal request, find and mark the attachment for removal
-      if (image.remove && image.bkey) {
-        return prev.map((att) => (att.bkey === image.bkey ? { ...att, remove: true } : att))
-      }
-      // Otherwise add the new upload
-      return [...prev, image]
-    })
   }
 
   const onActionSelected = (action: "copy" | "delete" | "status" | "feed" | "edit") => () => {
@@ -262,6 +241,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                           message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
                         })}
                         onImageUploaded={handleImageUploaded}
+                        onGetImageSrc={getImageSrc}
                       />
                     </Form>
                   ) : (

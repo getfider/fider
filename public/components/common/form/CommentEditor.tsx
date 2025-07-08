@@ -24,10 +24,10 @@ import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
-import { actions, fileToBase64 } from "@fider/services"
-import { ImageUpload, InlineImage } from "@fider/models"
+import { fileToBase64 } from "@fider/services"
+import { generateBkey } from "@fider/services/bkey"
+import { ImageUpload } from "@fider/models"
 import { CustomImage } from "./CustomImage"
-import { deleteImage, uploadImage } from "@fider/services/actions/image"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
@@ -207,7 +207,8 @@ interface CommentEditorProps {
   onFocus?: () => void
   disabled: boolean
   field: string
-  onImageUploaded?: (upload: InlineImage) => void
+  onImageUploaded?: (upload: ImageUpload) => void
+  onGetImageSrc?: (bkey: string) => string
   maxAttachments?: number
   maxImageSizeKB?: number
 }
@@ -223,7 +224,7 @@ const markdownToHtml = (markdownString: string) => {
 
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
-  const [imageUploads, setImageUploads] = useState<InlineImage[]>([])
+  const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
 
   // Use a ref instead of state for tracking document images
   // This avoids the async state update issue and prevents unnecessary re-renders
@@ -258,17 +259,14 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   // Handle image deletion
   const handleImageRemove = async (bkey: string) => {
     // Create an ImageUpload object with remove flag set to true
-    const removeUpload: InlineImage = {
+    const removeUpload: ImageUpload = {
       bkey,
       remove: true,
     }
 
-    const result = await deleteImage(bkey)
-
-    if (result.ok) {
+    // Call the parent component's onImageUploaded prop with the removeUpload object
+    if (props.onImageUploaded) {
       props.onImageUploaded(removeUpload)
-    } else {
-      console.error("Failed to delete image", result.error)
     }
   }
 
@@ -367,8 +365,12 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     try {
       const base64 = await fileToBase64(file)
 
-      // Create an InlineImage object to be sent to the server
+      // Generate a bkey for this image that matches the server-side format
+      const bkey = generateBkey(file.name)
+
+      // Create an ImageUpload object to be sent to the server
       const newUpload: ImageUpload = {
+        bkey,
         upload: {
           fileName: file.name,
           content: base64,
@@ -377,39 +379,29 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         remove: false,
       }
 
-      // Upload the image to the server
-      const result = await uploadImage(newUpload)
+      // Insert the image into the editor with the server-provided bkey
+      if (editor) {
+        editor
+          .chain()
+          .focus()
+          .setImage({
+            src: `data:${file.type};base64,${base64}`,
+            alt: file.name,
+            ...({ bkey } as any),
+          })
+          .run()
 
-      if (result.ok) {
-        const bkey = result.data.bkey
+        // Add the bkey to the upload object for the parent component
+        newUpload.bkey = bkey
 
-        // Insert the image into the editor with the server-provided bkey
-        if (editor) {
-          editor
-            .chain()
-            .focus()
-            .setImage({
-              src: `data:${file.type};base64,${base64}`,
-              alt: file.name,
-              ...({ bkey } as any),
-            })
-            .run()
-
-          // Add the bkey to the upload object for the parent component
-          newUpload.bkey = bkey
-
-          // Manually pass the upload to the parent component
-          // since the updated() handler might not fire immediately
-          if (props.onImageUploaded) {
-            props.onImageUploaded({ bkey, remove: false })
-          }
-
-          // Update the document images ref
-          documentImagesRef.current.set(bkey, true)
+        // Manually pass the upload to the parent component
+        // since the updated() handler might not fire immediately
+        if (props.onImageUploaded) {
+          props.onImageUploaded(newUpload)
         }
-      } else {
-        const errorMessage = result.error?.errors?.[0]?.message || "Failed to upload image"
-        alert(errorMessage)
+
+        // Update the document images ref
+        documentImagesRef.current.set(bkey, true)
       }
     } catch (error) {
       console.error("Error uploading image:", error)
@@ -452,6 +444,15 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           onImageRemove: (id) => {
             // This is called when an image is removed from the editor
             handleImageRemove(id)
+          },
+          onGetImageSrc: (bkey) => {
+            if (props.onGetImageSrc) {
+              const imageSrc = props.onGetImageSrc(bkey)
+              if (imageSrc) {
+                return "data:image/jpeg;base64," + imageSrc
+              }
+            }
+            return ""
           },
         }),
         Placeholder.configure({

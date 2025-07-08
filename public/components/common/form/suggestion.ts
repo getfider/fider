@@ -118,7 +118,6 @@ export default {
       },
 
       onKeyDown(props: { event: KeyboardEvent }) {
-        console.log(props.event.key)
         if (props.event.key === "Escape" && containerElement) {
           // Clean up
           if (scrollListener) {

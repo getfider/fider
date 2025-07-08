@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react"
 
-import { Post, ImageUpload } from "@fider/models"
+import { Post } from "@fider/models"
 import { Avatar, UserName, Button, Form } from "@fider/components"
 import { SignInModal } from "@fider/components"
 
@@ -10,55 +10,38 @@ import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
 import { useFider } from "@fider/hooks"
+import { useAttachments } from "@fider/hooks/useAttachments"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
-import { extractImageBkeys } from "@fider/services/bkey"
 
 interface CommentInputProps {
   post: Post
 }
 
-const CACHE_TITLE_KEY = "CommentInput-Comment-"
+const CACHE_TITLE_KEY = "CommentInput-Comment-Title-"
+const CACHE_ATTACHMENTS_KEY = "CommentInput-Comment-Attachments-"
 
 export const CommentInput = (props: CommentInputProps) => {
-  const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`
+  const getCacheKey = (cachePrefix: string) => `${cachePrefix}${props.post.id}`
 
   const getContentFromCache = () => {
-    return cache.session.get(getCacheKey())
+    return cache.session.get(getCacheKey(CACHE_TITLE_KEY))
   }
 
   const fider = useFider()
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
-  const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
   const [isClient, setIsClient] = useState(false)
+
+  // Use the attachments hook
+  const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
+    cacheKey: getCacheKey(CACHE_ATTACHMENTS_KEY),
+    maxAttachments: 2,
+  })
 
   // Check if we're running on the client after component mounts
   useEffect(() => {
     setIsClient(true)
   }, [])
-
-  // Extract existing image references from cached content
-  useEffect(() => {
-    if (isClient) {
-      const cachedContent = getContentFromCache()
-      if (cachedContent) {
-        const bkeys = extractImageBkeys(cachedContent)
-        if (bkeys.length > 0) {
-          // Create ImageUpload objects for each bkey found in the cached content
-          const existingAttachments = bkeys.map(
-            (bkey) =>
-              ({
-                bkey,
-                remove: false,
-              } as ImageUpload)
-          )
-
-          // Initialize attachments state with existing images
-          setAttachments(existingAttachments)
-        }
-      }
-    }
-  }, [isClient])
 
   const hideModal = () => setIsSignInModalOpen(false)
   const clearError = () => setError(undefined)
@@ -66,12 +49,12 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    // Since the comment is being cached, we can save the content that's in the cache
     const content = getContentFromCache()
 
     const result = await actions.createComment(props.post.number, content || "", attachments)
     if (result.ok) {
-      cache.session.remove(getCacheKey())
+      clearAttachments()
+      cache.session.remove(getCacheKey(CACHE_TITLE_KEY))
       location.reload()
     } else {
       setError(result.error)
@@ -87,7 +70,7 @@ export const CommentInput = (props: CommentInputProps) => {
   const hasContent = true
 
   const commentChanged = useCallback((value: string): void => {
-    cache.session.set(getCacheKey(), value)
+    cache.session.set(getCacheKey(CACHE_TITLE_KEY), value)
   }, [])
 
   return (
@@ -103,7 +86,6 @@ export const CommentInput = (props: CommentInputProps) => {
               </div>
             )}
 
-            {/* Only render interactive components on the client side */}
             {isClient ? (
               <>
                 <CommentEditor
@@ -115,17 +97,8 @@ export const CommentInput = (props: CommentInputProps) => {
                   placeholder={i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
                   maxAttachments={2}
                   maxImageSizeKB={5 * 1024}
-                  onImageUploaded={(upload) => {
-                    // Handle image uploads and removals
-                    setAttachments((prev) => {
-                      // If this is a removal request, find and mark the attachment for removal
-                      if (upload.remove && upload.bkey) {
-                        return prev.map((att) => (att.bkey === upload.bkey ? { ...att, remove: true } : att))
-                      }
-                      // Otherwise add the new upload
-                      return [...prev, upload]
-                    })
-                  }}
+                  onGetImageSrc={getImageSrc}
+                  onImageUploaded={handleImageUploaded}
                 />
 
                 {hasContent && (
@@ -137,7 +110,6 @@ export const CommentInput = (props: CommentInputProps) => {
                 )}
               </>
             ) : (
-              // Simple placeholder for SSR
               <div className="comment-input-placeholder p-2">{i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}</div>
             )}
           </Form>

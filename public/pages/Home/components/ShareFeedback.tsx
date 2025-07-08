@@ -7,23 +7,23 @@ import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
 import { actions, Failure, querystring, classSet } from "@fider/services"
 import { i18n } from "@lingui/core"
-import { ImageUpload, Tag } from "@fider/models"
+import { Tag } from "@fider/models"
 import { SimilarPosts } from "../components/SimilarPosts"
 import { TagsSelect } from "@fider/components/common/TagsSelect"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 import {
+  CACHE_KEYS,
   clearCache,
-  getCachedAttachments,
   getCachedDescription,
   getCachedTags,
   getCachedTitle,
-  setCachedAttachments,
   setCachedDescription,
   setCachedTags,
   setCachedTitle,
   setPostCreated,
   setPostPending,
 } from "./PostCache"
+import { useAttachments } from "@fider/hooks/useAttachments"
 
 interface ShareFeedbackProps {
   isOpen: boolean
@@ -57,7 +57,10 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const canEditTags = fider.settings.postWithTags && props.tags.length > 0
   const [title, setTitle] = useState(getCachedTitle())
   const [description, setDescription] = useState(getCachedDescription())
-  const [attachments, setAttachments] = useState<ImageUpload[]>(getCachedAttachments())
+  const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
+    cacheKey: CACHE_KEYS.ATTACHMENT,
+    maxAttachments: 3,
+  })
   const [tags, setTags] = useState(getTagsCachedValue())
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
@@ -145,22 +148,6 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     setDescription(value)
   }
 
-  const handleImageUploaded = (image: ImageUpload) => {
-    setAttachments((prev) => {
-      // If this is a removal request, find and mark the attachment for removal
-      if (image.remove && image.bkey) {
-        return prev.map((att) => (att.bkey === image.bkey ? { ...att, remove: true } : att))
-      }
-      // Otherwise add the new upload
-      const newAttachments = [...prev, image]
-
-      // Update the cache
-      setCachedAttachments(newAttachments)
-
-      return newAttachments
-    })
-  }
-
   const onSubmitFeedback = () => {
     setPostPending(true)
   }
@@ -184,6 +171,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
       if (result.ok) {
         clearError()
         clearCache()
+        clearAttachments()
         setPostCreated()
         location.href = `/posts/${result.data.number}/${result.data.slug}`
       } else if (result.error) {
@@ -229,6 +217,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                     message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
                   })}
                   onImageUploaded={handleImageUploaded}
+                  onGetImageSrc={getImageSrc}
                 />
               </div>
               <SimilarPosts title={title} tags={props.tags} />

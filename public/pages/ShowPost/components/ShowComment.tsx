@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Comment, Post, ImageUpload } from "@fider/models"
+import { Comment, Post } from "@fider/models"
 import { Reactions, Avatar, UserName, Moment, Form, Button, Markdown, Modal, Dropdown, Icon } from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash } from "@fider/services"
@@ -8,7 +8,7 @@ import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.s
 import { t } from "@lingui/core/macro"
 import { Trans } from "@lingui/react/macro"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
-import { extractImageBkeys } from "@fider/services/bkey"
+import { useAttachments } from "@fider/hooks/useAttachments"
 
 interface ShowCommentProps {
   post: Post
@@ -23,7 +23,9 @@ export const ShowComment = (props: ShowCommentProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [newContent, setNewContent] = useState<string>(props.comment.content)
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false)
-  const [attachments, setAttachments] = useState<ImageUpload[]>([])
+  const { attachments, handleImageUploaded, getImageSrc } = useAttachments({
+    maxAttachments: 2,
+  })
   const [localReactionCounts, setLocalReactionCounts] = useState(props.comment.reactionCounts)
   const emojiSelectorRef = useRef<HTMLDivElement>(null)
 
@@ -43,25 +45,6 @@ export const ShowComment = (props: ShowCommentProps) => {
       }
     }
   }, [props.highlighted])
-
-  useEffect(() => {
-    if (isEditing) {
-      const bkeys = extractImageBkeys(props.comment.content)
-      if (bkeys.length > 0) {
-        // Create ImageUpload objects for each bkey found in the comment
-        const existingAttachments = bkeys.map(
-          (bkey) =>
-            ({
-              bkey,
-              remove: false,
-            } as ImageUpload)
-        )
-
-        // Initialize attachments state with existing images
-        setAttachments(existingAttachments)
-      }
-    }
-  }, [isEditing])
 
   const canEditComment = (): boolean => {
     if (fider.session.isAuthenticated) {
@@ -225,17 +208,8 @@ export const ShowComment = (props: ShowCommentProps) => {
                   placeholder={comment.content}
                   maxAttachments={2}
                   maxImageSizeKB={5 * 1024}
-                  onImageUploaded={(upload) => {
-                    // Handle image uploads and removals
-                    setAttachments((prev) => {
-                      // If this is a removal request, find and mark the attachment for removal
-                      if (upload.remove && upload.bkey) {
-                        return prev.map((att) => (att.bkey === upload.bkey ? { ...att, remove: true } : att))
-                      }
-                      // Otherwise add the new upload
-                      return [...prev, upload]
-                    })
-                  }}
+                  onGetImageSrc={getImageSrc}
+                  onImageUploaded={handleImageUploaded}
                 />
                 <div className="mt-2">
                   <Button size="small" onClick={saveEdit} variant="primary">

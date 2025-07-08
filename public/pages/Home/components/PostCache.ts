@@ -1,4 +1,3 @@
-import { ImageUpload } from "@fider/models"
 import { cache } from "@fider/services"
 
 export const CACHE_KEYS = {
@@ -27,15 +26,6 @@ export const setCachedDescription = (description: string): void => {
 
 const getCachedValue = (key: string): string => {
   return cache.session.get(key) || ""
-}
-
-export const getCachedAttachments = (): ImageUpload[] => {
-  const json = getCachedValue(CACHE_KEYS.ATTACHMENT)
-  return json.length ? JSON.parse(json) : []
-}
-
-export const setCachedAttachments = (attachments: ImageUpload[]): void => {
-  cache.session.set(CACHE_KEYS.ATTACHMENT, JSON.stringify(attachments))
 }
 
 export const getCachedTags = (): string[] => {
