@@ -72,22 +72,3 @@ export const generateBkey = (fileName: string): string => {
 
   return `${folder}/${randomString}-${sanitizedFileName}`
 }
-
-/**
- * Extracts all bkeys from a given content string (markdown)
- * @param content The content string to extract bkeys from
- * @returns An array of bkeys found in the content
- */
-export const extractImageBkeys = (content: string): string[] => {
-  if (!content) return []
-
-  const regex = /!\[\]\(fider-image:([a-zA-Z0-9_/.-]+)\)/g
-  const bkeys: string[] = []
-  let match
-
-  while ((match = regex.exec(content)) !== null) {
-    bkeys.push(match[1])
-  }
-
-  return bkeys
-}

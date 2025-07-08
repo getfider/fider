@@ -50,5 +50,5 @@ export const clearCache = () => {
 }
 
 export const setPostCreated = () => {
-  cache.local.set("POST_CREATED_SUCCESS", "true")
+  cache.session.set("POST_CREATED_SUCCESS", "true")
 }
