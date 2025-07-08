@@ -195,5 +195,7 @@
   "newpost.modal.title.placeholder": "කෙටි හා වේගවත් දෙයක්, වචන කිහිපයකින් සාරාංශ කරන්න.",
   "newpost.modal.submit": "ඔබේ අදහස ඉදිරිපත් කරන්න.",
   "validation.custom.maxattachments": "උපරිම වශයෙන් ඇමුණුම් {number} ක් සඳහා අවසර ඇත.",
-  "validation.custom.maximagesize": "රූපයේ ප්‍රමාණය {kilobytes}KB ට වඩා කුඩා විය යුතුය."
+  "validation.custom.maximagesize": "රූපයේ ප්‍රමාණය {kilobytes}KB ට වඩා කුඩා විය යුතුය.",
+  "modal.rss.description": "මෙම ATOM සංග්‍රහයට දායක වීමට, මෙම URL එක පිටපත් කර ඔබගේ RSS/ATOM කියවනයට අලවන්න.",
+  "modal.rss.title": "ATOM සංග්‍රහයට දායක වන්න"
 }
