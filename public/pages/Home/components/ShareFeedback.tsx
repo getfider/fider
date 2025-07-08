@@ -59,6 +59,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const [description, setDescription] = useState(getCachedDescription())
   const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
     cacheKey: CACHE_KEYS.ATTACHMENT,
+    useLocalStorage: true,
     maxAttachments: 3,
   })
   const [tags, setTags] = useState(getTagsCachedValue())

@@ -5,6 +5,7 @@ import { cache } from "@fider/services"
 interface UseAttachmentsOptions {
   cacheKey?: string
   maxAttachments?: number
+  useLocalStorage?: boolean
 }
 
 interface UseAttachmentsReturn {
@@ -18,20 +19,22 @@ interface UseAttachmentsReturn {
 export const useAttachments = (options: UseAttachmentsOptions = {}): UseAttachmentsReturn => {
   const { cacheKey, maxAttachments } = options
 
+  const getStorage = options.useLocalStorage ? cache.local : cache.session
+
   const getAttachmentsFromCache = useCallback(() => {
     if (!cacheKey) return []
-    const cachedAttachments = cache.session.get(cacheKey)
+    const cachedAttachments = getStorage.get(cacheKey)
     return cachedAttachments ? JSON.parse(cachedAttachments) : []
-  }, [cacheKey])
+  }, [cacheKey, getStorage])
 
   const [attachments, setAttachments] = useState<ImageUpload[]>(getAttachmentsFromCache())
 
   // Cache attachments whenever they change
   useEffect(() => {
     if (cacheKey) {
-      cache.session.set(cacheKey, JSON.stringify(attachments))
+      getStorage.set(cacheKey, JSON.stringify(attachments))
     }
-  }, [attachments, cacheKey])
+  }, [attachments, cacheKey, getStorage])
 
   const handleImageUploaded = useCallback(
     (upload: ImageUpload) => {
@@ -83,9 +86,9 @@ export const useAttachments = (options: UseAttachmentsOptions = {}): UseAttachme
   const clearAttachments = useCallback(() => {
     setAttachments([])
     if (cacheKey) {
-      cache.session.remove(cacheKey)
+      getStorage.remove(cacheKey)
     }
-  }, [cacheKey])
+  }, [cacheKey, getStorage])
 
   return {
     attachments,

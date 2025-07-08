@@ -13,7 +13,7 @@ export const getCachedTitle = (): string => {
 }
 
 export const setCachedTitle = (title: string): void => {
-  cache.session.set(CACHE_KEYS.TITLE, title)
+  cache.local.set(CACHE_KEYS.TITLE, title)
 }
 
 export const getCachedDescription = (): string => {
@@ -21,11 +21,11 @@ export const getCachedDescription = (): string => {
 }
 
 export const setCachedDescription = (description: string): void => {
-  cache.session.set(CACHE_KEYS.DESCRIPTION, description)
+  cache.local.set(CACHE_KEYS.DESCRIPTION, description)
 }
 
 const getCachedValue = (key: string): string => {
-  return cache.session.get(key) || ""
+  return cache.local.get(key) || ""
 }
 
 export const getCachedTags = (): string[] => {
@@ -34,11 +34,11 @@ export const getCachedTags = (): string[] => {
 }
 
 export const setCachedTags = (tags: string[]): void => {
-  cache.session.set(CACHE_KEYS.TAGS, tags.join(","))
+  cache.local.set(CACHE_KEYS.TAGS, tags.join(","))
 }
 
 export const setPostPending = (value: boolean): void => {
-  cache.session.set(CACHE_KEYS.POST_PENDING, value.toString())
+  cache.local.set(CACHE_KEYS.POST_PENDING, value.toString())
 }
 
 export const isPostPending = (): boolean => {
@@ -46,9 +46,9 @@ export const isPostPending = (): boolean => {
 }
 
 export const clearCache = () => {
-  cache.session.remove(...Object.values(CACHE_KEYS))
+  cache.local.remove(...Object.values(CACHE_KEYS))
 }
 
 export const setPostCreated = () => {
-  cache.session.set("POST_CREATED_SUCCESS", "true")
+  cache.local.set("POST_CREATED_SUCCESS", "true")
 }
