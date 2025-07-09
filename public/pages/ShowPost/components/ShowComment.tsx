@@ -10,6 +10,8 @@ import { Trans } from "@lingui/react/macro"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 import { useAttachments } from "@fider/hooks/useAttachments"
 
+import "./ShowComment.scss"
+
 interface ShowCommentProps {
   post: Post
   comment: Comment
@@ -156,7 +158,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   )
 
   const classList = classSet({
-    "flex-grow rounded-md p-2": true,
+    "flex-grow rounded-md p-2 comment-area": true,
     "bg-gray-100": !props.highlighted,
     "bg-gray-200": props.highlighted,
   })

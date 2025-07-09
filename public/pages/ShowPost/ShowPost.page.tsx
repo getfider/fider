@@ -217,7 +217,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                     </Form>
                   ) : (
                     <>
-                      <h1 className="text-large">{props.post.title}</h1>
+                      <h1 className="text-large text-break">{props.post.title}</h1>
                     </>
                   )}
                 </div>

@@ -34,6 +34,7 @@
 
       &__main-col {
         grid-area: Main;
+        overflow: auto;
       }
 
       &__action-col {
