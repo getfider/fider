@@ -18,10 +18,21 @@
 
   h2 {
     font-size: get("font.size.xl");
+    margin: 0 0 spacing(2);
   }
 
   h3 {
     font-size: get("font.size.lg");
+    margin: 0 0 spacing(2);
+  }
+
+  p {
+    line-height: 1.2;
+    margin: 0 0 spacing(2);
+  }
+
+  li {
+    line-height: 1.4;
   }
 
   ul,

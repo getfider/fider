@@ -16,6 +16,15 @@
     color: #3b82f6;
     text-decoration: underline;
   }
+  p {
+    line-height: 1.2;
+  }
+  h2 {
+    margin: 0 0 spacing(2);
+  }
+  h3 {
+    margin: 0 0 spacing(2);
+  }
 }
 
 .c-editor-toolbar {
