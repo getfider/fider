@@ -132,3 +132,8 @@ pre:last-child {
 .uppercase {
   text-transform: uppercase;
 }
+
+.text-break {
+  word-break: break-all;
+  overflow-wrap: break-word;
+}

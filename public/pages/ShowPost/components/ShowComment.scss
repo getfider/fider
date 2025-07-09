@@ -1,0 +1,6 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+.comment-area {
+    // spacing(8) for the avatar + spacing(1) for padding right
+    width: calc(100% - spacing(9));
+}
