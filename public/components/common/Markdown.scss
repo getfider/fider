@@ -18,17 +18,12 @@
 
   h2 {
     font-size: get("font.size.xl");
-    margin: 0 0 spacing(2);
+    margin: 0 0 14px;
   }
 
   h3 {
     font-size: get("font.size.lg");
-    margin: 0 0 spacing(2);
-  }
-
-  p {
-    line-height: 1.2;
-    margin: 0 0 spacing(2);
+    margin: 0 0 14px;
   }
 
   li {

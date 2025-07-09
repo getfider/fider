@@ -2,7 +2,6 @@
 
 /* Styling for content elements */
 .fider-tiptap-editor .ProseMirror {
-  p,
   pre {
     margin: 0 0 0.25em 0;
   }
@@ -15,15 +14,6 @@
   a {
     color: #3b82f6;
     text-decoration: underline;
-  }
-  p {
-    line-height: 1.2;
-  }
-  h2 {
-    margin: 0 0 spacing(2);
-  }
-  h3 {
-    margin: 0 0 spacing(2);
   }
 }
 
