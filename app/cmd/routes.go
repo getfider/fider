@@ -202,6 +202,7 @@ func routes(r *web.Engine) *web.Engine {
 		publicApi.Get("/api/v1/posts/:number", apiv1.GetPost())
 		publicApi.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		publicApi.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
+		publicApi.Get("/api/v1/taggable-users", apiv1.ListTaggableUsers())
 	}
 
 	// Operations used to manage the content of a site
@@ -217,7 +218,6 @@ func routes(r *web.Engine) *web.Engine {
 		membersApi.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		membersApi.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
 		membersApi.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())
-		membersApi.Get("/api/v1/taggable-users", apiv1.ListTaggableUsers())
 		membersApi.Post("/api/v1/posts/:number/votes", apiv1.AddVote())
 		membersApi.Delete("/api/v1/posts/:number/votes", apiv1.RemoveVote())
 		membersApi.Post("/api/v1/posts/:number/votes/toggle", apiv1.ToggleVote())

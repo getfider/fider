@@ -125,24 +125,30 @@ func UpdatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		updatePost := &cmd.UpdatePost{
+			Post:        action.Post,
+			Title:       action.Title,
+			Description: action.Description,
+		}
+
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
 				Images: action.Attachments,
 				Folder: "attachments",
 			},
-			&cmd.UpdatePost{
-				Post:        action.Post,
-				Title:       action.Title,
-				Description: action.Description,
-			},
+			updatePost,
 			&cmd.SetAttachments{
 				Post:        action.Post,
 				Attachments: action.Attachments,
 			},
 		)
+
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		// Notify about mentions in the updated post
+		c.Enqueue(tasks.NotifyAboutUpdatedPost(updatePost.Result))
 
 		return c.Ok(web.Map{})
 	}
@@ -492,9 +498,8 @@ func ListVotes() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: true}
-		err = bus.Dispatch(c, listVotes)
-		if err != nil {
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID}
+		if err := bus.Dispatch(c, listVotes); err != nil {
 			return c.Failure(err)
 		}
 
@@ -513,9 +518,8 @@ func addOrRemove(c *web.Context, getCommand func(post *entity.Post, user *entity
 		return c.Failure(err)
 	}
 
-	cmd := getCommand(getPost.Result, c.User())
-	err = bus.Dispatch(c, cmd)
-	if err != nil {
+	command := getCommand(getPost.Result, c.User())
+	if err := bus.Dispatch(c, command); err != nil {
 		return c.Failure(err)
 	}
 

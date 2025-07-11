@@ -17,12 +17,12 @@ export default {
     if (cachedUsers.length === 0) {
       const result = await actions.getTaggableUsers("")
       if (result.ok) {
-        cachedUsers = result.data.map((user) => ({ id: user.id.toString(), label: user.name }))
+        cachedUsers = result.data.map((user, idx) => ({ id: idx.toString(), label: user.name }))
       }
     }
 
     // Filter the cached users based on the query
-    return cachedUsers.filter((item) => item.label?.toLowerCase().startsWith(query.toLowerCase())).slice(0, 5)
+    return cachedUsers.filter((item) => item.label?.toLowerCase().startsWith(query.toLowerCase())).slice(0, 100)
   },
   render: () => {
     let reactRenderer: ReactRenderer<MentionListHandle, MentionListProps>

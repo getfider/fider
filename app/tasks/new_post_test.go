@@ -109,3 +109,86 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 		"tenant_url":       "http://domain.com",
 	})
 }
+
+func TestNotifyAboutNewPostTask_WithMention(t *testing.T) {
+	RegisterT(t)
+	bus.Init(emailmock.Service{})
+
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
+
+	addNotificationLogs := make([]*cmd.AddMentionNotification, 0)
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddMentionNotification) error {
+		addNotificationLogs = append(addNotificationLogs, c)
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
+		if q.Event.UserSettingsKeyName == "event_notification_mention" {
+			q.Result = []*entity.User{
+				mock.JonSnow,
+			}
+		} else {
+			q.Result = []*entity.User{}
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetMentionNotifications) error {
+		q.Result = []*entity.MentionNotification{}
+		return nil
+	})
+
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
+		return nil
+	})
+
+	worker := mock.NewWorker()
+	post := &entity.Post{
+		ID:          1,
+		Number:      1,
+		Title:       "Add support for TypeScript",
+		Slug:        "add-support-for-typescript",
+		Description: "TypeScript is great, please add support for it @[Jon Snow]",
+	}
+	task := tasks.NotifyAboutNewPost(post)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailmock.MessageHistory).HasLen(2)
+
+	// Check standard notification email
+	Expect(emailmock.MessageHistory[0].TemplateName).Equals("new_post")
+	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailmock.MessageHistory[0].Props["content"]).Equals(template.HTML("<p>TypeScript is great, please add support for it @Jon Snow</p>"))
+
+	// Check mention notification email
+	Expect(emailmock.MessageHistory[1].TemplateName).Equals("new_post")
+	Expect(emailmock.MessageHistory[1].Props["messageLocaleString"]).Equals("email.new_mention.text")
+	Expect(emailmock.MessageHistory[1].To).HasLen(1)
+	Expect(emailmock.MessageHistory[1].To[0].Name).Equals("Jon Snow")
+
+	Expect(addNewNotification).IsNotNil()
+	Expect(addNewNotification.PostID).Equals(post.ID)
+	Expect(addNewNotification.Title).Equals("**Arya Stark** mentioned you in **Add support for TypeScript**")
+	Expect(addNewNotification.User).Equals(mock.JonSnow)
+
+	Expect(addNotificationLogs).HasLen(2)
+	Expect(addNotificationLogs[0].UserID).Equals(mock.JonSnow.ID)
+	Expect(addNotificationLogs[0].PostID).Equals(post.ID)
+	Expect(addNotificationLogs[1].UserID).Equals(mock.JonSnow.ID)
+	Expect(addNotificationLogs[1].PostID).Equals(post.ID)
+
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookNewPost)
+}
