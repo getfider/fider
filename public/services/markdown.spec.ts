@@ -1,5 +1,6 @@
 import * as markdown from "./markdown"
-window.MARKDOWN_ALLOW = "^monero:[48]\n^bitcoin:(1|3|bc1)"
+import { useFider } from "@fider/hooks"
+useFider().session.tenant.allowedSchemes = "^monero:[48]\n^bitcoin:(1|3|bc1)"
 
 const testCases = [
   {

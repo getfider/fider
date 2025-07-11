@@ -9,6 +9,7 @@ export interface Tenant {
   status: TenantStatus
   isPrivate: boolean
   logoBlobKey: string
+  allowedSchemes: string
   isEmailAuthAllowed: boolean
   isFeedEnabled: boolean
 }

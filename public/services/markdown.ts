@@ -1,5 +1,6 @@
 import { marked } from "marked"
 import DOMPurify from "dompurify"
+import { useFider } from "@fider/hooks"
 
 marked.setOptions({
   headerIds: false,
@@ -19,14 +20,14 @@ if (DOMPurify.isSupported) {
 
   let allow: RegExp[] | undefined
   DOMPurify.addHook("uponSanitizeAttribute", (currentNode, hookEvent) => {
-    if (allow === undefined && window.MARKDOWN_ALLOW !== undefined)
-      allow = window.MARKDOWN_ALLOW.split("\n")
+    if (allow === undefined)
+      allow = useFider().session.tenant.allowedSchemes.split("\n")
         .filter((s) => s)
         .map((s) => new RegExp(s, "i"))
 
     if (allow && hookEvent.attrName === "href") {
       const href = currentNode.getAttribute("href")
-      if (href !== null && !href.startsWith("javascript")) hookEvent.forceKeepAttr = allow.some((r) => href.match(r))
+      if (href !== null && !/^javascript/i.test(href)) hookEvent.forceKeepAttr = allow.some((r) => r.test(href))
     }
   })
 }
