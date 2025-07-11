@@ -108,7 +108,7 @@
   "modal.notifications.nonew": "Keine neuen Benachrichtigungen",
   "modal.notifications.previous": "Vorherige Benachrichtigungen",
   "modal.notifications.unread": "Ungelesene Benachrichtigungen",
-  "modal.rss.description": "Um diesen ATOM-Feed zu abonnieren, kopieren Sie diese URL und fügen Sie sie in Ihren RSS/ATOM-Reader ein.",
+  "modal.rss.description": "Um diesen ATOM-Feed zu abonnieren, kopiere diese URL und füge sie in deinen RSS/ATOM-Reader ein.",
   "modal.rss.title": "ATOM-Feed abonnieren",
   "modal.showvotes.message.zeromatches": "Keine Benutzer gefunden, die <0>{0}</0> entsprechen.",
   "modal.showvotes.query.placeholder": "Suche nach Benutzern nach Namen...",
