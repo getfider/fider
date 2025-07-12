@@ -1,6 +1,6 @@
 import { marked } from "marked"
 import DOMPurify from "dompurify"
-import { useFider } from "@fider/hooks"
+import { fiderAllowedSchemes } from "@fider/hooks"
 
 marked.setOptions({
   headerIds: false,
@@ -21,7 +21,9 @@ if (DOMPurify.isSupported) {
   let allow: RegExp[] | undefined
   DOMPurify.addHook("uponSanitizeAttribute", (currentNode, hookEvent) => {
     if (allow === undefined)
-      allow = useFider().session.tenant.allowedSchemes.split("\n")
+      allow = fiderAllowedSchemes
+        .get()
+        .split("\n")
         .filter((s) => s)
         .map((s) => new RegExp(s, "i"))
 
