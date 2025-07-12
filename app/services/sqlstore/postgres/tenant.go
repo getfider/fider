@@ -170,14 +170,19 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 
 func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvancedSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		AllowedSchemes := c.AllowedSchemes
+		if !env.Config.AllowAllowedSchemes {
+			AllowedSchemes = ""
+		}
+
 		query := "UPDATE tenants SET custom_css = $1, allowed_schemes = $2 WHERE id = $3"
-		_, err := trx.Execute(query, c.CustomCSS, c.AllowedSchemes, tenant.ID)
+		_, err := trx.Execute(query, c.CustomCSS, AllowedSchemes, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant advanced settings")
 		}
 
 		tenant.CustomCSS = c.CustomCSS
-		tenant.AllowedSchemes = c.AllowedSchemes
+		tenant.AllowedSchemes = AllowedSchemes
 		return nil
 	})
 }

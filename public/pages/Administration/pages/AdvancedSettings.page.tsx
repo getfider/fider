@@ -80,7 +80,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
         <TextArea
           field="allowedSchemes"
           label="Allowed URL Schemes"
-          disabled={!Fider.session.user.isAdministrator}
+          disabled={!Fider.session.user.isAdministrator || !Fider.settings.allowAllowedSchemes}
           minRows={3}
           value={this.state.allowedSchemes}
           onChange={this.setAllowedSchemes}
@@ -88,11 +88,16 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
           <p className="text-muted">
             By default, uncommon URL schemes are forbidden in links.
             <br />
-            If you want to allow linking monero or bitcoin links, you should add <code>^monero:[48]</code> or <code>^bitcoin:(1|3|bc1)</code> here.
+            If you want to allow linking monero or bitcoin addresses, you should add <code>^monero:[48]</code> or <code>^bitcoin:(1|3|bc1)</code> here.
           </p>
           <p className="text-muted">
             These are regular expressions, one per line, matched against the link address. <code>^javascript</code> is always rejected.
           </p>
+          {!Fider.settings.allowAllowedSchemes && (
+            <p className="text-muted">
+              This is disabled in the current configuration. Set <code>ALLOW_ALLOWED_SCHEMES=true</code> to enable.
+            </p>
+          )}
         </TextArea>
 
         {Fider.session.user.isAdministrator && (
