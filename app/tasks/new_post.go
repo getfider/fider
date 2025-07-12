@@ -10,7 +10,9 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/i18n"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/webhook"
 	"github.com/getfider/fider/app/pkg/worker"
@@ -110,7 +112,26 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 			}
 		}
 
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventNewComment, "new_post")
+		tenant := c.Tenant()
+		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
+
+		mailProps := dto.Props{
+			"title":    post.Title,
+			"siteName": tenant.Name,
+			"userName": author.Name,
+			"content":  markdown.Full(post.Description),
+			"postLink": linkWithText(fmt.Sprintf("#%d", post.Number), baseURL, "/posts/%d/%s", post.Number, post.Slug),
+			"view":     linkWithText(i18n.T(c, "email.subscription.view"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
+			"change":   linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
+			"logo":     logoURL,
+		}
+
+		bus.Publish(c, &cmd.SendMail{
+			From:         dto.Recipient{Name: author.Name},
+			To:           to,
+			TemplateName: "new_post",
+			Props:        mailProps,
+		})
 
 		// Email notification - mentions
 		to = make([]dto.Recipient, 0)
@@ -143,9 +164,6 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 
 		// Send mention email notifications
 		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
-
-		tenant := c.Tenant()
-		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
 
 		webhookProps := webhook.Props{}
 		webhookProps.SetPost(post, "post", baseURL, false, false)

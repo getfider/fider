@@ -54,11 +54,9 @@ var (
 	}
 	//NotificationEventMention is triggered when a new comment is posted with the user @-mentioned
 	NotificationEventMention = NotificationEvent{
-		UserSettingsKeyName: "event_notification_mention",
-		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscriptionUserRoles: []Role{
-			RoleVisitor,
-		},
+		UserSettingsKeyName:           "event_notification_mention",
+		DefaultSettingValue:           strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
+		RequiresSubscriptionUserRoles: []Role{},
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
