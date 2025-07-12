@@ -77,28 +77,25 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
           </ul>
         </TextArea>
 
-        <TextArea
-          field="allowedSchemes"
-          label="Allowed URL Schemes"
-          disabled={!Fider.session.user.isAdministrator || !Fider.settings.allowAllowedSchemes}
-          minRows={3}
-          value={this.state.allowedSchemes}
-          onChange={this.setAllowedSchemes}
-        >
-          <p className="text-muted">
-            By default, uncommon URL schemes are forbidden in links.
-            <br />
-            If you want to allow linking monero or bitcoin addresses, you should add <code>^monero:[48]</code> or <code>^bitcoin:(1|3|bc1)</code> here.
-          </p>
-          <p className="text-muted">
-            These are regular expressions, one per line, matched against the link address. <code>^javascript</code> is always rejected.
-          </p>
-          {!Fider.settings.allowAllowedSchemes && (
+        {Fider.settings.allowAllowedSchemes && (
+          <TextArea
+            field="allowedSchemes"
+            label="Allowed URL Schemes"
+            disabled={!Fider.session.user.isAdministrator}
+            minRows={3}
+            value={this.state.allowedSchemes}
+            onChange={this.setAllowedSchemes}
+          >
             <p className="text-muted">
-              This is disabled in the current configuration. Set <code>ALLOW_ALLOWED_SCHEMES=true</code> to enable.
+              By default, uncommon URL schemes are forbidden in links.
+              <br />
+              If you want to allow linking monero or bitcoin addresses, you should add <code>^monero:[48]</code> or <code>^bitcoin:(1|3|bc1)</code> here.
             </p>
-          )}
-        </TextArea>
+            <p className="text-muted">
+              These are regular expressions, one per line, matched against the link address. <code>^javascript</code> is always rejected.
+            </p>
+          </TextArea>
+        )}
 
         {Fider.session.user.isAdministrator && (
           <div className="field">
