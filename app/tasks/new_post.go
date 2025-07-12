@@ -119,7 +119,7 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 			"title":    post.Title,
 			"siteName": tenant.Name,
 			"userName": author.Name,
-			"content":  markdown.Full(post.Description),
+			"content":  markdown.Full(contentString.SanitizeMentions()),
 			"postLink": linkWithText(fmt.Sprintf("#%d", post.Number), baseURL, "/posts/%d/%s", post.Number, post.Slug),
 			"view":     linkWithText(i18n.T(c, "email.subscription.view"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
 			"change":   linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),

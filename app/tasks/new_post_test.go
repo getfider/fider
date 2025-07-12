@@ -173,7 +173,7 @@ func TestNotifyAboutNewPostTask_WithMention(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].Props["content"]).Equals(template.HTML("<p>TypeScript is great, please add support for it @Jon Snow</p>"))
 
 	// Check mention notification email
-	Expect(emailmock.MessageHistory[1].TemplateName).Equals("new_post")
+	Expect(emailmock.MessageHistory[1].TemplateName).Equals("new_comment")
 	Expect(emailmock.MessageHistory[1].Props["messageLocaleString"]).Equals("email.new_mention.text")
 	Expect(emailmock.MessageHistory[1].To).HasLen(1)
 	Expect(emailmock.MessageHistory[1].To[0].Name).Equals("Jon Snow")

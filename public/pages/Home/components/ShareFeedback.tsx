@@ -57,6 +57,8 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const canEditTags = fider.settings.postWithTags && props.tags.length > 0
   const [title, setTitle] = useState(getCachedTitle())
   const [description, setDescription] = useState(getCachedDescription())
+  // Add state for plain text version of description
+  const [descriptionPlainText, setDescriptionPlainText] = useState("")
   const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
     cacheKey: CACHE_KEYS.ATTACHMENT,
     useLocalStorage: true,
@@ -106,14 +108,17 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   useEffect(() => {
     if (!titleManuallyEdited && !isInitialMount) {
-      let newlineIndex = Math.min(description.indexOf("\n"), 80)
+      // Use plain text for title generation if available, otherwise fall back to description
+      const textToUse = descriptionPlainText || description
+
+      let newlineIndex = Math.min(textToUse.indexOf("\n"), 80)
       if (newlineIndex == -1) {
         newlineIndex = 80
       }
-      const autoTitle = description.substring(0, newlineIndex)
+      const autoTitle = textToUse.substring(0, newlineIndex)
       handleTitleChange(autoTitle, false)
     }
-  }, [description, titleManuallyEdited])
+  }, [description, descriptionPlainText, titleManuallyEdited])
 
   useEffect(() => {
     if (isOpen && editorRef.current) {
@@ -144,9 +149,14 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     setTags(newTags)
   }
 
-  const handleDescriptionChange = (value: string) => {
+  const handleDescriptionChange = (value: string, plainText?: string) => {
     setCachedDescription(value)
     setDescription(value)
+
+    // Store plain text version if provided
+    if (plainText !== undefined) {
+      setDescriptionPlainText(plainText)
+    }
   }
 
   const onSubmitFeedback = () => {

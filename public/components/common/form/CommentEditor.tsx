@@ -203,7 +203,7 @@ const MenuBar = ({
 interface CommentEditorProps {
   initialValue: string | null
   placeholder?: string
-  onChange?: (value: string) => void
+  onChange?: (value: string, plainText?: string) => void
   onFocus?: () => void
   disabled: boolean
   field: string
@@ -312,7 +312,11 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     // Get the current markdown content
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
-    props.onChange && props.onChange(markdown)
+    // Always get plain text regardless of mode
+    const plainText = editor.getText()
+
+    // Pass both markdown and plain text to parent
+    props.onChange && props.onChange(markdown, plainText)
 
     // Track the current state of images in the document
     // This will also check for removed images
