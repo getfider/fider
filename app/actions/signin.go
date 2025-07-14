@@ -15,7 +15,6 @@ import (
 // SignInByEmail happens when user request to sign in by email
 type SignInByEmail struct {
 	Email           string `json:"email" format:"lower"`
-	Code            string `json:"code"`
 	VerificationKey string
 }
 

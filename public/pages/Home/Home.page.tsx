@@ -1,7 +1,7 @@
 import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
@@ -10,7 +10,7 @@ import { VStack } from "@fider/components/layout"
 import { ShareFeedback } from "./components/ShareFeedback"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
-import { isPostPending } from "./components/PostCache"
+import { isPostPending, setPostPending } from "./components/PostCache"
 
 export interface HomePageProps {
   posts: Post[]
@@ -48,6 +48,15 @@ const HomePage = (props: HomePageProps) => {
   const fider = useFider()
   // const [title, setTitle] = useState("")
   const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(isPostPending())
+
+  useEffect(() => {
+    // If we're showing the share feedback, make sure we clear the show pending flag (for draft posts)
+    if (isShareFeedbackOpen) {
+      if (isPostPending()) {
+        setPostPending(false)
+      }
+    }
+  })
 
   const defaultWelcomeMessage = i18n._({
     id: "home.form.defaultwelcomemessage",
