@@ -182,5 +182,20 @@
   "signin.message.private.title": "<0>{0}</0> je soukromý prostor, pro účast a hlasování se musíte přihlásit.",
   "signin.message.socialbutton.intro": "Přihlásit se pomocí",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "labels.notagsselected": "Žádné štítky nejsou vybrány"
+  "labels.notagsselected": "Žádné štítky nejsou vybrány",
+  "action.commentsfeed": "Zdroj komentářů",
+  "action.postsfeed": "RSS kanál příspěvků",
+  "label.addtags": "Přidat štítky...",
+  "label.searchtags": "Hledat štítky...",
+  "mysettings.notification.event.newpostcreated": "Váš nápad byl přidán 👍",
+  "newpost.modal.addimage": "Přidat obrázky",
+  "newpost.modal.description.placeholder": "Řekněte nám o tom. Vysvětlete to podrobně, nezdráhejte se, čím více informací, tím lépe.",
+  "newpost.modal.title": "Podělte se o svůj nápad...",
+  "newpost.modal.title.label": "Dejte svému nápadu název",
+  "newpost.modal.title.placeholder": "Něco krátkého a výstižného, ​​shrňte to do pár slov",
+  "newpost.modal.submit": "Odešlete svůj nápad",
+  "validation.custom.maxattachments": "Maximální povolený počet příloh je {number}.",
+  "validation.custom.maximagesize": "Velikost obrázku musí být menší než {kilobytes}KB.",
+  "modal.rss.description": "Chcete-li se přihlásit k odběru tohoto kanálu ATOM, zkopírujte a vložte tuto URL adresu do své čtečky RSS/ATOM.",
+  "modal.rss.title": "Přihlásit se k odběru kanálu ATOM"
 }

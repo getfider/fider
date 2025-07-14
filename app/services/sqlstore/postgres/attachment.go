@@ -35,10 +35,19 @@ func setAttachments(ctx context.Context, c *cmd.SetAttachments) error {
 					return errors.Wrap(err, "failed to delete attachment")
 				}
 			} else {
-				if _, err := trx.Execute(
-					"INSERT INTO attachments (tenant_id, post_id, comment_id, user_id, attachment_bkey) VALUES ($1, $2, $3, $4, $5)",
-					tenant.ID, postID, commentID, user.ID, attachment.BlobKey,
-				); err != nil {
+				// Use a conditional INSERT that only adds the attachment if it doesn't already exist
+				if _, err := trx.Execute(`
+					INSERT INTO attachments (tenant_id, post_id, comment_id, user_id, attachment_bkey)
+					SELECT $1, $2, $3, $4, $5
+					WHERE NOT EXISTS (
+						SELECT 1 FROM attachments
+						WHERE tenant_id = $6
+						AND post_id = $7
+						AND (comment_id = $8 OR ($8 IS NULL AND comment_id IS NULL))
+						AND attachment_bkey = $9
+					)
+				`, tenant.ID, postID, commentID, user.ID, attachment.BlobKey,
+					tenant.ID, postID, commentID, attachment.BlobKey); err != nil {
 					return errors.Wrap(err, "failed to insert attachment")
 				}
 			}
@@ -86,16 +95,17 @@ func getAttachments(ctx context.Context, q *query.GetAttachments) error {
 
 func uploadImage(ctx context.Context, c *cmd.UploadImage) error {
 	if c.Image.Upload != nil && len(c.Image.Upload.Content) > 0 {
-		bkey := fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
+		if c.Image.BlobKey == "" {
+			c.Image.BlobKey = fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
+		}
 		err := bus.Dispatch(ctx, &cmd.StoreBlob{
-			Key:         bkey,
+			Key:         c.Image.BlobKey,
 			Content:     c.Image.Upload.Content,
 			ContentType: c.Image.Upload.ContentType,
 		})
 		if err != nil {
 			return errors.Wrap(err, "failed to upload new blob")
 		}
-		c.Image.BlobKey = bkey
 	}
 	return nil
 }

@@ -30,6 +30,7 @@ type dbTenant struct {
 	CustomCSS          string `db:"custom_css"`
 	IsEmailAuthAllowed bool   `db:"is_email_auth_allowed"`
 	IsFeedEnabled      bool   `db:"is_feed_enabled"`
+	PreventIndexing    bool   `db:"prevent_indexing"`
 }
 
 func (t *dbTenant) toModel() *entity.Tenant {
@@ -51,6 +52,7 @@ func (t *dbTenant) toModel() *entity.Tenant {
 		CustomCSS:          t.CustomCSS,
 		IsEmailAuthAllowed: t.IsEmailAuthAllowed,
 		IsFeedEnabled:      t.IsFeedEnabled,
+		PreventIndexing:    t.PreventIndexing,
 	}
 
 	return tenant
@@ -236,8 +238,8 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled) 
-			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true) 
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, prevent_indexing) 
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true, true) 
 			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
 			return err
@@ -265,7 +267,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled, prevent_indexing
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
@@ -284,7 +286,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled, prevent_indexing
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 
 			ORDER BY cname DESC

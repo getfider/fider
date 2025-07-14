@@ -17,6 +17,7 @@ type Tenant struct {
 	CustomCSS          string            `json:"-"`
 	IsEmailAuthAllowed bool              `json:"isEmailAuthAllowed"`
 	IsFeedEnabled      bool              `json:"isFeedEnabled"`
+	PreventIndexing    bool              `json:"preventIndexing"`
 }
 
 func (t *Tenant) IsDisabled() bool {

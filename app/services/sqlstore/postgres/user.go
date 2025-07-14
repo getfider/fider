@@ -392,11 +392,11 @@ func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var users []*dbUser
 		err := trx.Select(&users, `
-			SELECT id, name
+			SELECT name
 			FROM users 
 			WHERE tenant_id = $1 
-			AND status != $2
-			ORDER BY id`, tenant.ID, enum.UserDeleted)
+			AND status = $2
+			ORDER BY id`, tenant.ID, enum.UserActive)
 		if err != nil {
 			return errors.Wrap(err, "failed to get all users")
 		}
@@ -404,7 +404,6 @@ func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
 		q.Result = make([]*dto.UserNames, len(users))
 		for i, user := range users {
 			q.Result[i] = &dto.UserNames{
-				ID:   int(user.ID.Int64),
 				Name: user.Name.String,
 			}
 		}

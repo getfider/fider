@@ -40,7 +40,7 @@ export const DeletePostModal = (props: DeletePostModalProps) => {
             field="text"
             onChange={setText}
             value={text}
-            placeholder={i18n._("showpost.moderationpanel.text.placeholder", { message: "Why are you deleting this post? (optional)" })}
+            placeholder={i18n._({ id: "showpost.moderationpanel.text.placeholder", message: "Why are you deleting this post? (optional)" })}
           >
             <span className="text-muted">
               <Trans id="showpost.moderationpanel.text.help">

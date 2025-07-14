@@ -1,10 +1,11 @@
-import React from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { PageTitle, Loader } from "@fider/components"
 import { ListPosts } from "./ListPosts"
 import { actions } from "@fider/services"
 
 import { i18n } from "@lingui/core"
+
+import "./SimilarPosts.scss"
 
 interface SimilarPostsProps {
   title: string
@@ -12,64 +13,80 @@ interface SimilarPostsProps {
   user?: CurrentUser
 }
 
-interface SimilarPostsState {
-  title: string
-  posts: Post[]
-  loading: boolean
-}
+export const SimilarPosts: React.FC<SimilarPostsProps> = (props) => {
+  const [title, setTitle] = useState(props.title)
+  const [posts, setPosts] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
+  const timerRef = useRef<number>()
 
-export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState> {
-  constructor(props: SimilarPostsProps) {
-    super(props)
-    this.state = {
-      title: props.title,
-      loading: !!props.title,
-      posts: [],
+  useEffect(() => {
+    loadSimilarPosts()
+
+    return () => {
+      window.clearTimeout(timerRef.current)
     }
+  }, [])
+
+  useEffect(() => {
+    if (props.title !== title) {
+      setTitle(props.title)
+      setLoading(true)
+    }
+  }, [props.title])
+
+  useEffect(() => {
+    window.clearTimeout(timerRef.current)
+    timerRef.current = window.setTimeout(loadSimilarPosts, 500)
+
+    return () => {
+      window.clearTimeout(timerRef.current)
+    }
+  }, [title])
+
+  const preprocessSearchQuery = (query: string) => {
+    const noiseWords = ["add", "support", "for", "implement", "create", "make", "allow", "enable", "provide"]
+    return query
+      .split(" ")
+      .filter((x) => !noiseWords.includes(x))
+      .join(" ")
   }
 
-  public static getDerivedStateFromProps(nextProps: SimilarPostsProps, prevState: SimilarPostsState) {
-    if (nextProps.title !== prevState.title) {
-      return {
-        loading: true,
-        title: nextProps.title,
+  const loadSimilarPosts = () => {
+    if (loading) {
+      if (title.length < 2) {
+        setLoading(false)
+        setIsVisible(false)
+      } else {
+        const query = preprocessSearchQuery(title)
+        if (query.length < 2) {
+          setLoading(false)
+          setIsVisible(false)
+          return
+        }
+        actions.findSimilarPosts(query).then((x) => {
+          if (x.ok) {
+            setLoading(false)
+            setIsVisible(x.data.length > 0)
+            setPosts(x.data)
+          }
+        })
       }
     }
-    return null
-  }
-  public componentDidMount() {
-    this.loadSimilarPosts()
   }
 
-  private timer?: number
-  public componentDidUpdate() {
-    window.clearTimeout(this.timer)
-    this.timer = window.setTimeout(this.loadSimilarPosts, 500)
-  }
+  const title_text = i18n._({ id: "home.similar.title", message: "We have similar posts, is your idea already on the list?" })
 
-  private loadSimilarPosts = () => {
-    if (this.state.loading) {
-      actions.searchPosts({ query: this.state.title }).then((x) => {
-        if (x.ok) {
-          this.setState({ loading: false, posts: x.data })
-        }
-      })
-    }
-  }
+  const animationClass = isVisible ? "similar-posts-visible" : "similar-posts-hidden"
 
-  public render() {
-    const title = i18n._("home.similar.title", { message: "Similar posts" })
-    const subtitle = i18n._("home.similar.subtitle", { message: "Consider voting on existing posts instead." })
-
-    return (
-      <>
-        <PageTitle title={title} subtitle={subtitle} />
-        {this.state.loading ? (
-          <Loader />
-        ) : (
-          <ListPosts posts={this.state.posts} tags={this.props.tags} emptyText={`No similar posts matched '${this.props.title}'.`} />
-        )}
-      </>
-    )
-  }
+  return (
+    <>
+      <div className={`similar-posts-container overflow-auto ${animationClass}`}>
+        <div className="mb-4 text-gray-700">{title_text}</div>
+        <div className="mb-6">
+          <ListPosts posts={posts} tags={props.tags} emptyText="" minimalView={true} />
+        </div>
+      </div>
+    </>
+  )
 }

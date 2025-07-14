@@ -18,10 +18,16 @@
 
   h2 {
     font-size: get("font.size.xl");
+    margin: 0 0 14px;
   }
 
   h3 {
     font-size: get("font.size.lg");
+    margin: 0 0 14px;
+  }
+
+  li {
+    line-height: 1.4;
   }
 
   ul,
@@ -40,6 +46,9 @@
 
   img {
     max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: block;
   }
 
   pre {

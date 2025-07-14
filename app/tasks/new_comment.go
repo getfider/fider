@@ -118,7 +118,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 			}
 		}
 
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventNewComment)
+		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventNewComment, "new_comment")
 
 		// Mentions
 		to = make([]dto.Recipient, 0)
@@ -152,7 +152,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 
 		}
 
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention)
+		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
 
 		tenant := c.Tenant()
 		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
@@ -273,13 +273,13 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 			}
 		}
 
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention)
+		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
 
 		return nil
 	})
 }
 
-func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recipient, comment string, event enum.NotificationEvent) {
+func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recipient, comment string, event enum.NotificationEvent, templateName string) {
 	// Short circuit if there is no one to notify
 	if len(to) == 0 {
 		return
@@ -309,7 +309,7 @@ func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recip
 	bus.Publish(c, &cmd.SendMail{
 		From:         dto.Recipient{Name: author.Name},
 		To:           to,
-		TemplateName: "new_comment",
+		TemplateName: templateName,
 		Props:        mailProps,
 	})
 }

@@ -10,5 +10,6 @@ type MentionNotification struct {
 	TenantID  int       `json:"-" db:"tenant_id"`
 	UserID    int       `json:"userId" db:"user_id"`
 	CommentID int       `json:"commentId,omitempty" db:"comment_id"`
+	PostID    int       `json:"postId,omitempty" db:"post_id"`
 	CreatedAt time.Time `json:"createdAt" db:"created_on"`
 }

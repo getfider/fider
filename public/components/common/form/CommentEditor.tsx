@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
 import Placeholder from "@tiptap/extension-placeholder"
@@ -8,6 +8,7 @@ import Document from "@tiptap/extension-document"
 import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
 import HardBreak from "@tiptap/extension-hard-break"
+import { i18n } from "@lingui/core"
 
 import "./CommentEditor.scss"
 
@@ -21,7 +22,12 @@ import IconCode from "@fider/assets/images/heroicons-code.svg"
 import IconAt from "@fider/assets/images/heroicons-at.svg"
 import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
+import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
+import { fileToBase64 } from "@fider/services"
+import { generateBkey } from "@fider/services/bkey"
+import { ImageUpload } from "@fider/models"
+import { CustomImage } from "./CustomImage"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
@@ -33,14 +39,36 @@ const MenuBar = ({
   isMarkdownMode,
   toggleMarkdownMode,
   disabled,
+  onImageUpload,
 }: {
   editor: Editor | null
   isMarkdownMode: boolean
   disabled: boolean
   toggleMarkdownMode: () => void
+  onImageUpload: (file: File) => Promise<void>
 }) => {
   if (!editor) {
     return null
+  }
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      await onImageUpload(file)
+
+      // Reset the input value so the same file can be selected again
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    }
   }
 
   return (
@@ -141,6 +169,16 @@ const MenuBar = ({
             >
               <Icon sprite={IconAt} />
             </button>
+            <button
+              disabled={disabled}
+              type="button"
+              title="Insert Image"
+              onClick={handleImageClick}
+              className={`c-editor-button ${disabled ? "is-disabled" : ""}`}
+            >
+              <Icon sprite={IconPhotograph} />
+            </button>
+            <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
           </>
         )}
         <button
@@ -165,10 +203,14 @@ const MenuBar = ({
 interface CommentEditorProps {
   initialValue: string | null
   placeholder?: string
-  onChange?: (value: string) => void
+  onChange?: (value: string, plainText?: string) => void
   onFocus?: () => void
   disabled: boolean
   field: string
+  onImageUploaded?: (upload: ImageUpload) => void
+  onGetImageSrc?: (bkey: string) => string
+  maxAttachments?: number
+  maxImageSizeKB?: number
 }
 
 const markdownToHtml = (markdownString: string) => {
@@ -182,6 +224,11 @@ const markdownToHtml = (markdownString: string) => {
 
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
+  const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
+
+  // Use a ref instead of state for tracking document images
+  // This avoids the async state update issue and prevents unnecessary re-renders
+  const documentImagesRef = useRef<Map<string, boolean>>(new Map())
 
   const getIntialContent = () => {
     if (isRawMarkdownMode) {
@@ -209,9 +256,160 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }
 
+  // Handle image deletion
+  const handleImageRemove = async (bkey: string) => {
+    // Create an ImageUpload object with remove flag set to true
+    const removeUpload: ImageUpload = {
+      bkey,
+      remove: true,
+    }
+
+    // Call the parent component's onImageUploaded prop with the removeUpload object
+    if (props.onImageUploaded) {
+      props.onImageUploaded(removeUpload)
+    }
+  }
+
+  // Track all images in the document using the ref
+  const trackDocumentImages = (editor: Editor) => {
+    if (!editor) return
+
+    // Create a new map for the current state
+    const newImages = new Map<string, boolean>()
+
+    // Find all image nodes in the document
+    editor.state.doc.descendants((node) => {
+      if (node.type.name === "customImage" || node.type.name === "image") {
+        const bkey = node.attrs.bkey
+        if (bkey) {
+          newImages.set(bkey, true)
+        }
+      }
+      return true
+    })
+
+    // Store the previous images for comparison
+    const prevImages = new Map(documentImagesRef.current)
+
+    // Update the ref with the new images
+    documentImagesRef.current = newImages
+
+    // Check for removed images
+    checkForRemovedImages(prevImages, newImages)
+  }
+
+  // Check for removed images by comparing previous and current document images
+  const checkForRemovedImages = (prevImages: Map<string, boolean>, currentImages: Map<string, boolean>) => {
+    // Find images that were in the previous state but not in the current state
+    prevImages.forEach((_, bkey) => {
+      if (!currentImages.has(bkey)) {
+        // This image was removed
+        handleImageRemove(bkey)
+      }
+    })
+  }
+
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
+    // Get the current markdown content
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
-    props.onChange && props.onChange(markdown)
+    // Always get plain text regardless of mode
+    const plainText = editor.getText()
+
+    // Pass both markdown and plain text to parent
+    props.onChange && props.onChange(markdown, plainText)
+
+    // Track the current state of images in the document
+    // This will also check for removed images
+    trackDocumentImages(editor)
+
+    // Also pass any image uploads to the parent component
+    if (props.onImageUploaded && imageUploads.length > 0) {
+      imageUploads.forEach((upload) => {
+        props.onImageUploaded && props.onImageUploaded(upload)
+      })
+      setImageUploads([])
+    }
+  }
+
+  const validateImageUpload = (file: File): string => {
+    // Default max size is 5MB (5 * 1024 KB)
+    const maxSizeKB = props.maxImageSizeKB || 5 * 1024
+
+    // Check file size
+    if (file.size > maxSizeKB * 1024) {
+      return i18n._({
+        id: "validation.custom.maximagesize",
+        values: { kilobytes: maxSizeKB },
+        message: "The image size must be smaller than {kilobytes}KB.",
+      })
+    }
+
+    // Check max attachments if specified
+    if (props.maxAttachments) {
+      if (documentImagesRef.current.size >= props.maxAttachments) {
+        return i18n._({
+          id: "validation.custom.maxattachments",
+          values: { number: props.maxAttachments },
+          message: "A maximum of {number} attachments are allowed.",
+        })
+      }
+    }
+
+    return "" // No error
+  }
+
+  const handleImageUpload = async (file: File) => {
+    // Validate the image upload
+    const errorMessage = validateImageUpload(file)
+    if (errorMessage) {
+      alert(errorMessage)
+      return
+    }
+
+    try {
+      const base64 = await fileToBase64(file)
+
+      // Generate a bkey for this image that matches the server-side format
+      const bkey = generateBkey(file.name)
+
+      // Create an ImageUpload object to be sent to the server
+      const newUpload: ImageUpload = {
+        bkey,
+        upload: {
+          fileName: file.name,
+          content: base64,
+          contentType: file.type,
+        },
+        remove: false,
+      }
+
+      // Insert the image into the editor with the server-provided bkey
+      if (editor) {
+        editor
+          .chain()
+          .focus()
+          .setImage({
+            src: `data:${file.type};base64,${base64}`,
+            alt: file.name,
+            ...({ bkey } as any),
+          })
+          .run()
+
+        // Add the bkey to the upload object for the parent component
+        newUpload.bkey = bkey
+
+        // Manually pass the upload to the parent component
+        // since the updated() handler might not fire immediately
+        if (props.onImageUploaded) {
+          props.onImageUploaded(newUpload)
+        }
+
+        // Update the document images ref
+        documentImagesRef.current.set(bkey, true)
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error)
+    }
   }
 
   const extensions = isRawMarkdownMode
@@ -238,6 +436,29 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           },
           suggestion,
         }),
+        CustomImage.configure({
+          HTMLAttributes: {},
+          allowBase64: true,
+          onImageUpload: (upload) => {
+            if (props.onImageUploaded) {
+              // Initialize other required properties
+              props.onImageUploaded(upload)
+            }
+          },
+          onImageRemove: (id) => {
+            // This is called when an image is removed from the editor
+            handleImageRemove(id)
+          },
+          onGetImageSrc: (bkey) => {
+            if (props.onGetImageSrc) {
+              const imageSrc = props.onGetImageSrc(bkey)
+              if (imageSrc) {
+                return "data:image/jpeg;base64," + imageSrc
+              }
+            }
+            return ""
+          },
+        }),
         Placeholder.configure({
           placeholder: props.placeholder ?? "Write your comment here...",
           emptyEditorClass: "tiptap-is-empty",
@@ -258,10 +479,71 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         attributes: {
           class: isRawMarkdownMode ? "markdown-mode no-focus" : "no-focus",
         },
+        handlePaste: (view, event) => {
+          // Check if the clipboard has files
+          if (event.clipboardData && event.clipboardData.files && event.clipboardData.files.length > 0) {
+            // Get the first file (assuming it's an image)
+            const file = event.clipboardData.files[0]
+
+            // Check if it's an image
+            if (file.type.startsWith("image/")) {
+              // Prevent the default paste behavior
+              event.preventDefault()
+
+              // Validate and upload the image
+              const errorMessage = validateImageUpload(file)
+              if (errorMessage) {
+                alert(errorMessage)
+                return true
+              }
+
+              // Upload the image
+              handleImageUpload(file)
+              return true
+            }
+          }
+
+          // Check for pasted image data URLs
+          if (event.clipboardData) {
+            const items = event.clipboardData.items
+
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].type.indexOf("image") !== -1) {
+                // Get the image as a blob
+                const blob = items[i].getAsFile()
+
+                if (blob) {
+                  // Prevent the default paste behavior
+                  event.preventDefault()
+
+                  // Validate and upload the image
+                  const errorMessage = validateImageUpload(blob)
+                  if (errorMessage) {
+                    alert(errorMessage)
+                    return true
+                  }
+
+                  // Upload the image
+                  handleImageUpload(blob)
+                  return true
+                }
+              }
+            }
+          }
+
+          return false
+        },
       },
     },
     [isRawMarkdownMode, editorContent]
   ) // Re-initialize when mode changes
+
+  // Initialize document images when editor is ready
+  useEffect(() => {
+    if (editor) {
+      trackDocumentImages(editor)
+    }
+  }, [editor])
 
   return (
     <ValidationContext.Consumer>
@@ -273,8 +555,14 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
               "m-error": hasError(props.field, ctx.error),
             })}
           >
-            <MenuBar disabled={props.disabled} editor={editor} isMarkdownMode={isRawMarkdownMode} toggleMarkdownMode={toggleMarkdownMode} />
-            <EditorContent editor={editor} />
+            <MenuBar
+              disabled={props.disabled}
+              editor={editor}
+              isMarkdownMode={isRawMarkdownMode}
+              toggleMarkdownMode={toggleMarkdownMode}
+              onImageUpload={handleImageUpload}
+            />
+            <EditorContent editor={editor} data-testid="tiptap-editor" />
           </div>
           <DisplayError fields={[props.field]} error={ctx.error} />
         </div>
