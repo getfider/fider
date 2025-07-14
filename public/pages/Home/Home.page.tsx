@@ -89,7 +89,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
       <ShareFeedback
         tags={props.tags}
         placeholder={fider.session.tenant.invitation || defaultInvitation}
-        isOpen={isShareFeedbackOpen}
+        isOpen={isShareFeedbackOpen && !fider.isReadOnly}
         onClose={() => setIsShareFeedbackOpen(false)}
       />
       <Header />
