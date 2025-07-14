@@ -220,7 +220,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                   onChange={handleDescriptionChange}
                   onFocus={handleEditorFocus}
                   initialValue={description}
-                  disabled={false}
+                  disabled={fider.isReadOnly}
                   maxAttachments={3}
                   maxImageSizeKB={5 * 1024}
                   placeholder={i18n._({
@@ -238,6 +238,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 maxLength={255}
                 label={i18n._({ id: "newpost.modal.title.label", message: "Give your idea a title" })}
                 value={title}
+                disabled={fider.isReadOnly}
                 onChange={handleTitleChange}
                 placeholder={i18n._({ id: "newpost.modal.title.placeholder", message: "Something short and snappy, sum it up in a few words" })}
               />

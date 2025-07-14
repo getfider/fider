@@ -9,11 +9,11 @@ import (
 )
 
 // SendSignInEmail is used to send the sign in email to requestor
-func SendSignInEmail(email, code, verificationKey string) worker.Task {
+func SendSignInEmail(email, verificationKey string) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
 		to := dto.NewRecipient("", email, dto.Props{
 			"siteName": c.Tenant().Name,
-			"link":     link(web.BaseURL(c), "/signin/verify?k=%s&c=%s", verificationKey, code),
+			"link":     link(web.BaseURL(c), "/signin/verify?k=%s", verificationKey),
 		})
 
 		bus.Publish(c, &cmd.SendMail{

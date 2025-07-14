@@ -74,7 +74,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(action.Email, action.Code, action.VerificationKey))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationKey))
 
 		return c.Ok(web.Map{})
 	}
@@ -103,7 +103,6 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 					Data: web.Map{
 						"kind": kind,
 						"k":    key,
-						"c":    c.QueryParam("c"),
 					},
 				})
 			}
@@ -118,9 +117,6 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 		webutil.AddAuthUserCookie(c, userByEmail.Result)
 
 		baseURL := c.BaseURL()
-		if codeQs := c.QueryParam("c"); codeQs != "" {
-			return c.Redirect(baseURL + "?c=" + codeQs)
-		}
 		return c.Redirect(baseURL)
 	}
 }
