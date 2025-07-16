@@ -187,8 +187,10 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
 
 		if env.IsBillingEnabled() {
-			ui.Get("/admin/billing", handlers.ManageBilling())
-			ui.Post("/_api/billing/checkout-link", handlers.GenerateCheckoutLink())
+			billingGroup := ui.Group()
+			billingGroup.Use(middlewares.BlockFreemiumBillingAccess())
+			billingGroup.Get("/admin/billing", handlers.ManageBilling())
+			billingGroup.Post("/_api/billing/checkout-link", handlers.GenerateCheckoutLink())
 		}
 	}
 
