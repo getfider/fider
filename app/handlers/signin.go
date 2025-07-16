@@ -33,6 +33,19 @@ func SignInPage() web.HandlerFunc {
 	}
 }
 
+func LoginEmailSentPage() web.HandlerFunc {
+	return func(c *web.Context) error {
+
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "SignIn/LoginEmailSent.page",
+			Title: "Login email sent",
+			Data: web.Map{
+				"email": c.QueryParam("email")},
+		})
+
+	}
+}
+
 // NotInvitedPage renders the not invited page
 func NotInvitedPage() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -103,7 +116,8 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 
 		webutil.AddAuthUserCookie(c, userByEmail.Result)
 
-		return c.Redirect(c.BaseURL())
+		baseURL := c.BaseURL()
+		return c.Redirect(baseURL)
 	}
 }
 

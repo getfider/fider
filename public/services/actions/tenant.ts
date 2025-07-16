@@ -54,9 +54,10 @@ export const checkAvailability = async (subdomain: string): Promise<Result<Check
   return await http.get<CheckAvailabilityResponse>(`/_api/tenants/${subdomain}/availability`)
 }
 
-export const signIn = async (email: string): Promise<Result> => {
+export const signIn = async (email: string, code?: string): Promise<Result> => {
   return await http.post("/_api/signin", {
     email,
+    code,
   })
 }
 

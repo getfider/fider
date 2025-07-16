@@ -30,7 +30,8 @@ export const Select: React.FunctionComponent<SelectProps> = (props) => {
     }
   }
   const [selected, setSelected] = React.useState<SelectOption | undefined>(getOption(props.defaultValue))
-  const onChange = (e: React.FormEvent<HTMLSelectElement>) => {
+  // Original onChange handler
+  const handleChange = (e: React.FormEvent<HTMLSelectElement>) => {
     let selected: SelectOption | undefined
     if (e.currentTarget.value) {
       const options = props.options.filter((o) => o.value === e.currentTarget.value)
@@ -59,7 +60,15 @@ export const Select: React.FunctionComponent<SelectProps> = (props) => {
               value={selected?.value}
               id={`input-${props.field}`}
               defaultValue={props.defaultValue}
-              onChange={onChange}
+              onChange={(e) => {
+                // Clear error for this field when user interacts with it
+                if (ctx.clearError && hasError(props.field, ctx.error)) {
+                  ctx.clearError(props.field)
+                }
+
+                // Call the original onChange handler
+                handleChange(e)
+              }}
             >
               {props.options.map((option) => (
                 <option key={option.value} value={option.value}>

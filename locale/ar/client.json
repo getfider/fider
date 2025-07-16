@@ -2,12 +2,14 @@
   "action.cancel": "إلغاء",
   "action.change": "تغيير",
   "action.close": "إغلاق",
+  "action.commentsfeed": "تغذية التعليقات",
   "action.confirm": "تأكيد",
   "action.copylink": "نسخ الرابط",
   "action.delete": "حذف",
   "action.edit": "تعديل",
   "action.markallasread": "تمييز الكل كمقروءة",
   "action.ok": "حسناً",
+  "action.postsfeed": "تغذية المنشورات",
   "action.respond": "رد",
   "action.save": "احفظ",
   "action.signin": "تسجيل الدخول",
@@ -58,6 +60,7 @@
   "home.tagsfilter.label.with": "مع",
   "home.tagsfilter.selected.none": "أي وسم",
   "label.actions": "أجراءات",
+  "label.addtags": "أضف العلامات...",
   "label.avatar": "الصورة الرمزية",
   "label.custom": "تخصيص",
   "label.description": "الوصف",
@@ -75,6 +78,7 @@
   "label.notagsselected": "لم يتم تحديد أي علامات",
   "label.notifications": "الإشعارات",
   "label.or": "أو",
+  "label.searchtags": "علامات البحث...",
   "label.selecttags": "حدد وسوم...",
   "label.subscribe": "إشترِك",
   "label.tags": "وسوم",
@@ -104,6 +108,8 @@
   "modal.notifications.nonew": "لا توجد إشعارات جديدة",
   "modal.notifications.previous": "الإشعارات السابقة",
   "modal.notifications.unread": "إشعارات غير مقروءة",
+  "modal.rss.description": "للاشتراك في موجز ATOM هذا، انسخ ولصق عنوان URL هذا في قارئ RSS/ATOM الخاص بك.",
+  "modal.rss.title": "اشترك في موجز ATOM",
   "modal.showvotes.message.zeromatches": "لم يتم العثور على مستخدمين مطابقين ل <0>{0}</0>.",
   "modal.showvotes.query.placeholder": "البحث عن المستخدمين بالاسم...",
   "modal.signin.header": "أرسل ملاحظاتك",
@@ -135,6 +141,7 @@
   "mysettings.notification.event.newpost": "منشور جديد",
   "mysettings.notification.event.newpost.staff": "المنشورات الجديدة على هذا الموقع",
   "mysettings.notification.event.newpost.visitors": "المنشورات الجديدة على هذا الموقع",
+  "mysettings.notification.event.newpostcreated": "تمت إضافة فكرتك 👍",
   "mysettings.notification.event.statuschanged": "تم تغيير الحالة",
   "mysettings.notification.event.statuschanged.staff": "تغيير الحالة على جميع المنشورات ما لم يتم إلغاء الاشتراك بها بشكل فردي",
   "mysettings.notification.event.statuschanged.visitors": "تغيير الحالة على المنشورات التي اشتركت بها",
@@ -145,6 +152,12 @@
   "mysettings.notification.title": "استخدم اللوحة التالية لاختيار الأحداث التي ترغب في تلقي الإشعار",
   "mysettings.page.subtitle": "إدارة إعدادات ملفك الشخصي",
   "mysettings.page.title": "إعدادات",
+  "newpost.modal.addimage": "إضافة الصور",
+  "newpost.modal.description.placeholder": "أخبرنا عنها. اشرحها بالتفصيل، لا تتردد، فكلما زادت المعلومات كان ذلك أفضل.",
+  "newpost.modal.submit": "أرسل فكرتك",
+  "newpost.modal.title": "شارك بفكرتك...",
+  "newpost.modal.title.label": "أعط فكرتك عنوانًا",
+  "newpost.modal.title.placeholder": "شيء قصير وموجز، لخصه في بضع كلمات",
   "page.backhome": "خذني إلى <0>{0}</0> الصفحة الرئيسية.",
   "page.notinvited.text": "لم نتمكن من العثور على حساب لعنوان بريدك الإلكتروني.",
   "page.notinvited.title": "لم تتم دعوتك",
@@ -182,5 +195,7 @@
   "signin.message.private.text": "إذا كان لديك حساب أو دعوت، فيمكنك استخدام الخيارات التالية لتسجيل الدخول.",
   "signin.message.private.title": "<0>{0}</0> مساحة خاصة، يجب عليك تسجيل الدخول للمشاركة والتصويت.",
   "signin.message.socialbutton.intro": "تسجيل الدخول بواسطة",
+  "validation.custom.maxattachments": "يُسمح بحد أقصى {number} من المرفقات.",
+  "validation.custom.maximagesize": "يجب أن يكون حجم الصورة أصغر من {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}"
 }

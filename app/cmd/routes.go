@@ -25,6 +25,7 @@ func routes(r *web.Engine) *web.Engine {
 		mw := middlewares.Chain(
 			middlewares.WebSetup(),
 			middlewares.Tenant(),
+			middlewares.NoIndex(),
 			middlewares.User(),
 		)
 		next := mw(func(c *web.Context) error {
@@ -49,6 +50,7 @@ func routes(r *web.Engine) *web.Engine {
 		feed.Use(middlewares.CORS())
 		feed.Use(middlewares.WebSetup())
 		feed.Use(middlewares.Tenant())
+		feed.Use(middlewares.NoIndex())
 		feed.Use(middlewares.ClientCache(5 * time.Minute))
 
 		feed.Get("/feed/global.atom", handlers.GlobalFeed())
@@ -63,6 +65,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Maintenance())
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
+	r.Use(middlewares.NoIndex())
 	r.Use(middlewares.User())
 
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
@@ -113,6 +116,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.BlockPendingTenants())
 
 	r.Get("/signin", handlers.SignInPage())
+	r.Get("/loginemailsent", handlers.LoginEmailSentPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
 	r.Get("/signin/verify", handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
 	r.Get("/invite/verify", handlers.VerifySignInKey(enum.EmailVerificationKindUserInvitation))
@@ -192,11 +196,13 @@ func routes(r *web.Engine) *web.Engine {
 	// Does not require authentication
 	publicApi := r.Group()
 	{
+		publicApi.Get("/api/v1/similarposts", apiv1.FindSimilarPosts())
 		publicApi.Get("/api/v1/posts", apiv1.SearchPosts())
 		publicApi.Get("/api/v1/tags", apiv1.ListTags())
 		publicApi.Get("/api/v1/posts/:number", apiv1.GetPost())
 		publicApi.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		publicApi.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
+		publicApi.Get("/api/v1/taggable-users", apiv1.ListTaggableUsers())
 	}
 
 	// Operations used to manage the content of a site
@@ -212,7 +218,6 @@ func routes(r *web.Engine) *web.Engine {
 		membersApi.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		membersApi.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
 		membersApi.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())
-		membersApi.Get("/api/v1/taggable-users", apiv1.ListTaggableUsers())
 		membersApi.Post("/api/v1/posts/:number/votes", apiv1.AddVote())
 		membersApi.Delete("/api/v1/posts/:number/votes", apiv1.RemoveVote())
 		membersApi.Post("/api/v1/posts/:number/votes/toggle", apiv1.ToggleVote())
