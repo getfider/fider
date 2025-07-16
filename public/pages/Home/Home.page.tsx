@@ -106,8 +106,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
           </div>
         </div>
         <div className="p-home__posts-col p-4">
-          {isLonely() && <Lonely />}
-          <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
+          {isLonely() ? <Lonely /> : <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />}
           <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
         </div>
       </div>
