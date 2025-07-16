@@ -55,6 +55,7 @@ type config struct {
 	JWTSecret                   string `env:"JWT_SECRET,required"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	Paddle                      struct {
+		IsFreemium     bool   `env:"PADDLE_FREEMIUM,default=false"`
 		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
 		VendorID       string `env:"PADDLE_VENDOR_ID"`
 		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`
@@ -241,6 +242,11 @@ func MultiTenantDomain() string {
 // IsBillingEnabled returns true if Paddle is configured
 func IsBillingEnabled() bool {
 	return Config.Paddle.VendorID != "" && Config.Paddle.VendorAuthCode != ""
+}
+
+// IsFreemium returns true if freemium mode is enabled
+func IsFreemium() bool {
+	return Config.Paddle.IsFreemium
 }
 
 // IsProduction returns true on Fider production environment

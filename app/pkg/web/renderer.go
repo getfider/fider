@@ -212,6 +212,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 		"domain":           env.MultiTenantDomain(),
 		"hasLegal":         env.HasLegal(),
 		"isBillingEnabled": env.IsBillingEnabled(),
+		"isFreemium":       env.IsFreemium(),
 		"baseURL":          ctx.BaseURL(),
 		"assetsURL":        AssetsURL(ctx, ""),
 		"oauth":            oauthProviders.Result,

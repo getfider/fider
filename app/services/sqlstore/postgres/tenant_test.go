@@ -1,16 +1,19 @@
 package postgres_test
 
 import (
+	"context"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
-	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -407,4 +410,108 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(customConfigs.Result[0].JSONUserIDPath).Equals("New user.id")
 	Expect(customConfigs.Result[0].JSONUserNamePath).Equals("New user.name")
 	Expect(customConfigs.Result[0].JSONUserEmailPath).Equals("New user.email")
+}
+
+// Freemium tests
+func TestCreateTenant_WithFreemiumEnabled(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	// Save original values to restore later
+	originalFreemium := os.Getenv("PADDLE_FREEMIUM")
+	originalVendorID := os.Getenv("PADDLE_VENDOR_ID")
+	originalVendorAuthCode := os.Getenv("PADDLE_VENDOR_AUTHCODE")
+	defer func() {
+		os.Setenv("PADDLE_FREEMIUM", originalFreemium)
+		os.Setenv("PADDLE_VENDOR_ID", originalVendorID)
+		os.Setenv("PADDLE_VENDOR_AUTHCODE", originalVendorAuthCode)
+		env.Reload()
+	}()
+
+	// Enable billing and freemium
+	os.Setenv("PADDLE_VENDOR_ID", "123")
+	os.Setenv("PADDLE_VENDOR_AUTHCODE", "456")
+	os.Setenv("PADDLE_FREEMIUM", "true")
+	env.Reload()
+
+	// Ensure billing is enabled and freemium is enabled
+	Expect(env.IsBillingEnabled()).IsTrue()
+	Expect(env.IsFreemium()).IsTrue()
+
+	// Create a new tenant using the regular tenant creation logic
+	createTenant := &cmd.CreateTenant{
+		Name:      "Freemium Test Tenant",
+		Subdomain: "freemium-test",
+		Status:    enum.TenantActive,
+	}
+
+	err := bus.Dispatch(ctx, createTenant)
+	Expect(err).IsNil()
+	Expect(createTenant.Result).IsNotNil()
+	Expect(createTenant.Result.Name).Equals("Freemium Test Tenant")
+	Expect(createTenant.Result.Subdomain).Equals("freemium-test")
+	Expect(createTenant.Result.Status).Equals(enum.TenantActive)
+	// Check the billing state of the new tenant
+	tenantCtx := context.WithValue(ctx, app.TenantCtxKey, &entity.Tenant{ID: createTenant.Result.ID})
+	billingState := &query.GetBillingState{}
+	err = bus.Dispatch(tenantCtx, billingState)
+	Expect(err).IsNil()
+	Expect(billingState.Result).IsNotNil()
+	Expect(billingState.Result.Status).Equals(enum.BillingFreeForever)
+	// We're using today's date for trial_ends_at to avoid null constraint violation
+	Expect(billingState.Result.TrialEndsAt).IsNotNil()
+}
+
+func TestCreateTenant_WithFreemiumDisabled(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	// Save original values to restore later
+	originalFreemium := os.Getenv("PADDLE_FREEMIUM")
+	originalVendorID := os.Getenv("PADDLE_VENDOR_ID")
+	originalVendorAuthCode := os.Getenv("PADDLE_VENDOR_AUTHCODE")
+	defer func() {
+		os.Setenv("PADDLE_FREEMIUM", originalFreemium)
+		os.Setenv("PADDLE_VENDOR_ID", originalVendorID)
+		os.Setenv("PADDLE_VENDOR_AUTHCODE", originalVendorAuthCode)
+		env.Reload()
+	}()
+
+	// Enable billing but disable freemium
+	os.Setenv("PADDLE_VENDOR_ID", "123")
+	os.Setenv("PADDLE_VENDOR_AUTHCODE", "456")
+	os.Setenv("PADDLE_FREEMIUM", "false")
+	env.Reload()
+
+	// Ensure billing is enabled and freemium is disabled
+	Expect(env.IsBillingEnabled()).IsTrue()
+	Expect(env.IsFreemium()).IsFalse()
+
+	// Create a new tenant using the regular tenant creation logic
+	createTenant := &cmd.CreateTenant{
+		Name:      "Standard Test Tenant",
+		Subdomain: "standard-test",
+		Status:    enum.TenantActive,
+	}
+
+	err := bus.Dispatch(ctx, createTenant)
+	Expect(err).IsNil()
+	Expect(createTenant.Result).IsNotNil()
+	Expect(createTenant.Result.Name).Equals("Standard Test Tenant")
+	Expect(createTenant.Result.Subdomain).Equals("standard-test")
+	Expect(createTenant.Result.Status).Equals(enum.TenantActive)
+	// Check the billing state of the new tenant
+	tenantCtx := context.WithValue(ctx, app.TenantCtxKey, &entity.Tenant{ID: createTenant.Result.ID})
+	billingState := &query.GetBillingState{}
+	err = bus.Dispatch(tenantCtx, billingState)
+	Expect(err).IsNil()
+	Expect(billingState.Result).IsNotNil()
+	Expect(billingState.Result.Status).Equals(enum.BillingTrial)
+	Expect(billingState.Result.TrialEndsAt).IsNotNil() // Trial period should be set
+
+	// Verify trial period is approximately 15 days from now
+	now := time.Now()
+	trialDuration := billingState.Result.TrialEndsAt.Sub(now)
+	Expect(trialDuration > 14*24*time.Hour).IsTrue() // At least 14 days
+	Expect(trialDuration < 16*24*time.Hour).IsTrue() // Less than 16 days
 }

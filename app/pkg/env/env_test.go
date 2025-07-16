@@ -1,6 +1,7 @@
 package env_test
 
 import (
+	"os"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -65,4 +66,22 @@ func TestSubdomain(t *testing.T) {
 	Expect(env.Subdomain("test.fider.io")).Equals("")
 	Expect(env.Subdomain("test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
+}
+
+func TestIsFreemium(t *testing.T) {
+	RegisterT(t)
+
+	// Save original value to restore later
+	original := os.Getenv("PADDLE_FREEMIUM")
+	defer os.Setenv("PADDLE_FREEMIUM", original)
+
+	// Test when freemium is disabled (default)
+	os.Setenv("PADDLE_FREEMIUM", "false")
+	env.Reload()
+	Expect(env.IsFreemium()).IsFalse()
+
+	// Test when freemium is enabled
+	os.Setenv("PADDLE_FREEMIUM", "true")
+	env.Reload()
+	Expect(env.IsFreemium()).IsTrue()
 }

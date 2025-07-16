@@ -246,12 +246,25 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 		}
 
 		if env.IsBillingEnabled() {
-			trialEndsAt := time.Now().AddDate(0, 0, 15) // 15 days
-			_, err := trx.Execute(
-				`INSERT INTO tenants_billing (tenant_id, trial_ends_at, status, paddle_subscription_id, paddle_plan_id) 
-				 VALUES ($1, $2, $3, '', '')`, id, trialEndsAt, enum.BillingTrial)
-			if err != nil {
-				return err
+			if env.IsFreemium() {
+				// In freemium mode, set tenants to BillingFreeForever with today's date for trial_ends_at
+				// to avoid null constraint violation
+				today := time.Now()
+				_, err := trx.Execute(
+					`INSERT INTO tenants_billing (tenant_id, trial_ends_at, status, paddle_subscription_id, paddle_plan_id)
+					 VALUES ($1, $2, $3, '', '')`, id, today, enum.BillingFreeForever)
+				if err != nil {
+					return err
+				}
+			} else {
+				// Standard billing behavior with 15-day trial
+				trialEndsAt := time.Now().AddDate(0, 0, 15) // 15 days
+				_, err := trx.Execute(
+					`INSERT INTO tenants_billing (tenant_id, trial_ends_at, status, paddle_subscription_id, paddle_plan_id)
+					 VALUES ($1, $2, $3, '', '')`, id, trialEndsAt, enum.BillingTrial)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
