@@ -8,6 +8,7 @@ interface ListPostsProps {
   posts?: Post[]
   tags: Tag[]
   emptyText: string
+  minimalView?: boolean
 }
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
@@ -19,11 +20,11 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
       <VStack className="w-full" spacing={2}>
         {props.post.status !== "open" && (
           <div className="mb-2 align-self-start">
-            <ResponseLozenge status={props.post.status} response={props.post.response} small={true} />
+            <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />
           </div>
         )}
         <HStack justify="between">
-          <a className="text-title hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
+          <a className="text-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
             {props.post.title}
           </a>
           {props.post.commentsCount > 0 && (
@@ -45,7 +46,28 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
   )
 }
 
+const MinimalListPostItem = (props: { post: Post; tags: Tag[] }) => {
+  return (
+    <HStack spacing={4} align="start" className="c-posts-container__post">
+      <HStack className="w-full" justify="between" align="start">
+        <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
+          {props.post.title}
+        </a>
+        {props.post.status !== "open" ? (
+          <div>
+            <ResponseLozenge status={props.post.status} response={props.post.response} size={"micro"} />
+          </div>
+        ) : (
+          <span className="text-gray-700 text-sm">+{props.post.votesCount}</span>
+        )}
+      </HStack>
+    </HStack>
+  )
+}
+
 export const ListPosts = (props: ListPostsProps) => {
+  const { minimalView = false } = props
+
   if (!props.posts) {
     return null
   }
@@ -55,10 +77,20 @@ export const ListPosts = (props: ListPostsProps) => {
   }
 
   return (
-    <VStack spacing={4} divide>
-      {props.posts.map((post) => (
-        <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
-      ))}
-    </VStack>
+    <>
+      {minimalView ? (
+        <VStack spacing={2}>
+          {props.posts.map((post) => (
+            <MinimalListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
+          ))}
+        </VStack>
+      ) : (
+        <VStack spacing={4} divide>
+          {props.posts.map((post) => (
+            <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
+          ))}
+        </VStack>
+      )}
+    </>
   )
 }

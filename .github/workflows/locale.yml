@@ -41,8 +41,9 @@ jobs:
         if: ${{ inputs.dry != 'true' }}
         uses: peter-evans/create-pull-request@v6
         with:
+          base: ${{ github.ref_name }}
           commit-message: "Auto-translate missing keys in locales"
-          title: "Auto-translate missing keys in locales"
+          title: "[${{ github.head_ref || github.ref_name }}] Auto-translate missing keys in locales"
           body: "This PR adds machine-translated values for any missing locale keys."
           branch: auto/translate-missing-keys
           add-paths: |

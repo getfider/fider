@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -15,15 +17,38 @@ func AddMentionNotification(ctx context.Context, c *cmd.AddMentionNotification) 
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		now := time.Now()
 
+		// Create NullInt64 variables for CommentID and PostID
+		var commentID sql.NullInt64
+		var postID sql.NullInt64
+
+		// Only set Valid=true if the ID is not 0
+		if c.CommentID != 0 {
+			commentID.Int64 = int64(c.CommentID)
+			commentID.Valid = true
+		}
+
+		if c.PostID != 0 {
+			postID.Int64 = int64(c.PostID)
+			postID.Valid = true
+		}
+
 		query := `
-			INSERT INTO mention_notifications (tenant_id, user_id, comment_id, created_on) 
-			VALUES ($1, $2, $3, $4)
-			ON CONFLICT (tenant_id, user_id, comment_id) DO NOTHING
+			INSERT INTO mention_notifications (tenant_id, user_id, comment_id, post_id, created_on)
+			SELECT $1, $2, $3, $4, $5
+			WHERE NOT EXISTS (
+				SELECT 1
+				FROM mention_notifications
+				WHERE tenant_id = $1
+				AND user_id = $2
+				AND COALESCE(comment_id, -1) = COALESCE($3, -1)
+				AND COALESCE(post_id, -1) = COALESCE($4, -1)
+			);
 		`
 		_, err := trx.Execute(query,
 			tenant.ID,
 			c.UserID,
-			c.CommentID,
+			commentID,
+			postID,
 			now)
 
 		if err != nil {
@@ -40,15 +65,27 @@ func getMentionsNotifications(ctx context.Context, q *query.GetMentionNotificati
 
 		params := []interface{}{
 			tenant.ID,
-			q.CommentID,
 		}
 
 		query := `
-			SELECT id, tenant_id, user_id, comment_id, created_on
+			SELECT id, tenant_id, user_id, comment_id, post_id, created_on
 			FROM mention_notifications
-			WHERE tenant_id = $1 
-			AND comment_id = $2
+			WHERE tenant_id = $1
 		`
+
+		paramCount := 1
+
+		if q.CommentID > 0 {
+			paramCount++
+			query += fmt.Sprintf(" AND comment_id = $%d", paramCount)
+			params = append(params, q.CommentID)
+		}
+
+		if q.PostID > 0 {
+			paramCount++
+			query += fmt.Sprintf(" AND post_id = $%d", paramCount)
+			params = append(params, q.PostID)
+		}
 
 		query += " ORDER BY created_on DESC"
 

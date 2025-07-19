@@ -181,5 +181,21 @@
   "signin.message.private.text": "계정이나 초대장이 있는 경우 다음 옵션을 사용하여 로그인할 수 있습니다.",
   "signin.message.private.title": "<0>{0}</0>은 비공개 공간이므로 참여하고 투표하려면 로그인해야 합니다.",
   "signin.message.socialbutton.intro": "로그인하세요",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
+  "labels.notagsselected": "선택된 태그가 없습니다",
+  "action.commentsfeed": "댓글 피드",
+  "action.postsfeed": "게시물 피드",
+  "label.addtags": "태그 추가...",
+  "label.searchtags": "태그 검색...",
+  "mysettings.notification.event.newpostcreated": "귀하의 아이디어가 추가되었습니다 👍",
+  "newpost.modal.addimage": "이미지 추가",
+  "newpost.modal.description.placeholder": "자세히 설명해 주세요. 숨기지 말고, 정보가 많을수록 좋습니다.",
+  "newpost.modal.title": "여러분의 아이디어를 공유해 보세요...",
+  "newpost.modal.title.label": "당신의 아이디어에 제목을 붙이세요",
+  "newpost.modal.title.placeholder": "짧고 간결하게 요약하자면 몇 마디로 요약할 수 있습니다.",
+  "newpost.modal.submit": "아이디어를 제출하세요",
+  "validation.custom.maxattachments": "최대 {number}개의 첨부 파일이 허용됩니다.",
+  "validation.custom.maximagesize": "이미지 크기는 {kilobytes}KB보다 작아야 합니다.",
+  "modal.rss.description": "이 ATOM 피드를 구독하려면 이 URL을 복사하여 RSS/ATOM 리더에 붙여넣으세요.",
+  "modal.rss.title": "ATOM 피드 구독하기"
 }

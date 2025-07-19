@@ -11,7 +11,9 @@ import { i18n } from "@lingui/core"
 interface SignInControlProps {
   useEmail: boolean
   redirectTo?: string
+  onSubmit?: () => void
   onEmailSent?: (email: string) => void
+  signInButtonText?: string
 }
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
@@ -20,12 +22,25 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   const [email, setEmail] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
 
+  const signInText = props.signInButtonText || i18n._({ id: "action.signin", message: "Sign in" })
+
   const forceShowEmailForm = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
     setShowEmailForm(true)
   }
 
+  const doPreSigninAction = () => {
+    if (props.onSubmit) {
+      props.onSubmit()
+    }
+  }
+
+  const onSocialSignin = () => {
+    doPreSigninAction()
+  }
+
   const signIn = async () => {
+    await doPreSigninAction()
     const result = await actions.signIn(email)
     if (result.ok) {
       setEmail("")
@@ -56,7 +71,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
           <div className="c-signin-control__oauth pb-3">
             {fider.settings.oauth.map((o) => (
               <React.Fragment key={o.provider}>
-                <SocialSignInButton option={o} redirectTo={props.redirectTo} />
+                <SocialSignInButton onClick={onSocialSignin} option={o} redirectTo={props.redirectTo} />
               </React.Fragment>
             ))}
           </div>
@@ -74,10 +89,10 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
                 value={email}
                 autoFocus={!device.isTouch()}
                 onChange={setEmail}
-                placeholder={i18n._("signin.email.placeholder", { message: "Email address" })}
+                placeholder={i18n._({ id: "signin.email.placeholder", message: "Email address" })}
               />
               <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                <Trans id="action.signin">Sign in</Trans>
+                {signInText}
               </Button>
             </Form>
             {!fider.session.tenant.isEmailAuthAllowed && (

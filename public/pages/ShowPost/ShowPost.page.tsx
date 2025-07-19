@@ -2,29 +2,18 @@ import "./ShowPost.page.scss"
 
 import React, { useState, useEffect, useCallback } from "react"
 
-import { Comment, Post, Tag, Vote, ImageUpload, CurrentUser, PostStatus } from "@fider/models"
-import { actions, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
+import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
+import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
-import IconRss from "@fider/assets/images/heroicons-rss.svg"
+import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
+import { i18n } from "@lingui/core"
+import IconRSS from "@fider/assets/images/heroicons-rss.svg"
+import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
+import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
-import {
-  ResponseDetails,
-  Button,
-  UserName,
-  Moment,
-  Markdown,
-  Input,
-  Form,
-  TextArea,
-  MultiImageUploader,
-  ImageViewer,
-  Icon,
-  Header,
-  PoweredByFider,
-  Avatar,
-  Dropdown,
-} from "@fider/components"
+import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, Icon, Header, PoweredByFider, Avatar, Dropdown, RSSModal } from "@fider/components"
 import { DiscussionPanel } from "./components/DiscussionPanel"
+import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
@@ -36,6 +25,9 @@ import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
 import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
+import { t } from "@lingui/macro"
+import { useFider } from "@fider/hooks"
+import { useAttachments } from "@fider/hooks/useAttachments"
 
 interface ShowPostPageProps {
   post: Post
@@ -58,12 +50,16 @@ const canEditPost = (user: CurrentUser, post: Post) => {
 export default function ShowPostPage(props: ShowPostPageProps) {
   const [editMode, setEditMode] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
   const [showResponseModal, setShowResponseModal] = useState(false)
   const [newTitle, setNewTitle] = useState(props.post.title)
   const [newDescription, setNewDescription] = useState(props.post.description)
-  const [attachments, setAttachments] = useState<ImageUpload[]>([])
+  const { attachments, handleImageUploaded, getImageSrc } = useAttachments({
+    maxAttachments: 3,
+  })
   const [highlightedComment, setHighlightedComment] = useState<number | undefined>(undefined)
   const [error, setError] = useState<Failure | undefined>(undefined)
+  const fider = useFider()
 
   const handleHashChange = useCallback(
     (e?: Event) => {
@@ -103,6 +99,15 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     }
   }, [handleHashChange])
 
+  useEffect(() => {
+    const showSuccess = cache.session.get("POST_CREATED_SUCCESS")
+    if (showSuccess) {
+      cache.session.remove("POST_CREATED_SUCCESS")
+      // Show success message/toast
+      notify.success(t({ id: "mysettings.notification.event.newpostcreated", message: "Your idea has been added 👍" }))
+    }
+  }, [])
+
   const saveChanges = async () => {
     const result = await actions.updatePost(props.post.number, newTitle, newDescription, attachments)
     if (result.ok) {
@@ -129,7 +134,11 @@ export default function ShowPostPage(props: ShowPostPageProps) {
     setEditMode(true)
   }
 
-  const onActionSelected = (action: "copy" | "delete" | "status" | "edit") => () => {
+  const handleDescriptionChange = (value: string) => {
+    setNewDescription(value)
+  }
+
+  const onActionSelected = (action: "copy" | "delete" | "status" | "feed" | "edit") => () => {
     if (action === "copy") {
       navigator.clipboard.writeText(window.location.href)
       notify.success(<Trans id="showpost.copylink.success">Link copied to clipboard</Trans>)
@@ -139,8 +148,12 @@ export default function ShowPostPage(props: ShowPostPageProps) {
       setShowResponseModal(true)
     } else if (action === "edit") {
       startEdit()
+    } else if (action == "feed") {
+      setIsRSSModalOpen(true)
     }
   }
+
+  const hideRSSModal = () => setIsRSSModalOpen(false)
 
   return (
     <>
@@ -162,32 +175,33 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                       </HStack>
                     )}
                   </VStack>
+                  <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${props.post.number}.atom`} />
 
                   {!editMode && (
                     <HStack>
-                      {Fider.session.tenant.isFeedEnabled && (
-                        <a title="ATOM Feed (Comments)" type="application/atom+xml" href={`/feed/posts/${props.post.id}.atom`}>
-                          <Icon sprite={IconRss} width="24" height="24" />
-                        </a>
-                      )}
                       <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
-                        <Dropdown.ListItem onClick={onActionSelected("copy")}>
+                        <Dropdown.ListItem onClick={onActionSelected("copy")} icon={IconDuplicate}>
                           <Trans id="action.copylink">Copy link</Trans>
                         </Dropdown.ListItem>
+                        {Fider.session.tenant.isFeedEnabled && (
+                          <Dropdown.ListItem onClick={onActionSelected("feed")} icon={IconRSS}>
+                            <Trans id="action.commentsfeed">Comment Feed</Trans>
+                          </Dropdown.ListItem>
+                        )}
                         {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
                           <>
-                            <Dropdown.ListItem onClick={onActionSelected("edit")}>
+                            <Dropdown.ListItem onClick={onActionSelected("edit")} icon={IconPencil}>
                               <Trans id="action.edit">Edit</Trans>
                             </Dropdown.ListItem>
                             {Fider.session.user.isCollaborator && (
-                              <Dropdown.ListItem onClick={onActionSelected("status")}>
+                              <Dropdown.ListItem onClick={onActionSelected("status")} icon={IconChat}>
                                 <Trans id="action.respond">Respond</Trans>
                               </Dropdown.ListItem>
                             )}
                           </>
                         )}
                         {canDeletePost() && (
-                          <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700">
+                          <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700" icon={IconX}>
                             <Trans id="action.delete">Delete</Trans>
                           </Dropdown.ListItem>
                         )}
@@ -203,7 +217,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                     </Form>
                   ) : (
                     <>
-                      <h1 className="text-large">{props.post.title}</h1>
+                      <h1 className="text-large text-break">{props.post.title}</h1>
                     </>
                   )}
                 </div>
@@ -215,8 +229,20 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                 <VStack>
                   {editMode ? (
                     <Form error={error}>
-                      <TextArea field="description" value={newDescription} onChange={setNewDescription} />
-                      <MultiImageUploader field="attachments" bkeys={props.attachments} maxUploads={3} onChange={setAttachments} />
+                      <CommentEditor
+                        field="description"
+                        onChange={handleDescriptionChange}
+                        initialValue={newDescription}
+                        disabled={false}
+                        maxAttachments={3}
+                        maxImageSizeKB={5 * 1024}
+                        placeholder={i18n._({
+                          id: "newpost.modal.description.placeholder",
+                          message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
+                        })}
+                        onImageUploaded={handleImageUploaded}
+                        onGetImageSrc={getImageSrc}
+                      />
                     </Form>
                   ) : (
                     <>
@@ -226,9 +252,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                           <Trans id="showpost.message.nodescription">No description provided.</Trans>
                         </em>
                       )}
-                      {props.attachments.map((x) => (
-                        <ImageViewer key={x} bkey={x} />
-                      ))}
                     </>
                   )}
                 </VStack>

@@ -12,6 +12,7 @@
     padding: 0;
     cursor: pointer;
     color: var(--colors-black);
+    display: flex;
   }
 
   &__list {
@@ -45,7 +46,8 @@
   }
 
   &__listitem {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: spacing(2);
     &:hover {
       cursor: pointer;

@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
-//SendSignInEmail is used to send the sign in email to requestor
+// SendSignInEmail is used to send the sign in email to requestor
 func SendSignInEmail(email, verificationKey string) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
 		to := dto.NewRecipient("", email, dto.Props{

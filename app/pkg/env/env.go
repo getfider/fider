@@ -54,6 +54,7 @@ type config struct {
 	Locale                      string `env:"LOCALE,default=en"`
 	JWTSecret                   string `env:"JWT_SECRET,required"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
+	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
 	Paddle                      struct {
 		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
 		VendorID       string `env:"PADDLE_VENDOR_ID"`
@@ -141,7 +142,8 @@ type config struct {
 		Message string `env:"MAINTENANCE_MESSAGE"`
 		Until   string `env:"MAINTENANCE_UNTIL"`
 	}
-	GoogleAnalytics string `env:"GOOGLE_ANALYTICS"`
+	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
+	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
 }
 
 // Config is a strongly typed reference to all configuration parsed from Environment Variables
@@ -245,6 +247,11 @@ func IsBillingEnabled() bool {
 // IsProduction returns true on Fider production environment
 func IsProduction() bool {
 	return Config.Environment == "production" || (!IsTest() && !IsDevelopment())
+}
+
+// SearchNoiseWords returns a list of words that should be ignored on search
+func SearchNoiseWords() []string {
+	return strings.Split(Config.SearchNoiseWords, "|")
 }
 
 // IsTest returns true on Fider test environment

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Comment, Post, ImageUpload } from "@fider/models"
-import { Reactions, Avatar, UserName, Moment, Form, Button, Markdown, Modal, ImageViewer, MultiImageUploader, Dropdown, Icon } from "@fider/components"
+import { Comment, Post } from "@fider/models"
+import { Reactions, Avatar, UserName, Moment, Form, Button, Markdown, Modal, Dropdown, Icon } from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash } from "@fider/services"
 import { useFider } from "@fider/hooks"
@@ -8,6 +8,9 @@ import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.s
 import { t } from "@lingui/core/macro"
 import { Trans } from "@lingui/react/macro"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
+import { useAttachments } from "@fider/hooks/useAttachments"
+
+import "./ShowComment.scss"
 
 interface ShowCommentProps {
   post: Post
@@ -22,7 +25,9 @@ export const ShowComment = (props: ShowCommentProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [newContent, setNewContent] = useState<string>(props.comment.content)
   const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false)
-  const [attachments, setAttachments] = useState<ImageUpload[]>([])
+  const { attachments, handleImageUploaded, getImageSrc } = useAttachments({
+    maxAttachments: 2,
+  })
   const [localReactionCounts, setLocalReactionCounts] = useState(props.comment.reactionCounts)
   const emojiSelectorRef = useRef<HTMLDivElement>(null)
 
@@ -153,7 +158,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   )
 
   const classList = classSet({
-    "flex-grow rounded-md p-2": true,
+    "flex-grow rounded-md p-2 comment-area": true,
     "bg-gray-100": !props.highlighted,
     "bg-gray-200": props.highlighted,
   })
@@ -203,19 +208,23 @@ export const ShowComment = (props: ShowCommentProps) => {
                   initialValue={newContent}
                   onChange={setNewContent}
                   placeholder={comment.content}
+                  maxAttachments={2}
+                  maxImageSizeKB={5 * 1024}
+                  onGetImageSrc={getImageSrc}
+                  onImageUploaded={handleImageUploaded}
                 />
-                <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} onChange={setAttachments} />
-                <Button size="small" onClick={saveEdit} variant="primary">
-                  <Trans id="action.save">Save</Trans>
-                </Button>
-                <Button variant="tertiary" size="small" onClick={cancelEdit}>
-                  <Trans id="action.cancel">Cancel</Trans>
-                </Button>
+                <div className="mt-2">
+                  <Button size="small" onClick={saveEdit} variant="primary">
+                    <Trans id="action.save">Save</Trans>
+                  </Button>
+                  <Button variant="tertiary" size="small" onClick={cancelEdit}>
+                    <Trans id="action.cancel">Cancel</Trans>
+                  </Button>
+                </div>
               </Form>
             ) : (
               <>
                 <Markdown text={comment.content} style="full" />
-                {comment.attachments && comment.attachments.map((x) => <ImageViewer key={x} bkey={x} />)}
                 <Reactions reactions={localReactionCounts} emojiSelectorRef={emojiSelectorRef} toggleReaction={toggleReaction} />
               </>
             )}

@@ -2,12 +2,15 @@ import "./Dropdown.scss"
 
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 import { classSet } from "@fider/services"
+import { Icon } from "@fider/components/common/Icon"
 
 interface DropdownListItemProps {
   href?: string
+  type?: string
   onClick?: () => void
   className?: string
   children: React.ReactNode
+  icon?: SpriteSymbol
 }
 
 const ListItem = (props: DropdownListItemProps) => {
@@ -22,7 +25,8 @@ const ListItem = (props: DropdownListItemProps) => {
 
   if (props.href) {
     return (
-      <a href={props.href} className={`c-dropdown__listitem ${props.className}`}>
+      <a href={props.href} className={`c-dropdown__listitem ${props.className}`} type={props.type || "button"}>
+        {props.icon && <Icon sprite={props.icon} className="mr-2" width="16" height="16" />}
         {props.children}
       </a>
     )
@@ -30,6 +34,7 @@ const ListItem = (props: DropdownListItemProps) => {
 
   return (
     <div onClick={handleClick} className={`c-dropdown__listitem ${props.className}`}>
+      {props.icon && <Icon sprite={props.icon} className="mr-2" width="16" height="16" />}
       {props.children}
     </div>
   )

@@ -1,5 +1,6 @@
 import { marked } from "marked"
 import DOMPurify from "dompurify"
+import { fiderAllowedSchemes } from "@fider/hooks"
 
 marked.setOptions({
   headerIds: false,
@@ -16,6 +17,21 @@ if (DOMPurify.isSupported) {
     },
     ADD_ATTR: ["target"],
   })
+
+  let allow: RegExp[] | undefined
+  DOMPurify.addHook("uponSanitizeAttribute", (currentNode, hookEvent) => {
+    if (allow === undefined)
+      allow = fiderAllowedSchemes
+        .get()
+        .split("\n")
+        .filter((s) => s)
+        .map((s) => new RegExp(s, "i"))
+
+    if (allow && hookEvent.attrName === "href") {
+      const href = currentNode.getAttribute("href")
+      if (href !== null && !/^javascript/i.test(href)) hookEvent.forceKeepAttr = allow.some((r) => r.test(href))
+    }
+  })
 }
 
 const link = (href: string, title: string, text: string) => {
@@ -24,7 +40,14 @@ const link = (href: string, title: string, text: string) => {
 }
 
 const fullRenderer = new marked.Renderer()
-fullRenderer.image = () => ""
+fullRenderer.image = (href, title, alt) => {
+  // Check if this is our special fider-image syntax
+  if (href && href.startsWith("fider-image:")) {
+    const bkey = href.substring("fider-image:".length)
+    return `<img src="/static/images/${bkey}" alt="${alt || ""}" class="fider-inline-image" data-bkey="${bkey}" />`
+  }
+  return "" // Ignore other images
+}
 fullRenderer.link = link
 fullRenderer.text = (text: string) => {
   // Handling mention links (they're in the format @[name])

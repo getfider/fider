@@ -36,8 +36,8 @@ export const updateTenantSettings = async (request: UpdateTenantSettingsRequest)
   return await http.post("/_api/admin/settings/general", request)
 }
 
-export const updateTenantAdvancedSettings = async (customCSS: string): Promise<Result> => {
-  return await http.post("/_api/admin/settings/advanced", { customCSS })
+export const updateTenantAdvancedSettings = async (customCSS: string, allowedSchemes: string): Promise<Result> => {
+  return await http.post("/_api/admin/settings/advanced", { customCSS, allowedSchemes })
 }
 
 export const updateTenantPrivacy = async (request: PrivacySettingsPageState): Promise<Result> => {
@@ -54,9 +54,10 @@ export const checkAvailability = async (subdomain: string): Promise<Result<Check
   return await http.get<CheckAvailabilityResponse>(`/_api/tenants/${subdomain}/availability`)
 }
 
-export const signIn = async (email: string): Promise<Result> => {
+export const signIn = async (email: string, code?: string): Promise<Result> => {
   return await http.post("/_api/signin", {
     email,
+    code,
   })
 }
 

@@ -76,7 +76,7 @@ export const PostFilter = (props: PostFilterProps) => {
   const options: OptionItem[] = []
 
   if (fider.session.isAuthenticated) {
-    options.push({ value: true, label: i18n._("home.postfilter.option.myvotes", { message: "My Votes" }), type: "myVotes" })
+    options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myvotes", message: "My Votes" }), type: "myVotes" })
   }
 
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
@@ -107,7 +107,7 @@ export const PostFilter = (props: PostFilterProps) => {
         renderHandle={
           <HStack className="h-10 text-medium text-xs rounded-md uppercase border border-gray-400 text-gray-800 p-2 px-3">
             <Icon sprite={HeroIconFilter} className="h-5 pr-1" />
-            {i18n._("home.filter.label", { message: "Filter" })}
+            {i18n._({ id: "home.filter.label", message: "Filter" })}
             {filterCount > 0 && <div className="bg-gray-200 inline-block rounded-full px-2 py-1 w-min-4 text-2xs text-center">{filterCount}</div>}
           </HStack>
         }
@@ -117,7 +117,7 @@ export const PostFilter = (props: PostFilterProps) => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="c-input filter-input"
-          placeholder={i18n._("home.filter.search.label", { message: "Search in filters..." })}
+          placeholder={i18n._({ id: "home.filter.search.label", message: "Search in filters..." })}
         />
         {filteredOptions.map((o) => {
           const isChecked = filterItems.find((f) => f.type === o.type && f.value === o.value) !== undefined

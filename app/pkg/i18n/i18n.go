@@ -32,6 +32,7 @@ var localeToPlurals = map[string]string{
 	"ja":    "ja",
 	"zh-CN": "zh",
 	"ar":	 "ar",
+	"fa":	 "fa",
 }
 
 var rtlLocales = map[string]bool{

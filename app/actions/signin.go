@@ -54,22 +54,22 @@ func (action *SignInByEmail) Validate(ctx context.Context, user *entity.User) *v
 	return result
 }
 
-//GetEmail returns the email being verified
+// GetEmail returns the email being verified
 func (action *SignInByEmail) GetEmail() string {
 	return action.Email
 }
 
-//GetName returns empty for this kind of process
+// GetName returns empty for this kind of process
 func (action *SignInByEmail) GetName() string {
 	return ""
 }
 
-//GetUser returns the current user performing this action
+// GetUser returns the current user performing this action
 func (action *SignInByEmail) GetUser() *entity.User {
 	return nil
 }
 
-//GetKind returns EmailVerificationKindSignIn
+// GetKind returns EmailVerificationKindSignIn
 func (action *SignInByEmail) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindSignIn
 }
