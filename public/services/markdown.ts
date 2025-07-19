@@ -1,5 +1,6 @@
 import { marked } from "marked"
 import DOMPurify from "dompurify"
+import { fiderAllowedSchemes } from "@fider/hooks"
 
 marked.setOptions({
   headerIds: false,
@@ -15,6 +16,21 @@ if (DOMPurify.isSupported) {
       html: true,
     },
     ADD_ATTR: ["target"],
+  })
+
+  let allow: RegExp[] | undefined
+  DOMPurify.addHook("uponSanitizeAttribute", (currentNode, hookEvent) => {
+    if (allow === undefined)
+      allow = fiderAllowedSchemes
+        .get()
+        .split("\n")
+        .filter((s) => s)
+        .map((s) => new RegExp(s, "i"))
+
+    if (allow && hookEvent.attrName === "href") {
+      const href = currentNode.getAttribute("href")
+      if (href !== null && !/^javascript/i.test(href)) hookEvent.forceKeepAttr = allow.some((r) => r.test(href))
+    }
   })
 }
 
