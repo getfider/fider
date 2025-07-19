@@ -21,6 +21,7 @@ export interface SystemSettings {
   assetsURL: string
   oauth: OAuthProviderOption[]
   postWithTags: boolean
+  allowAllowedSchemes: boolean
 }
 
 export interface UserSettings {

@@ -36,8 +36,8 @@ export const updateTenantSettings = async (request: UpdateTenantSettingsRequest)
   return await http.post("/_api/admin/settings/general", request)
 }
 
-export const updateTenantAdvancedSettings = async (customCSS: string): Promise<Result> => {
-  return await http.post("/_api/admin/settings/advanced", { customCSS })
+export const updateTenantAdvancedSettings = async (customCSS: string, allowedSchemes: string): Promise<Result> => {
+  return await http.post("/_api/admin/settings/advanced", { customCSS, allowedSchemes })
 }
 
 export const updateTenantPrivacy = async (request: PrivacySettingsPageState): Promise<Result> => {

@@ -1,4 +1,6 @@
 import * as markdown from "./markdown"
+import { fiderAllowedSchemes } from "@fider/hooks"
+fiderAllowedSchemes.get = () => "^monero:[48]\n^bitcoin:(1|3|bc1)"
 
 const testCases = [
   {
@@ -50,6 +52,13 @@ How are you?`,
 -789`,
     expectedFull: "<p>-123<br>-456<br>-789</p>",
     expectedPlainText: "-123 -456 -789",
+  },
+  {
+    input:
+      "[monero](monero:83zJ2jMbBoxJkhtpaRLk6fQVrvfmGbd8gYUL7FSdLxU91JSpiWXoLUtAMGqmfvfq3qRS5gJUvMY7oLFSx71wxhKRGG6ypMt) [bitcoin](bitcoin:1CgLs6CxXMAY4Pj4edQq5vyaFoP9NdqVKH) [litecoin](litecoin:ltc1qg0elpp0hxguwlsapl68gvklt5ngemj8k8lu0f5)",
+    expectedFull:
+      '<p><a href="monero:83zJ2jMbBoxJkhtpaRLk6fQVrvfmGbd8gYUL7FSdLxU91JSpiWXoLUtAMGqmfvfq3qRS5gJUvMY7oLFSx71wxhKRGG6ypMt" target="_blank" rel="noopener nofollow" class="text-link">monero</a> <a href="bitcoin:1CgLs6CxXMAY4Pj4edQq5vyaFoP9NdqVKH" target="_blank" rel="noopener nofollow" class="text-link">bitcoin</a> <a target="_blank" rel="noopener nofollow" class="text-link">litecoin</a></p>',
+    expectedPlainText: "monero bitcoin litecoin",
   },
 ]
 

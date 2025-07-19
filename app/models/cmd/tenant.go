@@ -35,7 +35,8 @@ type UpdateTenantSettings struct {
 }
 
 type UpdateTenantAdvancedSettings struct {
-	CustomCSS string
+	CustomCSS      string
+	AllowedSchemes string
 }
 
 type ActivateTenant struct {
