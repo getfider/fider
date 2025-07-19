@@ -182,5 +182,20 @@
   "signin.message.private.text": "اگر حساب یا دعوت‌نامه دارید، از گزینه‌های زیر برای ورود استفاده کنید.",
   "signin.message.private.title": "<0>{0}</0> یک فضای خصوصی است؛ برای مشارکت باید وارد شوید.",
   "signin.message.socialbutton.intro": "ورود با",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# برچسب} other {# برچسب}}"
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# برچسب} other {# برچسب}}",
+  "action.commentsfeed": "فید نظرات",
+  "action.postsfeed": "فید پست‌ها",
+  "label.addtags": "اضافه کردن برچسب‌ها...",
+  "label.searchtags": "جستجوی برچسب‌ها...",
+  "modal.rss.description": "برای مشترک شدن در این فید ATOM، این URL را کپی کرده و در RSS/ATOM reader خود جایگذاری کنید.",
+  "modal.rss.title": "مشترک فید ATOM شوید",
+  "mysettings.notification.event.newpostcreated": "ایده شما اضافه شد 👍",
+  "newpost.modal.addimage": "اضافه کردن تصاویر",
+  "newpost.modal.description.placeholder": "در موردش به ما بگو. کامل توضیح بده، دریغ نکن، هر چه اطلاعات بیشتر، بهتر.",
+  "newpost.modal.submit": "ایده خود را ثبت کنید",
+  "newpost.modal.title": "ایده خود را به اشتراک بگذارید...",
+  "newpost.modal.title.label": "برای ایده خود عنوان تعیین کنید",
+  "newpost.modal.title.placeholder": "چیزی کوتاه و مختصر، خلاصه در چند کلمه",
+  "validation.custom.maxattachments": "حداکثر تعداد {number} پیوست مجاز است.",
+  "validation.custom.maximagesize": "حجم تصویر باید کمتر از {kilobytes}KB باشد."
 }
