@@ -273,17 +273,15 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
           </div>
         ) : (
           /* For authenticated users, only show the submit button container when title is long enough */
-          title.length > 9 && (
-            <div className="c-share-feedback__content animate-fade-in">
-              <div className="c-share-feedback-signin">
-                <div className="flex justify-center">
-                  <Button variant="primary" onClick={finaliseFeedback}>
-                    <Trans id="newpost.modal.submit">Submit your idea</Trans>
-                  </Button>
-                </div>
+          <div className="c-share-feedback__content animate-fade-in">
+            <div className="c-share-feedback-signin">
+              <div className="flex justify-center">
+                <Button variant="primary" onClick={finaliseFeedback} disabled={title.replace(/\s+/g, " ").trim().length < 10}>
+                  <Trans id="newpost.modal.submit">Submit your idea</Trans>
+                </Button>
               </div>
             </div>
-          )
+          </div>
         )}
         {!fider.session.isAuthenticated ? <LegalFooter /> : null}
       </Modal.Content>
