@@ -198,4 +198,3 @@
   "validation.custom.maximagesize": "Velikost obrázku musí být menší než {kilobytes}KB.",
   "modal.rss.description": "Chcete-li se přihlásit k odběru tohoto kanálu ATOM, zkopírujte a vložte tuto URL adresu do své čtečky RSS/ATOM.",
   "modal.rss.title": "Přihlásit se k odběru kanálu ATOM"
-}

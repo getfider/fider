@@ -48,7 +48,6 @@ const canEditPost = (user: CurrentUser, post: Post) => {
 }
 
 export default function ShowPostPage(props: ShowPostPageProps) {
-  const fider = useFider()
   const [editMode, setEditMode] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)

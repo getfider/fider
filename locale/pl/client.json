@@ -218,3 +218,4 @@
   "validation.custom.maxattachments": "Maksymalna liczba załączników to {number}.",
   "validation.custom.maximagesize": "Rozmiar obrazu musi być mniejszy niż {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} few {# tagów} many {# tagów} other {# tagi}}"
+}

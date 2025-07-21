@@ -218,3 +218,4 @@
   "validation.custom.maxattachments": "最大 {number} 個の添付ファイルが許可されます。",
   "validation.custom.maximagesize": "画像サイズは{kilobytes}KB未満である必要があります。",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+}

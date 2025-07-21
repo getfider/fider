@@ -218,3 +218,4 @@
   "validation.custom.maxattachments": "Er zijn maximaal {number} bijlagen toegestaan.",
   "validation.custom.maximagesize": "De afbeeldingsgrootte moet kleiner zijn dan {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+}

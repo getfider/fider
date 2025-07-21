@@ -218,3 +218,4 @@
   "validation.custom.maxattachments": "Разрешено максимум {number} вложений.",
   "validation.custom.maximagesize": "Размер изображения должен быть меньше {kilobytes}КБ.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+}

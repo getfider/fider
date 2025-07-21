@@ -20,7 +20,6 @@ import {
   setCachedDescription,
   setCachedTags,
   setCachedTitle,
-  setPostCreated,
   setPostPending,
 } from "./PostCache"
 import { useAttachments } from "@fider/hooks/useAttachments"

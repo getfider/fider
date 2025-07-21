@@ -218,3 +218,4 @@
   "validation.custom.maxattachments": "最多允许 {number} 个附件。",
   "validation.custom.maximagesize": "图像大小必须小于{kilobytes}KB。",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+}
