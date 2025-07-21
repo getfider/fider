@@ -90,7 +90,17 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
   }
 
   private timer?: number
-  private async searchPosts(query: string, view: string, limit: number | undefined, tags: string[], statuses: string[], myVotes: boolean, myPosts: boolean, noTags: boolean, reset: boolean) {
+  private async searchPosts(
+    query: string,
+    view: string,
+    limit: number | undefined,
+    tags: string[],
+    statuses: string[],
+    myVotes: boolean,
+    myPosts: boolean,
+    noTags: boolean,
+    reset: boolean
+  ) {
     window.clearTimeout(this.timer)
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true })
     this.timer = window.setTimeout(() => {
