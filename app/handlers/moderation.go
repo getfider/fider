@@ -14,7 +14,7 @@ import (
 func ModerationPage() web.HandlerFunc {
 	return func(c *web.Context) error {
 		return c.Page(http.StatusOK, web.Props{
-			Page:  "Administration/pages/Moderation.page",
+			Page:  "Administration/pages/ContentModeration.page",
 			Title: "Moderation · Site Settings",
 		})
 	}
