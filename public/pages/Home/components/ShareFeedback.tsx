@@ -144,6 +144,12 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     }
   }
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+    }
+  }
+
   const handleTagsChanged = (newTags: Tag[]) => {
     setCachedTags(newTags.map((tag) => tag.slug))
     setTags(newTags)
@@ -240,6 +246,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 value={title}
                 disabled={fider.isReadOnly}
                 onChange={handleTitleChange}
+                onKeyDown={handleKeyDown}
                 placeholder={i18n._({ id: "newpost.modal.title.placeholder", message: "Something short and snappy, sum it up in a few words" })}
               />
               {canEditTags && (
