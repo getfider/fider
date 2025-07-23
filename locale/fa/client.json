@@ -44,7 +44,7 @@
   "home.form.defaultwelcomemessage": "مایلیم بدانیم به چه می‌اندیشید.\n\nچه کاری می‌توانیم بهتر انجام دهیم؟ اینجا جایی است برای رأی دادن، بحث و به‌اشتراک‌گذاری ایده‌ها.",
   "home.lonely.suggestion": "توصیه می‌شود قبل از به‌اشتراک‌گذاری این سایت، <0>حداقل ۳</0> پیشنهاد ایجاد کنید. محتوای اولیه برای جذب مخاطبان شما مهم است.",
   "home.lonely.text": "هنوز هیچ پستی ایجاد نشده است.",
-  "home.postfilter.label.own": "",
+  "home.postfilter.label.myactivity": "",
   "home.postfilter.label.status": "",
   "home.postfilter.label.view": "نمایش",
   "home.postfilter.option.mostdiscussed": "بیشترین بحث",

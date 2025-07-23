@@ -44,7 +44,7 @@
   "home.form.defaultwelcomemessage": "Nous aimerions savoir ce que vous pensez.\n\nQue pouvons-nous faire de mieux ? C'est ici que vous pouvez voter, discuter et partager vos idées.",
   "home.lonely.suggestion": "Il est recommandé de créer <0>au moins 3</0> suggestions avant de partager ce site. Le contenu initial est important pour commencer à engager votre public.",
   "home.lonely.text": "Aucun message n'a encore été créé.",
-  "home.postfilter.label.own": "",
+  "home.postfilter.label.myactivity": "",
   "home.postfilter.label.status": "",
   "home.postfilter.label.view": "Afficher",
   "home.postfilter.option.mostdiscussed": "Les plus discutés",

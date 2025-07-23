@@ -44,7 +44,7 @@
   "home.form.defaultwelcomemessage": "Ne düşündüğünüzü öğrenmeyi çok isteriz.\n\nKendimizi nasıl geliştirebiliriz? Burada önerileri oylayabilir, tartışabilir ya da paylaşabilirsiniz.",
   "home.lonely.suggestion": "Siteyi paylaşmadan önce buraya <0>en az 3</0> öneri girmenizi tavsiye ederiz. İlk içerikler, hedef kitlenizin etkileşime geçmesi için önemlidir.",
   "home.lonely.text": "Henüz hiç öneri oluşturulmadı.",
-  "home.postfilter.label.own": "",
+  "home.postfilter.label.myactivity": "",
   "home.postfilter.label.status": "",
   "home.postfilter.label.view": "Görünüm",
   "home.postfilter.option.mostdiscussed": "En Tartışılan",

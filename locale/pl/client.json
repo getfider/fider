@@ -44,7 +44,7 @@
   "home.form.defaultwelcomemessage": "Chcemy się dowiedzieć o czym myślisz.\n\nCo możemy poprawić? To jest miejsce, w którym możesz głosować, dyskutować i dzielić się pomysłami.",
   "home.lonely.suggestion": "Zaleca się stworzenie tutaj <0>co najmniej 3</0> sugestii przed udostępnieniem tej witryny. Początkowa zawartość jest ważna do zaangażowania swoich odbiorców.",
   "home.lonely.text": "Nie stworzono jeszcze żadnych postów.",
-  "home.postfilter.label.own": "",
+  "home.postfilter.label.myactivity": "",
   "home.postfilter.label.status": "",
   "home.postfilter.label.view": "Widok",
   "home.postfilter.option.mostdiscussed": "Najczęściej dyskutowane",

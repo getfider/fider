@@ -44,7 +44,7 @@
   "home.form.defaultwelcomemessage": "Θα θέλαμε πολύ να ακούσουμε τι σκέφτεστε.\n\nΤι μπορούμε να κάνουμε καλύτερα; Αυτό είναι το μέρος για να ψηφίσετε, να συζητήσετε και να μοιραστείτε ιδέες.",
   "home.lonely.suggestion": "Συνιστάται να δημιουργείσετε εδώ <0>τουλάχιστον 3</0> προτάσεις πριν από την κοινή χρήση αυτής της ιστοσελίδας. Το αρχικό περιεχόμενο είναι σημαντικό να αρχίσετε να προσελκύετε το κοινό σας.",
   "home.lonely.text": "Δεν έχουν δημιουργηθεί αναρτήσεις ακόμα.",
-  "home.postfilter.label.own": "",
+  "home.postfilter.label.myactivity": "",
   "home.postfilter.label.status": "",
   "home.postfilter.label.view": "Προβολή",
   "home.postfilter.option.mostdiscussed": "Πιο συζητημένα",

@@ -91,14 +91,6 @@ export const PostFilter = (props: PostFilterProps) => {
     options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myposts", message: "My posts" }), type: "myPosts" })
   }
 
-  if (fider.session.isAuthenticated && fider.session.user.isCollaborator) {
-    options.push({
-      label: i18n._({ id: "home.postfilter.option.notags", message: "Without tags" }),
-      value: true,
-      type: "noTags",
-    })
-  }
-
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
     const id = `enum.poststatus.${s.value.toString()}`
     options.push({
@@ -109,25 +101,32 @@ export const PostFilter = (props: PostFilterProps) => {
     })
   })
 
-  props.tags.forEach((t) => {
+  if (props.tags.length > 0) {
     options.push({
-      label: t.name,
-      value: t.slug,
-      type: "tag",
+      value: true,
+      label: i18n._({ id: "home.postfilter.option.notags", message: "Untagged" }),
+      type: "noTags",
     })
-  })
+
+    props.tags.forEach((t) => {
+      options.push({
+        label: t.name,
+        value: t.slug,
+        type: "tag",
+      })
+    })
+  }
 
   const filterCount = filterItems.length
   const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(query.toLowerCase()))
 
-  const FilterGroupSection = ({ title, type, titleId }: { title: string; type: string; titleId?: string }) => {
-    const options = filteredOptions.filter((o) => o.type.startsWith(type))
+  const FilterGroupSection = ({ title, type, titleId }: { title: string; type: string[]; titleId?: string }) => {
+    const options = filteredOptions.filter((o) => type.includes(o.type))
 
     if (options.length === 0) return null
 
     return (
       <>
-        <Dropdown.Divider />
         <div className="p-2 text-medium uppercase">{titleId ? <Trans id={titleId}>{title}</Trans> : title}</div>
 
         {options.map((o) => {
@@ -168,13 +167,11 @@ export const PostFilter = (props: PostFilterProps) => {
           placeholder={i18n._({ id: "home.filter.search.label", message: "Search in filters..." })}
         />
 
-        <FilterGroupSection title="Own" type="my" titleId="home.postfilter.label.own" />
+        <FilterGroupSection title="My activity" type={["myVotes", "myPosts"]} titleId="home.postfilter.label.myactivity" />
 
-        <FilterGroupSection title="Admin" type="noTags" titleId="home.postfilter.label.admin" />
+        <FilterGroupSection title="Status" type={["status"]} titleId="home.postfilter.label.status" />
 
-        <FilterGroupSection title="Status" type="status" titleId="home.postfilter.label.status" />
-
-        <FilterGroupSection title="Tags" type="tag" titleId="label.tags" />
+        <FilterGroupSection title="Tags" type={["noTags", "tag"]} titleId="label.tags" />
       </Dropdown>
     </HStack>
   )

@@ -44,7 +44,7 @@
   "home.form.defaultwelcomemessage": "يسعدنا سماع أفكارك.\n\nكيف يمكننا أن نكون أفضل؟ هذا هو المكان المناسب للتصويت والمناقشة ومشاركة الأفكار.",
   "home.lonely.suggestion": "ننصح بإنشاء <0>٣ اقتراحات على الأقل</0> قبل مشاركة هذا الموقع. المحتوى المبدئي مهم لجذب جمهورك.",
   "home.lonely.text": "لم يتم إنشاء منشورات بعد.",
-  "home.postfilter.label.own": "",
+  "home.postfilter.label.myactivity": "",
   "home.postfilter.label.status": "",
   "home.postfilter.label.view": "عرض",
   "home.postfilter.option.mostdiscussed": "الأكثر مناقشة",
