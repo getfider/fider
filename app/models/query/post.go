@@ -40,6 +40,8 @@ type SearchPosts struct {
 	Statuses    []enum.PostStatus
 	Tags        []string
 	MyVotesOnly bool
+	NoTagsOnly  bool
+	MyPostsOnly bool
 
 	Result []*entity.Post
 }

@@ -33,6 +33,8 @@ export interface FilterState {
   tags: string[]
   statuses: string[]
   myVotes: boolean
+  myPosts: boolean
+  noTags: boolean
 }
 
 export class PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
@@ -46,7 +48,13 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
       loading: false,
       view,
       query: querystring.get("query"),
-      filterState: { tags: querystring.getArray("tags"), statuses: querystring.getArray("statuses"), myVotes: querystring.get("myvotes") === "true" },
+      filterState: {
+        tags: querystring.getArray("tags"),
+        statuses: querystring.getArray("statuses"),
+        myVotes: querystring.get("myvotes") === "true",
+        myPosts: querystring.get("myposts") === "true",
+        noTags: querystring.get("notags") === "true",
+      },
       limit: querystring.getNumber("limit"),
     }
   }
@@ -59,6 +67,8 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           statuses: this.state.filterState.statuses,
           tags: this.state.filterState.tags,
           myvotes: this.state.filterState.myVotes ? "true" : undefined,
+          myposts: this.state.filterState.myPosts ? "true" : undefined,
+          notags: this.state.filterState.noTags ? "true" : undefined,
           query,
           view: this.state.view,
           limit: this.state.limit,
@@ -72,17 +82,29 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         this.state.filterState.tags,
         this.state.filterState.statuses,
         this.state.filterState.myVotes,
+        this.state.filterState.myPosts,
+        this.state.filterState.noTags,
         reset
       )
     })
   }
 
   private timer?: number
-  private async searchPosts(query: string, view: string, limit: number | undefined, tags: string[], statuses: string[], myVotes: boolean, reset: boolean) {
+  private async searchPosts(
+    query: string,
+    view: string,
+    limit: number | undefined,
+    tags: string[],
+    statuses: string[],
+    myVotes: boolean,
+    myPosts: boolean,
+    noTags: boolean,
+    reset: boolean
+  ) {
     window.clearTimeout(this.timer)
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true })
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view: view, limit, tags, statuses, myVotes }).then((response) => {
+      actions.searchPosts({ query, view: view, limit, tags, statuses, myVotes, noTags }).then((response) => {
         if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data })
         }

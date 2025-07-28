@@ -108,7 +108,7 @@ $c-modal-dimmer-padding: 1em;
   }
 
   .c-modal-closeicon {
-    color: get("colors.gray.400");
+    color: var(--colors-gray-700);
     cursor: pointer;
     transition: color 0.2s ease;
 

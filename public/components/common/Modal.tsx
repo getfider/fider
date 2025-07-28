@@ -39,8 +39,7 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = ({ size = "small"
   }
 
   const keyDown = (event: KeyboardEvent) => {
-    if (event.keyCode === 27) {
-      // ESC
+    if (event.code === "Escape") {
       close()
     }
   }
