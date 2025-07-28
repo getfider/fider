@@ -87,8 +87,8 @@ export const PostFilter = (props: PostFilterProps) => {
   const options: OptionItem[] = []
 
   if (fider.session.isAuthenticated) {
-    options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myvotes", message: "My votes" }), type: "myVotes" })
-    options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myposts", message: "My posts" }), type: "myPosts" })
+    options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myvotes", message: "My Votes" }), type: "myVotes" })
+    options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myposts", message: "My Posts" }), type: "myPosts" })
   }
 
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
