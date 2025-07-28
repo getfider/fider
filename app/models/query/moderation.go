@@ -1,6 +1,8 @@
 package query
 
 import (
+	"time"
+
 	"github.com/getfider/fider/app/models/entity"
 )
 
@@ -13,7 +15,7 @@ type ModerationItem struct {
 	Title      string       `json:"title,omitempty"`
 	Content    string       `json:"content"`
 	User       *entity.User `json:"user"`
-	CreatedAt  string       `json:"createdAt"`
+	CreatedAt  time.Time    `json:"createdAt"`
 	PostTitle  string       `json:"postTitle,omitempty"`
 }
 
