@@ -53,21 +53,21 @@
 .c-moderation-item {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--colors-gray-200);
-  border-radius: 0.25rem;
-  overflow: hidden;
-  transition: background-color 0.2s ease;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
 
   &:hover {
-    background-color: rgba(var(--colors-blue-100-rgb), 0.5);
+    background-color: var(--colors-blue-50);
   }
 
   &__content {
-    padding: 1rem;
+    padding: 0;
   }
 
   &__header {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   &__user {
@@ -75,7 +75,7 @@
   }
 
   &__body {
-    margin-left: 2.5rem;
+    margin-left: 3.5rem;
   }
 
   &__title {
@@ -106,9 +106,8 @@
 
   &__actions {
     display: none;
-    padding: 0.75rem 1rem;
-    background-color: var(--colors-gray-50);
-    border-top: 1px solid var(--colors-gray-200);
+    padding: 1rem 0 0 0;
+    margin-top: 1rem;
 
     .c-moderation-item:hover & {
       display: block;

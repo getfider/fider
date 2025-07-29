@@ -173,12 +173,12 @@ const ContentModerationPage = () => {
     return (
       <div key={`${item.type}-${item.id}`} className="c-moderation-item">
         <div className="c-moderation-item__content">
-          <HStack spacing={4} className="c-moderation-item__header">
-            <Avatar user={item.user} />
-            <VStack spacing={0}>
+          <HStack spacing={4} className="c-moderation-item__header" justify="space-between">
+            <HStack spacing={4}>
+              <Avatar user={item.user} />
               <span className="c-moderation-item__user">{item.user.name}</span>
-              <Moment date={item.createdAt} locale={fider.currentLocale} />
-            </VStack>
+            </HStack>
+            <Moment date={item.createdAt} locale={fider.currentLocale} />
           </HStack>
 
           {item.type === "post" && (
