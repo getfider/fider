@@ -171,36 +171,36 @@ const ContentModerationPage = () => {
 
   const renderModerationItem = (item: ModerationItem) => {
     return (
-      <div key={`${item.type}-${item.id}`} className="c-moderation-item">
+      <div key={`${item.type}-${item.id}`} className="c-moderation-item flex flex-y p-6 mb-4 rounded-md hover">
         <div className="c-moderation-item__content">
-          <HStack spacing={4} className="c-moderation-item__header" justify="between">
+          <HStack spacing={4} className="mb-4" justify="between">
             <HStack spacing={4}>
               <Avatar user={item.user} />
-              <span className="c-moderation-item__user">{item.user.name}</span>
+              <span className="text-medium">{item.user.name}</span>
             </HStack>
             <Moment date={item.createdAt} locale={fider.currentLocale} />
           </HStack>
 
           {item.type === "post" && (
-            <VStack spacing={2} className="c-moderation-item__body">
-              <h3 className="c-moderation-item__title">{item.title}</h3>
-              <p className="c-moderation-item__text">{item.content}</p>
+            <VStack spacing={2} className="ml-14">
+              <h3 className="text-title m-0">{item.title}</h3>
+              <p className="m-0 text-body text-break">{item.content}</p>
             </VStack>
           )}
 
           {item.type === "comment" && (
-            <VStack spacing={2} className="c-moderation-item__body">
-              <span className="c-moderation-item__post-reference">
+            <VStack spacing={2} className="ml-14">
+              <span className="text-sm">
                 <Trans id="moderation.comment.on">
                   On post: <a href={`/posts/${item.postNumber}/${item.postSlug}`}>{item.postTitle}</a>
                 </Trans>
               </span>
-              <p className="c-moderation-item__text">{item.content}</p>
+              <p className="m-0 text-body text-break">{item.content}</p>
             </VStack>
           )}
         </div>
 
-        <div className="c-moderation-item__actions">
+        <div className="c-moderation-item__actions invisible pt-4 mt-4">
           <HStack spacing={2}>
             {item.type === "post" && (
               <>
@@ -283,18 +283,18 @@ const ContentModerationPage = () => {
           {state.loading ? (
             <Loader />
           ) : state.items.length === 0 ? (
-            <div className="c-moderation-page__empty">
+            <div className="text-center p-8 rounded mt-4">
               <p>
                 <Trans id="moderation.empty">All content has been moderated. You&apos;re all caught up!</Trans>
               </p>
             </div>
           ) : (
-            <div className="c-moderation-page__content">
+            <div className="mt-4">
               {posts.length > 0 && (
                 <>
                   {renderDivider("New ideas", posts.length)}
-                  <div className="c-moderation-section">
-                    <div className="c-moderation-section__items">{posts.map(renderModerationItem)}</div>
+                  <div className="mb-8">
+                    <div className="flex flex-y">{posts.map(renderModerationItem)}</div>
                   </div>
                 </>
               )}
@@ -302,8 +302,8 @@ const ContentModerationPage = () => {
               {comments.length > 0 && (
                 <>
                   {renderDivider("New comments", comments.length)}
-                  <div className="c-moderation-section">
-                    <div className="c-moderation-section__items">{comments.map(renderModerationItem)}</div>
+                  <div className="mb-8">
+                    <div className="flex flex-y">{comments.map(renderModerationItem)}</div>
                   </div>
                 </>
               )}
