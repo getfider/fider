@@ -173,7 +173,7 @@ const ContentModerationPage = () => {
     return (
       <div key={`${item.type}-${item.id}`} className="c-moderation-item">
         <div className="c-moderation-item__content">
-          <HStack spacing={4} className="c-moderation-item__header" justify="space-between">
+          <HStack spacing={4} className="c-moderation-item__header" justify="between">
             <HStack spacing={4}>
               <Avatar user={item.user} />
               <span className="c-moderation-item__user">{item.user.name}</span>
@@ -300,12 +300,12 @@ const ContentModerationPage = () => {
               )}
 
               {comments.length > 0 && (
-                <div className="c-moderation-section">
-                  <h2 className="c-moderation-section__title">
-                    <Trans id="moderation.section.comments">New comments</Trans> ({comments.length})
-                  </h2>
-                  <div className="c-moderation-section__items">{comments.map(renderModerationItem)}</div>
-                </div>
+                <>
+                  {renderDivider("New comments", comments.length)}
+                  <div className="c-moderation-section">
+                    <div className="c-moderation-section__items">{comments.map(renderModerationItem)}</div>
+                  </div>
+                </>
               )}
             </div>
           )}
