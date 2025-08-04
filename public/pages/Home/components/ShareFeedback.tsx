@@ -139,8 +139,9 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     setCachedTitle(value)
     // If this is a manual edit (not auto-generated from description),
     // mark the title as manually edited so we stop auto-populating
+    // If the user clears the title, we still want to allow auto-population
     if (isManualEdit) {
-      setTitleManuallyEdited(true)
+      setTitleManuallyEdited(value !== "")
     }
   }
 
@@ -157,6 +158,12 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const handleDescriptionChange = (value: string, plainText?: string) => {
     setCachedDescription(value)
+
+    // If the description starts with an image attachment, we don't want to set it as the title
+    if (value.startsWith("![](fider-image:attachments")) {
+      return
+    }
+
     setDescription(value)
 
     // Store plain text version if provided
