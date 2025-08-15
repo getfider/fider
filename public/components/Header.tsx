@@ -37,17 +37,19 @@ export const Header = () => {
               <h1 className="text-header">{fider.session.tenant.name}</h1>
             </a>
             {fider.session.isAuthenticated && (
-              <HStack spacing={2}>
-                {fider.session.tenant.isFeedEnabled && (
-                  <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
-                    <Icon sprite={IconRss} className="h-6 text-gray-500" />
-                  </button>
-                )}
-                <ThemeSwitcher />
+              <>
                 <ModerationIndicator />
-                <NotificationIndicator />
-                <UserMenu />
-              </HStack>
+                <HStack spacing={2}>
+                  {fider.session.tenant.isFeedEnabled && (
+                    <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
+                      <Icon sprite={IconRss} className="h-6 text-gray-500" />
+                    </button>
+                  )}
+                  <ThemeSwitcher />
+                  <NotificationIndicator />
+                  <UserMenu />
+                </HStack>
+              </>
             )}
             {!fider.session.isAuthenticated && (
               <HStack spacing={2}>

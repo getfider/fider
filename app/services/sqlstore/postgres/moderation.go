@@ -187,6 +187,10 @@ func getModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 		}
 
 		for _, post := range posts {
+			userWithEmail := &entity.UserWithEmail{
+				User: post.User.toModel(ctx),
+			}
+
 			q.Result = append(q.Result, &query.ModerationItem{
 				Type:       "post",
 				ID:         post.ID,
@@ -195,7 +199,7 @@ func getModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 				Title:      post.Title,
 				Content:    post.Description,
 				CreatedAt:  post.CreatedAt,
-				User:       post.User.toModel(ctx),
+				User:       userWithEmail,
 			})
 		}
 
@@ -222,6 +226,11 @@ func getModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 		}
 
 		for _, comment := range comments {
+
+			userWithEmail := &entity.UserWithEmail{
+				User: comment.User.toModel(ctx),
+			}
+
 			q.Result = append(q.Result, &query.ModerationItem{
 				Type:       "comment",
 				ID:         comment.ID,
@@ -231,7 +240,7 @@ func getModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 				Content:    comment.Content,
 				CreatedAt:  comment.CreatedAt,
 				PostTitle:  comment.PostTitle,
-				User:       comment.User.toModel(ctx),
+				User:       userWithEmail,
 			})
 		}
 

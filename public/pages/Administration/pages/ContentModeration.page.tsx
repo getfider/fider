@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"
 import { Button, Avatar, Loader, Icon } from "@fider/components/common"
 import { Header } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
-import { actions, http, notify } from "@fider/services"
+import { actions, chopString, http, notify } from "@fider/services"
 import { User } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
@@ -169,27 +169,44 @@ const ContentModerationPage = () => {
     )
   }
 
+  const handlePostClick = (item: ModerationItem) => {
+    if (item.type === "post" && item.postNumber && item.postSlug) {
+      window.location.href = `/posts/${item.postNumber}/${item.postSlug}`
+    }
+  }
+
   const renderModerationItem = (item: ModerationItem) => {
+    const isPost = item.type === "post"
+    const containerClasses = `c-moderation-item flex flex-y p-4 rounded-md hover ${isPost ? "clickable" : ""}`
+
     return (
-      <div key={`${item.type}-${item.id}`} className="c-moderation-item flex flex-y p-6 mb-4 rounded-md hover">
+      <div key={`${item.type}-${item.id}`} className={containerClasses} onClick={isPost ? () => handlePostClick(item) : undefined}>
         <div className="c-moderation-item__content">
-          <HStack spacing={4} className="mb-4" justify="between">
-            <HStack spacing={4}>
-              <Avatar user={item.user} />
-              <span className="text-medium">{item.user.name}</span>
+          <HStack spacing={4} className="mb-2 flex-items-start" justify="between">
+            <HStack spacing={4} className="flex-items-start">
+              <Avatar user={item.user} size="normal" />
+              {item.type === "post" ? (
+                <VStack spacing={1}>
+                  <span className="text-medium">
+                    {item.user.name} &lt;{item.user.email}&gt;
+                  </span>
+                  <h3 className="text-title m-0">{item.title}</h3>
+                </VStack>
+              ) : (
+                <span className="text-medium">{item.user.name}</span>
+              )}
             </HStack>
             <Moment date={item.createdAt} locale={fider.currentLocale} />
           </HStack>
 
           {item.type === "post" && (
-            <VStack spacing={2} className="ml-14">
-              <h3 className="text-title m-0">{item.title}</h3>
-              <p className="m-0 text-body text-break">{item.content}</p>
-            </VStack>
+            <div>
+              <p className="m-0 text-body text-break">{chopString(item.content, 200)}</p>
+            </div>
           )}
 
           {item.type === "comment" && (
-            <VStack spacing={2} className="ml-14">
+            <VStack spacing={2}>
               <span className="text-sm">
                 <Trans id="moderation.comment.on">
                   On post: <a href={`/posts/${item.postNumber}/${item.postSlug}`}>{item.postTitle}</a>
@@ -200,17 +217,17 @@ const ContentModerationPage = () => {
           )}
         </div>
 
-        <div className="c-moderation-item__actions invisible pt-4 mt-4">
+        <div className="c-moderation-item__actions invisible mt-4" onClick={(e) => e.stopPropagation()}>
           <HStack spacing={2}>
             {item.type === "post" && (
               <>
-                <Button size="small" variant="primary" onClick={() => handleApprovePost(item.id)}>
+                <Button size="small" variant="secondary" onClick={() => handleApprovePost(item.id)}>
                   <Icon sprite={IconCheck} />
                   <span>
                     <Trans id="action.approve">Approve</Trans>
                   </span>
                 </Button>
-                <Button size="small" variant="danger" onClick={() => handleDeclinePost(item.id)}>
+                <Button size="small" variant="secondary" onClick={() => handleDeclinePost(item.id)}>
                   <Icon sprite={IconX} />
                   <span>
                     <Trans id="action.decline">Decline</Trans>
@@ -222,7 +239,7 @@ const ContentModerationPage = () => {
                     <Trans id="action.approve.verify">Approve & Verify</Trans>
                   </span>
                 </Button>
-                <Button size="small" variant="danger" onClick={() => handleDeclinePostAndBlock(item.id)}>
+                <Button size="small" variant="secondary" onClick={() => handleDeclinePostAndBlock(item.id)}>
                   <Icon sprite={IconBan} />
                   <span>
                     <Trans id="action.decline.block">Decline & Block</Trans>
@@ -293,7 +310,7 @@ const ContentModerationPage = () => {
               {posts.length > 0 && (
                 <>
                   {renderDivider("New ideas", posts.length)}
-                  <div className="mb-8">
+                  <div className="mb-2">
                     <div className="flex flex-y">{posts.map(renderModerationItem)}</div>
                   </div>
                 </>
@@ -302,7 +319,7 @@ const ContentModerationPage = () => {
               {comments.length > 0 && (
                 <>
                   {renderDivider("New comments", comments.length)}
-                  <div className="mb-8">
+                  <div className="mb-2">
                     <div className="flex flex-y">{comments.map(renderModerationItem)}</div>
                   </div>
                 </>

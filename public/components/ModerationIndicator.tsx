@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react"
 import { Icon } from "@fider/components"
 import { useFider } from "@fider/hooks"
-import IconShield from "@fider/assets/images/heroicons-shieldcheck.svg"
+import ThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
+import ThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
+import { HStack } from "./layout/Stack"
 
 export const ModerationIndicator = () => {
   const fider = useFider()
@@ -24,8 +26,7 @@ export const ModerationIndicator = () => {
     }
 
     // Only fetch if user is admin/collaborator and moderation is enabled
-    if ((fider.session.user.isAdministrator || fider.session.user.isCollaborator) && 
-        fider.session.tenant.isModerationEnabled) {
+    if ((fider.session.user.isAdministrator || fider.session.user.isCollaborator) && fider.session.tenant.isModerationEnabled) {
       fetchCount()
     } else {
       setLoading(false)
@@ -45,18 +46,15 @@ export const ModerationIndicator = () => {
     return null
   }
 
-  return (
-    <a 
-      href="/admin/moderation" 
-      className="relative c-themeswitcher"
-      title={`${count} item(s) awaiting moderation`}
-    >
-      <Icon sprite={IconShield} className="h-6 text-gray-500 hover:text-gray-700" />
-      {count > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-          {count > 99 ? "99+" : count}
-        </span>
-      )}
-    </a>
-  )
+  if (count > 0) {
+    return (
+      <HStack className="bg-green-200 rounded-full px-4">
+        <Icon width="18" height="18" sprite={ThumbsUp} />
+        <Icon width="18" height="18" sprite={ThumbsDown} />
+        <span className="py-2">New ideas and comments waiting</span>
+      </HStack>
+    )
+  } else {
+    return <></>
+  }
 }

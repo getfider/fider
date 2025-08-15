@@ -20,12 +20,11 @@
   width: 100%;
 }
 
-
 .c-moderation-item {
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: var(--colors-blue-50);
+    background-color: var(--colors-blue-100);
   }
 
   &__actions {
