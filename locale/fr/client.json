@@ -38,7 +38,7 @@
   "error.pagenotfound.title": "Page non trouvée",
   "error.unauthorized.text": "Vous n'êtes pas autorisé à accéder à cette page.",
   "error.unauthorized.title": "Non autorisé",
-  "home.filter.label": "Flitrer",
+  "home.filter.label": "Filtrer",
   "home.filter.search.label": "Rechercher dans les filtres...",
   "home.form.defaultinvitation": "Entrez votre suggestion ici...",
   "home.form.defaultwelcomemessage": "Nous aimerions savoir ce que vous pensez.\n\nQue pouvons-nous faire de mieux ? C'est ici que vous pouvez voter, discuter et partager vos idées.",
