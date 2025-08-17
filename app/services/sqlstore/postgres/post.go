@@ -466,6 +466,12 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			}), ToTSQuery(q.Query), SanitizeString(q.Query))
 		} else {
 			condition, statuses, sort := getViewData(*q)
+
+			if q.MyPostsOnly {
+				condition += " AND user_id = " + strconv.Itoa(user.ID)
+
+			}
+
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
 				WHERE 1 = 1 %s

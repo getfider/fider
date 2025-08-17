@@ -87,6 +87,10 @@ func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {
 		sort = "((COALESCE(recent_votes_count, 0)*5 + COALESCE(recent_comments_count, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_at)/3600) + 2, 1.4)"
 	}
 
+	if query.NoTagsOnly {
+		condition += " AND tags = '{}'"
+	}
+
 	if len(query.Tags) > 0 {
 		condition += " AND tags && $3"
 	}
