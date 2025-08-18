@@ -74,6 +74,8 @@ export const TagsSelect = (props: TagsSelectProps) => {
       return
     }
 
+    event.stopPropagation()
+
     setIsEditing(false)
   }
 
@@ -86,10 +88,8 @@ export const TagsSelect = (props: TagsSelectProps) => {
     }
 
     document.addEventListener("mousedown", handleClickOutside)
-    document.addEventListener("keydown", handleEsc)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
-      document.addEventListener("keydown", handleEsc)
     }
   }, [])
 
@@ -120,7 +120,7 @@ export const TagsSelect = (props: TagsSelectProps) => {
 
   // Dynamic multiselect dropdown for tags selection
   const editTagsList = props.tags.length > 0 && (
-    <div className="c-tags-select__container" ref={dropdownRef} onClick={props.canEdit && !isEditing ? onSubtitleClick : undefined}>
+    <div className="c-tags-select__container" ref={dropdownRef} onKeyDown={handleEsc} onClick={props.canEdit && !isEditing ? onSubtitleClick : undefined}>
       <div className="c-tags-select__selected-container">
         {props.selected.length === 0 && props.canEdit && (
           <Button className="text-gray-600" variant={"link"} size={"no-padding"} onClick={onSubtitleClick}>

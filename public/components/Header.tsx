@@ -6,7 +6,11 @@ import { Trans } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
 import IconRss from "@fider/assets/images/heroicons-rss.svg"
 
-export const Header = () => {
+interface HeaderProps {
+  hasInert?: boolean
+}
+
+export const Header = (props: HeaderProps) => {
   const fider = useFider()
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
@@ -26,7 +30,7 @@ export const Header = () => {
   const hideRSSModal = () => setIsRSSModalOpen(false)
 
   return (
-    <div id="c-header" className="bg-white">
+    <div id="c-header" className="bg-white" {...(props.hasInert && { inert: "true" })}>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideSignInModal} />
       <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/global.atom`} />
       <HStack className="c-menu shadow p-4 w-full">

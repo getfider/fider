@@ -4,8 +4,8 @@
   &__button {
     font-size: get("font.size.lg");
     // border: none;
-    width: sizing(11);
-    font-weight: get("font.weight.bold");
+    width: sizing(12);
+    height: sizing(12);
     cursor: pointer;
     // background-color: transparent;
     text-align: center;
@@ -17,8 +17,14 @@
     align-items: center;
 
     svg {
-      color: var(--colors-gray-400);
+      color: var(--colors-gray-700);
       margin-bottom: -2px;
+    }
+
+    &--voted {
+      justify-content: center;
+      padding: 0;
+      font-weight: get("font.weight.bold");
     }
 
     &--voted,
@@ -30,6 +36,8 @@
     }
 
     &--disabled {
+      justify-content: center;
+      padding: 0;
       @include disabled();
     }
   }

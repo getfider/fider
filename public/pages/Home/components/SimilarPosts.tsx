@@ -81,7 +81,7 @@ export const SimilarPosts: React.FC<SimilarPostsProps> = (props) => {
 
   return (
     <>
-      <div className={`similar-posts-container overflow-auto ${animationClass}`}>
+      <div className={`similar-posts-container overflow-auto ${animationClass}`} {...(!isVisible && { inert: "true" })}>
         <div className="mb-4 text-gray-700">{title_text}</div>
         <div className="mb-6">
           <ListPosts posts={posts} tags={props.tags} emptyText="" minimalView={true} />

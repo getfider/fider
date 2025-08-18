@@ -2,6 +2,8 @@ package actions
 
 import (
 	"context"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models/dto"
@@ -64,11 +66,14 @@ func (action *CreateNewPost) IsAuthorized(ctx context.Context, user *entity.User
 func (action *CreateNewPost) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Title == "" {
+	re := regexp.MustCompile(`\s+`)
+	normalizedTitle := strings.TrimSpace(re.ReplaceAllString(action.Title, " "))
+
+	if normalizedTitle == "" {
 		result.AddFieldFailure("title", propertyIsRequired(ctx, "title"))
-	} else if len(action.Title) < 10 {
+	} else if len(normalizedTitle) < 10 {
 		result.AddFieldFailure("title", i18n.T(ctx, "validation.custom.descriptivetitle"))
-	} else if len(action.Title) > 100 {
+	} else if len(normalizedTitle) > 100 {
 		result.AddFieldFailure("title", propertyMaxStringLen(ctx, "title", 100))
 	} else if env.Config.PostCreationWithTagsEnabled && len(action.TagSlugs) != len(action.Tags) {
 		result.AddFieldFailure("tags", propertyIsInvalid(ctx, "tags"))

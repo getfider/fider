@@ -28,6 +28,14 @@ func Index() web.HandlerFunc {
 			searchPosts.MyVotesOnly = myVotesOnly
 		}
 
+		if noTagsOnly, err := c.QueryParamAsBool("notags"); err == nil {
+			searchPosts.NoTagsOnly = noTagsOnly
+		}
+
+		if myPostsOnly, err := c.QueryParamAsBool("myposts"); err == nil {
+			searchPosts.MyPostsOnly = myPostsOnly
+		}
+
 		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
 		getAllTags := &query.GetAllTags{}
 		countPerStatus := &query.CountPostPerStatus{}

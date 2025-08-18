@@ -26,6 +26,7 @@ interface InputProps {
   onFocus?: () => void
   inputRef?: React.MutableRefObject<any>
   onChange?: (value: string) => void
+  onKeyDown?: (e: KeyboardEvent) => void
 }
 
 export const Input: React.FunctionComponent<InputProps> = (props) => {
@@ -40,6 +41,12 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
   const onFocus = () => {
     if (props.onFocus) {
       props.onFocus()
+    }
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (props.onKeyDown) {
+      props.onKeyDown(e.nativeEvent)
     }
   }
 
@@ -90,6 +97,7 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
                 // Call the original onChange handler
                 onChange(e)
               }}
+              onKeyDown={(e) => onKeyDown(e)}
             />
             {icon}
             {suffix}

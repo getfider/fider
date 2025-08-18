@@ -52,7 +52,7 @@ fullRenderer.link = link
 fullRenderer.text = (text: string) => {
   // Handling mention links (they're in the format @[name])
   return text.replace(/@\[(.*?)\]/g, (match, name) => {
-    return `<span class="text-blue-600">@${name}</span>`
+    return `<span class="mention">@${name}</span>`
   })
 }
 

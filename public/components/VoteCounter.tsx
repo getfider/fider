@@ -46,14 +46,14 @@ export const VoteCounter = (props: VoteCounterProps) => {
 
   const vote = (
     <button className={className} onClick={voteOrUndo}>
-      <Icon sprite={FaCaretUp} height="16" width="16" />
+      {!hasVoted && <Icon sprite={FaCaretUp} height="16" width="16" />}
       {votesCount}
     </button>
   )
 
   const disabled = (
     <button className={className}>
-      <Icon sprite={FaCaretUp} height="16" width="16" />
+      {!hasVoted && <Icon sprite={FaCaretUp} height="16" width="16" />}
       {votesCount}
     </button>
   )
