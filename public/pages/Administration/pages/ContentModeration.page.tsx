@@ -1,7 +1,7 @@
 import "./ContentModeration.page.scss"
 
 import React, { useState, useEffect } from "react"
-import { Button, Avatar, Loader, Icon } from "@fider/components/common"
+import { Button, Avatar, Loader, Icon, Markdown } from "@fider/components/common"
 import { Header } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
 import { actions, chopString, http, notify } from "@fider/services"
@@ -183,14 +183,17 @@ const ContentModerationPage = () => {
       <div key={`${item.type}-${item.id}`} className={containerClasses} onClick={isPost ? () => handlePostClick(item) : undefined}>
         <div className="c-moderation-item__content">
           <HStack spacing={4} className="mb-2 flex-items-start" justify="between">
-            <HStack spacing={4} className="flex-items-start">
+            <HStack spacing={4} align="start">
               <Avatar user={item.user} size="normal" />
               {item.type === "post" ? (
                 <VStack spacing={1}>
                   <span className="text-medium">
-                    {item.user.name} &lt;{item.user.email}&gt;
+                    {item.user.name} <span className="text-normal">&lt;{item.user.email}&gt;</span>
                   </span>
                   <h3 className="text-title m-0">{item.title}</h3>
+                  <p className="m-0 text-body text-break">
+                    <Markdown text={chopString(item.content, 200)} style="plainText" />
+                  </p>
                 </VStack>
               ) : (
                 <span className="text-medium">{item.user.name}</span>
@@ -199,11 +202,11 @@ const ContentModerationPage = () => {
             <Moment date={item.createdAt} locale={fider.currentLocale} />
           </HStack>
 
-          {item.type === "post" && (
+          {/* {item.type === "post" && (
             <div>
               <p className="m-0 text-body text-break">{chopString(item.content, 200)}</p>
             </div>
-          )}
+          )} */}
 
           {item.type === "comment" && (
             <VStack spacing={2}>
@@ -212,12 +215,14 @@ const ContentModerationPage = () => {
                   On post: <a href={`/posts/${item.postNumber}/${item.postSlug}`}>{item.postTitle}</a>
                 </Trans>
               </span>
-              <p className="m-0 text-body text-break">{item.content}</p>
+              <p className="m-0 text-body text-break">
+                <Markdown className="description" text={item.content} style="plainText" />
+              </p>
             </VStack>
           )}
         </div>
 
-        <div className="c-moderation-item__actions invisible mt-4" onClick={(e) => e.stopPropagation()}>
+        <div className="c-moderation-item__actions invisible mt-3" onClick={(e) => e.stopPropagation()}>
           <HStack spacing={2}>
             {item.type === "post" && (
               <>

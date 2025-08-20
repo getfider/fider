@@ -48,11 +48,13 @@ export const ModerationIndicator = () => {
 
   if (count > 0) {
     return (
-      <HStack className="bg-green-200 rounded-full px-4">
-        <Icon width="18" height="18" sprite={ThumbsUp} />
-        <Icon width="18" height="18" sprite={ThumbsDown} />
-        <span className="py-2">New ideas and comments waiting</span>
-      </HStack>
+      <a href="/admin/moderation">
+        <HStack className="bg-green-200 rounded-full px-4">
+          <Icon width="18" height="18" sprite={ThumbsUp} />
+          <Icon width="18" height="18" sprite={ThumbsDown} />
+          <span className="py-2">New ideas and comments waiting</span>
+        </HStack>
+      </a>
     )
   } else {
     return <></>

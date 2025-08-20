@@ -180,8 +180,8 @@ func getModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 				u.avatar_bkey AS user_avatar_bkey
 			FROM posts p
 			INNER JOIN users u ON u.id = p.user_id AND u.tenant_id = p.tenant_id
-			WHERE p.tenant_id = $1 AND p.is_approved = false
-			ORDER BY p.created_at DESC`, tenant.ID)
+			WHERE p.tenant_id = $1 AND p.is_approved = false and p.status <> $2
+			ORDER BY p.created_at DESC`, tenant.ID, enum.PostDeleted)
 		if err != nil {
 			return errors.Wrap(err, "failed to get unmoderated posts")
 		}
@@ -219,8 +219,8 @@ func getModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 			FROM comments c
 			INNER JOIN users u ON u.id = c.user_id AND u.tenant_id = c.tenant_id
 			INNER JOIN posts p ON p.id = c.post_id AND p.tenant_id = c.tenant_id
-			WHERE c.tenant_id = $1 AND c.is_approved = false
-			ORDER BY c.created_at DESC`, tenant.ID)
+			WHERE c.tenant_id = $1 AND c.is_approved = false and p.status <> $2
+			ORDER BY c.created_at DESC`, tenant.ID, enum.PostDeleted)
 		if err != nil {
 			return errors.Wrap(err, "failed to get unmoderated comments")
 		}
@@ -254,9 +254,9 @@ func getModerationCount(ctx context.Context, q *query.GetModerationCount) error 
 
 		err := trx.Get(&count, `
 			SELECT
-				(SELECT COUNT(*) FROM posts WHERE tenant_id = $1 AND is_approved = false) +
-				(SELECT COUNT(*) FROM comments WHERE tenant_id = $1 AND is_approved = false)
-		`, tenant.ID)
+				(SELECT COUNT(*) FROM posts WHERE tenant_id = $1 AND is_approved = false and status <> $2) +
+				(SELECT COUNT(*) FROM comments c JOIN posts p on c.post_id = p.id WHERE p.tenant_id = $1 AND c.is_approved = false AND p.status <> $2)
+		`, tenant.ID, enum.PostDeleted)
 
 		if err != nil {
 			return errors.Wrap(err, "failed to get moderation count")
