@@ -110,7 +110,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 					},
 					Subject: &ses.Content{
 						Charset: aws.String("UTF-8"),
-						Data:    aws.String(message.Subject),
+						Data:    aws.String(email.EncodeSubject(message.Subject)),
 					},
 				},
 			},

@@ -3,7 +3,9 @@ package email
 import (
 	"bytes"
 	"context"
+	"mime"
 	"strings"
+	"unicode"
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/tpl"
@@ -13,6 +15,26 @@ import (
 type Message struct {
 	Subject string
 	Body    string
+}
+
+// EncodeSubject encodes the subject header according to RFC 2047 if it contains non-ASCII characters
+func EncodeSubject(subject string) string {
+	// Check if the subject contains non-ASCII characters
+	hasNonASCII := false
+	for _, r := range subject {
+		if r > unicode.MaxASCII {
+			hasNonASCII = true
+			break
+		}
+	}
+	
+	// If it's pure ASCII, no encoding is needed
+	if !hasNonASCII {
+		return subject
+	}
+	
+	// Use Go's built-in MIME header encoding which implements RFC 2047
+	return mime.QEncoding.Encode("utf-8", subject)
 }
 
 // RenderMessage returns the HTML of an email based on template and params
