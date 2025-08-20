@@ -198,25 +198,41 @@ const ContentModerationPage = () => {
 
                 <div className="c-moderation-item__actions invisible pt-1" onClick={(e) => e.stopPropagation()}>
                   <HStack spacing={2}>
-                    <Button size="small" variant="secondary" onClick={() => handleApprovePost(item.id)}>
+                    <Button
+                      size="small"
+                      variant="secondary"
+                      onClick={() => (item.type === "post" ? handleApprovePost(item.id) : handleApproveComment(item.id))}
+                    >
                       <Icon sprite={IconCheck} />
                       <span>
                         <Trans id="action.approve">Approve</Trans>
                       </span>
                     </Button>
-                    <Button size="small" variant="secondary" onClick={() => handleDeclinePost(item.id)}>
+                    <Button
+                      size="small"
+                      variant="secondary"
+                      onClick={() => (item.type === "post" ? handleDeclinePost(item.id) : handleDeclineComment(item.id))}
+                    >
                       <Icon sprite={IconX} />
                       <span>
                         <Trans id="action.decline">Decline</Trans>
                       </span>
                     </Button>
-                    <Button size="small" variant="secondary" onClick={() => handleApprovePostAndVerify(item.id)}>
+                    <Button
+                      size="small"
+                      variant="secondary"
+                      onClick={() => (item.type === "post" ? handleApprovePostAndVerify(item.id) : handleApproveCommentAndVerify(item.id))}
+                    >
                       <Icon sprite={IconShieldCheck} />
                       <span>
                         <Trans id="action.approve.verify">Approve & Verify</Trans>
                       </span>
                     </Button>
-                    <Button size="small" variant="secondary" onClick={() => handleDeclinePostAndBlock(item.id)}>
+                    <Button
+                      size="small"
+                      variant="secondary"
+                      onClick={() => (item.type === "post" ? handleDeclinePostAndBlock(item.id) : handleDeclineCommentAndBlock(item.id))}
+                    >
                       <Icon sprite={IconBan} />
                       <span>
                         <Trans id="action.decline.block">Decline & Block</Trans>
