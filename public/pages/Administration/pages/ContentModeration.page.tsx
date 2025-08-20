@@ -169,118 +169,64 @@ const ContentModerationPage = () => {
     )
   }
 
-  const handlePostClick = (item: ModerationItem) => {
-    if (item.type === "post" && item.postNumber && item.postSlug) {
-      window.location.href = `/posts/${item.postNumber}/${item.postSlug}`
-    }
+  const handlePostClick = (link: string) => {
+    window.location.href = link
   }
 
   const renderModerationItem = (item: ModerationItem) => {
-    const isPost = item.type === "post"
-    const containerClasses = `c-moderation-item flex flex-y p-4 rounded-md hover ${isPost ? "clickable" : ""}`
+    const containerClasses = `c-moderation-item flex flex-y p-3 rounded-md hover clickable`
+
+    const title = item.type == "post" ? item.title : item.postTitle
+    const link = item.type == "post" ? `/posts/${item.postNumber}/${item.postSlug}` : `/posts/${item.postNumber}/${item.postSlug}#comment-${item.id}`
 
     return (
-      <div key={`${item.type}-${item.id}`} className={containerClasses} onClick={isPost ? () => handlePostClick(item) : undefined}>
+      <div key={`${item.type}-${item.id}`} className={containerClasses} onClick={() => handlePostClick(link)}>
         <div className="c-moderation-item__content">
-          <HStack spacing={4} className="mb-2 flex-items-start" justify="between">
+          <HStack spacing={4} align="start" justify="between">
             <HStack spacing={4} align="start">
               <Avatar user={item.user} size="normal" />
-              {item.type === "post" ? (
-                <VStack spacing={1}>
+              <VStack spacing={2} className="flex-grow">
+                <>
                   <span className="text-medium">
                     {item.user.name} <span className="text-normal">&lt;{item.user.email}&gt;</span>
                   </span>
-                  <h3 className="text-title m-0">{item.title}</h3>
+                  <h3 className="text-medium m-0">{title}</h3>
                   <p className="m-0 text-body text-break">
                     <Markdown text={chopString(item.content, 200)} style="plainText" />
                   </p>
-                </VStack>
-              ) : (
-                <span className="text-medium">{item.user.name}</span>
-              )}
+                </>
+
+                <div className="c-moderation-item__actions invisible pt-1" onClick={(e) => e.stopPropagation()}>
+                  <HStack spacing={2}>
+                    <Button size="small" variant="secondary" onClick={() => handleApprovePost(item.id)}>
+                      <Icon sprite={IconCheck} />
+                      <span>
+                        <Trans id="action.approve">Approve</Trans>
+                      </span>
+                    </Button>
+                    <Button size="small" variant="secondary" onClick={() => handleDeclinePost(item.id)}>
+                      <Icon sprite={IconX} />
+                      <span>
+                        <Trans id="action.decline">Decline</Trans>
+                      </span>
+                    </Button>
+                    <Button size="small" variant="secondary" onClick={() => handleApprovePostAndVerify(item.id)}>
+                      <Icon sprite={IconShieldCheck} />
+                      <span>
+                        <Trans id="action.approve.verify">Approve & Verify</Trans>
+                      </span>
+                    </Button>
+                    <Button size="small" variant="secondary" onClick={() => handleDeclinePostAndBlock(item.id)}>
+                      <Icon sprite={IconBan} />
+                      <span>
+                        <Trans id="action.decline.block">Decline & Block</Trans>
+                      </span>
+                    </Button>
+                  </HStack>
+                </div>
+              </VStack>
             </HStack>
             <Moment date={item.createdAt} locale={fider.currentLocale} />
-          </HStack>
-
-          {/* {item.type === "post" && (
-            <div>
-              <p className="m-0 text-body text-break">{chopString(item.content, 200)}</p>
-            </div>
-          )} */}
-
-          {item.type === "comment" && (
-            <VStack spacing={2}>
-              <span className="text-sm">
-                <Trans id="moderation.comment.on">
-                  On post: <a href={`/posts/${item.postNumber}/${item.postSlug}`}>{item.postTitle}</a>
-                </Trans>
-              </span>
-              <p className="m-0 text-body text-break">
-                <Markdown className="description" text={item.content} style="plainText" />
-              </p>
-            </VStack>
-          )}
-        </div>
-
-        <div className="c-moderation-item__actions invisible mt-3" onClick={(e) => e.stopPropagation()}>
-          <HStack spacing={2}>
-            {item.type === "post" && (
-              <>
-                <Button size="small" variant="secondary" onClick={() => handleApprovePost(item.id)}>
-                  <Icon sprite={IconCheck} />
-                  <span>
-                    <Trans id="action.approve">Approve</Trans>
-                  </span>
-                </Button>
-                <Button size="small" variant="secondary" onClick={() => handleDeclinePost(item.id)}>
-                  <Icon sprite={IconX} />
-                  <span>
-                    <Trans id="action.decline">Decline</Trans>
-                  </span>
-                </Button>
-                <Button size="small" variant="secondary" onClick={() => handleApprovePostAndVerify(item.id)}>
-                  <Icon sprite={IconShieldCheck} />
-                  <span>
-                    <Trans id="action.approve.verify">Approve & Verify</Trans>
-                  </span>
-                </Button>
-                <Button size="small" variant="secondary" onClick={() => handleDeclinePostAndBlock(item.id)}>
-                  <Icon sprite={IconBan} />
-                  <span>
-                    <Trans id="action.decline.block">Decline & Block</Trans>
-                  </span>
-                </Button>
-              </>
-            )}
-
-            {item.type === "comment" && (
-              <>
-                <Button size="small" variant="primary" onClick={() => handleApproveComment(item.id)}>
-                  <Icon sprite={IconCheck} />
-                  <span>
-                    <Trans id="action.approve">Approve</Trans>
-                  </span>
-                </Button>
-                <Button size="small" variant="danger" onClick={() => handleDeclineComment(item.id)}>
-                  <Icon sprite={IconX} />
-                  <span>
-                    <Trans id="action.decline">Decline</Trans>
-                  </span>
-                </Button>
-                <Button size="small" variant="secondary" onClick={() => handleApproveCommentAndVerify(item.id)}>
-                  <Icon sprite={IconShieldCheck} />
-                  <span>
-                    <Trans id="action.approve.verify">Approve & Verify</Trans>
-                  </span>
-                </Button>
-                <Button size="small" variant="danger" onClick={() => handleDeclineCommentAndBlock(item.id)}>
-                  <Icon sprite={IconBan} />
-                  <span>
-                    <Trans id="action.decline.block">Decline & Block</Trans>
-                  </span>
-                </Button>
-              </>
-            )}
           </HStack>
         </div>
       </div>
