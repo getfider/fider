@@ -23,6 +23,14 @@ type dbComment struct {
 	ReactionCounts dbx.NullString `db:"reaction_counts"`
 }
 
+type dbCommentRef struct {
+	ID        int          `db:"id"`
+	CreatedAt time.Time    `db:"created_at"`
+	UserId    int          `db:"user_id"`
+	PostId    int          `db:"post_id"`
+	EditedAt  dbx.NullTime `db:"edited_at"`
+}
+
 func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 	comment := &entity.Comment{
 		ID:          c.ID,
@@ -38,6 +46,19 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 
 	if c.ReactionCounts.Valid {
 		_ = json.Unmarshal([]byte(c.ReactionCounts.String), &comment.ReactionCounts)
+	}
+	return comment
+}
+
+func (c *dbCommentRef) toModel(ctx context.Context) *entity.CommentRef {
+	comment := &entity.CommentRef{
+		ID:        c.ID,
+		CreatedAt: c.CreatedAt,
+		UserID:    c.UserId,
+		PostID:    c.PostId,
+	}
+	if c.EditedAt.Valid {
+		comment.EditedAt = &c.EditedAt.Time
 	}
 	return comment
 }
@@ -251,6 +272,31 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 		}
 
 		q.Result = make([]*entity.Comment, len(comments))
+		for i, comment := range comments {
+			q.Result[i] = comment.toModel(ctx)
+		}
+		return nil
+	})
+}
+
+func getCommentRefs(ctx context.Context, q *query.GetCommentRefs) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = make([]*entity.CommentRef, 0)
+
+		comments := []*dbCommentRef{}
+		err := trx.Select(&comments,
+			`
+			SELECT id, created_at, user_id, post_id, edited_at
+			FROM comments
+			WHERE COALESCE(edited_at, created_at) >= $1
+				AND deleted_at IS NULL
+				AND tenant_id = $2
+			ORDER BY COALESCE(edited_at, created_at) ASC`, q.Since, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed get comments since '%s'", q.Since.String())
+		}
+
+		q.Result = make([]*entity.CommentRef, len(comments))
 		for i, comment := range comments {
 			q.Result[i] = comment.toModel(ctx)
 		}

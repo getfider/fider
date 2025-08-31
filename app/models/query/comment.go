@@ -1,6 +1,8 @@
 package query
 
 import (
+	"time"
+
 	"github.com/getfider/fider/app/models/entity"
 )
 
@@ -14,4 +16,10 @@ type GetCommentsByPost struct {
 	Post *entity.Post
 
 	Result []*entity.Comment
+}
+
+type GetCommentRefs struct {
+	Since time.Time
+
+	Result []*entity.CommentRef
 }
