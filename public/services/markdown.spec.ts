@@ -10,7 +10,7 @@ const testCases = [
   },
   {
     input: "My Picture ![](http://demo.dev.fider.io:3000/images/100/28)",
-    expectedFull: "<p>My Picture </p>",
+    expectedFull: '<p>My Picture <img alt="" src="http://demo.dev.fider.io:3000/images/100/28"></p>',
     expectedPlainText: "My Picture",
   },
   {
