@@ -14,6 +14,12 @@ const testCases = [
     expectedPlainText: "My Picture",
   },
   {
+    input: "My Fider Picture ![](fider-image:attachments/zy0hBtqrjQki7M56p26AuAXljRoaNUSwZO6MOky5gnYm2nW1rsMmrp3dwhjGk7ok-aden.jpeg)",
+    expectedFull:
+      '<p>My Fider Picture <img data-bkey="attachments/zy0hBtqrjQki7M56p26AuAXljRoaNUSwZO6MOky5gnYm2nW1rsMmrp3dwhjGk7ok-aden.jpeg" class="fider-inline-image" alt="" src="/static/images/attachments/zy0hBtqrjQki7M56p26AuAXljRoaNUSwZO6MOky5gnYm2nW1rsMmrp3dwhjGk7ok-aden.jpeg"></p>',
+    expectedPlainText: "My Fider Picture",
+  },
+  {
     input: "# Hello World",
     expectedFull: "<h1>Hello World</h1>",
     expectedSimple: "<p>Hello World</p>",
