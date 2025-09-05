@@ -10,8 +10,14 @@ const testCases = [
   },
   {
     input: "My Picture ![](http://demo.dev.fider.io:3000/images/100/28)",
-    expectedFull: "<p>My Picture </p>",
+    expectedFull: '<p>My Picture <img alt="" src="http://demo.dev.fider.io:3000/images/100/28"></p>',
     expectedPlainText: "My Picture",
+  },
+  {
+    input: "My Fider Picture ![](fider-image:attachments/zy0hBtqrjQki7M56p26AuAXljRoaNUSwZO6MOky5gnYm2nW1rsMmrp3dwhjGk7ok-aden.jpeg)",
+    expectedFull:
+      '<p>My Fider Picture <img data-bkey="attachments/zy0hBtqrjQki7M56p26AuAXljRoaNUSwZO6MOky5gnYm2nW1rsMmrp3dwhjGk7ok-aden.jpeg" class="fider-inline-image" alt="" src="/static/images/attachments/zy0hBtqrjQki7M56p26AuAXljRoaNUSwZO6MOky5gnYm2nW1rsMmrp3dwhjGk7ok-aden.jpeg"></p>',
+    expectedPlainText: "My Fider Picture",
   },
   {
     input: "# Hello World",
