@@ -20,6 +20,7 @@ type GetCommentsByPost struct {
 
 type GetCommentRefs struct {
 	Since time.Time
+	Limit int
 
 	Result []*entity.CommentRef
 }
