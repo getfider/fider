@@ -79,7 +79,7 @@ func NotifyAboutDeletedPost(post *entity.Post, deleteCommentAdded bool) worker.T
 		props := dto.Props{
 			"title":    post.Title,
 			"siteName": tenant.Name,
-			"content":  markdown.Full(post.Response.Text),
+			"content":  markdown.Full(post.Response.Text, true),
 			"change":   linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
 			"logo":     logoURL,
 		}
