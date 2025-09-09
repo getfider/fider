@@ -45,7 +45,24 @@ This will allow to send and receive SMS and get the IMEI No. in our app.</p>
 
 <p>Thanks!</p>`,
 	} {
-		output := markdown.Full(input)
+		output := markdown.Full(input, true)
+		Expect(output).Equals(template.HTML(expected))
+	}
+}
+
+func TestFullMarkdownWithoutImages(t *testing.T) {
+	RegisterT(t)
+
+	for input, expected := range map[string]string{
+		"# Hello World":                                                            `<h1>Hello World</h1>`,
+		"![](http://example.com/hello.jpg)":                                        `<p></p>`,
+		"![Alt text](http://example.com/hello.jpg)":                                `<p></p>`,
+		"Text before ![image](http://example.com/hello.jpg) text after":            `<p>Text before  text after</p>`,
+		"![Image 1](http://example.com/1.jpg)![Image 2](http://example.com/2.jpg)": `<p></p>`,
+		"Hello **bold** text with ![image](http://example.com/hello.jpg)":          `<p>Hello <strong>bold</strong> text with </p>`,
+		"Go to http://example.com/hello.jpg":                                       `<p>Go to <a href="http://example.com/hello.jpg" rel="nofollow noreferrer">http://example.com/hello.jpg</a></p>`,
+	} {
+		output := markdown.Full(input, false)
 		Expect(output).Equals(template.HTML(expected))
 	}
 }

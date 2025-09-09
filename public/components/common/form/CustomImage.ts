@@ -1,6 +1,7 @@
 import { ImageUpload } from "@fider/models"
 import Image from "@tiptap/extension-image"
 import * as MarkdownIt from "markdown-it"
+import { defaultMarkdownSerializer } from "prosemirror-markdown"
 
 export interface CustomImageOptions {
   HTMLAttributes?: Record<string, any>
@@ -59,6 +60,11 @@ export const CustomImage = Image.extend<CustomImageOptions>({
       images: {},
       markdown: {
         serialize: (state: any, node: any) => {
+          if (!node.attrs.bkey && !node.attrs.id) {
+            // Call the default image serializer
+            return defaultMarkdownSerializer.nodes.image(state, node, node.parent, node.index)
+          }
+
           // When serializing to markdown, we use a special syntax: ![](fider-image:bkey)
           // Use bkey if available, otherwise fall back to id
           const imageId = node.attrs.bkey || node.attrs.id || ""
