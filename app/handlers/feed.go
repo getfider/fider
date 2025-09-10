@@ -237,6 +237,11 @@ func CommentFeed() web.HandlerFunc {
 		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
+
+		if getPost.Result == nil {
+			return c.NotFound()
+		}
+
 		getComments := &query.GetCommentsByPost{Post: getPost.Result}
 		if err := bus.Dispatch(c, getComments); err != nil {
 			return c.Failure(err)
@@ -245,10 +250,15 @@ func CommentFeed() web.HandlerFunc {
 		comments := getComments.Result
 		comments = comments[max(0, len(comments)-30):] // get the last 30 comments
 
+		authorName := ""
+		if post.User != nil {
+			authorName = post.User.Name
+		}
+
 		feed := &AtomFeed{
 			Title:    post.Title,
 			Subtitle: Content{Body: string(markdown.Full(post.Description, true)), Type: "html"},
-			Author:   &Author{Name: post.User.Name},
+			Author:   &Author{Name: authorName},
 			Id:       fmt.Sprintf("%s/posts/%d/#comments", web.BaseURL(c), post.Number),
 			Link: []Link{
 				{Href: fmt.Sprintf("%s/feed/posts/%d.atom", web.BaseURL(c), post.Number), Type: "application/atom+xml", Rel: "self"},
