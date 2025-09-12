@@ -1,7 +1,7 @@
 
 <p align="center">
   <a href="https://fider.io/" target="_blank">
-    <img src="etc/fiderlogo.png" alt="Fider">
+    <img src="etc/fiderlogo.png" width="300" alt="Fider">
   </a>
 </p>
 
@@ -13,17 +13,17 @@
     <a href="https://github.com/TryGhost/Ghost/blob/main/.github/CONTRIBUTING.md">Contributing</a> •
 </p>
 
+<br/>
+<br/>
+
 <img src="etc/fidergithub.png">
 
 <br/>
-<hr/>
 <br/>
 
-# Fider
+# Fider is a feedback portal for feature requests and suggestions.
 
-## Fider is a feedback portal for feature requests and suggestions.
-
-* Give your customers a voice and let them tell you what they need. Spend less time guessing and more time building the right product.
+__Give your customers a voice and let them tell you what they need. Spend less time guessing and more time building the right product.__
 
 # Getting Started
 
@@ -37,10 +37,7 @@ Install Fider on your own servers, in your own infrastructure. It's totally free
 
 If you do self-host and enjoy Fider, please [let us know where you're using it](https://github.com/getfider/fider/issues/899) - we really appreciate it 🙏
 
-<br/>
-<br/>
-
-# Donations and Sponsors
+# 💰 Donations and Sponsors
 
 Supoprt the development of Fider to help us make it the best feedback tool! You can set up donations as small or large as you want to help us keep Fider going. [Donate](https://opencollective.com/fider)
 
