@@ -2,14 +2,14 @@
   "action.cancel": "لغو",
   "action.change": "تغییر",
   "action.close": "بستن",
-  "action.commentsfeed": "",
+  "action.commentsfeed": "فید نظرات",
   "action.confirm": "تأیید",
   "action.copylink": "کپی لینک",
   "action.delete": "حذف",
   "action.edit": "ویرایش",
   "action.markallasread": "علامت‌گذاری همه به‌عنوان خوانده‌شده",
   "action.ok": "باشه",
-  "action.postsfeed": "",
+  "action.postsfeed": "فید پست‌ها",
   "action.respond": "پاسخ",
   "action.save": "ذخیره",
   "action.signin": "ورود",
@@ -44,14 +44,14 @@
   "home.form.defaultwelcomemessage": "مایلیم بدانیم به چه می‌اندیشید.\n\nچه کاری می‌توانیم بهتر انجام دهیم؟ اینجا جایی است برای رأی دادن، بحث و به‌اشتراک‌گذاری ایده‌ها.",
   "home.lonely.suggestion": "توصیه می‌شود قبل از به‌اشتراک‌گذاری این سایت، <0>حداقل ۳</0> پیشنهاد ایجاد کنید. محتوای اولیه برای جذب مخاطبان شما مهم است.",
   "home.lonely.text": "هنوز هیچ پستی ایجاد نشده است.",
-  "home.postfilter.label.myactivity": "",
-  "home.postfilter.label.status": "",
+  "home.postfilter.label.myactivity": "مال خود",
+  "home.postfilter.label.status": "وضعیت",
   "home.postfilter.label.view": "نمایش",
   "home.postfilter.option.mostdiscussed": "بیشترین بحث",
   "home.postfilter.option.mostwanted": "بیشترین خواسته",
-  "home.postfilter.option.myposts": "",
+  "home.postfilter.option.myposts": "پست‌های من",
   "home.postfilter.option.myvotes": "رأی‌های من",
-  "home.postfilter.option.notags": "",
+  "home.postfilter.option.notags": "بدون برچسب",
   "home.postfilter.option.recent": "جدیدترین",
   "home.postfilter.option.trending": "داغ‌ترین",
   "home.postinput.description.placeholder": "پیشنهاد خود را توضیح دهید (اختیاری)",
@@ -64,7 +64,7 @@
   "home.tagsfilter.label.with": "دارای",
   "home.tagsfilter.selected.none": "هر برچسب",
   "label.actions": "اقدامات",
-  "label.addtags": "",
+  "label.addtags": "اضافه کردن برچسب‌ها...",
   "label.avatar": "آواتار",
   "label.custom": "سفارشی",
   "label.description": "توضیحات",
@@ -82,7 +82,7 @@
   "label.notagsselected": "برچسبی انتخاب نشده است",
   "label.notifications": "اعلان‌ها",
   "label.or": "یا",
-  "label.searchtags": "",
+  "label.searchtags": "جستجوی برچسب‌ها...",
   "label.selecttags": "برچسب‌ها را انتخاب کنید...",
   "label.subscribe": "اشتراک",
   "label.tags": "برچسب‌ها",
@@ -112,8 +112,8 @@
   "modal.notifications.nonew": "اعلان جدیدی نیست",
   "modal.notifications.previous": "اعلان‌های قبلی",
   "modal.notifications.unread": "اعلان‌های خوانده‌نشده",
-  "modal.rss.description": "",
-  "modal.rss.title": "",
+  "modal.rss.description": "برای مشترک شدن در این فید ATOM، این URL را کپی کرده و در RSS/ATOM reader خود جایگذاری کنید.",
+  "modal.rss.title": "مشترک فید ATOM شوید",
   "modal.showvotes.message.zeromatches": "کاربری با <0>{0}</0> یافت نشد.",
   "modal.showvotes.query.placeholder": "جستجوی کاربر بر اساس نام...",
   "modal.signin.header": "بازخورد خود را ارسال کنید",
@@ -145,7 +145,7 @@
   "mysettings.notification.event.newpost": "پست جدید",
   "mysettings.notification.event.newpost.staff": "پست‌های جدید این سایت",
   "mysettings.notification.event.newpost.visitors": "پست‌های جدید این سایت",
-  "mysettings.notification.event.newpostcreated": "",
+  "mysettings.notification.event.newpostcreated": "ایده شما اضافه شد 👍",
   "mysettings.notification.event.statuschanged": "تغییر وضعیت",
   "mysettings.notification.event.statuschanged.staff": "تغییر وضعیت همهٔ پست‌ها مگر این‌که لغو اشتراک شده باشد",
   "mysettings.notification.event.statuschanged.visitors": "تغییر وضعیت پست‌هایی که مشترک هستید",
@@ -156,11 +156,11 @@
   "mysettings.notification.title": "رویدادهایی را که می‌خواهید اعلان دریافت کنید انتخاب کنید",
   "mysettings.page.subtitle": "تنظیمات پروفایل خود را مدیریت کنید",
   "mysettings.page.title": "تنظیمات",
-  "newpost.modal.description.placeholder": "",
-  "newpost.modal.submit": "",
-  "newpost.modal.title": "",
-  "newpost.modal.title.label": "",
-  "newpost.modal.title.placeholder": "",
+  "newpost.modal.description.placeholder": "در موردش به ما بگو. کامل توضیح بده، دریغ نکن، هر چه اطلاعات بیشتر، بهتر.",
+  "newpost.modal.submit": "ایده خود را ثبت کنید",
+  "newpost.modal.title": "ایده خود را به اشتراک بگذارید...",
+  "newpost.modal.title.label": "برای ایده خود عنوان تعیین کنید",
+  "newpost.modal.title.placeholder": "چیزی کوتاه و مختصر، خلاصه در چند کلمه",
   "pDgeaz": "",
   "page.backhome": "بازگشت به صفحهٔ اصلی <0>{0}</0>",
   "page.notinvited.text": "ما حسابی برای آدرس ایمیل شما پیدا نکردیم.",
@@ -199,7 +199,8 @@
   "signin.message.private.text": "اگر حساب یا دعوت‌نامه دارید، از گزینه‌های زیر برای ورود استفاده کنید.",
   "signin.message.private.title": "<0>{0}</0> یک فضای خصوصی است؛ برای مشارکت باید وارد شوید.",
   "signin.message.socialbutton.intro": "ورود با",
-  "validation.custom.maxattachments": "",
-  "validation.custom.maximagesize": "",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# برچسب} other {# برچسب}}"
+  "validation.custom.maxattachments": "حداکثر تعداد {number} پیوست مجاز است.",
+  "validation.custom.maximagesize": "حجم تصویر باید کمتر از {kilobytes}KB باشد.",
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# برچسب} other {# برچسب}}",
+  "newpost.modal.addimage": "اضافه کردن تصاویر"
 }
