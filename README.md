@@ -10,7 +10,7 @@
     <a href="https://feedback.fider.io">Fider Feedback</a> •
     <a href="https://demo.fider.io">Fider Demo</a> •
     <a href="https://docs.fider.io">Docs</a> •
-    <a href="https://github.com/TryGhost/Ghost/blob/main/.github/CONTRIBUTING.md">Contributing</a> •
+    <a href="https://github.com/TryGhost/Ghost/blob/main/.github/CONTRIBUTING.md">Contributing</a>
 </p>
 
 <br/>
