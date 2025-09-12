@@ -1,35 +1,29 @@
-<img src="etc/homepage.png">
+
+<p align="center">
+  <a href="https://fider.io/" target="_blank">
+    <img src="etc/fiderlogo.png" alt="Fider">
+  </a>
+</p>
+
+<p align="center">
+    <a href="https://fider.io/">Fider.io</a> •
+    <a href="https://feedback.fider.io">Fider Feedback</a> •
+    <a href="https://demo.fider.io">Fider Demo</a> •
+    <a href="https://docs.fider.io">Docs</a> •
+    <a href="https://github.com/TryGhost/Ghost/blob/main/.github/CONTRIBUTING.md">Contributing</a> •
+</p>
+
+<img src="etc/fidergithub.png">
 
 <br/>
 <hr/>
 <br/>
 
-<p align="center">
-  <img style="height:60px;display:inline-block;" src="etc/logo-small.png" />
-  <div align="center">
-    <strong>Fider is a feedback portal for feature requests and suggestions.</strong>
-  </div>
-  <div align="center">Give your customers a voice and let them tell you what they need. Spend less time guessing and more time building the right product.</div>
-</p>
+# Fider
 
-<div align="center">
-  <h3>
-    <a href="https://feedback.fider.io/">
-      See it in action
-    </a>
-    <span> &middot; </span>
-    <a href="https://fider.io">
-      Learn more »
-    </a>
-  </h3>
-</div>
+## Fider is a feedback portal for feature requests and suggestions.
 
-<div align="center">
-  <sub>Created with ❤️ by <a href="https://github.com/goenning">Guilherme Oenning</a>, now maintained by <a href="https://github.com/mattwoberts">Matt Roberts</a> and supported by <a href="https://github.com/getfider/fider/graphs/contributors">contributors</a></sub>
-</div>
-
-<br/>
-<br/>
+* Give your customers a voice and let them tell you what they need. Spend less time guessing and more time building the right product.
 
 # Getting Started
 
@@ -39,23 +33,18 @@ The easiest and quickest way to get started. A fully managed services by the cre
 
 ## 🏢 **Self-Hosted**
 
-You can also install Fider yourself. It's free, but you are responsible for managing it. [Learn how](https://docs.fider.io/self-hosted/)
+Install Fider on your own servers, in your own infrastructure. It's totally free, but of course you're responsible for everything. [Learn how](https://docs.fider.io/self-hosted/)
 
 If you do self-host and enjoy Fider, please [let us know where you're using it](https://github.com/getfider/fider/issues/899) - we really appreciate it 🙏
 
 <br/>
 <br/>
 
-# Sponsors
+# Donations and Sponsors
 
-<a href="https://browserstack.com" target="_blank">
-  <img src="etc/browserstack.png">
-</a>
+Supoprt the development of Fider to help us make it the best feedback tool! You can set up donations as small or large as you want to help us keep Fider going. [Donate](https://opencollective.com/fider)
 
-<br />
-<br />
-
-> Does your organization use Fider? [Become a sponsor](https://opencollective.com/fider) and get your logo and link on our README!
+If your organization uses Fider, consider becoming a sponsor - set up a monthly donation and get your logo and link on the README. [Become a sponsor](https://opencollective.com/fider)
 
 <br/>
 <br/>
