@@ -1,12 +1,12 @@
 import React from "react"
-import { Input, Avatar, UserName, Icon, Dropdown, Button } from "@fider/components"
+import { Input, Avatar, Icon, Dropdown, Button } from "@fider/components"
 import { User, UserRole, UserStatus } from "@fider/models"
 import { AdminBasePage } from "../components/AdminBasePage"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import { actions, Fider } from "@fider/services"
-import { HStack, VStack } from "@fider/components/layout"
+import { HStack } from "@fider/components/layout"
 
 interface ManageMembersPageState {
   query: string
@@ -21,12 +21,13 @@ interface ManageMembersPageProps {
 interface UserListItemProps {
   user: User
   onAction: (actionName: string, user: User) => Promise<void>
+  isEven: boolean
 }
 
 const UserListItem = (props: UserListItemProps) => {
-  const admin = props.user.role === UserRole.Administrator && <span>administrator</span>
-  const collaborator = props.user.role === UserRole.Collaborator && <span>collaborator</span>
-  const blocked = props.user.status === UserStatus.Blocked && <span className="text-red-700">blocked</span>
+  const admin = props.user.role === UserRole.Administrator && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">administrator</span>
+  const collaborator = props.user.role === UserRole.Collaborator && <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">collaborator</span>
+  const blocked = props.user.status === UserStatus.Blocked && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">blocked</span>
   const isVisitor = props.user.role === UserRole.Visitor
 
   const actionSelected = (actionName: string) => () => {
@@ -34,28 +35,36 @@ const UserListItem = (props: UserListItemProps) => {
   }
 
   return (
-    <HStack spacing={4}>
-      <HStack spacing={4}>
+    <div
+      className={`grid gap-4 py-4 px-4 flex-items-center ${props.isEven ? "bg-gray-50" : "bg-white"} hover:bg-gray-100`}
+      style={{ gridTemplateColumns: "2fr 2fr 1fr 100px" }}
+    >
+      <HStack>
         <Avatar user={props.user} />
-        <VStack spacing={0}>
-          <UserName user={props.user} showEmail={true} />
-          <span className="text-muted">
-            {admin} {collaborator} {blocked}
-          </span>
-        </VStack>
+        <div className="text-subtitle">{props.user.name}</div>
       </HStack>
-      {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
-        <Dropdown renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
-          {!blocked && (!!collaborator || isVisitor) && (
-            <Dropdown.ListItem onClick={actionSelected("to-administrator")}>Promote to Administrator</Dropdown.ListItem>
-          )}
-          {!blocked && (!!admin || isVisitor) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
-          {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Visitor</Dropdown.ListItem>}
-          {isVisitor && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
-          {isVisitor && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
-        </Dropdown>
-      )}
-    </HStack>
+
+      <div className="text-muted">{props.user.email || "No email"}</div>
+
+      <div>
+        {admin} {collaborator} {blocked}
+        {isVisitor && !blocked && <span className="text-xs text-gray-600">visitor</span>}
+      </div>
+
+      <div className="flex justify-end">
+        {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
+          <Dropdown renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
+            {!blocked && (!!collaborator || isVisitor) && (
+              <Dropdown.ListItem onClick={actionSelected("to-administrator")}>Promote to Administrator</Dropdown.ListItem>
+            )}
+            {!blocked && (!!admin || isVisitor) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
+            {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Visitor</Dropdown.ListItem>}
+            {isVisitor && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
+            {isVisitor && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
+          </Dropdown>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -154,12 +163,18 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
           value={this.state.query}
           onChange={this.handleSearchFilterChanged}
         />
-        <div className="p-2">
-          <VStack spacing={2} divide={true}>
-            {this.state.visibleUsers.map((user) => (
-              <UserListItem key={user.id} user={user} onAction={this.handleAction} />
+        <div className="shadow rounded border overflow-hidden">
+          <div className="grid gap-4 py-3 px-4 bg-gray-100 text-category border-b" style={{ gridTemplateColumns: "2fr 2fr 1fr 100px" }}>
+            <div>User</div>
+            <div>Email</div>
+            <div>Role</div>
+            <div className="text-center">Actions</div>
+          </div>
+          <div>
+            {this.state.visibleUsers.map((user, index) => (
+              <UserListItem key={user.id} user={user} onAction={this.handleAction} isEven={index % 2 === 0} />
             ))}
-          </VStack>
+          </div>
         </div>
         <p className="text-muted pt-4">
           {!this.state.query && (
