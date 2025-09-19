@@ -21,6 +21,8 @@
 <br/>
 <br/>
 
+[![build](https://github.com/getfider/fider/actions/workflows/build.yml/badge.svg)](https://github.com/getfider/fider/actions/workflows/build.yml)
+
 # Fider is a feedback portal for feature requests and suggestions.
 
 __Give your customers a voice and let them tell you what they need. Spend less time guessing and more time building the right product.__
