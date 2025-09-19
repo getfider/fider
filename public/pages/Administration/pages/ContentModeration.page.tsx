@@ -5,7 +5,7 @@ import { Button, Avatar, Loader, Icon, Markdown } from "@fider/components/common
 import { Header } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
 import { actions, chopString, http, notify } from "@fider/services"
-import { User } from "@fider/models"
+import { User, UserStatus } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
@@ -178,6 +178,7 @@ const ContentModerationPage = () => {
 
     const title = item.type == "post" ? item.title : item.postTitle
     const link = item.type == "post" ? `/posts/${item.postNumber}/${item.postSlug}` : `/posts/${item.postNumber}/${item.postSlug}#comment-${item.id}`
+    const blocked = item.user.status === UserStatus.Blocked && <span className="text-red-700">blocked</span>
 
     return (
       <div key={`${item.type}-${item.id}`} className={containerClasses} onClick={() => handlePostClick(link)}>
@@ -187,9 +188,12 @@ const ContentModerationPage = () => {
               <Avatar user={item.user} size="normal" />
               <VStack spacing={2} className="flex-grow">
                 <>
-                  <span className="text-medium">
-                    {item.user.name} <span className="text-normal">&lt;{item.user.email}&gt;</span>
-                  </span>
+                  <HStack>
+                    <span className="text-medium">
+                      {item.user.status} {item.user.name} <span className="text-normal">&lt;{item.user.email}&gt;</span>
+                    </span>
+                    {blocked}
+                  </HStack>
                   <h3 className="text-medium m-0">{title}</h3>
                   <p className="m-0 text-body text-break">
                     <Markdown text={chopString(item.content, 200)} style="plainText" />
