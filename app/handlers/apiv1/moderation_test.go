@@ -217,8 +217,8 @@ func TestDeclinePostAndBlock_Success(t *testing.T) {
 		User:   mock.AryaStark,
 	}
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
-		if q.Number == 5 {
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		if q.PostID == 5 {
 			q.Result = post
 			return nil
 		}
@@ -264,7 +264,7 @@ func TestDeclinePostAndBlock_InvalidID(t *testing.T) {
 func TestDeclinePostAndBlock_PostNotFound(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
 		return app.ErrNotFound
 	})
 
@@ -287,8 +287,8 @@ func TestDeclinePostAndBlock_BlockUserFailure(t *testing.T) {
 		User:   mock.AryaStark,
 	}
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
-		if q.Number == 5 {
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		if q.PostID == 5 {
 			q.Result = post
 			return nil
 		}
@@ -403,6 +403,275 @@ func TestDeclineCommentAndBlock_BlockUserFailure(t *testing.T) {
 		AsUser(mock.JonSnow).
 		AddParam("id", "25").
 		ExecutePost(apiv1.DeclineCommentAndBlock(), `{}`)
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestApprovePostAndVerify_Success(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID:     1,
+		Number: 5,
+		Title:  "Test Post",
+		User:   mock.AryaStark,
+	}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		if q.PostID == 5 {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	var approvePost *cmd.ApprovePost
+	bus.AddHandler(func(ctx context.Context, c *cmd.ApprovePost) error {
+		approvePost = c
+		return nil
+	})
+
+	var verifyUser *cmd.VerifyUser
+	bus.AddHandler(func(ctx context.Context, c *cmd.VerifyUser) error {
+		verifyUser = c
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "5").
+		ExecutePost(apiv1.ApprovePostAndVerify(), `{}`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(approvePost.PostID).Equals(5)
+	Expect(verifyUser.UserID).Equals(mock.AryaStark.ID)
+}
+
+func TestApprovePostAndVerify_InvalidID(t *testing.T) {
+	RegisterT(t)
+
+	code, response := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "invalid").
+		ExecuteAsJSON(apiv1.ApprovePostAndVerify())
+
+	Expect(code).Equals(http.StatusBadRequest)
+	Expect(response.String("error")).Equals("Invalid post ID")
+}
+
+func TestApprovePostAndVerify_PostNotFound(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		return app.ErrNotFound
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "999").
+		ExecutePost(apiv1.ApprovePostAndVerify(), `{}`)
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestApprovePostAndVerify_ApproveFailure(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID:     1,
+		Number: 5,
+		Title:  "Test Post",
+		User:   mock.AryaStark,
+	}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		if q.PostID == 5 {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ApprovePost) error {
+		return app.ErrNotFound
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "5").
+		ExecutePost(apiv1.ApprovePostAndVerify(), `{}`)
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestApprovePostAndVerify_VerifyUserFailure(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID:     1,
+		Number: 5,
+		Title:  "Test Post",
+		User:   mock.AryaStark,
+	}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		if q.PostID == 5 {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ApprovePost) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.VerifyUser) error {
+		return app.ErrNotFound
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "5").
+		ExecutePost(apiv1.ApprovePostAndVerify(), `{}`)
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestApproveCommentAndVerify_Success(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{
+		ID:      25,
+		Content: "Test Comment",
+		User:    mock.AryaStark,
+	}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		if q.CommentID == 25 {
+			q.Result = comment
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	var approveComment *cmd.ApproveComment
+	bus.AddHandler(func(ctx context.Context, c *cmd.ApproveComment) error {
+		approveComment = c
+		return nil
+	})
+
+	var verifyUser *cmd.VerifyUser
+	bus.AddHandler(func(ctx context.Context, c *cmd.VerifyUser) error {
+		verifyUser = c
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "25").
+		ExecutePost(apiv1.ApproveCommentAndVerify(), `{}`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(approveComment.CommentID).Equals(25)
+	Expect(verifyUser.UserID).Equals(mock.AryaStark.ID)
+}
+
+func TestApproveCommentAndVerify_InvalidID(t *testing.T) {
+	RegisterT(t)
+
+	code, response := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "invalid").
+		ExecuteAsJSON(apiv1.ApproveCommentAndVerify())
+
+	Expect(code).Equals(http.StatusBadRequest)
+	Expect(response.String("error")).Equals("Invalid comment ID")
+}
+
+func TestApproveCommentAndVerify_CommentNotFound(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		return app.ErrNotFound
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "999").
+		ExecutePost(apiv1.ApproveCommentAndVerify(), `{}`)
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestApproveCommentAndVerify_ApproveFailure(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{
+		ID:      25,
+		Content: "Test Comment",
+		User:    mock.AryaStark,
+	}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		if q.CommentID == 25 {
+			q.Result = comment
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ApproveComment) error {
+		return app.ErrNotFound
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "25").
+		ExecutePost(apiv1.ApproveCommentAndVerify(), `{}`)
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestApproveCommentAndVerify_VerifyUserFailure(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{
+		ID:      25,
+		Content: "Test Comment",
+		User:    mock.AryaStark,
+	}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		if q.CommentID == 25 {
+			q.Result = comment
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ApproveComment) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.VerifyUser) error {
+		return app.ErrNotFound
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("id", "25").
+		ExecutePost(apiv1.ApproveCommentAndVerify(), `{}`)
 
 	Expect(code).Equals(http.StatusNotFound)
 }

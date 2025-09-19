@@ -262,9 +262,11 @@ func routes(r *web.Engine) *web.Engine {
 		adminApi.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		adminApi.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
 
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve-and-verify", apiv1.ApprovePostAndVerify())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline-and-block", apiv1.DeclinePostAndBlock())
 		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve", apiv1.ApprovePost())
 		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline", apiv1.DeclinePost())
-		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline-and-block", apiv1.DeclinePostAndBlock())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve-and-verify", apiv1.ApproveCommentAndVerify())
 		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline-and-block", apiv1.DeclineCommentAndBlock())
 		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve", apiv1.ApproveComment())
 		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline", apiv1.DeclineComment())

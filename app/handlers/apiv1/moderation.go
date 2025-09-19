@@ -6,6 +6,7 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -127,6 +128,63 @@ func DeclineCommentAndBlock() web.HandlerFunc {
 		// Finally call the existing DeclinePost command
 		err = bus.Dispatch(c, &cmd.DeclineComment{CommentID: commentID})
 		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// ApprovePostAndVerify approves a post and verifies the user
+func ApprovePostAndVerify() web.HandlerFunc {
+	return func(c *web.Context) error {
+		postID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.BadRequest(web.Map{"error": "Invalid post ID"})
+		}
+
+		// Get the post that is being approved
+		getPost := &query.GetPostByID{PostID: postID}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		// First approve the post
+		if err := bus.Dispatch(c, &cmd.ApprovePost{PostID: postID}); err != nil {
+			return c.Failure(err)
+		}
+
+		// Then verify the user
+		if err := bus.Dispatch(c, &cmd.VerifyUser{UserID: getPost.Result.User.ID}); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// ApproveCommentAndVerify approves a comment and verifies the user
+func ApproveCommentAndVerify() web.HandlerFunc {
+	return func(c *web.Context) error {
+		log.Info(c, "Approving comment and verifying user")
+		commentID, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.BadRequest(web.Map{"error": "Invalid comment ID"})
+		}
+
+		// Get the comment that is being approved
+		getComment := &query.GetCommentByID{CommentID: commentID}
+		if err := bus.Dispatch(c, getComment); err != nil {
+			return c.Failure(err)
+		}
+
+		// First approve the comment
+		if err := bus.Dispatch(c, &cmd.ApproveComment{CommentID: commentID}); err != nil {
+			return c.Failure(err)
+		}
+
+		// Then verify the user
+		if err := bus.Dispatch(c, &cmd.VerifyUser{UserID: getComment.Result.User.ID}); err != nil {
 			return c.Failure(err)
 		}
 

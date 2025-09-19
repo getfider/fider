@@ -220,6 +220,7 @@ func getModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 			INNER JOIN users u ON u.id = c.user_id AND u.tenant_id = c.tenant_id
 			INNER JOIN posts p ON p.id = c.post_id AND p.tenant_id = c.tenant_id
 			WHERE c.tenant_id = $1 AND c.is_approved = false and p.status <> $2
+			AND c.deleted_at IS NULL
 			ORDER BY c.created_at DESC`, tenant.ID, enum.PostDeleted)
 		if err != nil {
 			return errors.Wrap(err, "failed to get unmoderated comments")
@@ -255,7 +256,7 @@ func getModerationCount(ctx context.Context, q *query.GetModerationCount) error 
 		err := trx.Get(&count, `
 			SELECT
 				(SELECT COUNT(*) FROM posts WHERE tenant_id = $1 AND is_approved = false and status <> $2) +
-				(SELECT COUNT(*) FROM comments c JOIN posts p on c.post_id = p.id WHERE p.tenant_id = $1 AND c.is_approved = false AND p.status <> $2)
+				(SELECT COUNT(*) FROM comments c JOIN posts p on c.post_id = p.id WHERE p.tenant_id = $1 AND c.is_approved = false AND p.status <> $2 AND c.deleted_at IS NULL)
 		`, tenant.ID, enum.PostDeleted)
 
 		if err != nil {
