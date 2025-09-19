@@ -262,12 +262,12 @@ func routes(r *web.Engine) *web.Engine {
 		adminApi.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		adminApi.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
 
-		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve", handlers.ApprovePost())
-		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline", handlers.DeclinePost())
-		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve", handlers.ApproveComment())
-		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline", handlers.DeclineComment())
-		adminApi.Post("/api/v1/admin/moderation/bulk/approve", handlers.BulkApproveItems())
-		adminApi.Post("/api/v1/admin/moderation/bulk/decline", handlers.BulkDeclineItems())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve", apiv1.ApprovePost())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline", apiv1.DeclinePost())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline-and-block", apiv1.DeclinePostAndBlock())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline-and-block", apiv1.DeclineCommentAndBlock())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve", apiv1.ApproveComment())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline", apiv1.DeclineComment())
 
 		adminApi.Use(middlewares.BlockLockedTenants())
 		adminApi.Delete("/api/v1/posts/:number", apiv1.DeletePost())

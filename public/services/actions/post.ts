@@ -135,10 +135,18 @@ export const declineComment = async (commentID: number): Promise<Result> => {
   return http.post(`/api/v1/admin/moderation/comments/${commentID}/decline`).then(http.event("comment", "decline"))
 }
 
-export const bulkApproveItems = async (postIDs: number[], commentIDs: number[]): Promise<Result> => {
-  return http.post(`/api/v1/admin/moderation/bulk/approve`, { postIDs, commentIDs }).then(http.event("moderation", "bulk-approve"))
+export const approvePostAndVerify = async (postID: number): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/posts/${postID}/approve-and-verify`).then(http.event("post", "approve-and-verify"))
 }
 
-export const bulkDeclineItems = async (postIDs: number[], commentIDs: number[]): Promise<Result> => {
-  return http.post(`/api/v1/admin/moderation/bulk/decline`, { postIDs, commentIDs }).then(http.event("moderation", "bulk-decline"))
+export const declinePostAndBlock = async (postID: number): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/posts/${postID}/decline-and-block`).then(http.event("post", "decline-and-block"))
+}
+
+export const approveCommentAndVerify = async (commentID: number): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/comments/${commentID}/approve-and-verify`).then(http.event("comment", "approve-and-verify"))
+}
+
+export const declineCommentAndBlock = async (commentID: number): Promise<Result> => {
+  return http.post(`/api/v1/admin/moderation/comments/${commentID}/decline-and-block`).then(http.event("comment", "decline-and-block"))
 }

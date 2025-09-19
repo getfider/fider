@@ -107,7 +107,7 @@ const ContentModerationPage = () => {
   }
 
   const handleApprovePostAndVerify = async (postId: number) => {
-    const result = await http.post(`/api/v1/admin/moderation/posts/${postId}/approve-and-verify`)
+    const result = await actions.approvePostAndVerify(postId)
     if (result.ok) {
       notify.success(<Trans id="moderation.post.approved.verified">Post approved and user verified</Trans>)
       setState((prev) => ({
@@ -120,7 +120,7 @@ const ContentModerationPage = () => {
   }
 
   const handleDeclinePostAndBlock = async (postId: number) => {
-    const result = await http.post(`/api/v1/admin/moderation/posts/${postId}/decline-and-block`)
+    const result = await actions.declinePostAndBlock(postId)
     if (result.ok) {
       notify.success(<Trans id="moderation.post.declined.blocked">Post declined and user blocked</Trans>)
       setState((prev) => ({
@@ -133,7 +133,7 @@ const ContentModerationPage = () => {
   }
 
   const handleApproveCommentAndVerify = async (commentId: number) => {
-    const result = await http.post(`/api/v1/admin/moderation/comments/${commentId}/approve-and-verify`)
+    const result = await actions.approveCommentAndVerify(commentId)
     if (result.ok) {
       notify.success(<Trans id="moderation.comment.approved.verified">Comment approved and user verified</Trans>)
       setState((prev) => ({
@@ -146,7 +146,7 @@ const ContentModerationPage = () => {
   }
 
   const handleDeclineCommentAndBlock = async (commentId: number) => {
-    const result = await http.post(`/api/v1/admin/moderation/comments/${commentId}/decline-and-block`)
+    const result = await actions.declineCommentAndBlock(commentId)
     if (result.ok) {
       notify.success(<Trans id="moderation.comment.declined.blocked">Comment declined and user blocked</Trans>)
       setState((prev) => ({
