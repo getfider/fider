@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/lib/pq"
 )
 
 type dbUser struct {
@@ -351,13 +353,13 @@ func getUserByProvider(ctx context.Context, q *query.GetUserByProvider) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var userID int
 		if err := trx.Scalar(&userID, `
-			SELECT user_id 
-			FROM user_providers up 
-			INNER JOIN users u 
-			ON u.id = up.user_id 
-			AND u.tenant_id = up.tenant_id 
-			WHERE up.provider = $1 
-			AND up.provider_uid = $2 
+			SELECT user_id
+			FROM user_providers up
+			INNER JOIN users u
+			ON u.id = up.user_id
+			AND u.tenant_id = up.tenant_id
+			WHERE up.provider = $1
+			AND up.provider_uid = $2
 			AND u.tenant_id = $3`, q.Provider, q.UID, tenant.ID); err != nil {
 			return errors.Wrap(err, "failed to get user by provider '%s' and uid '%s'", q.Provider, q.UID)
 		}
@@ -374,8 +376,8 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 		var users []*dbUser
 		err := trx.Select(&users, `
 			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey
-			FROM users 
-			WHERE tenant_id = $1 
+			FROM users
+			WHERE tenant_id = $1
 			AND status != $2
 			ORDER BY id`, tenant.ID, enum.UserDeleted)
 		if err != nil {
@@ -395,8 +397,8 @@ func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
 		var users []*dbUser
 		err := trx.Select(&users, `
 			SELECT name
-			FROM users 
-			WHERE tenant_id = $1 
+			FROM users
+			WHERE tenant_id = $1
 			AND status = $2
 			ORDER BY id`, tenant.ID, enum.UserActive)
 		if err != nil {
@@ -427,4 +429,71 @@ func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*
 	}
 
 	return user.toModel(ctx), nil
+}
+
+func searchUsers(ctx context.Context, q *query.SearchUsers) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		if q.Roles == nil {
+			q.Roles = []string{}
+		}
+		if q.Limit != "all" {
+			if _, err := strconv.Atoi(q.Limit); err != nil {
+				q.Limit = "30"
+			}
+		}
+
+		baseQuery := `
+			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_verified
+			FROM users
+			WHERE tenant_id = $1 AND status != $2
+		`
+		args := []interface{}{tenant.ID, enum.UserDeleted}
+		argIndex := 3
+
+		// Add search filter
+		if q.Query != "" {
+			baseQuery += fmt.Sprintf(" AND (name ILIKE $%d OR email ILIKE $%d)", argIndex, argIndex+1)
+			searchTerm := "%" + q.Query + "%"
+			args = append(args, searchTerm, searchTerm)
+			argIndex += 2
+		}
+
+		// Add role filter
+		if len(q.Roles) > 0 {
+			roleValues := make([]interface{}, len(q.Roles))
+			for i, roleStr := range q.Roles {
+				switch roleStr {
+				case "administrator":
+					roleValues[i] = enum.RoleAdministrator
+				case "collaborator":
+					roleValues[i] = enum.RoleCollaborator
+				case "visitor":
+					roleValues[i] = enum.RoleVisitor
+				default:
+					roleValues[i] = enum.RoleVisitor
+				}
+			}
+			baseQuery += fmt.Sprintf(" AND role = ANY($%d)", argIndex)
+			args = append(args, pq.Array(roleValues))
+		}
+
+		baseQuery += " ORDER BY id"
+
+		// Add limit
+		if q.Limit != "all" {
+			baseQuery += " LIMIT " + q.Limit
+		}
+
+		var users []*dbUser
+		err := trx.Select(&users, baseQuery, args...)
+		if err != nil {
+			return errors.Wrap(err, "failed to search users")
+		}
+
+		q.Result = make([]*entity.User, len(users))
+		for i, user := range users {
+			q.Result[i] = user.toModel(ctx)
+		}
+		return nil
+	})
 }

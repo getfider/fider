@@ -31,7 +31,7 @@ func AdvancedSettingsPage() web.HandlerFunc {
 			Page:  "Administration/pages/AdvancedSettings.page",
 			Title: "Advanced · Site Settings",
 			Data: web.Map{
-				"customCSS": c.Tenant().CustomCSS,
+				"customCSS":      c.Tenant().CustomCSS,
 				"allowedSchemes": c.Tenant().AllowedSchemes,
 			},
 		})
@@ -84,7 +84,7 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 		}
 
 		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{
-			CustomCSS: action.CustomCSS,
+			CustomCSS:      action.CustomCSS,
 			AllowedSchemes: action.AllowedSchemes,
 		}); err != nil {
 			return c.Failure(err)
@@ -137,14 +137,22 @@ func UpdateEmailAuthAllowed() web.HandlerFunc {
 // ManageMembers is the page used by administrators to change member's role
 func ManageMembers() web.HandlerFunc {
 	return func(c *web.Context) error {
-		allUsers := &query.GetAllUsers{}
-		if err := bus.Dispatch(c, allUsers); err != nil {
+		searchUsers := &query.SearchUsers{
+			Query: c.QueryParam("query"),
+			Roles: c.QueryParamAsArray("roles"),
+			Limit: c.QueryParam("limit"),
+		}
+		if searchUsers.Limit == "" {
+			searchUsers.Limit = "all"
+		}
+
+		if err := bus.Dispatch(c, searchUsers); err != nil {
 			return c.Failure(err)
 		}
 
-		// Create an array of UserWithEmail structs from the allUsers.Result
-		allUsersWithEmail := make([]entity.UserWithEmail, len(allUsers.Result))
-		for i, user := range allUsers.Result {
+		// Create an array of UserWithEmail structs from the searchUsers.Result
+		allUsersWithEmail := make([]entity.UserWithEmail, len(searchUsers.Result))
+		for i, user := range searchUsers.Result {
 			allUsersWithEmail[i] = entity.UserWithEmail{
 				User: user,
 			}

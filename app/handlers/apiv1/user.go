@@ -15,11 +15,28 @@ import (
 // ListUsers returns all registered users
 func ListUsers() web.HandlerFunc {
 	return func(c *web.Context) error {
-		allUsers := &query.GetAllUsers{}
-		if err := bus.Dispatch(c, allUsers); err != nil {
+		searchUsers := &query.SearchUsers{
+			Query: c.QueryParam("query"),
+			Roles: c.QueryParamAsArray("roles"),
+			Limit: c.QueryParam("limit"),
+		}
+		if searchUsers.Limit == "" {
+			searchUsers.Limit = "all"
+		}
+
+		if err := bus.Dispatch(c, searchUsers); err != nil {
 			return c.Failure(err)
 		}
-		return c.Ok(allUsers.Result)
+
+		// Create an array of UserWithEmail structs to include email in JSON response
+		allUsersWithEmail := make([]entity.UserWithEmail, len(searchUsers.Result))
+		for i, user := range searchUsers.Result {
+			allUsersWithEmail[i] = entity.UserWithEmail{
+				User: user,
+			}
+		}
+
+		return c.Ok(allUsersWithEmail)
 	}
 }
 

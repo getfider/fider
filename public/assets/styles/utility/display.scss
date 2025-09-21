@@ -211,6 +211,10 @@
   border-top: 1px solid;
 }
 
+.bb {
+  border-bottom: 1px solid;
+}
+
 .bl {
   border-inline-start: 1px solid;
 }
@@ -221,6 +225,10 @@
 
 .overflow-auto {
   overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
 }
 
 .border {

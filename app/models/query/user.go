@@ -51,3 +51,11 @@ type GetAllUsers struct {
 type GetAllUsersNames struct {
 	Result []*dto.UserNames
 }
+
+type SearchUsers struct {
+	Query string
+	Roles []string
+	Limit string
+
+	Result []*entity.User
+}
