@@ -18,7 +18,11 @@ interface UserListItemProps {
   onAction: (actionName: string, user: User) => Promise<void>
 }
 
-const UserListItem = (props: UserListItemProps) => {
+interface UserListItemExtendedProps extends UserListItemProps {
+  isLast?: boolean
+}
+
+const UserListItem = (props: UserListItemExtendedProps) => {
   const admin = props.user.role === UserRole.Administrator && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">administrator</span>
   const collaborator = props.user.role === UserRole.Collaborator && <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">collaborator</span>
   const blocked = props.user.status === UserStatus.Blocked && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">blocked</span>
@@ -30,32 +34,36 @@ const UserListItem = (props: UserListItemProps) => {
 
   return (
     <div
-      className={`bb border-gray-200 grid gap-4 py-4 px-4 flex-items-center bg-white hover:bg-gray-100`}
-      style={{ gridTemplateColumns: "2fr 2fr 1fr 100px" }}
+      className={`border-b border-gray-200 grid gap-4 py-4 px-4 flex-items-center bg-white hover:bg-gray-100 ${props.isLast ? "rounded-md-b" : ""}`}
+      style={{ gridTemplateColumns: "minmax(200px, 1fr) minmax(280px, 2fr) minmax(120px, 150px) 100px" }}
     >
       <HStack>
         <Avatar user={props.user} />
         <div className="text-subtitle">{props.user.name}</div>
       </HStack>
 
-      <div className="text-muted">{props.user.email || "No email"}</div>
+      <div className="text-muted text-ellipsis" title={props.user.email}>
+        {props.user.email || "No email"}
+      </div>
 
       <div>
         {admin} {collaborator} {blocked}
         {isVisitor && !blocked && <span className="text-xs text-gray-600">visitor</span>}
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end relative">
         {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
-          <Dropdown renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
-            {!blocked && (!!collaborator || isVisitor) && (
-              <Dropdown.ListItem onClick={actionSelected("to-administrator")}>Promote to Administrator</Dropdown.ListItem>
-            )}
-            {!blocked && (!!admin || isVisitor) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
-            {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Visitor</Dropdown.ListItem>}
-            {isVisitor && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
-            {isVisitor && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
-          </Dropdown>
+          <div className="relative z-10">
+            <Dropdown renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
+              {!blocked && (!!collaborator || isVisitor) && (
+                <Dropdown.ListItem onClick={actionSelected("to-administrator")}>Promote to Administrator</Dropdown.ListItem>
+              )}
+              {!blocked && (!!admin || isVisitor) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
+              {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Visitor</Dropdown.ListItem>}
+              {isVisitor && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
+              {isVisitor && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
+            </Dropdown>
+          </div>
         )}
       </div>
     </div>
@@ -233,15 +241,18 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
         </Dropdown>
       </div>
 
-      <VStack className="rounded-md border border-gray-200 overflow-hidden">
-        <div className="grid gap-4 py-3 px-4 bg-gray-100 text-category border-b" style={{ gridTemplateColumns: "2fr 2fr 1fr 100px" }}>
+      <VStack className="rounded-md border border-gray-200 relative">
+        <div
+          className="grid rounded-md-t gap-4 py-3 px-4 bg-gray-100 text-category"
+          style={{ gridTemplateColumns: "minmax(200px, 1fr) minmax(280px, 2fr) minmax(120px, 150px) 100px" }}
+        >
           <div>Name</div>
           <div>Email</div>
           <div>Role</div>
         </div>
         <div>
           {visibleUsers.map((user, index) => (
-            <UserListItem key={user.id} user={user} onAction={handleAction} />
+            <UserListItem key={user.id} user={user} onAction={handleAction} isLast={index === visibleUsers.length - 1} />
           ))}
         </div>
       </VStack>
