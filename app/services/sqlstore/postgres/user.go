@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -436,10 +435,11 @@ func searchUsers(ctx context.Context, q *query.SearchUsers) error {
 		if q.Roles == nil {
 			q.Roles = []string{}
 		}
-		if q.Limit != "all" {
-			if _, err := strconv.Atoi(q.Limit); err != nil {
-				q.Limit = "30"
-			}
+		if q.Limit <= 0 {
+			q.Limit = 10
+		}
+		if q.Page <= 0 {
+			q.Page = 1
 		}
 
 		baseQuery := `
@@ -477,15 +477,50 @@ func searchUsers(ctx context.Context, q *query.SearchUsers) error {
 			args = append(args, pq.Array(roleValues))
 		}
 
-		baseQuery += " ORDER BY id"
+		baseQuery += " ORDER BY role desc, name"
 
-		// Add limit
-		if q.Limit != "all" {
-			baseQuery += " LIMIT " + q.Limit
+		// First, get the total count for pagination
+		countQuery := `SELECT COUNT(*) FROM users WHERE tenant_id = $1 AND status != $2`
+		countArgs := []interface{}{tenant.ID, enum.UserDeleted}
+		countArgIndex := 3
+
+		// Add the same filters for counting
+		if q.Query != "" {
+			countQuery += fmt.Sprintf(" AND (name ILIKE $%d OR email ILIKE $%d)", countArgIndex, countArgIndex+1)
+			searchTerm := "%" + q.Query + "%"
+			countArgs = append(countArgs, searchTerm, searchTerm)
+			countArgIndex += 2
 		}
 
+		if len(q.Roles) > 0 {
+			roleValues := make([]interface{}, len(q.Roles))
+			for i, roleStr := range q.Roles {
+				switch roleStr {
+				case "administrator":
+					roleValues[i] = enum.RoleAdministrator
+				case "collaborator":
+					roleValues[i] = enum.RoleCollaborator
+				case "visitor":
+					roleValues[i] = enum.RoleVisitor
+				default:
+					roleValues[i] = enum.RoleVisitor
+				}
+			}
+			countQuery += fmt.Sprintf(" AND role = ANY($%d)", countArgIndex)
+			countArgs = append(countArgs, pq.Array(roleValues))
+		}
+
+		err := trx.Get(&q.TotalCount, countQuery, countArgs...)
+		if err != nil {
+			return errors.Wrap(err, "failed to count users")
+		}
+
+		// Add pagination to main query
+		offset := (q.Page - 1) * q.Limit
+		baseQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", q.Limit, offset)
+
 		var users []*dbUser
-		err := trx.Select(&users, baseQuery, args...)
+		err = trx.Select(&users, baseQuery, args...)
 		if err != nil {
 			return errors.Wrap(err, "failed to search users")
 		}

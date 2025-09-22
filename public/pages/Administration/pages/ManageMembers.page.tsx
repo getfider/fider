@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react"
-import { Input, Avatar, Icon, Dropdown, Button } from "@fider/components"
+import { Input, Avatar, Icon, Dropdown, Pagination } from "@fider/components"
 import { User, UserRole, UserStatus } from "@fider/models"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
@@ -11,6 +11,7 @@ import { HStack, VStack } from "@fider/components/layout"
 
 interface ManageMembersPageProps {
   users: User[]
+  totalPages: number
 }
 
 interface UserListItemProps {
@@ -34,7 +35,7 @@ const UserListItem = (props: UserListItemExtendedProps) => {
 
   return (
     <div
-      className={`border-b border-gray-200 grid gap-4 py-4 px-4 flex-items-center bg-white hover:bg-gray-100 ${props.isLast ? "rounded-md-b" : ""}`}
+      className={`border-b border-gray-200 grid gap-4 py-4 px-4 flex-items-center bg-white hover ${props.isLast ? "rounded-md-b" : ""}`}
       style={{ gridTemplateColumns: "minmax(200px, 1fr) minmax(280px, 2fr) minmax(120px, 150px) 100px" }}
     >
       <HStack>
@@ -42,7 +43,7 @@ const UserListItem = (props: UserListItemExtendedProps) => {
         <div className="text-subtitle">{props.user.name}</div>
       </HStack>
 
-      <div className="text-muted text-ellipsis" title={props.user.email}>
+      <div className="text-muted nowrap" title={props.user.email}>
         {props.user.email || "No email"}
       </div>
 
@@ -73,57 +74,46 @@ const UserListItem = (props: UserListItemExtendedProps) => {
 export default function ManageMembersPage(props: ManageMembersPageProps) {
   const [query, setQuery] = useState("")
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all")
-  const [users, setUsers] = useState<User[]>([])
-  const [visibleUsers, setVisibleUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<User[]>(props.users)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(props.totalPages)
   const [searchTimeoutId, setSearchTimeoutId] = useState<number | undefined>(undefined)
+  const pageSize = 10
 
-  // Initialize state from URL parameters and props
+  // Initialize state from URL parameters and load first page
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const initialQuery = urlParams.get("query") || ""
     const initialRoleFilter = (urlParams.get("roles") as UserRole) || "all"
+    const initialPage = parseInt(urlParams.get("page") || "1")
 
     setQuery(initialQuery)
     setRoleFilter(initialRoleFilter)
-
-    const sortedUsers = props.users.sort(sortByStaff)
-    setUsers(sortedUsers)
-    setVisibleUsers(sortedUsers.slice(0, 10))
-  }, [props.users])
-
-  const sortByStaff = (left: User, right: User) => {
-    if (right.role === left.role) {
-      if (left.name < right.name) {
-        return -1
-      } else if (left.name > right.name) {
-        return 1
-      }
-      return 0
-    }
-
-    if (right.role !== UserRole.Visitor) {
-      return 1
-    }
-    return -1
-  }
-
-  const reloadUsers = useCallback(async (searchQuery: string, roleFilterValue: UserRole | "all") => {
-    const params = new URLSearchParams()
-    if (searchQuery) {
-      params.append("query", searchQuery)
-    }
-    if (roleFilterValue !== "all") {
-      params.append("roles", roleFilterValue.toString())
-    }
-
-    const response = await fetch(`/api/v1/users${params.toString() ? "?" + params.toString() : ""}`)
-    if (response.ok) {
-      const usersData = await response.json()
-      const sortedUsers = usersData.sort(sortByStaff)
-      setUsers(sortedUsers)
-      setVisibleUsers(sortedUsers.slice(0, 10))
-    }
+    setCurrentPage(initialPage)
   }, [])
+
+  const reloadUsers = useCallback(
+    async (searchQuery: string, roleFilterValue: UserRole | "all", page = 1) => {
+      const params = new URLSearchParams()
+      if (searchQuery) {
+        params.append("query", searchQuery)
+      }
+      if (roleFilterValue !== "all") {
+        params.append("roles", roleFilterValue.toString())
+      }
+      params.append("page", page.toString())
+      params.append("limit", pageSize.toString())
+
+      const response = await fetch(`/api/v1/users?${params.toString()}`)
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data.users)
+        setTotalPages(data.totalPages)
+        setCurrentPage(page)
+      }
+    },
+    [pageSize]
+  )
 
   const handleSearchFilterChanged = useCallback(
     (newQuery: string) => {
@@ -135,7 +125,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
       }
 
       const timeoutId = window.setTimeout(() => {
-        reloadUsers(newQuery, roleFilter)
+        reloadUsers(newQuery, roleFilter, 1) // Reset to page 1 when searching
       }, 300)
 
       setSearchTimeoutId(timeoutId)
@@ -146,7 +136,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
   const handleRoleFilterChanged = useCallback(
     (newRoleFilter: UserRole | "all") => {
       setRoleFilter(newRoleFilter)
-      reloadUsers(query, newRoleFilter)
+      reloadUsers(query, newRoleFilter, 1) // Reset to page 1 when changing filter
     },
     [query, reloadUsers]
   )
@@ -156,12 +146,15 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
       clearTimeout(searchTimeoutId)
     }
     setQuery("")
-    reloadUsers("", roleFilter)
+    reloadUsers("", roleFilter, 1)
   }, [roleFilter, reloadUsers, searchTimeoutId])
 
-  const showMore = useCallback(() => {
-    setVisibleUsers(users.slice(0, visibleUsers.length + 10))
-  }, [users, visibleUsers.length])
+  const handlePageChange = useCallback(
+    (page: number) => {
+      reloadUsers(query, roleFilter, page)
+    },
+    [query, roleFilter, reloadUsers]
+  )
 
   const handleAction = useCallback(
     async (actionName: string, user: User) => {
@@ -171,9 +164,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
           user.role = role
           // Update the user in current state without full reload
           const updatedUsers = users.map((u) => (u.id === user.id ? user : u))
-          const sortedUsers = updatedUsers.sort(sortByStaff)
-          setUsers(sortedUsers)
-          setVisibleUsers(sortedUsers.slice(0, visibleUsers.length))
+          setUsers(updatedUsers)
         }
       }
 
@@ -185,7 +176,6 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
           // Update the user in current state without full reload
           const updatedUsers = users.map((u) => (u.id === user.id ? user : u))
           setUsers(updatedUsers)
-          setVisibleUsers(updatedUsers.slice(0, visibleUsers.length))
         }
       }
 
@@ -201,7 +191,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
         await changeStatus(UserStatus.Active)
       }
     },
-    [users, visibleUsers.length]
+    [users]
   )
 
   return (
@@ -251,31 +241,15 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
           <div>Role</div>
         </div>
         <div>
-          {visibleUsers.map((user, index) => (
-            <UserListItem key={user.id} user={user} onAction={handleAction} isLast={index === visibleUsers.length - 1} />
+          {users.map((user, index) => (
+            <UserListItem key={user.id} user={user} onAction={handleAction} isLast={index === users.length - 1} />
           ))}
         </div>
       </VStack>
 
-      <p className="text-muted pt-4">
-        {!query && roleFilter === "all" && (
-          <>
-            Showing {visibleUsers.length} of {users.length} registered users.
-          </>
-        )}
-        {(query || roleFilter !== "all") && (
-          <>
-            Showing {visibleUsers.length} of {users.length} users
-            {query && <> matching &apos;{query}&apos;</>}
-            {roleFilter !== "all" && <> with role &apos;{roleFilter}&apos;</>}.
-          </>
-        )}
-        {visibleUsers.length < users.length && (
-          <Button variant="tertiary" onClick={showMore}>
-            view more
-          </Button>
-        )}
-      </p>
+      <div className="pt-4">
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+      </div>
 
       <ul className="text-muted">
         <li>

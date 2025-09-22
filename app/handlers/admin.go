@@ -137,13 +137,17 @@ func UpdateEmailAuthAllowed() web.HandlerFunc {
 // ManageMembers is the page used by administrators to change member's role
 func ManageMembers() web.HandlerFunc {
 	return func(c *web.Context) error {
+		// Only load first page for initial page load - subsequent pagination handled by API
+		page, _ := c.QueryParamAsInt("page")
+		if page <= 0 {
+			page = 1
+		}
+
 		searchUsers := &query.SearchUsers{
 			Query: c.QueryParam("query"),
 			Roles: c.QueryParamAsArray("roles"),
-			Limit: c.QueryParam("limit"),
-		}
-		if searchUsers.Limit == "" {
-			searchUsers.Limit = "all"
+			Page:  page,
+			Limit: 10,
 		}
 
 		if err := bus.Dispatch(c, searchUsers); err != nil {
@@ -162,7 +166,8 @@ func ManageMembers() web.HandlerFunc {
 			Page:  "Administration/pages/ManageMembers.page",
 			Title: "Manage Members · Site Settings",
 			Data: web.Map{
-				"users": allUsersWithEmail,
+				"users":      allUsersWithEmail,
+				"totalPages": (searchUsers.TotalCount + 10 - 1) / 10,
 			},
 		})
 	}

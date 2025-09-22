@@ -12,16 +12,24 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-// ListUsers returns all registered users
+// ListUsers returns paginated registered users
 func ListUsers() web.HandlerFunc {
 	return func(c *web.Context) error {
+		page, _ := c.QueryParamAsInt("page")
+		if page <= 0 {
+			page = 1
+		}
+
+		limit, _ := c.QueryParamAsInt("limit")
+		if limit <= 0 {
+			limit = 10
+		}
+
 		searchUsers := &query.SearchUsers{
 			Query: c.QueryParam("query"),
 			Roles: c.QueryParamAsArray("roles"),
-			Limit: c.QueryParam("limit"),
-		}
-		if searchUsers.Limit == "" {
-			searchUsers.Limit = "all"
+			Page:  page,
+			Limit: limit,
 		}
 
 		if err := bus.Dispatch(c, searchUsers); err != nil {
@@ -36,7 +44,15 @@ func ListUsers() web.HandlerFunc {
 			}
 		}
 
-		return c.Ok(allUsersWithEmail)
+		totalPages := (searchUsers.TotalCount + limit - 1) / limit
+
+		return c.Ok(web.Map{
+			"users":      allUsersWithEmail,
+			"totalCount": searchUsers.TotalCount,
+			"totalPages": totalPages,
+			"page":       page,
+			"limit":      limit,
+		})
 	}
 }
 

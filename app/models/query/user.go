@@ -55,7 +55,9 @@ type GetAllUsersNames struct {
 type SearchUsers struct {
 	Query string
 	Roles []string
-	Limit string
+	Page  int
+	Limit int
 
-	Result []*entity.User
+	Result     []*entity.User
+	TotalCount int
 }
