@@ -22,6 +22,7 @@ beforeEach(() => {
     user: {
       id: 5,
       name: "John",
+      isVerified: false,
       role: UserRole.Collaborator,
       status: UserStatus.Active,
       avatarURL: "/static/avatars/letter/5/John",
