@@ -59,6 +59,10 @@ export const isCollaborator = (role: UserRole): boolean => {
   return role === UserRole.Collaborator || role === UserRole.Administrator
 }
 
+export const requiresModeration = (user: User): boolean => {
+  return user.role === UserRole.Visitor && !user.isVerified
+}
+
 export interface CurrentUser {
   id: number
   name: string
@@ -70,4 +74,5 @@ export interface CurrentUser {
   status: UserStatus
   isAdministrator: boolean
   isCollaborator: boolean
+  isVerified: boolean
 }

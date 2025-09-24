@@ -83,6 +83,14 @@ export const unblockUser = async (userID: number): Promise<Result> => {
   return await http.delete(`/_api/admin/users/${userID}/block`)
 }
 
+export const verifyUser = async (userID: number): Promise<Result> => {
+  return await http.put(`/_api/admin/users/${userID}/verify`)
+}
+
+export const unverifyUser = async (userID: number): Promise<Result> => {
+  return await http.delete(`/_api/admin/users/${userID}/verify`)
+}
+
 export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConfig>> => {
   return await http.get<OAuthConfig>(`/_api/admin/oauth/${provider}`)
 }

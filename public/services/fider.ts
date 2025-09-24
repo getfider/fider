@@ -40,6 +40,10 @@ export class FiderSession {
   public get isAuthenticated(): boolean {
     return !!this.pUser
   }
+
+  public get isModerationRequired(): boolean {
+    return this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isVerified
+  }
 }
 
 export class FiderImpl {

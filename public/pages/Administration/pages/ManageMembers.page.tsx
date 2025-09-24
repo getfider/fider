@@ -64,6 +64,8 @@ const UserListItem = (props: UserListItemExtendedProps) => {
               )}
               {!blocked && (!!admin || isVisitor) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
               {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Visitor</Dropdown.ListItem>}
+              {isVisitor && !blocked && !props.user.isVerified && <Dropdown.ListItem onClick={actionSelected("approve")}>Verify User</Dropdown.ListItem>}
+              {isVisitor && !blocked && props.user.isVerified && <Dropdown.ListItem onClick={actionSelected("unapprove")}>Unverify User</Dropdown.ListItem>}
               {isVisitor && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
               {isVisitor && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
             </Dropdown>
@@ -182,6 +184,17 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
         }
       }
 
+      const changeVerification = async (isVerified: boolean) => {
+        const action = isVerified ? actions.verifyUser : actions.unverifyUser
+        const result = await action(user.id)
+        if (result.ok) {
+          user.isVerified = isVerified
+          // Update the user in current state without full reload
+          const updatedUsers = users.map((u) => (u.id === user.id ? user : u))
+          setUsers(updatedUsers)
+        }
+      }
+
       if (actionName === "to-collaborator") {
         await changeRole(UserRole.Collaborator)
       } else if (actionName === "to-visitor") {
@@ -192,6 +205,10 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
         await changeStatus(UserStatus.Blocked)
       } else if (actionName === "unblock") {
         await changeStatus(UserStatus.Active)
+      } else if (actionName === "approve") {
+        await changeVerification(true)
+      } else if (actionName === "unapprove") {
+        await changeVerification(false)
       }
     },
     [users]

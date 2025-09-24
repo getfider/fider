@@ -182,7 +182,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
         clearError()
         clearCache()
         clearAttachments()
-        if (fider.session.tenant.isModerationEnabled && !fider.session.user.isCollaborator) {
+        if (fider.session.isModerationRequired) {
           cache.session.set("POST_CREATED_MODERATION", "true")
         } else {
           cache.session.set("POST_CREATED_SUCCESS", "true")
@@ -256,7 +256,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 </div>
               )}
             </Form>
-            {fider.session.tenant.isModerationEnabled && fider.session.isAuthenticated && !fider.session.user.isCollaborator && (
+            {fider.session.isModerationRequired && (
               <div className="c-form-field">
                 <div className="text-muted text-sm p-2 bg-gray-100 rounded border-l-4 border-yellow-500">
                   <Trans id="newpost.moderation.notice">Your post will be reviewed by an administrator before being visible to other users.</Trans>
