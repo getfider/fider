@@ -112,6 +112,18 @@ func unblockUser(ctx context.Context, c *cmd.UnblockUser) error {
 	})
 }
 
+func unverifyUser(ctx context.Context, c *cmd.UnverifyUser) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		if _, err := trx.Execute(
+			"UPDATE users SET is_verified = false WHERE id = $1 AND tenant_id = $2",
+			c.UserID, tenant.ID,
+		); err != nil {
+			return errors.Wrap(err, "failed to unverify user")
+		}
+		return nil
+	})
+}
+
 func deleteCurrentUser(ctx context.Context, c *cmd.DeleteCurrentUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if _, err := trx.Execute(

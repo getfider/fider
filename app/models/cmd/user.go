@@ -14,6 +14,10 @@ type UnblockUser struct {
 	UserID int
 }
 
+type UnverifyUser struct {
+	UserID int
+}
+
 type RegenerateAPIKey struct {
 	Result string
 }

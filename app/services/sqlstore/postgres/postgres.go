@@ -85,6 +85,7 @@ func (s Service) Init() {
 	bus.AddHandler(countUsers)
 	bus.AddHandler(blockUser)
 	bus.AddHandler(unblockUser)
+	bus.AddHandler(unverifyUser)
 	bus.AddHandler(regenerateAPIKey)
 	bus.AddHandler(userSubscribedTo)
 	bus.AddHandler(deleteCurrentUser)

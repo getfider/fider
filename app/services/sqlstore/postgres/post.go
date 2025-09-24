@@ -83,10 +83,10 @@ func (i *dbPost) toModel(ctx context.Context) *entity.Post {
 }
 
 var (
-	sqlSelectPostsWhere = `	WITH 
-													agg_tags AS ( 
-														SELECT 
-																post_id, 
+	sqlSelectPostsWhere = `	WITH
+													agg_tags AS (
+														SELECT
+																post_id,
 																ARRAY_REMOVE(ARRAY_AGG(tags.slug), NULL) as tags
 														FROM post_tags
 														INNER JOIN tags
@@ -94,14 +94,14 @@ var (
 														AND tags.tenant_id = post_tags.tenant_id
 														WHERE post_tags.tenant_id = $1
 														%s
-														GROUP BY post_id 
-													), 
+														GROUP BY post_id
+													),
 													agg_comments AS (
-															SELECT 
-																	post_id, 
+															SELECT
+																	post_id,
 																	COUNT(CASE WHEN comments.created_at > CURRENT_DATE - INTERVAL '30 days' AND comments.is_approved = true THEN 1 END) as recent,
 																	COUNT(CASE WHEN comments.is_approved = true THEN 1 END) as all
-															FROM comments 
+															FROM comments
 															INNER JOIN posts
 															ON posts.id = comments.post_id
 															AND posts.tenant_id = comments.tenant_id
@@ -110,30 +110,30 @@ var (
 															GROUP BY post_id
 													),
 													agg_votes AS (
-															SELECT 
-															post_id, 
+															SELECT
+															post_id,
 																	COUNT(CASE WHEN post_votes.created_at > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
 																	COUNT(*) as all
-															FROM post_votes 
+															FROM post_votes
 															INNER JOIN posts
 															ON posts.id = post_votes.post_id
 															AND posts.tenant_id = post_votes.tenant_id
 															WHERE posts.tenant_id = $1
 															GROUP BY post_id
 													)
-													SELECT p.id, 
-																p.number, 
-																p.title, 
-																p.slug, 
-																p.description, 
+													SELECT p.id,
+																p.number,
+																p.title,
+																p.slug,
+																p.description,
 																p.created_at,
 																COALESCE(agg_s.all, 0) as votes_count,
 																COALESCE(agg_c.all, 0) as comments_count,
 																COALESCE(agg_s.recent, 0) AS recent_votes_count,
-																COALESCE(agg_c.recent, 0) AS recent_comments_count,																
-																p.status, 
-																u.id AS user_id, 
-																u.name AS user_name, 
+																COALESCE(agg_c.recent, 0) AS recent_comments_count,
+																p.status,
+																u.id AS user_id,
+																u.name AS user_name,
 																u.email AS user_email,
 																u.role AS user_role,
 																u.status AS user_status,
@@ -141,9 +141,9 @@ var (
 																u.avatar_bkey AS user_avatar_bkey,
 																p.response,
 																p.response_date,
-																r.id AS response_user_id, 
-																r.name AS response_user_name, 
-																r.email AS response_user_email, 
+																r.id AS response_user_id,
+																r.name AS response_user_name,
+																r.email AS response_user_email,
 																r.role AS response_user_role,
 																r.status AS response_user_status,
 																r.avatar_type AS response_user_avatar_type,
@@ -169,7 +169,7 @@ var (
 													ON agg_c.post_id = p.id
 													LEFT JOIN agg_votes agg_s
 													ON agg_s.post_id = p.id
-													LEFT JOIN agg_tags agg_t 
+													LEFT JOIN agg_tags agg_t
 													ON agg_t.post_id = p.id
 													WHERE p.status != ` + strconv.Itoa(int(enum.PostDeleted)) + ` AND %s`
 )
@@ -179,7 +179,7 @@ func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
 		q.Result = false
 
 		exists, err := trx.Exists(`
-			SELECT 1 FROM posts p 
+			SELECT 1 FROM posts p
 			INNER JOIN posts o
 			ON o.tenant_id = p.tenant_id
 			AND o.id = p.original_id
@@ -206,8 +206,8 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 		}
 
 		_, err := trx.Execute(`
-		UPDATE posts 
-		SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
+		UPDATE posts
+		SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6
 		WHERE id = $1 and tenant_id = $2
 		`, c.Post.ID, tenant.ID, c.Text, respondedAt, user.ID, c.Status)
 		if err != nil {
@@ -245,8 +245,8 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 		}
 
 		_, err = trx.Execute(`
-		UPDATE posts 
-		SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
+		UPDATE posts
+		SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6
 		WHERE id = $1 and tenant_id = $2
 		`, c.Post.ID, tenant.ID, c.Original.ID, respondedAt, user.ID, enum.PostDuplicate)
 		if err != nil {
@@ -292,11 +292,11 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		isApproved := !tenant.IsModerationEnabled || user.IsCollaborator()
+		isApproved := !tenant.IsModerationEnabled || !user.RequiresModeration()
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status, is_approved) 
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0, $7) 
+			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status, is_approved)
+			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0, $7)
 			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now(), isApproved)
 		if err != nil {
 			return errors.Wrap(err, "failed add new post")
@@ -318,7 +318,7 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
+		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3
 													 WHERE id = $4 AND tenant_id = $5`, c.Title, slug.Make(c.Title), c.Description, c.Post.ID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update post")
@@ -406,7 +406,7 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 		} else {
 			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
+				SELECT * FROM (%s) AS q
 				WHERE %s > 0.5
 				ORDER BY %s DESC
 				LIMIT 5
@@ -456,7 +456,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 		if q.Query != "" {
 			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
+				SELECT * FROM (%s) AS q
 				WHERE %s > 0.4
 				ORDER BY %s DESC
 				LIMIT %s
@@ -471,7 +471,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 		} else {
 			condition, statuses, sort := getViewData(*q)
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
+				SELECT * FROM (%s) AS q
 				WHERE 1 = 1 %s
 				ORDER BY %s DESC
 				LIMIT %s
@@ -525,7 +525,7 @@ func buildPostQuery(user *entity.User, filter string) string {
 	if user != nil {
 		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", user.ID)
 	}
-	
+
 	// Add approval filtering based on user permissions
 	approvalFilter := ""
 	if user != nil && user.IsCollaborator() {
@@ -538,7 +538,7 @@ func buildPostQuery(user *entity.User, filter string) string {
 		// Anonymous users can only see approved posts
 		approvalFilter = " AND p.is_approved = true"
 	}
-	
+
 	combinedFilter := filter + approvalFilter
 	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, combinedFilter)
 }
