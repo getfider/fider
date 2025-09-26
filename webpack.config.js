@@ -8,6 +8,7 @@ const PurgecssPlugin = require("purgecss-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin
 const publicFolder = path.resolve(__dirname, "public")
+const commercialFolder = path.resolve(__dirname, "commercial")
 const localeFolder = path.resolve(__dirname, "locale")
 
 const isProduction = process.env.NODE_ENV === "production"
@@ -36,7 +37,10 @@ const plugins = [
 if (isProduction) {
   plugins.push(
     new PurgecssPlugin({
-      paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
+      paths: [
+        ...glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
+        ...glob.sync(`./commercial/**/*.{html,tsx}`, { nodir: true })
+      ],
       defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
       safelist: [/--/, /__/, /data-/, /tiptap/],
     })
@@ -62,6 +66,7 @@ module.exports = {
     extensions: [".mjs", ".ts", ".tsx", ".js", ".svg"],
     alias: {
       "@fider": publicFolder,
+      "@commercial": commercialFolder,
       "@locale": localeFolder,
     },
   },
@@ -78,7 +83,7 @@ module.exports = {
       },
       {
         test: /\.(ts|tsx)$/,
-        include: [publicFolder, localeFolder],
+        include: [publicFolder, commercialFolder, localeFolder],
         loader: "babel-loader",
       },
       {
@@ -89,7 +94,7 @@ module.exports = {
       },
       {
         test: /\.svg$/,
-        include: publicFolder,
+        include: [publicFolder, commercialFolder],
         use: ["svg-sprite-loader", "svgo-loader"],
       },
     ],
