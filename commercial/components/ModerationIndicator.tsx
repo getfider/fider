@@ -3,12 +3,16 @@ import { Icon } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import ThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import ThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
-import { HStack } from "./layout/Stack"
+import { HStack } from "@fider/components/layout"
 
 export const ModerationIndicator = () => {
   const fider = useFider()
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(true)
+
+  // Check if commercial license is available
+  // TODO: This will be replaced with proper license validation in Phase 4
+  const hasCommercialLicense = true // Placeholder for development
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -32,6 +36,11 @@ export const ModerationIndicator = () => {
       setLoading(false)
     }
   }, [fider.session.user, fider.session.tenant.isModerationEnabled])
+
+  // Don't show the indicator if commercial license is not available
+  if (!hasCommercialLicense) {
+    return null
+  }
 
   // Don't show the indicator if user is not admin/collaborator or moderation is disabled
   if (!fider.session.user.isAdministrator && !fider.session.user.isCollaborator) {
