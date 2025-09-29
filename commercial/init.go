@@ -1,26 +1,37 @@
 package commercial
 
 import (
+	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/handlers/apiv1"
 	"github.com/getfider/fider/app/services"
+	commercialHandlers "github.com/getfider/fider/commercial/handlers"
+	commercialApiv1 "github.com/getfider/fider/commercial/handlers/apiv1"
 )
 
-// This file will contain commercial license validation and service registration
-// It will be populated in later phases
-
 func init() {
-	// TODO: Phase 4 - Register commercial license service
-	// TODO: Phase 4 - Register commercial route overrides
-	// TODO: Phase 3 - Register commercial service handlers
+	// Register commercial license service
+	services.License = &commercialLicenseService{}
 
-	// Example (will be implemented later):
-	// if isValidCommercialLicense() {
-	//     services.License = &commercialLicenseService{}
-	//     registerCommercialRoutes()
-	//     registerCommercialServices()
-	// }
+	// Register commercial handlers
+	handlers.RegisterModerationHandlers(
+		commercialHandlers.ModerationPage,
+		commercialHandlers.GetModerationItems,
+		commercialHandlers.GetModerationCount,
+	)
+
+	apiv1.RegisterModerationHandlers(
+		commercialApiv1.ApprovePost,
+		commercialApiv1.DeclinePost,
+		commercialApiv1.ApproveComment,
+		commercialApiv1.DeclineComment,
+		commercialApiv1.DeclinePostAndBlock,
+		commercialApiv1.DeclineCommentAndBlock,
+		commercialApiv1.ApprovePostAndVerify,
+		commercialApiv1.ApproveCommentAndVerify,
+	)
 }
 
-// Placeholder for commercial license service (to be implemented)
+// Commercial license service implementation
 type commercialLicenseService struct{}
 
 func (s *commercialLicenseService) IsCommercialFeatureEnabled(feature string) bool {

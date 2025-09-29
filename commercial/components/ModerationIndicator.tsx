@@ -38,6 +38,8 @@ export const ModerationIndicator = () => {
   }, [fider.session.user, fider.session.tenant.isModerationEnabled])
 
   // Don't show the indicator if commercial license is not available
+  console.log("hasCommercialLicense:", hasCommercialLicense)
+  console.log("isModerationEnabled:", fider.session.tenant.isModerationEnabled)
   if (!hasCommercialLicense) {
     return null
   }
