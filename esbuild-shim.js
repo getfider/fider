@@ -27,6 +27,13 @@ global.navigator = navigator
 global.window = window
 global.document = document
 
+// Polyfill URLSearchParams (which is a constructor). Just add a dummy "get" method that returns an empty string
+global.URLSearchParams = class {
+  get() {
+    return ""
+  }
+}
+
 // Intl polyfill is required until v8go supports Intl
 class NoopFormat {
   format(arg0) {
