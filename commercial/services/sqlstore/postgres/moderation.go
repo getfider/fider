@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
 
 func ApprovePost(ctx context.Context, c *cmd.ApprovePost) error {
@@ -143,46 +144,24 @@ func BulkDeclineItems(ctx context.Context, c *cmd.BulkDeclineItems) error {
 }
 
 type dbModerationPost struct {
-	ID          int       `db:"id"`
-	Number      int       `db:"number"`
-	Title       string    `db:"title"`
-	Slug        string    `db:"slug"`
-	Description string    `db:"description"`
-	CreatedAt   time.Time `db:"created_at"`
-	User        *dbUser   `db:"user"`
+	ID          int              `db:"id"`
+	Number      int              `db:"number"`
+	Title       string           `db:"title"`
+	Slug        string           `db:"slug"`
+	Description string           `db:"description"`
+	CreatedAt   time.Time        `db:"created_at"`
+	User        *dbEntities.User `db:"user"`
 }
 
 type dbModerationComment struct {
-	ID         int       `db:"id"`
-	PostID     int       `db:"post_id"`
-	PostNumber int       `db:"post_number"`
-	PostSlug   string    `db:"post_slug"`
-	Content    string    `db:"content"`
-	CreatedAt  time.Time `db:"created_at"`
-	User       *dbUser   `db:"user"`
-	PostTitle  string    `db:"post_title"`
-}
-
-type dbUser struct {
-	ID         int             `db:"user_id"`
-	Name       string          `db:"user_name"`
-	Email      string          `db:"user_email"`
-	Role       enum.Role       `db:"user_role"`
-	Status     enum.UserStatus `db:"user_status"`
-	AvatarType enum.AvatarType `db:"user_avatar_type"`
-	AvatarBkey string          `db:"user_avatar_bkey"`
-}
-
-func (u *dbUser) toModel(ctx context.Context) *entity.User {
-	return &entity.User{
-		ID:            u.ID,
-		Name:          u.Name,
-		Email:         u.Email,
-		Role:          u.Role,
-		Status:        u.Status,
-		AvatarType:    u.AvatarType,
-		AvatarBlobKey: u.AvatarBkey,
-	}
+	ID         int              `db:"id"`
+	PostID     int              `db:"post_id"`
+	PostNumber int              `db:"post_number"`
+	PostSlug   string           `db:"post_slug"`
+	Content    string           `db:"content"`
+	CreatedAt  time.Time        `db:"created_at"`
+	User       *dbEntities.User `db:"user"`
+	PostTitle  string           `db:"post_title"`
 }
 
 func GetModerationItems(ctx context.Context, q *query.GetModerationItems) error {
@@ -211,7 +190,7 @@ func GetModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 
 		for _, post := range posts {
 			userWithEmail := &entity.UserWithEmail{
-				User: post.User.toModel(ctx),
+				User: post.User.ToModel(ctx),
 			}
 
 			q.Result = append(q.Result, &query.ModerationItem{
@@ -252,7 +231,7 @@ func GetModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 		for _, comment := range comments {
 
 			userWithEmail := &entity.UserWithEmail{
-				User: comment.User.toModel(ctx),
+				User: comment.User.ToModel(ctx),
 			}
 
 			q.Result = append(q.Result, &query.ModerationItem{
