@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/getfider/fider/app/models/query"
@@ -36,9 +35,8 @@ func GetModerationItems() web.HandlerFunc {
 
 // GetModerationCount returns the count of items awaiting moderation
 func GetModerationCount() web.HandlerFunc {
-	log.Info(context.Background(), "GetModerationCount outside Handler")
 	return func(c *web.Context) error {
-		log.Info(c, "GetModerationCount inside Handler")
+		log.Info(c, "Getting the moderation count commercial")
 		q := &query.GetModerationCount{}
 		if err := bus.Dispatch(c, q); err != nil {
 			return c.Failure(err)

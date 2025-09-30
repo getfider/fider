@@ -12,7 +12,7 @@ func init() {
 	// Register commercial license service
 	services.License = &commercialLicenseService{}
 
-	// Register commercial handlers
+	// Register commercial HTTP handlers
 	handlers.RegisterModerationHandlers(
 		commercialHandlers.ModerationPage,
 		commercialHandlers.GetModerationItems,

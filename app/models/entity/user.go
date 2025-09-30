@@ -43,7 +43,7 @@ func (u *User) IsAdministrator() bool {
 
 // RequiresModeration returns true if user requires moderation
 func (u *User) RequiresModeration() bool {
-	return u.Role == enum.RoleVisitor && u.IsVerified == false
+	return u.Role == enum.RoleVisitor && !u.IsVerified
 }
 
 // UserProvider represents the relationship between an User and an Authentication provide

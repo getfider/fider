@@ -13,7 +13,6 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
 )
 
 func ApprovePost(ctx context.Context, c *cmd.ApprovePost) error {
@@ -274,11 +273,8 @@ func GetModerationItems(ctx context.Context, q *query.GetModerationItems) error 
 }
 
 func GetModerationCount(ctx context.Context, q *query.GetModerationCount) error {
-	log.Info(ctx, "COMMERCIAL: GetModerationCount function called!")
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var count int
-
-		log.Info(ctx, "COMMERCIAL: Getting the moderation count properly")
 
 		err := trx.Get(&count, `
 			SELECT

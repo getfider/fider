@@ -161,7 +161,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", "", "Administration/pages/Invitations.page"))
 		ui.Get("/admin/members", handlers.ManageMembers())
 		ui.Get("/admin/tags", handlers.ManageTags())
-		ui.Get("/admin/moderation", handlers.ModerationPage())
+		ui.Get("/admin/moderation", handlers.GetModerationPageHandler())
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
 		ui.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 
@@ -188,8 +188,8 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
 		ui.Put("/_api/admin/users/:userID/verify", handlers.VerifyUser())
 		ui.Delete("/_api/admin/users/:userID/verify", handlers.UnverifyUser())
-		ui.Get("/_api/admin/moderation/items", handlers.GetModerationItems())
-		ui.Get("/_api/admin/moderation/count", handlers.GetModerationCount())
+		ui.Get("/_api/admin/moderation/items", handlers.GetModerationItemsHandler())
+		ui.Get("/_api/admin/moderation/count", handlers.GetModerationCountHandler())
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())
@@ -264,14 +264,14 @@ func routes(r *web.Engine) *web.Engine {
 		adminApi.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		adminApi.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
 
-		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve-and-verify", apiv1.ApprovePostAndVerify())
-		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline-and-block", apiv1.DeclinePostAndBlock())
-		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve", apiv1.ApprovePost())
-		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline", apiv1.DeclinePost())
-		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve-and-verify", apiv1.ApproveCommentAndVerify())
-		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline-and-block", apiv1.DeclineCommentAndBlock())
-		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve", apiv1.ApproveComment())
-		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline", apiv1.DeclineComment())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve-and-verify", apiv1.GetApprovePostAndVerifyHandler())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline-and-block", apiv1.GetDeclinePostAndBlockHandler())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve", apiv1.GetApprovePostHandler())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline", apiv1.GetDeclinePostHandler())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve-and-verify", apiv1.GetApproveCommentAndVerifyHandler())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline-and-block", apiv1.GetDeclineCommentAndBlockHandler())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve", apiv1.GetApproveCommentHandler())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline", apiv1.GetDeclineCommentHandler())
 
 		adminApi.Use(middlewares.BlockLockedTenants())
 		adminApi.Delete("/api/v1/posts/:number", apiv1.DeletePost())
