@@ -1,5 +1,6 @@
 import { Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
+import Link from "@tiptap/extension-link"
 import React, { useState, useRef, useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
@@ -426,6 +427,16 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
       ]
     : [
         StarterKit,
+        Link.configure({
+          openOnClick: false,
+          autolink: true,
+          defaultProtocol: "https",
+          HTMLAttributes: {
+            class: "text-link",
+            target: "_blank",
+            rel: "noopener nofollow",
+          },
+        }),
         Markdown.configure({
           html: true,
           breaks: true,
