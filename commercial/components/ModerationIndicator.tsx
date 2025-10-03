@@ -11,8 +11,7 @@ export const ModerationIndicator = () => {
   const [loading, setLoading] = useState(true)
 
   // Check if commercial license is available
-  // TODO: This will be replaced with proper license validation in Phase 4
-  const hasCommercialLicense = true // Placeholder for development
+  const hasCommercialLicense = fider.settings.isCommercialEnabled
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -38,8 +37,6 @@ export const ModerationIndicator = () => {
   }, [fider.session.user, fider.session.tenant.isModerationEnabled])
 
   // Don't show the indicator if commercial license is not available
-  console.log("hasCommercialLicense:", hasCommercialLicense)
-  console.log("isModerationEnabled:", fider.session.tenant.isModerationEnabled)
   if (!hasCommercialLicense) {
     return null
   }

@@ -204,19 +204,20 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
-		"mode":                env.Config.HostMode,
-		"locale":              locale,
-		"localeDirection":     localeDirection,
-		"environment":         env.Config.Environment,
-		"googleAnalytics":     env.Config.GoogleAnalytics,
-		"domain":              env.MultiTenantDomain(),
-		"hasLegal":            env.HasLegal(),
-		"isBillingEnabled":    env.IsBillingEnabled(),
-		"baseURL":             ctx.BaseURL(),
-		"assetsURL":           AssetsURL(ctx, ""),
-		"oauth":               oauthProviders.Result,
-		"postWithTags":        env.Config.PostCreationWithTagsEnabled,
-		"allowAllowedSchemes": env.Config.AllowAllowedSchemes,
+		"mode":                  env.Config.HostMode,
+		"locale":                locale,
+		"localeDirection":       localeDirection,
+		"environment":           env.Config.Environment,
+		"googleAnalytics":       env.Config.GoogleAnalytics,
+		"domain":                env.MultiTenantDomain(),
+		"hasLegal":              env.HasLegal(),
+		"isBillingEnabled":      env.IsBillingEnabled(),
+		"isCommercialEnabled":   env.IsCommercialEnabled(),
+		"baseURL":               ctx.BaseURL(),
+		"assetsURL":             AssetsURL(ctx, ""),
+		"oauth":                 oauthProviders.Result,
+		"postWithTags":          env.Config.PostCreationWithTagsEnabled,
+		"allowAllowedSchemes":   env.Config.AllowAllowedSchemes,
 	}
 
 	if ctx.IsAuthenticated() {

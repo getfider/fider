@@ -144,6 +144,9 @@ type config struct {
 	}
 	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
 	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
+	Commercial       struct {
+		Enabled bool `env:"COMMERCIAL_ENABLED,default=true"`
+	}
 }
 
 // Config is a strongly typed reference to all configuration parsed from Environment Variables
@@ -242,6 +245,11 @@ func MultiTenantDomain() string {
 // IsBillingEnabled returns true if Paddle is configured
 func IsBillingEnabled() bool {
 	return Config.Paddle.VendorID != "" && Config.Paddle.VendorAuthCode != ""
+}
+
+// IsCommercialEnabled returns true if commercial features are enabled
+func IsCommercialEnabled() bool {
+	return Config.Commercial.Enabled
 }
 
 // IsProduction returns true on Fider production environment
