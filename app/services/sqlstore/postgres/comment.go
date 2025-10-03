@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -21,6 +23,14 @@ type dbComment struct {
 	EditedAt       dbx.NullTime   `db:"edited_at"`
 	EditedBy       *dbUser        `db:"edited_by"`
 	ReactionCounts dbx.NullString `db:"reaction_counts"`
+}
+
+type dbCommentRef struct {
+	ID        int          `db:"id"`
+	CreatedAt time.Time    `db:"created_at"`
+	UserId    int          `db:"user_id"`
+	PostId    int          `db:"post_id"`
+	EditedAt  dbx.NullTime `db:"edited_at"`
 }
 
 func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
@@ -42,12 +52,25 @@ func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
 	return comment
 }
 
+func (c *dbCommentRef) toModel(ctx context.Context) *entity.CommentRef {
+	comment := &entity.CommentRef{
+		ID:        c.ID,
+		CreatedAt: c.CreatedAt,
+		UserID:    c.UserId,
+		PostID:    c.PostId,
+	}
+	if c.EditedAt.Valid {
+		comment.EditedAt = &c.EditedAt.Time
+	}
+	return comment
+}
+
 func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var id int
 		if err := trx.Get(&id, `
-			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) 
-			VALUES ($1, $2, $3, $4, $5) 
+			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at)
+			VALUES ($1, $2, $3, $4, $5)
 			RETURNING id
 		`, tenant.ID, c.Post.ID, c.Content, user.ID, time.Now()); err != nil {
 			return errors.Wrap(err, "failed add new comment")
@@ -98,7 +121,7 @@ func toggleCommentReaction(ctx context.Context, c *cmd.ToggleCommentReaction) er
 func updateComment(ctx context.Context, c *cmd.UpdateComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute(`
-			UPDATE comments SET content = $1, edited_at = $2, edited_by_id = $3 
+			UPDATE comments SET content = $1, edited_at = $2, edited_by_id = $3
 			WHERE id = $4 AND tenant_id = $5`, c.Content, time.Now(), user.ID, c.CommentID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update comment")
@@ -125,18 +148,18 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 
 		comment := dbComment{}
 		err := trx.Get(&comment,
-			`SELECT c.id, 
-							c.content, 
-							c.created_at, 
-							c.edited_at, 
-							u.id AS user_id, 
+			`SELECT c.id,
+							c.content,
+							c.created_at,
+							c.edited_at,
+							u.id AS user_id,
 							u.name AS user_name,
 							u.email AS user_email,
-							u.role AS user_role, 
+							u.role AS user_role,
 							u.status AS user_status,
 							u.avatar_type AS user_avatar_type,
-							u.avatar_bkey AS user_avatar_bkey, 
-							e.id AS edited_by_id, 
+							u.avatar_bkey AS user_avatar_bkey,
+							e.id AS edited_by_id,
 							e.name AS edited_by_name,
 							e.email AS edited_by_email,
 							e.role AS edited_by_role,
@@ -174,9 +197,9 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 		}
 		err := trx.Select(&comments,
 			`
-			WITH agg_attachments AS ( 
-					SELECT 
-							c.id as comment_id, 
+			WITH agg_attachments AS (
+					SELECT
+							c.id as comment_id,
 							ARRAY_REMOVE(ARRAY_AGG(at.attachment_bkey), NULL) as attachment_bkeys
 					FROM attachments at
 					INNER JOIN comments c
@@ -186,10 +209,10 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 					WHERE at.post_id = $1
 					AND at.tenant_id = $2
 					AND at.comment_id IS NOT NULL
-					GROUP BY c.id 
+					GROUP BY c.id
 			),
 			agg_reactions AS (
-				SELECT 
+				SELECT
 					comment_id,
 					json_agg(json_build_object(
 						'emoji', emoji,
@@ -197,9 +220,9 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 						'includesMe', CASE WHEN $3 = ANY(user_ids) THEN true ELSE false END
 					) ORDER BY count DESC) as reaction_counts
 				FROM (
-					SELECT 
-						comment_id, 
-						emoji, 
+					SELECT
+						comment_id,
+						emoji,
 						COUNT(*) as count,
 						array_agg(user_id) as user_ids
 					FROM reactions
@@ -208,23 +231,23 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 				) r
 				GROUP BY comment_id
 			)
-			SELECT c.id, 
-					c.content, 
-					c.created_at, 
-					c.edited_at, 
-					u.id AS user_id, 
+			SELECT c.id,
+					c.content,
+					c.created_at,
+					c.edited_at,
+					u.id AS user_id,
 					u.name AS user_name,
 					u.email AS user_email,
-					u.role AS user_role, 
-					u.status AS user_status, 
-					u.avatar_type AS user_avatar_type, 
-					u.avatar_bkey AS user_avatar_bkey, 
-					e.id AS edited_by_id, 
+					u.role AS user_role,
+					u.status AS user_status,
+					u.avatar_type AS user_avatar_type,
+					u.avatar_bkey AS user_avatar_bkey,
+					e.id AS edited_by_id,
 					e.name AS edited_by_name,
 					e.email AS edited_by_email,
 					e.role AS edited_by_role,
 					e.status AS edited_by_status,
-					e.avatar_type AS edited_by_avatar_type, 
+					e.avatar_type AS edited_by_avatar_type,
 					e.avatar_bkey AS edited_by_avatar_bkey,
 					at.attachment_bkeys,
 					ar.reaction_counts
@@ -251,6 +274,45 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 		}
 
 		q.Result = make([]*entity.Comment, len(comments))
+		for i, comment := range comments {
+			q.Result[i] = comment.toModel(ctx)
+		}
+		return nil
+	})
+}
+
+func getCommentRefs(ctx context.Context, q *query.GetCommentRefs) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = make([]*entity.CommentRef, 0)
+
+		comments := []*dbCommentRef{}
+
+		// Build the WHERE clause conditions
+		args := []interface{}{tenant.ID}
+		whereConditions := []string{"deleted_at IS NULL", "tenant_id = $1"}
+		argIndex := 2
+
+		if !q.Since.IsZero() {
+			whereConditions = append(whereConditions, fmt.Sprintf("COALESCE(edited_at, created_at) >= $%d", argIndex))
+			args = append(args, q.Since)
+			argIndex++
+		}
+
+		query := fmt.Sprintf(`
+			SELECT id, created_at, user_id, post_id, edited_at
+			FROM comments
+			WHERE %s
+			ORDER BY COALESCE(edited_at, created_at) ASC
+			LIMIT $%d`, strings.Join(whereConditions, " AND "), argIndex)
+
+		args = append(args, q.Limit)
+
+		err := trx.Select(&comments, query, args...)
+		if err != nil {
+			return errors.Wrap(err, "failed get comment refs")
+		}
+
+		q.Result = make([]*entity.CommentRef, len(comments))
 		for i, comment := range comments {
 			q.Result[i] = comment.toModel(ctx)
 		}
