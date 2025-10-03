@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 )
 
-type emailVerification struct {
+type EmailVerification struct {
 	ID         int                        `db:"id"`
 	Name       string                     `db:"name"`
 	Email      string                     `db:"email"`
@@ -20,7 +20,7 @@ type emailVerification struct {
 	VerifiedAt dbx.NullTime               `db:"verified_at"`
 }
 
-func (t *emailVerification) toModel() *entity.EmailVerification {
+func (t *EmailVerification) ToModel() *entity.EmailVerification {
 	model := &entity.EmailVerification{
 		Name:       t.Name,
 		Email:      t.Email,

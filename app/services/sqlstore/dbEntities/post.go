@@ -10,7 +10,7 @@ import (
 	"github.com/lib/pq"
 )
 
-type post struct {
+type Post struct {
 	ID             int            `db:"id"`
 	Number         int            `db:"number"`
 	Title          string         `db:"title"`
@@ -35,7 +35,7 @@ type post struct {
 	IsApproved     bool           `db:"is_approved"`
 }
 
-func (i *post) toModel(ctx context.Context) *entity.Post {
+func (i *Post) ToModel(ctx context.Context) *entity.Post {
 	post := &entity.Post{
 		ID:            i.ID,
 		Number:        i.Number,

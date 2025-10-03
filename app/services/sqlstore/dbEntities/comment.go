@@ -9,7 +9,7 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 )
 
-type comment struct {
+type Comment struct {
 	ID             int            `db:"id"`
 	Content        string         `db:"content"`
 	CreatedAt      time.Time      `db:"created_at"`
@@ -21,7 +21,7 @@ type comment struct {
 	IsApproved     bool           `db:"is_approved"`
 }
 
-func (c *comment) toModel(ctx context.Context) *entity.Comment {
+func (c *Comment) ToModel(ctx context.Context) *entity.Comment {
 	comment := &entity.Comment{
 		ID:          c.ID,
 		Content:     c.Content,

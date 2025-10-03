@@ -24,7 +24,7 @@ type Tenant struct {
 	IsModerationEnabled bool   `db:"is_moderation_enabled"`
 }
 
-func (t *Tenant) toModel() *entity.Tenant {
+func (t *Tenant) ToModel() *entity.Tenant {
 	if t == nil {
 		return nil
 	}

@@ -15,19 +15,20 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 	"github.com/lib/pq"
 )
 
 type dbUser struct {
-	ID            sql.NullInt64  `db:"id"`
-	Name          sql.NullString `db:"name"`
-	Email         sql.NullString `db:"email"`
-	Tenant        *dbTenant      `db:"tenant"`
-	Role          sql.NullInt64  `db:"role"`
-	Status        sql.NullInt64  `db:"status"`
-	AvatarType    sql.NullInt64  `db:"avatar_type"`
-	AvatarBlobKey sql.NullString `db:"avatar_bkey"`
-	IsVerified    sql.NullBool   `db:"is_verified"`
+	ID            sql.NullInt64        `db:"id"`
+	Name          sql.NullString       `db:"name"`
+	Email         sql.NullString       `db:"email"`
+	Tenant        *dbEntities.Tenant   `db:"tenant"`
+	Role          sql.NullInt64        `db:"role"`
+	Status        sql.NullInt64        `db:"status"`
+	AvatarType    sql.NullInt64        `db:"avatar_type"`
+	AvatarBlobKey sql.NullString       `db:"avatar_bkey"`
+	IsVerified    sql.NullBool         `db:"is_verified"`
 	Providers     []*dbUserProvider
 }
 
@@ -51,7 +52,7 @@ func (u *dbUser) toModel(ctx context.Context) *entity.User {
 		ID:            int(u.ID.Int64),
 		Name:          u.Name.String,
 		Email:         u.Email.String,
-		Tenant:        u.Tenant.toModel(),
+		Tenant:        u.Tenant.ToModel(),
 		Role:          enum.Role(u.Role.Int64),
 		Providers:     make([]*entity.UserProvider, len(u.Providers)),
 		Status:        enum.UserStatus(u.Status.Int64),

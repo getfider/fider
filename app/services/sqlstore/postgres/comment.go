@@ -11,39 +11,9 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
 
-type dbComment struct {
-	ID             int            `db:"id"`
-	Content        string         `db:"content"`
-	CreatedAt      time.Time      `db:"created_at"`
-	User           *dbUser        `db:"user"`
-	Attachments    []string       `db:"attachment_bkeys"`
-	EditedAt       dbx.NullTime   `db:"edited_at"`
-	EditedBy       *dbUser        `db:"edited_by"`
-	ReactionCounts dbx.NullString `db:"reaction_counts"`
-	IsApproved     bool           `db:"is_approved"`
-}
-
-func (c *dbComment) toModel(ctx context.Context) *entity.Comment {
-	comment := &entity.Comment{
-		ID:          c.ID,
-		Content:     c.Content,
-		CreatedAt:   c.CreatedAt,
-		User:        c.User.toModel(ctx),
-		Attachments: c.Attachments,
-		IsApproved:  c.IsApproved,
-	}
-	if c.EditedAt.Valid {
-		comment.EditedBy = c.EditedBy.toModel(ctx)
-		comment.EditedAt = &c.EditedAt.Time
-	}
-
-	if c.ReactionCounts.Valid {
-		_ = json.Unmarshal([]byte(c.ReactionCounts.String), &comment.ReactionCounts)
-	}
-	return comment
-}
 
 func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
@@ -127,7 +97,7 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = nil
 
-		comment := dbComment{}
+		comment := dbEntities.Comment{}
 		err := trx.Get(&comment,
 			`SELECT c.id, 
 							c.content, 
@@ -163,7 +133,7 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 			return err
 		}
 
-		q.Result = comment.toModel(ctx)
+		q.Result = comment.ToModel(ctx)
 		return nil
 	})
 }
@@ -172,7 +142,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = make([]*entity.Comment, 0)
 
-		comments := []*dbComment{}
+		comments := []*dbEntities.Comment{}
 		userId := 0
 		if user != nil {
 			userId = user.ID
@@ -273,7 +243,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 
 		q.Result = make([]*entity.Comment, len(comments))
 		for i, comment := range comments {
-			q.Result[i] = comment.toModel(ctx)
+			q.Result[i] = comment.ToModel(ctx)
 		}
 		return nil
 	})
