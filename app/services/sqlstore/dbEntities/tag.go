@@ -4,7 +4,7 @@ import (
 	"github.com/getfider/fider/app/models/entity"
 )
 
-type tag struct {
+type Tag struct {
 	ID       int    `db:"id"`
 	Name     string `db:"name"`
 	Slug     string `db:"slug"`
@@ -12,7 +12,7 @@ type tag struct {
 	IsPublic bool   `db:"is_public"`
 }
 
-func (t *tag) toModel() *entity.Tag {
+func (t *Tag) ToModel() *entity.Tag {
 	return &entity.Tag{
 		ID:       t.ID,
 		Name:     t.Name,

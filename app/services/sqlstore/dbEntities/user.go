@@ -30,7 +30,7 @@ type UserProvider struct {
 	UID  sql.NullString `db:"provider_uid"`
 }
 
-type userSetting struct {
+type UserSetting struct {
 	Key   string `db:"key"`
 	Value string `db:"value"`
 }

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -18,64 +17,6 @@ import (
 	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 	"github.com/lib/pq"
 )
-
-type dbUser struct {
-	ID            sql.NullInt64        `db:"id"`
-	Name          sql.NullString       `db:"name"`
-	Email         sql.NullString       `db:"email"`
-	Tenant        *dbEntities.Tenant   `db:"tenant"`
-	Role          sql.NullInt64        `db:"role"`
-	Status        sql.NullInt64        `db:"status"`
-	AvatarType    sql.NullInt64        `db:"avatar_type"`
-	AvatarBlobKey sql.NullString       `db:"avatar_bkey"`
-	IsVerified    sql.NullBool         `db:"is_verified"`
-	Providers     []*dbUserProvider
-}
-
-type dbUserProvider struct {
-	Name sql.NullString `db:"provider"`
-	UID  sql.NullString `db:"provider_uid"`
-}
-
-func (u *dbUser) toModel(ctx context.Context) *entity.User {
-	if u == nil {
-		return nil
-	}
-
-	avatarURL := ""
-	avatarType := enum.AvatarType(u.AvatarType.Int64)
-	if u.AvatarType.Valid {
-		avatarURL = buildAvatarURL(ctx, avatarType, int(u.ID.Int64), u.Name.String, u.AvatarBlobKey.String)
-	}
-
-	user := &entity.User{
-		ID:            int(u.ID.Int64),
-		Name:          u.Name.String,
-		Email:         u.Email.String,
-		Tenant:        u.Tenant.ToModel(),
-		Role:          enum.Role(u.Role.Int64),
-		Providers:     make([]*entity.UserProvider, len(u.Providers)),
-		Status:        enum.UserStatus(u.Status.Int64),
-		AvatarType:    avatarType,
-		AvatarBlobKey: u.AvatarBlobKey.String,
-		AvatarURL:     avatarURL,
-		IsVerified:    u.IsVerified.Bool,
-	}
-
-	for i, p := range u.Providers {
-		user.Providers[i] = &entity.UserProvider{
-			Name: p.Name.String,
-			UID:  p.UID.String,
-		}
-	}
-
-	return user
-}
-
-type dbUserSetting struct {
-	Key   string `db:"key"`
-	Value string `db:"value"`
-}
 
 func countUsers(ctx context.Context, q *query.CountUsers) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
@@ -269,7 +210,7 @@ func getCurrentUserSettings(ctx context.Context, q *query.GetCurrentUserSettings
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = make(map[string]string)
 
-		var settings []*dbUserSetting
+		var settings []*dbEntities.UserSetting
 		err := trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1 AND tenant_id = $2", user.ID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get user settings")
@@ -385,7 +326,7 @@ func getUserByProvider(ctx context.Context, q *query.GetUserByProvider) error {
 
 func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		var users []*dbUser
+		var users []*dbEntities.User
 		err := trx.Select(&users, `
 			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey
 			FROM users
@@ -398,7 +339,7 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 
 		q.Result = make([]*entity.User, len(users))
 		for i, user := range users {
-			q.Result[i] = user.toModel(ctx)
+			q.Result[i] = user.ToModel(ctx)
 		}
 		return nil
 	})
@@ -406,7 +347,7 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 
 func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		var users []*dbUser
+		var users []*dbEntities.User
 		err := trx.Select(&users, `
 			SELECT name
 			FROM users
@@ -428,7 +369,7 @@ func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
 }
 
 func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*entity.User, error) {
-	user := dbUser{}
+	user := dbEntities.User{}
 	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_verified FROM users WHERE status != %d AND ", enum.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
@@ -440,7 +381,7 @@ func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*
 		return nil, err
 	}
 
-	return user.toModel(ctx), nil
+	return user.ToModel(ctx), nil
 }
 
 func searchUsers(ctx context.Context, q *query.SearchUsers) error {
@@ -532,7 +473,7 @@ func searchUsers(ctx context.Context, q *query.SearchUsers) error {
 		offset := (q.Page - 1) * q.Limit
 		baseQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", q.Limit, offset)
 
-		var users []*dbUser
+		var users []*dbEntities.User
 		err = trx.Select(&users, baseQuery, args...)
 		if err != nil {
 			return errors.Wrap(err, "failed to search users")
@@ -540,7 +481,7 @@ func searchUsers(ctx context.Context, q *query.SearchUsers) error {
 
 		q.Result = make([]*entity.User, len(users))
 		for i, user := range users {
-			q.Result[i] = user.toModel(ctx)
+			q.Result[i] = user.ToModel(ctx)
 		}
 		return nil
 	})

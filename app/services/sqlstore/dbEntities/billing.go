@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 )
 
-type billingState struct {
+type BillingState struct {
 	Status             int          `db:"status"`
 	PlanID             string       `db:"paddle_plan_id"`
 	SubscriptionID     string       `db:"paddle_subscription_id"`
@@ -16,7 +16,7 @@ type billingState struct {
 	SubscriptionEndsAt dbx.NullTime `db:"subscription_ends_at"`
 }
 
-func (s *billingState) toModel(ctx context.Context) *entity.BillingState {
+func (s *BillingState) ToModel(ctx context.Context) *entity.BillingState {
 	model := &entity.BillingState{
 		Status:         enum.BillingStatus(s.Status),
 		PlanID:         s.PlanID,

@@ -4,7 +4,7 @@ import (
 	"github.com/getfider/fider/app/models/entity"
 )
 
-type oauthConfig struct {
+type OAuthConfig struct {
 	ID                int    `db:"id"`
 	Provider          string `db:"provider"`
 	DisplayName       string `db:"display_name"`
@@ -22,7 +22,7 @@ type oauthConfig struct {
 	JSONUserEmailPath string `db:"json_user_email_path"`
 }
 
-func (m *oauthConfig) toModel() *entity.OAuthConfig {
+func (m *OAuthConfig) ToModel() *entity.OAuthConfig {
 	return &entity.OAuthConfig{
 		ID:                m.ID,
 		Provider:          m.Provider,

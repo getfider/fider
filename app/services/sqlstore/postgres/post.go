@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -20,67 +19,8 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
-
-type dbPost struct {
-	ID             int            `db:"id"`
-	Number         int            `db:"number"`
-	Title          string         `db:"title"`
-	Slug           string         `db:"slug"`
-	Description    string         `db:"description"`
-	CreatedAt      time.Time      `db:"created_at"`
-	User           *dbUser        `db:"user"`
-	HasVoted       bool           `db:"has_voted"`
-	VotesCount     int            `db:"votes_count"`
-	CommentsCount  int            `db:"comments_count"`
-	RecentVotes    int            `db:"recent_votes_count"`
-	RecentComments int            `db:"recent_comments_count"`
-	Status         int            `db:"status"`
-	Response       sql.NullString `db:"response"`
-	RespondedAt    dbx.NullTime   `db:"response_date"`
-	ResponseUser   *dbUser        `db:"response_user"`
-	OriginalNumber sql.NullInt64  `db:"original_number"`
-	OriginalTitle  sql.NullString `db:"original_title"`
-	OriginalSlug   sql.NullString `db:"original_slug"`
-	OriginalStatus sql.NullInt64  `db:"original_status"`
-	Tags           []string       `db:"tags"`
-	IsApproved     bool           `db:"is_approved"`
-}
-
-func (i *dbPost) toModel(ctx context.Context) *entity.Post {
-	post := &entity.Post{
-		ID:            i.ID,
-		Number:        i.Number,
-		Title:         i.Title,
-		Slug:          i.Slug,
-		Description:   i.Description,
-		CreatedAt:     i.CreatedAt,
-		HasVoted:      i.HasVoted,
-		VotesCount:    i.VotesCount,
-		CommentsCount: i.CommentsCount,
-		Status:        enum.PostStatus(i.Status),
-		User:          i.User.toModel(ctx),
-		Tags:          i.Tags,
-		IsApproved:    i.IsApproved,
-	}
-
-	if i.Response.Valid {
-		post.Response = &entity.PostResponse{
-			Text:        i.Response.String,
-			RespondedAt: i.RespondedAt.Time,
-			User:        i.ResponseUser.toModel(ctx),
-		}
-		if post.Status == enum.PostDuplicate && i.OriginalNumber.Valid {
-			post.Response.Original = &entity.OriginalPost{
-				Number: int(i.OriginalNumber.Int64),
-				Slug:   i.OriginalSlug.String,
-				Title:  i.OriginalTitle.String,
-				Status: enum.PostStatus(i.OriginalStatus.Int64),
-			}
-		}
-	}
-	return post
-}
 
 var (
 	sqlSelectPostsWhere = `	WITH
@@ -231,14 +171,14 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 			respondedAt = c.Post.Response.RespondedAt
 		}
 
-		var users []*dbUser
+		var users []*dbEntities.User
 		err := trx.Select(&users, "SELECT user_id AS id FROM post_votes WHERE post_id = $1 AND tenant_id = $2", c.Post.ID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get votes of post with id '%d'", c.Post.ID)
 		}
 
 		for _, u := range users {
-			err := bus.Dispatch(ctx, &cmd.AddVote{Post: c.Original, User: u.toModel(ctx)})
+			err := bus.Dispatch(ctx, &cmd.AddVote{Post: c.Original, User: u.ToModel(ctx)})
 			if err != nil {
 				return err
 			}
@@ -397,7 +337,7 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 		filteredQuery := preprocessSearchQuery(q.Query)
 
 		var (
-			posts []*dbPost
+			posts []*dbEntities.Post
 			err   error
 		)
 
@@ -425,7 +365,7 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 
 		q.Result = make([]*entity.Post, len(posts))
 		for i, post := range posts {
-			q.Result[i] = post.toModel(ctx)
+			q.Result[i] = post.ToModel(ctx)
 		}
 		return nil
 	})
@@ -450,7 +390,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 		}
 
 		var (
-			posts []*dbPost
+			posts []*dbEntities.Post
 			err   error
 		)
 		if q.Query != "" {
@@ -489,7 +429,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 		q.Result = make([]*entity.Post, len(posts))
 		for i, post := range posts {
-			q.Result[i] = post.toModel(ctx)
+			q.Result[i] = post.ToModel(ctx)
 		}
 		return nil
 	})
@@ -507,13 +447,13 @@ func getAllPosts(ctx context.Context, q *query.GetAllPosts) error {
 }
 
 func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...any) (*entity.Post, error) {
-	post := dbPost{}
+	post := dbEntities.Post{}
 
 	if err := trx.Get(&post, query, args...); err != nil {
 		return nil, err
 	}
 
-	return post.toModel(ctx), nil
+	return post.ToModel(ctx), nil
 }
 
 func buildPostQuery(user *entity.User, filter string) string {

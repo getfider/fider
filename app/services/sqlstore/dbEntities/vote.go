@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 )
 
-type vote struct {
+type Vote struct {
 	User *struct {
 		ID            int    `db:"id"`
 		Name          string `db:"name"`
@@ -19,7 +19,7 @@ type vote struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func (v *vote) toModel(ctx context.Context) *entity.Vote {
+func (v *Vote) ToModel(ctx context.Context) *entity.Vote {
 	vote := &entity.Vote{
 		CreatedAt: v.CreatedAt,
 		User: &entity.VoteUser{

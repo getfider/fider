@@ -10,40 +10,15 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 	"github.com/lib/pq"
 )
-
-type dbBillingState struct {
-	Status             int          `db:"status"`
-	PlanID             string       `db:"paddle_plan_id"`
-	SubscriptionID     string       `db:"paddle_subscription_id"`
-	TrialEndsAt        dbx.NullTime `db:"trial_ends_at"`
-	SubscriptionEndsAt dbx.NullTime `db:"subscription_ends_at"`
-}
-
-func (s *dbBillingState) toModel(ctx context.Context) *entity.BillingState {
-	model := &entity.BillingState{
-		Status:         enum.BillingStatus(s.Status),
-		PlanID:         s.PlanID,
-		SubscriptionID: s.SubscriptionID,
-	}
-
-	if s.TrialEndsAt.Valid {
-		model.TrialEndsAt = &s.TrialEndsAt.Time
-	}
-
-	if s.SubscriptionEndsAt.Valid {
-		model.SubscriptionEndsAt = &s.SubscriptionEndsAt.Time
-	}
-
-	return model
-}
 
 func getBillingState(ctx context.Context, q *query.GetBillingState) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = nil
 
-		state := dbBillingState{}
+		state := dbEntities.BillingState{}
 		err := trx.Get(&state,
 			`SELECT
 				trial_ends_at,
@@ -58,7 +33,7 @@ func getBillingState(ctx context.Context, q *query.GetBillingState) error {
 			return err
 		}
 
-		q.Result = state.toModel(ctx)
+		q.Result = state.ToModel(ctx)
 		return nil
 	})
 }
@@ -149,7 +124,7 @@ func lockExpiredTenants(ctx context.Context, c *cmd.LockExpiredTenants) error {
 
 func getTrialingTenantContacts(ctx context.Context, q *query.GetTrialingTenantContacts) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
-		var users []*dbUser
+		var users []*dbEntities.User
 		err := trx.Select(&users, `
 			SELECT
 				u.name,
@@ -171,7 +146,7 @@ func getTrialingTenantContacts(ctx context.Context, q *query.GetTrialingTenantCo
 
 		q.Contacts = make([]*entity.User, len(users))
 		for i, user := range users {
-			q.Contacts[i] = user.toModel(ctx)
+			q.Contacts[i] = user.ToModel(ctx)
 		}
 		return nil
 	})

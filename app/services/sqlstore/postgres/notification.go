@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 	"github.com/lib/pq"
 )
 
@@ -177,7 +178,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 		q.Result = make([]*entity.User, 0)
 
 		var (
-			users []*dbUser
+			users []*dbEntities.User
 			err   error
 		)
 
@@ -249,7 +250,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 
 		q.Result = make([]*entity.User, len(users))
 		for i, user := range users {
-			q.Result[i] = user.toModel(ctx)
+			q.Result[i] = user.ToModel(ctx)
 		}
 		return nil
 	})
