@@ -39,6 +39,9 @@ func mockGetTenantWithIncorrectSubdomains(ctx context.Context, q *query.GetTenan
 }
 
 func TestUseAutoCert_WhenCNAMEAreRegistered(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test that requires real DNS lookups and ACME requests")
+	}
 	RegisterT(t)
 	bus.Init(fs.Service{})
 	bus.AddHandler(mockGetTenantWithCorrectSubdomains)
@@ -112,6 +115,9 @@ func TestGetCertificate_WhenCNAMEAreNotConfigured(t *testing.T) {
 }
 
 func TestGetCertificate_WhenCNAMEDoesntMatch(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test that requires real DNS lookups")
+	}
 	RegisterT(t)
 	bus.Init(fs.Service{})
 

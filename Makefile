@@ -38,16 +38,16 @@ build-ssr: ## Build SSR script and locales
 
 test: test-server test-ui ## Test server and ui code
 
-test-server: build-server build-ssr ## Run all server tests
+test-server: build-server build-ssr ## Run all server tests (set SHORT=false for full tests including network-dependent tests)
 	godotenv -f .test.env ./fider migrate
-	godotenv -f .test.env go test ./... -race
+	godotenv -f .test.env go test ./... -race $(if $(filter false,$(SHORT)),,-short)
 
 test-ui: ## Run all UI tests
 	TZ=GMT npx jest ./public
 
-coverage-server: build-server build-ssr ## Run all server tests (with code coverage)
+coverage-server: build-server build-ssr ## Run all server tests (with code coverage, set SHORT=false for full tests)
 	godotenv -f .test.env ./fider migrate
-	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all -p=8 -race
+	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all -p=8 -race $(if $(filter false,$(SHORT)),,-short)
 
 
 

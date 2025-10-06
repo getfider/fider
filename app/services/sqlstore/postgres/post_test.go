@@ -24,10 +24,10 @@ func TestPostStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1, true)", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2, true)", now)
 	Expect(err).IsNil()
 
 	allPosts := &query.GetAllPosts{}

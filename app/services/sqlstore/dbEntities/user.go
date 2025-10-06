@@ -42,7 +42,9 @@ func (u *User) ToModel(ctx context.Context) *entity.User {
 
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if !ok || tenant == nil {
-		tenant = u.Tenant.ToModel()
+		if u.Tenant != nil {
+			tenant = u.Tenant.ToModel()
+		}
 	}
 
 	avatarType := enum.AvatarType(u.AvatarType.Int64)

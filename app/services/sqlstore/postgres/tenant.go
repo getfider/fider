@@ -17,8 +17,6 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
-
-
 func isCNAMEAvailable(ctx context.Context, q *query.IsCNAMEAvailable) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		tenantID := 0
@@ -175,8 +173,8 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, prevent_indexing)
-			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true, true)
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, prevent_indexing, is_moderation_enabled)
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true, true, false)
 			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
 			return err
@@ -222,7 +220,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbEntities.Tenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
 			ORDER BY cname DESC
