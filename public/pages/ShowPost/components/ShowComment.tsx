@@ -245,9 +245,9 @@ export const ShowComment = (props: ShowCommentProps) => {
             ) : (
               <>
                 <Markdown text={comment.content} style="full" />
-                
+
                 {/* Moderation status banner for unapproved comments */}
-                {fider.session.tenant.isModerationEnabled && !comment.isApproved && (
+                {fider.session.isModerationRequired && !comment.isApproved && (
                   <div className="mt-3">
                     {fider.session.isAuthenticated && fider.session.user.id === comment.user.id && (
                       <div className="text-muted text-xs p-2 bg-yellow-50 rounded border-l-4 border-yellow-500">
@@ -256,7 +256,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                         </Trans>
                       </div>
                     )}
-                    
+
                     {/* Admin moderation buttons */}
                     {fider.session.isAuthenticated && fider.session.user.isCollaborator && (
                       <div className="p-2 bg-blue-50 rounded border-l-4 border-blue-500">
@@ -264,9 +264,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                           <Trans id="showpost.moderation.comment.admin.title">Comment Moderation</Trans>
                         </div>
                         <div className="text-xs text-blue-700 mb-2">
-                          <Trans id="showpost.moderation.comment.admin.description">
-                            This comment is awaiting your approval to be visible to all users.
-                          </Trans>
+                          <Trans id="showpost.moderation.comment.admin.description">This comment is awaiting your approval to be visible to all users.</Trans>
                         </div>
                         <HStack spacing={1}>
                           <Button variant="primary" size="small" onClick={handleApproveComment}>
@@ -280,7 +278,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                     )}
                   </div>
                 )}
-                
+
                 <Reactions reactions={localReactionCounts} emojiSelectorRef={emojiSelectorRef} toggleReaction={toggleReaction} />
               </>
             )}

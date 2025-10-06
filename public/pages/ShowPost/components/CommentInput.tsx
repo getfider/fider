@@ -104,7 +104,7 @@ export const CommentInput = (props: CommentInputProps) => {
                   onImageUploaded={handleImageUploaded}
                 />
 
-                {fider.session.tenant.isModerationEnabled && Fider.session.isAuthenticated && !Fider.session.user.isCollaborator && (
+                {fider.session.isModerationRequired && Fider.session.isAuthenticated && !Fider.session.user.isCollaborator && (
                   <div className="mt-2 text-muted text-sm p-2 bg-gray-50 rounded border-l-4 border-yellow-500">
                     <Trans id="comment.moderation.notice">Your comment will be reviewed by an administrator before being visible to other users.</Trans>
                   </div>

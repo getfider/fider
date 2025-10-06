@@ -252,7 +252,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                       <h1 className="text-large text-break">{props.post.title}</h1>
 
                       {/* Moderation status banner for unapproved posts */}
-                      {fider.session.tenant.isModerationEnabled && !props.post.isApproved && (
+                      {fider.session.isModerationRequired && !props.post.isApproved && (
                         <div className="mt-4">
                           {fider.session.isAuthenticated && fider.session.user.id === props.post.user.id && (
                             <div className="text-muted text-sm p-3 bg-yellow-50 rounded border-l-4 border-yellow-500">

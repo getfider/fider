@@ -70,13 +70,16 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
             format. Links to feeds and autodiscovery metadata are shown on the site.
           </p>
         </Field>
-        <Field label="Content Moderation">
-          <Toggle disabled={!Fider.session.user.isAdministrator} active={this.state.isModerationEnabled} onToggle={this.moderationToggle} />
-          <p className="text-muted mt-1">
-            When enabled, new posts and comments will require approval from an administrator before being visible to other users. <br /> 
-            Content creators can see their own unmoderated content, but it will be hidden from other users until approved.
-          </p>
-        </Field>
+        {/* Moderation requires commercial plan */}
+        {Fider.session.isCommercialEnabled && (
+          <Field label="Content Moderation">
+            <Toggle disabled={!Fider.session.user.isAdministrator} active={this.state.isModerationEnabled} onToggle={this.moderationToggle} />
+            <p className="text-muted mt-1">
+              When enabled, new posts and comments will require approval from an administrator before being visible to other users. <br />
+              Content creators can see their own unmoderated content, but it will be hidden from other users until approved.
+            </p>
+          </Field>
+        )}
       </Form>
     )
   }
