@@ -69,7 +69,7 @@ jobs:
       - name: make test-server
         run: |
           mkdir ./dist
-          make test-server
+          make test-server SHORT=false
         env:
           BLOB_STORAGE_S3_ENDPOINT_URL: http://localhost:9000
           DATABASE_URL: postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable
