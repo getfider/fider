@@ -4,7 +4,7 @@ import { VoteCounter } from "@fider/components"
 import { screen, fireEvent, render } from "@testing-library/react"
 import { fiderMock, httpMock, setupModalRoot } from "@fider/services/testing"
 import { FiderContext } from "@fider/services"
-import { act } from "react-dom/test-utils"
+import { act } from "react"
 
 let post: Post
 
