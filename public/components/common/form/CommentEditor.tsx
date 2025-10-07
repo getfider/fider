@@ -25,6 +25,7 @@ import IconAt from "@fider/assets/images/heroicons-at.svg"
 import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
+import IconLink from "@fider/assets/images/heroicons-link.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
 import { fileToBase64 } from "@fider/services"
 import { generateBkey } from "@fider/services/bkey"
@@ -33,6 +34,7 @@ import { CustomImage } from "./CustomImage"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
+import LinkInsertModal from "./LinkInsertModal"
 import { Trans } from "@lingui/react/macro"
 import { classSet } from "@fider/services"
 
@@ -42,18 +44,20 @@ const MenuBar = ({
   toggleMarkdownMode,
   disabled,
   onImageUpload,
+  onLinkClick,
 }: {
   editor: Editor | null
   isMarkdownMode: boolean
   disabled: boolean
   toggleMarkdownMode: () => void
   onImageUpload: (file: File) => Promise<void>
+  onLinkClick: (selectedText: string) => void
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   if (!editor) {
     return null
   }
-
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageClick = () => {
     if (fileInputRef.current) {
@@ -180,6 +184,20 @@ const MenuBar = ({
             >
               <Icon sprite={IconPhotograph} />
             </button>
+            <button
+              disabled={disabled}
+              type="button"
+              title="Insert Link"
+              onClick={() => {
+                // Get the text that was highlighted when the user clicked the link button
+                const { from, to } = editor.state.selection
+                const selectedText = editor.state.doc.textBetween(from, to)
+                onLinkClick(selectedText)
+              }}
+              className={`c-editor-button ${disabled ? "is-disabled" : ""}`}
+            >
+              <Icon sprite={IconLink} />
+            </button>
             <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
           </>
         )}
@@ -227,6 +245,8 @@ const markdownToHtml = (markdownString: string) => {
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
   const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
+  const [selectedText, setSelectedText] = useState("")
 
   // Use a ref instead of state for tracking document images
   // This avoids the async state update issue and prevents unnecessary re-renders
@@ -414,6 +434,15 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }
 
+  const handleInsertLink = (text: string, url: string) => {
+    if (!editor) return
+
+    // Ensure URL has protocol
+    const urlWithProtocol = url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`
+
+    editor.chain().focus().insertContent(`<a href="${urlWithProtocol}" target="_blank" rel="noopener nofollow">${text}</a>`).run()
+  }
+
   const extensions = isRawMarkdownMode
     ? [
         // Minimal extensions for markdown mode
@@ -573,10 +602,15 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
               isMarkdownMode={isRawMarkdownMode}
               toggleMarkdownMode={toggleMarkdownMode}
               onImageUpload={handleImageUpload}
+              onLinkClick={(text) => {
+                setSelectedText(text)
+                setIsLinkModalOpen(true)
+              }}
             />
             <EditorContent editor={editor} data-testid="tiptap-editor" />
           </div>
           <DisplayError fields={[props.field]} error={ctx.error} />
+          <LinkInsertModal isOpen={isLinkModalOpen} onClose={() => setIsLinkModalOpen(false)} onInsertLink={handleInsertLink} selectedText={selectedText} />
         </div>
       )}
     </ValidationContext.Consumer>
