@@ -78,11 +78,26 @@ const entities: { [key: string]: string } = {
 
 const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag)
 const sanitize = (input: string) => (DOMPurify.isSupported ? DOMPurify.sanitize(input) : input)
+// Helper function to decode HTML entities back to readable characters
+const decodeHtmlEntities = (text: string): string => {
+  return text.replace(/&[#\w]+;/g, (entity) => {
+    const entities: { [key: string]: string } = {
+      "&#39;": "'",
+      "&quot;": '"',
+      "&amp;": "&",
+      "&lt;": "<",
+      "&gt;": ">",
+      "&nbsp;": " ",
+    }
+    return entities[entity] || entity
+  })
+}
 
 export const full = (input: string): string => {
   return sanitize(marked(encodeHTML(input), { renderer: fullRenderer }).trim())
 }
 
 export const plainText = (input: string): string => {
-  return sanitize(marked(encodeHTML(input), { renderer: plainTextRenderer }).trim())
+  const text = sanitize(marked(input, { renderer: plainTextRenderer }).trim())
+  return decodeHtmlEntities(text).trim()
 }
