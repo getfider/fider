@@ -443,6 +443,23 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     editor.chain().focus().insertContent(`<a href="${urlWithProtocol}" target="_blank" rel="noopener nofollow">${text}</a>`).run()
   }
 
+  // Handle keyboard shortcuts
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (!editor) return
+
+    const isMac = navigator.userAgent.toUpperCase().indexOf("MAC") >= 0
+    const isCmdK = (isMac && event.metaKey && event.key === "k") || (!isMac && event.ctrlKey && event.key === "k")
+
+    if (isCmdK) {
+      event.preventDefault()
+      // Get the text that was highlighted when the user pressed Cmd+K
+      const { from, to } = editor.state.selection
+      const selectedText = editor.state.doc.textBetween(from, to)
+      setSelectedText(selectedText)
+      setIsLinkModalOpen(true)
+    }
+  }
+
   const extensions = isRawMarkdownMode
     ? [
         // Minimal extensions for markdown mode
@@ -583,6 +600,18 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   useEffect(() => {
     if (editor) {
       trackDocumentImages(editor)
+    }
+  }, [editor])
+
+  // Add keyboard event listener for shortcuts
+  useEffect(() => {
+    if (editor) {
+      const editorElement = editor.view.dom
+      editorElement.addEventListener("keydown", handleKeyDown)
+
+      return () => {
+        editorElement.removeEventListener("keydown", handleKeyDown)
+      }
     }
   }, [editor])
 
