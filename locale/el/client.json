@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Σας στείλαμε ένα email επιβεβαίωσης με ένα σύνδεσμο για να ενεργοποιήσετε τον ιστότοπό σας.",
   "page.pendingactivation.text2": "Παρακαλώ ελέγξτε τα εισερχόμενά σας για να το ενεργοποιήσετε.",
   "page.pendingactivation.title": "Ο λογαριασμός σας εκκρεμεί ενεργοποίηση",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Η αντιγραφή του συνδέσμου σχολίου απέτυχε. Παρακαλώ αντιγράψτε τη διεύθυνση URL της σελίδας.",
   "showpost.comment.copylink.success": "Ο σύνδεσμος σχολίου αντιγράφηκε στο πρόχειρο",
   "showpost.comment.unknownhighlighted": "Μη έγκυρο αναγνωριστικό σχολίου #{id}",

@@ -167,6 +167,8 @@
   "page.pendingactivation.text": "یک ایمیل تأیید به شما ارسال کردیم.",
   "page.pendingactivation.text2": "برای فعال‌سازی، صندوق ورودی خود را بررسی کنید.",
   "page.pendingactivation.title": "حساب در انتظار فعال‌سازی",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "کپی لینک نظر ناموفق بود، URL صفحه را کپی کنید",
   "showpost.comment.copylink.success": "لینک نظر کپی شد",
   "showpost.comment.unknownhighlighted": "شناسهٔ نظر نامعتبر #{id}",

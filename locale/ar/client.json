@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "أرسلنا لك رسالة تأكيد بالبريد الإلكتروني مع رابط لتفعيل موقعك.",
   "page.pendingactivation.text2": "الرجاء التحقق من صندوق الوارد الخاص بك لتفعيله.",
   "page.pendingactivation.title": "حسابك في انتظار التفعيل",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "فشل نسخ رابط التعليق، يرجى نسخ رابط الصفحة",
   "showpost.comment.copylink.success": "تم نسخ رابط التعليق إلى الحافظة",
   "showpost.comment.unknownhighlighted": "معرف تعليق غير صالح #{id}",

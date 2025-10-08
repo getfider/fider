@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Wysłaliśmy do Ciebie maila z linkiem do aktywowania Twojej strony.",
   "page.pendingactivation.text2": "Sprawdź swoją skrzynkę odbiorczą, aby ją aktywować.",
   "page.pendingactivation.title": "Twoje konto oczekuje na aktywację",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Nie udało się skopiować linku do komentarza, skopiuj adres URL strony",
   "showpost.comment.copylink.success": "Link do komentarza skopiowano do schowka",
   "showpost.comment.unknownhighlighted": "Nieprawidłowy identyfikator komentarza #{id}",

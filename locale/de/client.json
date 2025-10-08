@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Wir haben Ihnen eine Bestätigungs-E-Mail mit einem Link zur Aktivierung Ihrer Website geschickt.",
   "page.pendingactivation.text2": "Bitte überprüfe deinen Posteingang, um ihn zu aktivieren.",
   "page.pendingactivation.title": "Dein Account ist nicht aktiviert",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Kommentar-Link konnte nicht kopiert werden, bitte URL der Webseite kopieren",
   "showpost.comment.copylink.success": "Kommentar-Link in die Zwischenablage kopiert",
   "showpost.comment.unknownhighlighted": "Ungültige Kommentar ID #{id}",

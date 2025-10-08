@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Poslali sme vám potvrdzovací email s odkazom na aktiváciu vašich stránok.",
   "page.pendingactivation.text2": "Aktivujte prosím svoju doručenú poštu.",
   "page.pendingactivation.title": "Váš účet čaká na aktiváciu",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Nepodarilo sa skopírovať odkaz na komentár, prosím skopírujte URL adresu stránky",
   "showpost.comment.copylink.success": "Odkaz na komentár skopírovaný do schránky",
   "showpost.comment.unknownhighlighted": "Neplatné ID komentára #{id}",

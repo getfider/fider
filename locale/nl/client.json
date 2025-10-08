@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "We hebben je een bevestigingsmail gestuurd met een link om jouw site te activeren.",
   "page.pendingactivation.text2": "Controleer je inbox om het te activeren.",
   "page.pendingactivation.title": "Je account is nog niet geactiveerd",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Het kopiëren van de commentaarlink is mislukt. Kopieer de URL van de pagina.",
   "showpost.comment.copylink.success": "Reactielink gekopieerd naar klembord",
   "showpost.comment.unknownhighlighted": "Ongeldige opmerking-ID #{id}",

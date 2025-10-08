@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Te hemos enviado un correo electrónico de confirmación con un enlace para activar tu sitio.",
   "page.pendingactivation.text2": "Por favor, revisa tu bandeja de entrada para activarla.",
   "page.pendingactivation.title": "Tu cuenta está pendiente de activación",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "No se pudo copiar el enlace del comentario, copie la URL de la página",
   "showpost.comment.copylink.success": "Enlace de comentario copiado al portapapeles",
   "showpost.comment.unknownhighlighted": "ID de comentario no válido #{id}",

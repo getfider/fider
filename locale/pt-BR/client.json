@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Enviamos a você um e-mail de confirmação com um link para ativar o seu site.",
   "page.pendingactivation.text2": "Verifique sua caixa de entrada para ativá-la.",
   "page.pendingactivation.title": "Sua conta está com ativação pendente",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Falha ao copiar o link do comentário, copie a URL da página",
   "showpost.comment.copylink.success": "Link do comentário copiado para área de transferência",
   "showpost.comment.unknownhighlighted": "ID de comentário #{id} inválido",

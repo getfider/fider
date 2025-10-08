@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "サイトを有効にするためのリンクが記載された確認メールを送信しました。",
   "page.pendingactivation.text2": "受信トレイをチェックして有効化してください。",
   "page.pendingactivation.title": "あなたのアカウントは認証待ちです。",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "コメントリンクのコピーに失敗しました。ページURLをコピーしてください。",
   "showpost.comment.copylink.success": "コメントリンクがクリップボードにコピーされました。",
   "showpost.comment.unknownhighlighted": "無効なコメントID #{id}",

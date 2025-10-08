@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Vi har skickat ett bekräftelsemail med en länk för att aktivera din webbplats.",
   "page.pendingactivation.text2": "Kontrollera din inkorg för att aktivera den.",
   "page.pendingactivation.title": "Ditt konto väntar på aktivering",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Misslyckades med att kopiera kommentarslänken, kopiera sidans URL",
   "showpost.comment.copylink.success": "Kommentarlänk kopierad till urklipp",
   "showpost.comment.unknownhighlighted": "Ogiltigt kommentar-ID #{id}",

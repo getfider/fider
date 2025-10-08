@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Vi abbiamo inviato un'e-mail di conferma con un link per attivare il vostro sito.",
   "page.pendingactivation.text2": "Per favore controlla la tua casella e-mail per l’attivazione.",
   "page.pendingactivation.title": "Il tuo account è in attesa di attivazione",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Impossibile copiare il collegamento al commento, copiare l'URL della pagina",
   "showpost.comment.copylink.success": "Link al commento copiato negli appunti",
   "showpost.comment.unknownhighlighted": "ID commento non valido #{id}",

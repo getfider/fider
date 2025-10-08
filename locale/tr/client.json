@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Size, sayfanız için aktivasyon bağlantısı barındıran bir onay e-postası gönderdik.",
   "page.pendingactivation.text2": "Aktivasyon için lütfen gelen kutunuzu kontrol edin.",
   "page.pendingactivation.title": "Hesabınız aktivasyon beklemektedir",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Yorum bağlantısı kopyalanamadı, lütfen sayfa URL'sini kopyalayın",
   "showpost.comment.copylink.success": "Yorum bağlantısı panoya kopyalandı",
   "showpost.comment.unknownhighlighted": "Geçersiz yorum kimliği #{id}",

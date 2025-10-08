@@ -168,6 +168,8 @@
   "page.pendingactivation.text": "Nous vous avons envoyé un e-mail de confirmation avec un lien pour activer votre site.",
   "page.pendingactivation.text2": "Veuillez vérifier votre boîte de réception pour l'activer.",
   "page.pendingactivation.title": "Votre compte n'est pas activé",
+  "pagination.next": "",
+  "pagination.prev": "",
   "showpost.comment.copylink.error": "Impossible de copier le lien du commentaire, veuillez copier l'URL de la page",
   "showpost.comment.copylink.success": "Lien du commentaire copié dans le presse-papiers",
   "showpost.comment.unknownhighlighted": "ID de commentaire #{id} invalide",
