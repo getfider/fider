@@ -16,10 +16,12 @@ import (
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/log"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/mozillazg/go-unidecode"
 )
 
 type dbPost struct {
@@ -290,10 +292,12 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var id int
+		titleAscii := unidecode.Unidecode(c.Title)
+		descriptionAscii := unidecode.Unidecode(c.Description)
 		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status) 
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0) 
-			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now())
+			`INSERT INTO posts (title, slug, number, description, title_ascii, description_ascii, tenant_id, user_id, created_at, status) 
+			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $6), $3, $4, $5, $6, $7, $8, 0) 
+			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, titleAscii, descriptionAscii, tenant.ID, user.ID, time.Now())
 		if err != nil {
 			return errors.Wrap(err, "failed add new post")
 		}
@@ -314,8 +318,10 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
-													 WHERE id = $4 AND tenant_id = $5`, c.Title, slug.Make(c.Title), c.Description, c.Post.ID, tenant.ID)
+		titleAscii := unidecode.Unidecode(c.Title)
+		descriptionAscii := unidecode.Unidecode(c.Description)
+		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3, title_ascii = $4, description_ascii = $5 
+						     WHERE id = $6 AND tenant_id = $7`, c.Title, slug.Make(c.Title), c.Description, titleAscii, descriptionAscii, c.Post.ID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update post")
 		}
@@ -400,7 +406,10 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 		if filteredQuery == "" {
 			q.Result = make([]*entity.Post, 0)
 		} else {
-			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
+			normalizedQuery := unidecode.Unidecode(SanitizeString(q.Query))
+
+			// TODO: implement tenant.Language detection and mapping to psql language names and then replace 'german' with it
+			scoreField := "ts_rank(setweight(to_tsvector('german', title), 'A') || setweight(to_tsvector('german', description), 'B'), to_tsquery('german', $3 || ':*')) + similarity(title, $4) + similarity(description, $4)"
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
 				WHERE %s > 0.5
@@ -413,7 +422,7 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(filteredQuery), SanitizeString(filteredQuery))
+			}), ToTSQuery(normalizedQuery), normalizedQuery)
 		}
 		if err != nil {
 			return errors.Wrap(err, "failed to find similar posts")
@@ -445,12 +454,24 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			}
 		}
 
+		// TODO: REMOVE DEBUG LOG
+		log.Infof(ctx, "Search query: '@{query}', sanitizeString: '@{sanitizeString}', normalized query: '@{normalizedQuery}', tsquery: '@{tsquery}', tsqueryOriginal: '@{tsqueryOriginal}'", map[string]any{
+			"query":           q.Query,
+			"sanitizeString":  SanitizeString(q.Query),
+			"normalizedQuery": unidecode.Unidecode(SanitizeString(q.Query)),
+			"tsquery":         ToTSQuery(unidecode.Unidecode(SanitizeString(q.Query))),
+			"tsqueryOriginal": ToTSQuery(q.Query),
+		})
+
 		var (
 			posts []*dbPost
 			err   error
 		)
 		if q.Query != "" {
-			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
+			normalizedQuery := unidecode.Unidecode(SanitizeString(q.Query))
+
+			// TODO: implement tenant.Language detection and mapping to psql language names and then replace 'german' with it
+			scoreField := "ts_rank(setweight(to_tsvector('german', title), 'A') || setweight(to_tsvector('german', description), 'B'), to_tsquery('german', $3 || ':*')) + similarity(title, $4) + similarity(description, $4)"
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
 				WHERE %s > 0.4
@@ -463,13 +484,12 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(q.Query), SanitizeString(q.Query))
+			}), ToTSQuery(normalizedQuery), normalizedQuery)
 		} else {
 			condition, statuses, sort := getViewData(*q)
 
 			if q.MyPostsOnly {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
-
 			}
 
 			sql := fmt.Sprintf(`
