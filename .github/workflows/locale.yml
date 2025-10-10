@@ -1,5 +1,6 @@
 name: Auto-Translate Missing Keys
 
+# Workflow automatic triggers disabled - only manual trigger is available
 on:
   workflow_dispatch:
     inputs:
@@ -8,9 +9,10 @@ on:
         required: false
         default: "false"
 
-  push:
-    paths:
-      - "locale/en/**.json"
+  # Automatic trigger temporarily disabled
+  # push:
+  #   paths:
+  #     - "locale/en/**.json"
 
 jobs:
   translate:
