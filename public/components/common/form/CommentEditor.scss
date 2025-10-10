@@ -93,7 +93,7 @@
     }
 
     .mention {
-      background-color: var(--colors-blue-200);
+      background-color: var(--colors-blue-100);
       border-radius: get("border.radius.medium");
       box-decoration-break: clone;
       color: var(--colors-blue-600);
@@ -127,7 +127,7 @@
 
     // Placeholder
     p.tiptap-is-empty:first-child::before {
-      color: var(--colors-gray-600);
+      color: var(--colors-gray-700);
       content: attr(data-placeholder);
       float: left;
       height: 0;

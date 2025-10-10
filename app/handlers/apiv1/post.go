@@ -29,6 +29,12 @@ func SearchPosts() web.HandlerFunc {
 		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
 			searchPosts.MyVotesOnly = myVotesOnly
 		}
+		if noTagsOnly, err := c.QueryParamAsBool("notags"); err == nil {
+			searchPosts.NoTagsOnly = noTagsOnly
+		}
+		if myPostsOnly, err := c.QueryParamAsBool("myposts"); err == nil {
+			searchPosts.MyPostsOnly = myPostsOnly
+		}
 		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
 
 		if err := bus.Dispatch(c, searchPosts); err != nil {
@@ -498,7 +504,7 @@ func ListVotes() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID}
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: true}
 		if err := bus.Dispatch(c, listVotes); err != nil {
 			return c.Failure(err)
 		}

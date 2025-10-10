@@ -138,8 +138,15 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     setCachedTitle(value)
     // If this is a manual edit (not auto-generated from description),
     // mark the title as manually edited so we stop auto-populating
+    // If the user clears the title, we still want to allow auto-population
     if (isManualEdit) {
-      setTitleManuallyEdited(true)
+      setTitleManuallyEdited(value !== "")
+    }
+  }
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
     }
   }
 
@@ -150,6 +157,12 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const handleDescriptionChange = (value: string, plainText?: string) => {
     setCachedDescription(value)
+
+    // If the description starts with an image attachment, we don't want to set it as the title
+    if (value.startsWith("![](fider-image:attachments")) {
+      return
+    }
+
     setDescription(value)
 
     // Store plain text version if provided
@@ -243,6 +256,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 value={title}
                 disabled={fider.isReadOnly}
                 onChange={handleTitleChange}
+                onKeyDown={handleKeyDown}
                 placeholder={i18n._({ id: "newpost.modal.title.placeholder", message: "Something short and snappy, sum it up in a few words" })}
               />
               {canEditTags && (
@@ -283,7 +297,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
           </div>
         ) : (
           /* For authenticated users, only show the submit button container when title is long enough */
-          title.length > 9 && (
+          title.replace(/\s+/g, " ").trim().length > 9 && (
             <div className="c-share-feedback__content animate-fade-in">
               <div className="c-share-feedback-signin">
                 <div className="flex justify-center">

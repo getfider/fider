@@ -92,8 +92,8 @@ What can we do better? This is the place for you to vote, discuss and share idea
         isOpen={isShareFeedbackOpen && !fider.isReadOnly}
         onClose={() => setIsShareFeedbackOpen(false)}
       />
-      <Header />
-      <div id="p-home" className="page container">
+      <Header hasInert={isShareFeedbackOpen && !fider.isReadOnly} />
+      <div id="p-home" className="page container" {...(isShareFeedbackOpen && !fider.isReadOnly && { inert: "true" })}>
         <div className="p-home__welcome-col">
           <VStack spacing={2} className="p-4">
             <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />

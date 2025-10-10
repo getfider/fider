@@ -1,6 +1,6 @@
 import "./Modal.scss"
 
-import React, { useEffect, useRef } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 import ReactDOM from "react-dom"
 import { classSet } from "@fider/services"
 import { Icon } from "@fider/components"
@@ -24,6 +24,15 @@ interface ModalFooterProps {
 const ModalWindow: React.FunctionComponent<ModalWindowProps> = ({ size = "small", canClose = true, center = true, ...props }) => {
   const root = useRef<HTMLElement>(document.getElementById("root-modal"))
 
+  const keyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.code === "Escape") {
+        close()
+      }
+    },
+    [props.onClose]
+  )
+
   useEffect(() => {
     if (props.isOpen) {
       document.body.style.overflow = "hidden"
@@ -32,17 +41,14 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = ({ size = "small"
       document.body.style.overflow = ""
       document.removeEventListener("keydown", keyDown, false)
     }
-  }, [props.isOpen])
+
+    return () => {
+      document.removeEventListener("keydown", keyDown, false)
+    }
+  }, [props.isOpen, keyDown])
 
   const swallow = (evt: React.MouseEvent<HTMLDivElement>) => {
     evt.stopPropagation()
-  }
-
-  const keyDown = (event: KeyboardEvent) => {
-    if (event.keyCode === 27) {
-      // ESC
-      close()
-    }
   }
 
   const close = () => {

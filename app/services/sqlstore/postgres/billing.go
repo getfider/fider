@@ -90,11 +90,11 @@ func lockExpiredTenants(ctx context.Context, c *cmd.LockExpiredTenants) error {
 			FROM tenants t
 			INNER JOIN tenants_billing tb
 			ON t.id = tb.tenant_id
-			WHERE t.status <> $1
+			WHERE t.status <> $1 AND t.status <> $2
 			AND (
-				(tb.status = $2 AND trial_ends_at <= $4)
-				OR (tb.status = $3 AND subscription_ends_at <= $4)
-			)`, enum.TenantLocked, enum.BillingTrial, enum.BillingCancelled, now)
+				(tb.status = $3 AND trial_ends_at <= $5)
+				OR (tb.status = $4 AND subscription_ends_at <= $5)
+			)`, enum.TenantLocked, enum.TenantDisabled, enum.BillingTrial, enum.BillingCancelled, now)
 		if err != nil {
 			return errors.Wrap(err, "failed to get expired trial/cancelled tenants")
 		}

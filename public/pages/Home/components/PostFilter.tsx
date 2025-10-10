@@ -9,7 +9,7 @@ import { FilterState } from "./PostsContainer"
 
 import "./PostFilter.scss"
 
-type FilterType = "tag" | "status" | "myVotes"
+type FilterType = "tag" | "status" | "myVotes" | "noTags" | "myPosts"
 
 interface OptionItem {
   value: string | boolean
@@ -41,11 +41,17 @@ const FilterStateToFilterItems = (filterState: FilterState): FilterItem[] => {
   if (filterState.myVotes) {
     filterItems.push({ type: "myVotes", value: true })
   }
+  if (filterState.noTags) {
+    filterItems.push({ type: "noTags", value: true })
+  }
+  if (filterState.myPosts) {
+    filterItems.push({ type: "myPosts", value: true })
+  }
   return filterItems
 }
 
 const FilterItemsToFilterState = (filterItems: FilterItem[]): FilterState => {
-  const filterState: FilterState = { tags: [], statuses: [], myVotes: false }
+  const filterState: FilterState = { tags: [], statuses: [], myVotes: false, noTags: false, myPosts: false }
   filterItems.forEach((i) => {
     if (i.type === "tag") {
       filterState.tags.push(i.value as string)
@@ -53,6 +59,10 @@ const FilterItemsToFilterState = (filterItems: FilterItem[]): FilterState => {
       filterState.statuses.push(i.value as string)
     } else if (i.type === "myVotes") {
       filterState.myVotes = true
+    } else if (i.type === "noTags") {
+      filterState.noTags = true
+    } else if (i.type === "myPosts") {
+      filterState.myPosts = true
     }
   })
   return filterState
@@ -77,6 +87,7 @@ export const PostFilter = (props: PostFilterProps) => {
 
   if (fider.session.isAuthenticated) {
     options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myvotes", message: "My Votes" }), type: "myVotes" })
+    options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myposts", message: "My Posts" }), type: "myPosts" })
   }
 
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
@@ -89,16 +100,51 @@ export const PostFilter = (props: PostFilterProps) => {
     })
   })
 
-  props.tags.forEach((t) => {
+  if (props.tags.length > 0) {
     options.push({
-      label: t.name,
-      value: t.slug,
-      type: "tag",
+      value: true,
+      label: i18n._({ id: "home.postfilter.option.notags", message: "Untagged" }),
+      type: "noTags",
     })
-  })
+
+    props.tags.forEach((t) => {
+      options.push({
+        label: t.name,
+        value: t.slug,
+        type: "tag",
+      })
+    })
+  }
 
   const filterCount = filterItems.length
   const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(query.toLowerCase()))
+
+  const FilterGroupSection = ({ title, type }: { title: string; type: string[] }) => {
+    const options = filteredOptions.filter((o) => type.includes(o.type))
+
+    if (options.length === 0) return null
+
+    return (
+      <>
+        <div className="p-2 text-medium uppercase">{title}</div>
+
+        {options.map((o) => {
+          const isChecked = filterItems.some((f) => f.type === o.type && f.value === o.value)
+
+          return (
+            <Dropdown.ListItem onClick={handleChangeFilter(o)} key={o.value.toString()}>
+              <Checkbox field={o.value.toString()} checked={isChecked}>
+                <HStack spacing={2}>
+                  <span className={isChecked ? "text-semibold" : ""}>{o.label}</span>
+                  {o.count && o.count > 0 && <span className="bg-gray-200 inline-block rounded-full px-1 w-min-4 text-2xs text-center">{o.count}</span>}
+                </HStack>
+              </Checkbox>
+            </Dropdown.ListItem>
+          )
+        })}
+      </>
+    )
+  }
 
   return (
     <HStack className="mr-4">
@@ -119,22 +165,12 @@ export const PostFilter = (props: PostFilterProps) => {
           className="c-input filter-input"
           placeholder={i18n._({ id: "home.filter.search.label", message: "Search in filters..." })}
         />
-        {filteredOptions.map((o) => {
-          const isChecked = filterItems.find((f) => f.type === o.type && f.value === o.value) !== undefined
 
-          return (
-            <Dropdown.ListItem onClick={handleChangeFilter(o)} key={o.value.toString()}>
-              <Checkbox field={o.value.toString()} checked={isChecked}>
-                <HStack spacing={2}>
-                  <span className={isChecked ? "text-semibold" : ""}>{o.label}</span>
-                  <div className="">
-                    {o.count && o.count > 0 && <span className="bg-gray-200 inline-block rounded-full px-1 w-min-4 text-2xs text-center">{o.count}</span>}
-                  </div>
-                </HStack>
-              </Checkbox>
-            </Dropdown.ListItem>
-          )
-        })}
+        <FilterGroupSection title={i18n._({ id: "home.postfilter.label.myactivity", message: "My activity" })} type={["myVotes", "myPosts"]} />
+
+        <FilterGroupSection title={i18n._({ id: "home.postfilter.label.status", message: "Status" })} type={["status"]} />
+
+        <FilterGroupSection title={i18n._({ id: "label.tags", message: "Tags" })} type={["noTags", "tag"]} />
       </Dropdown>
     </HStack>
   )
