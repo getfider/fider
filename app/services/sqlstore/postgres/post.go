@@ -469,10 +469,16 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			err   error
 		)
 		if q.Query != "" {
+			tsQuery := ToTSQuery(SanitizeString(q.Query))
+			if tsQuery == "" {
+				q.Result = make([]*entity.Post, 0)
+				return nil
+			}
+
 			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
 			// regexp_replace: replaces spaces with ' & ' for AND search; ':*' enables prefix matching in PostgreSQL full-text search
-			tsQuery := fmt.Sprintf("to_tsquery('%s', regexp_replace(unaccent($3), '\\s+', ' & ', 'g') || ':*')", tsConfig)
+			query := fmt.Sprintf("to_tsquery('%s', regexp_replace(unaccent($3), '\\s+', ' & ', 'g') || ':*')", tsConfig)
 			tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
 
 			if tsConfig != "english" {
@@ -484,9 +490,9 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			}
 
 			tsVector = fmt.Sprintf("(%s)", tsVector)
-			score := fmt.Sprintf("ts_rank_cd(%s, %s)", tsVector, tsQuery)
+			score := fmt.Sprintf("ts_rank_cd(%s, %s)", tsVector, query)
 
-			whereParts := fmt.Sprintf(`%s @@ %s OR (title ILIKE '%%' || $3 || '%%') OR (description ILIKE '%%' || $3 || '%%') OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, tsQuery)
+			whereParts := fmt.Sprintf(`%s @@ %s OR (title ILIKE '%%' || $3 || '%%') OR (description ILIKE '%%' || $3 || '%%') OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, query)
 
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
@@ -500,7 +506,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(SanitizeString(q.Query)))
+			}), tsQuery)
 		} else {
 			condition, statuses, sort := getViewData(*q)
 
