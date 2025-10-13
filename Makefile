@@ -12,9 +12,10 @@ LDFLAGS += -X github.com/getfider/fider/app/pkg/env.version=${VERSION}
 run: ## Run Fider
 	godotenv -f .env ./fider
 
-migrate: ## Run all database migrations and Go migrations
+migrate: ## Run all database migrations
 	godotenv -f .env ./fider migrate
-#	go run go_migrations/001_backfill_ascii_columns.go
+
+
 
 ##@ Building
 

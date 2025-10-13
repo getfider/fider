@@ -11,12 +11,14 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-var onlyalphanumeric = regexp.MustCompile("[^a-zA-Z0-9 |]+")
+// allowedTextRunes matches any character that is NOT a Unicode letter (\p{L}), number (\p{N}), space, or pipe.
+// This allows both Latin and non-Latin scripts to be preserved for full-text search.
+var allowedTextRunes = regexp.MustCompile(`[^\p{L}\p{N} |]+`)
 var replaceOr = strings.NewReplacer("|", " ")
 
 // ToTSQuery converts input to another string that can be safely used for ts_query
 func ToTSQuery(input string) string {
-	input = replaceOr.Replace(onlyalphanumeric.ReplaceAllString(input, ""))
+	input = replaceOr.Replace(allowedTextRunes.ReplaceAllString(input, ""))
 	return strings.Join(strings.Fields(input), "|")
 }
 
@@ -24,6 +26,52 @@ func ToTSQuery(input string) string {
 func SanitizeString(input string) string {
 	input = strings.Replace(input, "\u0000", "", -1)
 	return strings.ToValidUTF8(input, "")
+}
+
+// mapLocaleToTSConfig maps a tenant's locale short key to the corresponding PostgreSQL text search configuration.
+// See the /locale folder for supported locales. Returns 'simple' if no match is found.
+func MapLocaleToTSConfig(locale string) string {
+	switch locale {
+	case "en":
+		return "english"
+	case "de":
+		return "german"
+	case "fr":
+		return "french"
+	case "it":
+		return "italian"
+	case "es-ES":
+		return "spanish"
+	case "ru":
+		return "russian"
+	case "pt-BR":
+		return "portuguese"
+	case "nl":
+		return "dutch"
+	case "sv-SE":
+		return "swedish"
+	case "tr":
+		return "turkish"
+	case "cs":
+		return "czech"
+	case "pl":
+		return "polish"
+	case "ar":
+		return "arabic"
+	case "el":
+		return "greek"
+	// No direct mappings or require extensions
+	case "sk":
+	case "ja":
+	case "zh-CN":
+	case "ko":
+	case "fa":
+	case "si-LK":
+	default:
+		return "simple"
+	}
+
+	return "simple"
 }
 
 func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {

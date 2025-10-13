@@ -16,12 +16,10 @@ import (
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/log"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/mozillazg/go-unidecode"
 )
 
 type dbPost struct {
@@ -292,12 +290,10 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var id int
-		titleAscii := unidecode.Unidecode(c.Title)
-		descriptionAscii := unidecode.Unidecode(c.Description)
 		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, title_ascii, description_ascii, tenant_id, user_id, created_at, status) 
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $6), $3, $4, $5, $6, $7, $8, 0) 
-			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, titleAscii, descriptionAscii, tenant.ID, user.ID, time.Now())
+			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status) 
+			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0) 
+			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now())
 		if err != nil {
 			return errors.Wrap(err, "failed add new post")
 		}
@@ -318,10 +314,8 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		titleAscii := unidecode.Unidecode(c.Title)
-		descriptionAscii := unidecode.Unidecode(c.Description)
-		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3, title_ascii = $4, description_ascii = $5 
-						     WHERE id = $6 AND tenant_id = $7`, c.Title, slug.Make(c.Title), c.Description, titleAscii, descriptionAscii, c.Post.ID, tenant.ID)
+		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
+													 WHERE id = $4 AND tenant_id = $5`, c.Title, slug.Make(c.Title), c.Description, c.Post.ID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update post")
 		}
@@ -406,23 +400,39 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 		if filteredQuery == "" {
 			q.Result = make([]*entity.Post, 0)
 		} else {
-			normalizedQuery := unidecode.Unidecode(SanitizeString(q.Query))
+			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
-			// TODO: implement tenant.Language detection and mapping to psql language names and then replace 'german' with it
-			scoreField := "ts_rank(setweight(to_tsvector('german', title), 'A') || setweight(to_tsvector('german', description), 'B'), to_tsquery('german', $3 || ':*')) + similarity(title, $4) + similarity(description, $4)"
+			// regexp_replace: replaces spaces with ' & ' for AND search; ':*' enables prefix matching in PostgreSQL full-text search
+			tsQuery := fmt.Sprintf("to_tsquery('%s', regexp_replace(unaccent($3), '\\s+', ' & ', 'g') || ':*')", tsConfig)
+			// Build tsvector with multiple configurations for better multilingual support using the tenant's locale and english and simple as fallbacks
+			tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
+
+			if tsConfig != "english" {
+				tsVector = fmt.Sprintf("%s || to_tsvector('english', title) || ' ' || to_tsvector('english', description)", tsVector)
+			}
+
+			if tsConfig != "simple" {
+				tsVector = fmt.Sprintf("%s || to_tsvector('simple', title) || ' ' || to_tsvector('simple', description)", tsVector)
+			}
+
+			tsVector = fmt.Sprintf("(%s)", tsVector)
+			score := fmt.Sprintf("ts_rank_cd(%s, %s)", tsVector, tsQuery)
+
+			whereParts := fmt.Sprintf(`%s @@ %s OR (title ILIKE '%%' || $3 || '%%') OR (description ILIKE '%%' || $3 || '%%') OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, tsQuery)
+
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
-				WHERE %s > 0.5
+				WHERE %s
 				ORDER BY %s DESC
 				LIMIT 5
-			`, innerQuery, scoreField, scoreField)
+			`, innerQuery, whereParts, score)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(normalizedQuery), normalizedQuery)
+			}), ToTSQuery(SanitizeString(q.Query)))
 		}
 		if err != nil {
 			return errors.Wrap(err, "failed to find similar posts")
@@ -454,37 +464,43 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			}
 		}
 
-		// TODO: REMOVE DEBUG LOG
-		log.Infof(ctx, "Search query: '@{query}', sanitizeString: '@{sanitizeString}', normalized query: '@{normalizedQuery}', tsquery: '@{tsquery}', tsqueryOriginal: '@{tsqueryOriginal}'", map[string]any{
-			"query":           q.Query,
-			"sanitizeString":  SanitizeString(q.Query),
-			"normalizedQuery": unidecode.Unidecode(SanitizeString(q.Query)),
-			"tsquery":         ToTSQuery(unidecode.Unidecode(SanitizeString(q.Query))),
-			"tsqueryOriginal": ToTSQuery(q.Query),
-		})
-
 		var (
 			posts []*dbPost
 			err   error
 		)
 		if q.Query != "" {
-			normalizedQuery := unidecode.Unidecode(SanitizeString(q.Query))
+			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
-			// TODO: implement tenant.Language detection and mapping to psql language names and then replace 'german' with it
-			scoreField := "ts_rank(setweight(to_tsvector('german', title), 'A') || setweight(to_tsvector('german', description), 'B'), to_tsquery('german', $3 || ':*')) + similarity(title, $4) + similarity(description, $4)"
+			// regexp_replace: replaces spaces with ' & ' for AND search; ':*' enables prefix matching in PostgreSQL full-text search
+			tsQuery := fmt.Sprintf("to_tsquery('%s', regexp_replace(unaccent($3), '\\s+', ' & ', 'g') || ':*')", tsConfig)
+			tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
+
+			if tsConfig != "english" {
+				tsVector = fmt.Sprintf("%s || to_tsvector('english', title) || ' ' || to_tsvector('english', description)", tsVector)
+			}
+
+			if tsConfig != "simple" {
+				tsVector = fmt.Sprintf("%s || to_tsvector('simple', title) || ' ' || to_tsvector('simple', description)", tsVector)
+			}
+
+			tsVector = fmt.Sprintf("(%s)", tsVector)
+			score := fmt.Sprintf("ts_rank_cd(%s, %s)", tsVector, tsQuery)
+
+			whereParts := fmt.Sprintf(`%s @@ %s OR (title ILIKE '%%' || $3 || '%%') OR (description ILIKE '%%' || $3 || '%%') OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, tsQuery)
+
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
-				WHERE %s > 0.4
+				WHERE %s
 				ORDER BY %s DESC
 				LIMIT %s
-			`, innerQuery, scoreField, scoreField, q.Limit)
+			`, innerQuery, whereParts, score, q.Limit)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(normalizedQuery), normalizedQuery)
+			}), ToTSQuery(SanitizeString(q.Query)))
 		} else {
 			condition, statuses, sort := getViewData(*q)
 
