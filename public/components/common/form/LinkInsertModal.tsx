@@ -4,6 +4,8 @@ import { Form } from "./Form"
 import { Failure } from "@fider/services"
 import { Trans } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
+import { isValidUrl, normalizeUrl } from "@fider/services/markdown"
+import { useAllowedSchemesRegex } from "@fider/hooks"
 
 interface LinkInsertModalProps {
   isOpen: boolean
@@ -17,6 +19,7 @@ const LinkInsertModal = ({ isOpen, onClose, onInsertLink, selectedText = "" }: L
   const [url, setUrl] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
   const textInputRef = useRef<HTMLInputElement>(null)
+  const allowedSchemes = useAllowedSchemesRegex()
 
   // Create an error item with the given field, message ID, and message
   const createError = (field: string, messageId: string, message: string) => ({
@@ -35,15 +38,9 @@ const LinkInsertModal = ({ isOpen, onClose, onInsertLink, selectedText = "" }: L
       errorItems.push(createError("text", "linkmodal.text.required", "Text is required"))
     }
 
-    if (!url.trim()) {
-      errorItems.push(createError("url", "linkmodal.url.required", "URL is required"))
-    } else {
-      // Basic URL validation
-      try {
-        new URL(url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`)
-      } catch {
-        errorItems.push(createError("url", "linkmodal.url.invalid", "Please enter a valid URL"))
-      }
+    // Validate URL against allowed schemes
+    if (!isValidUrl(url, allowedSchemes)) {
+      errorItems.push(createError("url", "linkmodal.url.invalid", "Please enter a valid URL or crypto address"))
     }
 
     if (errorItems.length > 0) {
@@ -52,8 +49,8 @@ const LinkInsertModal = ({ isOpen, onClose, onInsertLink, selectedText = "" }: L
     }
 
     // Form is valid, handle submission
-    const urlWithProtocol = url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`
-    onInsertLink(text.trim(), urlWithProtocol)
+    const finalUrl = normalizeUrl(url)
+    onInsertLink(text.trim(), finalUrl)
     setText("")
     setUrl("")
     onClose()

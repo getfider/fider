@@ -11,6 +11,7 @@ import Text from "@tiptap/extension-text"
 import HardBreak from "@tiptap/extension-hard-break"
 import { i18n } from "@lingui/core"
 import { plainText } from "@fider/services/markdown"
+import { useAllowedProtocols } from "@fider/hooks"
 
 import "./CommentEditor.scss"
 
@@ -247,6 +248,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
   const [selectedText, setSelectedText] = useState("")
+  const allowedProtocols = useAllowedProtocols()
 
   // Use a ref instead of state for tracking document images
   // This avoids the async state update issue and prevents unnecessary re-renders
@@ -437,10 +439,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const handleInsertLink = (text: string, url: string) => {
     if (!editor) return
 
-    // Ensure URL has protocol
-    const urlWithProtocol = url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`
-
-    editor.chain().focus().insertContent(`<a href="${urlWithProtocol}" target="_blank" rel="noopener nofollow">${text}</a>`).run()
+    editor.chain().focus().insertContent(`<a href="${url}" target="_blank" rel="noopener nofollow">${text}</a>`).run()
   }
 
   // Handle keyboard shortcuts
@@ -475,9 +474,10 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     : [
         StarterKit,
         Link.configure({
-          openOnClick: false,
+          openOnClick: true,
           autolink: true,
           defaultProtocol: "https",
+          protocols: allowedProtocols,
           HTMLAttributes: {
             class: "text-link",
             target: "_blank",
