@@ -1,4 +1,9 @@
 import React, { useState, useEffect, useRef } from "react"
+import { Input } from "./Input"
+import { Form } from "./Form"
+import { Failure } from "@fider/services"
+import { Trans } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 
 interface LinkInsertModalProps {
   isOpen: boolean
@@ -10,35 +15,39 @@ interface LinkInsertModalProps {
 const LinkInsertModal = ({ isOpen, onClose, onInsertLink, selectedText = "" }: LinkInsertModalProps) => {
   const [text, setText] = useState("")
   const [url, setUrl] = useState("")
-  const [errors, setErrors] = useState<{ text?: string; url?: string }>({})
+  const [error, setError] = useState<Failure | undefined>(undefined)
   const textInputRef = useRef<HTMLInputElement>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  // Create an error item with the given field, message ID, and message
+  const createError = (field: string, messageId: string, message: string) => ({
+    field,
+    message: i18n._({ id: messageId, message }),
+  })
 
+  const handleSubmit = () => {
     // Clear previous errors
-    setErrors({})
+    setError(undefined)
 
     // Custom validation
-    const newErrors: { text?: string; url?: string } = {}
+    const errorItems: { field?: string; message: string }[] = []
 
     if (!text.trim()) {
-      newErrors.text = "Text is required"
+      errorItems.push(createError("text", "linkmodal.text.required", "Text is required"))
     }
 
     if (!url.trim()) {
-      newErrors.url = "URL is required"
+      errorItems.push(createError("url", "linkmodal.url.required", "URL is required"))
     } else {
       // Basic URL validation
       try {
         new URL(url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`)
       } catch {
-        newErrors.url = "Please enter a valid URL"
+        errorItems.push(createError("url", "linkmodal.url.invalid", "Please enter a valid URL"))
       }
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
+    if (errorItems.length > 0) {
+      setError({ errors: errorItems })
       return
     }
 
@@ -53,7 +62,7 @@ const LinkInsertModal = ({ isOpen, onClose, onInsertLink, selectedText = "" }: L
   const handleClose = () => {
     setText("")
     setUrl("")
-    setErrors({})
+    setError(undefined)
     onClose()
   }
 
@@ -81,58 +90,36 @@ const LinkInsertModal = ({ isOpen, onClose, onInsertLink, selectedText = "" }: L
       <div className="c-modal-scroller">
         <div className="c-modal-window c-modal-window--small">
           <div className="c-modal-header">
-            <h3 id="link-modal-title">Insert Link</h3>
+            <h3 id="link-modal-title">
+              <Trans id="linkmodal.title">Insert Link</Trans>
+            </h3>
           </div>
           <div className="c-modal-content">
-            <form onSubmit={handleSubmit}>
-              <div className="c-form-field">
-                <label htmlFor="link-text">
-                  Text to display <span style={{ color: "red" }}>*</span>
-                </label>
-                <input
-                  ref={textInputRef}
-                  id="link-text"
-                  type="text"
-                  value={text}
-                  onChange={(e) => {
-                    setText(e.target.value)
-                    if (errors.text) {
-                      setErrors((prev) => ({ ...prev, text: undefined }))
-                    }
-                  }}
-                  placeholder="Enter link text"
-                  className={`c-input ${errors.text ? "c-input--error" : ""}`}
-                />
-                {errors.text && <div className="text-red-600 text-sm mt-1">{errors.text}</div>}
-              </div>
-              <div className="c-form-field">
-                <label htmlFor="link-url">
-                  URL <span style={{ color: "red" }}>*</span>
-                </label>
-                <input
-                  id="link-url"
-                  type="text"
-                  value={url}
-                  onChange={(e) => {
-                    setUrl(e.target.value)
-                    if (errors.url) {
-                      setErrors((prev) => ({ ...prev, url: undefined }))
-                    }
-                  }}
-                  placeholder="https://example.com"
-                  className={`c-input ${errors.url ? "c-input--error" : ""}`}
-                />
-                {errors.url && <div className="text-red-600 text-sm mt-1">{errors.url}</div>}
-              </div>
-            </form>
+            <Form error={error}>
+              <Input
+                field="text"
+                label={i18n._({ id: "linkmodal.text.label", message: "Text to display" })}
+                value={text}
+                onChange={setText}
+                placeholder={i18n._({ id: "linkmodal.text.placeholder", message: "Enter link text" })}
+                inputRef={textInputRef}
+              />
+              <Input
+                field="url"
+                label={i18n._({ id: "linkmodal.url.label", message: "URL" })}
+                value={url}
+                onChange={setUrl}
+                placeholder={i18n._({ id: "linkmodal.url.placeholder", message: "https://example.com" })}
+              />
+            </Form>
           </div>
           <div className="c-modal-footer c-modal-footer--right">
             <div style={{ display: "flex", gap: "8px" }}>
               <button type="button" onClick={handleClose} className="c-button c-button--secondary">
-                Cancel
+                <Trans id="action.cancel">Cancel</Trans>
               </button>
-              <button type="submit" onClick={handleSubmit} className="c-button c-button--primary">
-                Insert Link
+              <button type="button" onClick={handleSubmit} className="c-button c-button--primary">
+                <Trans id="linkmodal.insert">Insert Link</Trans>
               </button>
             </div>
           </div>
