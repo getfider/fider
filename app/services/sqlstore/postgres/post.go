@@ -403,7 +403,7 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
 			// regexp_replace: replaces spaces with ' & ' for AND search; ':*' enables prefix matching in PostgreSQL full-text search
-			tsQuery := fmt.Sprintf("to_tsquery('%s', regexp_replace(unaccent($3), '\\s+', ' & ', 'g') || ':*')", tsConfig)
+			tsQuery := fmt.Sprintf("to_tsquery('%s', regexp_replace($3, '\\s+', ' & ', 'g') || ':*')", tsConfig)
 			// Build tsvector with multiple configurations for better multilingual support using the tenant's locale and english and simple as fallbacks
 			tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
 
@@ -418,7 +418,7 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 			tsVector = fmt.Sprintf("(%s)", tsVector)
 			score := fmt.Sprintf("ts_rank_cd(%s, %s)", tsVector, tsQuery)
 
-			whereParts := fmt.Sprintf(`%s @@ %s OR (title ILIKE '%%' || $3 || '%%') OR (description ILIKE '%%' || $3 || '%%') OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, tsQuery)
+			whereParts := fmt.Sprintf(`%s @@ %s OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, tsQuery)
 
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
@@ -478,7 +478,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
 			// regexp_replace: replaces spaces with ' & ' for AND search; ':*' enables prefix matching in PostgreSQL full-text search
-			query := fmt.Sprintf("to_tsquery('%s', regexp_replace(unaccent($3), '\\s+', ' & ', 'g') || ':*')", tsConfig)
+			query := fmt.Sprintf("to_tsquery('%s', regexp_replace($3, '\\s+', ' & ', 'g') || ':*')", tsConfig)
 			tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
 
 			if tsConfig != "english" {
@@ -492,7 +492,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			tsVector = fmt.Sprintf("(%s)", tsVector)
 			score := fmt.Sprintf("ts_rank_cd(%s, %s)", tsVector, query)
 
-			whereParts := fmt.Sprintf(`%s @@ %s OR (title ILIKE '%%' || $3 || '%%') OR (description ILIKE '%%' || $3 || '%%') OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, query)
+			whereParts := fmt.Sprintf(`%s @@ %s OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, query)
 
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q 
