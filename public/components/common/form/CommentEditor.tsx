@@ -10,7 +10,6 @@ import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
 import HardBreak from "@tiptap/extension-hard-break"
 import { i18n } from "@lingui/core"
-import { plainText } from "@fider/services/markdown"
 import { useAllowedProtocols } from "@fider/hooks"
 
 import "./CommentEditor.scss"
@@ -336,12 +335,9 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     // Get the current markdown content
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
-    // In markdown mode, the tiptap markdown extension isn't loaded, which means editor.getText()
-    // includes markdown syntax, so we need to use plainText() to remove it.
-    const plainTextContent = plainText(editor.getText())
 
-    // Pass both markdown and plain text to parent
-    props.onChange && props.onChange(markdown, plainTextContent)
+    // Pass markdown to parent (plain text will be generated in ShareFeedback if needed)
+    props.onChange && props.onChange(markdown)
 
     // Track the current state of images in the document
     // This will also check for removed images
