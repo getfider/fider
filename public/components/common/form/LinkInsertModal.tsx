@@ -4,7 +4,7 @@ import { Form } from "./Form"
 import { Failure } from "@fider/services"
 import { Trans } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
-import { isValidUrl, normalizeUrl } from "@fider/services/markdown"
+import { isValidUrl, normalizeUrl } from "@fider/services/url"
 import { useAllowedSchemesRegex } from "@fider/hooks"
 
 interface LinkInsertModalProps {
