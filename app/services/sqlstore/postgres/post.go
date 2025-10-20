@@ -23,6 +23,7 @@ import (
 )
 
 type dbPost struct {
+	Vector         []byte         `db:"vector"`
 	ID             int            `db:"id"`
 	Number         int            `db:"number"`
 	Title          string         `db:"title"`
@@ -478,28 +479,30 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
 			// regexp_replace: replaces spaces with ' & ' for AND search; ':*' enables prefix matching in PostgreSQL full-text search
-			query := fmt.Sprintf("to_tsquery('%s', regexp_replace($3, '\\s+', ' & ', 'g') || ':*')", tsConfig)
-			tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
+			// query := fmt.Sprintf("to_tsquery('%s', regexp_replace($3, '\\s+', ' & ', 'g') || ':*')", tsConfig)
+			// tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
 
-			if tsConfig != "english" {
-				tsVector = fmt.Sprintf("%s || to_tsvector('english', title) || ' ' || to_tsvector('english', description)", tsVector)
-			}
+			tsVector := fmt.Sprintf("to_tsvector('%s', q.title) || ' ' || to_tsvector('%s', q.description) || ' ' || to_tsvector('simple', q.title) || ' ' || to_tsvector('simple', q.description) as vector", tsConfig, tsConfig)
 
-			if tsConfig != "simple" {
-				tsVector = fmt.Sprintf("%s || to_tsvector('simple', title) || ' ' || to_tsvector('simple', description)", tsVector)
-			}
+			// if tsConfig != "english" {
+			// 	tsVector = fmt.Sprintf("%s || to_tsvector('english', title) || ' ' || to_tsvector('english', description)", tsVector)
+			// }
 
-			tsVector = fmt.Sprintf("(%s)", tsVector)
-			score := fmt.Sprintf("ts_rank_cd(%s, %s)", tsVector, query)
+			// if tsConfig != "simple" {
+			// 	tsVector = fmt.Sprintf("%s || to_tsvector('simple', title) || ' ' || to_tsvector('simple', description)", tsVector)
+			// }
 
-			whereParts := fmt.Sprintf(`%s @@ %s OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, query)
+			// tsVector = fmt.Sprintf("(%s)", tsVector)
+			score := fmt.Sprintf("ts_rank(vector, websearch_to_tsquery('%s', $3)) + ts_rank(vector, websearch_to_tsquery('simple', $3))", tsConfig)
+
+			whereParts := fmt.Sprintf(`vector @@ websearch_to_tsquery('%s', $3) OR vector @@ websearch_to_tsquery('simple', $3)`, tsConfig)
 
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
+				SELECT * FROM (SELECT %s, * FROM (%s) AS q ) as q2
 				WHERE %s
 				ORDER BY %s DESC
 				LIMIT %s
-			`, innerQuery, whereParts, score, q.Limit)
+			`, tsVector, innerQuery, whereParts, score, q.Limit)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
