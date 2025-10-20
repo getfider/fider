@@ -478,24 +478,23 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
-			// regexp_replace: replaces spaces with ' & ' for AND search; ':*' enables prefix matching in PostgreSQL full-text search
-			// query := fmt.Sprintf("to_tsquery('%s', regexp_replace($3, '\\s+', ' & ', 'g') || ':*')", tsConfig)
-			// tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
+			// Build tsvector with multiple configurations for better multilingual support
+			tsVector := fmt.Sprintf("to_tsvector('%s', q.title) || ' ' || to_tsvector('%s', q.description)", tsConfig, tsConfig)
+			if tsConfig != "simple" {
+				tsVector = fmt.Sprintf("%s || to_tsvector('simple', q.title) || ' ' || to_tsvector('simple', q.description)", tsVector)
+			}
+			tsVector = fmt.Sprintf("(%s) as vector", tsVector)
 
-			tsVector := fmt.Sprintf("to_tsvector('%s', q.title) || ' ' || to_tsvector('%s', q.description) || ' ' || to_tsvector('simple', q.title) || ' ' || to_tsvector('simple', q.description) as vector", tsConfig, tsConfig)
+			// Build tsquery with AND operator between words and prefix matching on each word
+			// regexp_replace adds ':*' to each word for prefix matching, then joins with ' & ' for AND
+			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
+			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
 
-			// if tsConfig != "english" {
-			// 	tsVector = fmt.Sprintf("%s || to_tsvector('english', title) || ' ' || to_tsvector('english', description)", tsVector)
-			// }
+			// Use ts_rank_cd (cover density ranking) for better relevance scoring
+			score := fmt.Sprintf("ts_rank_cd(vector, %s) + ts_rank_cd(vector, %s)", tsQueryExpr, tsQuerySimple)
 
-			// if tsConfig != "simple" {
-			// 	tsVector = fmt.Sprintf("%s || to_tsvector('simple', title) || ' ' || to_tsvector('simple', description)", tsVector)
-			// }
-
-			// tsVector = fmt.Sprintf("(%s)", tsVector)
-			score := fmt.Sprintf("ts_rank(vector, websearch_to_tsquery('%s', $3)) + ts_rank(vector, websearch_to_tsquery('simple', $3))", tsConfig)
-
-			whereParts := fmt.Sprintf(`vector @@ websearch_to_tsquery('%s', $3) OR vector @@ websearch_to_tsquery('simple', $3)`, tsConfig)
+			// Match against both locale-specific and simple configurations
+			whereParts := fmt.Sprintf(`vector @@ %s OR vector @@ %s`, tsQueryExpr, tsQuerySimple)
 
 			sql := fmt.Sprintf(`
 				SELECT * FROM (SELECT %s, * FROM (%s) AS q ) as q2
