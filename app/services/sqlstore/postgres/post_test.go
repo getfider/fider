@@ -60,6 +60,39 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(search10.Result[0].Slug).Equals("add-twitter-integration")
 	Expect(search0.Result).HasLen(0)
 }
+func TestPostStorage_SearchGermanPosts(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('Wann kommt der \"Wächter\" für das neue Stunden- und Vertretungsplanmodul?', 'wann-kommt-der-wachter-fur-das-neue-stunden-und-vertretungsplanmodul', 1, 'Description', $1, $2, $3, 0)", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('Neuer Stunden/ Vertretungsplanwächter', 'neuer-stunden-vertretungsplanwachter', 2, 'no description', $1, $2, $3, 0)", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('Ungeklärte Vertretung wird zu Entfall', 'ungeklarte-vertretung-wird-zu-entfall', 3, 'some description', $1, $2, $3, 0)", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('Vertretungsplan drucken', 'vertretungsplan-drucken', 4, 'another description', $1, $2, $3, 0)", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('Vertretungsplanung Wochenansicht', 'vertretungsplanung-wochenansicht', 5, 'description here', $1, $2, $3, 0)", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('VertretungsBoard', 'vertretungsboard', 6, 'board description', $1, $2, $3, 0)", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('Abwesenheiten Vertretungsplan', 'abwesenheiten-vertretungsplan', 7, 'final description', $1, $2, $3, 0)", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	allPosts := &query.SearchPosts{Query: "Vertretung"}
+	err = bus.Dispatch(germanTenantCtx, allPosts)
+	Expect(err).IsNil()
+	Expect(allPosts.Result).HasLen(3)
+
+}
 
 func TestPostStorage_AddAndGet(t *testing.T) {
 	SetupDatabaseTest(t)
