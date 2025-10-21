@@ -34,7 +34,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 -- 3. Update language column using tenant's language (assuming you have a way to join or fetch it)
 UPDATE posts
 SET language = map_language_to_tsvector(
-    (SELECT language::TEXT FROM tenants WHERE tenants.id = posts.tenant_id)
+        (SELECT locale::TEXT FROM tenants WHERE tenants.id = posts.tenant_id)
 );
 
 -- 4. Add search as a generated column
