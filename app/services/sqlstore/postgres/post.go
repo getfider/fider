@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pemistahl/lingua-go"
+
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -291,10 +293,13 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var id int
+		// Detect language using lingua-go
+		lang := detectPostLanguage(c.Title, c.Description)
+
 		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status) 
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0) 
-			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now())
+			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status, language) 
+			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0, $7) 
+			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now(), lang)
 		if err != nil {
 			return errors.Wrap(err, "failed add new post")
 		}
@@ -315,8 +320,11 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
-													 WHERE id = $4 AND tenant_id = $5`, c.Title, slug.Make(c.Title), c.Description, c.Post.ID, tenant.ID)
+		// Detect language using lingua-go
+		lang := detectPostLanguage(c.Title, c.Description)
+		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3, language = $4 
+								 WHERE id = $5 AND tenant_id = $6`, c.Title, slug.Make(c.Title), c.Description, lang, c.Post.ID, tenant.ID)
+
 		if err != nil {
 			return errors.Wrap(err, "failed update post")
 		}
@@ -328,6 +336,47 @@ func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 		c.Result = q.Result
 		return nil
 	})
+}
+
+// detectPostLanguage uses lingua-go to detect the language of a post and maps it to a PostgreSQL tsvector config or 'simple'.
+func detectPostLanguage(title, description string) string {
+	// Supported lingua languages mapped to locale keys
+	var linguaLangs = []lingua.Language{
+		lingua.English, lingua.German, lingua.French, lingua.Italian, lingua.Dutch, lingua.Polish, lingua.Portuguese, lingua.Russian, lingua.Spanish, lingua.Swedish, lingua.Turkish,
+		lingua.Slovak, lingua.Greek, lingua.Arabic, lingua.Chinese, lingua.Persian, lingua.Japanese,
+	}
+	detector := lingua.NewLanguageDetectorBuilder().FromLanguages(linguaLangs...).Build()
+	text := strings.TrimSpace(title + " " + description)
+	lang, exists := detector.DetectLanguageOf(text)
+	if !exists {
+		return "simple"
+	}
+	// Map lingua-go language to locale code
+	var linguaToLocale = map[lingua.Language]string{
+		lingua.English:    "en",
+		lingua.German:     "de",
+		lingua.French:     "fr",
+		lingua.Italian:    "it",
+		lingua.Dutch:      "nl",
+		lingua.Polish:     "pl",
+		lingua.Portuguese: "pt-BR",
+		lingua.Russian:    "ru",
+		lingua.Spanish:    "es-ES",
+		lingua.Swedish:    "sv-SE",
+		lingua.Turkish:    "tr",
+		lingua.Slovak:     "sk",
+		lingua.Greek:      "el",
+		lingua.Arabic:     "ar",
+		lingua.Chinese:    "zh-CN",
+		lingua.Persian:    "fa",
+		lingua.Japanese:   "ja",
+	}
+	locale, ok := linguaToLocale[lang]
+	if !ok {
+		return "simple"
+	}
+	// Map to PostgreSQL tsvector config
+	return MapLocaleToTSConfig(locale)
 }
 
 func getPostByID(ctx context.Context, q *query.GetPostByID) error {

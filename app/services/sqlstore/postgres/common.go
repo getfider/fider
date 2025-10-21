@@ -32,41 +32,37 @@ func SanitizeString(input string) string {
 // See the /locale folder for supported locales. Returns 'simple' if no match is found.
 func MapLocaleToTSConfig(locale string) string {
 	switch locale {
-	case "en":
-		return "english"
+	case "ar":
+		return "arabic"
 	case "de":
 		return "german"
+	case "en":
+		return "english"
+	case "es-ES":
+		return "spanish"
 	case "fr":
 		return "french"
 	case "it":
 		return "italian"
-	case "es-ES":
-		return "spanish"
-	case "ru":
-		return "russian"
-	case "pt-BR":
-		return "portuguese"
 	case "nl":
 		return "dutch"
+	case "pt-BR":
+		return "portuguese"
+	case "ru":
+		return "russian"
 	case "sv-SE":
 		return "swedish"
 	case "tr":
 		return "turkish"
 	case "cs":
-		return "czech"
-	case "pl":
-		return "polish"
-	case "ar":
-		return "arabic"
 	case "el":
-		return "greek"
-	// No direct mappings or require extensions
-	case "sk":
-	case "ja":
-	case "zh-CN":
-	case "ko":
 	case "fa":
+	case "ja":
+	case "ko":
+	case "pl":
 	case "si-LK":
+	case "sk":
+	case "zh-CN":
 	default:
 		return "simple"
 	}
