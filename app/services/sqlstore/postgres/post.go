@@ -403,30 +403,29 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 		} else {
 			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
-			// regexp_replace: replaces spaces with ' & ' for AND search; ':*' enables prefix matching in PostgreSQL full-text search
-			tsQuery := fmt.Sprintf("to_tsquery('%s', regexp_replace($3, '\\s+', ' & ', 'g') || ':*')", tsConfig)
-			// Build tsvector with multiple configurations for better multilingual support using the tenant's locale and english and simple as fallbacks
-			tsVector := fmt.Sprintf("to_tsvector('%s', title) || ' ' || to_tsvector('%s', description)", tsConfig, tsConfig)
-
-			if tsConfig != "english" {
-				tsVector = fmt.Sprintf("%s || to_tsvector('english', title) || ' ' || to_tsvector('english', description)", tsVector)
-			}
-
+			tsVector := fmt.Sprintf("to_tsvector('%s', q.title) || ' ' || to_tsvector('%s', q.description)", tsConfig, tsConfig)
 			if tsConfig != "simple" {
-				tsVector = fmt.Sprintf("%s || to_tsvector('simple', title) || ' ' || to_tsvector('simple', description)", tsVector)
+				tsVector = fmt.Sprintf("%s || to_tsvector('simple', q.title) || ' ' || to_tsvector('simple', q.description)", tsVector)
 			}
+			tsVector = fmt.Sprintf("(%s) as vector", tsVector)
 
-			tsVector = fmt.Sprintf("(%s)", tsVector)
-			score := fmt.Sprintf("ts_rank_cd(%s, %s)", tsVector, tsQuery)
+			// Build tsquery with AND operator between words and prefix matching on each word
+			// regexp_replace adds ':*' to each word for prefix matching, then joins with ' & ' for AND
+			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
+			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
 
-			whereParts := fmt.Sprintf(`%s @@ %s OR (similarity(title, $3) > 0.3) OR (similarity(description, $3) > 0.3)`, tsVector, tsQuery)
+			// Use ts_rank_cd (cover density ranking) for better relevance scoring
+			score := fmt.Sprintf("ts_rank_cd(vector, %s) + ts_rank_cd(vector, %s)", tsQueryExpr, tsQuerySimple)
+
+			// Match against both locale-specific and simple configurations
+			whereParts := fmt.Sprintf(`vector @@ %s OR vector @@ %s`, tsQueryExpr, tsQuerySimple)
 
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
+				SELECT * FROM (SELECT %s, * FROM (%s) AS q ) as q2
 				WHERE %s
 				ORDER BY %s DESC
 				LIMIT 5
-			`, innerQuery, whereParts, score)
+			`, tsVector, innerQuery, whereParts, score)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
