@@ -487,8 +487,8 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 			// Build tsquery with AND operator between words and prefix matching on each word
 			// regexp_replace adds ':*' to each word for prefix matching, then joins with ' & ' for AND
-			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace($3, '\\s+', ':* & ', 'g') || ':*')", tsConfig)
-			tsQuerySimple := "to_tsquery('simple', regexp_replace($3, '\\s+', ':* & ', 'g') || ':*')"
+			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
+			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
 
 			// Use ts_rank_cd (cover density ranking) for better relevance scoring
 			score := fmt.Sprintf("ts_rank_cd(vector, %s) + ts_rank_cd(vector, %s)", tsQueryExpr, tsQuerySimple)
