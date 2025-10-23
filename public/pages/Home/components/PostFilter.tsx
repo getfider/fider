@@ -8,7 +8,6 @@ import { i18n } from "@lingui/core"
 import { FilterState } from "./PostsContainer"
 
 import "./PostFilter.scss"
-import { Trans } from "@lingui/react/macro"
 
 type FilterType = "tag" | "status" | "myVotes" | "noTags" | "myPosts"
 
@@ -120,14 +119,14 @@ export const PostFilter = (props: PostFilterProps) => {
   const filterCount = filterItems.length
   const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(query.toLowerCase()))
 
-  const FilterGroupSection = ({ title, type, titleId }: { title: string; type: string[]; titleId?: string }) => {
+  const FilterGroupSection = ({ title, type }: { title: string; type: string[] }) => {
     const options = filteredOptions.filter((o) => type.includes(o.type))
 
     if (options.length === 0) return null
 
     return (
       <>
-        <div className="p-2 text-medium uppercase">{titleId ? <Trans id={titleId}>{title}</Trans> : title}</div>
+        <div className="p-2 text-medium uppercase">{title}</div>
 
         {options.map((o) => {
           const isChecked = filterItems.some((f) => f.type === o.type && f.value === o.value)
@@ -167,11 +166,11 @@ export const PostFilter = (props: PostFilterProps) => {
           placeholder={i18n._({ id: "home.filter.search.label", message: "Search in filters..." })}
         />
 
-        <FilterGroupSection title="My activity" type={["myVotes", "myPosts"]} titleId="home.postfilter.label.myactivity" />
+        <FilterGroupSection title={i18n._({ id: "home.postfilter.label.myactivity", message: "My activity" })} type={["myVotes", "myPosts"]} />
 
-        <FilterGroupSection title="Status" type={["status"]} titleId="home.postfilter.label.status" />
+        <FilterGroupSection title={i18n._({ id: "home.postfilter.label.status", message: "Status" })} type={["status"]} />
 
-        <FilterGroupSection title="Tags" type={["noTags", "tag"]} titleId="label.tags" />
+        <FilterGroupSection title={i18n._({ id: "label.tags", message: "Tags" })} type={["noTags", "tag"]} />
       </Dropdown>
     </HStack>
   )
