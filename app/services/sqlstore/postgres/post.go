@@ -25,13 +25,13 @@ import (
 )
 
 type dbPost struct {
-	Vector         []byte         `db:"vector"`
 	ID             int            `db:"id"`
 	Number         int            `db:"number"`
 	Title          string         `db:"title"`
 	Slug           string         `db:"slug"`
 	Description    string         `db:"description"`
 	CreatedAt      time.Time      `db:"created_at"`
+	Search         []byte         `db:"search"`
 	User           *dbUser        `db:"user"`
 	HasVoted       bool           `db:"has_voted"`
 	VotesCount     int            `db:"votes_count"`
@@ -122,16 +122,17 @@ var (
 															WHERE posts.tenant_id = $1
 															GROUP BY post_id
 													)
-													SELECT p.id, 
-																p.number, 
-																p.title, 
-																p.slug, 
-																p.description, 
+													SELECT p.id,
+																p.number,
+																p.title,
+																p.slug,
+																p.description,
 																p.created_at,
+																p.search,
 																COALESCE(agg_s.all, 0) as votes_count,
 																COALESCE(agg_c.all, 0) as comments_count,
 																COALESCE(agg_s.recent, 0) AS recent_votes_count,
-																COALESCE(agg_c.recent, 0) AS recent_comments_count,																
+																COALESCE(agg_c.recent, 0) AS recent_comments_count,
 																p.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 
@@ -452,29 +453,24 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 		} else {
 			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
-			tsVector := fmt.Sprintf("to_tsvector('%s', q.title) || ' ' || to_tsvector('%s', q.description)", tsConfig, tsConfig)
-			if tsConfig != "simple" {
-				tsVector = fmt.Sprintf("%s || to_tsvector('simple', q.title) || ' ' || to_tsvector('simple', q.description)", tsVector)
-			}
-			tsVector = fmt.Sprintf("(%s) as vector", tsVector)
-
 			// Build tsquery with AND operator between words and prefix matching on each word
-			// regexp_replace adds ':*' to each word for prefix matching, then joins with ' & ' for AND
+			// The search column already contains both language-specific and simple tsvectors
 			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
 			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
 
 			// Use ts_rank_cd (cover density ranking) for better relevance scoring
-			score := fmt.Sprintf("ts_rank_cd(vector, %s) + ts_rank_cd(vector, %s)", tsQueryExpr, tsQuerySimple)
+			// Query against the generated search column which combines language-specific and simple tsvectors
+			score := fmt.Sprintf("ts_rank_cd(q.search, %s) + ts_rank_cd(q.search, %s)", tsQueryExpr, tsQuerySimple)
 
-			// Match against both locale-specific and simple configurations
-			whereParts := fmt.Sprintf(`vector @@ %s OR vector @@ %s`, tsQueryExpr, tsQuerySimple)
+			// Match against the pre-computed search column
+			whereParts := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
 
 			sql := fmt.Sprintf(`
-				SELECT * FROM (SELECT %s, * FROM (%s) AS q ) as q2
+				SELECT * FROM (%s) AS q
 				WHERE %s
 				ORDER BY %s DESC
 				LIMIT 5
-			`, tsVector, innerQuery, whereParts, score)
+			`, innerQuery, whereParts, score)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
@@ -526,30 +522,19 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 			tsConfig := MapLocaleToTSConfig(tenant.Locale)
 
-			// Build tsvector with multiple configurations for better multilingual support
-			tsVector := fmt.Sprintf("to_tsvector('%s', q.title) || ' ' || to_tsvector('%s', q.description)", tsConfig, tsConfig)
-			if tsConfig != "simple" {
-				tsVector = fmt.Sprintf("%s || to_tsvector('simple', q.title) || ' ' || to_tsvector('simple', q.description)", tsVector)
-			}
-			tsVector = fmt.Sprintf("(%s) as vector", tsVector)
-
-			// Build tsquery with AND operator between words and prefix matching on each word
-			// regexp_replace adds ':*' to each word for prefix matching, then joins with ' & ' for AND
 			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
 			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
 
-			// Use ts_rank_cd (cover density ranking) for better relevance scoring
-			score := fmt.Sprintf("ts_rank_cd(vector, %s) + ts_rank_cd(vector, %s)", tsQueryExpr, tsQuerySimple)
+			score := fmt.Sprintf("ts_rank_cd(q.search, %s) + ts_rank_cd(q.search, %s)", tsQueryExpr, tsQuerySimple)
 
-			// Match against both locale-specific and simple configurations
-			whereParts := fmt.Sprintf(`vector @@ %s OR vector @@ %s`, tsQueryExpr, tsQuerySimple)
+			whereParts := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
 
 			sql := fmt.Sprintf(`
-				SELECT * FROM (SELECT %s, * FROM (%s) AS q ) as q2
+				SELECT * FROM (%s) AS q
 				WHERE %s
 				ORDER BY %s DESC
 				LIMIT %s
-			`, tsVector, innerQuery, whereParts, score, q.Limit)
+			`, innerQuery, whereParts, score, q.Limit)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
