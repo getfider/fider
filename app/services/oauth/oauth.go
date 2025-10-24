@@ -363,6 +363,13 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 func getConfig(ctx context.Context, provider string) (*entity.OAuthConfig, error) {
 	for _, config := range systemProviders {
 		if config.Status == enum.OAuthConfigEnabled && config.Provider == provider {
+			// Check tenant-level override for built-in providers
+			tenantStatus := &query.GetTenantProviderStatus{Provider: provider}
+			if err := bus.Dispatch(ctx, tenantStatus); err == nil && tenantStatus.Result != nil {
+				if !tenantStatus.Result.IsEnabled {
+					return nil, errors.New("Provider %s is disabled for this tenant", provider)
+				}
+			}
 			return config, nil
 		}
 	}
