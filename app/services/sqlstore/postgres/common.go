@@ -28,46 +28,11 @@ func SanitizeString(input string) string {
 	return strings.ToValidUTF8(input, "")
 }
 
-// mapLocaleToTSConfig maps a tenant's locale short key to the corresponding PostgreSQL text search configuration.
-// See the /locale folder for supported locales. Returns 'simple' if no match is found.
+// MapLocaleToTSConfig maps a tenant's locale short key to the corresponding PostgreSQL text search configuration.
+// Returns 'simple' if no match is found or if PostgreSQL doesn't have native support for the language.
+// All locale definitions are centralized in app/models/enum/locale.go
 func MapLocaleToTSConfig(locale string) string {
-	switch locale {
-	case "ar":
-		return "arabic"
-	case "de":
-		return "german"
-	case "en":
-		return "english"
-	case "es-ES":
-		return "spanish"
-	case "fr":
-		return "french"
-	case "it":
-		return "italian"
-	case "nl":
-		return "dutch"
-	case "pt-BR":
-		return "portuguese"
-	case "ru":
-		return "russian"
-	case "sv-SE":
-		return "swedish"
-	case "tr":
-		return "turkish"
-	case "cs":
-	case "el":
-	case "fa":
-	case "ja":
-	case "ko":
-	case "pl":
-	case "si-LK":
-	case "sk":
-	case "zh-CN":
-	default:
-		return "simple"
-	}
-
-	return "simple"
+	return enum.MapLocaleToTSConfig(locale)
 }
 
 func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {

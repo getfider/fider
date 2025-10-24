@@ -340,44 +340,24 @@ func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 }
 
 // detectPostLanguage uses lingua-go to detect the language of a post and maps it to a PostgreSQL tsvector config or 'simple'.
+// All language mappings are centralized in app/models/enum/locale.go
 func detectPostLanguage(title, description string) string {
-	// Supported lingua languages mapped to locale keys
-	var linguaLangs = []lingua.Language{
-		lingua.English, lingua.German, lingua.French, lingua.Italian, lingua.Dutch, lingua.Polish, lingua.Portuguese, lingua.Russian, lingua.Spanish, lingua.Swedish, lingua.Turkish,
-		lingua.Slovak, lingua.Greek, lingua.Arabic, lingua.Chinese, lingua.Persian, lingua.Japanese,
-	}
+	// Get all supported lingua languages from the centralized locale enum
+	linguaLangs := enum.GetLinguaLanguages()
 	detector := lingua.NewLanguageDetectorBuilder().FromLanguages(linguaLangs...).Build()
 	text := strings.TrimSpace(title + " " + description)
 	lang, exists := detector.DetectLanguageOf(text)
 	if !exists {
 		return "simple"
 	}
-	// Map lingua-go language to locale code
-	var linguaToLocale = map[lingua.Language]string{
-		lingua.English:    "en",
-		lingua.German:     "de",
-		lingua.French:     "fr",
-		lingua.Italian:    "it",
-		lingua.Dutch:      "nl",
-		lingua.Polish:     "pl",
-		lingua.Portuguese: "pt-BR",
-		lingua.Russian:    "ru",
-		lingua.Spanish:    "es-ES",
-		lingua.Swedish:    "sv-SE",
-		lingua.Turkish:    "tr",
-		lingua.Slovak:     "sk",
-		lingua.Greek:      "el",
-		lingua.Arabic:     "ar",
-		lingua.Chinese:    "zh-CN",
-		lingua.Persian:    "fa",
-		lingua.Japanese:   "ja",
-	}
-	locale, ok := linguaToLocale[lang]
+
+	locale, ok := enum.GetLocaleByLinguaLanguage(lang)
 	if !ok {
 		return "simple"
 	}
-	// Map to PostgreSQL tsvector config
-	return MapLocaleToTSConfig(locale)
+
+	// Map to PostgreSQL tsvector config using the locale's PostgresConfig
+	return locale.PostgresConfig
 }
 
 func getPostByID(ctx context.Context, q *query.GetPostByID) error {

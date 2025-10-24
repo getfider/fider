@@ -1,3 +1,10 @@
+// NOTE: All locale definitions are centralized in app/models/enum/locale.go
+// When adding a new locale, update app/models/enum/locale.go first, then:
+// 1. Add the locale to this file
+// 2. Add it to lingui.config.js
+// 3. Add it to public/ssr.tsx
+// 4. Generate translation files
+
 interface Locale {
   text: string
 }
