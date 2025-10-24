@@ -220,7 +220,6 @@ func ResendSignUpEmail() web.HandlerFunc {
 		}
 
 		action := actions.NewResendSignUpEmail()
-		action.SetEmailAndName(pendingVerification.Result.Email, pendingVerification.Result.Name)
 		
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
@@ -249,10 +248,36 @@ func ResendSignUpEmail() web.HandlerFunc {
 
 		// Send email
 		siteURL := web.TenantBaseURL(c, c.Tenant())
-		c.Enqueue(tasks.SendSignUpEmail(action, siteURL))
+		
+		// Create an adapter for the action to work with SendSignUpEmail
+		emailData := &resendEmailData{
+			verificationKey: action.VerificationKey,
+			email:           pendingVerification.Result.Email,
+			name:            pendingVerification.Result.Name,
+		}
+		c.Enqueue(tasks.SendSignUpEmail(emailData, siteURL))
 
 		return c.Ok(web.Map{})
 	}
+}
+
+// resendEmailData implements SignUpEmailData interface
+type resendEmailData struct {
+	verificationKey string
+	email           string
+	name            string
+}
+
+func (r *resendEmailData) GetVerificationKey() string {
+	return r.verificationKey
+}
+
+func (r *resendEmailData) GetEmail() string {
+	return r.email
+}
+
+func (r *resendEmailData) GetName() string {
+	return r.name
 }
 
 // resendEmailVerificationRequest is a helper struct for resending verification emails

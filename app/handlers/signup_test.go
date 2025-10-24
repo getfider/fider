@@ -294,3 +294,89 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
 	Expect(saveKeyCmd.Request.GetName()).Equals("Jon Snow")
 }
+
+func TestResendSignUpEmailHandler_NonPendingTenant(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.ResendSignUpEmail(), `{}`)
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestResendSignUpEmailHandler_Success(t *testing.T) {
+	RegisterT(t)
+
+	// Setup pending tenant
+	pendingTenant := &entity.Tenant{
+		ID:        1,
+		Name:      "Demo",
+		Subdomain: "demo",
+		Status:    enum.TenantPending,
+	}
+
+	// Mock GetPendingSignUpVerification
+	bus.AddHandler(func(ctx context.Context, q *query.GetPendingSignUpVerification) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "jon.snow@got.com",
+			Name:      "Jon Snow",
+			CreatedAt: time.Now().Add(-10 * time.Minute), // Old enough to allow resend
+		}
+		return nil
+	})
+
+	// Mock InvalidatePreviousSignUpKeys
+	bus.AddHandler(func(ctx context.Context, c *cmd.InvalidatePreviousSignUpKeys) error {
+		return nil
+	})
+
+	// Mock SaveVerificationKey
+	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
+		saveKeyCmd = c
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(pendingTenant).
+		ExecutePost(handlers.ResendSignUpEmail(), `{}`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(saveKeyCmd).IsNotNil()
+	Expect(saveKeyCmd.Key).HasLen(64)
+	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
+	Expect(saveKeyCmd.Request.GetName()).Equals("Jon Snow")
+}
+
+func TestResendSignUpEmailHandler_RateLimited(t *testing.T) {
+	RegisterT(t)
+
+	// Setup pending tenant
+	pendingTenant := &entity.Tenant{
+		ID:        1,
+		Name:      "Demo",
+		Subdomain: "demo",
+		Status:    enum.TenantPending,
+	}
+
+	// Mock GetPendingSignUpVerification with recent timestamp
+	bus.AddHandler(func(ctx context.Context, q *query.GetPendingSignUpVerification) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "jon.snow@got.com",
+			Name:      "Jon Snow",
+			CreatedAt: time.Now().Add(-2 * time.Minute), // Too recent
+		}
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(pendingTenant).
+		ExecutePost(handlers.ResendSignUpEmail(), `{}`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+	Expect(response.Body.String()).ContainsSubstring("Please wait")
+}

@@ -164,6 +164,9 @@
   "page.backhome": "Take me back to <0>{0}</0> home page.",
   "page.notinvited.text": "We could not find an account for your email address.",
   "page.notinvited.title": "Not invited",
+  "page.pendingactivation.didntreceive": "Didn't receive the email?",
+  "page.pendingactivation.resend": "Resend verification email",
+  "page.pendingactivation.resending": "Resending...",
   "page.pendingactivation.text": "We sent you a confirmation email with a link to activate your site.",
   "page.pendingactivation.text2": "Please check your inbox to activate it.",
   "page.pendingactivation.title": "Your account is pending activation",
@@ -200,8 +203,5 @@
   "signin.message.socialbutton.intro": "Continue with",
   "validation.custom.maxattachments": "A maximum of {number} attachments are allowed.",
   "validation.custom.maximagesize": "The image size must be smaller than {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "page.pendingactivation.didntreceive": "Didn't receive the email?",
-  "page.pendingactivation.resend": "Resend verification email",
-  "page.pendingactivation.resending": "Resending..."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

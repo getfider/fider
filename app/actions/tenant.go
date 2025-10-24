@@ -120,8 +120,6 @@ func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
 // ResendSignUpEmail is the input model used to resend signup verification email
 type ResendSignUpEmail struct {
 	VerificationKey string
-	email           string
-	name            string
 }
 
 func NewResendSignUpEmail() *ResendSignUpEmail {
@@ -135,10 +133,14 @@ func (action *ResendSignUpEmail) GetVerificationKey() string {
 	return action.VerificationKey
 }
 
-// SetEmailAndName sets the email and name from the pending verification
-func (action *ResendSignUpEmail) SetEmailAndName(email, name string) {
-	action.email = email
-	action.name = name
+// GetEmail returns empty string (not used in this action)
+func (action *ResendSignUpEmail) GetEmail() string {
+	return ""
+}
+
+// GetName returns empty string (not used in this action)
+func (action *ResendSignUpEmail) GetName() string {
+	return ""
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -181,16 +183,6 @@ func (action *ResendSignUpEmail) Validate(ctx context.Context, user *entity.User
 	}
 
 	return result
-}
-
-// GetEmail returns the email being verified
-func (action *ResendSignUpEmail) GetEmail() string {
-	return action.email
-}
-
-// GetName returns the name of the email owner
-func (action *ResendSignUpEmail) GetName() string {
-	return action.name
 }
 
 // GetUser returns the current user performing this action
