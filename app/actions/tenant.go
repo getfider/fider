@@ -2,6 +2,9 @@ package actions
 
 import (
 	"context"
+	"fmt"
+	"time"
+	
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -31,6 +34,11 @@ func NewCreateTenant() *CreateTenant {
 	return &CreateTenant{
 		VerificationKey: entity.GenerateEmailVerificationKey(),
 	}
+}
+
+// GetVerificationKey returns the verification key
+func (action *CreateTenant) GetVerificationKey() string {
+	return action.VerificationKey
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -106,6 +114,92 @@ func (action *CreateTenant) GetUser() *entity.User {
 
 // GetKind returns EmailVerificationKindSignUp
 func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignUp
+}
+
+// ResendSignUpEmail is the input model used to resend signup verification email
+type ResendSignUpEmail struct {
+	VerificationKey string
+	email           string
+	name            string
+}
+
+func NewResendSignUpEmail() *ResendSignUpEmail {
+	return &ResendSignUpEmail{
+		VerificationKey: entity.GenerateEmailVerificationKey(),
+	}
+}
+
+// GetVerificationKey returns the verification key
+func (action *ResendSignUpEmail) GetVerificationKey() string {
+	return action.VerificationKey
+}
+
+// SetEmailAndName sets the email and name from the pending verification
+func (action *ResendSignUpEmail) SetEmailAndName(email, name string) {
+	action.email = email
+	action.name = name
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *ResendSignUpEmail) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return true
+}
+
+// Validate if current model is valid
+func (action *ResendSignUpEmail) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	result := validate.Success()
+
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+	if !hasTenant || tenant.Status != enum.TenantPending {
+		return validate.Failed("This operation is only allowed for pending tenants.")
+	}
+
+	// Get the most recent pending signup verification
+	pendingVerification := &query.GetPendingSignUpVerification{}
+	if err := bus.Dispatch(ctx, pendingVerification); err != nil {
+		return validate.Error(err)
+	}
+
+	// Check if last resend was within 5 minutes (rate limiting)
+	if pendingVerification.Result != nil {
+		timeSinceLastSend := time.Since(pendingVerification.Result.CreatedAt)
+		if timeSinceLastSend < 5*time.Minute {
+			remainingTime := 5*time.Minute - timeSinceLastSend
+			remainingMinutes := int(remainingTime.Minutes())
+			remainingSeconds := int(remainingTime.Seconds()) % 60
+			
+			var message string
+			if remainingMinutes > 0 {
+				message = fmt.Sprintf("Please wait %d minute(s) and %d second(s) before requesting another verification email.", remainingMinutes, remainingSeconds)
+			} else {
+				message = fmt.Sprintf("Please wait %d second(s) before requesting another verification email.", remainingSeconds)
+			}
+			
+			result.AddFieldFailure("", message)
+		}
+	}
+
+	return result
+}
+
+// GetEmail returns the email being verified
+func (action *ResendSignUpEmail) GetEmail() string {
+	return action.email
+}
+
+// GetName returns the name of the email owner
+func (action *ResendSignUpEmail) GetName() string {
+	return action.name
+}
+
+// GetUser returns the current user performing this action
+func (action *ResendSignUpEmail) GetUser() *entity.User {
+	return nil
+}
+
+// GetKind returns EmailVerificationKindSignUp
+func (action *ResendSignUpEmail) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindSignUp
 }
 

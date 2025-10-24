@@ -200,5 +200,8 @@
   "signin.message.socialbutton.intro": "Continue with",
   "validation.custom.maxattachments": "A maximum of {number} attachments are allowed.",
   "validation.custom.maximagesize": "The image size must be smaller than {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
+  "page.pendingactivation.didntreceive": "Didn't receive the email?",
+  "page.pendingactivation.resend": "Resend verification email",
+  "page.pendingactivation.resending": "Resending..."
 }

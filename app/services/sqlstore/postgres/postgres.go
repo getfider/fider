@@ -116,6 +116,8 @@ func (s Service) Init() {
 	bus.AddHandler(getVerificationByKey)
 	bus.AddHandler(saveVerificationKey)
 	bus.AddHandler(setKeyAsVerified)
+	bus.AddHandler(getPendingSignUpVerification)
+	bus.AddHandler(invalidatePreviousSignUpKeys)
 
 	bus.AddHandler(listCustomOAuthConfig)
 	bus.AddHandler(getCustomOAuthConfigByProvider)

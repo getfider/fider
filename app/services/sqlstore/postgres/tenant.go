@@ -307,3 +307,35 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		return nil
 	})
 }
+
+func getPendingSignUpVerification(ctx context.Context, q *query.GetPendingSignUpVerification) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		verification := dbEmailVerification{}
+
+		query := `SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id 
+		          FROM email_verifications 
+		          WHERE tenant_id = $1 AND kind = $2 AND verified_at IS NULL
+		          ORDER BY created_at DESC 
+		          LIMIT 1`
+		err := trx.Get(&verification, query, tenant.ID, enum.EmailVerificationKindSignUp)
+		if err != nil {
+			return errors.Wrap(err, "failed to get pending signup verification for tenant '%d'", tenant.ID)
+		}
+
+		q.Result = verification.toModel()
+		return nil
+	})
+}
+
+func invalidatePreviousSignUpKeys(ctx context.Context, c *cmd.InvalidatePreviousSignUpKeys) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		query := `UPDATE email_verifications 
+		          SET expires_at = $1 
+		          WHERE tenant_id = $2 AND kind = $3 AND verified_at IS NULL AND expires_at > $1`
+		_, err := trx.Execute(query, time.Now(), tenant.ID, enum.EmailVerificationKindSignUp)
+		if err != nil {
+			return errors.Wrap(err, "failed to invalidate previous signup keys for tenant '%d'", tenant.ID)
+		}
+		return nil
+	})
+}
