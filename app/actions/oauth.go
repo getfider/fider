@@ -46,7 +46,6 @@ func (action *CreateEditOAuthConfig) IsAuthorized(ctx context.Context, user *ent
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate if current model is valid
 // SetSystemProviderStatus is used to enable/disable built-in OAuth providers
 type SetSystemProviderStatus struct {
 	Provider  string `json:"provider"`
