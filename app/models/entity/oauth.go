@@ -2,6 +2,14 @@ package entity
 
 import "encoding/json"
 
+// TenantProvider represents tenant-level OAuth provider settings
+type TenantProvider struct {
+	ID        int
+	TenantID  int
+	Provider  string
+	IsEnabled bool
+}
+
 // OAuthConfig is the configuration of a custom OAuth provider
 type OAuthConfig struct {
 	ID                int

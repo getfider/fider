@@ -333,15 +333,26 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 
 	oauthBaseURL := web.OAuthBaseURL(ctx)
 	for _, p := range oauthProviders.Result {
+		isCustomProvider := string(p.Provider[0]) == "_"
+		isEnabled := p.Status == enum.OAuthConfigEnabled
+
+		// For built-in (non-custom) providers, check tenant-level override
+		if !isCustomProvider && isEnabled {
+			tenantStatus := &query.GetTenantProviderStatus{Provider: p.Provider}
+			if err := bus.Dispatch(ctx, tenantStatus); err == nil && tenantStatus.Result != nil {
+				isEnabled = tenantStatus.Result.IsEnabled
+			}
+		}
+
 		list = append(list, &dto.OAuthProviderOption{
 			Provider:         p.Provider,
 			DisplayName:      p.DisplayName,
 			ClientID:         p.ClientID,
 			URL:              fmt.Sprintf("/oauth/%s", p.Provider),
 			CallbackURL:      fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, p.Provider),
-			IsCustomProvider: string(p.Provider[0]) == "_",
+			IsCustomProvider: isCustomProvider,
 			LogoBlobKey:      p.LogoBlobKey,
-			IsEnabled:        p.Status == enum.OAuthConfigEnabled,
+			IsEnabled:        isEnabled,
 		})
 	}
 
