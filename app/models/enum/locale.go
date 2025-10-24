@@ -4,6 +4,10 @@ import (
 	"github.com/pemistahl/lingua-go"
 )
 
+// This file is the single source of truth for all locale/language definitions in Fider.
+// When adding a new language, update this file first, then follow the complete guide at:
+// /locale/README.md
+
 // Locale represents a supported language/locale in Fider
 type Locale struct {
 	Code              string          // Locale code (e.g., "pt-BR", "en")
