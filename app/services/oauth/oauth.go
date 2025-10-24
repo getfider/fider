@@ -367,7 +367,7 @@ func getConfig(ctx context.Context, provider string) (*entity.OAuthConfig, error
 			tenantStatus := &query.GetTenantProviderStatus{Provider: provider}
 			if err := bus.Dispatch(ctx, tenantStatus); err == nil && tenantStatus.Result != nil {
 				if !tenantStatus.Result.IsEnabled {
-					return nil, errors.New("Provider %s is disabled for this tenant", provider)
+					return nil, fmt.Errorf("Provider %s is disabled for this tenant", provider)
 				}
 			}
 			return config, nil
