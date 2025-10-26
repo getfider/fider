@@ -9,6 +9,7 @@ import HeroIconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import HeroIconThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
 import { HStack, VStack } from "./layout"
 import { timeSince } from "@fider/services"
+import { Trans } from "@lingui/react/macro"
 
 type Size = "micro" | "small" | "normal"
 
@@ -63,19 +64,41 @@ const getLozengeProps = (status: PostStatus): { icon: SpriteSymbol; bg: string; 
   }
 }
 
+const getStatusTranslation = (status: PostStatus): JSX.Element => {
+  switch (status) {
+    case PostStatus.Open:
+      return <Trans id="enum.poststatus.open">Open</Trans>
+    case PostStatus.Planned:
+      return <Trans id="enum.poststatus.planned">Planned</Trans>
+    case PostStatus.Started:
+      return <Trans id="enum.poststatus.started">Started</Trans>
+    case PostStatus.Completed:
+      return <Trans id="enum.poststatus.completed">Completed</Trans>
+    case PostStatus.Declined:
+      return <Trans id="enum.poststatus.declined">Declined</Trans>
+    case PostStatus.Duplicate:
+      return <Trans id="enum.poststatus.duplicate">Duplicate</Trans>
+    case PostStatus.Deleted:
+      return <Trans id="enum.poststatus.deleted">Deleted</Trans>
+    default:
+      return <>{status.title}</>
+  }
+}
+
 export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null => {
   const status = PostStatus.Get(props.status)
   const { icon, bg, color, border } = getLozengeProps(status)
+  const translatedStatus = getStatusTranslation(status)
 
   if (props.size == "micro") {
-    return <span className={`${color} text-sm`}>{status.title}</span>
+    return <span className={`${color} text-sm`}>{translatedStatus}</span>
   }
 
   return (
     <div>
       <HStack align="start" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
         {!props.size && <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />}
-        <span className={`c-status-col--${status.value} ${props.size === "small" ? "text-sm" : "text-semibold"}`}>{status.title}</span>
+        <span className={`c-status-col--${status.value} ${props.size === "small" ? "text-sm" : "text-semibold"}`}>{translatedStatus}</span>
       </HStack>
     </div>
   )
