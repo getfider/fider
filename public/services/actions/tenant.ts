@@ -107,3 +107,7 @@ export interface CreateEditOAuthConfigRequest {
 export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Promise<Result> => {
   return await http.post("/_api/admin/oauth", request)
 }
+
+export const setSystemProviderStatus = async (provider: string, isEnabled: boolean): Promise<Result> => {
+  return await http.post(`/_api/admin/oauth/${provider}/status`, { provider, isEnabled })
+}

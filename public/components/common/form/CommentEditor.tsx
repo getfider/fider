@@ -1,5 +1,6 @@
 import { Editor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
+import Link from "@tiptap/extension-link"
 import React, { useState, useRef, useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
@@ -9,6 +10,7 @@ import Paragraph from "@tiptap/extension-paragraph"
 import Text from "@tiptap/extension-text"
 import HardBreak from "@tiptap/extension-hard-break"
 import { i18n } from "@lingui/core"
+import { useAllowedProtocols } from "@fider/hooks"
 
 import "./CommentEditor.scss"
 
@@ -23,6 +25,7 @@ import IconAt from "@fider/assets/images/heroicons-at.svg"
 import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
+import IconLink from "@fider/assets/images/heroicons-link.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
 import { fileToBase64 } from "@fider/services"
 import { generateBkey } from "@fider/services/bkey"
@@ -31,6 +34,7 @@ import { CustomImage } from "./CustomImage"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
+import LinkInsertModal from "./LinkInsertModal"
 import { Trans } from "@lingui/react/macro"
 import { classSet } from "@fider/services"
 
@@ -40,18 +44,20 @@ const MenuBar = ({
   toggleMarkdownMode,
   disabled,
   onImageUpload,
+  onLinkClick,
 }: {
   editor: Editor | null
   isMarkdownMode: boolean
   disabled: boolean
   toggleMarkdownMode: () => void
   onImageUpload: (file: File) => Promise<void>
+  onLinkClick: (selectedText: string) => void
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   if (!editor) {
     return null
   }
-
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageClick = () => {
     if (fileInputRef.current) {
@@ -178,6 +184,20 @@ const MenuBar = ({
             >
               <Icon sprite={IconPhotograph} />
             </button>
+            <button
+              disabled={disabled}
+              type="button"
+              title="Insert Link"
+              onClick={() => {
+                // Get the text that was highlighted when the user clicked the link button
+                const { from, to } = editor.state.selection
+                const selectedText = editor.state.doc.textBetween(from, to)
+                onLinkClick(selectedText)
+              }}
+              className={`c-editor-button ${disabled ? "is-disabled" : ""}`}
+            >
+              <Icon sprite={IconLink} />
+            </button>
             <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
           </>
         )}
@@ -225,6 +245,9 @@ const markdownToHtml = (markdownString: string) => {
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
   const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
+  const [selectedText, setSelectedText] = useState("")
+  const allowedProtocols = useAllowedProtocols()
 
   // Use a ref instead of state for tracking document images
   // This avoids the async state update issue and prevents unnecessary re-renders
@@ -312,11 +335,9 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     // Get the current markdown content
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
-    // Always get plain text regardless of mode
-    const plainText = editor.getText()
 
-    // Pass both markdown and plain text to parent
-    props.onChange && props.onChange(markdown, plainText)
+    // Pass markdown to parent (plain text will be generated in ShareFeedback if needed)
+    props.onChange && props.onChange(markdown)
 
     // Track the current state of images in the document
     // This will also check for removed images
@@ -412,6 +433,29 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }
 
+  const handleInsertLink = (text: string, url: string) => {
+    if (!editor) return
+
+    editor.chain().focus().insertContent(`<a href="${url}" target="_blank" rel="noopener nofollow">${text}</a>`).run()
+  }
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (!editor) return
+
+    const isMac = navigator.userAgent.toUpperCase().indexOf("MAC") >= 0
+    const isCmdK = (isMac && event.metaKey && event.key === "k") || (!isMac && event.ctrlKey && event.key === "k")
+
+    if (isCmdK) {
+      event.preventDefault()
+      // Get the text that was highlighted when the user pressed Cmd+K
+      const { from, to } = editor.state.selection
+      const selectedText = editor.state.doc.textBetween(from, to)
+      setSelectedText(selectedText)
+      setIsLinkModalOpen(true)
+    }
+  }
+
   const extensions = isRawMarkdownMode
     ? [
         // Minimal extensions for markdown mode
@@ -426,6 +470,17 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
       ]
     : [
         StarterKit,
+        Link.configure({
+          openOnClick: true,
+          autolink: true,
+          defaultProtocol: "https",
+          protocols: allowedProtocols,
+          HTMLAttributes: {
+            class: "text-link",
+            target: "_blank",
+            rel: "noopener nofollow",
+          },
+        }),
         Markdown.configure({
           html: true,
           breaks: true,
@@ -545,6 +600,18 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }, [editor])
 
+  // Add keyboard event listener for shortcuts
+  useEffect(() => {
+    if (editor) {
+      const editorElement = editor.view.dom
+      editorElement.addEventListener("keydown", handleKeyDown)
+
+      return () => {
+        editorElement.removeEventListener("keydown", handleKeyDown)
+      }
+    }
+  }, [editor])
+
   return (
     <ValidationContext.Consumer>
       {(ctx) => (
@@ -561,10 +628,15 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
               isMarkdownMode={isRawMarkdownMode}
               toggleMarkdownMode={toggleMarkdownMode}
               onImageUpload={handleImageUpload}
+              onLinkClick={(text) => {
+                setSelectedText(text)
+                setIsLinkModalOpen(true)
+              }}
             />
             <EditorContent editor={editor} data-testid="tiptap-editor" />
           </div>
           <DisplayError fields={[props.field]} error={ctx.error} />
+          <LinkInsertModal isOpen={isLinkModalOpen} onClose={() => setIsLinkModalOpen(false)} onInsertLink={handleInsertLink} selectedText={selectedText} />
         </div>
       )}
     </ValidationContext.Consumer>
