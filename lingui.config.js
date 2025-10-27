@@ -1,5 +1,8 @@
 import { formatter } from "@lingui/format-json"
 
+// NOTE: All locale definitions are centralized in app/models/enum/locale.go
+// See locale/locales.ts for the complete list of steps when adding a new locale
+
 export default {
   catalogs: [
     {

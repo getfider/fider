@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pemistahl/lingua-go"
+
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -29,6 +31,7 @@ type dbPost struct {
 	Slug           string         `db:"slug"`
 	Description    string         `db:"description"`
 	CreatedAt      time.Time      `db:"created_at"`
+	Search         []byte         `db:"search"`
 	User           *dbUser        `db:"user"`
 	HasVoted       bool           `db:"has_voted"`
 	VotesCount     int            `db:"votes_count"`
@@ -119,16 +122,17 @@ var (
 															WHERE posts.tenant_id = $1
 															GROUP BY post_id
 													)
-													SELECT p.id, 
-																p.number, 
-																p.title, 
-																p.slug, 
-																p.description, 
+													SELECT p.id,
+																p.number,
+																p.title,
+																p.slug,
+																p.description,
 																p.created_at,
+																p.search,
 																COALESCE(agg_s.all, 0) as votes_count,
 																COALESCE(agg_c.all, 0) as comments_count,
 																COALESCE(agg_s.recent, 0) AS recent_votes_count,
-																COALESCE(agg_c.recent, 0) AS recent_comments_count,																
+																COALESCE(agg_c.recent, 0) AS recent_comments_count,
 																p.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 
@@ -290,10 +294,13 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var id int
+		// Detect language using lingua-go
+		lang := detectPostLanguage(c.Title, c.Description)
+
 		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status) 
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0) 
-			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now())
+			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status, language) 
+			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0, $7) 
+			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now(), lang)
 		if err != nil {
 			return errors.Wrap(err, "failed add new post")
 		}
@@ -314,8 +321,11 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
-													 WHERE id = $4 AND tenant_id = $5`, c.Title, slug.Make(c.Title), c.Description, c.Post.ID, tenant.ID)
+		// Detect language using lingua-go
+		lang := detectPostLanguage(c.Title, c.Description)
+		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3, language = $4 
+								 WHERE id = $5 AND tenant_id = $6`, c.Title, slug.Make(c.Title), c.Description, lang, c.Post.ID, tenant.ID)
+
 		if err != nil {
 			return errors.Wrap(err, "failed update post")
 		}
@@ -327,6 +337,27 @@ func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 		c.Result = q.Result
 		return nil
 	})
+}
+
+// detectPostLanguage uses lingua-go to detect the language of a post and maps it to a PostgreSQL tsvector config or 'simple'.
+// All language mappings are centralized in app/models/enum/locale.go
+func detectPostLanguage(title, description string) string {
+	// Get all supported lingua languages from the centralized locale enum
+	linguaLangs := enum.GetLinguaLanguages()
+	detector := lingua.NewLanguageDetectorBuilder().FromLanguages(linguaLangs...).Build()
+	text := strings.TrimSpace(title + " " + description)
+	lang, exists := detector.DetectLanguageOf(text)
+	if !exists {
+		return "simple"
+	}
+
+	locale, ok := enum.GetLocaleByLinguaLanguage(lang)
+	if !ok {
+		return "simple"
+	}
+
+	// Map to PostgreSQL tsvector config using the locale's PostgresConfig
+	return locale.PostgresConfig
 }
 
 func getPostByID(ctx context.Context, q *query.GetPostByID) error {
@@ -400,20 +431,33 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 		if filteredQuery == "" {
 			q.Result = make([]*entity.Post, 0)
 		} else {
-			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
+			tsConfig := MapLocaleToTSConfig(tenant.Locale)
+
+			// Build tsquery with AND operator between words and prefix matching on each word
+			// The search column already contains both language-specific and simple tsvectors
+			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
+			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
+
+			// Use ts_rank_cd (cover density ranking) for better relevance scoring
+			// Query against the generated search column which combines language-specific and simple tsvectors
+			score := fmt.Sprintf("ts_rank_cd(q.search, %s) + ts_rank_cd(q.search, %s)", tsQueryExpr, tsQuerySimple)
+
+			// Match against the pre-computed search column
+			whereParts := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
+
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
-				WHERE %s > 0.5
+				SELECT * FROM (%s) AS q
+				WHERE %s
 				ORDER BY %s DESC
 				LIMIT 5
-			`, innerQuery, scoreField, scoreField)
+			`, innerQuery, whereParts, score)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(filteredQuery), SanitizeString(filteredQuery))
+			}), ToTSQuery(SanitizeString(q.Query)))
 		}
 		if err != nil {
 			return errors.Wrap(err, "failed to find similar posts")
@@ -450,26 +494,39 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			err   error
 		)
 		if q.Query != "" {
-			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
+			tsQuery := ToTSQuery(SanitizeString(q.Query))
+			if tsQuery == "" {
+				q.Result = make([]*entity.Post, 0)
+				return nil
+			}
+
+			tsConfig := MapLocaleToTSConfig(tenant.Locale)
+
+			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
+			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
+
+			score := fmt.Sprintf("ts_rank_cd(q.search, %s) + ts_rank_cd(q.search, %s)", tsQueryExpr, tsQuerySimple)
+
+			whereParts := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
+
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
-				WHERE %s > 0.4
+				SELECT * FROM (%s) AS q
+				WHERE %s
 				ORDER BY %s DESC
 				LIMIT %s
-			`, innerQuery, scoreField, scoreField, q.Limit)
+			`, innerQuery, whereParts, score, q.Limit)
 			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
 				enum.PostOpen,
 				enum.PostStarted,
 				enum.PostPlanned,
 				enum.PostCompleted,
 				enum.PostDeclined,
-			}), ToTSQuery(q.Query), SanitizeString(q.Query))
+			}), tsQuery)
 		} else {
 			condition, statuses, sort := getViewData(*q)
 
 			if q.MyPostsOnly {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
-
 			}
 
 			sql := fmt.Sprintf(`

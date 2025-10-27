@@ -3,6 +3,7 @@
 There are many ways you can contribute to Fider.
 
 - **Send us a Pull Request** on GitHub. Make sure you read our [Getting Started](#getting-started-with-fider-codebase) guide to learn how to setup the development environment;
+- **Translate Fider** to your language. See our [translation guide](/locale/README.md) to learn how to add a new language;
 - **Report issues** and bug reports on https://github.com/getfider/fider/issues;
 - **Give feedback** and vote on features you'd like to see at https://feedback.fider.io;
 - **Spread the word** by starring us on GitHub. Tweet about the project and show it to your friends. The more people know about Fider, the bigger the community will be and more contributions will be made;
