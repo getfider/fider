@@ -40,6 +40,15 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
 
+	// Mock tenant provider status to return enabled by default
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantProviderStatus) error {
+		q.Result = &entity.TenantProvider{
+			Provider:  q.Provider,
+			IsEnabled: true,
+		}
+		return nil
+	})
+
 	ctx := newGetContext("http://login.test.fider.io:3000")
 	authURL := &query.GetOAuthAuthorizationURL{
 		Provider:   app.FacebookProvider,
@@ -60,6 +69,15 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 func TestGetAuthURL_Google(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
+
+	// Mock tenant provider status to return enabled by default
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantProviderStatus) error {
+		q.Result = &entity.TenantProvider{
+			Provider:  q.Provider,
+			IsEnabled: true,
+		}
+		return nil
+	})
 
 	ctx := newGetContext("http://login.test.fider.io:3000")
 
@@ -82,6 +100,15 @@ func TestGetAuthURL_Google(t *testing.T) {
 func TestGetAuthURL_GitHub(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
+
+	// Mock tenant provider status to return enabled by default
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantProviderStatus) error {
+		q.Result = &entity.TenantProvider{
+			Provider:  q.Provider,
+			IsEnabled: true,
+		}
+		return nil
+	})
 
 	ctx := newGetContext("http://login.test.fider.io:3000")
 

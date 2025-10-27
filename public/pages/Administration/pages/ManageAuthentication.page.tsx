@@ -82,6 +82,14 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
     )
   }
 
+  private toggleSystemProvider = async (provider: OAuthProviderOption, active: boolean) => {
+    const response = await actions.setSystemProviderStatus(provider.provider, active)
+    if (response.ok) {
+      provider.isEnabled = active
+      this.forceUpdate()
+    }
+  }
+
   public content() {
     let enabledProvidersCount = 0
     for (const o of this.props.providers) {
@@ -143,27 +151,39 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
                     <OAuthProviderLogo option={o} />
                     <strong>{o.displayName}</strong>
                   </HStack>
-                  {o.isCustomProvider && (
-                    <HStack>
-                      {Fider.session.user.isAdministrator && (
+                  <HStack>
+                    {o.isCustomProvider && Fider.session.user.isAdministrator && (
+                      <>
                         <Button onClick={this.edit.bind(this, o.provider)} size="small">
                           <Icon sprite={IconPencilAlt} />
                           <span>Edit</span>
                         </Button>
-                      )}
-                      <Button onClick={this.startTest.bind(this, o.provider)} size="small">
-                        <Icon sprite={IconPlay} />
-                        <span>Test</span>
-                      </Button>
-                    </HStack>
-                  )}
+                        <Button onClick={this.startTest.bind(this, o.provider)} size="small">
+                          <Icon sprite={IconPlay} />
+                          <span>Test</span>
+                        </Button>
+                      </>
+                    )}
+                    {!o.isCustomProvider && o.clientID && Fider.session.user.isAdministrator && (
+                      <Toggle
+                        field={`provider-${o.provider}`}
+                        label={o.isEnabled ? "Enabled" : "Disabled"}
+                        disabled={cantDisable && o.isEnabled}
+                        active={o.isEnabled}
+                        onToggle={this.toggleSystemProvider.bind(this, o)}
+                      />
+                    )}
+                    {!o.isCustomProvider && !o.clientID && <span className="text-muted">Not configured</span>}
+                  </HStack>
                 </HStack>
-                <div className="text-xs block my-1">{o.isEnabled ? enabled : disabled}</div>
                 {o.isCustomProvider && (
-                  <span className="text-muted">
-                    <strong>Client ID:</strong> {o.clientID} <br />
-                    <strong>Callback URL:</strong> {o.callbackURL}
-                  </span>
+                  <>
+                    <div className="text-xs block my-1">{o.isEnabled ? enabled : disabled}</div>
+                    <span className="text-muted">
+                      <strong>Client ID:</strong> {o.clientID} <br />
+                      <strong>Callback URL:</strong> {o.callbackURL}
+                    </span>
+                  </>
                 )}
               </div>
             ))}
