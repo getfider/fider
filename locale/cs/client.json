@@ -197,5 +197,16 @@
   "validation.custom.maxattachments": "Maximální povolený počet příloh je {number}.",
   "validation.custom.maximagesize": "Velikost obrázku musí být menší než {kilobytes}KB.",
   "modal.rss.description": "Chcete-li se přihlásit k odběru tohoto kanálu ATOM, zkopírujte a vložte tuto URL adresu do své čtečky RSS/ATOM.",
-  "modal.rss.title": "Přihlásit se k odběru kanálu ATOM"
+  "modal.rss.title": "Přihlásit se k odběru kanálu ATOM",
+  "home.postfilter.label.myactivity": "Vlastní",
+  "home.postfilter.label.status": "Postavení",
+  "home.postfilter.option.myposts": "Moje příspěvky",
+  "home.postfilter.option.notags": "Neoznačeno",
+  "linkmodal.insert": "Vložit odkaz",
+  "linkmodal.text.label": "Text k zobrazení",
+  "linkmodal.text.placeholder": "Zadejte text odkazu",
+  "linkmodal.text.required": "Je vyžadován text",
+  "linkmodal.title": "Vložit odkaz",
+  "linkmodal.url.invalid": "Zadejte platnou URL adresu",
+  "linkmodal.url.required": "URL je povinná"
 }
