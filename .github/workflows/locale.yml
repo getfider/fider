@@ -9,6 +9,8 @@ on:
         default: "false"
 
   push:
+    branches:
+      - main
     paths:
       - "locale/en/**.json"
 
