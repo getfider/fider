@@ -6,6 +6,7 @@ import { Modal, CloseIcon, Form, Button, Input, LegalFooter } from "@fider/compo
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
 import { actions, Failure, querystring, classSet } from "@fider/services"
+import { plainText } from "@fider/services/markdown"
 import { i18n } from "@lingui/core"
 import { Tag } from "@fider/models"
 import { SimilarPosts } from "../components/SimilarPosts"
@@ -57,8 +58,6 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const canEditTags = fider.settings.postWithTags && props.tags.length > 0
   const [title, setTitle] = useState(getCachedTitle())
   const [description, setDescription] = useState(getCachedDescription())
-  // Add state for plain text version of description
-  const [descriptionPlainText, setDescriptionPlainText] = useState("")
   const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
     cacheKey: CACHE_KEYS.ATTACHMENT,
     useLocalStorage: true,
@@ -108,17 +107,19 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   useEffect(() => {
     if (!titleManuallyEdited && !isInitialMount) {
-      // Use plain text for title generation if available, otherwise fall back to description
-      const textToUse = descriptionPlainText || description
-
-      let newlineIndex = Math.min(textToUse.indexOf("\n"), 80)
+      // Find newline in the original markdown content for truncation
+      let newlineIndex = Math.min(description.indexOf("\n"), 80)
       if (newlineIndex == -1) {
         newlineIndex = 80
       }
-      const autoTitle = textToUse.substring(0, newlineIndex)
+
+      // Get the truncated markdown content and convert to plain text
+      const truncatedMarkdown = description.substring(0, newlineIndex)
+      const autoTitle = plainText(truncatedMarkdown)
+
       handleTitleChange(autoTitle, false)
     }
-  }, [description, descriptionPlainText, titleManuallyEdited])
+  }, [description, titleManuallyEdited])
 
   useEffect(() => {
     if (isOpen && editorRef.current) {
@@ -156,7 +157,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     setTags(newTags)
   }
 
-  const handleDescriptionChange = (value: string, plainText?: string) => {
+  const handleDescriptionChange = (value: string) => {
     setCachedDescription(value)
 
     // If the description starts with an image attachment, we don't want to set it as the title
@@ -165,11 +166,6 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     }
 
     setDescription(value)
-
-    // Store plain text version if provided
-    if (plainText !== undefined) {
-      setDescriptionPlainText(plainText)
-    }
   }
 
   const onSubmitFeedback = () => {
