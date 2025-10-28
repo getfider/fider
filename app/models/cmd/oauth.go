@@ -28,3 +28,8 @@ type ParseOAuthRawProfile struct {
 
 	Result *dto.OAuthUserProfile
 }
+
+type SetTenantProviderStatus struct {
+	Provider  string
+	IsEnabled bool
+}

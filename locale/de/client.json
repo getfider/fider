@@ -204,5 +204,12 @@
   "signin.message.socialbutton.intro": "Einloggen mit",
   "validation.custom.maxattachments": "Es sind maximal {number} Anhänge zulässig.",
   "validation.custom.maximagesize": "Die Bildgröße muss kleiner als {kilobytes}KB sein.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# Tag} other {# Tags}}"
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# Tag} other {# Tags}}",
+  "linkmodal.insert": "Link einfügen",
+  "linkmodal.text.label": "Anzuzeigender Text",
+  "linkmodal.text.placeholder": "Linktext eingeben",
+  "linkmodal.text.required": "Text ist erforderlich",
+  "linkmodal.title": "Link einfügen",
+  "linkmodal.url.invalid": "Bitte geben Sie eine gültige URL ein",
+  "linkmodal.url.required": "URL ist erforderlich"
 }

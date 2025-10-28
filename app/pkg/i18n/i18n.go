@@ -5,39 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 	"sync"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/gotnospirit/messageformat"
 )
-
-// localeToPlurals maps between Fider locale and gotnospirit/messageformat culture
-var localeToPlurals = map[string]string{
-	"en":    "en",
-	"pt-BR": "pt",
-	"sv-SE": "se",
-	"es-ES": "es",
-	"el":    "el",
-	"nl":    "nl",
-	"de":    "de",
-	"fr":    "fr",
-	"pl":    "pl",
-	"ru":    "ru",
-	"sk":    "sk",
-	"it":    "it",
-	"tr":    "tr",
-	"ja":    "ja",
-	"zh-CN": "zh",
-	"ar":	 "ar",
-	"fa":	 "fa",
-}
-
-var rtlLocales = map[string]bool{
-    "ar": true,
-}
 
 type Params map[string]any
 
@@ -74,7 +49,12 @@ func getLocaleData(locale string) localeData {
 		panic(errors.Wrap(err, "failed unmarshal to json"))
 	}
 
-	parser, err := messageformat.NewWithCulture(localeToPlurals[locale])
+	localeInfo, found := enum.GetLocaleByCode(locale)
+	if !found {
+		panic(errors.New("unknown locale: %s", locale))
+	}
+
+	parser, err := messageformat.NewWithCulture(localeInfo.MessageFormatCode)
 	if err != nil {
 		panic(errors.Wrap(err, "failed create parser"))
 	}
@@ -106,10 +86,7 @@ func getMessage(locale, key string) (string, *messageformat.Parser) {
 
 // IsValidLocale returns true if given locale is valid
 func IsValidLocale(locale string) bool {
-	if _, ok := localeToPlurals[locale]; ok {
-		return true
-	}
-	return false
+	return enum.IsValidLocale(locale)
 }
 
 // GetLocale returns the locale defined in context
@@ -124,15 +101,12 @@ func GetLocale(ctx context.Context) string {
 
 func GetLocaleDirection(ctx context.Context) string {
     locale := GetLocale(ctx)
-    
-    parts := strings.Split(locale, "-")
-    baseLocale := parts[0]
-    
-    // Check if baseLocale is in rtlLocales map
-    if isRTL, exists := rtlLocales[baseLocale]; exists && isRTL {
+
+    localeInfo, found := enum.GetLocaleByCode(locale)
+    if found && localeInfo.IsRTL {
         return "rtl"
     }
-    
+
     return "ltr"
 }
 

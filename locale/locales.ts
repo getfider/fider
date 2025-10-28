@@ -1,3 +1,6 @@
+// NOTE: All locale definitions are centralized in app/models/enum/locale.go
+// To add a new language, see the complete guide at /locale/README.md
+
 interface Locale {
   text: string
 }

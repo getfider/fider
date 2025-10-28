@@ -41,4 +41,10 @@ VALUES ('Trial Expired', 'trial.expired@trial-expired.com', 3, now(), 3, 1, 2, '
 INSERT INTO user_providers (user_id, tenant_id, provider, provider_uid, created_at)
 VALUES (6, 3, 'facebook', 'FB3333', now());
 
+INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, prevent_indexing)
+VALUES ('Demonstration German', 'german', now(), '', '', '', 1, false, '', '', 'de', true, true, false);
 
+INSERT INTO users (name, email, tenant_id, created_at, role, status, avatar_type, avatar_bkey)
+VALUES ('Jon Snow', 'jon.snow@german.com', 4, now(), 3, 1, 2, '');
+INSERT INTO user_providers (user_id, tenant_id, provider, provider_uid, created_at)
+VALUES (7, 4, 'facebook', 'FB4444', now());
