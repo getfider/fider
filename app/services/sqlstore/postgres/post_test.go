@@ -24,10 +24,10 @@ func TestPostStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2, 'english')", now)
 	Expect(err).IsNil()
 
 	allPosts := &query.GetAllPosts{}
@@ -59,6 +59,185 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(search10.Result).HasLen(1)
 	Expect(search10.Result[0].Slug).Equals("add-twitter-integration")
 	Expect(search0.Result).HasLen(0)
+}
+func TestPostStorage_SearchGermanPosts(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Wann kommt der \"Wächter\" für das neue Stunden- und Vertretungsplanmodul?', 'wann-kommt-der-wachter-fur-das-neue-stunden-und-vertretungsplanmodul', 1, 'Description', $1, $2, $3, 0, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Neuer Stunden/ Vertretungsplanwächter', 'neuer-stunden-vertretungsplanwachter', 2, 'no description', $1, $2, $3, 0, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Ungeklärte Vertretung wird zu Entfall', 'ungeklarte-vertretung-wird-zu-entfall', 3, 'some description', $1, $2, $3, 0, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Vertretungsplan drucken', 'vertretungsplan-drucken', 4, 'another description', $1, $2, $3, 0, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Vertretungsplanung Wochenansicht', 'vertretungsplanung-wochenansicht', 5, 'description here', $1, $2, $3, 0, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('VertretungsBoard', 'vertretungsboard', 6, 'board description', $1, $2, $3, 0, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Abwesenheiten Vertretungsplan', 'abwesenheiten-vertretungsplan', 7, 'final description', $1, $2, $3, 0, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	// Search for "Vertretung" - with German stemming, should match all posts containing Vertretung* variants
+	allPosts := &query.SearchPosts{Query: "Vertretung"}
+	err = bus.Dispatch(germanTenantCtx, allPosts)
+	Expect(err).IsNil()
+	// All 7 posts contain "Vertretung" or variants like "Vertretungsplan", "Vertretungsplanung", etc.
+	// German stemming correctly identifies these as the same root word
+	Expect(allPosts.Result).HasLen(7)
+
+}
+
+func TestPostStorage_SearchEnglishPosts_SingleWord(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	// Create posts with various forms of "integration"
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Add Twitter Integration', 'add-twitter-integration', 1, 'Would be great to integrate with Twitter', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('GitHub Integration Needed', 'github-integration-needed', 2, 'Please add GitHub integration', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Integrate with Slack', 'integrate-with-slack', 3, 'Slack integration would be useful', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Email Notifications', 'email-notifications', 4, 'Add email notification support', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	// Search for "integration" - should match posts 1, 2, and 3 (with stemming, "integrate" = "integration")
+	searchIntegration := &query.SearchPosts{Query: "integration"}
+	err = bus.Dispatch(demoTenantCtx, searchIntegration)
+	Expect(err).IsNil()
+	Expect(searchIntegration.Result).HasLen(3)
+
+	// Verify the results contain the expected posts (should match all variations due to stemming)
+	slugs := map[string]bool{}
+	for _, post := range searchIntegration.Result {
+		slugs[post.Slug] = true
+	}
+	Expect(slugs["add-twitter-integration"]).IsTrue()
+	Expect(slugs["github-integration-needed"]).IsTrue()
+	Expect(slugs["integrate-with-slack"]).IsTrue()
+}
+
+func TestPostStorage_SearchEnglishPosts_MultiWord(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Dark Mode Support', 'dark-mode-support', 1, 'Add dark mode to the application', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Light Theme Customization', 'light-theme-customization', 2, 'Customize the light theme colors', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Dark Theme Colors', 'dark-theme-colors', 3, 'Change dark theme color scheme', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('User Profile', 'user-profile', 4, 'Improve user profile page', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	searchDarkTheme := &query.SearchPosts{Query: "dark theme"}
+	err = bus.Dispatch(demoTenantCtx, searchDarkTheme)
+	Expect(err).IsNil()
+
+	Expect(searchDarkTheme.Result).HasLen(3)
+}
+
+func TestPostStorage_SearchEnglishPosts_PartialMatch(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Authentication System', 'authentication-system', 1, 'Improve authentication', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Authorization Rules', 'authorization-rules', 2, 'Add better authorization', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('OAuth Support', 'oauth-support', 3, 'Support OAuth providers', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	// Search for "auth" - should match posts 1 and 2 (prefix matching)
+	searchAuth := &query.SearchPosts{Query: "auth"}
+	err = bus.Dispatch(demoTenantCtx, searchAuth)
+	Expect(err).IsNil()
+	Expect(searchAuth.Result).HasLen(2)
+
+	slugs := map[string]bool{}
+	for _, post := range searchAuth.Result {
+		slugs[post.Slug] = true
+	}
+	Expect(slugs["authentication-system"]).IsTrue()
+	Expect(slugs["authorization-rules"]).IsTrue()
+}
+
+func TestPostStorage_SearchEnglishPosts_CaseInsensitive(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('API Documentation', 'api-documentation', 1, 'Improve API docs', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Rest API Endpoints', 'rest-api-endpoints', 2, 'Add more REST API endpoints', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	// Search with different cases - all should return same results
+	searchLower := &query.SearchPosts{Query: "api"}
+	searchUpper := &query.SearchPosts{Query: "API"}
+	searchMixed := &query.SearchPosts{Query: "Api"}
+
+	err = bus.Dispatch(demoTenantCtx, searchLower, searchUpper, searchMixed)
+	Expect(err).IsNil()
+
+	Expect(searchLower.Result).HasLen(2)
+	Expect(searchUpper.Result).HasLen(2)
+	Expect(searchMixed.Result).HasLen(2)
+}
+
+func TestPostStorage_SearchEnglishPosts_DescriptionMatch(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Feature Request', 'feature-request-1', 1, 'Add support for exporting data to CSV format', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Another Feature', 'feature-request-2', 2, 'Improve the dashboard layout', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, language) VALUES ('Export Functionality', 'export-functionality', 3, 'Export reports in PDF format', $1, 1, 1, 0, 'english')", now)
+	Expect(err).IsNil()
+
+	// Search for "export" - should match posts 1 and 3 (one in description, one in title)
+	searchExport := &query.SearchPosts{Query: "export"}
+	err = bus.Dispatch(demoTenantCtx, searchExport)
+	Expect(err).IsNil()
+	Expect(searchExport.Result).HasLen(2)
+
+	slugs := map[string]bool{}
+	for _, post := range searchExport.Result {
+		slugs[post.Slug] = true
+	}
+	Expect(slugs["feature-request-1"]).IsTrue()
+	Expect(slugs["export-functionality"]).IsTrue()
 }
 
 func TestPostStorage_AddAndGet(t *testing.T) {

@@ -11,12 +11,14 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-var onlyalphanumeric = regexp.MustCompile("[^a-zA-Z0-9 |]+")
+// allowedTextRunes matches any character that is NOT a Unicode letter (\p{L}), number (\p{N}), space, or pipe.
+// This allows both Latin and non-Latin scripts to be preserved for full-text search.
+var allowedTextRunes = regexp.MustCompile(`[^\p{L}\p{N} |]+`)
 var replaceOr = strings.NewReplacer("|", " ")
 
 // ToTSQuery converts input to another string that can be safely used for ts_query
 func ToTSQuery(input string) string {
-	input = replaceOr.Replace(onlyalphanumeric.ReplaceAllString(input, ""))
+	input = replaceOr.Replace(allowedTextRunes.ReplaceAllString(input, ""))
 	return strings.Join(strings.Fields(input), "|")
 }
 
@@ -24,6 +26,13 @@ func ToTSQuery(input string) string {
 func SanitizeString(input string) string {
 	input = strings.Replace(input, "\u0000", "", -1)
 	return strings.ToValidUTF8(input, "")
+}
+
+// MapLocaleToTSConfig maps a tenant's locale short key to the corresponding PostgreSQL text search configuration.
+// Returns 'simple' if no match is found or if PostgreSQL doesn't have native support for the language.
+// All locale definitions are centralized in app/models/enum/locale.go
+func MapLocaleToTSConfig(locale string) string {
+	return enum.MapLocaleToTSConfig(locale)
 }
 
 func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {

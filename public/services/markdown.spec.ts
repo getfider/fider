@@ -66,6 +66,11 @@ How are you?`,
       '<p><a href="monero:83zJ2jMbBoxJkhtpaRLk6fQVrvfmGbd8gYUL7FSdLxU91JSpiWXoLUtAMGqmfvfq3qRS5gJUvMY7oLFSx71wxhKRGG6ypMt" target="_blank" rel="noopener nofollow" class="text-link">monero</a> <a href="bitcoin:1CgLs6CxXMAY4Pj4edQq5vyaFoP9NdqVKH" target="_blank" rel="noopener nofollow" class="text-link">bitcoin</a> <a target="_blank" rel="noopener nofollow" class="text-link">litecoin</a></p>',
     expectedPlainText: "monero bitcoin litecoin",
   },
+  {
+    input: "Jane's & Jim's > [Matt](https://example.com)",
+    expectedFull: '<p>Jane\'s &amp; Jim\'s &gt; <a target="_blank" rel="noopener nofollow" href="https://example.com" class="text-link">Matt</a></p>',
+    expectedPlainText: "Jane's & Jim's > Matt",
+  },
 ]
 
 testCases.forEach((x) => {

@@ -121,6 +121,8 @@ func (s Service) Init() {
 	bus.AddHandler(listCustomOAuthConfig)
 	bus.AddHandler(getCustomOAuthConfigByProvider)
 	bus.AddHandler(saveCustomOAuthConfig)
+	bus.AddHandler(getTenantProviderStatus)
+	bus.AddHandler(setTenantProviderStatus)
 
 	bus.AddHandler(getWebhook)
 	bus.AddHandler(listAllWebhooks)

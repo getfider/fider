@@ -26,6 +26,18 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
+func initOAuthWithMocks() {
+	bus.Init(&oauth.Service{})
+	// Mock tenant provider status to return enabled by default
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantProviderStatus) error {
+		q.Result = &entity.TenantProvider{
+			Provider:  q.Provider,
+			IsEnabled: true,
+		}
+		return nil
+	})
+}
+
 func TestSignOutHandler(t *testing.T) {
 	RegisterT(t)
 
@@ -43,7 +55,7 @@ func TestSignOutHandler(t *testing.T) {
 
 func TestSignInByOAuthHandler_RootRedirect(t *testing.T) {
 	RegisterT(t)
-	bus.Init(&oauth.Service{})
+	initOAuthWithMocks()
 
 	server := mock.NewServer()
 	code, _ := server.
@@ -58,7 +70,7 @@ func TestSignInByOAuthHandler_RootRedirect(t *testing.T) {
 
 func TestSignInByOAuthHandler_PathRedirect(t *testing.T) {
 	RegisterT(t)
-	bus.Init(&oauth.Service{})
+	initOAuthWithMocks()
 
 	server := mock.NewServer()
 	code, _ := server.
@@ -73,7 +85,7 @@ func TestSignInByOAuthHandler_PathRedirect(t *testing.T) {
 
 func TestSignInByOAuthHandler_EvilRedirect(t *testing.T) {
 	RegisterT(t)
-	bus.Init(&oauth.Service{})
+	initOAuthWithMocks()
 
 	server := mock.NewServer()
 	code, _ := server.
@@ -88,7 +100,7 @@ func TestSignInByOAuthHandler_EvilRedirect(t *testing.T) {
 
 func TestSignInByOAuthHandler_EvilRedirect2(t *testing.T) {
 	RegisterT(t)
-	bus.Init(&oauth.Service{})
+	initOAuthWithMocks()
 
 	server := mock.NewServer()
 	code, _ := server.
@@ -103,7 +115,7 @@ func TestSignInByOAuthHandler_EvilRedirect2(t *testing.T) {
 
 func TestSignInByOAuthHandler_InvalidURL(t *testing.T) {
 	RegisterT(t)
-	bus.Init(&oauth.Service{})
+	initOAuthWithMocks()
 
 	state, _ := jwt.Encode(jwt.OAuthStateClaims{
 		Redirect:   "http://avengers.test.fider.io",
@@ -124,7 +136,7 @@ func TestSignInByOAuthHandler_InvalidURL(t *testing.T) {
 
 func TestSignInByOAuthHandler_AuthenticatedUser(t *testing.T) {
 	RegisterT(t)
-	bus.Init(&oauth.Service{})
+	initOAuthWithMocks()
 
 	server := mock.NewServer()
 	code, response := server.
@@ -141,7 +153,7 @@ func TestSignInByOAuthHandler_AuthenticatedUser(t *testing.T) {
 
 func TestSignInByOAuthHandler_AuthenticatedUser_UsingEcho(t *testing.T) {
 	RegisterT(t)
-	bus.Init(&oauth.Service{})
+	initOAuthWithMocks()
 
 	server := mock.NewServer()
 	code, response := server.
