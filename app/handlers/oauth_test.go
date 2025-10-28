@@ -289,7 +289,10 @@ func TestCallbackHandler_SignIn_FormPost(t *testing.T) {
 	})
 
 	// Simulate Apple Sign-In with form_post response mode
-	formData := "state=" + url.QueryEscape(state) + "&code=123"
+	values := url.Values{}
+	values.Set("state", state)
+	values.Set("code", "123")
+	formData := values.Encode()
 	
 	server := mock.NewServer()
 	code, response := server.

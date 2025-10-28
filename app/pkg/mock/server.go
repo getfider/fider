@@ -143,7 +143,8 @@ func (s *Server) ExecutePostForm(handler web.HandlerFunc, body string) (int, *ht
 	newContext := web.NewContext(s.engine, req, s.recorder, params)
 	
 	// Copy params manually by using the Param method on old context
-	// We know "provider" was set via AddParam, so copy it
+	// Note: This only copies known params. If you need to copy all params,
+	// consider extending the Context API to expose all params.
 	if providerParam := s.context.Param("provider"); providerParam != "" {
 		newContext.AddParam("provider", providerParam)
 	}

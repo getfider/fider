@@ -48,7 +48,8 @@ func WrapRequest(request *http.Request) Request {
 		if err != nil {
 			panic(errors.Wrap(err, "failed to read body").Error())
 		}
-		// Reset the body so it can be read again by FormValue or other handlers
+		// Reset the body so it can be read again by FormValue for form-encoded data
+		// or other handlers that may need to parse the request body
 		request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	}
 
