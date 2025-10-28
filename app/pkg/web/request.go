@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"net/url"
@@ -47,6 +48,8 @@ func WrapRequest(request *http.Request) Request {
 		if err != nil {
 			panic(errors.Wrap(err, "failed to read body").Error())
 		}
+		// Reset the body so it can be read again by FormValue or other handlers
+		request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	}
 
 	return Request{

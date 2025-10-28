@@ -280,6 +280,27 @@ func TestCallbackHandler_SignUp(t *testing.T) {
 	})
 }
 
+func TestCallbackHandler_SignIn_FormPost(t *testing.T) {
+	RegisterT(t)
+
+	state, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://avengers.test.fider.io",
+		Identifier: "888",
+	})
+
+	// Simulate Apple Sign-In with form_post response mode
+	formData := "state=" + url.QueryEscape(state) + "&code=123"
+	
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("http://login.test.fider.io/oauth/callback").
+		AddParam("provider", "_apple").
+		ExecutePostForm(handlers.OAuthCallback(), formData)
+
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("http://avengers.test.fider.io/oauth/_apple/token?code=123&identifier=888&redirect=%2F")
+}
+
 func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 	RegisterT(t)
 
