@@ -50,7 +50,7 @@ func RunServer() int {
 	startJobs(ctx)
 
 	e := routes(web.New())
-	go e.Start(":" + env.Config.Port)
+	go e.Start(env.Config.Host + ":" + env.Config.Port)
 	return listenSignals(e)
 }
 

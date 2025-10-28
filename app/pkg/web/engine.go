@@ -128,7 +128,7 @@ func (e *Engine) Start(address string) {
 	}
 
 	if env.Config.Metrics.Enabled {
-		metricsAddress := ":" + env.Config.Metrics.Port
+		metricsAddress := env.Config.Metrics.Host + ":" + env.Config.Metrics.Port
 		e.metricsServer = newMetricsServer(metricsAddress)
 		go func() {
 			err := e.metricsServer.ListenAndServe()
