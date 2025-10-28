@@ -194,6 +194,107 @@ func TestGetAuthURL_Twitch(t *testing.T) {
 	Expect(authURL.Result).Equals("https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state=" + expectedState)
 }
 
+func TestGetAuthURL_Apple_WithEmailScope(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_apple" {
+			q.Result = &entity.OAuthConfig{
+				Provider:     q.Provider,
+				ClientID:     "APPLE_CL_ID",
+				Scope:        "openid email",
+				AuthorizeURL: "https://appleid.apple.com/auth/authorize",
+			}
+		}
+		return nil
+	})
+
+	ctx := newGetContext("http://login.test.fider.io:3000")
+	authURL := &query.GetOAuthAuthorizationURL{
+		Provider:   "_apple",
+		Redirect:   "http://example.org",
+		Identifier: "123",
+	}
+
+	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://example.org",
+		Identifier: "123",
+	})
+
+	err := bus.Dispatch(ctx, authURL)
+	Expect(err).IsNil()
+	Expect(authURL.Result).Equals("https://appleid.apple.com/auth/authorize?client_id=APPLE_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_apple%2Fcallback&response_mode=form_post&response_type=code&scope=openid+email&state=" + expectedState)
+}
+
+func TestGetAuthURL_Apple_WithNameScope(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_apple" {
+			q.Result = &entity.OAuthConfig{
+				Provider:     q.Provider,
+				ClientID:     "APPLE_CL_ID",
+				Scope:        "openid name",
+				AuthorizeURL: "https://appleid.apple.com/auth/authorize",
+			}
+		}
+		return nil
+	})
+
+	ctx := newGetContext("http://login.test.fider.io:3000")
+	authURL := &query.GetOAuthAuthorizationURL{
+		Provider:   "_apple",
+		Redirect:   "http://example.org",
+		Identifier: "456",
+	}
+
+	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://example.org",
+		Identifier: "456",
+	})
+
+	err := bus.Dispatch(ctx, authURL)
+	Expect(err).IsNil()
+	Expect(authURL.Result).Equals("https://appleid.apple.com/auth/authorize?client_id=APPLE_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_apple%2Fcallback&response_mode=form_post&response_type=code&scope=openid+name&state=" + expectedState)
+}
+
+func TestGetAuthURL_Apple_WithoutEmailOrName(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_apple" {
+			q.Result = &entity.OAuthConfig{
+				Provider:     q.Provider,
+				ClientID:     "APPLE_CL_ID",
+				Scope:        "openid",
+				AuthorizeURL: "https://appleid.apple.com/auth/authorize",
+			}
+		}
+		return nil
+	})
+
+	ctx := newGetContext("http://login.test.fider.io:3000")
+	authURL := &query.GetOAuthAuthorizationURL{
+		Provider:   "_apple",
+		Redirect:   "http://example.org",
+		Identifier: "789",
+	}
+
+	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   "http://example.org",
+		Identifier: "789",
+	})
+
+	err := bus.Dispatch(ctx, authURL)
+	Expect(err).IsNil()
+	// Without email or name scope, response_mode should not be added
+	Expect(authURL.Result).Equals("https://appleid.apple.com/auth/authorize?client_id=APPLE_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_apple%2Fcallback&response_type=code&scope=openid&state=" + expectedState)
+}
+
+
 func TestParseProfileResponse_AllFields(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})

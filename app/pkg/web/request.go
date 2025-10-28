@@ -79,6 +79,11 @@ func (r *Request) Cookie(name string) (*http.Cookie, error) {
 	return cookie, nil
 }
 
+// GetFormValue returns a form value from POST request
+func (r *Request) GetFormValue(key string) string {
+	return r.instance.FormValue(key)
+}
+
 // AddCookie adds a cookie
 func (r *Request) AddCookie(cookie *http.Cookie) {
 	r.instance.AddCookie(cookie)
