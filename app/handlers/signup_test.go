@@ -322,7 +322,7 @@ func TestResendSignUpEmailHandler_Success(t *testing.T) {
 		q.Result = &entity.EmailVerification{
 			Email:     "jon.snow@got.com",
 			Name:      "Jon Snow",
-			CreatedAt: time.Now().Add(-10 * time.Minute), // Old enough to allow resend
+			CreatedAt: time.Now().Add(-10 * time.Minute), // Old enough to allow resend (> 1 minute)
 		}
 		return nil
 	})
@@ -367,7 +367,7 @@ func TestResendSignUpEmailHandler_RateLimited(t *testing.T) {
 		q.Result = &entity.EmailVerification{
 			Email:     "jon.snow@got.com",
 			Name:      "Jon Snow",
-			CreatedAt: time.Now().Add(-2 * time.Minute), // Too recent
+			CreatedAt: time.Now().Add(-30 * time.Second), // Too recent (less than 1 minute)
 		}
 		return nil
 	})
