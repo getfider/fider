@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
-	
+
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -163,21 +163,14 @@ func (action *ResendSignUpEmail) Validate(ctx context.Context, user *entity.User
 		return validate.Error(err)
 	}
 
-	// Check if last resend was within 5 minutes (rate limiting)
+	// Check if last resend was within 1 minutes (rate limiting)
 	if pendingVerification.Result != nil {
 		timeSinceLastSend := time.Since(pendingVerification.Result.CreatedAt)
-		if timeSinceLastSend < 5*time.Minute {
-			remainingTime := 5*time.Minute - timeSinceLastSend
-			remainingMinutes := int(remainingTime.Minutes())
+		if timeSinceLastSend < 1*time.Minute {
+			remainingTime := 1*time.Minute - timeSinceLastSend
 			remainingSeconds := int(remainingTime.Seconds()) % 60
-			
-			var message string
-			if remainingMinutes > 0 {
-				message = fmt.Sprintf("Please wait %d minute(s) and %d second(s) before requesting another verification email.", remainingMinutes, remainingSeconds)
-			} else {
-				message = fmt.Sprintf("Please wait %d second(s) before requesting another verification email.", remainingSeconds)
-			}
-			
+
+			message := fmt.Sprintf("Please wait %d seconds to resend the verification email.", remainingSeconds)
 			result.AddFieldFailure("", message)
 		}
 	}
