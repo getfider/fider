@@ -208,5 +208,8 @@
   "linkmodal.text.required": "텍스트가 필요합니다",
   "linkmodal.title": "링크 삽입",
   "linkmodal.url.invalid": "유효한 URL을 입력하세요",
-  "linkmodal.url.required": "URL이 필요합니다"
+  "linkmodal.url.required": "URL이 필요합니다",
+  "page.pendingactivation.didntreceive": "이메일을 받지 못하셨나요?",
+  "page.pendingactivation.resend": "인증 이메일 재전송",
+  "page.pendingactivation.resending": "다시 보내는 중..."
 }
