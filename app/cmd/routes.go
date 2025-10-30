@@ -108,6 +108,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/_design", handlers.Page("Design System", "A preview of Fider UI elements", "DesignSystem/DesignSystem.page"))
 	r.Get("/signup/verify", handlers.VerifySignUpKey())
+	r.Post("/_api/signup/resend", handlers.ResendSignUpEmail())
 	r.Get("/signout", handlers.SignOut())
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
 	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
