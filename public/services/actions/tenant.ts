@@ -111,3 +111,7 @@ export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Pr
 export const setSystemProviderStatus = async (provider: string, isEnabled: boolean): Promise<Result> => {
   return await http.post(`/_api/admin/oauth/${provider}/status`, { provider, isEnabled })
 }
+
+export const resendSignUpEmail = async (): Promise<Result> => {
+  return await http.post("/_api/signup/resend", {})
+}

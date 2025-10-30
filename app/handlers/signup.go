@@ -201,3 +201,103 @@ func VerifySignUpKey() web.HandlerFunc {
 		return c.Redirect(c.BaseURL())
 	}
 }
+
+// ResendSignUpEmail resends the verification email for pending tenant signup
+func ResendSignUpEmail() web.HandlerFunc {
+	return func(c *web.Context) error {
+		if c.Tenant().Status != enum.TenantPending {
+			return c.NotFound()
+		}
+
+		// Get the existing verification to get email and name
+		pendingVerification := &query.GetPendingSignUpVerification{}
+		if err := bus.Dispatch(c, pendingVerification); err != nil {
+			return c.Failure(err)
+		}
+
+		if pendingVerification.Result == nil {
+			return c.NotFound()
+		}
+
+		action := actions.NewResendSignUpEmail()
+		
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		// Invalidate all previous keys
+		if err := bus.Dispatch(c, &cmd.InvalidatePreviousSignUpKeys{}); err != nil {
+			return c.Failure(err)
+		}
+
+		// Create a struct that implements NewEmailVerification interface
+		resendRequest := &resendEmailVerificationRequest{
+			email: pendingVerification.Result.Email,
+			name:  pendingVerification.Result.Name,
+		}
+
+		// Save new verification key
+		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+			Key:      action.VerificationKey,
+			Duration: 48 * time.Hour,
+			Request:  resendRequest,
+		})
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		// Send email
+		siteURL := web.TenantBaseURL(c, c.Tenant())
+		
+		// Create an adapter for the action to work with SendSignUpEmail
+		emailData := &resendEmailData{
+			verificationKey: action.VerificationKey,
+			email:           pendingVerification.Result.Email,
+			name:            pendingVerification.Result.Name,
+		}
+		c.Enqueue(tasks.SendSignUpEmail(emailData, siteURL))
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// resendEmailData implements SignUpEmailData interface
+type resendEmailData struct {
+	verificationKey string
+	email           string
+	name            string
+}
+
+func (r *resendEmailData) GetVerificationKey() string {
+	return r.verificationKey
+}
+
+func (r *resendEmailData) GetEmail() string {
+	return r.email
+}
+
+func (r *resendEmailData) GetName() string {
+	return r.name
+}
+
+// resendEmailVerificationRequest is a helper struct for resending verification emails
+type resendEmailVerificationRequest struct {
+	email string
+	name  string
+}
+
+func (r *resendEmailVerificationRequest) GetEmail() string {
+	return r.email
+}
+
+func (r *resendEmailVerificationRequest) GetName() string {
+	return r.name
+}
+
+func (r *resendEmailVerificationRequest) GetUser() *entity.User {
+	return nil
+}
+
+func (r *resendEmailVerificationRequest) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignUp
+}
