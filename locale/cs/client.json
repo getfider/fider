@@ -208,5 +208,8 @@
   "linkmodal.text.required": "Je vyžadován text",
   "linkmodal.title": "Vložit odkaz",
   "linkmodal.url.invalid": "Zadejte prosím platnou URL adresu",
-  "linkmodal.url.required": "URL je povinná"
+  "linkmodal.url.required": "URL je povinná",
+  "page.pendingactivation.didntreceive": "Neobdrželi jste e-mail?",
+  "page.pendingactivation.resend": "Znovu odeslat ověřovací e-mail",
+  "page.pendingactivation.resending": "Znovu odesílám..."
 }
