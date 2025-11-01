@@ -201,7 +201,7 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 
 	oauthBaseURL := web.OAuthBaseURL(ctx)
 	authURL, _ := url.Parse(config.AuthorizeURL)
-	parameters := getProviderInitialParams(authURL)
+	parameters := getProviderInitialParams(authURL, config)
 	parameters.Add("client_id", config.ClientID)
 	parameters.Add("scope", config.Scope)
 	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, q.Provider))
