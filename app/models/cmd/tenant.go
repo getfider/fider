@@ -60,3 +60,6 @@ type NewEmailVerification interface {
 type SetKeyAsVerified struct {
 	Key string
 }
+
+type InvalidatePreviousSignUpKeys struct {
+}

@@ -209,5 +209,8 @@
   "linkmodal.title": "සබැඳිය ඇතුළු කරන්න",
   "linkmodal.url.invalid": "කරුණාකර වලංගු URL එකක් ඇතුළත් කරන්න.",
   "linkmodal.url.label": "URL එක",
-  "linkmodal.url.required": "URL එක අවශ්‍යයි"
+  "linkmodal.url.required": "URL එක අවශ්‍යයි",
+  "page.pendingactivation.didntreceive": "ඊමේල් එක ලැබුනේ නැද්ද?",
+  "page.pendingactivation.resend": "සත්‍යාපන ඊමේල් නැවත යවන්න",
+  "page.pendingactivation.resending": "නැවත යවමින්..."
 }
