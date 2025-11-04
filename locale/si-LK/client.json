@@ -197,4 +197,20 @@
   "validation.custom.maxattachments": "උපරිම වශයෙන් ඇමුණුම් {number} ක් සඳහා අවසර ඇත.",
   "validation.custom.maximagesize": "රූපයේ ප්‍රමාණය {kilobytes}KB ට වඩා කුඩා විය යුතුය.",
   "modal.rss.description": "මෙම ATOM සංග්‍රහයට දායක වීමට, මෙම URL එක පිටපත් කර ඔබගේ RSS/ATOM කියවනයට අලවන්න.",
-  "modal.rss.title": "ATOM සංග්‍රහයට දායක වන්න"
+  "modal.rss.title": "ATOM සංග්‍රහයට දායක වන්න",
+  "home.postfilter.label.myactivity": "අයිති",
+  "home.postfilter.label.status": "තත්ත්වය",
+  "home.postfilter.option.myposts": "මගේ සටහන්",
+  "home.postfilter.option.notags": "ටැග් නොකළ",
+  "linkmodal.insert": "සබැඳිය ඇතුළු කරන්න",
+  "linkmodal.text.label": "පෙන්වීමට පෙළ",
+  "linkmodal.text.placeholder": "සබැඳි පෙළ ඇතුළත් කරන්න",
+  "linkmodal.text.required": "පෙළ අවශ්‍යයි",
+  "linkmodal.title": "සබැඳිය ඇතුළු කරන්න",
+  "linkmodal.url.invalid": "කරුණාකර වලංගු URL එකක් ඇතුළත් කරන්න.",
+  "linkmodal.url.label": "URL එක",
+  "linkmodal.url.required": "URL එක අවශ්‍යයි",
+  "page.pendingactivation.didntreceive": "ඊමේල් එක ලැබුනේ නැද්ද?",
+  "page.pendingactivation.resend": "සත්‍යාපන ඊමේල් නැවත යවන්න",
+  "page.pendingactivation.resending": "නැවත යවමින්..."
+}

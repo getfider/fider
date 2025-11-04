@@ -48,6 +48,7 @@ type config struct {
 		IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=120s,strict"`
 	}
 	Port                        string `env:"PORT,default=3000"`
+	Host                        string `env:"HOST,default="`
 	HostMode                    string `env:"HOST_MODE,default=single"`
 	HostDomain                  string `env:"HOST_DOMAIN"`
 	BaseURL                     string `env:"BASE_URL"`
@@ -66,6 +67,7 @@ type config struct {
 	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
 		Port    string `env:"METRICS_PORT,default=4000"`
+		Host    string `env:"METRICS_HOST,default="`
 	}
 	Database struct {
 		URL          string `env:"DATABASE_URL,required"`

@@ -108,6 +108,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/_design", handlers.Page("Design System", "A preview of Fider UI elements", "DesignSystem/DesignSystem.page"))
 	r.Get("/signup/verify", handlers.VerifySignUpKey())
+	r.Post("/_api/signup/resend", handlers.ResendSignUpEmail())
 	r.Get("/signout", handlers.SignOut())
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
 	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
@@ -183,6 +184,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacySettings())
 		ui.Post("/_api/admin/settings/emailauth", handlers.UpdateEmailAuthAllowed())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
+		ui.Post("/_api/admin/oauth/:provider/status", handlers.SetSystemProviderStatus())
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())

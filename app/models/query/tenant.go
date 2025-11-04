@@ -48,3 +48,8 @@ type GetTrialingTenantContacts struct {
 	// Output
 	Contacts []*entity.User
 }
+
+type GetPendingSignUpVerification struct {
+	// Output
+	Result *entity.EmailVerification
+}

@@ -242,3 +242,22 @@ func SaveOAuthConfig() web.HandlerFunc {
 		return c.Ok(web.Map{})
 	}
 }
+
+// SetSystemProviderStatus is used to enable/disable built-in OAuth providers for a tenant
+func SetSystemProviderStatus() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.SetSystemProviderStatus)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		if err := bus.Dispatch(c, &cmd.SetTenantProviderStatus{
+			Provider:  action.Provider,
+			IsEnabled: action.IsEnabled,
+		}); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}

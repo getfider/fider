@@ -23,17 +23,19 @@ var trx *dbx.Trx
 
 var demoTenant *entity.Tenant
 var avengersTenant *entity.Tenant
-var gotTenant *entity.Tenant
+var germanTenant *entity.Tenant
 var jonSnow *entity.User
 var aryaStark *entity.User
 var sansaStark *entity.User
+var germanJonSnow *entity.User
 var tonyStark *entity.User
 
 var demoTenantCtx context.Context
 var avengersTenantCtx context.Context
-var gotTenantCtx context.Context
+var germanTenantCtx context.Context
 
 var jonSnowCtx context.Context
+var germanJonSnowCtx context.Context
 var aryaStarkCtx context.Context
 var sansaStarkCtx context.Context
 var tonyStarkCtx context.Context
@@ -51,29 +53,33 @@ func SetupDatabaseTest(t *testing.T) context.Context {
 
 	getDemo := &query.GetTenantByDomain{Domain: "demo"}
 	getAvengers := &query.GetTenantByDomain{Domain: "avengers"}
-	getGameOfThrones := &query.GetTenantByDomain{Domain: "got"}
-	_ = bus.Dispatch(trxCtx, getDemo, getAvengers, getGameOfThrones)
+	getGerman := &query.GetTenantByDomain{Domain: "german"}
+	_ = bus.Dispatch(trxCtx, getDemo, getAvengers, getGerman)
 	demoTenant = getDemo.Result
 	avengersTenant = getAvengers.Result
-	gotTenant = getGameOfThrones.Result
+	germanTenant = getGerman.Result
 
 	demoTenantCtx = withTenant(trxCtx, demoTenant)
 	avengersTenantCtx = withTenant(trxCtx, avengersTenant)
-	gotTenantCtx = withTenant(trxCtx, gotTenant)
+	germanTenantCtx = withTenant(trxCtx, germanTenant)
 
 	getJonSnow := &query.GetUserByEmail{Email: "jon.snow@got.com"}
+	getGermanJonSnow := &query.GetUserByEmail{Email: "jon.snow@german.com"}
 	getAryaStark := &query.GetUserByEmail{Email: "arya.stark@got.com"}
 	getSansaStark := &query.GetUserByEmail{Email: "sansa.stark@got.com"}
 	_ = bus.Dispatch(demoTenantCtx, getJonSnow, getSansaStark, getAryaStark)
+	_ = bus.Dispatch(germanTenantCtx, getGermanJonSnow)
 	jonSnow = getJonSnow.Result
 	aryaStark = getAryaStark.Result
 	sansaStark = getSansaStark.Result
+	germanJonSnow = getGermanJonSnow.Result
 
 	getTonyStark := &query.GetUserByEmail{Email: "tony.stark@avengers.com"}
 	bus.MustDispatch(avengersTenantCtx, getTonyStark)
 	tonyStark = getTonyStark.Result
 
 	jonSnowCtx = withUser(trxCtx, jonSnow)
+	germanJonSnowCtx = withUser(trxCtx, germanJonSnow)
 	aryaStarkCtx = withUser(trxCtx, aryaStark)
 	sansaStarkCtx = withUser(trxCtx, sansaStark)
 	tonyStarkCtx = withUser(trxCtx, tonyStark)

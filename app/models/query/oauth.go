@@ -46,3 +46,9 @@ type ListActiveOAuthProviders struct {
 type ListAllOAuthProviders struct {
 	Result []*dto.OAuthProviderOption
 }
+
+type GetTenantProviderStatus struct {
+	Provider string
+
+	Result *entity.TenantProvider
+}
