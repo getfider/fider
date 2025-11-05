@@ -202,7 +202,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbEntities.Tenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, prevent_indexing
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
