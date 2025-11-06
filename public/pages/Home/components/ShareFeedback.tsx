@@ -267,13 +267,6 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                   </div>
                 </div>
               )}
-              {fider.session.isModerationRequired && showSubmitButton && (
-                <div className="c-form-field">
-                  <div className="text-muted text-sm p-2 bg-gray-100 rounded border-l-4 border-yellow-500">
-                    <Trans id="newpost.moderation.notice">Your post will be reviewed by an administrator before being visible to other users.</Trans>
-                  </div>
-                </div>
-              )}
             </Form>
           </div>
         </div>

@@ -190,7 +190,7 @@ const ContentModerationPage = () => {
                 <>
                   <HStack>
                     <span className="text-medium">
-                      {item.user.status} {item.user.name} <span className="text-normal">&lt;{item.user.email}&gt;</span>
+                      {item.user.name} <span className="text-normal">&lt;{item.user.email}&gt;</span>
                     </span>
                     {blocked}
                   </HStack>

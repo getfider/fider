@@ -4,6 +4,7 @@ import { ShowTag, VoteCounter, Markdown, Icon, ResponseLozenge } from "@fider/co
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
+import { Trans } from "@lingui/react/macro"
 
 interface ListPostsProps {
   posts?: Post[]
@@ -29,11 +30,15 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
           </div>
         )}
         <HStack justify="between">
-          <HStack spacing={2} align="center">
+          <HStack spacing={2} align="start" justify="between" className="w-full">
             <a className="text-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
               {props.post.title}
             </a>
-            {isPending && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>}
+            {isPending && (
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                <Trans id="post.pending">pending</Trans>
+              </span>
+            )}
           </HStack>
           {props.post.commentsCount > 0 && (
             <HStack className="text-muted">
@@ -62,7 +67,7 @@ const MinimalListPostItem = (props: { post: Post; tags: Tag[] }) => {
   return (
     <HStack spacing={4} align="start" className="c-posts-container__post">
       <HStack className="w-full" justify="between" align="start">
-        <HStack spacing={2} align="center">
+        <HStack spacing={2} align="start" justify="between" className="w-full">
           <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
             {props.post.title}
           </a>
