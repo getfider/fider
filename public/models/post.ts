@@ -14,6 +14,7 @@ export interface Post {
   votesCount: number
   commentsCount: number
   tags: string[]
+  isApproved: boolean
 }
 
 export class PostStatus {
@@ -66,6 +67,7 @@ export interface Comment {
   reactionCounts?: ReactionCount[]
   editedAt?: string
   editedBy?: User
+  isApproved: boolean
 }
 
 export interface Tag {

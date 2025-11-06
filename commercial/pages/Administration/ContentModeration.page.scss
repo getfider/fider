@@ -1,0 +1,61 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+#p-admin-moderation {
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+
+    .page-subtitle {
+      display: block;
+      font-size: 1rem;
+      font-weight: normal;
+      color: var(--colors-gray-600);
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+.c-moderation-page {
+  width: 100%;
+}
+
+.c-moderation-item {
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--colors-blue-100);
+  }
+
+  &__actions {
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+
+    .c-moderation-item:hover & {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  &__post-reference {
+    color: var(--colors-gray-600);
+
+    a {
+      color: var(--colors-blue-700);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .c-moderation-item {
+    &__actions {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+}

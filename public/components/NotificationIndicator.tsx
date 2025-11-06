@@ -118,7 +118,7 @@ export const NotificationIndicator = () => {
             )}
             {recent !== undefined && recent?.length > 0 && (
               <>
-                <p className="text-subtitle px-4 mb-0 pt-4 bg-gray-50 border-gray-200 bt">
+                <p className="text-subtitle px-4 mb-0 pt-4 bg-gray-50 border-gray-200 border-t">
                   <Trans id="modal.notifications.previous">Previous notifications</Trans>
                 </p>
                 <VStack spacing={0} className="py-2 bg-gray-50" divide={false}>
