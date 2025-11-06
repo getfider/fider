@@ -256,9 +256,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                         <div className="mt-4">
                           {fider.session.isAuthenticated && fider.session.user.id === props.post.user.id && (
                             <div className="text-muted text-sm p-3 bg-yellow-50 rounded border-l-4 border-yellow-500">
-                              <Trans id="showpost.moderation.awaiting">
-                                This post is awaiting moderation by an administrator before being visible to other users.
-                              </Trans>
+                              <Trans id="showpost.moderation.awaiting">Awaiting moderation.</Trans>
                             </div>
                           )}
 

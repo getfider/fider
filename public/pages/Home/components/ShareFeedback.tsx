@@ -212,6 +212,8 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     // We don't need to do anything special here
   }
 
+  const showSubmitButton = title.replace(/\s+/g, " ").trim().length > 9
+
   return (
     <Modal.Window className="c-share-feedback" isOpen={isOpen} onClose={handleClose} size="fullscreen" center={false}>
       <Modal.Header>
@@ -265,14 +267,14 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                   </div>
                 </div>
               )}
-            </Form>
-            {fider.session.isModerationRequired && (
-              <div className="c-form-field">
-                <div className="text-muted text-sm p-2 bg-gray-100 rounded border-l-4 border-yellow-500">
-                  <Trans id="newpost.moderation.notice">Your post will be reviewed by an administrator before being visible to other users.</Trans>
+              {fider.session.isModerationRequired && showSubmitButton && (
+                <div className="c-form-field">
+                  <div className="text-muted text-sm p-2 bg-gray-100 rounded border-l-4 border-yellow-500">
+                    <Trans id="newpost.moderation.notice">Your post will be reviewed by an administrator before being visible to other users.</Trans>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </Form>
           </div>
         </div>
         {/* For unauthenticated users, always show the sign-in control */}
@@ -293,7 +295,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
           </div>
         ) : (
           /* For authenticated users, only show the submit button container when title is long enough */
-          title.replace(/\s+/g, " ").trim().length > 9 && (
+          showSubmitButton && (
             <div className="c-share-feedback__content animate-fade-in">
               <div className="c-share-feedback-signin">
                 <div className="flex justify-center">
