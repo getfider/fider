@@ -21,7 +21,7 @@ func TestUserWithEmail_MarshalJSON(t *testing.T) {
 		},
 	}
 
-	expectedJSON := `{"id":1,"name":"John Doe","role":"visitor","status":"active","isVerified":false,"email":"johndoe@example.com"}`
+	expectedJSON := `{"id":1,"name":"John Doe","role":"visitor","status":"active","isTrusted":false,"email":"johndoe@example.com"}`
 
 	jsonData, err := json.Marshal(user)
 	if err != nil {
@@ -43,7 +43,7 @@ func TestUser_MarshalJSON(t *testing.T) {
 		Status: 1,
 	}
 
-	expectedJSON := `{"id":1,"name":"John Doe","role":"visitor","status":"active","isVerified":false}`
+	expectedJSON := `{"id":1,"name":"John Doe","role":"visitor","status":"active","isTrusted":false}`
 
 	jsonData, err := json.Marshal(user)
 	if err != nil {

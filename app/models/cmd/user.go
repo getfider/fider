@@ -14,7 +14,7 @@ type UnblockUser struct {
 	UserID int
 }
 
-type UnverifyUser struct {
+type UntrustUser struct {
 	UserID int
 }
 

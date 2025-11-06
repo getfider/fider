@@ -21,7 +21,7 @@ type User struct {
 	Status        sql.NullInt64  `db:"status"`
 	AvatarType    sql.NullInt64  `db:"avatar_type"`
 	AvatarBlobKey sql.NullString `db:"avatar_bkey"`
-	IsVerified    sql.NullBool   `db:"is_verified"`
+	IsTrusted     sql.NullBool   `db:"is_trusted"`
 	Providers     []*UserProvider
 }
 
@@ -63,7 +63,7 @@ func (u *User) ToModel(ctx context.Context) *entity.User {
 		AvatarType:    avatarType,
 		AvatarBlobKey: u.AvatarBlobKey.String,
 		AvatarURL:     avatarURL,
-		IsVerified:    u.IsVerified.Bool,
+		IsTrusted:     u.IsTrusted.Bool,
 	}
 
 	if u.Providers != nil {

@@ -154,8 +154,8 @@ func ApprovePostAndVerify() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		// Then verify the user
-		if err := bus.Dispatch(c, &cmd.VerifyUser{UserID: getPost.Result.User.ID}); err != nil {
+		// Then trust the user
+		if err := bus.Dispatch(c, &cmd.TrustUser{UserID: getPost.Result.User.ID}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -183,8 +183,8 @@ func ApproveCommentAndVerify() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		// Then verify the user
-		if err := bus.Dispatch(c, &cmd.VerifyUser{UserID: getComment.Result.User.ID}); err != nil {
+		// Then trust the user
+		if err := bus.Dispatch(c, &cmd.TrustUser{UserID: getComment.Result.User.ID}); err != nil {
 			return c.Failure(err)
 		}
 

@@ -54,13 +54,13 @@ func unblockUser(ctx context.Context, c *cmd.UnblockUser) error {
 	})
 }
 
-func unverifyUser(ctx context.Context, c *cmd.UnverifyUser) error {
+func untrustUser(ctx context.Context, c *cmd.UntrustUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if _, err := trx.Execute(
-			"UPDATE users SET is_verified = false WHERE id = $1 AND tenant_id = $2",
+			"UPDATE users SET is_trusted = false WHERE id = $1 AND tenant_id = $2",
 			c.UserID, tenant.ID,
 		); err != nil {
-			return errors.Wrap(err, "failed to unverify user")
+			return errors.Wrap(err, "failed to untrust user")
 		}
 		return nil
 	})
@@ -370,7 +370,7 @@ func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
 
 func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*entity.User, error) {
 	user := dbEntities.User{}
-	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_verified FROM users WHERE status != %d AND ", enum.UserDeleted)
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted FROM users WHERE status != %d AND ", enum.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
 		return nil, err
@@ -397,7 +397,7 @@ func searchUsers(ctx context.Context, q *query.SearchUsers) error {
 		}
 
 		baseQuery := `
-			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_verified
+			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted
 			FROM users
 			WHERE tenant_id = $1 AND status != $2
 		`

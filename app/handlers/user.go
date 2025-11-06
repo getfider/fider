@@ -40,15 +40,15 @@ func UnblockUser() web.HandlerFunc {
 	}
 }
 
-// VerifyUser is used to verify an existing user
-func VerifyUser() web.HandlerFunc {
+// TrustUser is used to trust an existing user
+func TrustUser() web.HandlerFunc {
 	return func(c *web.Context) error {
 		userID, err := c.ParamAsInt("userID")
 		if err != nil {
 			return c.NotFound()
 		}
 
-		err = bus.Dispatch(c, &cmd.VerifyUser{UserID: userID})
+		err = bus.Dispatch(c, &cmd.TrustUser{UserID: userID})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -57,15 +57,15 @@ func VerifyUser() web.HandlerFunc {
 	}
 }
 
-// UnverifyUser is used to unverify an existing user
-func UnverifyUser() web.HandlerFunc {
+// UntrustUser is used to untrust an existing user
+func UntrustUser() web.HandlerFunc {
 	return func(c *web.Context) error {
 		userID, err := c.ParamAsInt("userID")
 		if err != nil {
 			return c.NotFound()
 		}
 
-		err = bus.Dispatch(c, &cmd.UnverifyUser{UserID: userID})
+		err = bus.Dispatch(c, &cmd.UntrustUser{UserID: userID})
 		if err != nil {
 			return c.Failure(err)
 		}

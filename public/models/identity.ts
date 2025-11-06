@@ -28,7 +28,7 @@ export interface User {
   email?: string
   role: UserRole
   status: UserStatus
-  isVerified: boolean
+  isTrusted: boolean
   avatarURL: string
 }
 
@@ -60,7 +60,7 @@ export const isCollaborator = (role: UserRole): boolean => {
 }
 
 export const requiresModeration = (user: User): boolean => {
-  return user.role === UserRole.Visitor && !user.isVerified
+  return user.role === UserRole.Visitor && !user.isTrusted
 }
 
 export interface CurrentUser {
@@ -74,5 +74,5 @@ export interface CurrentUser {
   status: UserStatus
   isAdministrator: boolean
   isCollaborator: boolean
-  isVerified: boolean
+  isTrusted: boolean
 }

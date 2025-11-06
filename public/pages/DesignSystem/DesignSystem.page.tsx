@@ -39,7 +39,7 @@ import { useFider } from "@fider/hooks"
 const jonSnow: User = {
   id: 0,
   name: "Jon Snow",
-  isVerified: false,
+  isTrusted: false,
   role: UserRole.Administrator,
   status: UserStatus.Active,
   avatarURL:
@@ -50,7 +50,7 @@ const aryaStark: User = {
   id: 0,
   name: "Arya Snow",
   role: UserRole.Visitor,
-  isVerified: false,
+  isTrusted: false,
   status: UserStatus.Active,
   avatarURL: "https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
 }
@@ -58,7 +58,7 @@ const aryaStark: User = {
 const robStark: User = {
   id: 0,
   name: "Robert Stark",
-  isVerified: false,
+  isTrusted: false,
   role: UserRole.Visitor,
   status: UserStatus.Active,
   avatarURL:

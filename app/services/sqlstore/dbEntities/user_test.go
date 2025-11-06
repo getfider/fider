@@ -27,7 +27,7 @@ func TestUserToModel(t *testing.T) {
 		Status:        sql.NullInt64{Int64: int64(enum.UserActive), Valid: true},
 		AvatarType:    sql.NullInt64{Int64: int64(enum.AvatarTypeGravatar), Valid: true},
 		AvatarBlobKey: sql.NullString{String: "", Valid: true},
-		IsVerified:    sql.NullBool{Bool: true, Valid: true},
+		IsTrusted:     sql.NullBool{Bool: true, Valid: true},
 		Providers: []*dbEntities.UserProvider{
 			{
 				Name: sql.NullString{String: "google", Valid: true},
@@ -64,8 +64,8 @@ func TestUserToModel(t *testing.T) {
 		t.Errorf("Expected Status Active, got %v", entityUser.Status)
 	}
 
-	if !entityUser.IsVerified {
-		t.Error("Expected IsVerified to be true")
+	if !entityUser.IsTrusted {
+		t.Error("Expected IsTrusted to be true")
 	}
 
 	if len(entityUser.Providers) != 1 {

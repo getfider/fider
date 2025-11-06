@@ -49,9 +49,9 @@ BEGIN
     END IF;
 END $$;
 
--- Add user verification column to users table
--- This allows users to be verified for automatic approval of their content
-ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified boolean NOT NULL DEFAULT false;
+-- Add user trust column to users table
+-- This allows users to be trusted for automatic approval of their content
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_trusted boolean NOT NULL DEFAULT false;
 
 -- Add index for performance
-CREATE INDEX IF NOT EXISTS idx_users_verification ON users(tenant_id, is_verified) WHERE is_verified = true;
+CREATE INDEX IF NOT EXISTS idx_users_trust ON users(tenant_id, is_trusted) WHERE is_trusted = true;

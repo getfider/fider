@@ -27,10 +27,10 @@ const UserListItem = (props: UserListItemExtendedProps) => {
   const admin = props.user.role === UserRole.Administrator && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">administrator</span>
   const collaborator = props.user.role === UserRole.Collaborator && <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">collaborator</span>
   const blocked = props.user.status === UserStatus.Blocked && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">blocked</span>
-  const verified = props.user.status === UserStatus.Active && props.user.role === UserRole.Visitor && props.user.isVerified && (
-    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">verified visitor</span>
+  const trusted = props.user.status === UserStatus.Active && props.user.role === UserRole.Visitor && props.user.isTrusted && (
+    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">trusted member</span>
   )
-  const isVisitor = props.user.role === UserRole.Visitor
+  const isMember = props.user.role === UserRole.Visitor
 
   const actionSelected = (actionName: string) => () => {
     props.onAction(actionName, props.user)
@@ -51,23 +51,23 @@ const UserListItem = (props: UserListItemExtendedProps) => {
       </div>
 
       <div>
-        {admin} {collaborator} {blocked} {verified}
-        {isVisitor && !blocked && !verified && <span className="text-xs text-gray-600">visitor</span>}
+        {admin} {collaborator} {blocked} {trusted}
+        {isMember && !blocked && !trusted && <span className="text-xs text-gray-600">member</span>}
       </div>
 
       <div className="flex justify-end relative">
         {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
           <div className="relative z-10">
             <Dropdown renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
-              {!blocked && (!!collaborator || isVisitor) && (
+              {!blocked && (!!collaborator || isMember) && (
                 <Dropdown.ListItem onClick={actionSelected("to-administrator")}>Promote to Administrator</Dropdown.ListItem>
               )}
-              {!blocked && (!!admin || isVisitor) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
-              {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Visitor</Dropdown.ListItem>}
-              {isVisitor && !blocked && !props.user.isVerified && <Dropdown.ListItem onClick={actionSelected("approve")}>Verify User</Dropdown.ListItem>}
-              {isVisitor && !blocked && props.user.isVerified && <Dropdown.ListItem onClick={actionSelected("unapprove")}>Unverify User</Dropdown.ListItem>}
-              {isVisitor && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
-              {isVisitor && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
+              {!blocked && (!!admin || isMember) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
+              {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Member</Dropdown.ListItem>}
+              {isMember && !blocked && !props.user.isTrusted && <Dropdown.ListItem onClick={actionSelected("approve")}>Trust User</Dropdown.ListItem>}
+              {isMember && !blocked && props.user.isTrusted && <Dropdown.ListItem onClick={actionSelected("unapprove")}>Untrust User</Dropdown.ListItem>}
+              {isMember && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
+              {isMember && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
             </Dropdown>
           </div>
         )}
@@ -184,11 +184,11 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
         }
       }
 
-      const changeVerification = async (isVerified: boolean) => {
-        const action = isVerified ? actions.verifyUser : actions.unverifyUser
+      const changeTrust = async (isTrusted: boolean) => {
+        const action = isTrusted ? actions.trustUser : actions.untrustUser
         const result = await action(user.id)
         if (result.ok) {
-          user.isVerified = isVerified
+          user.isTrusted = isTrusted
           // Update the user in current state without full reload
           const updatedUsers = users.map((u) => (u.id === user.id ? user : u))
           setUsers(updatedUsers)
@@ -206,9 +206,9 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
       } else if (actionName === "unblock") {
         await changeStatus(UserStatus.Active)
       } else if (actionName === "approve") {
-        await changeVerification(true)
+        await changeTrust(true)
       } else if (actionName === "unapprove") {
-        await changeVerification(false)
+        await changeTrust(false)
       }
     },
     [users]
@@ -222,7 +222,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
             field="query"
             icon={query ? IconX : IconSearch}
             onIconClick={query ? clearSearch : undefined}
-            placeholder="Search for users by name / email ..."
+            placeholder="Search by name / email ..."
             value={query}
             onChange={handleSearchFilterChanged}
           />
@@ -246,7 +246,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
             <span className={roleFilter === UserRole.Collaborator ? "text-semibold" : ""}>Collaborators</span>
           </Dropdown.ListItem>
           <Dropdown.ListItem onClick={() => handleRoleFilterChanged(UserRole.Visitor)}>
-            <span className={roleFilter === UserRole.Visitor ? "text-semibold" : ""}>Visitors</span>
+            <span className={roleFilter === UserRole.Visitor ? "text-semibold" : ""}>Members</span>
           </Dropdown.ListItem>
         </Dropdown>
       </div>

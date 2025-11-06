@@ -44,6 +44,6 @@ func getModerationCount(ctx context.Context, q *query.GetModerationCount) error 
 	return nil
 }
 
-func verifyUser(ctx context.Context, c *cmd.VerifyUser) error {
+func trustUser(ctx context.Context, c *cmd.TrustUser) error {
 	return errors.New("Content moderation requires commercial license")
 }

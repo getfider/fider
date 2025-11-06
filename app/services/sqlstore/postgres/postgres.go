@@ -86,7 +86,7 @@ func (s Service) Init() {
 	bus.AddHandler(countUsers)
 	bus.AddHandler(blockUser)
 	bus.AddHandler(unblockUser)
-	bus.AddHandler(unverifyUser)
+	bus.AddHandler(untrustUser)
 	bus.AddHandler(regenerateAPIKey)
 	bus.AddHandler(userSubscribedTo)
 	bus.AddHandler(deleteCurrentUser)
@@ -158,7 +158,7 @@ func (s Service) Init() {
 		bus.AddHandler(bulkDeclineItems)
 		bus.AddHandler(getModerationItems)
 		bus.AddHandler(getModerationCount)
-		bus.AddHandler(verifyUser)
+		bus.AddHandler(trustUser)
 	}
 }
 

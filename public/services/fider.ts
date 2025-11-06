@@ -44,7 +44,7 @@ export class FiderSession {
   }
 
   public get isModerationRequired(): boolean {
-    return this.isCommercialEnabled && this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isVerified
+    return this.isCommercialEnabled && this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isTrusted
   }
 
   public get isCommercialEnabled(): boolean {

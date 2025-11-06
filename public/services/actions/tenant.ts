@@ -83,12 +83,12 @@ export const unblockUser = async (userID: number): Promise<Result> => {
   return await http.delete(`/_api/admin/users/${userID}/block`)
 }
 
-export const verifyUser = async (userID: number): Promise<Result> => {
-  return await http.put(`/_api/admin/users/${userID}/verify`)
+export const trustUser = async (userID: number): Promise<Result> => {
+  return await http.put(`/_api/admin/users/${userID}/trust`)
 }
 
-export const unverifyUser = async (userID: number): Promise<Result> => {
-  return await http.delete(`/_api/admin/users/${userID}/verify`)
+export const untrustUser = async (userID: number): Promise<Result> => {
+  return await http.delete(`/_api/admin/users/${userID}/trust`)
 }
 
 export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConfig>> => {

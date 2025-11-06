@@ -26,6 +26,6 @@ type BulkDeclineItems struct {
 	CommentIDs []int
 }
 
-type VerifyUser struct {
+type TrustUser struct {
 	UserID int
 }

@@ -33,5 +33,5 @@ func (s CommercialService) Init() {
 	bus.AddHandler(BulkDeclineItems)
 	bus.AddHandler(GetModerationItems)
 	bus.AddHandler(GetModerationCount)
-	bus.AddHandler(VerifyUser)
+	bus.AddHandler(TrustUser)
 }

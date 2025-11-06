@@ -229,7 +229,7 @@ const ContentModerationPage = () => {
                     >
                       <Icon sprite={IconShieldCheck} />
                       <span>
-                        <Trans id="action.approve.verify">Approve & Verify</Trans>
+                        <Trans id="action.approve.verify">Approve & Trust</Trans>
                       </span>
                     </Button>
                     <Button

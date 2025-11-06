@@ -3,6 +3,7 @@ import { Post, Tag, CurrentUser } from "@fider/models"
 import { ShowTag, VoteCounter, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import { HStack, VStack } from "@fider/components/layout"
+import { useFider } from "@fider/hooks"
 
 interface ListPostsProps {
   posts?: Post[]
@@ -12,6 +13,10 @@ interface ListPostsProps {
 }
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
+  const fider = useFider()
+  const isModerationEnabled = fider.session.tenant.isModerationEnabled
+  const isPending = isModerationEnabled && !props.post.isApproved
+
   return (
     <HStack spacing={4} align="start" className="c-posts-container__post">
       <div>
@@ -24,9 +29,12 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
           </div>
         )}
         <HStack justify="between">
-          <a className="text-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
-            {props.post.title}
-          </a>
+          <HStack spacing={2} align="center">
+            <a className="text-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
+              {props.post.title}
+            </a>
+            {isPending && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>}
+          </HStack>
           {props.post.commentsCount > 0 && (
             <HStack className="text-muted">
               {props.post.commentsCount} <Icon sprite={IconChatAlt2} className="h-4 ml-1" />
@@ -47,12 +55,19 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
 }
 
 const MinimalListPostItem = (props: { post: Post; tags: Tag[] }) => {
+  const fider = useFider()
+  const isModerationEnabled = fider.session.tenant.isModerationEnabled
+  const isPending = isModerationEnabled && !props.post.isApproved
+
   return (
     <HStack spacing={4} align="start" className="c-posts-container__post">
       <HStack className="w-full" justify="between" align="start">
-        <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
-          {props.post.title}
-        </a>
+        <HStack spacing={2} align="center">
+          <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
+            {props.post.title}
+          </a>
+          {isPending && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>}
+        </HStack>
         {props.post.status !== "open" ? (
           <div>
             <ResponseLozenge status={props.post.status} response={props.post.response} size={"micro"} />
