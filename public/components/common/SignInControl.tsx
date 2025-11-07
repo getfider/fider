@@ -19,8 +19,11 @@ interface SignInControlProps {
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
   const fider = useFider()
   const [showEmailForm, setShowEmailForm] = useState(fider.session.tenant ? fider.session.tenant.isEmailAuthAllowed : true)
+  const [showCodeEntry, setShowCodeEntry] = useState(false)
   const [email, setEmail] = useState("")
+  const [code, setCode] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
+  const [resendMessage, setResendMessage] = useState("")
 
   const signInText = props.signInButtonText || i18n._({ id: "action.signin", message: "Sign in" })
 
@@ -39,15 +42,48 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     doPreSigninAction()
   }
 
+  const editEmail = () => {
+    setShowCodeEntry(false)
+    setCode("")
+    setError(undefined)
+    setResendMessage("")
+  }
+
   const signIn = async () => {
     await doPreSigninAction()
     const result = await actions.signIn(email)
     if (result.ok) {
-      setEmail("")
       setError(undefined)
-      if (props.onEmailSent) {
-        props.onEmailSent(email)
+      setShowCodeEntry(true)
+      // Don't call onEmailSent - we're showing code entry inline now
+    } else if (result.error) {
+      setError(result.error)
+    }
+  }
+
+  const verifyCode = async () => {
+    const result = await actions.verifySignInCode(email, code)
+    if (result.ok) {
+      const data = result.data as { showProfileCompletion?: boolean } | undefined
+      if (data && data.showProfileCompletion) {
+        // User needs to complete profile - reload to show profile completion
+        location.reload()
+      } else {
+        // User is authenticated - reload to refresh the page
+        location.reload()
       }
+    } else if (result.error) {
+      setError(result.error)
+    }
+  }
+
+  const resendCode = async () => {
+    setResendMessage("")
+    const result = await actions.resendSignInCode(email)
+    if (result.ok) {
+      setError(undefined)
+      setCode("")
+      setResendMessage(i18n._({ id: "signin.code.sent", message: "A new code has been sent to your email." }))
     } else if (result.error) {
       setError(result.error)
     }
@@ -82,23 +118,58 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       {props.useEmail &&
         (showEmailForm ? (
           <div className="pt-3">
-            <Form error={error}>
-              <Input
-                className="text-left"
-                field="email"
-                value={email}
-                autoFocus={!device.isTouch()}
-                onChange={setEmail}
-                placeholder={i18n._({ id: "signin.email.placeholder", message: "Email address" })}
-              />
-              <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
-                {signInText}
-              </Button>
-            </Form>
-            {!fider.session.tenant.isEmailAuthAllowed && (
-              <p className="text-red-700 mt-1">
-                <Trans id="signin.message.onlyadmins">Currently only allowed to sign in to an administrator account</Trans>
-              </p>
+            {!showCodeEntry ? (
+              <Form error={error}>
+                <Input
+                  className="text-left"
+                  field="email"
+                  value={email}
+                  autoFocus={!device.isTouch()}
+                  onChange={setEmail}
+                  placeholder={i18n._({ id: "signin.email.placeholder", message: "Email address" })}
+                />
+                <Button className="w-full justify-center" type="submit" variant="primary" disabled={email === ""} onClick={signIn}>
+                  {signInText}
+                </Button>
+                {!fider.session.tenant.isEmailAuthAllowed && (
+                  <p className="text-red-700 mt-1">
+                    <Trans id="signin.message.onlyadmins">Currently only allowed to sign in to an administrator account</Trans>
+                  </p>
+                )}
+              </Form>
+            ) : (
+              <div>
+                <p className="text-muted mb-2">
+                  <Trans id="signin.code.instruction">
+                    Please type in the code we just sent to <strong>{email}</strong>
+                  </Trans>{" "}
+                  <a href="#" className="text-link" onClick={(e) => { e.preventDefault(); editEmail(); }}>
+                    <Trans id="signin.code.edit">Edit</Trans>
+                  </a>
+                </p>
+                <Form error={error}>
+                  <Input
+                    className="text-left"
+                    field="code"
+                    value={code}
+                    autoFocus={!device.isTouch()}
+                    onChange={setCode}
+                    placeholder={i18n._({ id: "signin.code.placeholder", message: "Type in the code here" })}
+                    maxLength={6}
+                  />
+                  <Button className="w-full justify-center" type="submit" variant="primary" disabled={code.length !== 6} onClick={verifyCode}>
+                    <Trans id="signin.code.submit">Submit</Trans>
+                  </Button>
+                </Form>
+                {resendMessage && (
+                  <p className="text-green-700 mt-2">{resendMessage}</p>
+                )}
+                <p className="text-center mt-2">
+                  <a href="#" className="text-link" onClick={(e) => { e.preventDefault(); resendCode(); }}>
+                    <Trans id="signin.code.getnew">Get a new code</Trans>
+                  </a>
+                </p>
+              </div>
             )}
           </div>
         ) : (

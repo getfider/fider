@@ -1,6 +1,6 @@
 import { Given } from "@cucumber/cucumber"
 import { FiderWorld } from "e2e/world"
-import { getLatestLinkSentTo, isAuthenticated, isAuthenticatedAsUser } from "./fns"
+import { getLatestCodeSentTo, isAuthenticated, isAuthenticatedAsUser } from "./fns"
 
 Given("I sign in as {string}", async function (this: FiderWorld, userName: string) {
   if (await isAuthenticatedAsUser(this.page, userName)) {
@@ -17,6 +17,11 @@ Given("I sign in as {string}", async function (this: FiderWorld, userName: strin
   await this.page.type(".c-signin-control #input-email", userEmail)
   await this.page.click(".c-signin-control .c-button--primary")
 
-  const activationLink = await getLatestLinkSentTo(userEmail)
-  await this.page.goto(activationLink)
+  // Get the code from email and enter it
+  const code = await getLatestCodeSentTo(userEmail)
+  await this.page.type("#input-code", code)
+  await this.page.click("button[type='submit']")
+
+  // Wait for navigation after successful code verification
+  await this.page.waitForLoadState("networkidle")
 })

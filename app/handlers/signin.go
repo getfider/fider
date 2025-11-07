@@ -57,7 +57,7 @@ func NotInvitedPage() web.HandlerFunc {
 	}
 }
 
-// SignInByEmail sends a new email with verification key
+// SignInByEmail sends a new email with verification code
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
 		action := actions.NewSignInByEmail()
@@ -66,15 +66,115 @@ func SignInByEmail() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      action.VerificationKey,
-			Duration: 30 * time.Minute,
+			Key:      action.VerificationCode,
+			Duration: 15 * time.Minute,
 			Request:  action,
 		})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationKey))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationCode))
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// VerifySignInCode verifies the code entered by the user and signs them in
+func VerifySignInCode() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := &actions.VerifySignInCode{}
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		// Get verification by email and code
+		verification := &query.GetVerificationByEmailAndCode{
+			Email: action.Email,
+			Code:  action.Code,
+			Kind:  enum.EmailVerificationKindSignIn,
+		}
+		err := bus.Dispatch(c, verification)
+		if err != nil {
+			if errors.Cause(err) == app.ErrNotFound {
+				return c.BadRequest(web.Map{
+					"code": "Invalid or expired verification code",
+				})
+			}
+			return c.Failure(err)
+		}
+
+		result := verification.Result
+
+		// Check if already verified (with grace period)
+		if result.VerifiedAt != nil {
+			if time.Since(*result.VerifiedAt) > 5*time.Minute {
+				return c.Gone()
+			}
+		} else {
+			// Check if expired
+			if time.Now().After(result.ExpiresAt) {
+				// Mark as verified to prevent reuse
+				_ = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Code})
+				return c.Gone()
+			}
+		}
+
+		// Check if user exists
+		userByEmail := &query.GetUserByEmail{Email: result.Email}
+		err = bus.Dispatch(c, userByEmail)
+		if err != nil {
+			if errors.Cause(err) == app.ErrNotFound {
+				// User doesn't exist, need to complete profile
+				if c.Tenant().IsPrivate {
+					return c.Forbidden()
+				}
+				return c.Ok(web.Map{
+					"showProfileCompletion": true,
+				})
+			}
+			return c.Failure(err)
+		}
+
+		// Mark code as verified
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Code})
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		// Authenticate user
+		webutil.AddAuthUserCookie(c, userByEmail.Result)
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// ResendSignInCode invalidates the previous code and sends a new one
+func ResendSignInCode() web.HandlerFunc {
+	return func(c *web.Context) error {
+		// Create new sign-in action with new code
+		action := actions.NewSignInByEmail()
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		// Authorization check
+		if !action.IsAuthorized(c, c.User()) {
+			return c.Forbidden()
+		}
+
+		// Save new verification code
+		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+			Key:      action.VerificationCode,
+			Duration: 15 * time.Minute,
+			Request:  action,
+		})
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		// Send new email
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationCode))
 
 		return c.Ok(web.Map{})
 	}

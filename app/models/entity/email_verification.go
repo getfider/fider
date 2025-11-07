@@ -23,3 +23,8 @@ type EmailVerification struct {
 func GenerateEmailVerificationKey() string {
 	return rand.String(64)
 }
+
+// GenerateEmailVerificationCode returns a 6 digit numeric code
+func GenerateEmailVerificationCode() string {
+	return rand.StringNumeric(6)
+}

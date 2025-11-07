@@ -1,7 +1,7 @@
 import { Given, Then } from "@cucumber/cucumber"
 import { FiderWorld } from "../world"
 import expect from "expect"
-import { getLatestLinkSentTo } from "./fns"
+import { getLatestCodeSentTo } from "./fns"
 
 Given("I go to the home page", async function (this: FiderWorld) {
   await this.page.goto(`https://${this.tenantName}.dev.fider.io:3000/`)
@@ -50,8 +50,14 @@ Given("I click submit your feedback", async function () {
 
 Given("I click on the confirmation link", async function (this: FiderWorld) {
   const userEmail = `$user-${this.tenantName}@fider.io`
-  const activationLink = await getLatestLinkSentTo(userEmail)
-  await this.page.goto(activationLink)
+  const code = await getLatestCodeSentTo(userEmail)
+
+  // Enter the code in the UI
+  await this.page.type("#input-code", code)
+  await this.page.click("button[type='submit']")
+
+  // Wait for navigation after successful code verification
+  await this.page.waitForLoadState("networkidle")
 })
 
 Then("I should be on the complete profile page", async function (this: FiderWorld) {
@@ -74,7 +80,8 @@ Given("I click submit", async function () {
 
 Then("I should be on the confirmation link page", async function (this: FiderWorld) {
   const userEmail = `$user-${this.tenantName}@fider.io`
-  await expect(this.page.getByText(`We have just sent a confirmation link to ${userEmail}`)).toBeVisible()
+  // Updated to check for code entry message instead of link message
+  await expect(this.page.getByText(`Please type in the code we just sent to ${userEmail}`)).toBeVisible()
 })
 
 Then("I should see {string} as the draft post title", async function (this: FiderWorld, title: string) {

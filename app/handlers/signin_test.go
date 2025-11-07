@@ -49,7 +49,7 @@ func TestSignInByEmailHandler_WithEmail(t *testing.T) {
 		ExecutePost(handlers.SignInByEmail(), `{ "email": "jon.snow@got.com" }`)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(saveKeyCmd.Key).HasLen(64)
+	Expect(saveKeyCmd.Key).HasLen(6)
 	Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindSignIn)
 	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
 	Expect(saveKeyCmd.Request.GetName()).Equals("")
@@ -640,6 +640,161 @@ func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
 		Execute(handlers.SignInPage())
 
 	Expect(code).Equals(http.StatusOK)
+}
+
+func TestVerifySignInCodeHandler_InvalidCode(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "999999" }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestVerifySignInCodeHandler_ExpiredCode(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "jon.snow@got.com",
+			Key:       "123456",
+			CreatedAt: time.Now().Add(-20 * time.Minute),
+			ExpiresAt: time.Now().Add(-5 * time.Minute),
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "123456" }`)
+
+	Expect(code).Equals(http.StatusGone)
+}
+
+func TestVerifySignInCodeHandler_CorrectCode_ExistingUser(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "jon.snow@got.com",
+			Key:       "123456",
+			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(15 * time.Minute),
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "123456" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	ExpectFiderAuthCookie(response, mock.JonSnow)
+}
+
+func TestVerifySignInCodeHandler_CorrectCode_NewUser(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "new.user@got.com",
+			Key:       "123456",
+			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(15 * time.Minute),
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "new.user@got.com", "code": "123456" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.String()).ContainsSubstring(`"showProfileCompletion":true`)
+}
+
+func TestVerifySignInCodeHandler_CorrectCode_NewUser_PrivateTenant(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "new.user@got.com",
+			Key:       "123456",
+			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(15 * time.Minute),
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "new.user@got.com", "code": "123456" }`)
+
+	Expect(code).Equals(http.StatusForbidden)
+}
+
+func TestResendSignInCodeHandler_ValidEmail(t *testing.T) {
+	RegisterT(t)
+
+	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
+		saveKeyCmd = c
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.ResendSignInCode(), `{ "email": "jon.snow@got.com" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(saveKeyCmd.Key).HasLen(6)
+	Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindSignIn)
+	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
+}
+
+func TestResendSignInCodeHandler_InvalidEmail(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.ResendSignInCode(), `{ "email": "invalid" }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
 }
 
 func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *entity.User) {

@@ -32,7 +32,8 @@ func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
 
 	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
-	Expect(action.VerificationKey).IsNotEmpty()
+	Expect(action.VerificationCode).IsNotEmpty()
+	Expect(len(action.VerificationCode)).Equals(6)
 }
 
 func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
@@ -51,4 +52,56 @@ func TestCompleteProfile_LongName(t *testing.T) {
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "name", "key")
+}
+
+func TestVerifySignInCode_EmptyEmail(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.VerifySignInCode{Email: "", Code: "123456"}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "email")
+}
+
+func TestVerifySignInCode_InvalidEmail(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.VerifySignInCode{Email: "invalid", Code: "123456"}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "email")
+}
+
+func TestVerifySignInCode_EmptyCode(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.VerifySignInCode{Email: "jon.snow@got.com", Code: ""}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "code")
+}
+
+func TestVerifySignInCode_InvalidCodeLength(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.VerifySignInCode{Email: "jon.snow@got.com", Code: "12345"}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "code")
+
+	action2 := actions.VerifySignInCode{Email: "jon.snow@got.com", Code: "1234567"}
+	result2 := action2.Validate(context.Background(), nil)
+	ExpectFailed(result2, "code")
+}
+
+func TestVerifySignInCode_NonNumericCode(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.VerifySignInCode{Email: "jon.snow@got.com", Code: "12345A"}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "code")
+}
+
+func TestVerifySignInCode_ValidCodeAndEmail(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.VerifySignInCode{Email: "jon.snow@got.com", Code: "123456"}
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
 }
