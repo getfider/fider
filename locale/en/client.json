@@ -201,7 +201,7 @@
   "showpost.votespanel.more": "+{extraVotesCount} more",
   "showpost.votespanel.seedetails": "see details",
   "signin.code.edit": "Edit",
-  "signin.code.expired": "This code has expired. Please request a new one.",
+  "signin.code.expired": "This code has expired or already been used. Please request a new one.",
   "signin.code.getnew": "Get a new code",
   "signin.code.instruction": "Please type in the code we just sent to <0>{email}</0>",
   "signin.code.invalid": "The code you entered is invalid. Please try again.",

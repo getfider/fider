@@ -14,6 +14,7 @@ interface SignInControlProps {
   onSubmit?: () => void
   onEmailSent?: (email: string) => void
   signInButtonText?: string
+  onCodeVerified?: (result: { showProfileCompletion?: boolean; code?: string }) => void
 }
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
@@ -65,15 +66,26 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     const result = await actions.verifySignInCode(email, code)
     if (result.ok) {
       const data = result.data as { showProfileCompletion?: boolean } | undefined
-      if (data && data.showProfileCompletion) {
-        // User needs to complete profile - reload to show profile completion
-        location.reload()
+      if (props.onCodeVerified) {
+        // Let the parent component decide what to do, pass the code along
+        props.onCodeVerified({ ...data, code })
       } else {
-        // User is authenticated - reload to refresh the page
+        // Default behavior: reload the page
         location.reload()
       }
-    } else if (result.error) {
-      setError(result.error)
+    } else {
+      // Handle validation errors - convert data object to Failure format
+      const data = result.data as Record<string, string> | undefined
+      if (data && typeof data === "object") {
+        const errors = Object.entries(data).map(([field, message]) => ({
+          field,
+          message,
+        }))
+        setError({ errors })
+      } else if (result.error) {
+        // Display the error from the server
+        setError(result.error)
+      }
     }
   }
 
@@ -143,7 +155,14 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
                   <Trans id="signin.code.instruction">
                     Please type in the code we just sent to <strong>{email}</strong>
                   </Trans>{" "}
-                  <a href="#" className="text-link" onClick={(e) => { e.preventDefault(); editEmail(); }}>
+                  <a
+                    href="#"
+                    className="text-link"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      editEmail()
+                    }}
+                  >
                     <Trans id="signin.code.edit">Edit</Trans>
                   </a>
                 </p>
@@ -161,11 +180,16 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
                     <Trans id="signin.code.submit">Submit</Trans>
                   </Button>
                 </Form>
-                {resendMessage && (
-                  <p className="text-green-700 mt-2">{resendMessage}</p>
-                )}
+                {resendMessage && <p className="text-green-700 mt-2">{resendMessage}</p>}
                 <p className="text-center mt-2">
-                  <a href="#" className="text-link" onClick={(e) => { e.preventDefault(); resendCode(); }}>
+                  <a
+                    href="#"
+                    className="text-link"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      resendCode()
+                    }}
+                  >
                     <Trans id="signin.code.getnew">Get a new code</Trans>
                   </a>
                 </p>

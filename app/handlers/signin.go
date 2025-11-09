@@ -46,6 +46,20 @@ func LoginEmailSentPage() web.HandlerFunc {
 	}
 }
 
+// CompleteSignInProfilePage renders the complete profile page for code flow
+func CompleteSignInProfilePage() web.HandlerFunc {
+	return func(c *web.Context) error {
+		return c.Page(http.StatusOK, web.Props{
+			Page:  "SignIn/CompleteSignInProfile.page",
+			Title: "Complete your profile",
+			Data: web.Map{
+				"kind": enum.EmailVerificationKindSignIn,
+				"k":    c.QueryParam("code"),
+			},
+		})
+	}
+}
+
 // NotInvitedPage renders the not invited page
 func NotInvitedPage() web.HandlerFunc {
 	return func(c *web.Context) error {

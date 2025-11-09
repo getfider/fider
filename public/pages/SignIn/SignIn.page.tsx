@@ -1,6 +1,5 @@
 import React from "react"
 import { SignInControl, TenantLogo, LegalNotice } from "@fider/components"
-import { notify } from "@fider/services"
 import { Trans } from "@lingui/react/macro"
 import { useFider } from "@fider/hooks"
 
@@ -35,14 +34,19 @@ const Private = (): JSX.Element => {
 export const SignInPage = () => {
   const fider = useFider()
 
-  const onEmailSent = (email: string) => {
-    notify.success(
-      <span>
-        <Trans id="signin.message.emailsent">
-          We have just sent a confirmation link to <b>{email}</b>. Click the link and you’ll be signed in.
-        </Trans>
-      </span>
-    )
+  const onCodeVerified = (result: { showProfileCompletion?: boolean; code?: string }) => {
+    if (result.showProfileCompletion && result.code) {
+      // User needs to complete profile - redirect to profile completion page
+      location.href = `/signin/complete?code=${encodeURIComponent(result.code)}`
+    } else {
+      // User is authenticated - redirect to the appropriate URL
+      const redirect = new URLSearchParams(window.location.search).get("redirect")
+      if (redirect && redirect.startsWith("/")) {
+        location.href = fider.settings.baseURL + redirect
+      } else {
+        location.href = fider.settings.baseURL
+      }
+    }
   }
 
   const getRedirectToUrl = () => {
@@ -63,7 +67,7 @@ export const SignInPage = () => {
       </div>
       <div className="text-center w-max-4xl mx-auto mb-4">{fider.session.tenant.isPrivate ? <Private /> : <Locked />}</div>
 
-      <SignInControl onEmailSent={onEmailSent} useEmail={true} redirectTo={getRedirectToUrl()} />
+      <SignInControl onCodeVerified={onCodeVerified} useEmail={true} redirectTo={getRedirectToUrl()} />
       <LegalNotice />
     </div>
   )
