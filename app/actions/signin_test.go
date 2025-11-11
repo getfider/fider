@@ -105,3 +105,50 @@ func TestVerifySignInCode_ValidCodeAndEmail(t *testing.T) {
 	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 }
+
+func TestSignInByEmailWithName_EmptyEmailAndName(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.SignInByEmailWithName{Email: "", Name: ""}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "email", "name")
+}
+
+func TestSignInByEmailWithName_InvalidEmail(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.SignInByEmailWithName{Email: "invalid", Name: "Jon Snow"}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "email")
+}
+
+func TestSignInByEmailWithName_EmptyName(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.SignInByEmailWithName{Email: "jon.snow@got.com", Name: ""}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "name")
+}
+
+func TestSignInByEmailWithName_LongName(t *testing.T) {
+	RegisterT(t)
+
+	// 101 characters
+	longName := "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901"
+	action := actions.SignInByEmailWithName{Email: "jon.snow@got.com", Name: longName}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "name")
+}
+
+func TestSignInByEmailWithName_ValidEmailAndName(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.NewSignInByEmailWithName()
+	action.Email = "jon.snow@got.com"
+	action.Name = "Jon Snow"
+
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+	Expect(action.VerificationCode).IsNotEmpty()
+	Expect(len(action.VerificationCode)).Equals(6)
+}

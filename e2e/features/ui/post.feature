@@ -24,11 +24,11 @@ Feature: Post
     And I type "This is a draft post from a new user" as the description
     And I type my email address
     And I click continue with email
-    Then I should be on the confirmation link page
-    Given I click on the confirmation link
-    Then I should be on the complete profile page
+    Then I should see the name field
     Given I enter my name as "Matt"
-    And I click submit
+    And I click continue
+    Then I should be on the confirmation code page
+    Given I enter the confirmation code
     Then I should be on the home page
     And I should see the new post modal
     And I should see "This is a draft post from a new user" as the draft post title

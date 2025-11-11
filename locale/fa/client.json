@@ -4,6 +4,7 @@
   "action.close": "بستن",
   "action.commentsfeed": "فید نظرات",
   "action.confirm": "تأیید",
+  "action.continue": "",
   "action.copylink": "کپی لینک",
   "action.delete": "حذف",
   "action.edit": "ویرایش",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "اگر حساب یا دعوت‌نامه دارید، از گزینه‌های زیر برای ورود استفاده کنید.",
   "signin.message.private.title": "<0>{0}</0> یک فضای خصوصی است؛ برای مشارکت باید وارد شوید.",
   "signin.message.socialbutton.intro": "ورود با",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "حداکثر تعداد {number} پیوست مجاز است.",
   "validation.custom.maximagesize": "حجم تصویر باید کمتر از {kilobytes}KB باشد.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# برچسب} other {# برچسب}}"

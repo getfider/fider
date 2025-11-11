@@ -124,6 +124,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/invite/verify", handlers.VerifySignInKey(enum.EmailVerificationKindUserInvitation))
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
+	r.Post("/_api/signin/newuser", handlers.SignInByEmailWithName())
 	r.Post("/_api/signin/verify", handlers.VerifySignInCode())
 	r.Post("/_api/signin/resend", handlers.ResendSignInCode())
 

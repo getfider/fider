@@ -4,6 +4,7 @@
   "action.close": "Stäng",
   "action.commentsfeed": "Kommentarflöde",
   "action.confirm": "Bekräfta",
+  "action.continue": "",
   "action.copylink": "Kopiera länk",
   "action.delete": "Radera",
   "action.edit": "Ändra",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "Om du har ett konto eller en inbjudan kan du använda följande alternativ för att logga in.",
   "signin.message.private.title": "<0>{0}</0> är ett privat utrymme, du måste logga in för att delta och rösta.",
   "signin.message.socialbutton.intro": "Logga in med",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "Maximalt {number} bilagor är tillåtna.",
   "validation.custom.maximagesize": "Bildstorleken måste vara mindre än {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, =1 {# etikett} other {# etiketter}}"

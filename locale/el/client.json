@@ -4,6 +4,7 @@
   "action.close": "Κλείσιμο",
   "action.commentsfeed": "Ροή σχολίων",
   "action.confirm": "Επιβεβαίωση",
+  "action.continue": "",
   "action.copylink": "Αντιγραφή συνδέσμου",
   "action.delete": "Διαγραφή",
   "action.edit": "Επεξεργασία",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "Αν έχετε λογαριασμό ή πρόσκληση, μπορείτε να χρησιμοποιήσετε τις παρακάτω επιλογές για να συνδεθείτε.",
   "signin.message.private.title": "<0>{0}</0> είναι ένας ιδιωτικός χώρος, πρέπει να συνδεθείτε για να συμμετάσχετε και να ψηφίσετε.",
   "signin.message.socialbutton.intro": "Συνδεθείτε με",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "Επιτρέπονται έως {number} συνημμένα.",
   "validation.custom.maximagesize": "Το μέγεθος της εικόνας πρέπει να είναι μικρότερο από {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# ετικέτα} other {# ετικέτες}}"

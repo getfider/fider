@@ -4,6 +4,7 @@
   "action.close": "Закрыть",
   "action.commentsfeed": "Лента комментариев",
   "action.confirm": "Подтвердить",
+  "action.continue": "",
   "action.copylink": "Копировать ссылку",
   "action.delete": "Удалить",
   "action.edit": "Изменить",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "Если у вас есть аккаунт или приглашение, вы можете использовать их для входа.",
   "signin.message.private.title": "<0>{0}</0> является приватным пространством, вы должны войти в систему, чтобы принять участие и проголосовать.",
   "signin.message.socialbutton.intro": "Войти с помощью",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "Разрешено максимум {number} вложений.",
   "validation.custom.maximagesize": "Размер изображения должен быть меньше {kilobytes}КБ.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"

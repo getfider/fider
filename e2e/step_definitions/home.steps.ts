@@ -44,11 +44,30 @@ Given("I click continue with email", async function () {
   await this.page.click(".c-signin-control button[type='submit']")
 })
 
+Then("I should see the name field", async function (this: FiderWorld) {
+  // Wait for the name field to appear
+  await this.page.waitForSelector("#input-name", { timeout: 5000 })
+  const nameField = await this.page.locator("#input-name")
+  await expect(nameField).toBeVisible()
+})
+
+Given("I click continue", async function () {
+  await this.page.click("button[type='submit']")
+})
+
 Given("I click submit your feedback", async function () {
   await this.page.click(".c-share-feedback__content .c-button--primary")
 })
 
-Given("I click on the confirmation link", async function (this: FiderWorld) {
+Then("I should be on the confirmation code page", async function (this: FiderWorld) {
+  const userEmail = `$user-${this.tenantName}@fider.io`
+  // Wait for the code entry field to appear
+  await this.page.waitForSelector("#input-code", { timeout: 5000 })
+  // Check for code entry instruction message
+  await expect(this.page.getByText(`Please type in the code we just sent to ${userEmail}`)).toBeVisible()
+})
+
+Given("I enter the confirmation code", async function (this: FiderWorld) {
   const userEmail = `$user-${this.tenantName}@fider.io`
   const code = await getLatestCodeSentTo(userEmail)
 
@@ -58,11 +77,6 @@ Given("I click on the confirmation link", async function (this: FiderWorld) {
 
   // Wait for navigation after successful code verification
   await this.page.waitForLoadState("networkidle")
-})
-
-Then("I should be on the complete profile page", async function (this: FiderWorld) {
-  const container = await this.page.$$("#p-complete-profile")
-  await expect(container).toBeDefined()
 })
 
 Then("I should see the new post modal", async function (this: FiderWorld) {
@@ -76,12 +90,6 @@ Given("I enter my name as {string}", async function (this: FiderWorld, name: str
 
 Given("I click submit", async function () {
   await this.page.click("button[type='submit']")
-})
-
-Then("I should be on the confirmation link page", async function (this: FiderWorld) {
-  const userEmail = `$user-${this.tenantName}@fider.io`
-  // Updated to check for code entry message instead of link message
-  await expect(this.page.getByText(`Please type in the code we just sent to ${userEmail}`)).toBeVisible()
 })
 
 Then("I should see {string} as the draft post title", async function (this: FiderWorld, title: string) {

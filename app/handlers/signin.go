@@ -71,7 +71,7 @@ func NotInvitedPage() web.HandlerFunc {
 	}
 }
 
-// SignInByEmail sends a new email with verification code
+// SignInByEmail checks if user exists and sends code only for existing users
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
 		action := actions.NewSignInByEmail()
@@ -79,7 +79,56 @@ func SignInByEmail() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+		// Check if user exists
+		userByEmail := &query.GetUserByEmail{Email: action.Email}
+		err := bus.Dispatch(c, userByEmail)
+		userExists := err == nil
+
+		// Only send code if user exists
+		if userExists {
+			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+				Key:      action.VerificationCode,
+				Duration: 15 * time.Minute,
+				Request:  action,
+			})
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationCode))
+		}
+
+		return c.Ok(web.Map{
+			"userExists": userExists,
+		})
+	}
+}
+
+// SignInByEmailWithName sends verification code for new users with their name
+func SignInByEmailWithName() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := actions.NewSignInByEmailWithName()
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		// Check that user doesn't already exist
+		userByEmail := &query.GetUserByEmail{Email: action.Email}
+		err := bus.Dispatch(c, userByEmail)
+		if err == nil {
+			// User already exists, should use regular sign in
+			return c.BadRequest(web.Map{
+				"email": "An account with this email already exists. Please sign in.",
+			})
+		}
+
+		// Check if tenant is private (new users not allowed)
+		if c.Tenant().IsPrivate {
+			return c.Forbidden()
+		}
+
+		// Save verification with name
+		err = bus.Dispatch(c, &cmd.SaveVerificationKey{
 			Key:      action.VerificationCode,
 			Duration: 15 * time.Minute,
 			Request:  action,
@@ -139,10 +188,36 @@ func VerifySignInCode() web.HandlerFunc {
 		err = bus.Dispatch(c, userByEmail)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				// User doesn't exist, need to complete profile
+				// User doesn't exist
 				if c.Tenant().IsPrivate {
 					return c.Forbidden()
 				}
+
+				// If name is provided in verification, create user account
+				if result.Name != "" {
+					user := &entity.User{
+						Name:   result.Name,
+						Email:  result.Email,
+						Tenant: c.Tenant(),
+						Role:   enum.RoleVisitor,
+					}
+					err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
+					if err != nil {
+						return c.Failure(err)
+					}
+
+					// Mark code as verified
+					err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Code})
+					if err != nil {
+						return c.Failure(err)
+					}
+
+					// Authenticate newly created user
+					webutil.AddAuthUserCookie(c, user)
+					return c.Ok(web.Map{})
+				}
+
+				// Name not provided - shouldn't happen with new flow, but handle legacy case
 				return c.Ok(web.Map{
 					"showProfileCompletion": true,
 				})
@@ -211,14 +286,27 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 					return NotInvitedPage()(c)
 				}
 
-				return c.Page(http.StatusOK, web.Props{
-					Page:  "SignIn/CompleteSignInProfile.page",
-					Title: "Complete Sign In Profile",
-					Data: web.Map{
-						"kind": kind,
-						"k":    key,
-					},
-				})
+				// User should already have entered their name so we can get them registered.
+				user := &entity.User{
+					Name:   result.Name,
+					Email:  result.Email,
+					Tenant: c.Tenant(),
+					Role:   enum.RoleVisitor,
+				}
+				err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
+				if err != nil {
+					return c.Failure(err)
+				}
+
+				err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
+				if err != nil {
+					return c.Failure(err)
+				}
+
+				webutil.AddAuthUserCookie(c, user)
+				baseURL := c.BaseURL()
+				return c.Redirect(baseURL)
+
 			}
 			return c.Failure(err)
 		}

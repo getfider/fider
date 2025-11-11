@@ -34,18 +34,13 @@ const Private = (): JSX.Element => {
 export const SignInPage = () => {
   const fider = useFider()
 
-  const onCodeVerified = (result: { showProfileCompletion?: boolean; code?: string }) => {
-    if (result.showProfileCompletion && result.code) {
-      // User needs to complete profile - redirect to profile completion page
-      location.href = `/signin/complete?code=${encodeURIComponent(result.code)}`
+  const onCodeVerified = () => {
+    // User is authenticated - redirect to the appropriate URL
+    const redirect = new URLSearchParams(window.location.search).get("redirect")
+    if (redirect && redirect.startsWith("/")) {
+      location.href = fider.settings.baseURL + redirect
     } else {
-      // User is authenticated - redirect to the appropriate URL
-      const redirect = new URLSearchParams(window.location.search).get("redirect")
-      if (redirect && redirect.startsWith("/")) {
-        location.href = fider.settings.baseURL + redirect
-      } else {
-        location.href = fider.settings.baseURL
-      }
+      location.href = fider.settings.baseURL
     }
   }
 

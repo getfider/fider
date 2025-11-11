@@ -4,6 +4,7 @@
   "action.close": "Zavrieť",
   "action.commentsfeed": "Kanál komentárov",
   "action.confirm": "Potvrdiť",
+  "action.continue": "",
   "action.copylink": "Kopírovať odkaz",
   "action.delete": "Vymazať",
   "action.edit": "Upraviť",
@@ -217,6 +218,8 @@
   "signin.message.private.text": "Ak máte účet alebo pozvánku, na prihlásenie môžete použiť nasledujúce možnosti.",
   "signin.message.private.title": "<0>{0}</0> je súkromný priestor, ak sa chcete zúčastniť diskusie a hlasovať, musíte sa prihlásiť.",
   "signin.message.socialbutton.intro": "Prihlásiť sa pomocou",
+  "
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "Maximálny počet príloh je {number}.",
   "validation.custom.maximagesize": "Veľkosť obrázka musí byť menšia ako {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"

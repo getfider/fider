@@ -4,6 +4,7 @@
   "action.close": "Cerrar",
   "action.commentsfeed": "Feed de comentarios",
   "action.confirm": "Confirmar",
+  "action.continue": "",
   "action.copylink": "Copiar enlace",
   "action.delete": "Eliminar",
   "action.edit": "Editar",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "Si tienes una cuenta o una invitación, puedes usar las siguientes opciones para iniciar sesión.",
   "signin.message.private.title": "<0>{0}</0> es un espacio privado, debes iniciar sesión para participar y votar.",
   "signin.message.socialbutton.intro": "Iniciar sesión con",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "Se permite un máximo de {number} archivos adjuntos.",
   "validation.custom.maximagesize": "El tamaño de la imagen debe ser menor que {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiqueta} other {# etiquetas}}"

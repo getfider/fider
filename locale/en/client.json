@@ -4,6 +4,7 @@
   "action.close": "Close",
   "action.commentsfeed": "Comment Feed",
   "action.confirm": "Confirm",
+  "action.continue": "Continue",
   "action.copylink": "Copy link",
   "action.delete": "Delete",
   "action.edit": "Edit",
@@ -13,6 +14,7 @@
   "action.respond": "Respond",
   "action.save": "Save",
   "action.signin": "Sign in",
+  "action.signup": "Sign up",
   "action.submit": "Submit",
   "action.vote": "Vote for this idea",
   "action.voted": "Voted!",
@@ -218,6 +220,7 @@
   "signin.message.private.text": "If you have an account or an invitation, you may use following options to sign in.",
   "signin.message.private.title": "<0>{0}</0> is a private space, you must sign in to participate and vote.",
   "signin.message.socialbutton.intro": "Continue with",
+  "signin.name.placeholder": "Your name",
   "validation.custom.maxattachments": "A maximum of {number} attachments are allowed.",
   "validation.custom.maximagesize": "The image size must be smaller than {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"

@@ -200,15 +200,9 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     }
   }
 
-  const onCodeVerified = (result: { showProfileCompletion?: boolean; code?: string }): void => {
-    if (result.showProfileCompletion && result.code) {
-      // User needs to complete profile - redirect to profile completion page
-      // The cached feedback will be preserved for after profile setup
-      location.href = `/signin/complete?code=${encodeURIComponent(result.code)}`
-    } else {
-      // User is authenticated - finalize the feedback submission
-      finaliseFeedback()
-    }
+  const onCodeVerified = (): void => {
+    // User is authenticated - finalize the feedback submission
+    finaliseFeedback()
   }
 
   const handleEditorFocus = () => {

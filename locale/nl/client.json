@@ -4,6 +4,7 @@
   "action.close": "Sluiten",
   "action.commentsfeed": "Reactiefeed",
   "action.confirm": "Bevestigen",
+  "action.continue": "",
   "action.copylink": "Link kopiëren",
   "action.delete": "Verwijderen",
   "action.edit": "Bewerken",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "Als je een account of een uitnodiging hebt, kun je de volgende methodes gebruiken om in te loggen.",
   "signin.message.private.title": "<0>{0}</0> is een privéruimte. U moet ingelogd zijn om deel te nemen en te stemmen.",
   "signin.message.socialbutton.intro": "Inloggen met",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "Er zijn maximaal {number} bijlagen toegestaan.",
   "validation.custom.maximagesize": "De afbeeldingsgrootte moet kleiner zijn dan {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"

@@ -58,6 +58,10 @@ export const signIn = async (email: string): Promise<Result> => {
   return await http.post("/_api/signin", { email })
 }
 
+export const signInNewUser = async (email: string, name: string): Promise<Result> => {
+  return await http.post("/_api/signin/newuser", { email, name })
+}
+
 export const verifySignInCode = async (email: string, code: string): Promise<Result> => {
   return await http.post("/_api/signin/verify", { email, code })
 }

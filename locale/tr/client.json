@@ -4,6 +4,7 @@
   "action.close": "Kapat",
   "action.commentsfeed": "Yorum Beslemesi",
   "action.confirm": "Onayla",
+  "action.continue": "",
   "action.copylink": "Bağlantıyı kopyala",
   "action.delete": "Sil",
   "action.edit": "Düzenle",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "Eğer bir hesabınız ya da davetiyeniz varsa aşağıdaki seçenekleri kullanarak giriş yapabilirsiniz.",
   "signin.message.private.title": "<0>{0}</0> özel bir alandır ve katılabilmek için davetiye almanız gerekir.",
   "signin.message.socialbutton.intro": "İle giriş yapın",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "En fazla {number} ek dosyaya izin verilir.",
   "validation.custom.maximagesize": "Resim boyutu {kilobytes}KB'den küçük olmalıdır.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiket} other {# etiket}}"

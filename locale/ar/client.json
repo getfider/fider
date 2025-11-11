@@ -4,6 +4,7 @@
   "action.close": "إغلاق",
   "action.commentsfeed": "تغذية التعليقات",
   "action.confirm": "تأكيد",
+  "action.continue": "",
   "action.copylink": "نسخ الرابط",
   "action.delete": "حذف",
   "action.edit": "تعديل",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "إذا كان لديك حساب أو دعوت، فيمكنك استخدام الخيارات التالية لتسجيل الدخول.",
   "signin.message.private.title": "<0>{0}</0> مساحة خاصة، يجب عليك تسجيل الدخول للمشاركة والتصويت.",
   "signin.message.socialbutton.intro": "تسجيل الدخول بواسطة",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "يُسمح بحد أقصى {number} من المرفقات.",
   "validation.custom.maximagesize": "يجب أن يكون حجم الصورة أصغر من {kilobytes}KB.",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}"

@@ -10,15 +10,10 @@ interface SignInModalProps {
 }
 
 export const SignInModal: React.FC<SignInModalProps> = (props) => {
-  const onCodeVerified = (result: { showProfileCompletion?: boolean; code?: string }): void => {
-    if (result.showProfileCompletion && result.code) {
-      // User needs to complete profile - redirect to profile completion page
-      location.href = `/signin/complete?code=${encodeURIComponent(result.code)}`
-    } else {
-      // User is authenticated - close modal and reload to refresh the page
-      props.onClose()
-      location.reload()
-    }
+  const onCodeVerified = (): void => {
+    // User is authenticated - close modal and reload to refresh the page
+    props.onClose()
+    location.reload()
   }
 
   return (

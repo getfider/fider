@@ -4,6 +4,7 @@
   "action.close": "閉じる",
   "action.commentsfeed": "コメントフィード",
   "action.confirm": "確認",
+  "action.continue": "",
   "action.copylink": "リンクをコピー",
   "action.delete": "削除",
   "action.edit": "編集",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "アカウントや招待状をお持ちの場合は、以下のオプションを使用してサインインできます。",
   "signin.message.private.title": "<0>{0}</0> はプライベートなスペースです。サインインして投票してください。",
   "signin.message.socialbutton.intro": "ログイン",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "最大 {number} 個の添付ファイルが許可されます。",
   "validation.custom.maximagesize": "画像サイズは{kilobytes}KB未満である必要があります。",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"

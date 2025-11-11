@@ -4,6 +4,7 @@
   "action.close": "关闭",
   "action.commentsfeed": "评论提要",
   "action.confirm": "确认",
+  "action.continue": "",
   "action.copylink": "复制链接",
   "action.delete": "删除",
   "action.edit": "编辑",
@@ -217,6 +218,7 @@
   "signin.message.private.text": "如果您有帐户或邀请，您可以使用以下选项登录.",
   "signin.message.private.title": "<0>{0}</0> 这是一个私人空间，您必须登录才能参与和投票.",
   "signin.message.socialbutton.intro": "使用以下方式登录",
+  "signin.name.placeholder": "",
   "validation.custom.maxattachments": "最多允许 {number} 个附件。",
   "validation.custom.maximagesize": "图像大小必须小于{kilobytes}KB。",
   "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"

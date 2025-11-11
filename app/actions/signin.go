@@ -113,6 +113,66 @@ func (action *VerifySignInCode) Validate(ctx context.Context, user *entity.User)
 	return result
 }
 
+// SignInByEmailWithName happens when a new user (without account) requests to sign in by email
+type SignInByEmailWithName struct {
+	Email            string `json:"email" format:"lower"`
+	Name             string `json:"name"`
+	VerificationCode string
+}
+
+func NewSignInByEmailWithName() *SignInByEmailWithName {
+	return &SignInByEmailWithName{
+		VerificationCode: entity.GenerateEmailVerificationCode(),
+	}
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *SignInByEmailWithName) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+	// New users can only sign in if tenant allows email auth or is not private
+	return tenant.IsEmailAuthAllowed || !tenant.IsPrivate
+}
+
+// Validate if current model is valid
+func (action *SignInByEmailWithName) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	result := validate.Success()
+
+	if action.Email == "" {
+		result.AddFieldFailure("email", propertyIsRequired(ctx, "email"))
+	} else {
+		messages := validate.Email(ctx, action.Email)
+		result.AddFieldFailure("email", messages...)
+	}
+
+	if action.Name == "" {
+		result.AddFieldFailure("name", propertyIsRequired(ctx, "name"))
+	} else if len(action.Name) > 100 {
+		result.AddFieldFailure("name", propertyMaxStringLen(ctx, "name", 100))
+	}
+
+	return result
+}
+
+// GetEmail returns the email being verified
+func (action *SignInByEmailWithName) GetEmail() string {
+	return action.Email
+}
+
+// GetName returns the name provided by the user
+func (action *SignInByEmailWithName) GetName() string {
+	return action.Name
+}
+
+// GetUser returns the current user performing this action
+func (action *SignInByEmailWithName) GetUser() *entity.User {
+	return nil
+}
+
+// GetKind returns EmailVerificationKindSignIn
+func (action *SignInByEmailWithName) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignIn
+}
+
 // CompleteProfile happens when users completes their profile during first time sign in
 type CompleteProfile struct {
 	Kind enum.EmailVerificationKind `json:"kind"`
