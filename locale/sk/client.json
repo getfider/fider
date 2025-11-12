@@ -14,6 +14,7 @@
   "action.respond": "Odpovedať",
   "action.save": "Uložiť",
   "action.signin": "Prihlásiť sa",
+  "action.signup": "",
   "action.submit": "Potvrdiť",
   "action.vote": "Hlasovať za tento nápad",
   "action.voted": "Zahlasované!",
@@ -218,7 +219,6 @@
   "signin.message.private.text": "Ak máte účet alebo pozvánku, na prihlásenie môžete použiť nasledujúce možnosti.",
   "signin.message.private.title": "<0>{0}</0> je súkromný priestor, ak sa chcete zúčastniť diskusie a hlasovať, musíte sa prihlásiť.",
   "signin.message.socialbutton.intro": "Prihlásiť sa pomocou",
-  "
   "signin.name.placeholder": "",
   "validation.custom.maxattachments": "Maximálny počet príloh je {number}.",
   "validation.custom.maximagesize": "Veľkosť obrázka musí byť menšia ako {kilobytes}KB.",

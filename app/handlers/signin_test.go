@@ -357,6 +357,56 @@ func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 }
 
+func TestVerifySignInKeyHandler_CorrectKey_NewUser_WithName(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == enum.EmailVerificationKindSignIn {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &entity.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     "hot.pie@got.com",
+				Name:      "Hot Pie",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	var registeredUser *entity.User
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+		registeredUser = c.User
+		registeredUser.ID = 1
+		Expect(c.User.Name).Equals("Hot Pie")
+		Expect(c.User.Email).Equals("hot.pie@got.com")
+		Expect(c.User.Role).Equals(enum.RoleVisitor)
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		return nil
+	})
+
+	server := mock.NewServer()
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
+		Execute(handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
+
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io")
+	Expect(registeredUser).IsNotNil()
+	ExpectFiderAuthCookie(response, registeredUser)
+}
+
 func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *testing.T) {
 	RegisterT(t)
 

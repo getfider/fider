@@ -240,7 +240,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   function renderCodeField(): React.ReactNode {
     return (
       <>
-        <p className="text-muted mb-2">
+        <p className="text-muted mb-2 text-left">
           <Trans id="signin.code.instruction">
             Please type in the code we just sent to <strong>{email}</strong>
           </Trans>{" "}
@@ -267,7 +267,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
           />
         </Form>
         {resendMessage && <p className="text-green-700 mt-2">{resendMessage}</p>}
-        <p className="text-center mt-2">
+        <p className="text-center mt-2 text-muted text-left">
           <a
             href="#"
             className="text-link"

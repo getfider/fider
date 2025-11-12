@@ -14,6 +14,7 @@
   "action.respond": "回复/标记",
   "action.save": "保存",
   "action.signin": "登录",
+  "action.signup": "",
   "action.submit": "提交",
   "action.vote": "投票支持这个想法",
   "action.voted": "已投票！",

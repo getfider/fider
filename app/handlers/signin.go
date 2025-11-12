@@ -286,26 +286,38 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 					return NotInvitedPage()(c)
 				}
 
-				// User should already have entered their name so we can get them registered.
-				user := &entity.User{
-					Name:   result.Name,
-					Email:  result.Email,
-					Tenant: c.Tenant(),
-					Role:   enum.RoleVisitor,
-				}
-				err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
-				if err != nil {
-					return c.Failure(err)
+				// If name is provided in verification, create user account immediately
+				if result.Name != "" {
+					user := &entity.User{
+						Name:   result.Name,
+						Email:  result.Email,
+						Tenant: c.Tenant(),
+						Role:   enum.RoleVisitor,
+					}
+					err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
+					if err != nil {
+						return c.Failure(err)
+					}
+
+					err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
+					if err != nil {
+						return c.Failure(err)
+					}
+
+					webutil.AddAuthUserCookie(c, user)
+					baseURL := c.BaseURL()
+					return c.Redirect(baseURL)
 				}
 
-				err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
-				if err != nil {
-					return c.Failure(err)
-				}
-
-				webutil.AddAuthUserCookie(c, user)
-				baseURL := c.BaseURL()
-				return c.Redirect(baseURL)
+				// Otherwise, show profile completion page
+				return c.Page(http.StatusOK, web.Props{
+					Page:  "SignIn/CompleteSignInProfile.page",
+					Title: "Complete Sign In Profile",
+					Data: web.Map{
+						"kind": kind,
+						"k":    key,
+					},
+				})
 
 			}
 			return c.Failure(err)
