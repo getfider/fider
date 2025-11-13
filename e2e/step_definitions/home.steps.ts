@@ -52,7 +52,7 @@ Then("I should see the name field", async function (this: FiderWorld) {
 })
 
 Given("I click continue", async function () {
-  await this.page.click("button[type='submit']")
+  await this.page.getByRole("button", { name: "Sign up" }).click()
 })
 
 Given("I click submit your feedback", async function () {
@@ -72,8 +72,8 @@ Given("I enter the confirmation code", async function (this: FiderWorld) {
   const code = await getLatestCodeSentTo(userEmail)
 
   // Enter the code in the UI
-  await this.page.type("#input-code", code)
-  await this.page.click("button[type='submit']")
+  await this.page.fill("#input-code", code)
+  await this.page.getByRole("button", { name: "submit" }).click()
 
   // Wait for navigation after successful code verification
   await this.page.waitForLoadState("networkidle")
@@ -85,11 +85,11 @@ Then("I should see the new post modal", async function (this: FiderWorld) {
 })
 
 Given("I enter my name as {string}", async function (this: FiderWorld, name: string) {
-  await this.page.type("#input-name", name)
+  await this.page.fill("#input-name", name)
 })
 
 Given("I click submit", async function () {
-  await this.page.click("button[type='submit']")
+  await this.page.getByRole("button", { name: "submit" }).click()
 })
 
 Then("I should see {string} as the draft post title", async function (this: FiderWorld, title: string) {

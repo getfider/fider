@@ -14,13 +14,13 @@ Given("I sign in as {string}", async function (this: FiderWorld, userName: strin
 
   const userEmail = `${userName}-${this.tenantName}@fider.io`
   await this.page.click(".c-menu .uppercase.text-sm")
-  await this.page.type(".c-signin-control #input-email", userEmail)
+  await this.page.fill(".c-signin-control #input-email", userEmail)
   await this.page.click(".c-signin-control .c-button--primary")
 
   // Get the code from email and enter it
   const code = await getLatestCodeSentTo(userEmail)
-  await this.page.type("#input-code", code)
-  await this.page.click("button[type='submit']")
+  await this.page.fill("#input-code", code)
+  await this.page.getByRole("button", { name: "submit" }).click()
 
   // Wait for navigation after successful code verification
   await this.page.waitForLoadState("networkidle")

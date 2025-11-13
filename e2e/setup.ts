@@ -11,8 +11,8 @@ type BrowserName = "chromium" | "firefox" | "webkit"
 BeforeAll({ timeout: 30 * 1000 }, async function () {
   const name = (process.env.BROWSER || "chromium") as BrowserName
   browser = await playwright[name].launch({
-    headless: true,
-    slowMo: 10,
+    headless: process.env.HEADED !== "true",
+    slowMo: process.env.HEADED === "true" ? 100 : 10,
   })
 
   if (!tenantName) {
