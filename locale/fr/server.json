@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> a été <strong>supprimé</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> a laissé un commentaire sur <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> a créé un nouveau message <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Se connecter à {siteName}",
+  "email.signin_email.subject": "Votre code de connexion pour {siteName} est {code}",
   "email.signin_email.text": "Vous nous avez demandé de vous envoyer un lien de connexion et le voici.",
   "email.signin_email.confirmation": "Cliquez sur le lien ci-dessous pour vous connecter à <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Votre nouveau site Fider",

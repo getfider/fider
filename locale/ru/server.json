@@ -52,7 +52,7 @@
   "email.delete_post.text": "Пост <strong>{title}</strong> был <strong>удалён</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> оставил комментарий на <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> создал новый пост: <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Вход на {siteName}",
+  "email.signin_email.subject": "Ваш код входа для {siteName}: {code}",
   "email.signin_email.text": "Вы попросили отправить ссылку для входа, и вот она.",
   "email.signin_email.confirmation": "Перейдите по ссылке ниже, чтобы войти на <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Ваш новый сайт с Fider",

@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> <strong>حذف</strong> شد.",
   "email.new_comment.text": "<strong>{userName}</strong> در <strong>{title} ({postLink})</strong> نظری گذاشت.",
   "email.new_post.text": "<strong>{userName}</strong> پست جدیدی ایجاد کرد <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "ورود به {siteName}",
+  "email.signin_email.subject": "کد ورود شما برای {siteName} این است: {code}",
   "email.signin_email.text": "شما درخواست کردید لینکی برای ورود ارسال کنیم و اینک در اختیارتان است.",
   "email.signin_email.confirmation": "برای ورود به <strong>{siteName}</strong> روی لینک زیر کلیک کنید.",
   "email.signup_email.subject": "سایت Fider جدید شما",

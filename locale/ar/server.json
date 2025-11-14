@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> تم <strong>حذفه</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> ترك تعليقًا على <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> أنشأ منشورًا جديدًا <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "سجل الدخول إلى {siteName}",
+  "email.signin_email.subject": "رمز تسجيل الدخول إلى {siteName} هو {code}",
   "email.signin_email.text": "لقد طلبت منا أن نرسل لك رابط تسجيل الدخول وهنا هو كذلك.",
   "email.signin_email.confirmation": "انقر على الرابط أدناه لتسجيل الدخول إلى <strong>{siteName}</strong>.",
   "email.signup_email.subject": "موقع فايـدر الجديد الخاص بك",

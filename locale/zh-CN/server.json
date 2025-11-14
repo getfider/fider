@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> 已经 <strong>删除了</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> 发表评论 <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> 创建了一个新帖子 <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "登录到 {siteName}",
+  "email.signin_email.subject": "您的 {siteName} 登录代码是 {code}",
   "email.signin_email.text": "您要求我们向您发送登录链接，现在是.",
   "email.signin_email.confirmation": "单击下面的链接登录 <strong>{siteName}</strong>.",
   "email.signup_email.subject": "您的新 Fider 网站",

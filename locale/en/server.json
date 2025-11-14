@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> has been <strong>deleted</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> left a comment on <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> created a new post <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Sign in to {siteName}",
+  "email.signin_email.subject": "Your sign in code for {siteName} is {code}",
   "email.signin_email.text": "Here is your sign-in code.",
   "email.signin_email.confirmation": "Use the one-time code below to sign in to <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Your new Fider site",
