@@ -3,9 +3,10 @@
 .c-message {
   padding: spacing(4);
   margin-bottom: spacing(2);
+  border-radius: get("border.radius.medium");
 
   &--icon {
-    border-inline-start-width: 2px;
+    border-inline-start-width: 3px;
     border-inline-start-style: solid;
   }
 

@@ -4,7 +4,8 @@
   &__header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    row-gap: spacing(3);
+    row-gap: spacing(4);
+    margin-bottom: spacing(5);
   }
 
   &__filter-col {
