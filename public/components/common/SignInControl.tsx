@@ -125,24 +125,36 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
 
   const providersLen = fider.settings.oauth.length
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    // Form submission handler that routes to the correct function based on step
+    if (emailSignInStep === EmailSigninStep.EnterEmail) {
+      await signIn()
+    } else if (emailSignInStep === EmailSigninStep.EnterName) {
+      await submitNewUser()
+    } else if (emailSignInStep === EmailSigninStep.EnterCode) {
+      await verifyCode()
+    }
+  }
+
   const renderSigninEmailButton = () => {
     if (emailSignInStep == EmailSigninStep.EnterEmail) {
       return (
-        <Button className="w-full justify-center" type="submit" variant="primary" onClick={signIn}>
+        <Button className="w-full justify-center" type="submit" variant="primary">
           <Trans id="signin.message.email">Continue with Email</Trans>
         </Button>
       )
     }
     if (emailSignInStep == EmailSigninStep.EnterName) {
       return (
-        <Button className="w-full justify-center" type="submit" variant="primary" onClick={submitNewUser}>
+        <Button className="w-full justify-center" type="submit" variant="primary">
           <Trans id="action.signup">Sign up</Trans>
         </Button>
       )
     }
     if (emailSignInStep == EmailSigninStep.EnterCode) {
       return (
-        <Button className="w-full justify-center" type="submit" variant="primary" disabled={code.length !== 6} onClick={verifyCode}>
+        <Button className="w-full justify-center" type="submit" variant="primary" disabled={code.length !== 6}>
           <Trans id="action.submit">Submit</Trans>
         </Button>
       )
@@ -176,7 +188,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       {props.useEmail &&
         (showEmailForm ? (
           <div className="pt-3">
-            <Form error={error}>
+            <Form error={error} autoComplete={emailSignInStep === EmailSigninStep.EnterCode ? "on" : "off"} onSubmit={handleFormSubmit}>
               {(emailSignInStep == EmailSigninStep.EnterEmail || emailSignInStep == EmailSigninStep.EnterName) && renderEmailField()}
 
               {emailSignInStep == EmailSigninStep.EnterName && renderNameField()}
@@ -225,6 +237,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
           value={email}
           disabled={emailSignInStep == EmailSigninStep.EnterName}
           autoFocus={!device.isTouch()}
+          autoComplete="email"
           onChange={setEmail}
           placeholder={i18n._({ id: "signin.email.placeholder", message: "Email address" })}
         />
@@ -255,17 +268,17 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
             <Trans id="signin.code.edit">Edit</Trans>
           </a>
         </p>
-        <Form error={error}>
-          <Input
-            className="text-left"
-            field="code"
-            value={code}
-            autoFocus={!device.isTouch()}
-            onChange={setCode}
-            placeholder={i18n._({ id: "signin.code.placeholder", message: "Type in the code here" })}
-            maxLength={6}
-          />
-        </Form>
+        <Input
+          className="text-left"
+          field="code"
+          value={code}
+          autoFocus={!device.isTouch()}
+          autoComplete="one-time-code"
+          inputMode="numeric"
+          onChange={setCode}
+          placeholder={i18n._({ id: "signin.code.placeholder", message: "Type in the code here" })}
+          maxLength={6}
+        />
         {resendMessage && <p className="text-green-700 mt-2">{resendMessage}</p>}
         <p className="text-center mt-2 text-muted text-left">
           <a

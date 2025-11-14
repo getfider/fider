@@ -13,6 +13,8 @@ interface FormProps {
   children?: React.ReactNode
   className?: string
   error?: Failure
+  autoComplete?: string
+  onSubmit?: (e: React.FormEvent) => void
 }
 
 export const ValidationContext = React.createContext<ValidationContext>({
@@ -45,8 +47,15 @@ export const Form: React.FunctionComponent<FormProps> = (props) => {
     }
   }
 
+  const handleSubmit = (e: React.FormEvent) => {
+    if (props.onSubmit) {
+      e.preventDefault()
+      props.onSubmit(e)
+    }
+  }
+
   return (
-    <form autoComplete="off" className={className}>
+    <form autoComplete={props.autoComplete || "off"} className={className} onSubmit={handleSubmit}>
       <DisplayError error={formError} />
       <ValidationContext.Provider value={{ error: formError, clearError }}>{props.children}</ValidationContext.Provider>
     </form>

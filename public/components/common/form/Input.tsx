@@ -22,6 +22,7 @@ interface InputProps {
   disabled?: boolean
   suffix?: string | JSX.Element
   placeholder?: string
+  inputMode?: "text" | "numeric" | "decimal" | "tel" | "search" | "email" | "url"
   onIconClick?: () => void
   onFocus?: () => void
   inputRef?: React.MutableRefObject<any>
@@ -80,6 +81,7 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
               id={`input-${props.field}`}
               type="text"
               autoComplete={props.autoComplete}
+              inputMode={props.inputMode}
               tabIndex={props.noTabFocus ? -1 : undefined}
               ref={props.inputRef}
               autoFocus={props.autoFocus}
