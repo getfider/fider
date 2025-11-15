@@ -66,5 +66,8 @@
   "feed.comment.response": "{author} 的回应",
   "feed.post.title": "# {title}\n{votes, plural, one {# vote} other {# votes}}、{comments, plural, one {# comment} other {# comments}}\n\n---\n",
   "feed.post.footer.response": "{responder} 对 {date} 的回复：\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [在网页中]({web_link}) 或 [作为 Feed]({feed_link}) 查看"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [在网页中]({web_link}) 或 [作为 Feed]({feed_link}) 查看",
+  "email.signin_email.your_code": "您的登录码是：",
+  "email.signin_email.code_expires": "此优惠码将在15分钟后过期。",
+  "email.signin_email.alternative": "或者，您可以点击下方链接直接登录："
 }

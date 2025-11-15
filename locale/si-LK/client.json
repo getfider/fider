@@ -212,5 +212,16 @@
   "linkmodal.url.required": "URL එක අවශ්‍යයි",
   "page.pendingactivation.didntreceive": "ඊමේල් එක ලැබුනේ නැද්ද?",
   "page.pendingactivation.resend": "සත්‍යාපන ඊමේල් නැවත යවන්න",
-  "page.pendingactivation.resending": "නැවත යවමින්..."
+  "page.pendingactivation.resending": "නැවත යවමින්...",
+  "action.continue": "ඉදිරියට යන්න",
+  "action.signup": "ලියාපදිංචි වන්න",
+  "signin.code.edit": "සංස්කරණය කරන්න",
+  "signin.code.expired": "මෙම කේතය කල් ඉකුත් වී හෝ දැනටමත් භාවිතා කර ඇත. කරුණාකර අලුත් එකක් ඉල්ලන්න.",
+  "signin.code.getnew": "නව කේතයක් ලබා ගන්න",
+  "signin.code.instruction": "කරුණාකර අප දැන් <0>{email}</0> වෙත එවූ කේතය ටයිප් කරන්න.",
+  "signin.code.invalid": "ඔබ ඇතුළත් කළ කේතය අවලංගුයි. කරුණාකර නැවත උත්සාහ කරන්න.",
+  "signin.code.placeholder": "කේතය මෙතන ටයිප් කරන්න",
+  "signin.code.sent": "ඔබගේ විද්‍යුත් තැපෑලට නව කේතයක් යවා ඇත.",
+  "signin.code.submit": "ඉදිරිපත් කරන්න",
+  "signin.name.placeholder": "ඔයාගේ නම"
 }

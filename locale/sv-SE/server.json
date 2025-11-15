@@ -65,5 +65,8 @@
   "feed.comment.op": "Ursprungligt inlägg av {author}",
   "feed.comment.response": "Svar från {author}",
   "feed.post.footer.response": "Svar från {responder} den {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visa [på webben]({web_link}) eller [som ett flöde]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visa [på webben]({web_link}) eller [som ett flöde]({feed_link})",
+  "email.signin_email.your_code": "Din inloggningskod är:",
+  "email.signin_email.code_expires": "Den här koden upphör att gälla om 15 minuter.",
+  "email.signin_email.alternative": "Alternativt kan du klicka på länken nedan för att logga in direkt:"
 }

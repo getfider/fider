@@ -65,5 +65,8 @@
   "feed.comment.op": "Оригинальный пост от {author}",
   "feed.comment.response": "Ответ от {author}",
   "feed.post.footer.response": "Ответ {responder} на {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - просмотр [в сети]({web_link}) или [как лента]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - просмотр [в сети]({web_link}) или [как лента]({feed_link})",
+  "email.signin_email.your_code": "Ваш код входа:",
+  "email.signin_email.code_expires": "Срок действия этого кода истекает через 15 минут.",
+  "email.signin_email.alternative": "Или вы можете нажать на ссылку ниже, чтобы войти напрямую:"
 }

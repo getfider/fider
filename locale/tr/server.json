@@ -65,5 +65,8 @@
   "feed.comment.op": "Orijinal Mesaj {author} tarafından",
   "feed.comment.response": "{author} tarafından yanıtlandı",
   "feed.post.footer.response": "{responder} tarafından {date} hakkında yanıt:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [web'de]({web_link}) veya [besleme olarak]({feed_link}) görüntüle"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [web'de]({web_link}) veya [besleme olarak]({feed_link}) görüntüle",
+  "email.signin_email.your_code": "Giriş kodunuz:",
+  "email.signin_email.code_expires": "Bu kod 15 dakika içinde geçerliliğini yitirecektir.",
+  "email.signin_email.alternative": "Alternatif olarak, doğrudan giriş yapmak için aşağıdaki bağlantıya tıklayabilirsiniz:"
 }

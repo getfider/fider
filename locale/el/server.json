@@ -65,5 +65,8 @@
   "feed.comment.op": "Αρχική ανάρτηση από {author}",
   "feed.comment.response": "Απάντηση από {author}",
   "feed.post.footer.response": "Απάντηση από {responder} στις {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - προβολή [στον ιστό]({web_link}) ή [ως ροή]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - προβολή [στον ιστό]({web_link}) ή [ως ροή]({feed_link})",
+  "email.signin_email.your_code": "Ο κωδικός σύνδεσής σας είναι:",
+  "email.signin_email.code_expires": "Αυτός ο κωδικός θα λήξει σε 15 λεπτά.",
+  "email.signin_email.alternative": "Εναλλακτικά, μπορείτε να κάνετε κλικ στον παρακάτω σύνδεσμο για να συνδεθείτε απευθείας:"
 }

@@ -211,5 +211,16 @@
   "linkmodal.url.required": "URL je povinná",
   "page.pendingactivation.didntreceive": "Neobdrželi jste e-mail?",
   "page.pendingactivation.resend": "Znovu odeslat ověřovací e-mail",
-  "page.pendingactivation.resending": "Znovu odesílám..."
+  "page.pendingactivation.resending": "Znovu odesílám...",
+  "action.continue": "Pokračovat",
+  "action.signup": "Registrovat se",
+  "signin.code.edit": "Upravit",
+  "signin.code.expired": "Platnost tohoto kódu vypršela nebo již byl použit. Požádejte o nový.",
+  "signin.code.getnew": "Získat nový kód",
+  "signin.code.instruction": "Zadejte prosím kód, který jsme právě odeslali na adresu <0>{email}</0>",
+  "signin.code.invalid": "Zadaný kód je neplatný. Zkuste to prosím znovu.",
+  "signin.code.placeholder": "Zde zadejte kód",
+  "signin.code.sent": "Nový kód byl odeslán na váš e-mail.",
+  "signin.code.submit": "Předložit",
+  "signin.name.placeholder": "Vaše jméno"
 }
