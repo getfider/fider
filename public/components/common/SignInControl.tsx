@@ -138,21 +138,21 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   const renderSigninEmailButton = () => {
-    if (emailSignInStep == EmailSigninStep.EnterEmail) {
+    if (emailSignInStep === EmailSigninStep.EnterEmail) {
       return (
         <Button className="w-full justify-center" type="submit" variant="primary">
           <Trans id="signin.message.email">Continue with Email</Trans>
         </Button>
       )
     }
-    if (emailSignInStep == EmailSigninStep.EnterName) {
+    if (emailSignInStep === EmailSigninStep.EnterName) {
       return (
         <Button className="w-full justify-center" type="submit" variant="primary">
           <Trans id="action.signup">Sign up</Trans>
         </Button>
       )
     }
-    if (emailSignInStep == EmailSigninStep.EnterCode) {
+    if (emailSignInStep === EmailSigninStep.EnterCode) {
       return (
         <Button className="w-full justify-center" type="submit" variant="primary" disabled={code.length !== 6}>
           <Trans id="action.submit">Submit</Trans>
@@ -189,11 +189,11 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         (showEmailForm ? (
           <div className="pt-3">
             <Form error={error} autoComplete={emailSignInStep === EmailSigninStep.EnterCode ? "on" : "off"} onSubmit={handleFormSubmit}>
-              {(emailSignInStep == EmailSigninStep.EnterEmail || emailSignInStep == EmailSigninStep.EnterName) && renderEmailField()}
+              {(emailSignInStep === EmailSigninStep.EnterEmail || emailSignInStep === EmailSigninStep.EnterName) && renderEmailField()}
 
-              {emailSignInStep == EmailSigninStep.EnterName && renderNameField()}
+              {emailSignInStep === EmailSigninStep.EnterName && renderNameField()}
 
-              {emailSignInStep == EmailSigninStep.EnterCode && renderCodeField()}
+              {emailSignInStep === EmailSigninStep.EnterCode && renderCodeField()}
 
               <div className="pt-3">{renderSigninEmailButton()}</div>
             </Form>
@@ -235,7 +235,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
           className="text-left"
           field="email"
           value={email}
-          disabled={emailSignInStep == EmailSigninStep.EnterName}
+          disabled={emailSignInStep === EmailSigninStep.EnterName}
           autoFocus={!device.isTouch()}
           autoComplete="email"
           onChange={setEmail}
