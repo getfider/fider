@@ -65,5 +65,8 @@
   "feed.comment.op": "Oryginalny post autorstwa {author}",
   "feed.comment.response": "Odpowiedź użytkownika {author}",
   "feed.post.footer.response": "Odpowiedź użytkownika {responder} w dniu {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - wyświetl [w sieci]({web_link}) lub [jako kanał]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - wyświetl [w sieci]({web_link}) lub [jako kanał]({feed_link})",
+  "email.signin_email.your_code": "Twój kod logowania to:",
+  "email.signin_email.code_expires": "Kod straci ważność za 15 minut.",
+  "email.signin_email.alternative": "Możesz również kliknąć poniższy link, aby zalogować się bezpośrednio:"
 }

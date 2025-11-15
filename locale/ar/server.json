@@ -66,5 +66,8 @@
   "feed.comment.response": "الرد بواسطة {author}",
   "feed.post.title": "# {title}\n{votes, plural, one {# vote} other {# votes}}، {comments, plural, one {# comment} other {# comments}}\n\n---\n",
   "feed.post.footer.response": "رد من {responder} على {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}، {comments, plural, one {# comment} other {# comments}} - عرض [على الويب]({web_link}) أو [كموجز]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}، {comments, plural, one {# comment} other {# comments}} - عرض [على الويب]({web_link}) أو [كموجز]({feed_link})",
+  "email.signin_email.your_code": "رمز تسجيل الدخول الخاص بك هو:",
+  "email.signin_email.code_expires": "سينتهي هذا الكود خلال 15 دقيقة.",
+  "email.signin_email.alternative": "وبدلاً من ذلك، يمكنك النقر على الرابط أدناه لتسجيل الدخول مباشرةً:"
 }
