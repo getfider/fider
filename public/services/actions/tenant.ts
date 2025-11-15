@@ -54,11 +54,20 @@ export const checkAvailability = async (subdomain: string): Promise<Result<Check
   return await http.get<CheckAvailabilityResponse>(`/_api/tenants/${subdomain}/availability`)
 }
 
-export const signIn = async (email: string, code?: string): Promise<Result> => {
-  return await http.post("/_api/signin", {
-    email,
-    code,
-  })
+export const signIn = async (email: string): Promise<Result> => {
+  return await http.post("/_api/signin", { email })
+}
+
+export const signInNewUser = async (email: string, name: string): Promise<Result> => {
+  return await http.post("/_api/signin/newuser", { email, name })
+}
+
+export const verifySignInCode = async (email: string, code: string): Promise<Result> => {
+  return await http.post("/_api/signin/verify", { email, code })
+}
+
+export const resendSignInCode = async (email: string): Promise<Result> => {
+  return await http.post("/_api/signin/resend", { email })
 }
 
 export const completeProfile = async (kind: EmailVerificationKind, key: string, name: string): Promise<Result> => {

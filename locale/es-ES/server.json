@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> ha sido <strong>eliminado</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> dejó un comentario en <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> dejó un comentario en <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Iniciar sesión en {siteName}",
+  "email.signin_email.subject": "Su código de inicio de sesión para {siteName} es {code}",
   "email.signin_email.text": "Nos ha pedido que le enviemos un enlace de inicio de sesión y aquí está.",
   "email.signin_email.confirmation": "Haz clic en el siguiente enlace para iniciar sesión en <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Tu nuevo sitio de Fider",

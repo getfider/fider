@@ -200,8 +200,9 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     }
   }
 
-  const onEmailSent = (email: string) => {
-    window.location.href = "/loginemailsent?email=" + encodeURIComponent(email)
+  const onCodeVerified = (): void => {
+    // User is authenticated - finalize the feedback submission
+    finaliseFeedback()
   }
 
   const handleEditorFocus = () => {
@@ -274,7 +275,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
               </h2>
               <SignInControl
                 onSubmit={onSubmitFeedback}
-                onEmailSent={onEmailSent}
+                onCodeVerified={onCodeVerified}
                 signInButtonText={i18n._({ id: "signin.message.email", message: "Continue with Email" })}
                 useEmail={true}
                 redirectTo={fider.settings.baseURL}

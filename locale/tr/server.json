@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> <strong>silinmiştir</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong>, <strong>{title} ({postLink})</strong> kaydına yorum eklemiştir.",
   "email.new_post.text": "<strong>{userName}</strong>, <strong>{title} ({postLink})</strong> yeni bir kayıt oluşturmuştur.",
-  "email.signin_email.subject": "{siteName} sayfasına giriş yapın",
+  "email.signin_email.subject": "{siteName} için giriş kodunuz {code}",
   "email.signin_email.text": "Bizden bir giriş bağlantısı talep etmiştiniz, işte burada bulabilirsiniz.",
   "email.signin_email.confirmation": "<strong>{siteName}</strong> alanına giriş yapabilmek için aşağıdaki bağlantıya tıklayın.",
   "email.signup_email.subject": "Yeni Fider sayfanız",
