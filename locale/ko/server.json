@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong>이 <strong>삭제되었습니다</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong>님이 <strong>{title} ({postLink})</strong>에 댓글을 남겼습니다.",
   "email.new_post.text": "<strong>{userName}</strong>님이 새 게시물 <strong>{title} ({postLink})</strong>을 만들었습니다.",
-  "email.signin_email.subject": "{siteName}에 로그인하세요",
+  "email.signin_email.subject": "{siteName}의 로그인 코드는 {code}입니다",
   "email.signin_email.text": "귀하께서 로그인 링크를 보내달라고 요청하셨고, 여기에 링크가 있습니다.",
   "email.signin_email.confirmation": "아래 링크를 클릭하여 <strong>{siteName}</strong>에 로그인하세요.",
   "email.signup_email.subject": "새로운 Fider 사이트",

@@ -4,4 +4,6 @@
   border-radius: 50%;
   vertical-align: middle;
   display: inline-block;
+  border: 2px solid var(--colors-white);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }

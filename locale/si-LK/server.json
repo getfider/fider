@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> මකා දමා ඇත</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> <strong>{title} ({postLink})</strong> හි අදහසක් දැක්වීය.",
   "email.new_post.text": "<strong>{userName}</strong> නව සටහනක් නිර්මාණය කළා <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "{siteName} වෙත පුරනය වන්න",
+  "email.signin_email.subject": "{siteName} සඳහා ඔබගේ පිවිසුම් කේතය {code} වේ",
   "email.signin_email.text": "ඔබ අපෙන් ඔබට පුරනය වීමේ සබැඳියක් එවන ලෙස ඉල්ලා සිටියා, මෙන්න එය.",
   "email.signin_email.confirmation": "<strong>{siteName}</strong> වෙත පුරනය වීමට පහත සබැඳිය ක්ලික් කරන්න.",
   "email.signup_email.subject": "ඔබේ නව ෆයිඩර් අඩවිය",

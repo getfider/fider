@@ -1,8 +1,8 @@
 *:focus {
   outline: 0;
   &:not(.no-focus) {
-    border-color: get("colors.primary.light") !important;
-    box-shadow: rgb(255, 255, 255) 0px 0px 0px 0px, get("colors.primary.light") 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px !important;
+    border-color: var(--colors-primary-base) !important;
+    box-shadow: 0 0 0 3px rgba(45, 87, 237, 0.1) !important;
   }
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
 }

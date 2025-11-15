@@ -117,12 +117,16 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.BlockPendingTenants())
 
 	r.Get("/signin", handlers.SignInPage())
+	r.Get("/signin/complete", handlers.CompleteSignInProfilePage())
 	r.Get("/loginemailsent", handlers.LoginEmailSentPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
 	r.Get("/signin/verify", handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
 	r.Get("/invite/verify", handlers.VerifySignInKey(enum.EmailVerificationKindUserInvitation))
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
+	r.Post("/_api/signin/newuser", handlers.SignInByEmailWithName())
+	r.Post("/_api/signin/verify", handlers.VerifySignInCode())
+	r.Post("/_api/signin/resend", handlers.ResendSignInCode())
 
 	// Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())

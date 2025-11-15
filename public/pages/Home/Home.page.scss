@@ -4,11 +4,11 @@
   display: grid;
   grid-template-columns: 1fr;
   column-gap: 0;
-  row-gap: spacing(6);
+  row-gap: spacing(8);
 
   @include media("lg") {
     grid-template-columns: 1fr 1fr 1fr;
-    column-gap: spacing(6);
+    column-gap: spacing(8);
     row-gap: 0;
   }
 

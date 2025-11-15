@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> wurde <strong>gelöscht</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> hinterliess einen Kommentar auf <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> hat einen neuen Beitrag <strong>{title} ({postLink})</strong> erstellt.",
-  "email.signin_email.subject": "Auf {siteName} registrieren",
+  "email.signin_email.subject": "Ihr Anmeldecode für {siteName} ist {code}",
   "email.signin_email.text": "Du hast uns gebeten, dir einen Login-Link zu schicken, und das hier ist er.",
   "email.signin_email.confirmation": "Klick auf den Link unten, um dich bei <strong>{siteName}</strong> anzumelden.",
   "email.signup_email.subject": "Deine neue Fider-Seite",

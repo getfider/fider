@@ -39,6 +39,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 		Address: "jon@got.com",
 		Props: dto.Props{
 			"siteName": mock.DemoTenant.Name,
+			"code":     "9876",
 			"link":     "<a href='http://domain.com/signin/verify?k=9876'>http://domain.com/signin/verify?k=9876</a>",
 		},
 	})

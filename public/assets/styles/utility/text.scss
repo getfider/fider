@@ -1,7 +1,7 @@
 p,
 pre {
   margin: 0 0 14px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 p:last-child,
@@ -48,6 +48,7 @@ pre:last-child {
 .text-body {
   font-size: get("font.size.base");
   color: var(--colors-gray-700);
+  line-height: 1.6;
 }
 
 .text-sm {
@@ -71,7 +72,7 @@ pre:last-child {
 
 .text-muted {
   font-size: get("font.size.xs");
-  color: var(--colors-gray-700);
+  color: var(--colors-gray-600);
 }
 
 .text-link {

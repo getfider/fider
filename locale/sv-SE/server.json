@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> har <strong>raderats</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> skrev en kommentar på <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> skapade ett nytt inlägg <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Logga in på {siteName}",
+  "email.signin_email.subject": "Din inloggningskod för {siteName} är {code}",
   "email.signin_email.text": "Du bad oss att skicka dig en inloggningslänk och här är den.",
   "email.signin_email.confirmation": "Klicka på länken nedan för att logga in på <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Din nya Fider-webbplats",

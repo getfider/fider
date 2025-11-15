@@ -115,6 +115,7 @@ func (s Service) Init() {
 	bus.AddHandler(updateTenantAdvancedSettings)
 
 	bus.AddHandler(getVerificationByKey)
+	bus.AddHandler(getVerificationByEmailAndCode)
 	bus.AddHandler(saveVerificationKey)
 	bus.AddHandler(setKeyAsVerified)
 	bus.AddHandler(getPendingSignUpVerification)
