@@ -9,7 +9,7 @@ services:
   pgdev:
     container_name: fider_pgdev
     restart: always
-    image: postgres:12
+    image: postgres:17
     volumes:
       - pgdev-data:/var/lib/postgresql/data
     ports:
