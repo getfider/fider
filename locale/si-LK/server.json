@@ -66,5 +66,8 @@
   "feed.comment.response": "ප්‍රතිචාරය {author} විසිනි",
   "feed.post.title": "#{title}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}}\n\n---\n",
   "feed.post.footer.response": "{date} ට {responder} විසින් ප්‍රතිචාරය:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [වෙබයේ]({web_link}) හෝ [සංග්‍රහයක් ලෙස]({feed_link}) බලන්න"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [වෙබයේ]({web_link}) හෝ [සංග්‍රහයක් ලෙස]({feed_link}) බලන්න",
+  "email.signin_email.your_code": "ඔබගේ පුරනය වීමේ කේතය:",
+  "email.signin_email.code_expires": "මෙම කේතය මිනිත්තු 15 කින් කල් ඉකුත් වනු ඇත.",
+  "email.signin_email.alternative": "විකල්පයක් ලෙස, ඔබට සෘජුවම පුරනය වීමට පහත සබැඳිය ක්ලික් කළ හැකිය:"
 }

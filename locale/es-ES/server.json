@@ -65,5 +65,8 @@
   "feed.comment.op": "Publicación original de {author}",
   "feed.comment.response": "Respuesta de {author}",
   "feed.post.footer.response": "Respuesta de {responder} a {date}:\n\n>{response}",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - ver [en la web]({web_link}) o [como feed]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - ver [en la web]({web_link}) o [como feed]({feed_link})",
+  "email.signin_email.your_code": "Tu código de inicio de sesión es:",
+  "email.signin_email.code_expires": "Este código caducará en 15 minutos.",
+  "email.signin_email.alternative": "Como alternativa, puede hacer clic en el siguiente enlace para iniciar sesión directamente:"
 }

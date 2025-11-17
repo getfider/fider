@@ -67,5 +67,8 @@
   "feed.comment.response": "پاسخ توسط {author}",
   "feed.post.title": "# {title}\n{votes, plural, one {# رأی} other {# رأی}}, {comments, plural, one {# دیدگاه} other {# دیدگاه}}\n\n---\n",
   "feed.post.footer.response": "پاسخ توسط {responder} در {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# رأی} other {# رأی}}, {comments, plural, one {# دیدگاه} other {# دیدگاه}} - مشاهده [در وب]({web_link}) یا [به‌صورت فید]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# رأی} other {# رأی}}, {comments, plural, one {# دیدگاه} other {# دیدگاه}} - مشاهده [در وب]({web_link}) یا [به‌صورت فید]({feed_link})",
+  "email.signin_email.your_code": "کد ورود شما عبارت است از:",
+  "email.signin_email.code_expires": "این کد تا ۱۵ دقیقه دیگر اعتبار دارد.",
+  "email.signin_email.alternative": "یا می‌توانید برای ورود مستقیم روی لینک زیر کلیک کنید:"
 }

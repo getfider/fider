@@ -65,5 +65,8 @@
   "feed.comment.op": "Původní příspěvek od {author}",
   "feed.comment.response": "Odpověď od uživatele {author}",
   "feed.post.footer.response": "Odpověď od {responder} dne {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - zobrazit [na webu]({web_link}) nebo [jako zdroj]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - zobrazit [na webu]({web_link}) nebo [jako zdroj]({feed_link})",
+  "email.signin_email.your_code": "Váš přihlašovací kód je:",
+  "email.signin_email.code_expires": "Platnost tohoto kódu vyprší za 15 minut.",
+  "email.signin_email.alternative": "Nebo se můžete přihlásit přímo kliknutím na níže uvedený odkaz:"
 }

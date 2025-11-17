@@ -65,5 +65,8 @@
   "feed.comment.op": "Originalbeitrag von {author}",
   "feed.comment.response": "Antwort von {author}",
   "feed.post.footer.response": "Antwort von {responder} am {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} – [im Web]({web_link}) oder [als Feed]({feed_link}) anzeigen"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} – [im Web]({web_link}) oder [als Feed]({feed_link}) anzeigen",
+  "email.signin_email.your_code": "Ihr Anmeldecode lautet:",
+  "email.signin_email.code_expires": "Dieser Code ist 15 Minuten gültig.",
+  "email.signin_email.alternative": "Alternativ können Sie sich über den unten stehenden Link direkt anmelden:"
 }
