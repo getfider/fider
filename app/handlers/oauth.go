@@ -162,7 +162,14 @@ func OAuthCallback() web.HandlerFunc {
 		c.Response.Header().Add("X-Robots-Tag", "noindex")
 
 		provider := c.Param("provider")
+		
+		// Support both query parameters (GET) and form data (POST)
+		// Apple Sign-In uses POST with response_mode=form_post when name/email scopes are requested
 		state := c.QueryParam("state")
+		if state == "" && c.Request.Method == "POST" {
+			state = c.Request.GetFormValue("state")
+		}
+		
 		claims, err := jwt.DecodeOAuthStateClaims(state)
 		if err != nil {
 			return c.Forbidden()
@@ -179,6 +186,9 @@ func OAuthCallback() web.HandlerFunc {
 		}
 
 		code := c.QueryParam("code")
+		if code == "" && c.Request.Method == "POST" {
+			code = c.Request.GetFormValue("code")
+		}
 		if code == "" {
 			return c.Redirect(redirectURL.String())
 		}
