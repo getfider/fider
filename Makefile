@@ -59,6 +59,15 @@ test-e2e-server: ## Run all E2E tests
 test-e2e-ui: ## Run all E2E tests
 	npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet
 
+test-e2e-ui-headed: ## Run all E2E tests with visible browser
+	HEADED=true npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet
+
+test-e2e-ui-scenario: ## Run specific E2E test scenario (use NAME="scenario name")
+	npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet --name "$(NAME)"
+
+test-e2e-ui-scenario-headed: ## Run specific E2E test scenario with visible browser (use NAME="scenario name")
+	HEADED=true npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet --name "$(NAME)"
+
 
 
 ##@ Running (Watch Mode)

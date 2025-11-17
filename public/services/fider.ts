@@ -43,8 +43,12 @@ export class FiderSession {
     return !!this.pUser
   }
 
-  public get isModerationRequired(): boolean {
+  public get isModerationRequiredForNewPost(): boolean {
     return this.isCommercialEnabled && this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isTrusted
+  }
+
+  public get showModerationControls(): boolean {
+    return this.isCommercialEnabled && this.pTenant.isModerationEnabled && this.isAuthenticated && (this.pUser?.isCollaborator ?? false)
   }
 
   public get isCommercialEnabled(): boolean {

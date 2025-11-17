@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> è stato <strong>cancellato</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> ha lasciato un commento su <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> ha creato un nuovo post <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Accedi a {siteName}",
+  "email.signin_email.subject": "Il tuo codice di accesso per {siteName} è {code}",
   "email.signin_email.text": "Ci hai chiesto d'inviarti un link di accesso ed è qui.",
   "email.signin_email.confirmation": "Clicca sul link qui sotto per accedere a <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Il tuo nuovo sito Fider",
@@ -65,5 +65,8 @@
   "feed.comment.op": "Post originale di {author}",
   "feed.comment.response": "Risposta di {author}",
   "feed.post.footer.response": "Risposta di {responder} del {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visualizza [sul web]({web_link}) o [come feed]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visualizza [sul web]({web_link}) o [come feed]({feed_link})",
+  "email.signin_email.your_code": "Il tuo codice di accesso è:",
+  "email.signin_email.code_expires": "Questo codice scadrà tra 15 minuti.",
+  "email.signin_email.alternative": "In alternativa, puoi cliccare sul link sottostante per accedere direttamente:"
 }

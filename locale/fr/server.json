@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> a été <strong>supprimé</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> a laissé un commentaire sur <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> a créé un nouveau message <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Se connecter à {siteName}",
+  "email.signin_email.subject": "Votre code de connexion pour {siteName} est {code}",
   "email.signin_email.text": "Vous nous avez demandé de vous envoyer un lien de connexion et le voici.",
   "email.signin_email.confirmation": "Cliquez sur le lien ci-dessous pour vous connecter à <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Votre nouveau site Fider",
@@ -65,5 +65,8 @@
   "feed.comment.op": "Message original de {author}",
   "feed.comment.response": "Réponse de {author}",
   "feed.post.footer.response": "Réponse de {responder} le {date} :\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - voir [sur le Web]({web_link}) ou [sous forme de flux]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - voir [sur le Web]({web_link}) ou [sous forme de flux]({feed_link})",
+  "email.signin_email.your_code": "Votre code de connexion est :",
+  "email.signin_email.code_expires": "Ce code expirera dans 15 minutes.",
+  "email.signin_email.alternative": "Vous pouvez également cliquer sur le lien ci-dessous pour vous connecter directement :"
 }

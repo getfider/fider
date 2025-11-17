@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> <strong>silinmiştir</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong>, <strong>{title} ({postLink})</strong> kaydına yorum eklemiştir.",
   "email.new_post.text": "<strong>{userName}</strong>, <strong>{title} ({postLink})</strong> yeni bir kayıt oluşturmuştur.",
-  "email.signin_email.subject": "{siteName} sayfasına giriş yapın",
+  "email.signin_email.subject": "{siteName} için giriş kodunuz {code}",
   "email.signin_email.text": "Bizden bir giriş bağlantısı talep etmiştiniz, işte burada bulabilirsiniz.",
   "email.signin_email.confirmation": "<strong>{siteName}</strong> alanına giriş yapabilmek için aşağıdaki bağlantıya tıklayın.",
   "email.signup_email.subject": "Yeni Fider sayfanız",
@@ -65,5 +65,8 @@
   "feed.comment.op": "Orijinal Mesaj {author} tarafından",
   "feed.comment.response": "{author} tarafından yanıtlandı",
   "feed.post.footer.response": "{responder} tarafından {date} hakkında yanıt:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [web'de]({web_link}) veya [besleme olarak]({feed_link}) görüntüle"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [web'de]({web_link}) veya [besleme olarak]({feed_link}) görüntüle",
+  "email.signin_email.your_code": "Giriş kodunuz:",
+  "email.signin_email.code_expires": "Bu kod 15 dakika içinde geçerliliğini yitirecektir.",
+  "email.signin_email.alternative": "Alternatif olarak, doğrudan giriş yapmak için aşağıdaki bağlantıya tıklayabilirsiniz:"
 }

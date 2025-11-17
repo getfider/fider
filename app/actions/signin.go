@@ -14,13 +14,13 @@ import (
 
 // SignInByEmail happens when user request to sign in by email
 type SignInByEmail struct {
-	Email           string `json:"email" format:"lower"`
-	VerificationKey string
+	Email            string `json:"email" format:"lower"`
+	VerificationCode string
 }
 
 func NewSignInByEmail() *SignInByEmail {
 	return &SignInByEmail{
-		VerificationKey: entity.GenerateEmailVerificationKey(),
+		VerificationCode: entity.GenerateEmailVerificationCode(),
 	}
 }
 
@@ -71,6 +71,105 @@ func (action *SignInByEmail) GetUser() *entity.User {
 
 // GetKind returns EmailVerificationKindSignIn
 func (action *SignInByEmail) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignIn
+}
+
+// VerifySignInCode happens when user enters the verification code received via email
+type VerifySignInCode struct {
+	Email string `json:"email" format:"lower"`
+	Code  string `json:"code"`
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *VerifySignInCode) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return true
+}
+
+// Validate if current model is valid
+func (action *VerifySignInCode) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	result := validate.Success()
+
+	if action.Email == "" {
+		result.AddFieldFailure("email", propertyIsRequired(ctx, "email"))
+	} else {
+		messages := validate.Email(ctx, action.Email)
+		result.AddFieldFailure("email", messages...)
+	}
+
+	if action.Code == "" {
+		result.AddFieldFailure("code", propertyIsRequired(ctx, "code"))
+	} else if len(action.Code) != 6 {
+		result.AddFieldFailure("code", "Verification code must be 6 digits")
+	} else {
+		// Validate that code contains only digits
+		for _, char := range action.Code {
+			if char < '0' || char > '9' {
+				result.AddFieldFailure("code", "Verification code must contain only digits")
+				break
+			}
+		}
+	}
+
+	return result
+}
+
+// SignInByEmailWithName happens when a new user (without account) requests to sign in by email
+type SignInByEmailWithName struct {
+	Email            string `json:"email" format:"lower"`
+	Name             string `json:"name"`
+	VerificationCode string
+}
+
+func NewSignInByEmailWithName() *SignInByEmailWithName {
+	return &SignInByEmailWithName{
+		VerificationCode: entity.GenerateEmailVerificationCode(),
+	}
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *SignInByEmailWithName) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+	// New users can only sign in if tenant allows email auth or is not private
+	return tenant.IsEmailAuthAllowed || !tenant.IsPrivate
+}
+
+// Validate if current model is valid
+func (action *SignInByEmailWithName) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	result := validate.Success()
+
+	if action.Email == "" {
+		result.AddFieldFailure("email", propertyIsRequired(ctx, "email"))
+	} else {
+		messages := validate.Email(ctx, action.Email)
+		result.AddFieldFailure("email", messages...)
+	}
+
+	if action.Name == "" {
+		result.AddFieldFailure("name", propertyIsRequired(ctx, "name"))
+	} else if len(action.Name) > 100 {
+		result.AddFieldFailure("name", propertyMaxStringLen(ctx, "name", 100))
+	}
+
+	return result
+}
+
+// GetEmail returns the email being verified
+func (action *SignInByEmailWithName) GetEmail() string {
+	return action.Email
+}
+
+// GetName returns the name provided by the user
+func (action *SignInByEmailWithName) GetName() string {
+	return action.Name
+}
+
+// GetUser returns the current user performing this action
+func (action *SignInByEmailWithName) GetUser() *entity.User {
+	return nil
+}
+
+// GetKind returns EmailVerificationKindSignIn
+func (action *SignInByEmailWithName) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindSignIn
 }
 

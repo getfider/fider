@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> wurde <strong>gelöscht</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> hinterliess einen Kommentar auf <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> hat einen neuen Beitrag <strong>{title} ({postLink})</strong> erstellt.",
-  "email.signin_email.subject": "Auf {siteName} registrieren",
+  "email.signin_email.subject": "Ihr Anmeldecode für {siteName} ist {code}",
   "email.signin_email.text": "Du hast uns gebeten, dir einen Login-Link zu schicken, und das hier ist er.",
   "email.signin_email.confirmation": "Klick auf den Link unten, um dich bei <strong>{siteName}</strong> anzumelden.",
   "email.signup_email.subject": "Deine neue Fider-Seite",
@@ -65,5 +65,8 @@
   "feed.comment.op": "Originalbeitrag von {author}",
   "feed.comment.response": "Antwort von {author}",
   "feed.post.footer.response": "Antwort von {responder} am {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} – [im Web]({web_link}) oder [als Feed]({feed_link}) anzeigen"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} – [im Web]({web_link}) oder [als Feed]({feed_link}) anzeigen",
+  "email.signin_email.your_code": "Ihr Anmeldecode lautet:",
+  "email.signin_email.code_expires": "Dieser Code ist 15 Minuten gültig.",
+  "email.signin_email.alternative": "Alternativ können Sie sich über den unten stehenden Link direkt anmelden:"
 }

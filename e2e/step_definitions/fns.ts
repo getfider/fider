@@ -29,3 +29,19 @@ export async function getLatestLinkSentTo(address: string): Promise<string> {
 
   return result[0]
 }
+
+export async function getLatestCodeSentTo(address: string): Promise<string> {
+  await delay(1000)
+
+  const response = await fetch(`http://localhost:8025/api/v2/search?kind=to&query=${address}`)
+  const responseBody = await response.json()
+  const emailHtml = responseBody.items[0].Content.Body
+  // Look for 6-digit code in the email
+  const reg = /\b\d{6}\b/
+  const result = reg.exec(emailHtml)
+  if (!result) {
+    throw new Error("Could not find a 6-digit code in email content.")
+  }
+
+  return result[0]
+}

@@ -77,12 +77,13 @@ func TestSend_Success(t *testing.T) {
 				margin: 10px;
 				border-radius: 5px;
 				color: #1c262d;
-				border: 1px solid #ECECEC;
+				border: 1px solid #E0E0E0;
 				min-width: 320px;
 				max-width: 660px;
 				overflow-wrap: break-word;
 				word-break: break-word;
 				table-layout: fixed;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 
 				pre:has(code) {
 					white-space: break-spaces;
@@ -98,7 +99,7 @@ func TestSend_Success(t *testing.T) {
 			
 			<tr>
 				<td align="center">
-					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0">
+					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #E0E0E0;min-width:320px;max-width:660px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 						
 Hello World Hello!
 
@@ -107,7 +108,10 @@ Hello World Hello!
 			</tr>
 			
 			<tr>
-				<td>
+				<td height="20">&nbsp;</td>
+			</tr>
+			<tr>
+				<td style="padding:0 20px;">
 					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
 				</td>
 			</tr>
@@ -222,12 +226,13 @@ func TestBatch_Success(t *testing.T) {
 				margin: 10px;
 				border-radius: 5px;
 				color: #1c262d;
-				border: 1px solid #ECECEC;
+				border: 1px solid #E0E0E0;
 				min-width: 320px;
 				max-width: 660px;
 				overflow-wrap: break-word;
 				word-break: break-word;
 				table-layout: fixed;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 
 				pre:has(code) {
 					white-space: break-spaces;
@@ -243,7 +248,7 @@ func TestBatch_Success(t *testing.T) {
 			
 			<tr>
 				<td align="center">
-					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0">
+					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #E0E0E0;min-width:320px;max-width:660px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 						
 Hello World %recipient.name%!
 
@@ -252,7 +257,10 @@ Hello World %recipient.name%!
 			</tr>
 			
 			<tr>
-				<td>
+				<td height="20">&nbsp;</td>
+			</tr>
+			<tr>
+				<td style="padding:0 20px;">
 					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
 				</td>
 			</tr>

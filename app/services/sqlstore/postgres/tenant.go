@@ -140,6 +140,21 @@ func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) er
 	})
 }
 
+func getVerificationByEmailAndCode(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		verification := dbEntities.EmailVerification{}
+
+		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND key = $3 AND kind = $4 LIMIT 1"
+		err := trx.Get(&verification, query, tenant.ID, q.Email, q.Code, q.Kind)
+		if err != nil {
+			return errors.Wrap(err, "failed to get email verification by email and code")
+		}
+
+		q.Result = verification.ToModel()
+		return nil
+	})
+}
+
 func saveVerificationKey(ctx context.Context, c *cmd.SaveVerificationKey) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var userID any

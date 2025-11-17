@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> is <strong>verwijderd</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> heeft een reactie achtergelaten op <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> heeft een nieuw bericht gemaakt <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Log in bij {siteName}",
+  "email.signin_email.subject": "Uw inlogcode voor {siteName} is {code}",
   "email.signin_email.text": "Je hebt ons gevraagd om een link om in te loggen en hier is-ie dan.",
   "email.signin_email.confirmation": "Klik op de link hieronder om in te loggen op <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Jouw nieuwe Fider-site",
@@ -65,5 +65,8 @@
   "feed.comment.op": "Origineel bericht van {author}",
   "feed.comment.response": "Reactie van {author}",
   "feed.post.footer.response": "Reactie van {responder} op {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - bekijken [op het web]({web_link}) of [als feed]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - bekijken [op het web]({web_link}) of [als feed]({feed_link})",
+  "email.signin_email.your_code": "Uw aanmeldcode is:",
+  "email.signin_email.code_expires": "Deze code verloopt over 15 minuten.",
+  "email.signin_email.alternative": "U kunt ook op de onderstaande link klikken om u direct aan te melden:"
 }

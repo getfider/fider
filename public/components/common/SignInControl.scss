@@ -1,6 +1,9 @@
 @use "~@fider/assets/styles/variables.scss" as *;
 
 .c-signin-control {
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
   padding-left: 45px;
   padding-right: 45px;
   padding-bottom: 40px;

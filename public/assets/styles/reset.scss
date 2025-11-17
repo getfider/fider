@@ -20,6 +20,7 @@ body {
   background-color: var(--colors-gray-100);
   font-size: get("font.size.base");
   font-family: $font-base;
+  line-height: 1.6;
 }
 
 body.dark-theme {

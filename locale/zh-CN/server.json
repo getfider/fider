@@ -52,7 +52,7 @@
   "email.delete_post.text": "<strong>{title}</strong> 已经 <strong>删除了</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> 发表评论 <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> 创建了一个新帖子 <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "登录到 {siteName}",
+  "email.signin_email.subject": "您的 {siteName} 登录代码是 {code}",
   "email.signin_email.text": "您要求我们向您发送登录链接，现在是.",
   "email.signin_email.confirmation": "单击下面的链接登录 <strong>{siteName}</strong>.",
   "email.signup_email.subject": "您的新 Fider 网站",
@@ -66,5 +66,8 @@
   "feed.comment.response": "{author} 的回应",
   "feed.post.title": "# {title}\n{votes, plural, one {# vote} other {# votes}}、{comments, plural, one {# comment} other {# comments}}\n\n---\n",
   "feed.post.footer.response": "{responder} 对 {date} 的回复：\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [在网页中]({web_link}) 或 [作为 Feed]({feed_link}) 查看"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [在网页中]({web_link}) 或 [作为 Feed]({feed_link}) 查看",
+  "email.signin_email.your_code": "您的登录码是：",
+  "email.signin_email.code_expires": "此优惠码将在15分钟后过期。",
+  "email.signin_email.alternative": "或者，您可以点击下方链接直接登录："
 }

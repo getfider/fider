@@ -247,7 +247,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                 <Markdown text={comment.content} style="full" />
 
                 {/* Moderation status banner for unapproved comments */}
-                {fider.session.isModerationRequired && !comment.isApproved && (
+                {fider.session.tenant.isModerationEnabled && !comment.isApproved && (
                   <div className="mt-3">
                     {fider.session.isAuthenticated && fider.session.user.id === comment.user.id && (
                       <div className="text-muted text-xs p-2 bg-yellow-50 rounded border-l-4 border-yellow-500">

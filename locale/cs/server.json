@@ -52,7 +52,7 @@
   "email.delete_post.text": "Soubor <strong>{title}</strong> byl <strong>smazán</strong>.",
   "email.new_comment.text": "<strong>{userName}</strong> zanechal(a) komentář k příspěvku <strong>{title} ({postLink})</strong>.",
   "email.new_post.text": "<strong>{userName}</strong> vytvořil(a) nový příspěvek <strong>{title} ({postLink})</strong>.",
-  "email.signin_email.subject": "Přihlaste se do {siteName}",
+  "email.signin_email.subject": "Váš přihlašovací kód pro {siteName} je {code}",
   "email.signin_email.text": "Požádali jste nás o zaslání přihlašovacího odkazu a tady je.",
   "email.signin_email.confirmation": "Klikněte na odkaz níže a přihlaste se do <strong>{siteName}</strong>.",
   "email.signup_email.subject": "Vaše nové stránky Fideru",
@@ -65,5 +65,8 @@
   "feed.comment.op": "Původní příspěvek od {author}",
   "feed.comment.response": "Odpověď od uživatele {author}",
   "feed.post.footer.response": "Odpověď od {responder} dne {date}:\n\n>{response}\n",
-  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - zobrazit [na webu]({web_link}) nebo [jako zdroj]({feed_link})"
+  "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - zobrazit [na webu]({web_link}) nebo [jako zdroj]({feed_link})",
+  "email.signin_email.your_code": "Váš přihlašovací kód je:",
+  "email.signin_email.code_expires": "Platnost tohoto kódu vyprší za 15 minut.",
+  "email.signin_email.alternative": "Nebo se můžete přihlásit přímo kliknutím na níže uvedený odkaz:"
 }

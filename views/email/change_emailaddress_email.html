@@ -2,11 +2,11 @@
 
 {{define "body"}}
 <tr>
-  <td>
-    <h2 style="color:#1c262d">{{ translate "email.greetings_name" (dict "name" .name) }}</h2>
-    <p style="color:#1c262d">{{ translate "email.change_emailaddress.request" (dict "oldEmail" .oldEmail  "newEmail" .newEmail) }}</p>
-    <p style="color:#1c262d">{{ "email.operation_confirmation" | translate }}</p>
-    <p>{{ .link | html }}</p>
+  <td style="padding:20px 30px 30px 30px;">
+    <h2 style="color:#1c262d;margin:0 0 15px 0;padding:0;">{{ translate "email.greetings_name" (dict "name" .name) }}</h2>
+    <p style="color:#1c262d;margin:0 0 10px 0;">{{ translate "email.change_emailaddress.request" (dict "oldEmail" .oldEmail  "newEmail" .newEmail) }}</p>
+    <p style="color:#1c262d;margin:0 0 20px 0;">{{ "email.operation_confirmation" | translate }}</p>
+    <p style="margin:0;">{{ .link | html }}</p>
   </td>
 </tr>
 {{end}}

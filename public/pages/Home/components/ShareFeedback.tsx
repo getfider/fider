@@ -191,7 +191,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
         clearError()
         clearCache()
         clearAttachments()
-        if (fider.session.isModerationRequired) {
+        if (fider.session.isModerationRequiredForNewPost) {
           cache.session.set("POST_CREATED_MODERATION", "true")
         } else {
           cache.session.set("POST_CREATED_SUCCESS", "true")
@@ -203,8 +203,9 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     }
   }
 
-  const onEmailSent = (email: string) => {
-    window.location.href = "/loginemailsent?email=" + encodeURIComponent(email)
+  const onCodeVerified = (): void => {
+    // User is authenticated - finalize the feedback submission
+    finaliseFeedback()
   }
 
   const handleEditorFocus = () => {
@@ -279,7 +280,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
               </h2>
               <SignInControl
                 onSubmit={onSubmitFeedback}
-                onEmailSent={onEmailSent}
+                onCodeVerified={onCodeVerified}
                 signInButtonText={i18n._({ id: "signin.message.email", message: "Continue with Email" })}
                 useEmail={true}
                 redirectTo={fider.settings.baseURL}

@@ -159,7 +159,13 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 	cert, err := m.autotls.GetCertificate(hello)
 	if err != nil {
 		if errors.Cause(err) == errInvalidHostName {
-			log.Warn(m.ctx, err.Error())
+			// In multi-tenant mode, CNAME errors are expected customer DNS misconfigurations
+			// In single-tenant mode, they indicate actual setup issues the admin should know about
+			if env.IsSingleHostMode() {
+				log.Warn(m.ctx, err.Error())
+			} else {
+				log.Debug(m.ctx, err.Error())
+			}
 		} else {
 			log.Error(m.ctx, errors.Wrap(err, "failed to get certificate for %s", hello.ServerName))
 		}

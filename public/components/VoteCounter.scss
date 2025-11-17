@@ -3,35 +3,50 @@
 .c-vote-counter {
   &__button {
     font-size: get("font.size.lg");
-    // border: none;
     width: sizing(12);
     height: sizing(12);
     cursor: pointer;
-    // background-color: transparent;
     text-align: center;
     margin: 0 auto;
     padding: 3px 0 8px 0;
-    color: var(--colors-gray-700);
+    color: var(--colors-gray-600);
     display: flex;
     flex-direction: column;
     align-items: center;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    background-color: transparent;
+    border: 1px solid transparent;
 
     svg {
-      color: var(--colors-gray-700);
+      color: var(--colors-gray-600);
       margin-bottom: -2px;
+      transition: all 0.15s ease;
+    }
+
+    &:hover {
+      background-color: var(--colors-gray-50);
+      color: var(--colors-primary-base);
+      svg {
+        color: var(--colors-primary-base);
+        transform: scale(1.1);
+      }
     }
 
     &--voted {
       justify-content: center;
       padding: 0;
       font-weight: get("font.weight.bold");
-    }
-
-    &--voted,
-    &:hover {
+      background-color: var(--colors-blue-50);
       color: var(--colors-primary-base);
+      border-color: var(--colors-primary-light);
+
       svg {
         color: var(--colors-primary-base);
+      }
+
+      &:hover {
+        background-color: var(--colors-blue-100);
       }
     }
 
