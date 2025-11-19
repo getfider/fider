@@ -57,104 +57,104 @@ const ContentModerationPage = () => {
   const handleApprovePost = async (postId: number) => {
     const result = await actions.approvePost(postId)
     if (result.ok) {
-      notify.success(<Trans id="moderation.post.approved">Post approved successfully</Trans>)
+      notify.success(<Trans id="moderation.post.published">Post published successfully</Trans>)
       setState((prev) => ({
         ...prev,
         items: prev.items.filter((item) => !(item.type === "post" && item.id === postId)),
       }))
     } else {
-      notify.error(<Trans id="moderation.post.approve.error">Failed to approve post</Trans>)
+      notify.error(<Trans id="moderation.post.publish.error">Failed to publish post</Trans>)
     }
   }
 
   const handleDeclinePost = async (postId: number) => {
     const result = await actions.declinePost(postId)
     if (result.ok) {
-      notify.success(<Trans id="moderation.post.declined">Post declined successfully</Trans>)
+      notify.success(<Trans id="moderation.post.deleted">Post deleted successfully</Trans>)
       setState((prev) => ({
         ...prev,
         items: prev.items.filter((item) => !(item.type === "post" && item.id === postId)),
       }))
     } else {
-      notify.error(<Trans id="moderation.post.decline.error">Failed to decline post</Trans>)
+      notify.error(<Trans id="moderation.post.delete.error">Failed to delete post</Trans>)
     }
   }
 
   const handleApproveComment = async (commentId: number) => {
     const result = await actions.approveComment(commentId)
     if (result.ok) {
-      notify.success(<Trans id="moderation.comment.approved">Comment approved successfully</Trans>)
+      notify.success(<Trans id="moderation.comment.published">Comment published successfully</Trans>)
       setState((prev) => ({
         ...prev,
         items: prev.items.filter((item) => !(item.type === "comment" && item.id === commentId)),
       }))
     } else {
-      notify.error(<Trans id="moderation.comment.approve.error">Failed to approve comment</Trans>)
+      notify.error(<Trans id="moderation.comment.publish.error">Failed to publish comment</Trans>)
     }
   }
 
   const handleDeclineComment = async (commentId: number) => {
     const result = await actions.declineComment(commentId)
     if (result.ok) {
-      notify.success(<Trans id="moderation.comment.declined">Comment declined successfully</Trans>)
+      notify.success(<Trans id="moderation.comment.deleted">Comment deleted successfully</Trans>)
       setState((prev) => ({
         ...prev,
         items: prev.items.filter((item) => !(item.type === "comment" && item.id === commentId)),
       }))
     } else {
-      notify.error(<Trans id="moderation.comment.decline.error">Failed to decline comment</Trans>)
+      notify.error(<Trans id="moderation.comment.delete.error">Failed to delete comment</Trans>)
     }
   }
 
   const handleApprovePostAndVerify = async (postId: number) => {
     const result = await actions.approvePostAndVerify(postId)
     if (result.ok) {
-      notify.success(<Trans id="moderation.post.approved.verified">Post approved and user verified</Trans>)
+      notify.success(<Trans id="moderation.post.published.verified">Post published and user verified</Trans>)
       setState((prev) => ({
         ...prev,
         items: prev.items.filter((item) => !(item.type === "post" && item.id === postId)),
       }))
     } else {
-      notify.error(<Trans id="moderation.post.approve.verify.error">Failed to approve post and verify user</Trans>)
+      notify.error(<Trans id="moderation.post.publish.verify.error">Failed to publish post and verify user</Trans>)
     }
   }
 
   const handleDeclinePostAndBlock = async (postId: number) => {
     const result = await actions.declinePostAndBlock(postId)
     if (result.ok) {
-      notify.success(<Trans id="moderation.post.declined.blocked">Post declined and user blocked</Trans>)
+      notify.success(<Trans id="moderation.post.deleted.blocked">Post deleted and user blocked</Trans>)
       setState((prev) => ({
         ...prev,
         items: prev.items.filter((item) => !(item.type === "post" && item.id === postId)),
       }))
     } else {
-      notify.error(<Trans id="moderation.post.decline.block.error">Failed to decline post and block user</Trans>)
+      notify.error(<Trans id="moderation.post.delete.block.error">Failed to delete post and block user</Trans>)
     }
   }
 
   const handleApproveCommentAndVerify = async (commentId: number) => {
     const result = await actions.approveCommentAndVerify(commentId)
     if (result.ok) {
-      notify.success(<Trans id="moderation.comment.approved.verified">Comment approved and user verified</Trans>)
+      notify.success(<Trans id="moderation.comment.published.verified">Comment published and user verified</Trans>)
       setState((prev) => ({
         ...prev,
         items: prev.items.filter((item) => !(item.type === "comment" && item.id === commentId)),
       }))
     } else {
-      notify.error(<Trans id="moderation.comment.approve.verify.error">Failed to approve comment and verify user</Trans>)
+      notify.error(<Trans id="moderation.comment.publish.verify.error">Failed to publish comment and verify user</Trans>)
     }
   }
 
   const handleDeclineCommentAndBlock = async (commentId: number) => {
     const result = await actions.declineCommentAndBlock(commentId)
     if (result.ok) {
-      notify.success(<Trans id="moderation.comment.declined.blocked">Comment declined and user blocked</Trans>)
+      notify.success(<Trans id="moderation.comment.deleted.blocked">Comment deleted and user blocked</Trans>)
       setState((prev) => ({
         ...prev,
         items: prev.items.filter((item) => !(item.type === "comment" && item.id === commentId)),
       }))
     } else {
-      notify.error(<Trans id="moderation.comment.decline.block.error">Failed to decline comment and block user</Trans>)
+      notify.error(<Trans id="moderation.comment.delete.block.error">Failed to delete comment and block user</Trans>)
     }
   }
 
@@ -210,7 +210,7 @@ const ContentModerationPage = () => {
                     >
                       <Icon sprite={IconCheck} />
                       <span>
-                        <Trans id="action.approve">Approve</Trans>
+                        <Trans id="action.publish">Publish</Trans>
                       </span>
                     </Button>
                     <Button
@@ -230,7 +230,7 @@ const ContentModerationPage = () => {
                     >
                       <Icon sprite={IconShieldCheck} />
                       <span>
-                        <Trans id="action.approve.verify">Approve & Trust</Trans>
+                        <Trans id="action.publish.verify">Publish & Trust</Trans>
                       </span>
                     </Button>
                     <Button

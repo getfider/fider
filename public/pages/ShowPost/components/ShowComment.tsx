@@ -266,7 +266,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                         </div>
                         <HStack spacing={1}>
                           <Button variant="primary" size="small" onClick={handleApproveComment}>
-                            <Trans id="action.approve">Approve</Trans>
+                            <Trans id="action.publish">Publish</Trans>
                           </Button>
                           <Button variant="danger" size="small" onClick={handleDeclineComment}>
                             <Trans id="action.delete">Delete</Trans>
