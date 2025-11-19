@@ -264,10 +264,10 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                           {fider.session.isAuthenticated && fider.session.user.isCollaborator && (
                             <div className="p-3 bg-blue-50 rounded border-l-4 border-blue-500">
                               <div className="mb-2 text-sm font-medium text-blue-800">
-                                <Trans id="showpost.moderation.admin.title">Post Moderation</Trans>
+                                <Trans id="showpost.moderation.admin.title">Moderation</Trans>
                               </div>
                               <div className="text-sm text-blue-700 mb-3">
-                                <Trans id="showpost.moderation.admin.description">This post is awaiting your approval to be visible to all users.</Trans>
+                                <Trans id="showpost.moderation.admin.description">This idea needs your approval before being published</Trans>
                               </div>
                               <HStack spacing={2}>
                                 <Button variant="primary" size="small" onClick={handleApprovePost}>

@@ -103,7 +103,7 @@
   "labels.notagsavailable": "لا توجد وسوم متاحة",
   "labels.notagsselected": "لم يتم تحديد أي علامات",
   "legal.agreement": "لقد قرأت <0/> و<1/> وأوافق على ذلك.",
-  "legal.notice": "من خلال تسجيل الدخول، أنت توافق على <2/><0/> و <1/>.",
+  "legal.notice": "من خلال تسجيل الدخول، أنت توافق على <0/><1/> و <2/>.",
   "legal.privacypolicy": "سياسة الخصوصية",
   "legal.termsofservice": "شروط الخدمة",
   "linkmodal.insert": "إدراج الرابط",

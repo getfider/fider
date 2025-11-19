@@ -34,6 +34,40 @@ build-ssr: ## Build SSR script and locales
 
 
 
+##@ Localization
+
+locale-extract: ## Extract and overwrite English locale from source code
+	npx lingui extract --overwrite
+
+locale-reset: ## Reset translation for specific keys in all non-English locales (use KEY="key.name" or KEYS="key1 key2 ...")
+	@if [ -z "$(KEY)$(KEYS)" ]; then \
+		echo "Error: KEY or KEYS variable is required."; \
+		echo "Usage: make locale-reset KEY=\"some.key\""; \
+		echo "   or: make locale-reset KEYS=\"key1 key2 key3\""; \
+		exit 1; \
+	fi
+	@keys="$(KEY) $(KEYS)"; \
+	echo "Resetting translations for: $$keys"; \
+	for lang in ar cs de el es-ES fa fr it ja ko nl pl pt-BR ru si-LK sk sv-SE tr zh-CN; do \
+		echo "  Updating $$lang..."; \
+		temp_file=$$(mktemp); \
+		jq_expr=""; \
+		for key in $$keys; do \
+			if [ -n "$$key" ]; then \
+				if [ -z "$$jq_expr" ]; then \
+					jq_expr=".[\""$$key"\"] = \"\""; \
+				else \
+					jq_expr="$$jq_expr | .[\""$$key"\"] = \"\""; \
+				fi; \
+			fi; \
+		done; \
+		jq "$$jq_expr" locale/$$lang/client.json > $$temp_file && \
+		mv $$temp_file locale/$$lang/client.json; \
+	done
+	@echo "Done!"
+
+
+
 ##@ Testing
 
 test: test-server test-ui ## Test server and ui code
