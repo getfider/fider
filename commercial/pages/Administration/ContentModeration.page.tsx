@@ -194,10 +194,11 @@ const ContentModerationPage = () => {
                     </span>
                     {blocked}
                   </HStack>
-                  <h3 className="text-medium m-0">{title}</h3>
+                  {item.type === "post" && <h3 className="text-medium m-0">{title}</h3>}
                   <p className="m-0 text-body text-break">
                     <Markdown text={chopString(item.content, 200)} style="plainText" />
                   </p>
+                  {item.type === "comment" && <p className="m-0 text-muted text-break">{title}</p>}
                 </>
 
                 <div className="c-moderation-item__actions invisible pt-1" onClick={(e) => e.stopPropagation()}>
@@ -219,7 +220,7 @@ const ContentModerationPage = () => {
                     >
                       <Icon sprite={IconX} />
                       <span>
-                        <Trans id="action.decline">Decline</Trans>
+                        <Trans id="action.delete">Delete</Trans>
                       </span>
                     </Button>
                     <Button
@@ -239,7 +240,7 @@ const ContentModerationPage = () => {
                     >
                       <Icon sprite={IconBan} />
                       <span>
-                        <Trans id="action.decline.block">Decline & Block</Trans>
+                        <Trans id="action.delete.block">Delete & Block</Trans>
                       </span>
                     </Button>
                   </HStack>
@@ -264,7 +265,7 @@ const ContentModerationPage = () => {
           <Trans id="moderation.title">Moderation Queue</Trans>
         </h1>
         <p className="text-body text-lg mt-3">
-          <Trans id="moderation.subtitle">These posts and comments are from people outside of your trusted users list, you decide if they get published.</Trans>
+          <Trans id="moderation.subtitle">These ideas and comments are from people outside of your trusted users list, you decide if they get published.</Trans>
         </p>
 
         <div className="c-moderation-page">

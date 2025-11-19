@@ -274,7 +274,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                                   <Trans id="action.approve">Approve</Trans>
                                 </Button>
                                 <Button variant="danger" size="small" onClick={handleDeclinePost}>
-                                  <Trans id="action.decline">Decline</Trans>
+                                  <Trans id="action.delete">Delete</Trans>
                                 </Button>
                               </HStack>
                             </div>

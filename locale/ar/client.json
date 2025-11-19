@@ -6,11 +6,9 @@
   "action.close": "إغلاق",
   "action.commentsfeed": "تغذية التعليقات",
   "action.confirm": "تأكيد",
-  "action.continue": "يكمل",
   "action.copylink": "نسخ الرابط",
-  "action.decline": "",
-  "action.decline.block": "",
   "action.delete": "حذف",
+  "action.delete.block": "",
   "action.edit": "تعديل",
   "action.markallasread": "تمييز الكل كمقروءة",
   "action.ok": "حسناً",
@@ -22,8 +20,6 @@
   "action.submit": "إرسال",
   "action.vote": "صوت لهذه الفكرة",
   "action.voted": "تم التصويت!",
-  "comment.moderation.notice": "",
-  "d41FkJ": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}",
   "editor.markdownmode": "الانتقال إلى محرر النصوص (Markdown)",
   "editor.richtextmode": "التبديل إلى محرر نص منسق",
   "enum.poststatus.completed": "اكتمل",
@@ -54,7 +50,6 @@
   "home.postfilter.label.moderation": "",
   "home.postfilter.label.myactivity": "ملك",
   "home.postfilter.label.status": "حالة",
-  "home.postfilter.label.view": "عرض",
   "home.postfilter.moderation.approved": "",
   "home.postfilter.moderation.pending": "",
   "home.postfilter.option.mostdiscussed": "الأكثر مناقشة",
@@ -64,20 +59,14 @@
   "home.postfilter.option.notags": "غير مُعَلَّم",
   "home.postfilter.option.recent": "الأحدث",
   "home.postfilter.option.trending": "الشائع",
-  "home.postinput.description.placeholder": "صف اقتراحك (اختياري)",
   "home.postscontainer.label.noresults": "لا توجد نتائج تطابق بحثك، جرب شيئا مختلفا.",
   "home.postscontainer.label.viewmore": "عرض المزيد من المنشورات",
   "home.postscontainer.query.placeholder": "بحث",
   "home.postsort.label": "الترتيب بحسب:",
-  "home.similar.subtitle": "فكر في التصويت على المشاركات الحالية بدلاً من ذلك.",
   "home.similar.title": "منشورات مماثلة",
-  "home.tagsfilter.label.with": "مع",
-  "home.tagsfilter.selected.none": "أي وسم",
-  "label.actions": "أجراءات",
   "label.addtags": "أضف العلامات...",
   "label.avatar": "الصورة الرمزية",
   "label.custom": "تخصيص",
-  "label.description": "الوصف",
   "label.discussion": "المناقشة",
   "label.edittags": "تعديل الوسوم",
   "label.email": "البريد الإلكتروني",
@@ -85,23 +74,17 @@
   "label.following": "متابعين",
   "label.gravatar": "الصورة الرمزية Gravatar",
   "label.letter": "خطاب",
-  "label.moderation": "إشراف",
   "label.name": "الاسم",
   "label.none": "لا شيء",
-  "label.notagsavailable": "لا توجد وسوم متاحة",
-  "label.notagsselected": "لم يتم تحديد أي علامات",
   "label.notifications": "الإشعارات",
   "label.or": "أو",
   "label.searchtags": "علامات البحث...",
-  "label.selecttags": "حدد وسوم...",
   "label.subscribe": "إشترِك",
   "label.tags": "وسوم",
-  "label.unfollow": "إلغاء المتابعة",
   "label.unread": "غير مقروء",
   "label.unsubscribe": "إلغاء الاشتراك",
   "label.voters": "المصوتون",
   "labels.notagsavailable": "لا توجد وسوم متاحة",
-  "labels.notagsselected": "لم يتم تحديد أي علامات",
   "legal.agreement": "لقد قرأت <0/> و<1/> وأوافق على ذلك.",
   "legal.notice": "من خلال تسجيل الدخول، أنت توافق على <0/><1/> و <2/>.",
   "legal.privacypolicy": "سياسة الخصوصية",
@@ -109,12 +92,9 @@
   "linkmodal.insert": "إدراج الرابط",
   "linkmodal.text.label": "النص المراد عرضه",
   "linkmodal.text.placeholder": "أدخل نص الرابط",
-  "linkmodal.text.required": "النص مطلوب",
   "linkmodal.title": "إدراج الرابط",
-  "linkmodal.url.invalid": "الرجاء إدخال عنوان URL صالح",
   "linkmodal.url.label": "عنوان URL",
   "linkmodal.url.placeholder": "",
-  "linkmodal.url.required": "مطلوب عنوان URL",
   "menu.administration": "آلإدارة",
   "menu.mysettings": "إعداداتي",
   "menu.signout": "تسجيل الخروج",
@@ -178,32 +158,19 @@
   "mysettings.notification.channelemail": "البريد الإلكتروني",
   "mysettings.notification.channelweb": "موقع",
   "mysettings.notification.event.discussion": "المناقشة",
-  "mysettings.notification.event.discussion.staff": "التعليقات مفعّلة على جميع المنشورات ما لم تقم بإلغاء الاشتراك بشكل فردي",
-  "mysettings.notification.event.discussion.visitors": "التعليقات على المنشورات التي اشتركت بها",
   "mysettings.notification.event.mention": "الإشارات",
   "mysettings.notification.event.newpost": "منشور جديد",
-  "mysettings.notification.event.newpost.staff": "المنشورات الجديدة على هذا الموقع",
-  "mysettings.notification.event.newpost.visitors": "المنشورات الجديدة على هذا الموقع",
   "mysettings.notification.event.newpostcreated": "تمت إضافة فكرتك 👍",
   "mysettings.notification.event.statuschanged": "تم تغيير الحالة",
-  "mysettings.notification.event.statuschanged.staff": "تغيير الحالة على جميع المنشورات ما لم يتم إلغاء الاشتراك بها بشكل فردي",
-  "mysettings.notification.event.statuschanged.visitors": "تغيير الحالة على المنشورات التي اشتركت بها",
-  "mysettings.notification.message.emailonly": "سوف تتلقى <0>البريد الإلكتروني</0> إشعارات حول {about}.",
-  "mysettings.notification.message.none": "لن <0>تتلقى</0> أي إشعار بشأن هذا الحدث.",
-  "mysettings.notification.message.webandemail": "سوف تتلقى <0>موقع</0> و <1>البريد الإلكتروني</1> إشعارات حول {about}.",
-  "mysettings.notification.message.webonly": "سوف تتلقى </0>موقع<0> إشعارات حول {about}.",
   "mysettings.notification.title": "استخدم اللوحة التالية لاختيار الأحداث التي ترغب في تلقي الإشعار",
   "mysettings.page.subtitle": "إدارة إعدادات ملفك الشخصي",
   "mysettings.page.title": "إعدادات",
-  "newpost.modal.addimage": "إضافة الصور",
   "newpost.modal.description.placeholder": "أخبرنا عنها. اشرحها بالتفصيل، لا تتردد، فكلما زادت المعلومات كان ذلك أفضل.",
   "newpost.modal.submit": "أرسل فكرتك",
   "newpost.modal.title": "شارك بفكرتك...",
   "newpost.modal.title.label": "أعط فكرتك عنوانًا",
   "newpost.modal.title.placeholder": "شيء قصير وموجز، لخصه في بضع كلمات",
   "page.backhome": "خذني إلى <0>{0}</0> الصفحة الرئيسية.",
-  "page.notinvited.text": "لم نتمكن من العثور على حساب لعنوان بريدك الإلكتروني.",
-  "page.notinvited.title": "لم تتم دعوتك",
   "page.pendingactivation.didntreceive": "لم تستلم البريد الإلكتروني؟",
   "page.pendingactivation.resend": "إعادة إرسال رسالة التحقق",
   "page.pendingactivation.resending": "إعادة الإرسال...",
@@ -218,8 +185,6 @@
   "showpost.comment.unknownhighlighted": "معرف تعليق غير صالح #{id}",
   "showpost.commentinput.placeholder": "اترك تعليق",
   "showpost.copylink.success": "تم نسخ الرابط إلى الحافظة",
-  "showpost.discussionpanel.emptymessage": "لم يعلق أحد بعد.",
-  "showpost.label.author": "نشرت بواسطة <0/> · <1/>",
   "showpost.message.nodescription": "لا يوجد وصف.",
   "showpost.moderation.admin.description": "",
   "showpost.moderation.admin.title": "",
@@ -227,7 +192,6 @@
   "showpost.moderation.approveerror": "",
   "showpost.moderation.awaiting": "",
   "showpost.moderation.comment.admin.description": "",
-  "showpost.moderation.comment.admin.title": "",
   "showpost.moderation.comment.approved": "",
   "showpost.moderation.comment.approveerror": "",
   "showpost.moderation.comment.awaiting": "",
@@ -239,25 +203,19 @@
   "showpost.moderation.postsuccess": "",
   "showpost.moderationpanel.text.help": "هذه العملية <0>لا يمكن</0> التراجع عنها.",
   "showpost.moderationpanel.text.placeholder": "لماذا تقوم بحذف هذا المنشور؟ (اختياري)",
-  "showpost.mostwanted.comments": "{count, plural, zero {}one {# تعليق} two {# تعليقات} few {# تعليقات} many {# تعليقات} other {# تعليقات}}",
-  "showpost.mostwanted.votes": "{count, plural, one {# صوت} other {# أصوات}}",
   "showpost.notificationspanel.message.subscribed": "أنت تتلقى إشعارات عن النشاط على هذا المنشور.",
   "showpost.notificationspanel.message.unsubscribed": "لن تتلقى أي إشعار بشأن هذا المنشور.",
   "showpost.postsearch.numofvotes": "{0} أصوات",
   "showpost.postsearch.query.placeholder": "البحث في المنشور الأصلي...",
-  "showpost.response.date": "تغيرت الحالة إلى {status} على {statusDate}",
   "showpost.responseform.message.mergedvotes": "سيتم دمج التصويتات من هذا المنشور في المنشور الأصلية.",
   "showpost.responseform.text.placeholder": "ما الذي يجري مع هذا المنشور؟ أخبر المستخدمين ما هي خططك...",
   "showpost.votespanel.more": "+{extraVotesCount} أكثر",
   "showpost.votespanel.seedetails": "عرض التفاصيل",
   "signin.code.edit": "يحرر",
-  "signin.code.expired": "انتهت صلاحية هذا الرمز أو تم استخدامه مسبقًا. يُرجى طلب رمز جديد.",
   "signin.code.getnew": "احصل على رمز جديد",
   "signin.code.instruction": "الرجاء كتابة الرمز الذي أرسلناه للتو إلى <0>{email}</0>",
-  "signin.code.invalid": "الرمز الذي أدخلته غير صحيح. يُرجى المحاولة مرة أخرى.",
   "signin.code.placeholder": "اكتب الكود هنا",
   "signin.code.sent": "لقد تم إرسال رمز جديد إلى بريدك الإلكتروني.",
-  "signin.code.submit": "يُقدِّم",
   "signin.email.placeholder": "البريد الإلكتروني",
   "signin.message.email": "متابعة بالبريد الإلكتروني",
   "signin.message.emaildisabled": "تم تعطيل مصادقة البريد الإلكتروني من قبل المسؤول. إذا كان لديك حساب مسؤول وتحتاج إلى تجاوز هذا التقييد، الرجاء <0>انقر هنا </0>.",
@@ -270,6 +228,5 @@
   "signin.message.socialbutton.intro": "تسجيل الدخول بواسطة",
   "signin.name.placeholder": "اسمك",
   "validation.custom.maxattachments": "يُسمح بحد أقصى {number} من المرفقات.",
-  "validation.custom.maximagesize": "يجب أن يكون حجم الصورة أصغر من {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}"
+  "validation.custom.maximagesize": "يجب أن يكون حجم الصورة أصغر من {kilobytes}KB."
 }

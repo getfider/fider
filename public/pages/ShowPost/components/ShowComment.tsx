@@ -259,17 +259,17 @@ export const ShowComment = (props: ShowCommentProps) => {
                     {fider.session.isAuthenticated && fider.session.user.isCollaborator && (
                       <div className="p-2 bg-blue-50 rounded border-l-4 border-blue-500">
                         <div className="mb-1 text-xs font-medium text-blue-800">
-                          <Trans id="showpost.moderation.comment.admin.title">Comment Moderation</Trans>
+                          <Trans id="home.postfilter.label.moderation">Moderation</Trans>
                         </div>
                         <div className="text-xs text-blue-700 mb-2">
-                          <Trans id="showpost.moderation.comment.admin.description">This comment is awaiting your approval to be visible to all users.</Trans>
+                          <Trans id="showpost.moderation.comment.admin.description">This comment needs your approval before being published</Trans>
                         </div>
                         <HStack spacing={1}>
                           <Button variant="primary" size="small" onClick={handleApproveComment}>
                             <Trans id="action.approve">Approve</Trans>
                           </Button>
                           <Button variant="danger" size="small" onClick={handleDeclineComment}>
-                            <Trans id="action.decline">Decline</Trans>
+                            <Trans id="action.delete">Delete</Trans>
                           </Button>
                         </HStack>
                       </div>
