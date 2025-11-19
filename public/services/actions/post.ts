@@ -14,6 +14,7 @@ export interface SearchPostsParams {
   noTags?: boolean
   myPosts?: boolean
   statuses?: string[]
+  moderation?: string
 }
 
 export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
@@ -23,6 +24,7 @@ export const searchPosts = async (params: SearchPostsParams): Promise<Result<Pos
     query: params.query,
     view: params.view,
     limit: params.limit,
+    moderation: params.moderation,
   })
   if (params.myVotes) {
     qsParams += `&myvotes=true`

@@ -305,7 +305,7 @@ func detectPostLanguage(title, description string) string {
 
 func getPostByID(ctx context.Context, q *query.GetPostByID) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.id = $2"), tenant.ID, q.PostID)
+		post, err := querySinglePost(ctx, trx, buildSinglePostQuery(user, "p.tenant_id = $1 AND p.id = $2"), tenant.ID, q.PostID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with id '%d'", q.PostID)
 		}
@@ -316,7 +316,7 @@ func getPostByID(ctx context.Context, q *query.GetPostByID) error {
 
 func getPostBySlug(ctx context.Context, q *query.GetPostBySlug) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.slug = $2"), tenant.ID, q.Slug)
+		post, err := querySinglePost(ctx, trx, buildSinglePostQuery(user, "p.tenant_id = $1 AND p.slug = $2"), tenant.ID, q.Slug)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with slug '%s'", q.Slug)
 		}
@@ -327,7 +327,7 @@ func getPostBySlug(ctx context.Context, q *query.GetPostBySlug) error {
 
 func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.number = $2"), tenant.ID, q.Number)
+		post, err := querySinglePost(ctx, trx, buildSinglePostQuery(user, "p.tenant_id = $1 AND p.number = $2"), tenant.ID, q.Number)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with number '%d'", q.Number)
 		}
@@ -362,7 +362,7 @@ func preprocessSearchQuery(query string) string {
 
 func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
+		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)", "")
 
 		filteredQuery := preprocessSearchQuery(q.Query)
 
@@ -416,7 +416,7 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 
 func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
+		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)", q.ModerationFilter)
 
 		if q.Tags == nil {
 			q.Tags = []string{}
@@ -518,7 +518,7 @@ func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...an
 	return post.ToModel(ctx), nil
 }
 
-func buildPostQuery(user *entity.User, filter string) string {
+func buildPostQuery(user *entity.User, filter string, moderationFilter string) string {
 	tagCondition := `AND tags.is_public = true`
 	if user != nil && user.IsCollaborator() {
 		tagCondition = ``
@@ -528,13 +528,50 @@ func buildPostQuery(user *entity.User, filter string) string {
 		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", user.ID)
 	}
 
-	// Add approval filtering based on user permissions
+	// Add approval filtering based on moderation filter and user permissions
+	approvalFilter := ""
+
+	// If user is a collaborator and has specified a moderation filter, apply it
+	if user != nil && user.IsCollaborator() && moderationFilter != "" {
+		if moderationFilter == "pending" {
+			// Show only unapproved posts
+			approvalFilter = " AND p.is_approved = false"
+		} else if moderationFilter == "approved" {
+			// Show only approved posts
+			approvalFilter = " AND p.is_approved = true"
+		}
+		// If moderationFilter is neither "pending" nor "approved", show all posts (no filter)
+	} else if user != nil {
+		// Regular authenticated users can see approved posts + their own unapproved posts
+		approvalFilter = fmt.Sprintf(" AND (p.is_approved = true OR p.user_id = %d)", user.ID)
+	} else {
+		// Anonymous users can only see approved posts
+		approvalFilter = " AND p.is_approved = true"
+	}
+
+	combinedFilter := filter + approvalFilter
+	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, combinedFilter)
+}
+
+// buildSinglePostQuery is used for fetching individual posts (by ID, slug, or number)
+// Collaborators can view any post for moderation purposes
+func buildSinglePostQuery(user *entity.User, filter string) string {
+	tagCondition := `AND tags.is_public = true`
+	if user != nil && user.IsCollaborator() {
+		tagCondition = ``
+	}
+	hasVotedSubQuery := "null"
+	if user != nil {
+		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", user.ID)
+	}
+
+	// Approval filtering for single post views
 	approvalFilter := ""
 	if user != nil && user.IsCollaborator() {
-		// Admins and collaborators can see all posts
+		// Collaborators can view any post (for moderation purposes)
 		approvalFilter = ""
 	} else if user != nil {
-		// Regular users can see approved posts + their own unapproved posts
+		// Regular authenticated users can see approved posts + their own unapproved posts
 		approvalFilter = fmt.Sprintf(" AND (p.is_approved = true OR p.user_id = %d)", user.ID)
 	} else {
 		// Anonymous users can only see approved posts

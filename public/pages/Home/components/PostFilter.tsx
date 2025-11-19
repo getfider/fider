@@ -9,7 +9,7 @@ import { FilterState } from "./PostsContainer"
 
 import "./PostFilter.scss"
 
-type FilterType = "tag" | "status" | "myVotes" | "noTags" | "myPosts"
+type FilterType = "tag" | "status" | "myVotes" | "noTags" | "myPosts" | "moderation"
 
 interface OptionItem {
   value: string | boolean
@@ -47,11 +47,14 @@ const FilterStateToFilterItems = (filterState: FilterState): FilterItem[] => {
   if (filterState.myPosts) {
     filterItems.push({ type: "myPosts", value: true })
   }
+  if (filterState.moderation) {
+    filterItems.push({ type: "moderation", value: filterState.moderation })
+  }
   return filterItems
 }
 
 const FilterItemsToFilterState = (filterItems: FilterItem[]): FilterState => {
-  const filterState: FilterState = { tags: [], statuses: [], myVotes: false, noTags: false, myPosts: false }
+  const filterState: FilterState = { tags: [], statuses: [], myVotes: false, noTags: false, myPosts: false, moderation: "" }
   filterItems.forEach((i) => {
     if (i.type === "tag") {
       filterState.tags.push(i.value as string)
@@ -63,6 +66,8 @@ const FilterItemsToFilterState = (filterItems: FilterItem[]): FilterState => {
       filterState.noTags = true
     } else if (i.type === "myPosts") {
       filterState.myPosts = true
+    } else if (i.type === "moderation") {
+      filterState.moderation = i.value as string
     }
   })
   return filterState
@@ -88,6 +93,12 @@ export const PostFilter = (props: PostFilterProps) => {
   if (fider.session.isAuthenticated) {
     options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myvotes", message: "My Votes" }), type: "myVotes" })
     options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myposts", message: "My Posts" }), type: "myPosts" })
+
+    // Add moderation filter for collaborators and admins
+    if (fider.session.user.isCollaborator) {
+      options.push({ value: "pending", label: i18n._({ id: "home.postfilter.moderation.pending", message: "Pending" }), type: "moderation" })
+      options.push({ value: "approved", label: i18n._({ id: "home.postfilter.moderation.approved", message: "Approved" }), type: "moderation" })
+    }
   }
 
   PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
@@ -167,6 +178,8 @@ export const PostFilter = (props: PostFilterProps) => {
         />
 
         <FilterGroupSection title={i18n._({ id: "home.postfilter.label.myactivity", message: "My activity" })} type={["myVotes", "myPosts"]} />
+
+        <FilterGroupSection title={i18n._({ id: "home.postfilter.label.moderation", message: "Moderation" })} type={["moderation"]} />
 
         <FilterGroupSection title={i18n._({ id: "home.postfilter.label.status", message: "Status" })} type={["status"]} />
 
