@@ -17,8 +17,9 @@ type CreateTenant struct {
 }
 
 type UpdateTenantPrivacySettings struct {
-	IsPrivate     bool
-	IsFeedEnabled bool
+	IsPrivate           bool
+	IsFeedEnabled       bool
+	IsModerationEnabled bool
 }
 
 type UpdateTenantEmailAuthAllowedSettings struct {

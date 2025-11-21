@@ -12,6 +12,7 @@ export interface Tenant {
   allowedSchemes: string
   isEmailAuthAllowed: boolean
   isFeedEnabled: boolean
+  isModerationEnabled: boolean
 }
 
 export enum TenantStatus {
@@ -27,6 +28,7 @@ export interface User {
   email?: string
   role: UserRole
   status: UserStatus
+  isTrusted: boolean
   avatarURL: string
 }
 
@@ -57,6 +59,10 @@ export const isCollaborator = (role: UserRole): boolean => {
   return role === UserRole.Collaborator || role === UserRole.Administrator
 }
 
+export const requiresModeration = (user: User): boolean => {
+  return user.role === UserRole.Visitor && !user.isTrusted
+}
+
 export interface CurrentUser {
   id: number
   name: string
@@ -68,4 +74,5 @@ export interface CurrentUser {
   status: UserStatus
   isAdministrator: boolean
   isCollaborator: boolean
+  isTrusted: boolean
 }

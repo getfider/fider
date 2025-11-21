@@ -104,7 +104,17 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     window.clearTimeout(this.timer)
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true })
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view: view, limit, tags, statuses, myVotes, myPosts, noTags }).then((response) => {
+      // Check if "pending" is in the statuses
+      const hasPending = statuses.includes("pending")
+      // Filter out "pending" from actual statuses to send to API
+      const actualStatuses = statuses.filter((s) => s !== "pending")
+      // Determine moderation filter
+      let moderation = ""
+      if (hasPending) {
+        moderation = "pending"
+      }
+
+      actions.searchPosts({ query, view: view, limit, tags, statuses: actualStatuses, myVotes, myPosts, noTags, moderation }).then((response) => {
         if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data })
         }

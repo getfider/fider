@@ -273,6 +273,10 @@ func (c *Context) Failure(err error) error {
 		return c.NotFound()
 	}
 
+	if cause == app.ErrCommercialLicenseRequired {
+		return c.Forbidden()
+	}
+
 	if renderErr := c.Page(http.StatusInternalServerError, Props{
 		Page:        "Error/Error500.page",
 		Title:       "Shoot! Well, this is unexpected…",

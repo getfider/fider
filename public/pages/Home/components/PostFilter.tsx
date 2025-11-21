@@ -100,6 +100,15 @@ export const PostFilter = (props: PostFilterProps) => {
     })
   })
 
+  // Add Pending status for collaborators and admins
+  if (fider.session.isAuthenticated && fider.session.user.isCollaborator) {
+    options.push({
+      label: "Pending",
+      value: "pending",
+      type: "status",
+    })
+  }
+
   if (props.tags.length > 0) {
     options.push({
       value: true,

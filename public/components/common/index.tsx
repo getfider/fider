@@ -30,6 +30,7 @@ export * from "./PoweredByFider"
 export * from "./PageTitle"
 export * from "./Dropdown"
 export * from "./Money"
+export * from "./Pagination"
 
 import Textarea from "react-textarea-autosize"
 export { Textarea }

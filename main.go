@@ -4,6 +4,8 @@ import (
 	"os"
 
 	"github.com/getfider/fider/app/cmd"
+	_ "github.com/getfider/fider/commercial"
+	_ "github.com/getfider/fider/commercial/services/sqlstore/postgres" // Import AFTER cmd to override open source handlers
 	_ "github.com/lib/pq"
 )
 

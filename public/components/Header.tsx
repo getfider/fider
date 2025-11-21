@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher, Icon } from "@fider/components"
+import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, ModerationIndicator, UserMenu, ThemeSwitcher, Icon } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
@@ -41,16 +41,19 @@ export const Header = (props: HeaderProps) => {
               <h1 className="text-header">{fider.session.tenant.name}</h1>
             </a>
             {fider.session.isAuthenticated && (
-              <HStack spacing={2}>
-                {fider.session.tenant.isFeedEnabled && (
-                  <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
-                    <Icon sprite={IconRss} className="h-6 text-gray-500" />
-                  </button>
-                )}
-                <ThemeSwitcher />
-                <NotificationIndicator />
-                <UserMenu />
-              </HStack>
+              <>
+                <ModerationIndicator />
+                <HStack spacing={2}>
+                  {fider.session.tenant.isFeedEnabled && (
+                    <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
+                      <Icon sprite={IconRss} className="h-6 text-gray-500" />
+                    </button>
+                  )}
+                  <ThemeSwitcher />
+                  <NotificationIndicator />
+                  <UserMenu />
+                </HStack>
+              </>
             )}
             {!fider.session.isAuthenticated && (
               <HStack spacing={2}>

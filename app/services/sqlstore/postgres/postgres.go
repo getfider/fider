@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/services"
 
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -85,6 +86,7 @@ func (s Service) Init() {
 	bus.AddHandler(countUsers)
 	bus.AddHandler(blockUser)
 	bus.AddHandler(unblockUser)
+	bus.AddHandler(untrustUser)
 	bus.AddHandler(regenerateAPIKey)
 	bus.AddHandler(userSubscribedTo)
 	bus.AddHandler(deleteCurrentUser)
@@ -101,6 +103,7 @@ func (s Service) Init() {
 	bus.AddHandler(getUserByProvider)
 	bus.AddHandler(getAllUsers)
 	bus.AddHandler(getAllUsersNames)
+	bus.AddHandler(searchUsers)
 
 	bus.AddHandler(createTenant)
 	bus.AddHandler(getFirstTenant)
@@ -144,6 +147,20 @@ func (s Service) Init() {
 	bus.AddHandler(getSystemSettings)
 	bus.AddHandler(AddMentionNotification)
 	bus.AddHandler(getMentionsNotifications)
+
+	// Only register moderation handlers if commercial service is not available
+	// Check if commercial features are enabled via license service
+	if !services.IsCommercialFeatureEnabled(services.FeatureContentModeration) {
+		bus.AddHandler(approvePost)
+		bus.AddHandler(declinePost)
+		bus.AddHandler(approveComment)
+		bus.AddHandler(declineComment)
+		bus.AddHandler(bulkApproveItems)
+		bus.AddHandler(bulkDeclineItems)
+		bus.AddHandler(getModerationItems)
+		bus.AddHandler(getModerationCount)
+		bus.AddHandler(trustUser)
+	}
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error
