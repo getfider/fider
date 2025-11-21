@@ -35,7 +35,6 @@ export interface FilterState {
   myVotes: boolean
   myPosts: boolean
   noTags: boolean
-  moderation: string
 }
 
 export class PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
@@ -55,7 +54,6 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         myVotes: querystring.get("myvotes") === "true",
         myPosts: querystring.get("myposts") === "true",
         noTags: querystring.get("notags") === "true",
-        moderation: querystring.get("moderation") || "",
       },
       limit: querystring.getNumber("limit"),
     }
@@ -71,7 +69,6 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           myvotes: this.state.filterState.myVotes ? "true" : undefined,
           myposts: this.state.filterState.myPosts ? "true" : undefined,
           notags: this.state.filterState.noTags ? "true" : undefined,
-          moderation: this.state.filterState.moderation || undefined,
           query,
           view: this.state.view,
           limit: this.state.limit,
@@ -87,7 +84,6 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         this.state.filterState.myVotes,
         this.state.filterState.myPosts,
         this.state.filterState.noTags,
-        this.state.filterState.moderation,
         reset
       )
     })
@@ -103,13 +99,22 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     myVotes: boolean,
     myPosts: boolean,
     noTags: boolean,
-    moderation: string,
     reset: boolean
   ) {
     window.clearTimeout(this.timer)
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true })
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view: view, limit, tags, statuses, myVotes, myPosts, noTags, moderation }).then((response) => {
+      // Check if "pending" is in the statuses
+      const hasPending = statuses.includes("pending")
+      // Filter out "pending" from actual statuses to send to API
+      const actualStatuses = statuses.filter((s) => s !== "pending")
+      // Determine moderation filter
+      let moderation = ""
+      if (hasPending) {
+        moderation = "pending"
+      }
+
+      actions.searchPosts({ query, view: view, limit, tags, statuses: actualStatuses, myVotes, myPosts, noTags, moderation }).then((response) => {
         if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data })
         }
