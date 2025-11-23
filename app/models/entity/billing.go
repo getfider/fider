@@ -34,3 +34,8 @@ type BillingPayment struct {
 	Currency string  `json:"currency"`
 	Date     string  `json:"date"`
 }
+
+type StripeBillingState struct {
+	CustomerID     string `json:"customerID"`
+	SubscriptionID string `json:"subscriptionID"`
+}

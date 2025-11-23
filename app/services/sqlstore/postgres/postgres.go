@@ -142,6 +142,9 @@ func (s Service) Init() {
 	bus.AddHandler(cancelBillingSubscription)
 	bus.AddHandler(lockExpiredTenants)
 	bus.AddHandler(getTrialingTenantContacts)
+	bus.AddHandler(getStripeBillingState)
+	bus.AddHandler(activateStripeSubscription)
+	bus.AddHandler(cancelStripeSubscription)
 
 	bus.AddHandler(setSystemSettings)
 	bus.AddHandler(getSystemSettings)

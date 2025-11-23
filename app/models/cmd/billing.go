@@ -30,3 +30,13 @@ type LockExpiredTenants struct {
 	NumOfTenantsLocked int64
 	TenantsLocked      []int
 }
+
+type ActivateStripeSubscription struct {
+	TenantID       int
+	CustomerID     string
+	SubscriptionID string
+}
+
+type CancelStripeSubscription struct {
+	TenantID int
+}

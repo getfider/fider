@@ -15,3 +15,8 @@ type GetBillingSubscription struct {
 	// Output
 	Result *entity.BillingSubscription
 }
+
+type GetStripeBillingState struct {
+	// Output
+	Result *entity.StripeBillingState
+}

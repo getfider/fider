@@ -77,6 +77,12 @@ func routes(r *web.Engine) *web.Engine {
 		}
 	}
 
+	// Stripe webhooks (before CSRF middleware)
+	stripeWh := r.Group()
+	{
+		stripeWh.Post("/webhooks/stripe", webhooks.IncomingStripeWebhook())
+	}
+
 	r.Use(middlewares.CSRF())
 
 	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
@@ -201,6 +207,11 @@ func routes(r *web.Engine) *web.Engine {
 			ui.Get("/admin/billing", handlers.ManageBilling())
 			ui.Post("/_api/billing/checkout-link", handlers.GenerateCheckoutLink())
 		}
+
+		// Stripe billing (experimental)
+		ui.Get("/admin/billing2", handlers.ManageBilling2())
+		ui.Post("/_api/admin/billing2/portal", handlers.CreateStripePortalSession())
+		ui.Post("/_api/admin/billing2/checkout", handlers.CreateStripeCheckoutSession())
 	}
 
 	// Public operations

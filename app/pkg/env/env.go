@@ -56,13 +56,18 @@ type config struct {
 	JWTSecret                   string `env:"JWT_SECRET,required"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
-	Paddle                      struct {
+	Paddle struct {
 		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
 		VendorID       string `env:"PADDLE_VENDOR_ID"`
 		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`
 		MonthlyPlanID  string `env:"PADDLE_MONTHLY_PLAN_ID"`
 		YearlyPlanID   string `env:"PADDLE_YEARLY_PLAN_ID"`
 		PublicKey      string `env:"PADDLE_PUBLIC_KEY"`
+	}
+	Stripe struct {
+		SecretKey     string `env:"STRIPE_SECRET_KEY"`
+		WebhookSecret string `env:"STRIPE_WEBHOOK_SECRET"`
+		PriceID       string `env:"STRIPE_PRICE_ID"`
 	}
 	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
