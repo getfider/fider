@@ -1,0 +1,28 @@
+.c-billing-plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 700px;
+}
+
+.c-plan-card {
+  border: 2px solid var(--colors-gray-200);
+  border-radius: 12px;
+
+  &--highlighted {
+    background: var(--colors-gray-900);
+    border-color: var(--colors-gray-700);
+  }
+
+  &--current {
+    border-color: var(--colors-green-500);
+  }
+}
+
+.c-plan-card--highlighted .c-plan-card__light {
+  color: var(--colors-gray-300);
+}
+
+.c-plan-card--highlighted .c-plan-card__muted {
+  color: var(--colors-gray-400);
+}
