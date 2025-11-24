@@ -482,7 +482,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
           },
         }),
         Markdown.configure({
-          html: true,
+          html: false,
           breaks: true,
         }),
         CustomMention.configure({
