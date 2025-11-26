@@ -149,7 +149,6 @@ const SignUpPage = () => {
       <Button variant="primary" size="large" onClick={confirm}>
         Confirm
       </Button>
-      {fider.settings.isBillingEnabled && <div className="mt-2 text-muted">Your trial starts today and ends in 15 days.</div>}
     </div>
   )
 }
