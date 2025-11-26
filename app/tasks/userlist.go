@@ -22,7 +22,7 @@ func UserListCreateCompany(tenant entity.Tenant, user entity.User) worker.Task {
 			Name:          tenant.Name,
 			TenantId:      tenant.ID,
 			SignedUpAt:    time.Now().Format(time.RFC3339),
-			BillingStatus: enum.BillingTrial.String(),
+			BillingStatus: enum.BillingActive.String(),
 			Subdomain:     tenant.Subdomain,
 			UserId:        user.ID,
 			UserEmail:     user.Email,

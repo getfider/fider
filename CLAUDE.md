@@ -112,7 +112,7 @@ The application includes pluggable services for:
 - **Email**: SMTP, Mailgun, AWS SES
 - **Blob Storage**: Filesystem, S3, SQL
 - **OAuth**: Custom providers, GitHub, Google, etc.
-- **Billing**: Paddle integration (optional)
+- **Billing**: Stripe integration (optional)
 - **Webhooks**: Outbound event notifications
 
 ## Development Setup Requirements

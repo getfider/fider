@@ -70,13 +70,6 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
 
-	if env.IsBillingEnabled() {
-		wh := r.Group()
-		{
-			wh.Post("/webhooks/paddle", webhooks.IncomingPaddleWebhook())
-		}
-	}
-
 	// Stripe webhooks (before CSRF middleware)
 	stripeWh := r.Group()
 	{
@@ -205,13 +198,9 @@ func routes(r *web.Engine) *web.Engine {
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())
-			ui.Post("/_api/billing/checkout-link", handlers.GenerateCheckoutLink())
+			ui.Post("/_api/admin/billing/portal", handlers.CreateStripePortalSession())
+			ui.Post("/_api/admin/billing/checkout", handlers.CreateStripeCheckoutSession())
 		}
-
-		// Stripe billing (experimental)
-		ui.Get("/admin/billing2", handlers.ManageBilling2())
-		ui.Post("/_api/admin/billing2/portal", handlers.CreateStripePortalSession())
-		ui.Post("/_api/admin/billing2/checkout", handlers.CreateStripeCheckoutSession())
 	}
 
 	// Public operations

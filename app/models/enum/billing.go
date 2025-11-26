@@ -3,8 +3,6 @@ package enum
 type BillingStatus int
 
 var (
-	//BillingTrial is used for tenants in trial
-	BillingTrial BillingStatus = 1
 	//BillingActive is used for tenants with an active subscription
 	BillingActive BillingStatus = 2
 	//BillingCancelled is used for tenants that had an active subscription, but have cancelled it
@@ -16,7 +14,6 @@ var (
 )
 
 var billingStatusIDs = map[BillingStatus]string{
-	BillingTrial:          "trial",
 	BillingActive:         "active",
 	BillingCancelled:      "cancelled",
 	BillingFreeForever:    "free_forever",

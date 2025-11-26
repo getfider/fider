@@ -10,9 +10,6 @@ import (
 
 type BillingState struct {
 	Status             int          `db:"status"`
-	PlanID             string       `db:"paddle_plan_id"`
-	SubscriptionID     string       `db:"paddle_subscription_id"`
-	TrialEndsAt        dbx.NullTime `db:"trial_ends_at"`
 	SubscriptionEndsAt dbx.NullTime `db:"subscription_ends_at"`
 }
 
@@ -23,13 +20,7 @@ type StripeBillingState struct {
 
 func (s *BillingState) ToModel(ctx context.Context) *entity.BillingState {
 	model := &entity.BillingState{
-		Status:         enum.BillingStatus(s.Status),
-		PlanID:         s.PlanID,
-		SubscriptionID: s.SubscriptionID,
-	}
-
-	if s.TrialEndsAt.Valid {
-		model.TrialEndsAt = &s.TrialEndsAt.Time
+		Status: enum.BillingStatus(s.Status),
 	}
 
 	if s.SubscriptionEndsAt.Valid {

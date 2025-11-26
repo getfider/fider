@@ -1,249 +1,135 @@
-import React from "react"
-import { Button, Moment, Money } from "@fider/components"
+import React, { useState } from "react"
+import { Button, Icon } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
-import { useFider } from "@fider/hooks"
-import { BillingStatus } from "@fider/models"
 import { AdminPageContainer } from "../components/AdminBasePage"
-import { CardDetails } from "../components/billing/CardDetails"
-import { usePaddle } from "../hooks/use-paddle"
+import { http } from "@fider/services"
+import IconCheck from "@fider/assets/images/heroicons-check.svg"
+
+import "./ManageBilling.page.scss"
 
 interface ManageBillingPageProps {
-  paddle: {
-    isSandbox: boolean
-    vendorId: string
-    monthlyPlanId: string
-    yearlyPlanId: string
-  }
-  status: BillingStatus
-  trialEndsAt: string
-  subscriptionEndsAt: string
-  subscription: {
-    updateURL: string
-    cancelURL: string
-    paymentInformation: {
-      paymentMethod: string
-      cardType: string
-      lastFourDigits: string
-      expiryDate: string
-    }
-    lastPayment: {
-      amount: number
-      currency: string
-      date: string
-    }
-    nextPayment: {
-      amount: number
-      currency: string
-      date: string
-    }
-  }
+  stripeCustomerID: string
+  stripeSubscriptionID: string
 }
 
-const SubscribePanel = (props: { monthlyPrice: string; subscribeMonthly: () => void; yearlyPrice: string; subscribeYearly: () => void }) => {
-  return (
-    <div>
-      <HStack spacing={4}>
-        <VStack spacing={4} className="py-2 px-4 shadow rounded text-center">
-          <div>
-            <span className="block text-xs p-1 rounded mb-2">&nbsp;</span>
-            <span className="text-category">Monthy Subscription</span>
-          </div>
-          <span className="text-display2 block">
-            {props.monthlyPrice}
-            <span className="text-title">/month</span>
-          </span>
-          <Button variant="secondary" size="small" className="mx-auto" onClick={props.subscribeMonthly}>
-            Subscribe
-          </Button>
-        </VStack>
-        <VStack spacing={4} className="py-2 px-4 shadow rounded text-center">
-          <div>
-            <span className="block text-xs bg-yellow-100 p-1 rounded mb-2">
-              <strong>2 months free!</strong>
-            </span>
-            <span className="text-category">Yearly Subscription</span>
-          </div>
-          <span className="text-display2 block">
-            {props.yearlyPrice}
-            <span className="text-title">/year</span>
-          </span>
-          <Button variant="secondary" size="small" className="mx-auto" onClick={props.subscribeYearly}>
-            Subscribe
-          </Button>
-        </VStack>
-      </HStack>
+interface PlanCardProps {
+  name: string
+  price: string
+  period: string
+  description: string
+  features: string[]
+  isCurrent: boolean
+  isHighlighted?: boolean
+  buttonText: string
+  buttonVariant: "primary" | "secondary"
+  onButtonClick?: () => void
+  isLoading: boolean
+}
 
-      <span className="block mt-4 text-muted">VAT/Tax may be added during checkout.</span>
+const PlanCard = (props: PlanCardProps) => {
+  const showButton = !!props.onButtonClick
+  const showCurrentLabel = props.isCurrent && !props.onButtonClick
+
+  const cardClasses = ["c-plan-card p-6", props.isHighlighted ? "c-plan-card--highlighted" : "bg-gray-100", props.isCurrent ? "c-plan-card--current" : ""].join(
+    " "
+  )
+
+  const textColor = props.isHighlighted ? "text-white" : "text-gray-900"
+
+  return (
+    <div className={cardClasses}>
+      <VStack spacing={4}>
+        <HStack justify="between" align="center">
+          <span className={`text-title ${textColor}`}>{props.name}</span>
+          {props.isCurrent && <span className="text-xs text-semibold px-2 py-1 rounded-full bg-green-100 text-green-700">CURRENT</span>}
+        </HStack>
+
+        <div className="flex flex-items-baseline">
+          <span className={`text-2xl text-bold ${textColor}`}>{props.price}</span>
+          {props.period && <span className={`text-sm c-plan-card__muted ${props.isHighlighted ? "" : "text-gray-500"}`}>/{props.period}</span>}
+        </div>
+
+        <p className={`text-sm c-plan-card__muted ${props.isHighlighted ? "" : "text-gray-600"}`}>{props.description}</p>
+
+        {showButton && (
+          <Button variant={props.buttonVariant} onClick={props.onButtonClick} disabled={props.isLoading}>
+            {props.isLoading ? "Loading..." : props.buttonText}
+          </Button>
+        )}
+        {showCurrentLabel && <div className="text-center py-2 px-4 text-sm text-medium text-gray-500 bg-gray-200 rounded-md">Current Plan</div>}
+
+        <VStack spacing={2} className={`pt-4 border-t c-plan-card__light ${props.isHighlighted ? "border-gray-700" : "border-gray-200 text-gray-700"}`}>
+          {props.features.map((feature, index) => (
+            <HStack key={index} spacing={2} align="start">
+              <Icon sprite={IconCheck} className="text-green-500" height="16" />
+              <span className="text-sm">{feature}</span>
+            </HStack>
+          ))}
+        </VStack>
+      </VStack>
     </div>
   )
 }
 
-const ActiveSubscriptionInformation = (props: ManageBillingPageProps) => {
-  const fider = useFider()
-  const { isReady, openUrl } = usePaddle({ ...props.paddle })
+const ManageBillingPage = (props: ManageBillingPageProps) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const hasSubscription = !!props.stripeSubscriptionID
 
-  const open = (url: string) => () => {
-    if (isReady) {
-      openUrl(url)
+  const openPortal = async () => {
+    setIsLoading(true)
+    const result = await http.post<{ url: string }>("/_api/admin/billing/portal")
+    if (result.ok) {
+      window.location.href = result.data.url
+    } else {
+      setIsLoading(false)
     }
   }
 
-  return (
-    <VStack>
-      <h3 className="text-display">Your subscription is Active</h3>
-      <CardDetails {...props.subscription.paymentInformation} />
-      <p>
-        Your next payment is{" "}
-        <strong>
-          <Money amount={props.subscription.nextPayment.amount} currency={props.subscription.nextPayment.currency} locale={fider.currentLocale} />
-        </strong>{" "}
-        on{" "}
-        <strong>
-          <Moment locale={fider.currentLocale} format="date" date={props.subscription.nextPayment.date} />
-        </strong>
-        .
-      </p>
-      <p>
-        You can{" "}
-        <a href="#" rel="noopener" className="text-link" onClick={open(props.subscription.updateURL)}>
-          update
-        </a>{" "}
-        your payment information or{" "}
-        <a href="#" rel="noopener" className="text-link" onClick={open(props.subscription.cancelURL)}>
-          cancel
-        </a>{" "}
-        your subscription at any time.
-      </p>
-      <p>
-        To change your billing interval from monthly to yearly or vice-versa, please contact us at{" "}
-        <a className="text-link" href="mailto:billing@fider.io">
-          billing@fider.io
-        </a>
-        .
-      </p>
-    </VStack>
-  )
-}
+  const startCheckout = async () => {
+    setIsLoading(true)
+    const result = await http.post<{ url: string }>("/_api/admin/billing/checkout")
+    if (result.ok) {
+      window.location.href = result.data.url
+    } else {
+      setIsLoading(false)
+    }
+  }
 
-const CancelledSubscriptionInformation = (props: ManageBillingPageProps) => {
-  const fider = useFider()
-  const paddle = usePaddle({ ...props.paddle })
+  const freeFeatures = ["Unlimited feedback posts", "Unlimited voters", "Your own subdomain or custom domain", "All core functionality", "Email notifications"]
 
-  const isExpired = new Date(props.subscriptionEndsAt) <= new Date()
+  const proFeatures = ["Everything in Free", "Content Moderation", "Responsive email support", "Priority support"]
 
   return (
-    <VStack>
-      <h3 className="text-display">Your subscription was Cancelled</h3>
-      {isExpired ? (
-        <p>
-          Your subscription expired on{" "}
-          <strong>
-            <Moment locale={fider.currentLocale} format="date" date={props.subscriptionEndsAt} />
-          </strong>
-          . Resubscribe to remove the read-only constraint from this site.
-        </p>
-      ) : (
-        <p>
-          Your subscription is currently cancelled. This site will stay active until{" "}
-          <strong>
-            <Moment locale={fider.currentLocale} format="date" date={props.subscriptionEndsAt} />
-          </strong>
-          . <br /> Resubscribe to avoid a service interruption.
-        </p>
-      )}
-      <SubscribePanel {...paddle} />
-    </VStack>
-  )
-}
+    <AdminPageContainer id="p-admin-billing" name="billing" title="Billing" subtitle="Manage your subscription and billing">
+      <p>Fider is free forever. But if you need advanced features and support, consider upgrading to Pro.</p>
+      <div className="c-billing-plans">
+        <PlanCard
+          name="Free"
+          price="$0"
+          period="month"
+          description="Perfect for getting started with feedback collection."
+          features={freeFeatures}
+          isCurrent={!hasSubscription}
+          buttonText="Downgrade"
+          buttonVariant="secondary"
+          onButtonClick={hasSubscription ? openPortal : undefined}
+          isLoading={isLoading && hasSubscription}
+        />
 
-const TrialInformation = (props: ManageBillingPageProps) => {
-  const fider = useFider()
-  const paddle = usePaddle({ ...props.paddle })
-
-  const isExpired = new Date(props.trialEndsAt) <= new Date()
-
-  return (
-    <VStack>
-      <h3 className="text-display">Trial</h3>
-      {isExpired ? (
-        <p>
-          Your trial expired on{" "}
-          <strong>
-            <Moment locale={fider.currentLocale} format="date" date={props.trialEndsAt} />
-          </strong>
-          . Subscribe to remove the read-only constraint from this site.
-        </p>
-      ) : (
-        <p>
-          Your account is currently on a trial until{" "}
-          <strong>
-            <Moment locale={fider.currentLocale} format="date" date={props.trialEndsAt} />
-          </strong>
-          . <br />
-          Subscribe before the end of your trial to avoid a service interruption.
-        </p>
-      )}
-
-      <SubscribePanel {...paddle} />
-    </VStack>
-  )
-}
-
-const FreeForeverInformation = () => {
-  return (
-    <VStack>
-      <h3 className="text-display">Free!</h3>
-      <p>
-        This site is on a <strong>Forever Free</strong> subscription, enjoy it! 🎉
-      </p>
-      <p className="text-muted">
-        You can still help us fund the development of Fider by contribution to our{" "}
-        <a rel="noopener" target="_blank" className="text-link" href="https://opencollective.com/fider">
-          OpenCollective
-        </a>
-        .
-      </p>
-    </VStack>
-  )
-}
-
-const OpenCollectiveInformation = () => {
-  return (
-    <VStack>
-      <h3 className="text-display">Open Source Subscription</h3>
-      <p>
-        This site is linked to a monthly{" "}
-        <a rel="noopener" target="_blank" className="text-link" href="https://opencollective.com/fider">
-          OpenCollective
-        </a>{" "}
-        donation.
-      </p>
-      <p className="text-muted">Thanks for being a financial support! Keep your monthly donation active to avoid a service interruption.</p>
-    </VStack>
-  )
-}
-
-const ManageBillingPage = (props: ManageBillingPageProps) => {
-  const showPaddleFooter = [BillingStatus.Active, BillingStatus.Cancelled, BillingStatus.Trial].includes(props.status)
-
-  return (
-    <AdminPageContainer id="p-admin-billing" name="billing" title="Billing" subtitle="Manage your billing settings">
-      {props.status === BillingStatus.Trial && <TrialInformation {...props} />}
-      {props.status === BillingStatus.Active && <ActiveSubscriptionInformation {...props} />}
-      {props.status === BillingStatus.Cancelled && <CancelledSubscriptionInformation {...props} />}
-      {props.status === BillingStatus.FreeForever && <FreeForeverInformation />}
-      {props.status === BillingStatus.OpenCollective && <OpenCollectiveInformation />}
-
-      {showPaddleFooter && (
-        <p className="text-muted mt-4">
-          <strong>
-            <a href="https://paddle.com" target="_blank" rel="noopener" className="text-link">
-              Paddle
-            </a>
-          </strong>{" "}
-          is our billing partner. You may see {'"PADDLE.NET* FIDER"'} on your credit card.
-        </p>
-      )}
+        <PlanCard
+          name="Pro"
+          price="$25"
+          period="month"
+          description="For teams that need advanced features and support."
+          features={proFeatures}
+          isCurrent={hasSubscription}
+          isHighlighted={true}
+          buttonText={hasSubscription ? "Manage Billing" : "Upgrade to Pro"}
+          buttonVariant="primary"
+          onButtonClick={hasSubscription ? openPortal : startCheckout}
+          isLoading={isLoading}
+        />
+      </div>
     </AdminPageContainer>
   )
 }
