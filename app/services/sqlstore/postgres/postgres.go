@@ -137,7 +137,6 @@ func (s Service) Init() {
 	bus.AddHandler(deleteWebhook)
 	bus.AddHandler(markWebhookAsFailed)
 
-	bus.AddHandler(getBillingState)
 	bus.AddHandler(activateBillingSubscription)
 	bus.AddHandler(cancelBillingSubscription)
 	bus.AddHandler(getStripeBillingState)

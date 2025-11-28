@@ -1,16 +1,5 @@
 package entity
 
-import (
-	"time"
-
-	"github.com/getfider/fider/app/models/enum"
-)
-
-type BillingState struct {
-	Status             enum.BillingStatus `json:"status"`
-	SubscriptionEndsAt *time.Time         `json:"subscriptionEndsAt"`
-}
-
 type BillingSubscription struct {
 	UpdateURL          string                    `json:"updateURL"`
 	CancelURL          string                    `json:"cancelURL"`

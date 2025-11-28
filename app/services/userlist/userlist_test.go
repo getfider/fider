@@ -36,14 +36,14 @@ func TestCreateTenant_Success(t *testing.T) {
 	reset()
 
 	createCompanyCmd := &cmd.UserListCreateCompany{
-		Name:          "Fider",
-		UserId:        1,
-		UserEmail:     "jon.snow@got.com",
-		UserName:      "Jon Snow",
-		TenantId:      1,
-		SignedUpAt:    time.Now().Format(time.UnixDate),
-		BillingStatus: "active",
-		Subdomain:     "got",
+		Name:       "Fider",
+		UserId:     1,
+		UserEmail:  "jon.snow@got.com",
+		UserName:   "Jon Snow",
+		TenantId:   1,
+		SignedUpAt: time.Now().Format(time.UnixDate),
+		Plan:       enum.PlanFree,
+		Subdomain:  "got",
 	}
 
 	err := bus.Dispatch(ctx, createCompanyCmd)
@@ -61,9 +61,9 @@ func TestUpdateTenant_Success(t *testing.T) {
 	reset()
 
 	updateCompanyCmd := &cmd.UserListUpdateCompany{
-		Name:          "Fider",
-		TenantId:      1,
-		BillingStatus: enum.BillingActive,
+		Name:     "Fider",
+		TenantId: 1,
+		Plan:     enum.PlanPro,
 	}
 
 	err := bus.Dispatch(ctx, updateCompanyCmd)
@@ -75,15 +75,15 @@ func TestUpdateTenant_Success(t *testing.T) {
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/json")
 }
 
-func TestUpdateTenant_BillingStatusUpdatedIfSet(t *testing.T) {
+func TestUpdateTenant_PlanUpdatedIfSet(t *testing.T) {
 	RegisterT(t)
 	env.Config.HostMode = "multi"
 	reset()
 
 	updateCompanyCmd := &cmd.UserListUpdateCompany{
-		Name:          "Fider",
-		TenantId:      1,
-		BillingStatus: enum.BillingActive,
+		Name:     "Fider",
+		TenantId: 1,
+		Plan:     enum.PlanPro,
 	}
 
 	err := bus.Dispatch(ctx, updateCompanyCmd)
@@ -92,15 +92,15 @@ func TestUpdateTenant_BillingStatusUpdatedIfSet(t *testing.T) {
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
 	body, _ := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
-	containsBillingStatus := strings.Contains(string(body), "billing_status")
-	Expect(containsBillingStatus).IsTrue()
+	containsPlan := strings.Contains(string(body), "plan")
+	Expect(containsPlan).IsTrue()
 
-	// Also check we're using the enum string, not the int value
-	Expect(strings.Contains(string(body), "billing_status\":\"active\"")).IsTrue()
+	// Check we're sending the plan value
+	Expect(strings.Contains(string(body), "plan\":\"pro\"")).IsTrue()
 
 }
 
-func TestUpdateTenant_BillingStatusNotUpdatedIfNotSet(t *testing.T) {
+func TestUpdateTenant_PlanNotUpdatedIfNotSet(t *testing.T) {
 	RegisterT(t)
 	env.Config.HostMode = "multi"
 	reset()
@@ -116,8 +116,8 @@ func TestUpdateTenant_BillingStatusNotUpdatedIfNotSet(t *testing.T) {
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 
 	body, _ := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
-	containsBillingStatus := strings.Contains(string(body), "billing_status")
-	Expect(containsBillingStatus).IsFalse()
+	containsPlan := strings.Contains(string(body), "plan")
+	Expect(containsPlan).IsFalse()
 }
 
 func TestUpdateTenant_NameShouldUpdateIfSet(t *testing.T) {

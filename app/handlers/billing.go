@@ -27,6 +27,7 @@ func ManageBilling() web.HandlerFunc {
 			Data: web.Map{
 				"stripeCustomerID":     billingState.Result.CustomerID,
 				"stripeSubscriptionID": billingState.Result.SubscriptionID,
+				"isPro":                c.Tenant().IsPro,
 			},
 		})
 	}

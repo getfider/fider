@@ -13,41 +13,11 @@ import (
 	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
 
-func getBillingState(ctx context.Context, q *query.GetBillingState) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		q.Result = nil
-
-		state := dbEntities.BillingState{}
-		err := trx.Get(&state,
-			`SELECT
-				subscription_ends_at,
-				status
-			FROM tenants_billing
-			WHERE tenant_id = $1`, tenant.ID)
-
-		if err != nil {
-			return err
-		}
-
-		q.Result = state.ToModel(ctx)
-		return nil
-	})
-}
-
 func activateBillingSubscription(ctx context.Context, c *cmd.ActivateBillingSubscription) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		_, err := trx.Execute(`
-			UPDATE tenants_billing
-			SET subscription_ends_at = null, status = $2
-			WHERE tenant_id = $1
-		`, c.TenantID, enum.BillingActive)
-		if err != nil {
-			return errors.Wrap(err, "failed activate billing subscription")
-		}
-
-		_, err = trx.Execute(`
 			UPDATE tenants
-			SET status = $2
+			SET is_pro = true, status = $2
 			WHERE id = $1
 		`, c.TenantID, enum.TenantActive)
 		if err != nil {
@@ -61,13 +31,14 @@ func activateBillingSubscription(ctx context.Context, c *cmd.ActivateBillingSubs
 func cancelBillingSubscription(ctx context.Context, c *cmd.CancelBillingSubscription) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		_, err := trx.Execute(`
-			UPDATE tenants_billing
-			SET subscription_ends_at = $2, status = $3
-			WHERE tenant_id = $1
-		`, c.TenantID, c.SubscriptionEndsAt, enum.BillingCancelled)
+			UPDATE tenants
+			SET is_pro = false
+			WHERE id = $1
+		`, c.TenantID)
 		if err != nil {
-			return errors.Wrap(err, "failed cancel billing subscription")
+			return errors.Wrap(err, "failed to set tenant to free plan")
 		}
+
 		return nil
 	})
 }
@@ -100,14 +71,24 @@ func getStripeBillingState(ctx context.Context, q *query.GetStripeBillingState) 
 func activateStripeSubscription(ctx context.Context, c *cmd.ActivateStripeSubscription) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		_, err := trx.Execute(`
-			INSERT INTO tenants_billing (tenant_id, status, stripe_customer_id, stripe_subscription_id)
-			VALUES ($1, 0, $2, $3)
+			INSERT INTO tenants_billing (tenant_id, stripe_customer_id, stripe_subscription_id)
+			VALUES ($1, $2, $3)
 			ON CONFLICT (tenant_id) DO UPDATE
 			SET stripe_customer_id = $2, stripe_subscription_id = $3
 		`, c.TenantID, c.CustomerID, c.SubscriptionID)
 		if err != nil {
 			return errors.Wrap(err, "failed to activate stripe subscription")
 		}
+
+		_, err = trx.Execute(`
+			UPDATE tenants
+			SET is_pro = true
+			WHERE id = $1
+		`, c.TenantID)
+		if err != nil {
+			return errors.Wrap(err, "failed to set tenant to pro plan")
+		}
+
 		return nil
 	})
 }
@@ -122,6 +103,16 @@ func cancelStripeSubscription(ctx context.Context, c *cmd.CancelStripeSubscripti
 		if err != nil {
 			return errors.Wrap(err, "failed to cancel stripe subscription")
 		}
+
+		_, err = trx.Execute(`
+			UPDATE tenants
+			SET is_pro = false
+			WHERE id = $1
+		`, c.TenantID)
+		if err != nil {
+			return errors.Wrap(err, "failed to set tenant to free plan")
+		}
+
 		return nil
 	})
 }

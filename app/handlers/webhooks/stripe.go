@@ -6,11 +6,14 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 	"github.com/stripe/stripe-go/v83"
 	"github.com/stripe/stripe-go/v83/webhook"
 )
@@ -70,6 +73,18 @@ func handleCheckoutSessionCompleted(c *web.Context, event stripe.Event) error {
 		"TenantID": tenantID,
 	})
 
+	// Update UserList with new plan
+	if env.Config.UserList.Enabled {
+		getTenant := &query.GetTenantByDomain{Domain: strconv.Itoa(tenantID)}
+		if err := bus.Dispatch(c, getTenant); err == nil && getTenant.Result != nil {
+			c.Enqueue(tasks.UserListUpdateCompany(&dto.UserListUpdateCompany{
+				TenantID: tenantID,
+				Name:     getTenant.Result.Name,
+				Plan:     enum.PlanPro,
+			}))
+		}
+	}
+
 	return c.Ok(web.Map{})
 }
 
@@ -104,6 +119,18 @@ func handleSubscriptionDeleted(c *web.Context, event stripe.Event) error {
 	log.Infof(c, "Stripe subscription cancelled for tenant @{TenantID}", dto.Props{
 		"TenantID": tenantID,
 	})
+
+	// Update UserList with new plan
+	if env.Config.UserList.Enabled {
+		getTenant := &query.GetTenantByDomain{Domain: strconv.Itoa(tenantID)}
+		if err := bus.Dispatch(c, getTenant); err == nil && getTenant.Result != nil {
+			c.Enqueue(tasks.UserListUpdateCompany(&dto.UserListUpdateCompany{
+				TenantID: tenantID,
+				Name:     getTenant.Result.Name,
+				Plan:     enum.PlanFree,
+			}))
+		}
+	}
 
 	return c.Ok(web.Map{})
 }

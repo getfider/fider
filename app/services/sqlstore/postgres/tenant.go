@@ -195,15 +195,6 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 			return err
 		}
 
-		if env.IsBillingEnabled() {
-			_, err := trx.Execute(
-				`INSERT INTO tenants_billing (tenant_id, status)
-				 VALUES ($1, $2)`, id, enum.BillingActive)
-			if err != nil {
-				return err
-			}
-		}
-
 		byDomain := &query.GetTenantByDomain{Domain: c.Subdomain}
 		err = bus.Dispatch(ctx, byDomain)
 		c.Result = byDomain.Result
@@ -216,7 +207,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbEntities.Tenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
@@ -234,7 +225,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbEntities.Tenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
 			ORDER BY cname DESC

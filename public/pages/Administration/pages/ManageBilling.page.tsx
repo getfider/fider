@@ -10,6 +10,7 @@ import "./ManageBilling.page.scss"
 interface ManageBillingPageProps {
   stripeCustomerID: string
   stripeSubscriptionID: string
+  isPro: boolean
 }
 
 interface PlanCardProps {
@@ -73,7 +74,7 @@ const PlanCard = (props: PlanCardProps) => {
 
 const ManageBillingPage = (props: ManageBillingPageProps) => {
   const [isLoading, setIsLoading] = useState(false)
-  const hasSubscription = !!props.stripeSubscriptionID
+  const isPro = props.isPro
 
   const openPortal = async () => {
     setIsLoading(true)
@@ -109,11 +110,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="Perfect for getting started with feedback collection."
           features={freeFeatures}
-          isCurrent={!hasSubscription}
+          isCurrent={!isPro}
           buttonText="Downgrade"
           buttonVariant="secondary"
-          onButtonClick={hasSubscription ? openPortal : undefined}
-          isLoading={isLoading && hasSubscription}
+          onButtonClick={isPro ? openPortal : undefined}
+          isLoading={isLoading && isPro}
         />
 
         <PlanCard
@@ -122,11 +123,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="For teams that need advanced features and support."
           features={proFeatures}
-          isCurrent={hasSubscription}
+          isCurrent={isPro}
           isHighlighted={true}
-          buttonText={hasSubscription ? "Manage Billing" : "Upgrade to Pro"}
+          buttonText={isPro ? "Manage Billing" : "Upgrade to Pro"}
           buttonVariant="primary"
-          onButtonClick={hasSubscription ? openPortal : startCheckout}
+          onButtonClick={isPro ? openPortal : startCheckout}
           isLoading={isLoading}
         />
       </div>

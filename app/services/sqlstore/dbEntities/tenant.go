@@ -22,6 +22,7 @@ type Tenant struct {
 	IsFeedEnabled       bool   `db:"is_feed_enabled"`
 	PreventIndexing     bool   `db:"prevent_indexing"`
 	IsModerationEnabled bool   `db:"is_moderation_enabled"`
+	IsPro               bool   `db:"is_pro"`
 }
 
 func (t *Tenant) ToModel() *entity.Tenant {
@@ -46,6 +47,7 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		IsFeedEnabled:       t.IsFeedEnabled,
 		PreventIndexing:     t.PreventIndexing,
 		IsModerationEnabled: t.IsModerationEnabled,
+		IsPro:               t.IsPro,
 	}
 
 	return tenant

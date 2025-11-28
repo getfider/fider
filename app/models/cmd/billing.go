@@ -1,16 +1,11 @@
 package cmd
 
-import (
-	"time"
-)
-
 type ActivateBillingSubscription struct {
 	TenantID int
 }
 
 type CancelBillingSubscription struct {
-	TenantID           int
-	SubscriptionEndsAt time.Time
+	TenantID int
 }
 
 type ActivateStripeSubscription struct {
