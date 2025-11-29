@@ -17,7 +17,6 @@ export interface SystemSettings {
   domain: string
   hasLegal: boolean
   isBillingEnabled: boolean
-  isCommercialEnabled: boolean
   baseURL: string
   assetsURL: string
   oauth: OAuthProviderOption[]

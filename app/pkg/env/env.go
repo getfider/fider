@@ -143,8 +143,9 @@ type config struct {
 	}
 	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
 	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
-	Commercial       struct {
-		Enabled bool `env:"COMMERCIAL_ENABLED,default=true"`
+	License          struct {
+		MasterSecret string `env:"LICENSE_MASTER_SECRET"`
+		Key          string `env:"COMMERCIAL_KEY"`
 	}
 }
 
@@ -246,9 +247,9 @@ func IsBillingEnabled() bool {
 	return Config.Stripe.SecretKey != ""
 }
 
-// IsCommercialEnabled returns true if commercial features are enabled
-func IsCommercialEnabled() bool {
-	return Config.Commercial.Enabled
+// IsMultiHostMode returns true if host mode is set to multi tenant
+func IsMultiHostMode() bool {
+	return Config.HostMode == "multi"
 }
 
 // IsProduction returns true on Fider production environment

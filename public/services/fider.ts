@@ -7,7 +7,6 @@ export class FiderSession {
   private pTenant: Tenant
   private pUser: CurrentUser | undefined
   private pProps: { [key: string]: any } = {}
-  private pSettings: SystemSettings
 
   constructor(data: any) {
     this.pPage = data.page
@@ -15,7 +14,6 @@ export class FiderSession {
     this.pProps = data.props
     this.pUser = data.user
     this.pTenant = data.tenant
-    this.pSettings = data.settings
   }
 
   public get page(): string {
@@ -44,15 +42,11 @@ export class FiderSession {
   }
 
   public get isModerationRequiredForNewPost(): boolean {
-    return this.isCommercialEnabled && this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isTrusted
+    return this.pTenant.isCommercial && this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isTrusted
   }
 
   public get showModerationControls(): boolean {
-    return this.isCommercialEnabled && this.pTenant.isModerationEnabled && this.isAuthenticated && (this.pUser?.isCollaborator ?? false)
-  }
-
-  public get isCommercialEnabled(): boolean {
-    return this.pSettings.isCommercialEnabled
+    return this.pTenant.isCommercial && this.pTenant.isModerationEnabled && this.isAuthenticated && (this.pUser?.isCollaborator ?? false)
   }
 }
 

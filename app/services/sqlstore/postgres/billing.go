@@ -47,7 +47,7 @@ func getStripeBillingState(ctx context.Context, q *query.GetStripeBillingState) 
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		state := dbEntities.StripeBillingState{}
 		err := trx.Get(&state,
-			`SELECT stripe_customer_id, stripe_subscription_id
+			`SELECT stripe_customer_id, stripe_subscription_id, license_key
 			FROM tenants_billing
 			WHERE tenant_id = $1`, tenant.ID)
 
@@ -63,6 +63,7 @@ func getStripeBillingState(ctx context.Context, q *query.GetStripeBillingState) 
 		q.Result = &entity.StripeBillingState{
 			CustomerID:     state.StripeCustomerID.String,
 			SubscriptionID: state.StripeSubscriptionID.String,
+			LicenseKey:     state.LicenseKey.String,
 		}
 		return nil
 	})
@@ -71,11 +72,11 @@ func getStripeBillingState(ctx context.Context, q *query.GetStripeBillingState) 
 func activateStripeSubscription(ctx context.Context, c *cmd.ActivateStripeSubscription) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		_, err := trx.Execute(`
-			INSERT INTO tenants_billing (tenant_id, stripe_customer_id, stripe_subscription_id)
-			VALUES ($1, $2, $3)
+			INSERT INTO tenants_billing (tenant_id, stripe_customer_id, stripe_subscription_id, license_key)
+			VALUES ($1, $2, $3, $4)
 			ON CONFLICT (tenant_id) DO UPDATE
-			SET stripe_customer_id = $2, stripe_subscription_id = $3
-		`, c.TenantID, c.CustomerID, c.SubscriptionID)
+			SET stripe_customer_id = $2, stripe_subscription_id = $3, license_key = $4
+		`, c.TenantID, c.CustomerID, c.SubscriptionID, c.LicenseKey)
 		if err != nil {
 			return errors.Wrap(err, "failed to activate stripe subscription")
 		}

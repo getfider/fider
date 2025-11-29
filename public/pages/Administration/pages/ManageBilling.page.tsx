@@ -10,7 +10,8 @@ import "./ManageBilling.page.scss"
 interface ManageBillingPageProps {
   stripeCustomerID: string
   stripeSubscriptionID: string
-  isPro: boolean
+  licenseKey: string
+  isCommercial: boolean
 }
 
 interface PlanCardProps {
@@ -74,7 +75,7 @@ const PlanCard = (props: PlanCardProps) => {
 
 const ManageBillingPage = (props: ManageBillingPageProps) => {
   const [isLoading, setIsLoading] = useState(false)
-  const isPro = props.isPro
+  const isCommercial = props.isCommercial
 
   const openPortal = async () => {
     setIsLoading(true)
@@ -103,6 +104,15 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
   return (
     <AdminPageContainer id="p-admin-billing" name="billing" title="Billing" subtitle="Manage your subscription and billing">
       <p>Fider is free forever. But if you need advanced features and support, consider upgrading to Pro.</p>
+
+      {isCommercial && props.licenseKey && (
+        <div className="bg-blue-50 p-4 rounded mb-4 border border-blue-200">
+          <p className="text-sm text-gray-700">
+            If you want to run Fider self-hosted with commercial features, <a href="/admin/advanced" className="text-blue-600 hover:text-blue-800 underline">see advanced</a>.
+          </p>
+        </div>
+      )}
+
       <div className="c-billing-plans">
         <PlanCard
           name="Free"
@@ -110,11 +120,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="Perfect for getting started with feedback collection."
           features={freeFeatures}
-          isCurrent={!isPro}
+          isCurrent={!isCommercial}
           buttonText="Downgrade"
           buttonVariant="secondary"
-          onButtonClick={isPro ? openPortal : undefined}
-          isLoading={isLoading && isPro}
+          onButtonClick={isCommercial ? openPortal : undefined}
+          isLoading={isLoading && isCommercial}
         />
 
         <PlanCard
@@ -123,11 +133,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="For teams that need advanced features and support."
           features={proFeatures}
-          isCurrent={isPro}
+          isCurrent={isCommercial}
           isHighlighted={true}
-          buttonText={isPro ? "Manage Billing" : "Upgrade to Pro"}
+          buttonText={isCommercial ? "Manage Billing" : "Upgrade to Pro"}
           buttonVariant="primary"
-          onButtonClick={isPro ? openPortal : startCheckout}
+          onButtonClick={isCommercial ? openPortal : startCheckout}
           isLoading={isLoading}
         />
       </div>

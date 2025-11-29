@@ -1,6 +1,8 @@
 package entity
 
-import "github.com/getfider/fider/app/models/enum"
+import (
+	"github.com/getfider/fider/app/models/enum"
+)
 
 // Tenant represents a tenant
 type Tenant struct {
@@ -20,7 +22,7 @@ type Tenant struct {
 	IsFeedEnabled       bool              `json:"isFeedEnabled"`
 	PreventIndexing     bool              `json:"preventIndexing"`
 	IsModerationEnabled bool              `json:"isModerationEnabled"`
-	IsPro               bool              `json:"isPro"`
+	IsCommercial        bool              `json:"isCommercial"`
 }
 
 func (t *Tenant) IsDisabled() bool {

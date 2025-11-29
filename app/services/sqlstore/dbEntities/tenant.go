@@ -3,6 +3,8 @@ package dbEntities
 import (
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/services"
 )
 
 type Tenant struct {
@@ -30,6 +32,16 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		return nil
 	}
 
+	// Compute isCommercial based on hosting mode
+	var isCommercial bool
+	if env.IsSingleHostMode() {
+		// Self-hosted: check if license service validated successfully
+		isCommercial = services.IsCommercialFeatureEnabled(services.FeatureContentModeration)
+	} else {
+		// Hosted multi-tenant: check if this tenant has Pro subscription
+		isCommercial = t.IsPro
+	}
+
 	tenant := &entity.Tenant{
 		ID:                  t.ID,
 		Name:                t.Name,
@@ -47,7 +59,7 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		IsFeedEnabled:       t.IsFeedEnabled,
 		PreventIndexing:     t.PreventIndexing,
 		IsModerationEnabled: t.IsModerationEnabled,
-		IsPro:               t.IsPro,
+		IsCommercial:        isCommercial,
 	}
 
 	return tenant

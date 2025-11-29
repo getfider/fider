@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/services/license"
 	"github.com/getfider/fider/app/tasks"
 	"github.com/stripe/stripe-go/v83"
 	"github.com/stripe/stripe-go/v83/webhook"
@@ -59,10 +60,14 @@ func handleCheckoutSessionCompleted(c *web.Context, event stripe.Event) error {
 		return c.Failure(errors.Wrap(err, "failed to parse tenant_id"))
 	}
 
+	// Generate license key for this tenant
+	licenseKey := license.GenerateKey(tenantID)
+
 	activate := &cmd.ActivateStripeSubscription{
 		TenantID:       tenantID,
 		CustomerID:     session.Customer.ID,
 		SubscriptionID: session.Subscription.ID,
+		LicenseKey:     licenseKey,
 	}
 
 	if err := bus.Dispatch(c, activate); err != nil {
