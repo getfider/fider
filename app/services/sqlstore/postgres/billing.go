@@ -47,7 +47,7 @@ func getStripeBillingState(ctx context.Context, q *query.GetStripeBillingState) 
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		state := dbEntities.StripeBillingState{}
 		err := trx.Get(&state,
-			`SELECT stripe_customer_id, stripe_subscription_id, license_key
+			`SELECT stripe_customer_id, stripe_subscription_id, license_key, paddle_subscription_id
 			FROM tenants_billing
 			WHERE tenant_id = $1`, tenant.ID)
 
@@ -61,9 +61,10 @@ func getStripeBillingState(ctx context.Context, q *query.GetStripeBillingState) 
 		}
 
 		q.Result = &entity.StripeBillingState{
-			CustomerID:     state.StripeCustomerID.String,
-			SubscriptionID: state.StripeSubscriptionID.String,
-			LicenseKey:     state.LicenseKey.String,
+			CustomerID:           state.StripeCustomerID.String,
+			SubscriptionID:       state.StripeSubscriptionID.String,
+			LicenseKey:           state.LicenseKey.String,
+			PaddleSubscriptionID: state.PaddleSubscriptionID.String,
 		}
 		return nil
 	})

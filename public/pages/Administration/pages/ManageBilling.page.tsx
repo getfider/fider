@@ -4,6 +4,7 @@ import { HStack, VStack } from "@fider/components/layout"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { http } from "@fider/services"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
+import IconInfo from "@fider/assets/images/heroicons-information-circle.svg"
 
 import "./ManageBilling.page.scss"
 
@@ -11,6 +12,7 @@ interface ManageBillingPageProps {
   stripeCustomerID: string
   stripeSubscriptionID: string
   licenseKey: string
+  paddleSubscriptionID: string
   isCommercial: boolean
 }
 
@@ -73,9 +75,39 @@ const PlanCard = (props: PlanCardProps) => {
   )
 }
 
+interface PaddleMigrationBannerProps {
+  onUpgradeClick: () => void
+  isLoading: boolean
+}
+
+const PaddleMigrationBanner = (props: PaddleMigrationBannerProps) => {
+  return (
+    <div className="bg-blue-50 p-4 rounded mb-6 border border-blue-200">
+      <HStack spacing={2} align="start">
+        <Icon sprite={IconInfo} className="text-blue-600 flex-shrink-0 mt-0.5" height="20" />
+        <VStack spacing={1}>
+          <p className="text-sm text-gray-900 text-medium">Migration to Stripe Billing</p>
+          <p className="text-sm text-gray-700">
+            You're currently entitled to pro features because of your existing subscription.
+            <br />
+            <a onClick={props.onUpgradeClick} className="clickable text-blue-600">
+              {props.isLoading ? "Loading..." : "Switch to our new Stripe billing instead and save money"}
+            </a>
+          </p>
+        </VStack>
+      </HStack>
+    </div>
+  )
+}
+
 const ManageBillingPage = (props: ManageBillingPageProps) => {
   const [isLoading, setIsLoading] = useState(false)
-  const isCommercial = props.isCommercial
+
+  // Detect Paddle customers who need to migrate
+  const isPaddleCustomer = Boolean(props.paddleSubscriptionID && !props.stripeSubscriptionID && props.isCommercial)
+
+  // Display as commercial only if they're truly a Stripe customer
+  const displayAsCommercial = props.isCommercial && !isPaddleCustomer
 
   const openPortal = async () => {
     setIsLoading(true)
@@ -105,10 +137,16 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
     <AdminPageContainer id="p-admin-billing" name="billing" title="Billing" subtitle="Manage your subscription and billing">
       <p>Fider is free forever. But if you need advanced features and support, consider upgrading to Pro.</p>
 
-      {isCommercial && props.licenseKey && (
+      {isPaddleCustomer && <PaddleMigrationBanner onUpgradeClick={startCheckout} isLoading={isLoading} />}
+
+      {displayAsCommercial && props.licenseKey && (
         <div className="bg-blue-50 p-4 rounded mb-4 border border-blue-200">
           <p className="text-sm text-gray-700">
-            If you want to run Fider self-hosted with commercial features, <a href="/admin/advanced" className="text-blue-600 hover:text-blue-800 underline">see advanced</a>.
+            If you want to run Fider self-hosted with commercial features,{" "}
+            <a href="/admin/advanced" className="text-blue-600 hover:text-blue-800 underline">
+              see advanced
+            </a>
+            .
           </p>
         </div>
       )}
@@ -120,11 +158,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="Perfect for getting started with feedback collection."
           features={freeFeatures}
-          isCurrent={!isCommercial}
+          isCurrent={!displayAsCommercial}
           buttonText="Downgrade"
           buttonVariant="secondary"
-          onButtonClick={isCommercial ? openPortal : undefined}
-          isLoading={isLoading && isCommercial}
+          onButtonClick={displayAsCommercial ? openPortal : undefined}
+          isLoading={isLoading && displayAsCommercial}
         />
 
         <PlanCard
@@ -133,11 +171,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="For teams that need advanced features and support."
           features={proFeatures}
-          isCurrent={isCommercial}
+          isCurrent={displayAsCommercial}
           isHighlighted={true}
-          buttonText={isCommercial ? "Manage Billing" : "Upgrade to Pro"}
+          buttonText={displayAsCommercial ? "Manage Billing" : "Upgrade to Pro"}
           buttonVariant="primary"
-          onButtonClick={isCommercial ? openPortal : startCheckout}
+          onButtonClick={displayAsCommercial ? openPortal : startCheckout}
           isLoading={isLoading}
         />
       </div>

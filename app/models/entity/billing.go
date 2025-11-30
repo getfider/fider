@@ -22,7 +22,8 @@ type BillingPayment struct {
 }
 
 type StripeBillingState struct {
-	CustomerID     string `json:"customerID"`
-	SubscriptionID string `json:"subscriptionID"`
-	LicenseKey     string `json:"licenseKey"`
+	CustomerID           string `json:"customerID"`
+	SubscriptionID       string `json:"subscriptionID"`
+	LicenseKey           string `json:"licenseKey"`
+	PaddleSubscriptionID string `json:"paddleSubscriptionID"`
 }
