@@ -2,47 +2,48 @@
 
 .c-vote-counter {
   &__button {
-    font-size: get("font.size.lg");
-    width: sizing(12);
-    height: sizing(12);
+    width: sizing(14);
+    height: sizing(14);
     cursor: pointer;
     text-align: center;
     margin: 0 auto;
-    padding: 3px 0 8px 0;
-    color: var(--colors-gray-600);
+    padding: spacing(3) 0;
+    color: var(--colors-gray-500);
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-radius: 8px;
+    justify-content: center;
+    gap: spacing(2);
+    border-radius: 12px;
     transition: all 0.15s ease;
-    background-color: transparent;
-    border: 1px solid transparent;
-
-    svg {
-      color: var(--colors-gray-600);
-      margin-bottom: -2px;
-      transition: all 0.15s ease;
-    }
+    background-color: var(--colors-gray-50);
+    border: 1px solid var(--colors-gray-200);
 
     &:hover {
-      background-color: var(--colors-gray-50);
+      background-color: var(--colors-white);
+      border-color: var(--colors-gray-300);
       color: var(--colors-primary-base);
-      svg {
+
+      .c-vote-counter__icon {
         color: var(--colors-primary-base);
-        transform: scale(1.1);
+        transform: translateY(-1px);
       }
     }
 
     &--voted {
-      justify-content: center;
-      padding: 0;
+      padding: spacing(3) 0;
+      gap: spacing(2);
       font-weight: get("font.weight.bold");
       background-color: var(--colors-blue-50);
       color: var(--colors-primary-base);
       border-color: var(--colors-primary-light);
 
-      svg {
+      .c-vote-counter__icon {
         color: var(--colors-primary-base);
+      }
+
+      .c-vote-counter__count {
+        font-weight: get("font.weight.bold");
       }
 
       &:hover {
@@ -51,9 +52,23 @@
     }
 
     &--disabled {
-      justify-content: center;
-      padding: 0;
+      padding: spacing(3) 0;
+      gap: spacing(2);
       @include disabled();
     }
+  }
+
+  &__icon {
+    width: 18px;
+    height: 18px;
+    color: var(--colors-gray-500);
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  &__count {
+    font-size: get("font.size.sm");
+    font-weight: get("font.weight.semibold");
+    line-height: 1;
   }
 }

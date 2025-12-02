@@ -4,3 +4,28 @@
   margin: spacing(2);
   width: calc(100% - spacing(4));
 }
+
+.c-post-filter-btn,
+.c-post-sort-btn {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+  &:hover {
+    background-color: var(--colors-white);
+    border-color: var(--colors-gray-300);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+}
+
+// Override parent dropdown handle focus to apply to children
+.c-dropdown__handle:focus:not(.no-focus) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+
+  .c-post-filter-btn,
+  .c-post-sort-btn {
+    border-color: var(--colors-primary-base) !important;
+    box-shadow: 0 0 0 3px rgba(45, 87, 237, 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  }
+}

@@ -30,17 +30,19 @@ $all: (
       small: 6px,
       medium: 8px,
       large: 12px,
+      xlarge: 20px,
       full: 999px,
     ),
   ),
 );
 
 // Queries
-$medias: "sm", "md", "lg", "xl";
+$medias: "sm", "md", "lg", "xl", "xl2";
 $sm-width: 576px;
 $md-width: 768px;
 $lg-width: 992px;
 $xl-width: 1200px;
+$xl2-width: 1400px;
 
 @mixin media($media) {
   @if $media == "sm" {
@@ -57,6 +59,10 @@ $xl-width: 1200px;
     }
   } @else if $media == "xl" {
     @media only screen and (min-width: #{$xl-width}) {
+      @content;
+    }
+  } @else if $media == "xl2" {
+    @media only screen and (min-width: #{$xl2-width}) {
       @content;
     }
   }

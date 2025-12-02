@@ -5,6 +5,9 @@
   grid-template-columns: 1fr;
   column-gap: 0;
   row-gap: spacing(8);
+  background-color: var(--colors-gray-100);
+  padding-top: spacing(12);
+  padding-bottom: spacing(12);
 
   @include media("lg") {
     grid-template-columns: 1fr 1fr 1fr;
@@ -14,27 +17,63 @@
 
   .p-home {
     &__welcome-col {
-      > :first-child {
-        background-color: var(--colors-white);
-        border-radius: get("border.radius.large");
-        border: 1px solid var(--colors-gray-200);
-
-        @include media("lg") {
-        }
+      @include media("lg") {
+        padding-right: spacing(4);
       }
     }
 
-    &__posts-col {
-      background-color: var(--colors-white);
-      border-radius: get("border.radius.large");
-      border: 1px solid var(--colors-gray-200);
+    &__welcome-title {
+      font-size: 32px;
+      font-weight: get("font.weight.xbold");
+      line-height: 1.2;
+      color: var(--colors-gray-900);
+      letter-spacing: -0.5px;
 
       @include media("lg") {
+        font-size: 36px;
       }
+    }
+
+    &__welcome-body {
+      // font-size: get("font.size.lg");
+      line-height: 1.6;
+      // color: var(--colors-gray-700);
     }
 
     &__posts-col {
       grid-column: span 2 / span 2;
+    }
+
+    &__add-idea-btn {
+      width: 100%;
+      margin-bottom: spacing(6);
+      padding: spacing(5);
+      background-color: var(--colors-white);
+      border: 1px solid var(--colors-gray-200);
+      border-radius: get("border.radius.xlarge");
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+      cursor: pointer;
+      transition: box-shadow 0.2s ease-in-out;
+      font-size: get("font.size.lg");
+      font-weight: get("font.weight.medium");
+      color: var(--colors-gray-700);
+      text-align: left;
+
+      &:hover {
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      }
+
+      &:focus {
+        outline: 2px solid var(--colors-primary-base);
+        outline-offset: 2px;
+      }
+    }
+
+    &__add-idea-icon {
+      width: 40px;
+      height: 40px;
+      color: var(--colors-primary-base);
+      flex-shrink: 0;
     }
   }
 }

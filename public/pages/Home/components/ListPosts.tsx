@@ -13,23 +13,24 @@ interface ListPostsProps {
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
-    <HStack spacing={4} align="start" className="c-posts-container__post">
+    <HStack spacing={6} align="start" className="c-posts-container__post">
       <div>
         <VoteCounter post={props.post} />
       </div>
-      <VStack className="w-full" spacing={2}>
+      <VStack className="w-full" spacing={4}>
         {props.post.status !== "open" && (
-          <div className="mb-2 align-self-start">
+          <div className="mb-1 align-self-start">
             <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />
           </div>
         )}
-        <HStack justify="between">
-          <a className="text-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
+        <HStack justify="between" align="start">
+          <a className="c-posts-container__post-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
             {props.post.title}
           </a>
           {props.post.commentsCount > 0 && (
-            <HStack className="text-muted">
-              {props.post.commentsCount} <Icon sprite={IconChatAlt2} className="h-4 ml-1" />
+            <HStack spacing={1} className="c-posts-container__post-comments flex-shrink-0">
+              <span>{props.post.commentsCount}</span>
+              <Icon sprite={IconChatAlt2} className="h-5 w-5" />
             </HStack>
           )}
         </HStack>
@@ -48,7 +49,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
 
 const MinimalListPostItem = (props: { post: Post; tags: Tag[] }) => {
   return (
-    <HStack spacing={4} align="start" className="c-posts-container__post">
+    <HStack spacing={4} align="start" className="c-posts-container__post-minimal">
       <HStack className="w-full" justify="between" align="start">
         <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
           {props.post.title}
@@ -85,11 +86,11 @@ export const ListPosts = (props: ListPostsProps) => {
           ))}
         </VStack>
       ) : (
-        <VStack spacing={4} divide>
+        <>
           {props.posts.map((post) => (
             <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
           ))}
-        </VStack>
+        </>
       )}
     </>
   )

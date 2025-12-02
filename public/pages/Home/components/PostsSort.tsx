@@ -26,7 +26,7 @@ export const PostsSort: React.FC<PostsSortProps> = ({ value = "trending", onChan
     <HStack>
       <Dropdown
         renderHandle={
-          <div className="h-10 flex flex-items-center text-medium text-xs rounded-md uppercase border border-gray-400 text-gray-800 p-2 px-3">
+          <div className="c-post-sort-btn h-10 flex flex-items-center text-medium text-xs rounded-md uppercase border border-gray-200 text-gray-700 p-2 px-3 bg-white">
             {i18n._({ id: "home.postsort.label", message: "Sort by:" })} {selectedItem.label}
           </div>
         }

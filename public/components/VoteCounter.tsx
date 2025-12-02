@@ -5,7 +5,7 @@ import { Post, PostStatus } from "@fider/models"
 import { actions, classSet } from "@fider/services"
 import { Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
-import FaCaretUp from "@fider/assets/images/fa-caretup.svg"
+import ChevronUp from "@fider/assets/images/chevron-up.svg"
 
 export interface VoteCounterProps {
   post: Post
@@ -46,15 +46,15 @@ export const VoteCounter = (props: VoteCounterProps) => {
 
   const vote = (
     <button className={className} onClick={voteOrUndo}>
-      {!hasVoted && <Icon sprite={FaCaretUp} height="16" width="16" />}
-      {votesCount}
+      {!hasVoted && <Icon sprite={ChevronUp} className="c-vote-counter__icon" />}
+      <span className="c-vote-counter__count">{votesCount}</span>
     </button>
   )
 
   const disabled = (
     <button className={className}>
-      {!hasVoted && <Icon sprite={FaCaretUp} height="16" width="16" />}
-      {votesCount}
+      {!hasVoted && <Icon sprite={ChevronUp} className="c-vote-counter__icon" />}
+      <span className="c-vote-counter__count">{votesCount}</span>
     </button>
   )
 

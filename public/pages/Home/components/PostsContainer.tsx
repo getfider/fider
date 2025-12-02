@@ -144,7 +144,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
     return (
       <div className="c-posts-container">
-        <div className="c-posts-container__header mb-5">
+        <div className="c-posts-container__header">
           {!this.state.query && (
             <div className="c-posts-container__filter-col">
               <PostFilter
@@ -167,19 +167,21 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
             />
           </div>
         </div>
-        <ListPosts
-          posts={this.state.posts}
-          tags={this.props.tags}
-          emptyText={i18n._({ id: "home.postscontainer.label.noresults", message: "No results matched your search, try something different." })}
-        />
-        {this.state.loading && <Loader />}
-        {showMoreLink && (
-          <div className="my-4 ml-4">
-            <a href={showMoreLink} className="text-primary-base text-medium hover:underline" onClick={this.showMore}>
-              <Trans id="home.postscontainer.label.viewmore">View more posts</Trans>
-            </a>
-          </div>
-        )}
+        <div className="c-posts-container__list">
+          <ListPosts
+            posts={this.state.posts}
+            tags={this.props.tags}
+            emptyText={i18n._({ id: "home.postscontainer.label.noresults", message: "No results matched your search, try something different." })}
+          />
+          {this.state.loading && <Loader />}
+          {showMoreLink && (
+            <div className="my-4 text-center">
+              <a href={showMoreLink} className="text-primary-base text-medium hover:underline" onClick={this.showMore}>
+                <Trans id="home.postscontainer.label.viewmore">View more posts</Trans>
+              </a>
+            </div>
+          )}
+        </div>
       </div>
     )
   }
