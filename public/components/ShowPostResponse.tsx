@@ -11,7 +11,7 @@ import { HStack, VStack } from "./layout"
 import { timeSince } from "@fider/services"
 import { Trans } from "@lingui/react/macro"
 
-type Size = "micro" | "small" | "normal"
+type Size = "micro" | "small" | "xsmall" | "normal"
 
 interface PostResponseProps {
   status: string
@@ -28,7 +28,6 @@ export const ResponseDetails = (props: PostResponseProps): JSX.Element | null =>
 
   return (
     <VStack align="start" spacing={4} className="bg-blue-50 p-3 border border-blue-200 rounded">
-      <ResponseLozenge response={props.response} status={props.status} />
       <div className="text-semibold text-lg">{timeSince("en", new Date(), props.response.respondedAt, "date")}</div>
       {props.response?.text && status !== PostStatus.Duplicate && (
         <div className="content">
@@ -92,6 +91,17 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
 
   if (props.size == "micro") {
     return <span className={`${color} text-sm`}>{translatedStatus}</span>
+  }
+
+  if (props.size === "xsmall") {
+    return (
+      <div>
+        <HStack align="center" className={`${color} ${bg} rounded-full p-0 px-3`}>
+          <Icon sprite={icon} className={`h-4 c-status-col--${status.value}`} />
+          <span className={`c-status-col--${status.value} text-xs uppercase`}>{translatedStatus}</span>
+        </HStack>
+      </div>
+    )
   }
 
   return (

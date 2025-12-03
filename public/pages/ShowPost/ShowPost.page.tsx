@@ -4,27 +4,42 @@ import React, { useState, useEffect, useCallback } from "react"
 
 import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
 import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
-import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import { i18n } from "@lingui/core"
 import IconRSS from "@fider/assets/images/heroicons-rss.svg"
 import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
-import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, Icon, Header, PoweredByFider, Avatar, Dropdown, RSSModal } from "@fider/components"
-import { DiscussionPanel } from "./components/DiscussionPanel"
+import {
+  ResponseDetails,
+  Button,
+  UserName,
+  Moment,
+  Markdown,
+  Input,
+  Form,
+  Icon,
+  Header,
+  PoweredByFider,
+  Avatar,
+  RSSModal,
+  VoteCounter,
+  ResponseLozenge,
+} from "@fider/components"
+import { CommentInput } from "./components/CommentInput"
+import { ShowComment } from "./components/ShowComment"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/react/macro"
-import { FollowButton } from "./components/FollowButton"
-import { VoteSection } from "./components/VoteSection"
+import { StayUpdatedCard } from "./components/StayUpdatedCard"
 import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
 import { TagsPanel } from "@fider/pages/ShowPost/components/TagsPanel"
+import { ActionButton } from "./components/ActionButton"
 import { t } from "@lingui/macro"
 import { useFider } from "@fider/hooks"
 import { useAttachments } from "@fider/hooks/useAttachments"
@@ -161,143 +176,183 @@ export default function ShowPostPage(props: ShowPostPageProps) {
       <div id="p-show-post" className="page container">
         <div className="p-show-post">
           <div className="p-show-post__main-col">
-            <div className="p-show-post__header-col">
-              <VStack spacing={8}>
-                <HStack justify="between">
-                  <VStack align="start">
-                    {!editMode && (
-                      <HStack>
-                        <Avatar user={props.post.user} />
-                        <VStack spacing={1}>
-                          <UserName user={props.post.user} />
-                          <Moment className="text-muted" locale={Fider.currentLocale} date={props.post.createdAt} />
-                        </VStack>
-                      </HStack>
-                    )}
-                  </VStack>
-                  <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${props.post.number}.atom`} />
+            {/* Post Card */}
+            <div className="p-show-post__post-card">
+              {/* Top section: Vote counter + Title/Meta */}
+              <HStack spacing={6} align="start">
+                {/* Large Vote Counter */}
+                {!editMode && (
+                  <div className="p-show-post__vote-counter-large">
+                    <VoteCounter post={props.post} size="large" />
+                  </div>
+                )}
 
-                  {!editMode && (
-                    <HStack>
-                      <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
-                        <Dropdown.ListItem onClick={onActionSelected("copy")} icon={IconDuplicate}>
-                          <Trans id="action.copylink">Copy link</Trans>
-                        </Dropdown.ListItem>
-                        {Fider.session.tenant.isFeedEnabled && (
-                          <Dropdown.ListItem onClick={onActionSelected("feed")} icon={IconRSS}>
-                            <Trans id="action.commentsfeed">Comment Feed</Trans>
-                          </Dropdown.ListItem>
-                        )}
-                        {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
-                          <>
-                            <Dropdown.ListItem onClick={onActionSelected("edit")} icon={IconPencil}>
-                              <Trans id="action.edit">Edit</Trans>
-                            </Dropdown.ListItem>
-                            {Fider.session.user.isCollaborator && (
-                              <Dropdown.ListItem onClick={onActionSelected("status")} icon={IconChat}>
-                                <Trans id="action.respond">Respond</Trans>
-                              </Dropdown.ListItem>
-                            )}
-                          </>
-                        )}
-                        {canDeletePost() && (
-                          <Dropdown.ListItem onClick={onActionSelected("delete")} className="text-red-700" icon={IconX}>
-                            <Trans id="action.delete">Delete</Trans>
-                          </Dropdown.ListItem>
-                        )}
-                      </Dropdown>
-                    </HStack>
-                  )}
-                </HStack>
-
-                <div className="flex-grow">
+                {/* Title and Meta */}
+                <VStack className="flex-grow" spacing={4}>
+                  {/* Title */}
                   {editMode ? (
                     <Form error={error}>
                       <Input field="title" maxLength={100} value={newTitle} onChange={setNewTitle} />
                     </Form>
                   ) : (
-                    <>
-                      <h1 className="text-large text-break">{props.post.title}</h1>
-                    </>
+                    <h1 className="p-show-post__title">{props.post.title}</h1>
                   )}
-                </div>
 
-                <DeletePostModal onModalClose={() => setShowDeleteModal(false)} showModal={showDeleteModal} post={props.post} />
-                {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
-                  <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={props.post} />
-                )}
-                <VStack>
-                  {editMode ? (
-                    <Form error={error}>
-                      <CommentEditor
-                        field="description"
-                        onChange={handleDescriptionChange}
-                        initialValue={newDescription}
-                        disabled={false}
-                        maxAttachments={3}
-                        maxImageSizeKB={5 * 1024}
-                        placeholder={i18n._({
-                          id: "newpost.modal.description.placeholder",
-                          message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
-                        })}
-                        onImageUploaded={handleImageUploaded}
-                        onGetImageSrc={getImageSrc}
-                      />
-                    </Form>
-                  ) : (
+                  {/* Posted by info with status */}
+                  {!editMode && (
                     <>
-                      {props.post.description && <Markdown className="description" text={props.post.description} style="full" />}
-                      {!props.post.description && (
-                        <em className="text-muted">
-                          <Trans id="showpost.message.nodescription">No description provided.</Trans>
-                        </em>
-                      )}
+                      <div className="p-show-post__meta">
+                        <HStack spacing={2} align="center">
+                          <Avatar user={props.post.user} size="small" />
+                          <span className="text-sm text-gray-600">
+                            <Trans id="showpost.postedby">Posted by</Trans> <UserName user={props.post.user} />
+                          </span>
+                          <span className="text-sm text-gray-400">•</span>
+                          <Moment className="text-sm text-gray-600" locale={Fider.currentLocale} date={props.post.createdAt} />
+                          <span className="text-sm text-gray-400">•</span>
+                          <ResponseLozenge status={props.post.status} response={props.post.response} size="xsmall" />
+                        </HStack>
+                      </div>
+                      <ResponseDetails status={props.post.status} response={props.post.response} />
                     </>
                   )}
                 </VStack>
-                <div className="mt-2">
-                  <TagsPanel post={props.post} tags={props.tags} />
-                </div>
+              </HStack>
 
-                <VStack spacing={4}>
-                  {!editMode ? (
-                    <HStack justify="between" align="start">
-                      <VoteSection post={props.post} votes={props.post.votesCount} />
-                      <FollowButton post={props.post} subscribed={props.subscribed} />
-                    </HStack>
-                  ) : (
-                    <HStack>
-                      <Button variant="primary" onClick={saveChanges} disabled={Fider.isReadOnly}>
-                        <Icon sprite={IconThumbsUp} />{" "}
-                        <span>
-                          <Trans id="action.save">Save</Trans>
-                        </span>
-                      </Button>
-                      <Button onClick={cancelEdit} disabled={Fider.isReadOnly}>
-                        <Icon sprite={IconX} />
-                        <span>
-                          <Trans id="action.cancel">Cancel</Trans>
-                        </span>
-                      </Button>
-                    </HStack>
+              {/* Description - Full width */}
+              {!editMode ? (
+                <div className="p-show-post__description-section">
+                  {props.post.description && <Markdown className="p-show-post__description" text={props.post.description} style="full" />}
+                  {!props.post.description && (
+                    <em className="text-muted">
+                      <Trans id="showpost.message.nodescription">No description provided.</Trans>
+                    </em>
                   )}
-                  <div className="border-4 border-blue-500" />
-                </VStack>
+                </div>
+              ) : (
+                <div className="p-show-post__description-section">
+                  <Form error={error}>
+                    <CommentEditor
+                      field="description"
+                      onChange={handleDescriptionChange}
+                      initialValue={newDescription}
+                      disabled={false}
+                      maxAttachments={3}
+                      maxImageSizeKB={5 * 1024}
+                      placeholder={i18n._({
+                        id: "newpost.modal.description.placeholder",
+                        message: "Tell us about it. Explain it fully, don't hold back, the more information the better.",
+                      })}
+                      onImageUploaded={handleImageUploaded}
+                      onGetImageSrc={getImageSrc}
+                    />
+                  </Form>
+                </div>
+              )}
 
-                <ResponseDetails status={props.post.status} response={props.post.response} />
-              </VStack>
+              {/* Tags inline */}
+              <div className="pt-7">
+                <TagsPanel post={props.post} tags={props.tags} />
+              </div>
+
+              {/* Edit Mode Actions */}
+              {editMode && (
+                <HStack>
+                  <Button variant="primary" onClick={saveChanges} disabled={Fider.isReadOnly}>
+                    <Icon sprite={IconThumbsUp} />{" "}
+                    <span>
+                      <Trans id="action.save">Save</Trans>
+                    </span>
+                  </Button>
+                  <Button onClick={cancelEdit} disabled={Fider.isReadOnly}>
+                    <Icon sprite={IconX} />
+                    <span>
+                      <Trans id="action.cancel">Cancel</Trans>
+                    </span>
+                  </Button>
+                </HStack>
+              )}
+
+              {/* Bottom Action Bar */}
+              {!editMode && (
+                <div className="p-show-post__actions">
+                  <HStack spacing={4} align="center">
+                    <ActionButton icon={IconDuplicate} onClick={onActionSelected("copy")}>
+                      <Trans id="action.copylink">Copy link</Trans>
+                    </ActionButton>
+
+                    {Fider.session.isAuthenticated && canEditPost(Fider.session.user, props.post) && (
+                      <ActionButton icon={IconPencil} onClick={onActionSelected("edit")}>
+                        <Trans id="action.edit">Edit</Trans>
+                      </ActionButton>
+                    )}
+
+                    {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
+                      <ActionButton icon={IconChat} onClick={onActionSelected("status")}>
+                        <Trans id="action.respond">Respond</Trans>
+                      </ActionButton>
+                    )}
+
+                    {Fider.session.tenant.isFeedEnabled && (
+                      <ActionButton icon={IconRSS} onClick={onActionSelected("feed")}>
+                        <Trans id="action.commentsfeed">Comment Feed</Trans>
+                      </ActionButton>
+                    )}
+
+                    {canDeletePost() && (
+                      <ActionButton icon={IconX} onClick={onActionSelected("delete")} variant="danger">
+                        <Trans id="action.delete">Delete</Trans>
+                      </ActionButton>
+                    )}
+
+                    <div className="flex-grow" />
+                  </HStack>
+                </div>
+              )}
             </div>
 
-            <div className="p-show-post__discussion_col">
-              <DiscussionPanel post={props.post} comments={props.comments} highlightedComment={highlightedComment} />
+            {/* Discussion Section */}
+            <div className="p-show-post__discussion-section">
+              {/* Discussion Header */}
+              <div className="p-show-post__discussion-header">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  <Trans id="label.discussion">Discussion</Trans> <span className="text-gray-500">{props.comments.length}</span>
+                </h2>
+              </div>
+
+              {/* Comment Input at top */}
+              <CommentInput post={props.post} />
+
+              {/* Comments List */}
+              {props.comments.length > 0 && (
+                <VStack spacing={4}>
+                  {props.comments.map((c) => (
+                    <ShowComment key={c.id} post={props.post} comment={c} highlighted={highlightedComment === c.id} />
+                  ))}
+                </VStack>
+              )}
             </div>
           </div>
+
+          {/* Right Sidebar */}
           <div className="p-show-post__action-col">
+            {/* Stay Updated Card */}
+            {!editMode && <StayUpdatedCard post={props.post} subscribed={props.subscribed} />}
+
+            {/* Voters Panel */}
             <VotesPanel post={props.post} votes={props.votes} />
+
             <PoweredByFider slot="show-post" className="mt-3" />
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${props.post.number}.atom`} />
+      <DeletePostModal onModalClose={() => setShowDeleteModal(false)} showModal={showDeleteModal} post={props.post} />
+      {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
+        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={props.post} />
+      )}
     </>
   )
 }

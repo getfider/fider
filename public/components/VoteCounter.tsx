@@ -9,10 +9,12 @@ import ChevronUp from "@fider/assets/images/chevron-up.svg"
 
 export interface VoteCounterProps {
   post: Post
+  size?: "default" | "large"
 }
 
 export const VoteCounter = (props: VoteCounterProps) => {
   const fider = useFider()
+  const { size = "default" } = props
   const [hasVoted, setHasVoted] = useState(props.post.hasVoted)
   const [votesCount, setVotesCount] = useState(props.post.votesCount)
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
@@ -38,10 +40,10 @@ export const VoteCounter = (props: VoteCounterProps) => {
   const isDisabled = status.closed || fider.isReadOnly
 
   const className = classSet({
-    "border-gray-200 border rounded-md bg-gray-100": true,
     "c-vote-counter__button": true,
     "c-vote-counter__button--voted": !status.closed && hasVoted,
     "c-vote-counter__button--disabled": isDisabled,
+    "c-vote-counter__button--large": size === "large",
   })
 
   const vote = (
