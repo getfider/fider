@@ -91,6 +91,25 @@
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
   }
 
+  .c-response-details {
+    &__card {
+      flex-grow: 1;
+      border-radius: get("border.radius.xlarge");
+      padding: spacing(4);
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+      border-width: 2px;
+    }
+
+    &__header {
+      margin-bottom: spacing(3);
+    }
+
+    &__content {
+      color: var(--colors-gray-800);
+      line-height: 1.6;
+    }
+  }
+
   @include media("lg") {
     .p-show-post {
       display: grid;

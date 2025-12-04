@@ -1,15 +1,15 @@
 import React from "react"
 import { PostResponse, PostStatus } from "@fider/models"
-import { Icon, Markdown } from "@fider/components"
+import { Icon, Markdown, UserName, Moment } from "@fider/components"
 import HeroIconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import HeroIconCheck from "@fider/assets/images/heroicons-check-circle.svg"
 import HeroIconSparkles from "@fider/assets/images/heroicons-sparkles-outline.svg"
 import HeroIconLightBulb from "@fider/assets/images/heroicons-lightbulb.svg"
 import HeroIconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import HeroIconThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
-import { HStack, VStack } from "./layout"
-import { timeSince } from "@fider/services"
+import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
+import { useFider } from "@fider/hooks"
 
 type Size = "micro" | "small" | "xsmall" | "normal"
 
@@ -20,29 +20,41 @@ interface PostResponseProps {
 }
 
 export const ResponseDetails = (props: PostResponseProps): JSX.Element | null => {
+  const fider = useFider()
   const status = PostStatus.Get(props.status)
 
   if (!props.response) {
     return null
   }
 
-  return (
-    <VStack align="start" spacing={4} className="bg-blue-50 p-3 border border-blue-200 rounded">
-      <div className="text-semibold text-lg">{timeSince("en", new Date(), props.response.respondedAt, "date")}</div>
-      {props.response?.text && status !== PostStatus.Duplicate && (
-        <div className="content">
-          <Markdown text={props.response.text} style="full" />
-        </div>
-      )}
+  const { bg, border } = getLozengeProps(status)
 
-      {status === PostStatus.Duplicate && props.response.original && (
-        <div className="content">
-          <a className="text-link" href={`/posts/${props.response.original.number}/${props.response.original.slug}`}>
-            {props.response.original.title}
-          </a>
+  return (
+    <HStack spacing={4} align="start" className="c-response-details">
+      <div className={`c-response-details__card ${bg} border ${border}`}>
+        <div className="c-response-details__header">
+          <HStack spacing={2} align="center">
+            <UserName user={props.response.user} />
+            <span className="text-xs text-gray-600">•</span>
+            <Moment className="text-xs text-gray-600" locale={fider.currentLocale} date={props.response.respondedAt} />
+          </HStack>
         </div>
-      )}
-    </VStack>
+
+        {props.response?.text && status !== PostStatus.Duplicate && (
+          <div className="c-response-details__content">
+            <Markdown text={props.response.text} style="full" />
+          </div>
+        )}
+
+        {status === PostStatus.Duplicate && props.response.original && (
+          <div className="c-response-details__content">
+            <a className="text-link" href={`/posts/${props.response.original.number}/${props.response.original.slug}`}>
+              {props.response.original.title}
+            </a>
+          </div>
+        )}
+      </div>
+    </HStack>
   )
 }
 
