@@ -234,12 +234,16 @@ interface CommentEditorProps {
 }
 
 const markdownToHtml = (markdownString: string) => {
-  return markdownString
+  const converted = markdownString
     .split("\n\n")
     .map((line: string) => `<p>${line}</p>`)
     .join("")
     .replace(/\\\n/g, "<br>")
     .replace(/\n/g, "<br>")
+
+  console.log("markdownToHtml done: ", converted)
+
+  return converted
 }
 
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
@@ -261,17 +265,20 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }
 
-  const [editorContent, setEditorContent] = useState(getIntialContent())
+  const [editorContent, setEditorContent] = useState("")
 
   const toggleMarkdownMode = () => {
     if (editor) {
       // Store current content before switching
       let currentContent
       if (isRawMarkdownMode) {
+        console.log("Getting text from markdown editor")
         currentContent = editor.getText()
       } else {
-        currentContent = markdownToHtml(editor.storage.markdown.getMarkdown())
+        console.log("Getting markdown from rich text editor")
+        currentContent = editor.storage.markdown.getMarkdown()
       }
+      console.log("Current content before toggle:", JSON.stringify(currentContent))
       // Destroy current editor
       editor.destroy()
       setIsRawMarkdownMode(!isRawMarkdownMode)
