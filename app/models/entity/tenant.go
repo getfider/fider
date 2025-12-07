@@ -9,6 +9,7 @@ type Tenant struct {
 	Subdomain          string            `json:"subdomain"`
 	Invitation         string            `json:"invitation"`
 	WelcomeMessage     string            `json:"welcomeMessage"`
+	WelcomeHeader      string            `json:"welcomeHeader"`
 	CNAME              string            `json:"cname"`
 	Status             enum.TenantStatus `json:"status"`
 	Locale             string            `json:"locale"`

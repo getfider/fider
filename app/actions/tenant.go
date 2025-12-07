@@ -194,6 +194,7 @@ type UpdateTenantSettings struct {
 	Title          string           `json:"title"`
 	Invitation     string           `json:"invitation"`
 	WelcomeMessage string           `json:"welcomeMessage"`
+	WelcomeHeader  string           `json:"welcomeHeader"`
 	Locale         string           `json:"locale"`
 	CNAME          string           `json:"cname" format:"lower"`
 }
@@ -240,6 +241,10 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 
 	if len(action.Invitation) > 60 {
 		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
+	}
+
+	if len(action.WelcomeHeader) > 100 {
+		result.AddFieldFailure("welcomeHeader", "Welcome Header must have less than 100 characters.")
 	}
 
 	if !i18n.IsValidLocale(action.Locale) {

@@ -85,6 +85,34 @@ What can we do better? This is the place for you to vote, discuss and share idea
     setIsShareFeedbackOpen(true)
   }
 
+  const parseWelcomeHeader = (text: string): JSX.Element[] => {
+    const parts: JSX.Element[] = []
+    let currentIndex = 0
+    const regex = /_([^_]+)_/g
+    let match: RegExpExecArray | null
+
+    while ((match = regex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > currentIndex) {
+        parts.push(<span key={currentIndex}>{text.slice(currentIndex, match.index)}</span>)
+      }
+      // Add the highlighted text
+      parts.push(
+        <span key={match.index} className="text-primary-base">
+          {match[1]}
+        </span>
+      )
+      currentIndex = regex.lastIndex
+    }
+
+    // Add remaining text
+    if (currentIndex < text.length) {
+      parts.push(<span key={currentIndex}>{text.slice(currentIndex)}</span>)
+    }
+
+    return parts
+  }
+
   return (
     <>
       <ShareFeedback
@@ -98,9 +126,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
         <div className="p-home__welcome-col">
           <VStack spacing={6}>
             <div>
-              <h1 className="p-home__welcome-title mb-5">
-                Help us build the <span className="text-primary-base">best feedback platform.</span>
-              </h1>
+              {fider.session.tenant.welcomeHeader && <h1 className="p-home__welcome-title mb-5">{parseWelcomeHeader(fider.session.tenant.welcomeHeader)}</h1>}
               <Markdown className="p-home__welcome-body" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
             </div>
           </VStack>
