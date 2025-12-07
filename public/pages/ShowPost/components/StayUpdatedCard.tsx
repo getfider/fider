@@ -5,7 +5,7 @@ import { useFider } from "@fider/hooks"
 import IconPlus from "@fider/assets/images/heroicons-plus.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 import { Post } from "@fider/models"
 
 export interface StayUpdatedCardProps {
@@ -48,7 +48,7 @@ export const StayUpdatedCard = (props: StayUpdatedCardProps) => {
 
   return (
     <VStack spacing={2}>
-      <h3 className="text-base font-semibold text-gray-900">
+      <h3 className="text-bold text-gray-900">
         <Trans id="showpost.stayupdated.title">Stay Updated</Trans>
       </h3>
       <p className="text-sm text-gray-600">

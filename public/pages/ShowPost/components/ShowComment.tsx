@@ -171,9 +171,9 @@ export const ShowComment = (props: ShowCommentProps) => {
           <div className="mb-1">
             <HStack justify="between">
               <HStack>
-                <UserName user={comment.user} />{" "}
+                <UserName user={comment.user} /> <span className="text-sm text-gray-400">•</span>
                 <div className="text-xs">
-                  · <Moment locale={fider.currentLocale} date={comment.createdAt} /> {editedMetadata}
+                  <Moment locale={fider.currentLocale} date={comment.createdAt} /> {editedMetadata}
                 </div>
               </HStack>
               {!isEditing && (

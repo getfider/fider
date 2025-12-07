@@ -257,7 +257,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
               {/* Edit Mode Actions */}
               {editMode && (
-                <HStack>
+                <HStack className="mt-6">
                   <Button variant="primary" onClick={saveChanges} disabled={Fider.isReadOnly}>
                     <Icon sprite={IconThumbsUp} />{" "}
                     <span>
@@ -314,11 +314,16 @@ export default function ShowPostPage(props: ShowPostPageProps) {
             {/* Discussion Section */}
             <div className="p-show-post__discussion-section">
               {/* Discussion Header */}
-              <div className="p-show-post__discussion-header">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  <Trans id="label.discussion">Discussion</Trans> <span className="text-gray-500">{props.comments.length}</span>
+              <HStack className="p-show-post__discussion-header" align="center" spacing={4}>
+                <h2 className="text-xl text-bold text-gray-900">
+                  <span className="text-bold">
+                    <Trans id="label.discussion">Discussion</Trans>
+                  </span>
                 </h2>
-              </div>
+                <div style={{ width: "25px", height: "25px" }} className="text-blue-300 ml-4 rounded-full bg-blue-100 text-center ">
+                  {props.comments.length}
+                </div>
+              </HStack>
 
               {/* Comment Input at top */}
               <CommentInput post={props.post} />
@@ -336,10 +341,8 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
           {/* Right Sidebar */}
           <div className="p-show-post__action-col">
-            {/* Stay Updated Card */}
             {!editMode && <StayUpdatedCard post={props.post} subscribed={props.subscribed} />}
 
-            {/* Voters Panel */}
             <VotesPanel post={props.post} votes={props.votes} />
 
             <PoweredByFider slot="show-post" className="mt-3" />

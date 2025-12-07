@@ -27,11 +27,11 @@ export const ResponseDetails = (props: PostResponseProps): JSX.Element | null =>
     return null
   }
 
-  const { bg, border } = getLozengeProps(status)
+  const { bg } = getLozengeProps(status)
 
   return (
     <HStack spacing={4} align="start" className="c-response-details">
-      <div className={`c-response-details__card ${bg} border ${border}`}>
+      <div className={`c-response-details__card ${bg} `}>
         <div className="c-response-details__header">
           <HStack spacing={2} align="center">
             <UserName user={props.response.user} />
