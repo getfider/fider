@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"net/url"
@@ -47,6 +48,9 @@ func WrapRequest(request *http.Request) Request {
 		if err != nil {
 			panic(errors.Wrap(err, "failed to read body").Error())
 		}
+		// Reset the body so it can be read again by FormValue for form-encoded data
+		// or other handlers that may need to parse the request body
+		request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 	}
 
 	return Request{
@@ -77,6 +81,11 @@ func (r *Request) Cookie(name string) (*http.Cookie, error) {
 		return nil, errors.Wrap(err, "failed to get '%s' cookie", name)
 	}
 	return cookie, nil
+}
+
+// GetFormValue returns a form value from POST request
+func (r *Request) GetFormValue(key string) string {
+	return r.instance.FormValue(key)
 }
 
 // AddCookie adds a cookie

@@ -132,6 +132,38 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 	return s.Execute(handler)
 }
 
+// ExecutePostForm executes given handler as POST with form data and return response
+func (s *Server) ExecutePostForm(handler web.HandlerFunc, body string) (int, *httptest.ResponseRecorder) {
+	// Create a new HTTP request with the body as a reader for FormValue to work
+	req := httptest.NewRequest("POST", s.context.Request.URL.String(), strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	
+	// Create new context with proper request (empty params initially)
+	params := make(web.StringMap)
+	newContext := web.NewContext(s.engine, req, s.recorder, params)
+	
+	// Copy params manually by using the Param method on old context
+	// Note: This only copies known params. If you need to copy all params,
+	// consider extending the Context API to expose all params.
+	if providerParam := s.context.Param("provider"); providerParam != "" {
+		newContext.AddParam("provider", providerParam)
+	}
+	
+	// Copy tenant and user from old context if they exist
+	if s.context.Tenant() != nil {
+		newContext.SetTenant(s.context.Tenant())
+	}
+	if s.context.User() != nil {
+		newContext.SetUser(s.context.User())
+	}
+	
+	// Replace the context
+	s.context = newContext
+	
+	// Execute with the handler
+	return s.Execute(handler)
+}
+
 // ExecutePostAsJSON executes given handler as POST and return json response
 func (s *Server) ExecutePostAsJSON(handler web.HandlerFunc, body string) (int, *jsonq.Query) {
 	code, response := s.ExecutePost(handler, body)
