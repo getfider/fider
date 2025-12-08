@@ -31,14 +31,14 @@ export const StayUpdatedCard = (props: StayUpdatedCardProps) => {
   }
 
   const button = subscribed ? (
-    <Button className="w-full text-gray-800 bg-white border border-gray-800 no-focus" onClick={subscribeOrUnsubscribe} disabled={fider.isReadOnly}>
+    <Button className="p-show-post__action-col__follow-button--following no-focus" onClick={subscribeOrUnsubscribe} disabled={fider.isReadOnly}>
       <Icon sprite={IconCheck} />{" "}
       <span>
         <Trans id="label.following">Following</Trans>
       </span>
     </Button>
   ) : (
-    <Button className="w-full text-blue-600 bg-white border border-blue-600 no-focus" onClick={subscribeOrUnsubscribe} disabled={fider.isReadOnly}>
+    <Button className="p-show-post__action-col__follow-button--follow no-focus" onClick={subscribeOrUnsubscribe} disabled={fider.isReadOnly}>
       <Icon sprite={IconPlus} />
       <span>
         <Trans id="label.follow">Follow</Trans>

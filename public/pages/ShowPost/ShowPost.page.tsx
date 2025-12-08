@@ -320,9 +320,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                     <Trans id="label.discussion">Discussion</Trans>
                   </span>
                 </h2>
-                <div style={{ width: "25px", height: "25px" }} className="text-blue-300 ml-4 rounded-full bg-blue-100 text-center ">
-                  {props.comments.length}
-                </div>
+                <div className="p-show-post__discussion-count">{props.comments.length}</div>
               </HStack>
 
               {/* Comment Input at top */}

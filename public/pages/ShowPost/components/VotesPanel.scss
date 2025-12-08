@@ -46,6 +46,12 @@
     justify-content: center;
     flex-shrink: 0;
 
+    @include dark-mode {
+      border: 2px dashed var(--colors-gray-600);
+      background-color: var(--colors-gray-200);
+      color: var(--colors-gray-600);
+    }
+
     svg {
       width: 20px;
       height: 20px;

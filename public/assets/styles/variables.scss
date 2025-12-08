@@ -74,3 +74,15 @@ $xl2-width: 1400px;
   background-image: none !important;
   pointer-events: none !important;
 }
+
+@mixin dark-mode() {
+  body[data-theme="dark"] & {
+    @content;
+  }
+}
+
+@mixin light-mode() {
+  body[data-theme="light"] & {
+    @content;
+  }
+}

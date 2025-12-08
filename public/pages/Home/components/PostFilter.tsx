@@ -151,7 +151,7 @@ export const PostFilter = (props: PostFilterProps) => {
       <Dropdown
         onToggled={() => setQuery("")}
         renderHandle={
-          <HStack className="c-post-filter-btn h-10 text-medium text-xs rounded-md uppercase border border-gray-200 text-gray-700 p-2 px-3 bg-white">
+          <HStack className="c-post-filter-btn">
             <Icon sprite={HeroIconFilter} className="h-5 pr-1" />
             {i18n._({ id: "home.filter.label", message: "Filter" })}
             {filterCount > 0 && <div className="bg-gray-200 inline-block rounded-full px-2 py-1 w-min-4 text-2xs text-center">{filterCount}</div>}

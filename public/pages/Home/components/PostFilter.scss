@@ -10,6 +10,21 @@
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  height: 40px;
+  color: var(--colors-gray-700);
+  font-weight: get("font.weight.semibold");
+  font-size: get("font.size.xs");
+  border: 1px solid var(--colors-gray-200);
+  text-transform: uppercase;
+  background-color: var(--colors-white);
+  padding-inline: spacing(3) spacing(2);
+  border-radius: sizing(2);
+
+  @include dark-mode {
+    background-color: var(--colors-gray-300);
+    color: var(--colors-gray-800);
+    border-color: var(--colors-gray-400);
+  }
 
   &:hover {
     background-color: var(--colors-white);

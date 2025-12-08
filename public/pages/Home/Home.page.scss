@@ -15,6 +15,12 @@
     row-gap: 0;
   }
 
+  @include dark-mode {
+    input {
+      background-color: var(--colors-gray-100);
+    }
+  }
+
   .p-home {
     &__welcome-col {
       @include media("lg") {
@@ -58,6 +64,10 @@
       font-weight: get("font.weight.medium");
       color: var(--colors-gray-700);
       text-align: left;
+
+      @include dark-mode {
+        background-color: var(--colors-gray-200);
+      }
 
       &:hover {
         box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);

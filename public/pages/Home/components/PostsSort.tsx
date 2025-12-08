@@ -1,11 +1,11 @@
 import React from "react"
 import { Dropdown } from "@fider/components"
-import { HStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import IconSparkles from "@fider/assets/images/heroicons-sparkles-outline.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import IconClock from "@fider/assets/images/heroicons-clock.svg"
+import { HStack } from "@fider/components/layout"
 
 interface PostsSortProps {
   value: string
@@ -23,12 +23,12 @@ export const PostsSort: React.FC<PostsSortProps> = ({ value = "trending", onChan
   const selectedItem = options.find((x) => x.value === value) || options[0]
 
   return (
-    <HStack>
+    <div>
       <Dropdown
         renderHandle={
-          <div className="c-post-sort-btn h-10 flex flex-items-center text-medium text-xs rounded-md uppercase border border-gray-200 text-gray-700 p-2 px-3 bg-white">
+          <HStack className="c-post-sort-btn">
             {i18n._({ id: "home.postsort.label", message: "Sort by:" })} {selectedItem.label}
-          </div>
+          </HStack>
         }
       >
         {options.map((o) => (
@@ -37,6 +37,6 @@ export const PostsSort: React.FC<PostsSortProps> = ({ value = "trending", onChan
           </Dropdown.ListItem>
         ))}
       </Dropdown>
-    </HStack>
+    </div>
   )
 }

@@ -19,14 +19,30 @@
     background-color: var(--colors-blue-50);
     border: 2px solid var(--colors-blue-100);
 
+    @include dark-mode {
+      background-color: var(--colors-blue-900);
+      border-color: var(--colors-blue-800);
+      color: var(--colors-blue-300);
+    }
+
     &:hover {
       background-color: var(--colors-blue-100);
       border-color: var(--colors-primary-base);
       color: var(--colors-primary-base);
 
+      @include dark-mode {
+        background-color: var(--colors-blue-800);
+        border-color: var(--colors-blue-500);
+        color: var(--colors-blue-200);
+      }
+
       .c-vote-counter__icon {
         color: var(--colors-primary-base);
         transform: translateY(-1px);
+
+        @include dark-mode {
+          color: var(--colors-blue-200);
+        }
       }
     }
 
@@ -38,8 +54,18 @@
       color: var(--colors-primary-base);
       border-color: var(--colors-primary-base);
 
+      @include dark-mode {
+        background-color: var(--colors-blue-800);
+        color: var(--colors-blue-200);
+        border-color: var(--colors-blue-500);
+      }
+
       .c-vote-counter__icon {
         color: var(--colors-primary-base);
+
+        @include dark-mode {
+          color: var(--colors-blue-200);
+        }
       }
 
       .c-vote-counter__count {
@@ -49,6 +75,11 @@
       &:hover {
         background-color: var(--colors-blue-200);
         border-color: var(--colors-primary-base);
+
+        @include dark-mode {
+          background-color: var(--colors-blue-700);
+          border-color: var(--colors-blue-400);
+        }
       }
     }
 
@@ -85,6 +116,10 @@
     color: var(--colors-primary-base);
     transition: all 0.2s ease;
     flex-shrink: 0;
+
+    @include dark-mode {
+      color: var(--colors-blue-300);
+    }
   }
 
   &__count {
