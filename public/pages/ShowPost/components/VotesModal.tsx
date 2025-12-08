@@ -74,7 +74,7 @@ export const VotesModal: React.FC<VotesModalProps> = (props) => {
                   justify="between"
                   className={classSet({
                     "c-votes-modal__item": true,
-                    "c-votes-modal__item--alternate": index % 2 === 1
+                    "c-votes-modal__item--alternate": index % 2 === 1,
                   })}
                 >
                   <HStack spacing={4}>
