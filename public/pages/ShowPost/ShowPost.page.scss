@@ -55,6 +55,23 @@
     &__meta {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
+      row-gap: spacing(2);
+
+      &--desktop {
+        @include media("sm") {
+          display: none;
+        }
+      }
+
+      &--mobile {
+        display: none;
+        margin-top: spacing(4);
+
+        @include media("sm") {
+          display: flex;
+        }
+      }
     }
 
     &__description-section {

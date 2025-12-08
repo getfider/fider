@@ -62,6 +62,19 @@ const canEditPost = (user: CurrentUser, post: Post) => {
   return user.id === post.user.id && timeAgo(post.createdAt) <= oneHour
 }
 
+const PostMetaInfo = ({ post, locale }: { post: Post; locale: string }) => (
+  <HStack spacing={2} align="center">
+    <Avatar user={post.user} size="small" />
+    <span className="text-sm text-gray-600">
+      <Trans id="showpost.postedby">Posted by</Trans> <UserName user={post.user} />
+    </span>
+    <span className="text-sm text-gray-400">•</span>
+    <Moment className="text-sm text-gray-600" locale={locale} date={post.createdAt} />
+    <span className="text-sm text-gray-400">•</span>
+    <ResponseLozenge status={post.status} response={post.response} size="xsmall" />
+  </HStack>
+)
+
 export default function ShowPostPage(props: ShowPostPageProps) {
   const [editMode, setEditMode] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -198,26 +211,24 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                     <h1 className="p-show-post__title">{props.post.title}</h1>
                   )}
 
-                  {/* Posted by info with status */}
+                  {/* Posted by info with status - Desktop only */}
                   {!editMode && (
                     <>
-                      <div className="p-show-post__meta">
-                        <HStack spacing={2} align="center">
-                          <Avatar user={props.post.user} size="small" />
-                          <span className="text-sm text-gray-600">
-                            <Trans id="showpost.postedby">Posted by</Trans> <UserName user={props.post.user} />
-                          </span>
-                          <span className="text-sm text-gray-400">•</span>
-                          <Moment className="text-sm text-gray-600" locale={Fider.currentLocale} date={props.post.createdAt} />
-                          <span className="text-sm text-gray-400">•</span>
-                          <ResponseLozenge status={props.post.status} response={props.post.response} size="xsmall" />
-                        </HStack>
+                      <div className="p-show-post__meta p-show-post__meta--desktop">
+                        <PostMetaInfo post={props.post} locale={fider.currentLocale} />
                       </div>
                       <ResponseDetails status={props.post.status} response={props.post.response} />
                     </>
                   )}
                 </VStack>
               </HStack>
+
+              {/* Posted by info with status - Mobile only (full width) */}
+              {!editMode && (
+                <div className="p-show-post__meta p-show-post__meta--mobile">
+                  <PostMetaInfo post={props.post} locale={fider.currentLocale} />
+                </div>
+              )}
 
               {/* Description - Full width */}
               {!editMode ? (
