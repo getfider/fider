@@ -38,10 +38,14 @@
     }
 
     &__title {
-      font-size: 32px;
+      font-size: 20px;
       font-weight: get("font.weight.xbold");
       line-height: 1.2;
       color: var(--colors-gray-900);
+
+      @include media("md") {
+        font-size: 32px;
+      }
 
       @include media("lg") {
         font-size: 36px;
