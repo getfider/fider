@@ -118,6 +118,10 @@
       flex-direction: column;
       gap: spacing(4);
 
+      @include media("sm") {
+        margin-top: spacing(6);
+      }
+
       > * {
         background-color: var(--colors-white);
         @include dark-mode {
@@ -139,6 +143,15 @@
           background-color: var(--colors-gray-100);
           border: 1px solid var(--colors-gray-400);
         }
+      }
+    }
+  }
+
+  .c-comment-input {
+    // Hide avatar on mobile for comment input
+    @include media("sm") {
+      .c-avatar {
+        display: none;
       }
     }
   }

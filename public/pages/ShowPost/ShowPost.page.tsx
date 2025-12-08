@@ -287,7 +287,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
               {/* Bottom Action Bar */}
               {!editMode && (
                 <div className="p-show-post__actions">
-                  <HStack spacing={4} align="center">
+                  <HStack spacing={0} align="center" className="flex-wrap gap-2">
                     <ActionButton icon={IconDuplicate} onClick={onActionSelected("copy")}>
                       <Trans id="action.copylink">Copy link</Trans>
                     </ActionButton>
