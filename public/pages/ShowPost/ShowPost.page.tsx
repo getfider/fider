@@ -188,6 +188,15 @@ export default function ShowPostPage(props: ShowPostPageProps) {
       <Header />
       <div id="p-show-post" className="page container">
         <div className="p-show-post">
+          {/* Left Sidebar */}
+          <div className="p-show-post__action-col">
+            <StayUpdatedCard post={props.post} subscribed={props.subscribed} />
+
+            <VotesPanel post={props.post} votes={props.votes} />
+
+            <PoweredByFider slot="show-post" className="mt-3" />
+          </div>
+
           <div className="p-show-post__main-col">
             {/* Post Card */}
             <div className="p-show-post__post-card">
@@ -336,15 +345,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                 </VStack>
               )}
             </div>
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="p-show-post__action-col">
-            <StayUpdatedCard post={props.post} subscribed={props.subscribed} />
-
-            <VotesPanel post={props.post} votes={props.votes} />
-
-            <PoweredByFider slot="show-post" className="mt-3" />
           </div>
         </div>
       </div>

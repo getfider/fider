@@ -174,11 +174,11 @@
     .p-show-post {
       display: grid;
       gap: spacing(6);
-      grid-template-columns: 1fr 320px;
+      grid-template-columns: 320px 1fr;
       grid-template-rows: auto;
       grid-template-areas:
-        "Main Action"
-        "Main Action";
+        "Action Main"
+        "Action Main";
 
       &__main-col {
         grid-area: Main;
