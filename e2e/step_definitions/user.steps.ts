@@ -13,7 +13,7 @@ Given("I sign in as {string}", async function (this: FiderWorld, userName: strin
   }
 
   const userEmail = `${userName}-${this.tenantName}@fider.io`
-  await this.page.click(".c-menu .uppercase.text-sm")
+  await this.page.getByRole("button", { name: "Sign in" }).click()
   await this.page.fill(".c-signin-control #input-email", userEmail)
   await this.page.click(".c-signin-control .c-button--primary")
 

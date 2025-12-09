@@ -13,5 +13,7 @@ Then("I should see {string} as the post title", async function (this: FiderWorld
 })
 
 Then("I should see {int} vote\\(s)", async function (this: FiderWorld, voteCount: number) {
-  await expect(this.page.getByText(`${voteCount}${voteCount === 1 ? "Vote" : "Votes"}`, { exact: true })).toBeVisible()
+  // The vote counter now shows just the number, look for it in the vote button
+  const voteButton = this.page.locator(".c-vote-counter__button .c-vote-counter__count")
+  await expect(voteButton).toHaveText(voteCount.toString())
 })

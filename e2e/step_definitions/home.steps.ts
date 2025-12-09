@@ -32,7 +32,7 @@ Given("I type {string} as the description", async function (this: FiderWorld, de
 })
 
 Given("I click enter your suggestion", async function () {
-  await this.page.click(".p-home__welcome-col .c-button--default")
+  await this.page.click(".p-home__add-idea-btn")
 })
 
 Given("I type my email address", async function (this: FiderWorld) {
