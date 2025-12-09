@@ -23,11 +23,11 @@ import {
   PoweredByFider,
   Avatar,
   RSSModal,
-  VoteCounter,
   ResponseLozenge,
 } from "@fider/components"
 import { CommentInput } from "./components/CommentInput"
 import { ShowComment } from "./components/ShowComment"
+import { VoteSection } from "./components/VoteSection"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
@@ -191,44 +191,27 @@ export default function ShowPostPage(props: ShowPostPageProps) {
           <div className="p-show-post__main-col">
             {/* Post Card */}
             <div className="p-show-post__post-card">
-              {/* Top section: Vote counter + Title/Meta */}
-              <HStack spacing={6} align="start">
-                {/* Large Vote Counter */}
-                {!editMode && (
-                  <div className="p-show-post__vote-counter-large">
-                    <VoteCounter post={props.post} size="large" />
-                  </div>
+              {/* Title and Meta */}
+              <VStack spacing={4}>
+                {/* Title */}
+                {editMode ? (
+                  <Form error={error}>
+                    <Input field="title" maxLength={100} value={newTitle} onChange={setNewTitle} />
+                  </Form>
+                ) : (
+                  <h1 className="p-show-post__title">{props.post.title}</h1>
                 )}
 
-                {/* Title and Meta */}
-                <VStack className="flex-grow" spacing={4}>
-                  {/* Title */}
-                  {editMode ? (
-                    <Form error={error}>
-                      <Input field="title" maxLength={100} value={newTitle} onChange={setNewTitle} />
-                    </Form>
-                  ) : (
-                    <h1 className="p-show-post__title">{props.post.title}</h1>
-                  )}
-
-                  {/* Posted by info with status - Desktop only */}
-                  {!editMode && (
-                    <>
-                      <div className="p-show-post__meta p-show-post__meta--desktop">
-                        <PostMetaInfo post={props.post} locale={fider.currentLocale} />
-                      </div>
-                      <ResponseDetails status={props.post.status} response={props.post.response} />
-                    </>
-                  )}
-                </VStack>
-              </HStack>
-
-              {/* Posted by info with status - Mobile only (full width) */}
-              {!editMode && (
-                <div className="p-show-post__meta p-show-post__meta--mobile">
-                  <PostMetaInfo post={props.post} locale={fider.currentLocale} />
-                </div>
-              )}
+                {/* Posted by info with status */}
+                {!editMode && (
+                  <>
+                    <div className="p-show-post__meta">
+                      <PostMetaInfo post={props.post} locale={fider.currentLocale} />
+                    </div>
+                    <ResponseDetails status={props.post.status} response={props.post.response} />
+                  </>
+                )}
+              </VStack>
 
               {/* Description - Full width */}
               {!editMode ? (
@@ -258,6 +241,13 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                       onGetImageSrc={getImageSrc}
                     />
                   </Form>
+                </div>
+              )}
+
+              {/* Vote Section */}
+              {!editMode && (
+                <div className="p-show-post__vote-section">
+                  <VoteSection post={props.post} votes={props.post.votesCount} />
                 </div>
               )}
 
@@ -350,7 +340,7 @@ export default function ShowPostPage(props: ShowPostPageProps) {
 
           {/* Right Sidebar */}
           <div className="p-show-post__action-col">
-            {!editMode && <StayUpdatedCard post={props.post} subscribed={props.subscribed} />}
+            <StayUpdatedCard post={props.post} subscribed={props.subscribed} />
 
             <VotesPanel post={props.post} votes={props.votes} />
 

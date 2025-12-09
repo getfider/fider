@@ -47,12 +47,12 @@ export const StayUpdatedCard = (props: StayUpdatedCardProps) => {
   )
 
   return (
-    <VStack spacing={2}>
+    <VStack spacing={2} className="card">
       <h3 className="text-bold text-gray-900">
         <Trans id="showpost.stayupdated.title">Stay Updated</Trans>
       </h3>
       <p className="text-sm text-gray-600">
-        <Trans id="showpost.stayupdated.description">Get notified when this post receives updates</Trans>
+        <Trans id="showpost.stayupdated.description">Get notified about updates to this idea</Trans>
       </p>
       {button}
     </VStack>

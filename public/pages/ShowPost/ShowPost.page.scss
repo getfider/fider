@@ -33,10 +33,6 @@
       transition: box-shadow 0.2s ease-in-out;
     }
 
-    &__vote-counter-large {
-      flex-shrink: 0;
-    }
-
     &__title {
       font-size: 20px;
       font-weight: get("font.weight.xbold");
@@ -57,21 +53,10 @@
       align-items: center;
       flex-wrap: wrap;
       row-gap: spacing(2);
+    }
 
-      &--desktop {
-        @include media("sm") {
-          display: none;
-        }
-      }
-
-      &--mobile {
-        display: none;
-        margin-top: spacing(4);
-
-        @include media("sm") {
-          display: flex;
-        }
-      }
+    &__vote-section {
+      margin-top: spacing(6);
     }
 
     &__description-section {
@@ -122,7 +107,7 @@
         margin-top: spacing(6);
       }
 
-      > * {
+      > .card {
         background-color: var(--colors-white);
         @include dark-mode {
           background-color: var(--colors-gray-200);

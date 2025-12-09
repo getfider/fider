@@ -36,7 +36,7 @@ export const VotesPanel = (props: VotesPanelProps) => {
   const remainingCount = totalVotesCount - MAX_AVATARS_SHOWN
 
   return (
-    <VStack spacing={4} className="c-votes-panel">
+    <VStack spacing={4} className="c-votes-panel card">
       <VotesModal post={props.post} isOpen={isVotesModalOpen} onClose={closeModal} />
 
       <div className="c-votes-panel__header">
