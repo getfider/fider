@@ -56,22 +56,21 @@
     }
 
     &__vote-section {
-      margin-top: spacing(6);
+      margin-top: spacing(10);
     }
 
     &__description-section {
       margin-top: spacing(7);
     }
-
-    &__description {
+     ch &__description {
       color: var(--colors-gray-800);
       line-height: 1.6;
     }
 
     &__actions {
-      border-top: 1px solid var(--colors-gray-200);
+      border-top: 5px solid var(--colors-blue-500);
       padding-top: spacing(4);
-      margin-top: spacing(6);
+      margin-top: spacing(8);
     }
 
     &__discussion-section {

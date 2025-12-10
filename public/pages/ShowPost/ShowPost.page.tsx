@@ -32,9 +32,9 @@ import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
+import IconTrash from "@fider/assets/images/heroicons-trash.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/react/macro"
-import { StayUpdatedCard } from "./components/StayUpdatedCard"
 import { DeletePostModal } from "./components/DeletePostModal"
 import { ResponseModal } from "./components/ResponseModal"
 import { VotesPanel } from "./components/VotesPanel"
@@ -43,6 +43,7 @@ import { ActionButton } from "./components/ActionButton"
 import { t } from "@lingui/macro"
 import { useFider } from "@fider/hooks"
 import { useAttachments } from "@fider/hooks/useAttachments"
+import { FollowButton } from "./components/FollowButton"
 
 interface ShowPostPageProps {
   post: Post
@@ -190,8 +191,6 @@ export default function ShowPostPage(props: ShowPostPageProps) {
         <div className="p-show-post">
           {/* Left Sidebar */}
           <div className="p-show-post__action-col">
-            <StayUpdatedCard post={props.post} subscribed={props.subscribed} />
-
             <VotesPanel post={props.post} votes={props.votes} />
 
             <PoweredByFider slot="show-post" className="mt-3" />
@@ -253,17 +252,18 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                 </div>
               )}
 
+              {props.tags.length >= 1 && (
+                <div className="pt-7">
+                  <TagsPanel post={props.post} tags={props.tags} />
+                </div>
+              )}
+
               {/* Vote Section */}
               {!editMode && (
                 <div className="p-show-post__vote-section">
                   <VoteSection post={props.post} votes={props.post.votesCount} />
                 </div>
               )}
-
-              {/* Tags inline */}
-              <div className="pt-7">
-                <TagsPanel post={props.post} tags={props.tags} />
-              </div>
 
               {/* Edit Mode Actions */}
               {editMode && (
@@ -310,12 +310,14 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                     )}
 
                     {canDeletePost() && (
-                      <ActionButton icon={IconX} onClick={onActionSelected("delete")} variant="danger">
+                      <ActionButton icon={IconTrash} onClick={onActionSelected("delete")} variant="danger">
                         <Trans id="action.delete">Delete</Trans>
                       </ActionButton>
                     )}
 
                     <div className="flex-grow" />
+
+                    <FollowButton post={props.post} subscribed={props.subscribed} />
                   </HStack>
                 </div>
               )}
