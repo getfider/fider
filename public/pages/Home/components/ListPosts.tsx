@@ -1,8 +1,9 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { ShowTag, VoteCounter, Markdown, Icon, ResponseLozenge } from "@fider/components"
+import { ShowTag, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import { HStack, VStack } from "@fider/components/layout"
+import { Trans } from "@lingui/react/macro"
 
 interface ListPostsProps {
   posts?: Post[]
@@ -13,20 +14,15 @@ interface ListPostsProps {
 
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
-    <HStack spacing={6} align="start" className="c-posts-container__post">
-      <div>
-        <VoteCounter post={props.post} />
-      </div>
-      <VStack className="w-full" spacing={4}>
+    <a href={`/posts/${props.post.number}/${props.post.slug}`} className="c-posts-container__post-link">
+      <VStack className="c-posts-container__post w-full" spacing={4}>
         {props.post.status !== "open" && (
           <div className="mb-1 align-self-start">
             <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />
           </div>
         )}
         <HStack justify="between" align="start">
-          <a className="c-posts-container__post-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
-            {props.post.title}
-          </a>
+          <h3 className="c-posts-container__post-title text-break">{props.post.title}</h3>
           {props.post.commentsCount > 0 && (
             <HStack spacing={1} className="c-posts-container__post-comments flex-shrink-0">
               <span>{props.post.commentsCount}</span>
@@ -38,12 +34,16 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         {props.tags.length >= 1 && (
           <HStack spacing={0} className="gap-2 flex-wrap">
             {props.tags.map((tag) => (
-              <ShowTag key={tag.id} tag={tag} link />
+              <ShowTag key={tag.id} tag={tag} />
             ))}
           </HStack>
         )}
+        <div className="c-posts-container__post-votes">
+          <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
+          <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+        </div>
       </VStack>
-    </HStack>
+    </a>
   )
 }
 
