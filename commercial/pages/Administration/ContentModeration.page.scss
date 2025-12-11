@@ -26,6 +26,11 @@
       font-size: get("font.size.lg");
       font-weight: get("font.weight.semibold");
       color: var(--colors-blue-500);
+
+      @include dark-mode {
+        color: var(--colors-blue-800);
+      }
+
       white-space: nowrap;
     }
 

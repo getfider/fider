@@ -98,7 +98,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
       }
       // Add the highlighted text
       parts.push(
-        <span key={match.index} className="text-primary-base">
+        <span key={match.index} className="header-emphasis">
           {match[1]}
         </span>
       )
