@@ -1,6 +1,6 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { ShowTag, VoteCounter, Markdown, Icon, ResponseLozenge } from "@fider/components"
+import { ShowTag, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
@@ -19,30 +19,26 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
   const isPending = isModerationEnabled && !props.post.isApproved
 
   return (
-    <HStack spacing={4} align="start" className="c-posts-container__post">
-      <div>
-        <VoteCounter post={props.post} />
-      </div>
-      <VStack className="w-full" spacing={2}>
+    <a href={`/posts/${props.post.number}/${props.post.slug}`} className="c-posts-container__post-link">
+      <VStack className="c-posts-container__post w-full" spacing={4}>
         {props.post.status !== "open" && (
-          <div className="mb-2 align-self-start">
+          <div className="mb-1 align-self-start">
             <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />
           </div>
         )}
-        <HStack justify="between">
-          <HStack spacing={2} align="start" justify="between" className="w-full">
-            <a className="text-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
-              {props.post.title}
-            </a>
+        <HStack justify="between" align="start">
+          <HStack spacing={2} align="start" className="w-full">
+            <h3 className="c-posts-container__post-title text-break">{props.post.title}</h3>
             {isPending && (
-              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded flex-shrink-0">
                 <Trans id="post.pending">pending</Trans>
               </span>
             )}
           </HStack>
           {props.post.commentsCount > 0 && (
-            <HStack className="text-muted">
-              {props.post.commentsCount} <Icon sprite={IconChatAlt2} className="h-4 ml-1" />
+            <HStack spacing={1} className="c-posts-container__post-comments flex-shrink-0">
+              <span>{props.post.commentsCount}</span>
+              <Icon sprite={IconChatAlt2} className="h-5 w-5" />
             </HStack>
           )}
         </HStack>
@@ -50,12 +46,16 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         {props.tags.length >= 1 && (
           <HStack spacing={0} className="gap-2 flex-wrap">
             {props.tags.map((tag) => (
-              <ShowTag key={tag.id} tag={tag} link />
+              <ShowTag key={tag.id} tag={tag} />
             ))}
           </HStack>
         )}
+        <div className="c-posts-container__post-votes">
+          <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
+          <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+        </div>
       </VStack>
-    </HStack>
+    </a>
   )
 }
 
@@ -65,7 +65,7 @@ const MinimalListPostItem = (props: { post: Post; tags: Tag[] }) => {
   const isPending = isModerationEnabled && !props.post.isApproved
 
   return (
-    <HStack spacing={4} align="start" className="c-posts-container__post">
+    <HStack spacing={4} align="start" className="c-posts-container__post-minimal">
       <HStack className="w-full" justify="between" align="start">
         <HStack spacing={2} align="start" justify="between" className="w-full">
           <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
@@ -105,11 +105,11 @@ export const ListPosts = (props: ListPostsProps) => {
           ))}
         </VStack>
       ) : (
-        <VStack spacing={4} divide>
+        <>
           {props.posts.map((post) => (
             <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
           ))}
-        </VStack>
+        </>
       )}
     </>
   )

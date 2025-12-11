@@ -63,6 +63,7 @@ func UpdateSettings() web.HandlerFunc {
 				Title:          action.Title,
 				Invitation:     action.Invitation,
 				WelcomeMessage: action.WelcomeMessage,
+				WelcomeHeader:  action.WelcomeHeader,
 				CNAME:          action.CNAME,
 				Locale:         action.Locale,
 			},

@@ -6,6 +6,7 @@ export interface Tenant {
   locale: string
   invitation: string
   welcomeMessage: string
+  welcomeHeader: string
   status: TenantStatus
   isPrivate: boolean
   logoBlobKey: string

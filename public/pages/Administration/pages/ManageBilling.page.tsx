@@ -88,7 +88,7 @@ const PaddleMigrationBanner = (props: PaddleMigrationBannerProps) => {
         <VStack spacing={1}>
           <p className="text-sm text-gray-900 text-medium">Migration to Stripe Billing</p>
           <p className="text-sm text-gray-700">
-            You're currently entitled to pro features because of your existing subscription.
+            You&apos;re currently entitled to pro features because of your existing subscription.
             <br />
             <a onClick={props.onUpgradeClick} className="clickable text-blue-600">
               {props.isLoading ? "Loading..." : "Switch to our new Stripe billing instead and save money"}

@@ -1,6 +1,24 @@
 @use "~@fider/assets/styles/variables.scss" as *;
 
-.comment-area {
-    // spacing(8) for the avatar + spacing(1) for padding right
-    width: calc(100% - spacing(9));
+.c-comment {
+  &__card {
+    flex-grow: 1;
+    background-color: var(--colors-white);
+    @include dark-mode {
+      background-color: var(--colors-gray-200);
+    }
+    border-radius: get("border.radius.xlarge");
+    padding: spacing(6);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
+
+  &__content {
+    flex-grow: 1;
+
+    &--highlighted {
+      padding: spacing(2);
+      background-color: var(--colors-yellow-50);
+      border-radius: get("border.radius.medium");
+    }
+  }
 }

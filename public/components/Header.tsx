@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, ModerationIndicator, UserMenu, ThemeSwitcher, Icon } from "@fider/components"
+import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, ModerationIndicator, UserMenu, ThemeSwitcher, Icon, Button } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
@@ -15,8 +15,7 @@ export const Header = (props: HeaderProps) => {
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
 
-  const showSignInModal = (e: React.MouseEvent) => {
-    e.preventDefault()
+  const handleSignInClick = () => {
     setIsSignInModalOpen(true)
   }
 
@@ -63,9 +62,13 @@ export const Header = (props: HeaderProps) => {
                   </button>
                 )}
                 <ThemeSwitcher />
-                <a href="#" className="uppercase text-sm" onClick={showSignInModal}>
-                  <Trans id="action.signin">Sign in</Trans>
-                </a>
+                <Button variant="primary" size="default" onClick={handleSignInClick}>
+                  <HStack spacing={1} className="flex-items-center">
+                    <span>
+                      <Trans id="action.signin">Sign in</Trans>
+                    </span>
+                  </HStack>
+                </Button>
               </HStack>
             )}
           </HStack>

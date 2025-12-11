@@ -1,30 +1,64 @@
 @use "~@fider/assets/styles/variables.scss" as *;
 
 #p-admin-moderation {
-  .page-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-
-    .page-subtitle {
-      display: block;
-      font-size: 1rem;
-      font-weight: normal;
-      color: var(--colors-gray-600);
-      margin-top: 0.25rem;
-    }
-  }
+  background-color: var(--colors-gray-100);
+  padding-top: spacing(8);
+  padding-bottom: spacing(12);
 }
 
 .c-moderation-page {
   width: 100%;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: spacing(4);
+  }
+
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: spacing(3);
+    margin-top: spacing(6);
+    margin-bottom: spacing(4);
+
+    &-title {
+      font-size: get("font.size.lg");
+      font-weight: get("font.weight.semibold");
+      color: var(--colors-blue-500);
+      white-space: nowrap;
+    }
+
+    &-line {
+      flex-grow: 1;
+      height: 2px;
+      background-color: var(--colors-blue-500);
+    }
+  }
 }
 
 .c-moderation-item {
-  transition: all 0.3s ease;
+  background-color: var(--colors-white);
+  @include dark-mode {
+    background-color: var(--colors-gray-200);
+  }
+  border-radius: get("border.radius.xlarge");
+  padding: spacing(6) spacing(7);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  transition: box-shadow 0.2s ease-in-out;
+  cursor: pointer;
 
   &:hover {
-    background-color: var(--colors-blue-100);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+
+  &__content {
+    width: 100%;
+  }
+
+  &__user-email {
+    color: var(--colors-gray-700);
+    font-weight: normal;
   }
 
   &__actions {
@@ -34,6 +68,12 @@
       visibility: visible;
       opacity: 1;
     }
+  }
+
+  &__timestamp {
+    color: var(--colors-gray-700);
+    font-size: get("font.size.sm");
+    white-space: nowrap;
   }
 
   &__post-reference {

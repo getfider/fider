@@ -305,10 +305,10 @@ func TestPostStorage_AddAndReturnComments(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(commentsByPost.Result).HasLen(2)
 
-	Expect(commentsByPost.Result[0].Content).Equals("Comment #1")
-	Expect(commentsByPost.Result[0].User.Name).Equals("Jon Snow")
-	Expect(commentsByPost.Result[1].Content).Equals("Comment #2")
-	Expect(commentsByPost.Result[1].User.Name).Equals("Arya Stark")
+	Expect(commentsByPost.Result[0].Content).Equals("Comment #2")
+	Expect(commentsByPost.Result[0].User.Name).Equals("Arya Stark")
+	Expect(commentsByPost.Result[1].Content).Equals("Comment #1")
+	Expect(commentsByPost.Result[1].User.Name).Equals("Jon Snow")
 }
 
 func TestPostStorage_AddGetUpdateComment(t *testing.T) {

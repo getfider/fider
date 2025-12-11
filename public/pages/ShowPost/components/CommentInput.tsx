@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react"
 
 import { Post } from "@fider/models"
-import { Avatar, UserName, Button, Form } from "@fider/components"
+import { Avatar, Button, Form } from "@fider/components"
 import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
@@ -79,16 +79,10 @@ export const CommentInput = (props: CommentInputProps) => {
   return (
     <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <HStack spacing={2} className="c-comment-input" align="start">
-        {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
-        <div className="flex-grow bg-gray-100 rounded-md p-2">
+      <HStack spacing={4} className="c-comment-input" align="start">
+        {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} size="large" />}
+        <div className="c-comment-input-card">
           <Form error={error}>
-            {Fider.session.isAuthenticated && (
-              <div className="mb-1">
-                <UserName user={Fider.session.user} />
-              </div>
-            )}
-
             {isClient ? (
               <>
                 <CommentEditor
@@ -106,8 +100,8 @@ export const CommentInput = (props: CommentInputProps) => {
 
                 {hasContent && (
                   <>
-                    <Button variant="primary" onClick={submit} className="mt-2">
-                      <Trans id="action.submit">Submit</Trans>
+                    <Button disabled={!fider.session.isAuthenticated} variant="primary" onClick={submit} className="mt-4">
+                      <Trans id="action.postcomment">Post</Trans>
                     </Button>
                   </>
                 )}

@@ -160,12 +160,11 @@ const ContentModerationPage = () => {
 
   const renderDivider = (title: string, count: number) => {
     return (
-      <HStack spacing={2} className="py-4 w-full">
-        <div className="text-blue-500 text-title">
+      <div className="c-moderation-page__divider">
+        <div className="c-moderation-page__divider-title">
           {title} ({count})
         </div>
-        <hr className="border-blue-500 flex-grow"></hr>
-      </HStack>
+      </div>
     )
   }
 
@@ -174,34 +173,30 @@ const ContentModerationPage = () => {
   }
 
   const renderModerationItem = (item: ModerationItem) => {
-    const containerClasses = `c-moderation-item flex flex-y p-3 rounded-md hover clickable`
-
     const title = item.type == "post" ? item.title : item.postTitle
     const link = item.type == "post" ? `/posts/${item.postNumber}/${item.postSlug}` : `/posts/${item.postNumber}/${item.postSlug}#comment-${item.id}`
     const blocked = item.user.status === UserStatus.Blocked && <span className="text-red-700">blocked</span>
 
     return (
-      <div key={`${item.type}-${item.id}`} className={containerClasses} onClick={() => handlePostClick(link)}>
+      <div key={`${item.type}-${item.id}`} className="c-moderation-item" onClick={() => handlePostClick(link)}>
         <div className="c-moderation-item__content">
           <HStack spacing={4} align="start" justify="between">
-            <HStack spacing={4} align="start">
-              <Avatar user={item.user} size="normal" />
+            <HStack spacing={4} align="start" className="flex-grow">
+              <Avatar user={item.user} size="large" />
               <VStack spacing={2} className="flex-grow">
-                <>
-                  <HStack>
-                    <span className="text-medium">
-                      {item.user.name} <span className="text-normal">&lt;{item.user.email}&gt;</span>
-                    </span>
-                    {blocked}
-                  </HStack>
-                  {item.type === "post" && <h3 className="text-medium m-0">{title}</h3>}
-                  <p className="m-0 text-body text-break">
-                    <Markdown text={chopString(item.content, 200)} style="plainText" />
-                  </p>
-                  {item.type === "comment" && <p className="m-0 text-muted text-break">{title}</p>}
-                </>
+                <HStack spacing={2}>
+                  <span className="text-semibold">
+                    {item.user.name} <span className="c-moderation-item__user-email">&lt;{item.user.email}&gt;</span>
+                  </span>
+                  {blocked}
+                </HStack>
+                {item.type === "post" && <h3 className="text-semibold m-0">{title}</h3>}
+                <div className="text-body text-break">
+                  <Markdown text={chopString(item.content, 200)} style="plainText" />
+                </div>
+                {item.type === "comment" && <div className="text-muted text-break">{title}</div>}
 
-                <div className="c-moderation-item__actions invisible pt-1" onClick={(e) => e.stopPropagation()}>
+                <div className="c-moderation-item__actions invisible" onClick={(e) => e.stopPropagation()}>
                   <HStack spacing={2}>
                     <Button
                       size="small"
@@ -247,7 +242,9 @@ const ContentModerationPage = () => {
                 </div>
               </VStack>
             </HStack>
-            <Moment date={item.createdAt} locale={fider.currentLocale} />
+            <div className="c-moderation-item__timestamp">
+              <Moment date={item.createdAt} locale={fider.currentLocale} />
+            </div>
           </HStack>
         </div>
       </div>
@@ -261,12 +258,16 @@ const ContentModerationPage = () => {
     <>
       <Header />
       <div id="p-admin-moderation" className="page container">
-        <h1 className="text-large">
-          <Trans id="moderation.title">Moderation Queue</Trans>
-        </h1>
-        <p className="text-body text-lg mt-3">
-          <Trans id="moderation.subtitle">These ideas and comments are from people outside of your trusted users list, you decide if they get published.</Trans>
-        </p>
+        <VStack spacing={2}>
+          <h1 className="text-display">
+            <Trans id="moderation.title">Moderation Queue</Trans>
+          </h1>
+          <p className="text-body">
+            <Trans id="moderation.subtitle">
+              These ideas and comments are from people outside of your trusted users list, you decide if they get published.
+            </Trans>
+          </p>
+        </VStack>
 
         <div className="c-moderation-page">
           {state.loading ? (
@@ -278,25 +279,21 @@ const ContentModerationPage = () => {
               </p>
             </div>
           ) : (
-            <div className="mt-4">
+            <>
               {posts.length > 0 && (
                 <>
                   {renderDivider("New ideas", posts.length)}
-                  <div className="mb-2">
-                    <div className="flex flex-y">{posts.map(renderModerationItem)}</div>
-                  </div>
+                  <div className="c-moderation-page__list">{posts.map(renderModerationItem)}</div>
                 </>
               )}
 
               {comments.length > 0 && (
                 <>
                   {renderDivider("New comments", comments.length)}
-                  <div className="mb-2">
-                    <div className="flex flex-y">{comments.map(renderModerationItem)}</div>
-                  </div>
+                  <div className="c-moderation-page__list">{comments.map(renderModerationItem)}</div>
                 </>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>

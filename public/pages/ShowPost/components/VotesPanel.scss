@@ -1,0 +1,72 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+.c-votes-panel {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__count-badge {
+    background-color: var(--colors-gray-100);
+    color: var(--colors-gray-700);
+    font-size: get("font.size.xs");
+    font-weight: get("font.weight.semibold");
+    padding: spacing(1) spacing(2);
+    border-radius: get("border.radius.full");
+    line-height: 1;
+  }
+
+  &__avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: spacing(3);
+    align-items: center;
+
+    // Style avatars with border
+    .c-avatar {
+      border: 2px solid var(--colors-white);
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    }
+  }
+
+  &__more-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: get("border.radius.full");
+    border: 2px dashed var(--colors-gray-300);
+    background-color: var(--colors-white);
+    color: var(--colors-gray-600);
+    font-size: get("font.size.sm");
+    font-weight: get("font.weight.semibold");
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    @include dark-mode {
+      border: 2px dashed var(--colors-gray-600);
+      background-color: var(--colors-gray-200);
+      color: var(--colors-gray-600);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: var(--colors-primary-base);
+      color: var(--colors-primary-base);
+      background-color: var(--colors-primary-50);
+      transform: scale(1.05);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}

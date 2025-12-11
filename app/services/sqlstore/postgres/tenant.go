@@ -80,8 +80,8 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 			c.Logo.BlobKey = ""
 		}
 
-		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5, locale = $6 WHERE id = $7"
-		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.CNAME, c.Logo.BlobKey, c.Locale, tenant.ID)
+		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, welcome_header = $4, cname = $5, logo_bkey = $6, locale = $7 WHERE id = $8"
+		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.WelcomeHeader, c.CNAME, c.Logo.BlobKey, c.Locale, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant settings")
 		}
@@ -90,6 +90,7 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 		tenant.Invitation = c.Invitation
 		tenant.CNAME = c.CNAME
 		tenant.WelcomeMessage = c.WelcomeMessage
+		tenant.WelcomeHeader = c.WelcomeHeader
 
 		return nil
 	})
@@ -206,11 +207,11 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		tenant := dbEntities.Tenant{}
 
-		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
-			FROM tenants
-			ORDER BY id LIMIT 1
-		`)
+	err := trx.Get(&tenant, `
+		SELECT id, name, subdomain, cname, invitation, locale, welcome_message, welcome_header, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
+		FROM tenants
+		ORDER BY id LIMIT 1
+	`)
 		if err != nil {
 			return errors.Wrap(err, "failed to get first tenant")
 		}
@@ -224,12 +225,12 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		tenant := dbEntities.Tenant{}
 
-		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
-			FROM tenants t
-			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
-			ORDER BY cname DESC
-		`, env.Subdomain(q.Domain), q.Domain, q.Domain)
+	err := trx.Get(&tenant, `
+		SELECT id, name, subdomain, cname, invitation, locale, welcome_message, welcome_header, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
+		FROM tenants t
+		WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
+		ORDER BY cname DESC
+	`, env.Subdomain(q.Domain), q.Domain, q.Domain)
 		if err != nil {
 			return errors.Wrap(err, "failed to get tenant with domain '%s'", q.Domain)
 		}

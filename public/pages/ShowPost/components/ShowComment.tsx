@@ -178,25 +178,22 @@ export const ShowComment = (props: ShowCommentProps) => {
   )
 
   const classList = classSet({
-    "flex-grow rounded-md p-2 comment-area": true,
-    "bg-gray-100": !props.highlighted,
-    "bg-gray-200": props.highlighted,
+    "c-comment__content": true,
+    "c-comment__content--highlighted": props.highlighted,
   })
 
   return (
     <div id={`comment-${comment.id}`}>
-      <HStack spacing={2} className="c-comment flex-items-baseline">
-        {modal()}
-        <div className="pt-4">
-          <Avatar user={comment.user} />
-        </div>
-        <div ref={node} className={classList}>
+      {modal()}
+      <HStack spacing={4} align="start">
+        <Avatar user={comment.user} size="large" />
+        <div ref={node} className={`c-comment__card ${classList}`}>
           <div className="mb-1">
             <HStack justify="between">
               <HStack>
-                <UserName user={comment.user} />{" "}
+                <UserName user={comment.user} /> <span className="text-sm text-gray-400">•</span>
                 <div className="text-xs">
-                  · <Moment locale={fider.currentLocale} date={comment.createdAt} /> {editedMetadata}
+                  <Moment locale={fider.currentLocale} date={comment.createdAt} /> {editedMetadata}
                 </div>
               </HStack>
               {!isEditing && (

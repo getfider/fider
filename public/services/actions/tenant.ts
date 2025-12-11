@@ -28,6 +28,7 @@ export interface UpdateTenantSettingsRequest {
   title: string
   invitation: string
   welcomeMessage: string
+  welcomeHeader: string
   cname: string
   locale: string
 }

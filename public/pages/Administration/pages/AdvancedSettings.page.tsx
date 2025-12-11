@@ -63,9 +63,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
         {this.props.isCommercial && this.props.licenseKey && (
           <div className="field">
             <label>Commercial License Key</label>
-            <p className="text-muted">
-              Use this key to run Fider self-hosted with commercial features (content moderation).
-            </p>
+            <p className="text-muted">Use this key to run Fider self-hosted with commercial features (content moderation).</p>
             <div className="mt-2 mb-4">
               <div className="flex gap-2">
                 <input

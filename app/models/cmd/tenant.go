@@ -31,6 +31,7 @@ type UpdateTenantSettings struct {
 	Title          string
 	Invitation     string
 	WelcomeMessage string
+	WelcomeHeader  string
 	CNAME          string
 	Locale         string
 }

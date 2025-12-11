@@ -233,7 +233,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			WHERE p.id = $1
 			AND p.tenant_id = $2
 			AND c.deleted_at IS NULL%s
-			ORDER BY c.created_at ASC`, approvalFilter)
+			ORDER BY c.created_at DESC`, approvalFilter)
 		
 		err := trx.Select(&comments, query, q.Post.ID, tenant.ID, userId)
 		if err != nil {

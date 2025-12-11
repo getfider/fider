@@ -67,6 +67,14 @@
   }
 }
 
+@include media("xl2") {
+  .container {
+    width: 1320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .box {
   border-radius: get("border.radius.large");
   background-color: var(--colors-white);

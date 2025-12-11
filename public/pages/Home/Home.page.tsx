@@ -1,12 +1,13 @@
 import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
+import IconPlusCircle from "@fider/assets/images/heroicons-pluscircle.svg"
 
 import React, { useEffect, useState } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
-import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
+import { Markdown, Hint, PoweredByFider, Icon, Header } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
-import { VStack } from "@fider/components/layout"
+import { VStack, HStack } from "@fider/components/layout"
 import { ShareFeedback } from "./components/ShareFeedback"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
@@ -84,6 +85,34 @@ What can we do better? This is the place for you to vote, discuss and share idea
     setIsShareFeedbackOpen(true)
   }
 
+  const parseWelcomeHeader = (text: string): JSX.Element[] => {
+    const parts: JSX.Element[] = []
+    let currentIndex = 0
+    const regex = /_([^_]+)_/g
+    let match: RegExpExecArray | null
+
+    while ((match = regex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > currentIndex) {
+        parts.push(<span key={currentIndex}>{text.slice(currentIndex, match.index)}</span>)
+      }
+      // Add the highlighted text
+      parts.push(
+        <span key={match.index} className="text-primary-base">
+          {match[1]}
+        </span>
+      )
+      currentIndex = regex.lastIndex
+    }
+
+    // Add remaining text
+    if (currentIndex < text.length) {
+      parts.push(<span key={currentIndex}>{text.slice(currentIndex)}</span>)
+    }
+
+    return parts
+  }
+
   return (
     <>
       <ShareFeedback
@@ -95,17 +124,23 @@ What can we do better? This is the place for you to vote, discuss and share idea
       <Header hasInert={isShareFeedbackOpen && !fider.isReadOnly} />
       <div id="p-home" className="page container" {...(isShareFeedbackOpen && !fider.isReadOnly && { inert: "true" })}>
         <div className="p-home__welcome-col">
-          <VStack spacing={2} className="p-4">
-            <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
-            <Button className="c-input" type="submit" variant="secondary" onClick={handleNewPost}>
-              {fider.session.tenant.invitation || defaultInvitation}
-            </Button>
+          <VStack spacing={6}>
+            <div>
+              {fider.session.tenant.welcomeHeader && <h1 className="p-home__welcome-title mb-5">{parseWelcomeHeader(fider.session.tenant.welcomeHeader)}</h1>}
+              <Markdown className="p-home__welcome-body" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
+            </div>
           </VStack>
-          <div onClick={() => setIsShareFeedbackOpen(true)}>
+          <div>
             <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
           </div>
         </div>
-        <div className="p-home__posts-col p-4">
+        <div className="p-home__posts-col">
+          <button className="p-home__add-idea-btn" onClick={handleNewPost}>
+            <HStack spacing={4} align="center">
+              <Icon sprite={IconPlusCircle} className="p-home__add-idea-icon" />
+              <span>{fider.session.tenant.invitation || defaultInvitation}</span>
+            </HStack>
+          </button>
           {isLonely() ? <Lonely /> : <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />}
           <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
         </div>

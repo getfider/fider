@@ -78,7 +78,8 @@ func Index() web.HandlerFunc {
 		return c.Page(http.StatusOK, web.Props{
 			Page:        "Home/Home.page",
 			Description: description,
-			Data:        data,
+			// Header:      c.Tenant().WelcomeHeader,
+			Data: data,
 		})
 	}
 }
