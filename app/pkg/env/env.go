@@ -242,9 +242,10 @@ func MultiTenantDomain() string {
 	return ""
 }
 
-// IsBillingEnabled returns true if Stripe is configured
+// IsBillingEnabled returns true if Stripe is configured and running in multi-tenant mode
+// Billing is only available in multi-tenant hosted mode, not in single-host self-hosted mode
 func IsBillingEnabled() bool {
-	return Config.Stripe.SecretKey != ""
+	return IsMultiHostMode() && Config.Stripe.SecretKey != ""
 }
 
 // IsMultiHostMode returns true if host mode is set to multi tenant

@@ -24,8 +24,18 @@ func init() {
 	ctx := context.Background()
 	var svc *commercialLicenseService
 
-	if env.IsSingleHostMode() && env.Config.License.Key != "" {
-		// Self-hosted with license key: validate at startup
+	// Development/test mode: enable all commercial features without license key
+	// Note: Production use of commercial features requires a valid license
+	if env.Config.Environment != "production" {
+		svc = &commercialLicenseService{
+			isValid:  true,
+			tenantID: 0,
+		}
+		log.Warnf(ctx, "Running in @{Environment} mode - commercial features enabled for development/testing. Production use requires a license from https://fider.io", dto.Props{
+			"Environment": env.Config.Environment,
+		})
+	} else if env.IsSingleHostMode() && env.Config.License.Key != "" {
+		// Production self-hosted with license key: validate at startup
 		result := license.ValidateKey(env.Config.License.Key)
 		if !result.IsValid {
 			panic(result.Error)
