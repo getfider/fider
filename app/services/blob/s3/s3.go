@@ -107,6 +107,10 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
+	if err := blob.ValidateKey(q.Key); err != nil {
+		return wrap(err, "failed to validate blob key '%s'", q.Key)
+	}
+
 	resp, err := DefaultClient.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(env.Config.BlobStorage.S3.BucketName),
 		Key:    aws.String(keyFullPathURL(ctx, q.Key)),

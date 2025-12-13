@@ -65,6 +65,7 @@ var tests = []struct {
 	{"AllOperations", AllOperations},
 	{"DeleteUnkownFile", DeleteUnkownFile},
 	{"KeyFormats", KeyFormats},
+	{"PathTraversalOnRead", PathTraversalOnRead},
 	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
 	{"SameKey_DifferentTenant_Delete", SameKey_DifferentTenant_Delete},
 	{"ListBlobsFromTenant", ListBlobsFromTenant},
@@ -303,6 +304,24 @@ func ListUnauthorizedBlobs(ctx context.Context) {
 	Expect(err).IsNil()
 }
 
+func PathTraversalOnRead(ctx context.Context) {
+	// Test that path traversal attempts are blocked on read operations
+	traversalKeys := []string{
+		"../file.txt",
+		"../../etc/passwd",
+		"path/../file.txt",
+		"path/../../file.txt",
+		"../../../etc/passwd",
+	}
+
+	for _, key := range traversalKeys {
+		q := &query.GetBlobByKey{Key: key}
+		err := bus.Dispatch(ctx, q)
+		Expect(errors.Cause(err)).Equals(blob.ErrInvalidKeyFormat)
+		Expect(q.Result).IsNil()
+	}
+}
+
 func KeyFormats(ctx context.Context) {
 	testCases := []struct {
 		key   string
@@ -338,6 +357,26 @@ func KeyFormats(ctx context.Context) {
 		},
 		{
 			key:   rand.String(513),
+			valid: false,
+		},
+		{
+			key:   "../file.txt",
+			valid: false,
+		},
+		{
+			key:   "path/../file.txt",
+			valid: false,
+		},
+		{
+			key:   "../../etc/passwd",
+			valid: false,
+		},
+		{
+			key:   "path/../../file.txt",
+			valid: false,
+		},
+		{
+			key:   "path/to/../../file.txt",
 			valid: false,
 		},
 	}

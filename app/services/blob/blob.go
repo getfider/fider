@@ -34,6 +34,10 @@ func ValidateKey(key string) error {
 	if strings.HasPrefix(key, "/") || strings.HasSuffix(key, "/") {
 		return ErrInvalidKeyFormat
 	}
+	// Prevent path traversal attacks by rejecting keys with ".." segments
+	if strings.Contains(key, "..") {
+		return ErrInvalidKeyFormat
+	}
 	return nil
 }
 
