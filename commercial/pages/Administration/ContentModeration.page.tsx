@@ -180,72 +180,62 @@ const ContentModerationPage = () => {
     return (
       <div key={`${item.type}-${item.id}`} className="c-moderation-item" onClick={() => handlePostClick(link)}>
         <div className="c-moderation-item__content">
-          <HStack spacing={4} align="start" justify="between">
-            <HStack spacing={4} align="start" className="flex-grow">
+          <div className="c-moderation-item__header">
+            <HStack spacing={4} align="start">
               <Avatar user={item.user} size="large" />
-              <VStack spacing={2} className="flex-grow">
-                <HStack spacing={2}>
-                  <span className="text-semibold">
-                    {item.user.name} <span className="c-moderation-item__user-email">&lt;{item.user.email}&gt;</span>
-                  </span>
-                  {blocked}
-                </HStack>
-                {item.type === "post" && <h3 className="text-semibold m-0">{title}</h3>}
-                <div className="text-body text-break">
-                  <Markdown text={chopString(item.content, 200)} style="plainText" />
-                </div>
-                {item.type === "comment" && <div className="text-muted text-break">{title}</div>}
-
-                <div className="c-moderation-item__actions invisible" onClick={(e) => e.stopPropagation()}>
-                  <HStack spacing={2}>
-                    <Button
-                      size="small"
-                      variant="secondary"
-                      onClick={() => (item.type === "post" ? handleApprovePost(item.id) : handleApproveComment(item.id))}
-                    >
-                      <Icon sprite={IconCheck} />
-                      <span>
-                        <Trans id="action.publish">Publish</Trans>
-                      </span>
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="secondary"
-                      onClick={() => (item.type === "post" ? handleDeclinePost(item.id) : handleDeclineComment(item.id))}
-                    >
-                      <Icon sprite={IconX} />
-                      <span>
-                        <Trans id="action.delete">Delete</Trans>
-                      </span>
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="secondary"
-                      onClick={() => (item.type === "post" ? handleApprovePostAndVerify(item.id) : handleApproveCommentAndVerify(item.id))}
-                    >
-                      <Icon sprite={IconShieldCheck} />
-                      <span>
-                        <Trans id="action.publish.verify">Publish & Trust</Trans>
-                      </span>
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="secondary"
-                      onClick={() => (item.type === "post" ? handleDeclinePostAndBlock(item.id) : handleDeclineCommentAndBlock(item.id))}
-                    >
-                      <Icon sprite={IconBan} />
-                      <span>
-                        <Trans id="action.delete.block">Delete & Block</Trans>
-                      </span>
-                    </Button>
-                  </HStack>
-                </div>
+              <VStack spacing={1} className="flex-grow c-moderation-item__user-info">
+                <div className="text-semibold c-moderation-item__user-name">{item.user.name}</div>
+                <div className="c-moderation-item__user-email">&lt;{item.user.email}&gt;</div>
+                {blocked && <span className="text-red-700">{blocked}</span>}
               </VStack>
             </HStack>
             <div className="c-moderation-item__timestamp">
               <Moment date={item.createdAt} locale={fider.currentLocale} />
             </div>
-          </HStack>
+          </div>
+
+          <VStack spacing={2} className="c-moderation-item__body">
+            {item.type === "post" && <h3 className="text-semibold m-0">{title}</h3>}
+            <div className="text-body text-break">
+              <Markdown text={chopString(item.content, 200)} style="plainText" />
+            </div>
+            {item.type === "comment" && <div className="text-muted text-break">{title}</div>}
+
+            <div className="c-moderation-item__actions invisible" onClick={(e) => e.stopPropagation()}>
+              <Button size="small" variant="secondary" onClick={() => (item.type === "post" ? handleApprovePost(item.id) : handleApproveComment(item.id))}>
+                <Icon sprite={IconCheck} />
+                <span>
+                  <Trans id="action.publish">Publish</Trans>
+                </span>
+              </Button>
+              <Button size="small" variant="secondary" onClick={() => (item.type === "post" ? handleDeclinePost(item.id) : handleDeclineComment(item.id))}>
+                <Icon sprite={IconX} />
+                <span>
+                  <Trans id="action.delete">Delete</Trans>
+                </span>
+              </Button>
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={() => (item.type === "post" ? handleApprovePostAndVerify(item.id) : handleApproveCommentAndVerify(item.id))}
+              >
+                <Icon sprite={IconShieldCheck} />
+                <span>
+                  <Trans id="action.publish.verify">Publish & Trust</Trans>
+                </span>
+              </Button>
+              <Button
+                size="small"
+                variant="secondary"
+                onClick={() => (item.type === "post" ? handleDeclinePostAndBlock(item.id) : handleDeclineCommentAndBlock(item.id))}
+              >
+                <Icon sprite={IconBan} />
+                <span>
+                  <Trans id="action.delete.block">Delete & Block</Trans>
+                </span>
+              </Button>
+            </div>
+          </VStack>
         </div>
       </div>
     )

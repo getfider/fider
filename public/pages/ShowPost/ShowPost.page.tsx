@@ -221,8 +221,8 @@ export default function ShowPostPage(props: ShowPostPageProps) {
       <Header />
       <div id="p-show-post" className="page container">
         <div className="p-show-post">
-          {/* Left Sidebar */}
-          <div className="p-show-post__action-col">
+          {/* Left Sidebar - hidden on mobile, shown on desktop */}
+          <div className="p-show-post__action-col p-show-post__action-col--desktop">
             <VotesPanel post={props.post} votes={props.votes} />
 
             <PoweredByFider slot="show-post" className="mt-3" />
@@ -383,6 +383,11 @@ export default function ShowPostPage(props: ShowPostPageProps) {
               )}
             </div>
 
+            {/* Mobile Sidebar - shown after post card on mobile */}
+            <div className="p-show-post__action-col p-show-post__action-col--mobile">
+              <VotesPanel post={props.post} votes={props.votes} />
+            </div>
+
             {/* Discussion Section */}
             <div className="p-show-post__discussion-section">
               {/* Discussion Header */}
@@ -409,6 +414,11 @@ export default function ShowPostPage(props: ShowPostPageProps) {
                   ))}
                 </VStack>
               )}
+            </div>
+
+            {/* Powered by Fider - bottom of page on mobile only */}
+            <div className="p-show-post__powered-by-mobile">
+              <PoweredByFider slot="show-post" />
             </div>
           </div>
         </div>

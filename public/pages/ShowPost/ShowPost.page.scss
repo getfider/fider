@@ -2,8 +2,12 @@
 
 #p-show-post {
   background-color: var(--colors-gray-100);
-  padding-top: spacing(12);
+  padding-top: spacing(4);
   padding-bottom: spacing(12);
+
+  @include media("md") {
+    padding-top: spacing(12);
+  }
 
   .post-header {
     flex-grow: 1;
@@ -71,6 +75,13 @@
       border-top: 5px solid var(--colors-blue-500);
       padding-top: spacing(4);
       margin-top: spacing(8);
+
+      // Remove flex-grow on mobile so Following button doesn't get pushed to the right
+      @include media("sm") {
+        .flex-grow {
+          display: none;
+        }
+      }
     }
 
     &__discussion-section {
@@ -97,6 +108,15 @@
       }
     }
 
+    &__powered-by-mobile {
+      display: block;
+      margin-top: spacing(6);
+
+      @include media("lg") {
+        display: none;
+      }
+    }
+
     &__action-col {
       display: flex;
       flex-direction: column;
@@ -104,6 +124,24 @@
 
       @include media("sm") {
         margin-top: spacing(6);
+      }
+
+      // Hide desktop version on mobile
+      &--desktop {
+        display: none;
+
+        @include media("lg") {
+          display: flex;
+        }
+      }
+
+      // Show mobile version only on mobile
+      &--mobile {
+        display: flex;
+
+        @include media("lg") {
+          display: none;
+        }
       }
 
       > .card {
