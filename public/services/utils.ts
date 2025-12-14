@@ -163,3 +163,18 @@ export const sortTags = (tags: Tag[]) => {
     return a.name.localeCompare(b.name)
   })
 }
+
+export const chopString = (input: string, length: number): string => {
+  if (!input || input.length <= length) {
+    return input
+  }
+
+  const truncated = input.substring(0, length)
+  const lastSpaceIndex = truncated.lastIndexOf(" ")
+
+  if (lastSpaceIndex === -1) {
+    return truncated + "..."
+  }
+
+  return truncated.substring(0, lastSpaceIndex) + "..."
+}

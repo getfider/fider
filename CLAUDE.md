@@ -112,7 +112,7 @@ The application includes pluggable services for:
 - **Email**: SMTP, Mailgun, AWS SES
 - **Blob Storage**: Filesystem, S3, SQL
 - **OAuth**: Custom providers, GitHub, Google, etc.
-- **Billing**: Paddle integration (optional)
+- **Billing**: Stripe integration (optional)
 - **Webhooks**: Outbound event notifications
 
 ## Development Setup Requirements
@@ -180,7 +180,7 @@ Fider uses BEM methodology combined with utility classes:
 - **`c-<component_name>__<element>`** - Element classes (e.g., `c-toggle__label`)
 - **`c-<component_name>--<state>`** - State modifiers (e.g., `c-toggle--checked`)
 - **`is-<state>`, `has-<state>`** - Global state modifiers
-- **Utility classes** - No prefix, used for common styling patterns. All utility classes are defined in public/assets/styles/utility/
+- **Utility classes** - No prefix, used for common styling patterns. All utility classes are defined in public/assets/styles/utility
 
 ### General Principles
 

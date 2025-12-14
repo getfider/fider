@@ -7,35 +7,11 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
-
-type dbVote struct {
-	User *struct {
-		ID            int    `db:"id"`
-		Name          string `db:"name"`
-		Email         string `db:"email"`
-		AvatarType    int64  `db:"avatar_type"`
-		AvatarBlobKey string `db:"avatar_bkey"`
-	} `db:"user"`
-	CreatedAt time.Time `db:"created_at"`
-}
-
-func (v *dbVote) toModel(ctx context.Context) *entity.Vote {
-	vote := &entity.Vote{
-		CreatedAt: v.CreatedAt,
-		User: &entity.VoteUser{
-			ID:        v.User.ID,
-			Name:      v.User.Name,
-			Email:     v.User.Email,
-			AvatarURL: buildAvatarURL(ctx, enum.AvatarType(v.User.AvatarType), v.User.ID, v.User.Name, v.User.AvatarBlobKey),
-		},
-	}
-	return vote
-}
 
 func addVote(ctx context.Context, c *cmd.AddVote) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
@@ -84,7 +60,7 @@ func listPostVotes(ctx context.Context, q *query.ListPostVotes) error {
 			emailColumn = "u.email"
 		}
 
-		votes := []*dbVote{}
+		votes := []*dbEntities.Vote{}
 		err := trx.Select(&votes, `
 		SELECT 
 			pv.created_at, 
@@ -107,7 +83,7 @@ func listPostVotes(ctx context.Context, q *query.ListPostVotes) error {
 
 		q.Result = make([]*entity.Vote, len(votes))
 		for i, vote := range votes {
-			q.Result[i] = vote.toModel(ctx)
+			q.Result[i] = vote.ToModel(ctx)
 		}
 
 		return nil

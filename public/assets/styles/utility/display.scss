@@ -67,6 +67,14 @@
   }
 }
 
+@include media("xl2") {
+  .container {
+    width: 1320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .box {
   border-radius: get("border.radius.large");
   background-color: var(--colors-white);
@@ -200,6 +208,16 @@
   border-radius: sizing(2);
 }
 
+.rounded-md-t {
+  border-top-left-radius: sizing(2);
+  border-top-right-radius: sizing(2);
+}
+
+.rounded-md-b {
+  border-bottom-left-radius: sizing(2);
+  border-bottom-right-radius: sizing(2);
+}
+
 .rounded-full {
   border-radius: 999px;
 }
@@ -208,11 +226,15 @@
   visibility: hidden;
 }
 
-.bt {
+.border-t {
   border-top: 1px solid;
 }
 
-.bl {
+.border-b {
+  border-bottom: 1px solid;
+}
+
+.border-l {
   border-inline-start: 1px solid;
 }
 
@@ -222,6 +244,10 @@
 
 .overflow-auto {
   overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
 }
 
 .border {

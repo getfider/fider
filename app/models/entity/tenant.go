@@ -1,24 +1,29 @@
 package entity
 
-import "github.com/getfider/fider/app/models/enum"
+import (
+	"github.com/getfider/fider/app/models/enum"
+)
 
 // Tenant represents a tenant
 type Tenant struct {
-	ID                 int               `json:"id"`
-	Name               string            `json:"name"`
-	Subdomain          string            `json:"subdomain"`
-	Invitation         string            `json:"invitation"`
-	WelcomeMessage     string            `json:"welcomeMessage"`
-	CNAME              string            `json:"cname"`
-	Status             enum.TenantStatus `json:"status"`
-	Locale             string            `json:"locale"`
-	IsPrivate          bool              `json:"isPrivate"`
-	LogoBlobKey        string            `json:"logoBlobKey"`
-	CustomCSS          string            `json:"-"`
-	AllowedSchemes     string            `json:"allowedSchemes"`
-	IsEmailAuthAllowed bool              `json:"isEmailAuthAllowed"`
-	IsFeedEnabled      bool              `json:"isFeedEnabled"`
-	PreventIndexing    bool              `json:"preventIndexing"`
+	ID                  int               `json:"id"`
+	Name                string            `json:"name"`
+	Subdomain           string            `json:"subdomain"`
+	Invitation          string            `json:"invitation"`
+	WelcomeMessage      string            `json:"welcomeMessage"`
+	WelcomeHeader       string            `json:"welcomeHeader"`
+	CNAME               string            `json:"cname"`
+	Status              enum.TenantStatus `json:"status"`
+	Locale              string            `json:"locale"`
+	IsPrivate           bool              `json:"isPrivate"`
+	LogoBlobKey         string            `json:"logoBlobKey"`
+	CustomCSS           string            `json:"-"`
+	AllowedSchemes      string            `json:"allowedSchemes"`
+	IsEmailAuthAllowed  bool              `json:"isEmailAuthAllowed"`
+	IsFeedEnabled       bool              `json:"isFeedEnabled"`
+	PreventIndexing     bool              `json:"preventIndexing"`
+	IsModerationEnabled bool              `json:"isModerationEnabled"`
+	IsCommercial        bool              `json:"isCommercial"`
 }
 
 func (t *Tenant) IsDisabled() bool {

@@ -15,8 +15,11 @@ func Secure() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			cdnHost := env.Config.CDN.Host
-			if cdnHost != "" && !env.IsSingleHostMode() {
-				cdnHost = "*." + cdnHost
+			if cdnHost != "" {
+				if !env.IsSingleHostMode() {
+					cdnHost = "*." + cdnHost
+				}
+				cdnHost = " " + cdnHost
 			}
 			csp := fmt.Sprintf(web.CspPolicyTemplate, c.ContextID(), cdnHost)
 

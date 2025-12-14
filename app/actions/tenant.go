@@ -194,6 +194,7 @@ type UpdateTenantSettings struct {
 	Title          string           `json:"title"`
 	Invitation     string           `json:"invitation"`
 	WelcomeMessage string           `json:"welcomeMessage"`
+	WelcomeHeader  string           `json:"welcomeHeader"`
 	Locale         string           `json:"locale"`
 	CNAME          string           `json:"cname" format:"lower"`
 }
@@ -242,6 +243,10 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
 	}
 
+	if len(action.WelcomeHeader) > 100 {
+		result.AddFieldFailure("welcomeHeader", "Welcome Header must have less than 100 characters.")
+	}
+
 	if !i18n.IsValidLocale(action.Locale) {
 		result.AddFieldFailure("locale", "Locale is invalid.")
 	}
@@ -272,8 +277,9 @@ func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *
 
 // UpdateTenantPrivacySettings is the input model used to update tenant privacy settings
 type UpdateTenantPrivacySettings struct {
-	IsPrivate     bool `json:"isPrivate"`
-	IsFeedEnabled bool `json:"isFeedEnabled"`
+	IsPrivate           bool `json:"isPrivate"`
+	IsFeedEnabled       bool `json:"isFeedEnabled"`
+	IsModerationEnabled bool `json:"isModerationEnabled"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action

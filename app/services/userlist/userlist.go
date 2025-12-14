@@ -153,9 +153,9 @@ func updateUserListCompany(ctx context.Context, c *cmd.UserListUpdateCompany) er
 		Name:       c.Name,
 	}
 
-	if c.BillingStatus > 0 {
+	if c.Plan > 0 {
 		company.Properties = map[string]interface{}{
-			"billing_status": c.BillingStatus.String(),
+			"plan": c.Plan.String(),
 		}
 	}
 
@@ -174,8 +174,8 @@ func createUserListCompany(ctx context.Context, c *cmd.UserListCreateCompany) er
 		Name:       c.Name,
 		SignedUpAt: c.SignedUpAt,
 		Properties: map[string]interface{}{
-			"billing_status": c.BillingStatus,
-			"subdomain":      c.Subdomain,
+			"plan":      c.Plan.String(),
+			"subdomain": c.Subdomain,
 		},
 		Users: []UserListUser{
 			{

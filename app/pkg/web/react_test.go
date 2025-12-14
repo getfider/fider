@@ -52,7 +52,8 @@ func TestReactRenderer_RenderEmptyHomeHTML(t *testing.T) {
 		},
 	})
 	Expect(html).ContainsSubstring(`<div class="c-dev-banner">DEV</div>`)
-	Expect(html).ContainsSubstring(`<button type="submit" class="c-button c-button--default c-button--secondary c-input">Enter your suggestion here...</button>`)
+	Expect(html).ContainsSubstring(`<button class="p-home__add-idea-btn">`)
+	Expect(html).ContainsSubstring(`Enter your suggestion here...`)
 	Expect(html).ContainsSubstring(`What can we do better? This is the place for you to vote, discuss and share ideas.`)
 	Expect(html).ContainsSubstring(`No posts have been created yet.`)
 	Expect(html).ContainsSubstring(`Powered by Fider`)
@@ -81,7 +82,8 @@ func TestReactRenderer_RenderEmptyHomeHTML_Portuguese(t *testing.T) {
 		},
 	})
 	Expect(html).ContainsSubstring(`<div class="c-dev-banner">DEV</div>`)
-	Expect(html).ContainsSubstring(`<button type="submit" class="c-button c-button--default c-button--secondary c-input">Insira sua sugestão aqui...</button`)
+	Expect(html).ContainsSubstring(`<button class="p-home__add-idea-btn">`)
+	Expect(html).ContainsSubstring(`Insira sua sugestão aqui...`)
 	Expect(html).ContainsSubstring(`O que podemos fazer melhor? Este é o lugar para você votar, discutir e compartilhar ideias.`)
 	Expect(html).ContainsSubstring(`Nenhuma postagem foi criada ainda.`)
 	Expect(html).ContainsSubstring(`Powered by Fider`)

@@ -11,6 +11,7 @@ const GeneralSettingsPage = () => {
   const fider = useFider()
   const [title, setTitle] = useState<string>(fider.session.tenant.name)
   const [welcomeMessage, setWelcomeMessage] = useState<string>(fider.session.tenant.welcomeMessage)
+  const [welcomeHeader, setWelcomeHeader] = useState<string>(fider.session.tenant.welcomeHeader)
   const [invitation, setInvitation] = useState<string>(fider.session.tenant.invitation)
   const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
   const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
@@ -18,7 +19,7 @@ const GeneralSettingsPage = () => {
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, invitation, logo, locale })
+    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, invitation, logo, locale })
     if (result.ok) {
       e.preventEnable()
       location.href = `/`
@@ -46,6 +47,20 @@ const GeneralSettingsPage = () => {
       <Form error={error}>
         <Input field="title" label="Your Fider board's title" maxLength={60} value={title} disabled={!fider.session.user.isAdministrator} onChange={setTitle}>
           <p className="text-muted">Keep it short and snappy. Your product / service name is usually best.</p>
+        </Input>
+
+        <Input
+          field="welcomeHeader"
+          label="Welcome Header"
+          maxLength={100}
+          value={welcomeHeader}
+          disabled={!fider.session.user.isAdministrator}
+          placeholder="Help us build the _best feedback platform_"
+          onChange={setWelcomeHeader}
+        >
+          <p className="text-muted">
+            Large header text shown on the home page. Leave empty to hide. Wrap text with underscores (e.g., _highlighted_) to show it in blue.
+          </p>
         </Input>
 
         <TextArea

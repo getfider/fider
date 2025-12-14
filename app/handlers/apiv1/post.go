@@ -21,10 +21,11 @@ func SearchPosts() web.HandlerFunc {
 			viewQueryParams = "all" // Set default value to "all" if not provided
 		}
 		searchPosts := &query.SearchPosts{
-			Query: c.QueryParam("query"),
-			View:  viewQueryParams,
-			Limit: c.QueryParam("limit"),
-			Tags:  c.QueryParamAsArray("tags"),
+			Query:            c.QueryParam("query"),
+			View:             viewQueryParams,
+			Limit:            c.QueryParam("limit"),
+			Tags:             c.QueryParamAsArray("tags"),
+			ModerationFilter: c.QueryParam("moderation"),
 		}
 		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
 			searchPosts.MyVotesOnly = myVotesOnly

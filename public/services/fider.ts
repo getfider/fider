@@ -40,6 +40,14 @@ export class FiderSession {
   public get isAuthenticated(): boolean {
     return !!this.pUser
   }
+
+  public get isModerationRequiredForNewPost(): boolean {
+    return this.pTenant.isCommercial && this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isTrusted
+  }
+
+  public get showModerationControls(): boolean {
+    return this.pTenant.isCommercial && this.pTenant.isModerationEnabled && this.isAuthenticated && (this.pUser?.isCollaborator ?? false)
+  }
 }
 
 export class FiderImpl {

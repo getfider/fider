@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
@@ -15,84 +16,6 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
-
-type dbTenant struct {
-	ID                 int    `db:"id"`
-	Name               string `db:"name"`
-	Subdomain          string `db:"subdomain"`
-	CNAME              string `db:"cname"`
-	Invitation         string `db:"invitation"`
-	WelcomeMessage     string `db:"welcome_message"`
-	Status             int    `db:"status"`
-	Locale             string `db:"locale"`
-	IsPrivate          bool   `db:"is_private"`
-	LogoBlobKey        string `db:"logo_bkey"`
-	CustomCSS          string `db:"custom_css"`
-	AllowedSchemes     string `db:"allowed_schemes"`
-	IsEmailAuthAllowed bool   `db:"is_email_auth_allowed"`
-	IsFeedEnabled      bool   `db:"is_feed_enabled"`
-	PreventIndexing    bool   `db:"prevent_indexing"`
-}
-
-func (t *dbTenant) toModel() *entity.Tenant {
-	if t == nil {
-		return nil
-	}
-
-	tenant := &entity.Tenant{
-		ID:                 t.ID,
-		Name:               t.Name,
-		Subdomain:          t.Subdomain,
-		CNAME:              t.CNAME,
-		Invitation:         t.Invitation,
-		WelcomeMessage:     t.WelcomeMessage,
-		Status:             enum.TenantStatus(t.Status),
-		Locale:             t.Locale,
-		IsPrivate:          t.IsPrivate,
-		LogoBlobKey:        t.LogoBlobKey,
-		CustomCSS:          t.CustomCSS,
-		AllowedSchemes:     t.AllowedSchemes,
-		IsEmailAuthAllowed: t.IsEmailAuthAllowed,
-		IsFeedEnabled:      t.IsFeedEnabled,
-		PreventIndexing:    t.PreventIndexing,
-	}
-
-	return tenant
-}
-
-type dbEmailVerification struct {
-	ID         int                        `db:"id"`
-	Name       string                     `db:"name"`
-	Email      string                     `db:"email"`
-	Key        string                     `db:"key"`
-	Kind       enum.EmailVerificationKind `db:"kind"`
-	UserID     dbx.NullInt                `db:"user_id"`
-	CreatedAt  time.Time                  `db:"created_at"`
-	ExpiresAt  time.Time                  `db:"expires_at"`
-	VerifiedAt dbx.NullTime               `db:"verified_at"`
-}
-
-func (t *dbEmailVerification) toModel() *entity.EmailVerification {
-	model := &entity.EmailVerification{
-		Name:       t.Name,
-		Email:      t.Email,
-		Key:        t.Key,
-		Kind:       t.Kind,
-		CreatedAt:  t.CreatedAt,
-		ExpiresAt:  t.ExpiresAt,
-		VerifiedAt: nil,
-	}
-
-	if t.VerifiedAt.Valid {
-		model.VerifiedAt = &t.VerifiedAt.Time
-	}
-
-	if t.UserID.Valid {
-		model.UserID = int(t.UserID.Int64)
-	}
-
-	return model
-}
 
 func isCNAMEAvailable(ctx context.Context, q *query.IsCNAMEAvailable) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
@@ -133,6 +56,10 @@ func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacy
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant feed setting")
 		}
+		_, err = trx.Execute("UPDATE tenants SET is_moderation_enabled = $1 WHERE id = $2", c.IsModerationEnabled, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant moderation setting")
+		}
 		return nil
 	})
 }
@@ -153,8 +80,8 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 			c.Logo.BlobKey = ""
 		}
 
-		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5, locale = $6 WHERE id = $7"
-		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.CNAME, c.Logo.BlobKey, c.Locale, tenant.ID)
+		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, welcome_header = $4, cname = $5, logo_bkey = $6, locale = $7 WHERE id = $8"
+		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.WelcomeHeader, c.CNAME, c.Logo.BlobKey, c.Locale, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant settings")
 		}
@@ -163,6 +90,7 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 		tenant.Invitation = c.Invitation
 		tenant.CNAME = c.CNAME
 		tenant.WelcomeMessage = c.WelcomeMessage
+		tenant.WelcomeHeader = c.WelcomeHeader
 
 		return nil
 	})
@@ -200,7 +128,7 @@ func activateTenant(ctx context.Context, c *cmd.ActivateTenant) error {
 
 func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		verification := dbEmailVerification{}
+		verification := dbEntities.EmailVerification{}
 
 		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
 		err := trx.Get(&verification, query, q.Key, q.Kind)
@@ -208,14 +136,14 @@ func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) er
 			return errors.Wrap(err, "failed to get email verification by its key")
 		}
 
-		q.Result = verification.toModel()
+		q.Result = verification.ToModel()
 		return nil
 	})
 }
 
 func getVerificationByEmailAndCode(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		verification := dbEmailVerification{}
+		verification := dbEntities.EmailVerification{}
 
 		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND key = $3 AND kind = $4 LIMIT 1"
 		err := trx.Get(&verification, query, tenant.ID, q.Email, q.Code, q.Kind)
@@ -223,7 +151,7 @@ func getVerificationByEmailAndCode(ctx context.Context, q *query.GetVerification
 			return errors.Wrap(err, "failed to get email verification by email and code")
 		}
 
-		q.Result = verification.toModel()
+		q.Result = verification.ToModel()
 		return nil
 	})
 }
@@ -261,21 +189,11 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, prevent_indexing)
-			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true, true)
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, prevent_indexing, is_moderation_enabled)
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true, true, false)
 			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
 			return err
-		}
-
-		if env.IsBillingEnabled() {
-			trialEndsAt := time.Now().AddDate(0, 0, 15) // 15 days
-			_, err := trx.Execute(
-				`INSERT INTO tenants_billing (tenant_id, trial_ends_at, status, paddle_subscription_id, paddle_plan_id)
-				 VALUES ($1, $2, $3, '', '')`, id, trialEndsAt, enum.BillingTrial)
-			if err != nil {
-				return err
-			}
 		}
 
 		byDomain := &query.GetTenantByDomain{Domain: c.Subdomain}
@@ -287,45 +205,44 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
-		tenant := dbTenant{}
+		tenant := dbEntities.Tenant{}
 
-		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, prevent_indexing
-			FROM tenants
-			ORDER BY id LIMIT 1
-		`)
-
+	err := trx.Get(&tenant, `
+		SELECT id, name, subdomain, cname, invitation, locale, welcome_message, welcome_header, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
+		FROM tenants
+		ORDER BY id LIMIT 1
+	`)
 		if err != nil {
 			return errors.Wrap(err, "failed to get first tenant")
 		}
 
-		q.Result = tenant.toModel()
+		q.Result = tenant.ToModel()
 		return nil
 	})
 }
 
 func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
-		tenant := dbTenant{}
+		tenant := dbEntities.Tenant{}
 
-		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, prevent_indexing
-			FROM tenants t
-			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
-			ORDER BY cname DESC
-		`, env.Subdomain(q.Domain), q.Domain, q.Domain)
+	err := trx.Get(&tenant, `
+		SELECT id, name, subdomain, cname, invitation, locale, welcome_message, welcome_header, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
+		FROM tenants t
+		WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
+		ORDER BY cname DESC
+	`, env.Subdomain(q.Domain), q.Domain, q.Domain)
 		if err != nil {
 			return errors.Wrap(err, "failed to get tenant with domain '%s'", q.Domain)
 		}
 
-		q.Result = tenant.toModel()
+		q.Result = tenant.ToModel()
 		return nil
 	})
 }
 
 func getPendingSignUpVerification(ctx context.Context, q *query.GetPendingSignUpVerification) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		verification := dbEmailVerification{}
+		verification := dbEntities.EmailVerification{}
 
 		query := `SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id 
 		          FROM email_verifications 
@@ -337,7 +254,7 @@ func getPendingSignUpVerification(ctx context.Context, q *query.GetPendingSignUp
 			return errors.Wrap(err, "failed to get pending signup verification for tenant '%d'", tenant.ID)
 		}
 
-		q.Result = verification.toModel()
+		q.Result = verification.ToModel()
 		return nil
 	})
 }

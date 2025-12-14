@@ -13,7 +13,7 @@ Then("I should be on the home page", async function (this: FiderWorld) {
 })
 
 Then("I click on the first post", async function (this: FiderWorld) {
-  await this.page.click(".c-posts-container__post:first-child a")
+  await this.page.click(".c-posts-container__post-link:first-of-type")
 })
 
 Then("I search for {string}", async function (this: FiderWorld, searchTerm: string) {
@@ -32,7 +32,7 @@ Given("I type {string} as the description", async function (this: FiderWorld, de
 })
 
 Given("I click enter your suggestion", async function () {
-  await this.page.click(".p-home__welcome-col .c-button--default")
+  await this.page.click(".p-home__add-idea-btn")
 })
 
 Given("I type my email address", async function (this: FiderWorld) {

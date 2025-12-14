@@ -1,0 +1,37 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+.c-action-button {
+  display: inline-flex;
+  align-items: center;
+  padding: spacing(2) spacing(3);
+  border: none;
+  background-color: transparent;
+  border-radius: get("border.radius.medium");
+  color: var(--colors-gray-700);
+  font-size: get("font.size.sm");
+  font-weight: get("font.weight.medium");
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: var(--colors-gray-100);
+  }
+
+  &--danger {
+    color: var(--colors-red-700);
+
+    &:hover {
+      background-color: var(--colors-red-50);
+    }
+  }
+
+  &__icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    white-space: nowrap;
+  }
+}

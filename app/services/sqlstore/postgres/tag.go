@@ -10,26 +10,9 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 	"github.com/gosimple/slug"
 )
-
-type dbTag struct {
-	ID       int    `db:"id"`
-	Name     string `db:"name"`
-	Slug     string `db:"slug"`
-	Color    string `db:"color"`
-	IsPublic bool   `db:"is_public"`
-}
-
-func (t *dbTag) toModel() *entity.Tag {
-	return &entity.Tag{
-		ID:       t.ID,
-		Name:     t.Name,
-		Slug:     t.Slug,
-		Color:    t.Color,
-		IsPublic: t.IsPublic,
-	}
-}
 
 func getTagBySlug(ctx context.Context, q *query.GetTagBySlug) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
@@ -176,18 +159,18 @@ func unassignTag(ctx context.Context, c *cmd.UnassignTag) error {
 }
 
 func queryTagBySlug(trx *dbx.Trx, tenant *entity.Tenant, slug string) (*entity.Tag, error) {
-	tag := dbTag{}
+	tag := dbEntities.Tag{}
 
 	err := trx.Get(&tag, "SELECT id, name, slug, color, is_public FROM tags WHERE tenant_id = $1 AND slug = $2", tenant.ID, slug)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tag with slug '%s'", slug)
 	}
 
-	return tag.toModel(), nil
+	return tag.ToModel(), nil
 }
 
 func queryTags(trx *dbx.Trx, query string, args ...any) ([]*entity.Tag, error) {
-	tags := []*dbTag{}
+	tags := []*dbEntities.Tag{}
 	err := trx.Select(&tags, query, args...)
 	if err != nil {
 		return nil, err
@@ -195,7 +178,7 @@ func queryTags(trx *dbx.Trx, query string, args ...any) ([]*entity.Tag, error) {
 
 	var result = make([]*entity.Tag, len(tags))
 	for i, tag := range tags {
-		result[i] = tag.toModel()
+		result[i] = tag.ToModel()
 	}
 	return result, nil
 }

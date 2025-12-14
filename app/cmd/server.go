@@ -17,7 +17,6 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/robfig/cron"
 
-	_ "github.com/getfider/fider/app/services/billing/paddle"
 	_ "github.com/getfider/fider/app/services/blob/fs"
 	_ "github.com/getfider/fider/app/services/blob/s3"
 	_ "github.com/getfider/fider/app/services/blob/sql"
@@ -59,10 +58,6 @@ func startJobs(ctx context.Context) {
 	c := cron.New()
 	_ = c.AddJob(jobs.NewJob(ctx, "PurgeExpiredNotificationsJob", jobs.PurgeExpiredNotificationsJobHandler{}))
 	_ = c.AddJob(jobs.NewJob(ctx, "EmailSupressionJob", jobs.EmailSupressionJobHandler{}))
-
-	if env.IsBillingEnabled() {
-		_ = c.AddJob(jobs.NewJob(ctx, "LockExpiredTenantsJob", jobs.LockExpiredTenantsJobHandler{}))
-	}
 
 	c.Start()
 }

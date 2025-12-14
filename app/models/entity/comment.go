@@ -20,4 +20,5 @@ type Comment struct {
 	EditedAt       *time.Time       `json:"editedAt,omitempty"`
 	EditedBy       *User            `json:"editedBy,omitempty"`
 	ReactionCounts []ReactionCounts `json:"reactionCounts,omitempty"`
+	IsApproved     bool             `json:"isApproved"`
 }

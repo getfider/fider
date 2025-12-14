@@ -34,14 +34,15 @@ type GetPostByNumber struct {
 }
 
 type SearchPosts struct {
-	Query       string
-	View        string
-	Limit       string
-	Statuses    []enum.PostStatus
-	Tags        []string
-	MyVotesOnly bool
-	NoTagsOnly  bool
-	MyPostsOnly bool
+	Query            string
+	View             string
+	Limit            string
+	Statuses         []enum.PostStatus
+	Tags             []string
+	MyVotesOnly      bool
+	NoTagsOnly       bool
+	MyPostsOnly      bool
+	ModerationFilter string // "pending", "approved", or empty (all)
 
 	Result []*entity.Post
 }
