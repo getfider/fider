@@ -1,9 +1,8 @@
 package license
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"crypto/subtle"
+	"crypto/ed25519"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"strconv"
@@ -14,19 +13,29 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
-// GenerateKey generates a commercial license key for a tenant
-// Format: FIDER-COMMERCIAL-{tenantID}-{timestamp}-{hmacHex}
-// Panics if LICENSE_MASTER_SECRET is not set
+// GenerateKey generates a commercial license key for a tenant using Ed25519 signatures
+// Format: FIDER-COMMERCIAL-{tenantID}-{timestamp}-{signature}
+// Panics if LICENSE_PRIVATE_KEY is not set
 func GenerateKey(tenantID int) string {
-	if env.Config.License.MasterSecret == "" {
-		panic("LICENSE_MASTER_SECRET environment variable must be set to generate license keys. This is required for hosted Fider instances that sell Pro subscriptions.")
+	if env.Config.License.PrivateKey == "" {
+		panic("LICENSE_PRIVATE_KEY environment variable must be set to generate license keys. This is required for hosted Fider instances that sell Pro subscriptions.")
 	}
+
+	privateKeyBytes, err := base64.StdEncoding.DecodeString(env.Config.License.PrivateKey)
+	if err != nil {
+		panic(fmt.Sprintf("Invalid LICENSE_PRIVATE_KEY: %v", err))
+	}
+
+	if len(privateKeyBytes) != ed25519.PrivateKeySize {
+		panic(fmt.Sprintf("Invalid LICENSE_PRIVATE_KEY length: expected %d bytes, got %d", ed25519.PrivateKeySize, len(privateKeyBytes)))
+	}
+
 	timestamp := time.Now().Unix()
 	data := fmt.Sprintf("%d-%d", tenantID, timestamp)
-	mac := hmac.New(sha256.New, []byte(env.Config.License.MasterSecret))
-	mac.Write([]byte(data))
-	hash := hex.EncodeToString(mac.Sum(nil))
-	return fmt.Sprintf("FIDER-COMMERCIAL-%d-%d-%s", tenantID, timestamp, hash)
+	signature := ed25519.Sign(ed25519.PrivateKey(privateKeyBytes), []byte(data))
+	signatureHex := hex.EncodeToString(signature)
+
+	return fmt.Sprintf("FIDER-COMMERCIAL-%d-%d-%s", tenantID, timestamp, signatureHex)
 }
 
 // ValidationResult contains the result of license key validation
@@ -36,8 +45,8 @@ type ValidationResult struct {
 	Error    error
 }
 
-// ValidateKey validates a commercial license key and returns the tenant ID
-// Requires LICENSE_MASTER_SECRET to be set for validation
+// ValidateKey validates a commercial license key using Ed25519 signature verification
+// Requires LICENSE_PUBLIC_KEY to be set for validation
 func ValidateKey(key string) *ValidationResult {
 	if key == "" {
 		return &ValidationResult{
@@ -47,20 +56,21 @@ func ValidateKey(key string) *ValidationResult {
 		}
 	}
 
-	if env.Config.License.MasterSecret == "" {
+	if env.Config.License.PublicKey == "" {
 		return &ValidationResult{
 			IsValid:  false,
 			TenantID: 0,
-			Error:    errors.New("LICENSE_MASTER_SECRET environment variable must be set to validate license keys"),
+			Error:    errors.New("LICENSE_PUBLIC_KEY environment variable must be set to validate license keys"),
 		}
 	}
 
+	// Parse license key format
 	parts := strings.Split(key, "-")
 	if len(parts) != 5 || parts[0] != "FIDER" || parts[1] != "COMMERCIAL" {
 		return &ValidationResult{
 			IsValid:  false,
 			TenantID: 0,
-			Error:    errors.New("invalid key format: expected FIDER-COMMERCIAL-{tenantID}-{timestamp}-{hmac}"),
+			Error:    errors.New("invalid key format: expected FIDER-COMMERCIAL-{tenantID}-{timestamp}-{signature}"),
 		}
 	}
 
@@ -82,16 +92,39 @@ func ValidateKey(key string) *ValidationResult {
 		}
 	}
 
-	providedHash := parts[4]
+	providedSignatureHex := parts[4]
 
-	// Recompute HMAC to verify signature
+	// Decode and validate the public key
+	publicKeyBytes, err := base64.StdEncoding.DecodeString(env.Config.License.PublicKey)
+	if err != nil {
+		return &ValidationResult{
+			IsValid:  false,
+			TenantID: 0,
+			Error:    errors.Wrap(err, "invalid LICENSE_PUBLIC_KEY configuration"),
+		}
+	}
+
+	if len(publicKeyBytes) != ed25519.PublicKeySize {
+		return &ValidationResult{
+			IsValid:  false,
+			TenantID: 0,
+			Error:    fmt.Errorf("invalid LICENSE_PUBLIC_KEY length: expected %d bytes, got %d", ed25519.PublicKeySize, len(publicKeyBytes)),
+		}
+	}
+
+	// Decode the signature from the license key
+	providedSignature, err := hex.DecodeString(providedSignatureHex)
+	if err != nil {
+		return &ValidationResult{
+			IsValid:  false,
+			TenantID: 0,
+			Error:    errors.Wrap(err, "invalid signature format in license key"),
+		}
+	}
+
+	// Verify the signature
 	data := fmt.Sprintf("%d-%d", tenantID, timestamp)
-	mac := hmac.New(sha256.New, []byte(env.Config.License.MasterSecret))
-	mac.Write([]byte(data))
-	expectedHash := hex.EncodeToString(mac.Sum(nil))
-
-	// Constant-time comparison to prevent timing attacks
-	if subtle.ConstantTimeCompare([]byte(expectedHash), []byte(providedHash)) != 1 {
+	if !ed25519.Verify(ed25519.PublicKey(publicKeyBytes), []byte(data), providedSignature) {
 		return &ValidationResult{
 			IsValid:  false,
 			TenantID: 0,
