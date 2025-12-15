@@ -14,15 +14,14 @@ Visit the hosted Fider platform and subscribe to the Pro plan. After your paymen
 
 ### Step 2: Configure Your Self-Hosted Instance
 
-Add the following to your `.env` file:
+Add your license key to your `.env` file:
 
 ```env
-# Public key for license validation (provided by Fider)
-LICENSE_PUBLIC_KEY=lPHzCZhOBBihIusKWs5lzXCgGxZEKBpCiplkmZSjGpU=
-
 # Your commercial license key (received after purchase)
 COMMERCIAL_KEY=FIDER-COMMERCIAL-xxx-xxx-xxx
 ```
+
+**That's it!** The public key for validation is already embedded in Fider - no additional configuration needed.
 
 ### Step 3: Restart Fider
 
@@ -33,10 +32,22 @@ Restart your Fider instance. Commercial features (like content moderation) will 
 Your license key is validated locally when Fider starts:
 
 1. Reads `COMMERCIAL_KEY` from your environment
-2. Verifies the cryptographic signature using `LICENSE_PUBLIC_KEY`
+2. Verifies the cryptographic signature using the embedded public key
 3. If valid, enables commercial features
 
 **No internet connection required** - validation happens entirely on your server.
+
+### Advanced: Overriding the Public Key
+
+The public key is embedded in Fider's code, so it updates automatically when you upgrade Fider. However, you can override it if needed:
+
+```env
+LICENSE_PUBLIC_KEY=your-custom-public-key-here
+```
+
+You typically **don't need** to set this unless:
+- You're testing with a custom license system
+- Fider support specifically instructs you to update it
 
 ## Security & Privacy
 
@@ -53,28 +64,25 @@ Fider uses **Ed25519 cryptographic signatures** to validate license keys:
 
 **Check the following:**
 
-1. Both `COMMERCIAL_KEY` and `LICENSE_PUBLIC_KEY` are set in your `.env` file
-2. The `LICENSE_PUBLIC_KEY` matches the one provided by Fider
-3. Your license key is in the correct format: `FIDER-COMMERCIAL-{numbers}-{numbers}-{hex}`
-4. You restarted Fider after adding the configuration
+1. `COMMERCIAL_KEY` is set in your `.env` file
+2. Your license key is in the correct format: `FIDER-COMMERCIAL-{numbers}-{numbers}-{hex}`
+3. You restarted Fider after adding the configuration
+4. You're running a recent version of Fider (with the embedded public key)
 5. Check your logs for validation errors
-
-### "LICENSE_PUBLIC_KEY environment variable must be set"
-
-**Problem:** Fider cannot validate your license without the public key.
-
-**Solution:** Add `LICENSE_PUBLIC_KEY` to your `.env` file (provided in your license email or documentation).
 
 ### "invalid signature: license key verification failed"
 
 **Problem:** Your license key cannot be verified.
 
 **Possible causes:**
-- Wrong `LICENSE_PUBLIC_KEY` (make sure it matches what Fider provided)
 - License key was incorrectly copied (check for typos or missing characters)
-- License key is not valid for this installation
+- You're running an outdated version of Fider (update to get the latest public key)
+- License key is not valid
 
-**Solution:** Double-check both the public key and license key match what you received from Fider. If issues persist, contact support.
+**Solution:**
+1. Verify your license key is copied correctly
+2. Update to the latest Fider version
+3. If issues persist, contact support
 
 ## Support
 

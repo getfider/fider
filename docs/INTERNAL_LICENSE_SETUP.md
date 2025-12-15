@@ -36,17 +36,24 @@ LICENSE_PRIVATE_KEY=B0Srq+DtsBI6MwY4sljCywXNLWAizfCdiJ6emGx+xIqU8fMJmE4EGKEi6wpa
 - Store in secure secrets management (AWS Secrets Manager, Vault, etc.)
 - Restrict access to production environment
 
-### 3. Distribute Public Key
+### 3. Embed Public Key in Code
 
-The **public key** is safe to share publicly. Include it in:
-- Self-hosted installation documentation
-- License purchase confirmation emails
-- `.example.env` file (already done)
-- Customer support materials
+The **public key** is embedded in `app/services/license/validator.go` as `DefaultPublicKey`.
 
-Current public key for distribution:
+**When you generate a new key pair:**
+
+1. Update the constant in `validator.go`:
+   ```go
+   const DefaultPublicKey = "your-new-public-key-here"
+   ```
+
+2. Self-hosted customers get the new key automatically when they upgrade Fider
+
+3. No manual configuration needed by customers - it "just works"
+
+Current embedded public key:
 ```
-LICENSE_PUBLIC_KEY=lPHzCZhOBBihIusKWs5lzXCgGxZEKBpCiplkmZSjGpU=
+lPHzCZhOBBihIusKWs5lzXCgGxZEKBpCiplkmZSjGpU=
 ```
 
 ## How License Generation Works
@@ -130,14 +137,22 @@ If the private key is ever compromised:
 
 2. **Update production environment** with new `LICENSE_PRIVATE_KEY`
 
-3. **Notify all self-hosted customers**:
-   - Send new `LICENSE_PUBLIC_KEY`
-   - They must update their `.env` file
-   - Previous licenses will still work with new public key
+3. **Update embedded public key** in `app/services/license/validator.go`:
+   ```go
+   const DefaultPublicKey = "new-public-key-here"
+   ```
 
-4. **Update documentation** with new public key
+4. **Release new Fider version**
 
-5. **Consider**: Implement key versioning in license format for smoother transitions
+5. **Communicate to customers**:
+   - "Please update to Fider vX.X.X for important security improvements"
+   - They update Fider → automatically get new public key → existing licenses keep working
+   - No manual configuration needed
+
+**Important**: Old licenses signed with the old private key won't validate with the new public key. You'll need to:
+- Regenerate licenses for all active Pro customers (using their tenant IDs)
+- Send new license keys to customers
+- Or: Implement multi-key support to validate both old and new licenses during transition
 
 ## Monitoring
 

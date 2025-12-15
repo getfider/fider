@@ -13,6 +13,12 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
+// DefaultPublicKey is the embedded public key for license validation
+// This is the public key from the hosted Fider instance
+// Self-hosted instances automatically use this - no configuration needed
+// Can be overridden via LICENSE_PUBLIC_KEY environment variable
+const DefaultPublicKey = "EpyoY4Fc3TroE7MIEWlLHU8OGaEiPkPhOy+RVwwC1zk="
+
 // GenerateKey generates a commercial license key for a tenant using Ed25519 signatures
 // Format: FIDER-COMMERCIAL-{tenantID}-{timestamp}-{signature}
 // Panics if LICENSE_PRIVATE_KEY is not set
@@ -46,7 +52,7 @@ type ValidationResult struct {
 }
 
 // ValidateKey validates a commercial license key using Ed25519 signature verification
-// Requires LICENSE_PUBLIC_KEY to be set for validation
+// Uses embedded DefaultPublicKey unless LICENSE_PUBLIC_KEY environment variable is set
 func ValidateKey(key string) *ValidationResult {
 	if key == "" {
 		return &ValidationResult{
@@ -56,12 +62,10 @@ func ValidateKey(key string) *ValidationResult {
 		}
 	}
 
-	if env.Config.License.PublicKey == "" {
-		return &ValidationResult{
-			IsValid:  false,
-			TenantID: 0,
-			Error:    errors.New("LICENSE_PUBLIC_KEY environment variable must be set to validate license keys"),
-		}
+	// Use environment variable if set, otherwise use embedded default
+	publicKey := env.Config.License.PublicKey
+	if publicKey == "" {
+		publicKey = DefaultPublicKey
 	}
 
 	// Parse license key format
@@ -95,12 +99,12 @@ func ValidateKey(key string) *ValidationResult {
 	providedSignatureHex := parts[4]
 
 	// Decode and validate the public key
-	publicKeyBytes, err := base64.StdEncoding.DecodeString(env.Config.License.PublicKey)
+	publicKeyBytes, err := base64.StdEncoding.DecodeString(publicKey)
 	if err != nil {
 		return &ValidationResult{
 			IsValid:  false,
 			TenantID: 0,
-			Error:    errors.Wrap(err, "invalid LICENSE_PUBLIC_KEY configuration"),
+			Error:    errors.Wrap(err, "invalid public key configuration"),
 		}
 	}
 
@@ -108,7 +112,7 @@ func ValidateKey(key string) *ValidationResult {
 		return &ValidationResult{
 			IsValid:  false,
 			TenantID: 0,
-			Error:    fmt.Errorf("invalid LICENSE_PUBLIC_KEY length: expected %d bytes, got %d", ed25519.PublicKeySize, len(publicKeyBytes)),
+			Error:    fmt.Errorf("invalid public key length: expected %d bytes, got %d", ed25519.PublicKeySize, len(publicKeyBytes)),
 		}
 	}
 

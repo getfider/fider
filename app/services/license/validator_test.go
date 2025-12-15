@@ -140,27 +140,32 @@ func TestValidateKey_InvalidFormat(t *testing.T) {
 	}
 }
 
-func TestValidateKey_NoPublicKeyConfigured(t *testing.T) {
-	// Clear all license configuration
+func TestValidateKey_UsesEmbeddedDefault(t *testing.T) {
+	// Clear LICENSE_PUBLIC_KEY to test embedded default
 	originalPrivateKey := env.Config.License.PrivateKey
 	originalPublicKey := env.Config.License.PublicKey
 
-	env.Config.License.PrivateKey = ""
-	env.Config.License.PublicKey = ""
+	// Set private key to match the embedded public key (lPHzCZhOBBihIusKWs5lzXCgGxZEKBpCiplkmZSjGpU=)
+	// This is the corresponding private key for the DefaultPublicKey
+	env.Config.License.PrivateKey = "B0Srq+DtsBI6MwY4sljCywXNLWAizfCdiJ6emGx+xIqU8fMJmE4EGKEi6wpazmXNcKAbFkQoGkKKmWSZlKMalQ=="
+	env.Config.License.PublicKey = "" // Leave empty to test embedded default
 
 	defer func() {
 		env.Config.License.PrivateKey = originalPrivateKey
 		env.Config.License.PublicKey = originalPublicKey
 	}()
 
-	// Try to validate a key (format doesn't matter, should fail on missing config)
-	result := license.ValidateKey("FIDER-COMMERCIAL-123-456-789abc")
+	// Generate a key with the private key
+	key := license.GenerateKey(123)
 
-	if result.IsValid {
-		t.Error("Expected validation to fail when no public key is configured")
+	// Validate without setting LICENSE_PUBLIC_KEY - should use embedded default
+	result := license.ValidateKey(key)
+
+	if !result.IsValid {
+		t.Errorf("Expected license key to be valid using embedded default public key, but got error: %v", result.Error)
 	}
 
-	if result.Error == nil {
-		t.Error("Expected error when no public key is configured")
+	if result.TenantID != 123 {
+		t.Errorf("Expected tenant ID 123, got %d", result.TenantID)
 	}
 }
