@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 #####################
 ### Server Build Step
 #####################
@@ -12,13 +14,16 @@ RUN mkdir /server
 WORKDIR /server
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
 
 COPY . ./
 
 ARG COMMITHASH
 ARG VERSION
-RUN COMMITHASH=${COMMITHASH} VERSION=${VERSION} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    COMMITHASH=${COMMITHASH} VERSION=${VERSION} GOOS=${TARGETOS} GOARCH=${TARGETARCH} make build-server
 #################
 ### UI Build Step
 #################
@@ -27,7 +32,8 @@ FROM --platform=${TARGETPLATFORM:-linux/amd64} node:22-bookworm AS ui-builder
 WORKDIR /ui
 
 COPY package.json package-lock.json ./
-RUN npm ci --maxsockets 1
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --maxsockets 1
 
 COPY . .
 RUN make build-ssr
