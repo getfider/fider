@@ -16,7 +16,7 @@ import (
 )
 
 // ErrNoChanges means that the migration process didn't change execute any file
-var ErrNoChanges = stdErrors.New("nothing to migrate.")
+var ErrNoChanges = stdErrors.New("nothing to migrate")
 
 // Migrate the database to latest version
 func Migrate(ctx context.Context, path string) error {

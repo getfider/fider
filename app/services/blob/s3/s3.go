@@ -121,7 +121,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		}
 		return wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {

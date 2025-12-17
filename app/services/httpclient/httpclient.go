@@ -58,7 +58,7 @@ func requestHandler(ctx context.Context, c *cmd.HTTPRequest) error {
 		return err
 	}
 
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	respBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err

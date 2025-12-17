@@ -58,6 +58,6 @@ func (umc UserWithEmail) MarshalJSON() ([]byte, error) {
 		Email string `json:"email"`
 	}{
 		Alias: (*Alias)(umc.User),
-		Email: umc.User.Email,
+		Email: umc.Email,
 	})
 }

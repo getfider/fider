@@ -187,23 +187,23 @@ func Reload() {
 		}
 	}
 
-	emailType := Config.Email.Type
-	if emailType == "mailgun" {
+	switch Config.Email.Type {
+	case "mailgun":
 		mustBeSet("EMAIL_MAILGUN_API")
 		mustBeSet("EMAIL_MAILGUN_DOMAIN")
-	} else if emailType == "awsses" {
+	case "awsses":
 		mustBeSet("EMAIL_AWSSES_REGION")
 		mustBeSet("EMAIL_AWSSES_ACCESS_KEY_ID")
 		mustBeSet("EMAIL_AWSSES_SECRET_ACCESS_KEY")
-	} else if emailType == "smtp" {
+	case "smtp":
 		mustBeSet("EMAIL_SMTP_HOST")
 		mustBeSet("EMAIL_SMTP_PORT")
 	}
 
-	bsType := Config.BlobStorage.Type
-	if bsType == "s3" {
+	switch Config.BlobStorage.Type {
+	case "s3":
 		mustBeSet("BLOB_STORAGE_S3_BUCKET")
-	} else if bsType == "fs" {
+	case "fs":
 		mustBeSet("BLOB_STORAGE_FS_PATH")
 	}
 }
@@ -293,14 +293,14 @@ func Subdomain(host string) string {
 
 	domain := MultiTenantDomain()
 	if domain != "" && strings.Contains(host, domain) {
-		return strings.Replace(host, domain, "", -1)
+		return strings.ReplaceAll(host, domain, "")
 	}
 
 	if Config.CDN.Host != "" {
 		domain = Config.CDN.Host
 		parts := strings.Split(domain, ":")
 		if parts[0] != "" && strings.Contains(host, "."+parts[0]) {
-			return strings.Replace(host, "."+parts[0], "", -1)
+			return strings.ReplaceAll(host, "."+parts[0], "")
 		}
 	}
 

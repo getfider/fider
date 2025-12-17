@@ -11,7 +11,7 @@ import (
 
 var (
 	//ErrContentTypeNotAllowed is used when POSTing a body that is not json
-	ErrContentTypeNotAllowed = stdErrors.New("Only Content-Type application/json is allowed")
+	ErrContentTypeNotAllowed = stdErrors.New("only Content-Type application/json is allowed")
 )
 
 //DefaultBinder is the default HTTP binder
@@ -109,9 +109,10 @@ func isString(k reflect.Kind) bool {
 
 func applyFormat(format string, value string) string {
 	value = strings.TrimSpace(value)
-	if format == "lower" {
+	switch format {
+	case "lower":
 		value = strings.ToLower(value)
-	} else if format == "upper" {
+	case "upper":
 		value = strings.ToUpper(value)
 	}
 	return value

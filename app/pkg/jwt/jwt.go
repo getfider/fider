@@ -94,7 +94,7 @@ func DecodeOAuthStateClaims(token string) (*OAuthStateClaims, error) {
 func decode(token string, claims jwtgo.Claims) error {
 	jwtToken, err := jwtgo.ParseWithClaims(token, claims, func(t *jwtgo.Token) (any, error) {
 		if _, ok := t.Method.(*jwtgo.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
 
 		return []byte(jwtSecret), nil

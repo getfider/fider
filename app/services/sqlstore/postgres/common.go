@@ -24,7 +24,7 @@ func ToTSQuery(input string) string {
 
 // SanitizeString converts input to another string that only contains utf-8 characters and not-null characters
 func SanitizeString(input string) string {
-	input = strings.Replace(input, "\u0000", "", -1)
+	input = strings.ReplaceAll(input, "\u0000", "")
 	return strings.ToValidUTF8(input, "")
 }
 
