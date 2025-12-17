@@ -3,7 +3,7 @@
 #####################
 ### Server Build Step
 #####################
-FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.22-bookworm AS server-builder 
+FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.24-bookworm AS server-builder
 
 RUN apt-get update && apt-get install -y \
     build-essential \
