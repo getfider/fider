@@ -1,8 +1,10 @@
-import { Before, BeforeAll, AfterAll, After } from "@cucumber/cucumber"
+import { Before, BeforeAll, AfterAll, After, setDefaultTimeout } from "@cucumber/cucumber"
 import debug from "debug"
 import * as playwright from "@playwright/test"
 import { getLatestLinkSentTo } from "./step_definitions/fns"
 import { FiderWorld } from "./world"
+
+setDefaultTimeout(10 * 1000) // 10 seconds for CI environments
 
 let browser: playwright.Browser
 let tenantName: string
