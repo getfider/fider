@@ -10,6 +10,7 @@ import (
 	gosmtp "net/smtp"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -99,7 +100,11 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 
 		smtpConfig := env.Config.Email.SMTP
 		servername := fmt.Sprintf("%s:%s", smtpConfig.Host, smtpConfig.Port)
-		auth := authenticate(smtpConfig.Username, smtpConfig.Password, smtpConfig.Host)
+		auth, err := authenticate(ctx, smtpConfig)
+		if err != nil {
+			panic(errors.Wrap(err, "failed to build smtp auth"))
+		}
+
 		err = Send(localname, servername, smtpConfig.EnableStartTLS, auth, email.NoReply, []string{to.Address}, b.Bytes())
 		if err != nil {
 			panic(errors.Wrap(err, "failed to send email with template %s", c.TemplateName))
@@ -169,11 +174,31 @@ func generateMessageID(localName string) string {
 	return messageID
 }
 
-func authenticate(username string, password string, host string) gosmtp.Auth {
-	if username == "" && password == "" {
-		return nil
+func authenticate(ctx context.Context, cfg env.SMTPConfig) (gosmtp.Auth, error) {
+	mech := strings.ToLower(strings.TrimSpace(cfg.AuthMechanism))
+	switch mech {
+	case "", "login":
+		if cfg.Username == "" && cfg.Password == "" {
+			return nil, nil
+		}
+		return AgnosticAuth("", cfg.Username, cfg.Password, cfg.Host), nil
+
+	case "xoauth2":
+		if cfg.Username == "" {
+			return nil, errors.New("smtp: username is required for XOAUTH2")
+		}
+
+		scopes := splitCommaScopes(cfg.Scopes)
+		tok, err := getClientCredentialsToken(ctx, cfg.TokenUrl, cfg.ClientId, cfg.ClientSecret, scopes)
+		if err != nil {
+			return nil, err
+		}
+
+		return XOAuth2Auth(cfg.Username, tok.AccessToken, cfg.Host), nil
+
+	default:
+		return nil, errors.New("smtp: unsupported auth mechanism")
 	}
-	return AgnosticAuth("", username, password, host)
 }
 
 type builder struct {

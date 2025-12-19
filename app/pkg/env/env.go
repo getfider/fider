@@ -34,6 +34,22 @@ func Version() string {
 	return fmt.Sprintf("%s-%s", v, commithash)
 }
 
+type SMTPConfig struct {
+	Host           string `env:"EMAIL_SMTP_HOST"`
+	Port           string `env:"EMAIL_SMTP_PORT"`
+	Username       string `env:"EMAIL_SMTP_USERNAME"`
+	Password       string `env:"EMAIL_SMTP_PASSWORD"`
+	AuthMechanism  string `env:"EMAIL_SMTP_AUTH_MECHANISM,default=LOGIN"`
+	EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+
+	// Specific settings for Auth Mechanism "XOAUTH2"
+	// Username will be used for XOAUTH2 as well
+	ClientId     string `env:"EMAIL_SMTP_OAUTH_CLIENT_ID"`
+	ClientSecret string `env:"EMAIL_SMTP_OAUTH_CLIENT_SECRET"`
+	TokenUrl     string `env:"EMAIL_SMTP_OAUTH_TOKEN_URL"`
+	Scopes       string `env:"EMAIL_SMTP_OAUTH_SCOPES"` // comma-separated
+}
+
 type config struct {
 	Environment    string `env:"GO_ENV,default=production"`
 	SignUpDisabled bool   `env:"SIGNUP_DISABLED,default=false"`
@@ -118,13 +134,7 @@ type config struct {
 			Domain string `env:"EMAIL_MAILGUN_DOMAIN"`
 			Region string `env:"EMAIL_MAILGUN_REGION,default=US"` // possible values: US or EU
 		}
-		SMTP struct {
-			Host           string `env:"EMAIL_SMTP_HOST"`
-			Port           string `env:"EMAIL_SMTP_PORT"`
-			Username       string `env:"EMAIL_SMTP_USERNAME"`
-			Password       string `env:"EMAIL_SMTP_PASSWORD"`
-			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
-		}
+		SMTP SMTPConfig
 	}
 	BlobStorage struct {
 		Type string `env:"BLOB_STORAGE,default=sql"` // possible values: sql, fs or s3
