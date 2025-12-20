@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	awss3 "github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/aws"                 //nolint:staticcheck // AWS SDK v1 will be migrated to v2 in the future
+	awss3 "github.com/aws/aws-sdk-go/service/s3"   //nolint:staticcheck // AWS SDK v1 will be migrated to v2 in the future
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"

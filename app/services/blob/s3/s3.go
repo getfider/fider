@@ -10,11 +10,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/aws"                 //nolint:staticcheck // AWS SDK v1 will be migrated to v2 in the future
+	"github.com/aws/aws-sdk-go/aws/awserr"          //nolint:staticcheck // AWS SDK v1 will be migrated to v2 in the future
+	"github.com/aws/aws-sdk-go/aws/credentials"     //nolint:staticcheck // AWS SDK v1 will be migrated to v2 in the future
+	"github.com/aws/aws-sdk-go/aws/session"         //nolint:staticcheck // AWS SDK v1 will be migrated to v2 in the future
+	"github.com/aws/aws-sdk-go/service/s3"          //nolint:staticcheck // AWS SDK v1 will be migrated to v2 in the future
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models/cmd"
