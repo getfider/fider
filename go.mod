@@ -26,7 +26,7 @@ require (
 	github.com/robfig/cron v1.2.0
 	golang.org/x/crypto v0.45.0
 	golang.org/x/net v0.47.0
-	golang.org/x/oauth2 v0.27.0
+	golang.org/x/oauth2 v0.34.0
 	rogchap.com/v8go v0.7.1-0.20211222173054-943fcf9e74cc
 )
 
