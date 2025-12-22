@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Cancelar",
   "action.change": "cambiar",
   "action.close": "Cerrar",
@@ -18,6 +19,13 @@
   "action.submit": "Enviar",
   "action.vote": "Vota por esta idea",
   "action.voted": "¡Votado!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "Cambiar al editor de rebajas",
   "editor.richtextmode": "Cambiar al editor de texto enriquecido",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} más",
   "showpost.votespanel.seedetails": "ver detalles",
   "signin.code.edit": "Editar",
+  "signin.code.expired": "Este código ha caducado o ya se ha utilizado. Por favor, solicite uno nuevo.",
   "signin.code.getnew": "Obtén un nuevo código",
   "signin.code.instruction": "Por favor, introduzca el código que le acabamos de enviar a <0>{email}</0>",
+  "signin.code.invalid": "El código que has introducido no es válido. Por favor, inténtalo de nuevo.",
   "signin.code.placeholder": "Escriba el código aquí.",
   "signin.code.sent": "Se ha enviado un nuevo código a su correo electrónico.",
   "signin.code.submit": "Entregar",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Su nombre",
   "validation.custom.maxattachments": "Se permite un máximo de {number} archivos adjuntos.",
   "validation.custom.maximagesize": "El tamaño de la imagen debe ser menor que {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiqueta} other {# etiquetas}}",
-  "signin.code.expired": "Este código ha caducado o ya se ha utilizado. Por favor, solicite uno nuevo.",
-  "signin.code.invalid": "El código que has introducido no es válido. Por favor, inténtalo de nuevo."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiqueta} other {# etiquetas}}"
 }

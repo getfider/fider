@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Ακύρωση",
   "action.change": "αλλαγή",
   "action.close": "Κλείσιμο",
@@ -18,6 +19,13 @@
   "action.submit": "Υποβολή",
   "action.vote": "Ψηφίστε αυτήν την ιδέα",
   "action.voted": "Ψηφίστηκε!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "Μετάβαση στο πρόγραμμα επεξεργασίας markdown",
   "editor.richtextmode": "Μετάβαση σε πρόγραμμα επεξεργασίας εμπλουτισμένου κειμένου",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} περισσότερα",
   "showpost.votespanel.seedetails": "δείτε λεπτομέρειες",
   "signin.code.edit": "Εκδίδω",
+  "signin.code.expired": "Αυτός ο κωδικός έχει λήξει ή έχει ήδη χρησιμοποιηθεί. Παρακαλούμε ζητήστε έναν νέο.",
   "signin.code.getnew": "Λήψη νέου κωδικού",
   "signin.code.instruction": "Παρακαλώ πληκτρολογήστε τον κωδικό που μόλις στείλαμε στη διεύθυνση <0>{email}</0>",
+  "signin.code.invalid": "Ο κωδικός που εισαγάγατε δεν είναι έγκυρος. Δοκιμάστε ξανά.",
   "signin.code.placeholder": "Πληκτρολογήστε τον κωδικό εδώ",
   "signin.code.sent": "Ένας νέος κωδικός έχει σταλεί στο email σας.",
   "signin.code.submit": "Υποτάσσομαι",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Το όνομά σας",
   "validation.custom.maxattachments": "Επιτρέπονται έως {number} συνημμένα.",
   "validation.custom.maximagesize": "Το μέγεθος της εικόνας πρέπει να είναι μικρότερο από {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# ετικέτα} other {# ετικέτες}}",
-  "signin.code.expired": "Αυτός ο κωδικός έχει λήξει ή έχει ήδη χρησιμοποιηθεί. Παρακαλούμε ζητήστε έναν νέο.",
-  "signin.code.invalid": "Ο κωδικός που εισαγάγατε δεν είναι έγκυρος. Δοκιμάστε ξανά."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# ετικέτα} other {# ετικέτες}}"
 }

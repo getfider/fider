@@ -73,6 +73,22 @@ export const listVotes = async (postNumber: number): Promise<Result<Vote[]>> => 
   return http.get<Vote[]>(`/api/v1/posts/${postNumber}/votes`)
 }
 
+export interface AddVoteOnBehalfResponse {
+  user: {
+    id: number
+    name: string
+    email: string
+  }
+}
+
+export const addVoteOnBehalf = async (postNumber: number, email: string, name: string): Promise<Result<AddVoteOnBehalfResponse>> => {
+  return http.post<AddVoteOnBehalfResponse>(`/api/v1/posts/${postNumber}/votes/on-behalf`, { email, name }).then(http.event("post", "vote-on-behalf"))
+}
+
+export const removeVoteOnBehalf = async (postNumber: number, userID: number): Promise<Result> => {
+  return http.delete(`/api/v1/posts/${postNumber}/votes/${userID}`).then(http.event("post", "remove-vote-on-behalf"))
+}
+
 export const getTaggableUsers = async (userFilter: string): Promise<Result<UserNames[]>> => {
   return http.get<UserNames[]>(`/api/v1/taggable-users${querystring.stringify({ query: userFilter })}`)
 }

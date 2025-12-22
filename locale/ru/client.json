@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Отмена",
   "action.change": "изменить",
   "action.close": "Закрыть",
@@ -18,6 +19,13 @@
   "action.submit": "Продолжить",
   "action.vote": "Проголосуйте за эту идею",
   "action.voted": "Проголосовал!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "Переключиться на редактор разметки",
   "editor.richtextmode": "Переключиться на редактор форматированного текста",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "и ещё {extraVotesCount}",
   "showpost.votespanel.seedetails": "подробнее",
   "signin.code.edit": "Редактировать",
+  "signin.code.expired": "Срок действия этого кода истёк или он уже был использован. Запросите новый.",
   "signin.code.getnew": "Получить новый код",
   "signin.code.instruction": "Пожалуйста, введите код, который мы только что отправили на номер <0>{email}</0>",
+  "signin.code.invalid": "Введённый вами код недействителен. Попробуйте ещё раз.",
   "signin.code.placeholder": "Введите код здесь",
   "signin.code.sent": "Новый код был отправлен на вашу электронную почту.",
   "signin.code.submit": "Представлять на рассмотрение",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Ваше имя",
   "validation.custom.maxattachments": "Разрешено максимум {number} вложений.",
   "validation.custom.maximagesize": "Размер изображения должен быть меньше {kilobytes}КБ.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "signin.code.expired": "Срок действия этого кода истёк или он уже был использован. Запросите новый.",
-  "signin.code.invalid": "Введённый вами код недействителен. Попробуйте ещё раз."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

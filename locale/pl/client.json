@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Anuluj",
   "action.change": "zmień",
   "action.close": "Zamknij",
@@ -18,6 +19,13 @@
   "action.submit": "Prześlij",
   "action.vote": "Zagłosuj na ten pomysł",
   "action.voted": "Zagłosowane!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "Przełącz na edytor Markdown",
   "editor.richtextmode": "Przełącz na edytor tekstu",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} więcej",
   "showpost.votespanel.seedetails": "pokaż szczegóły",
   "signin.code.edit": "Redagować",
+  "signin.code.expired": "Ten kod wygasł lub został już wykorzystany. Poproś o nowy.",
   "signin.code.getnew": "Uzyskaj nowy kod",
   "signin.code.instruction": "Proszę wpisać kod, który właśnie wysłaliśmy na adres <0>{email}</0>",
+  "signin.code.invalid": "Podany kod jest nieprawidłowy. Spróbuj ponownie.",
   "signin.code.placeholder": "Wpisz tutaj kod",
   "signin.code.sent": "Nowy kod został wysłany na Twój adres e-mail.",
   "signin.code.submit": "Składać",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Twoje imię",
   "validation.custom.maxattachments": "Maksymalna liczba załączników to {number}.",
   "validation.custom.maximagesize": "Rozmiar obrazu musi być mniejszy niż {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} few {# tagów} many {# tagów} other {# tagi}}",
-  "signin.code.expired": "Ten kod wygasł lub został już wykorzystany. Poproś o nowy.",
-  "signin.code.invalid": "Podany kod jest nieprawidłowy. Spróbuj ponownie."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} few {# tagów} many {# tagów} other {# tagi}}"
 }

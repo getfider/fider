@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Avbryt",
   "action.change": "ändra",
   "action.close": "Stäng",
@@ -18,6 +19,13 @@
   "action.submit": "Skicka",
   "action.vote": "Rösta på den här idén",
   "action.voted": "Röstade!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "Växla till markdown-redigeraren",
   "editor.richtextmode": "Växla till RTF-redigerare",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} ytterligare",
   "showpost.votespanel.seedetails": "visa detaljer",
   "signin.code.edit": "Redigera",
+  "signin.code.expired": "Denna kod har gått ut eller har redan använts. Vänligen begär en ny.",
   "signin.code.getnew": "Skaffa en ny kod",
   "signin.code.instruction": "Vänligen skriv in koden vi just skickade till <0>{email}</0>",
+  "signin.code.invalid": "Koden du angav är ogiltig. Försök igen.",
   "signin.code.placeholder": "Skriv in koden här",
   "signin.code.sent": "En ny kod har skickats till din e-postadress.",
   "signin.code.submit": "Överlämna",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Ditt namn",
   "validation.custom.maxattachments": "Maximalt {number} bilagor är tillåtna.",
   "validation.custom.maximagesize": "Bildstorleken måste vara mindre än {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, =1 {# etikett} other {# etiketter}}",
-  "signin.code.expired": "Denna kod har gått ut eller har redan använts. Vänligen begär en ny.",
-  "signin.code.invalid": "Koden du angav är ogiltig. Försök igen."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, =1 {# etikett} other {# etiketter}}"
 }

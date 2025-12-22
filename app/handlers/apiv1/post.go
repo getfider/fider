@@ -1,6 +1,7 @@
 package apiv1
 
 import (
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/models/cmd"
@@ -9,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -510,6 +512,112 @@ func ListVotes() web.HandlerFunc {
 		}
 
 		return c.Ok(listVotes.Result)
+	}
+}
+
+// AddVoteOnBehalf allows administrators to add votes on behalf of users
+func AddVoteOnBehalf() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.AddVoteOnBehalf)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		// Get the post
+		getPost := &query.GetPostByNumber{Number: action.Number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		// Check if post can be voted on
+		if !getPost.Result.CanBeVoted() {
+			return c.BadRequest(web.Map{
+				"errors": []web.Map{
+					{"message": "This post cannot receive votes."},
+				},
+			})
+		}
+
+		// Find or create user
+		var user *entity.User
+		getByEmail := &query.GetUserByEmail{Email: action.Email}
+		err := bus.Dispatch(c, getByEmail)
+
+		if err != nil && errors.Cause(err) == app.ErrNotFound {
+			// Create new user
+			user = &entity.User{
+				Tenant: c.Tenant(),
+				Name:   action.Name,
+				Email:  action.Email,
+				Role:   enum.RoleVisitor,
+			}
+			if err := bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
+				return c.Failure(err)
+			}
+		} else if err != nil {
+			return c.Failure(err)
+		} else {
+			user = getByEmail.Result
+		}
+
+		// Check if user already voted
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID}
+		if err := bus.Dispatch(c, listVotes); err != nil {
+			return c.Failure(err)
+		}
+
+		for _, vote := range listVotes.Result {
+			if vote.User.ID == user.ID {
+				return c.BadRequest(web.Map{
+					"errors": []web.Map{
+						{"field": "email", "message": "This user has already voted for this post."},
+					},
+				})
+			}
+		}
+
+		// Add vote
+		if err := bus.Dispatch(c, &cmd.AddVote{Post: getPost.Result, User: user}); err != nil {
+			return c.Failure(err)
+		}
+
+		metrics.TotalVotes.Inc()
+		return c.Ok(web.Map{
+			"user": web.Map{
+				"id":    user.ID,
+				"name":  user.Name,
+				"email": user.Email,
+			},
+		})
+	}
+}
+
+// RemoveVoteOnBehalf allows administrators to remove votes on behalf of users
+func RemoveVoteOnBehalf() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.RemoveVoteOnBehalf)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		// Get the post
+		getPost := &query.GetPostByNumber{Number: action.Number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		// Get the user
+		getUser := &query.GetUserByID{UserID: action.UserID}
+		if err := bus.Dispatch(c, getUser); err != nil {
+			return c.Failure(err)
+		}
+
+		// Remove vote
+		if err := bus.Dispatch(c, &cmd.RemoveVote{Post: getPost.Result, User: getUser.Result}); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
 	}
 }
 

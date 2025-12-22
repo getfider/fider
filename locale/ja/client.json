@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "キャンセル",
   "action.change": "変更",
   "action.close": "閉じる",
@@ -18,6 +19,13 @@
   "action.submit": "送信",
   "action.vote": "このアイデアに投票",
   "action.voted": "投票完了！",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "マークダウンエディターに切り替える",
   "editor.richtextmode": "リッチテキストエディタに切り替える",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} 以上",
   "showpost.votespanel.seedetails": "詳細を表示",
   "signin.code.edit": "編集",
+  "signin.code.expired": "このコードは期限切れか、既に使用されています。新しいコードをリクエストしてください。",
   "signin.code.getnew": "新しいコードを取得する",
   "signin.code.instruction": "<0>{email}</0> に送信したコードを入力してください。",
+  "signin.code.invalid": "入力したコードは無効です。もう一度お試しください。",
   "signin.code.placeholder": "ここにコードを入力してください",
   "signin.code.sent": "新しいコードがあなたのメールに送信されました。",
   "signin.code.submit": "提出する",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "あなたの名前",
   "validation.custom.maxattachments": "最大 {number} 個の添付ファイルが許可されます。",
   "validation.custom.maximagesize": "画像サイズは{kilobytes}KB未満である必要があります。",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "signin.code.expired": "このコードは期限切れか、既に使用されています。新しいコードをリクエストしてください。",
-  "signin.code.invalid": "入力したコードは無効です。もう一度お試しください。"
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

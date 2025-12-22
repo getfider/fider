@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "إلغاء",
   "action.change": "تغيير",
   "action.close": "إغلاق",
@@ -18,6 +19,13 @@
   "action.submit": "إرسال",
   "action.vote": "صوت لهذه الفكرة",
   "action.voted": "تم التصويت!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}",
   "editor.markdownmode": "الانتقال إلى محرر النصوص (Markdown)",
   "editor.richtextmode": "التبديل إلى محرر نص منسق",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} أكثر",
   "showpost.votespanel.seedetails": "عرض التفاصيل",
   "signin.code.edit": "يحرر",
+  "signin.code.expired": "انتهت صلاحية هذا الرمز أو تم استخدامه مسبقًا. يُرجى طلب رمز جديد.",
   "signin.code.getnew": "احصل على رمز جديد",
   "signin.code.instruction": "الرجاء كتابة الرمز الذي أرسلناه للتو إلى <0>{email}</0>",
+  "signin.code.invalid": "الرمز الذي أدخلته غير صحيح. يُرجى المحاولة مرة أخرى.",
   "signin.code.placeholder": "اكتب الكود هنا",
   "signin.code.sent": "لقد تم إرسال رمز جديد إلى بريدك الإلكتروني.",
   "signin.code.submit": "يُقدِّم",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "اسمك",
   "validation.custom.maxattachments": "يُسمح بحد أقصى {number} من المرفقات.",
   "validation.custom.maximagesize": "يجب أن يكون حجم الصورة أصغر من {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}",
-  "signin.code.expired": "انتهت صلاحية هذا الرمز أو تم استخدامه مسبقًا. يُرجى طلب رمز جديد.",
-  "signin.code.invalid": "الرمز الذي أدخلته غير صحيح. يُرجى المحاولة مرة أخرى."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, zero {}one {# وسم} two {# وسوم} few {# وسوم} many {# وسوم} other {# وسوم}}"
 }

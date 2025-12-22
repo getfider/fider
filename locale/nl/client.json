@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Annuleren",
   "action.change": "aanpassen",
   "action.close": "Sluiten",
@@ -18,6 +19,13 @@
   "action.submit": "Verzenden",
   "action.vote": "Stem op dit idee",
   "action.voted": "Gestemd!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "Overschakelen naar markdown-editor",
   "editor.richtextmode": "Overschakelen naar rich text-editor",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} meer",
   "showpost.votespanel.seedetails": "details bekijken",
   "signin.code.edit": "Bewerking",
+  "signin.code.expired": "Deze code is verlopen of al gebruikt. Vraag een nieuwe aan.",
   "signin.code.getnew": "Ontvang een nieuwe code",
   "signin.code.instruction": "Typ de code in die we zojuist naar <0>{email}</0> hebben gestuurd",
+  "signin.code.invalid": "De ingevoerde code is ongeldig. Probeer het opnieuw.",
   "signin.code.placeholder": "Typ hier de code in",
   "signin.code.sent": "Er is een nieuwe code naar uw e-mailadres verzonden.",
   "signin.code.submit": "Indienen",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Jouw naam",
   "validation.custom.maxattachments": "Er zijn maximaal {number} bijlagen toegestaan.",
   "validation.custom.maximagesize": "De afbeeldingsgrootte moet kleiner zijn dan {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "signin.code.expired": "Deze code is verlopen of al gebruikt. Vraag een nieuwe aan.",
-  "signin.code.invalid": "De ingevoerde code is ongeldig. Probeer het opnieuw."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

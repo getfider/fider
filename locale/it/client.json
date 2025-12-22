@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Cancella",
   "action.change": "modifica",
   "action.close": "Chiudi",
@@ -18,6 +19,13 @@
   "action.submit": "Invia",
   "action.vote": "Vota questa idea",
   "action.voted": "Votato!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "Passa all'editor di markdown",
   "editor.richtextmode": "Passa all'editor di testo avanzato",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} di più",
   "showpost.votespanel.seedetails": "vedi dettagli",
   "signin.code.edit": "Modificare",
+  "signin.code.expired": "Questo codice è scaduto o è già stato utilizzato. Richiedine uno nuovo.",
   "signin.code.getnew": "Ottieni un nuovo codice",
   "signin.code.instruction": "Inserisci il codice che abbiamo appena inviato a <0>{email}</0>",
+  "signin.code.invalid": "Il codice inserito non è valido. Riprova.",
   "signin.code.placeholder": "Inserisci il codice qui",
   "signin.code.sent": "Un nuovo codice è stato inviato alla tua email.",
   "signin.code.submit": "Invia",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Il tuo nome",
   "validation.custom.maxattachments": "Sono consentiti al massimo {number} allegati.",
   "validation.custom.maximagesize": "La dimensione dell'immagine deve essere inferiore a {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "signin.code.expired": "Questo codice è scaduto o è già stato utilizzato. Richiedine uno nuovo.",
-  "signin.code.invalid": "Il codice inserito non è valido. Riprova."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

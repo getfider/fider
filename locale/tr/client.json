@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "İptal",
   "action.change": "değiştir",
   "action.close": "Kapat",
@@ -18,6 +19,13 @@
   "action.submit": "Gönder",
   "action.vote": "Bu fikre oy verin",
   "action.voted": "Oy verildi!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# tag} other {# tags}}",
   "editor.markdownmode": "Markdown düzenleyicisine geç",
   "editor.richtextmode": "Zengin metin düzenleyicisine geç",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} daha",
   "showpost.votespanel.seedetails": "ayrıntıları gör",
   "signin.code.edit": "Düzenlemek",
+  "signin.code.expired": "Bu kodun süresi dolmuş veya daha önce kullanılmış. Lütfen yenisini talep edin.",
   "signin.code.getnew": "Yeni bir kod al",
   "signin.code.instruction": "Lütfen az önce <0>{email}</0> adresine gönderdiğimiz kodu yazın",
+  "signin.code.invalid": "Girdiğiniz kod geçersiz. Lütfen tekrar deneyin.",
   "signin.code.placeholder": "Kodu buraya yazın",
   "signin.code.sent": "E-postanıza yeni bir kod gönderildi.",
   "signin.code.submit": "Göndermek",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Adınız",
   "validation.custom.maxattachments": "En fazla {number} ek dosyaya izin verilir.",
   "validation.custom.maximagesize": "Resim boyutu {kilobytes}KB'den küçük olmalıdır.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiket} other {# etiket}}",
-  "signin.code.expired": "Bu kodun süresi dolmuş veya daha önce kullanılmış. Lütfen yenisini talep edin.",
-  "signin.code.invalid": "Girdiğiniz kod geçersiz. Lütfen tekrar deneyin."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# etiket} other {# etiket}}"
 }

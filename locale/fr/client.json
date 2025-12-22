@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Annuler",
   "action.change": "changer",
   "action.close": "Fermer",
@@ -18,6 +19,13 @@
   "action.submit": "Valider",
   "action.vote": "Voter pour cette idée",
   "action.voted": "Votée !",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# étiquette} other {# étiquettes}}",
   "editor.markdownmode": "Basculer vers l'éditeur markdown",
   "editor.richtextmode": "Basculer vers l'éditeur de texte enrichi",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} de plus",
   "showpost.votespanel.seedetails": "voir les détails",
   "signin.code.edit": "Modifier",
+  "signin.code.expired": "Ce code a expiré ou a déjà été utilisé. Veuillez en demander un nouveau.",
   "signin.code.getnew": "Obtenez un nouveau code",
   "signin.code.instruction": "Veuillez saisir le code que nous venons d'envoyer à <0>{email}</0>",
+  "signin.code.invalid": "Le code que vous avez saisi est invalide. Veuillez réessayer.",
   "signin.code.placeholder": "Saisissez le code ici",
   "signin.code.sent": "Un nouveau code a été envoyé à votre adresse e-mail.",
   "signin.code.submit": "Soumettre",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Votre nom",
   "validation.custom.maxattachments": "Un maximum de {number} pièces jointes est autorisé.",
   "validation.custom.maximagesize": "La taille de l'image doit être inférieure à {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "signin.code.expired": "Ce code a expiré ou a déjà été utilisé. Veuillez en demander un nouveau.",
-  "signin.code.invalid": "Le code que vous avez saisi est invalide. Veuillez réessayer."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }

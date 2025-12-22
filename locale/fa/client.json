@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "لغو",
   "action.change": "تغییر",
   "action.close": "بستن",
@@ -18,6 +19,13 @@
   "action.submit": "ارسال",
   "action.vote": "به این ایده رأی دهید",
   "action.voted": "رأی داده شد!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# برچسب} other {# برچسب}}",
   "editor.markdownmode": "تغییر به ویرایشگر مارک‌داون",
   "editor.richtextmode": "تغییر به ویرایشگر متن غنی",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} بیشتر",
   "showpost.votespanel.seedetails": "مشاهدهٔ جزئیات",
   "signin.code.edit": "ویرایش",
+  "signin.code.expired": "این کد منقضی شده یا قبلاً استفاده شده است. لطفاً کد جدیدی درخواست کنید.",
   "signin.code.getnew": "دریافت کد جدید",
   "signin.code.instruction": "لطفا کدی که به <0>{email}</0> ارسال کردیم را وارد کنید.",
+  "signin.code.invalid": "کدی که وارد کردید نامعتبر است. لطفاً دوباره امتحان کنید.",
   "signin.code.placeholder": "کد را اینجا تایپ کنید",
   "signin.code.sent": "کد جدید به ایمیل شما ارسال شد.",
   "signin.code.submit": "ارسال",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "نام شما",
   "validation.custom.maxattachments": "حداکثر تعداد {number} پیوست مجاز است.",
   "validation.custom.maximagesize": "حجم تصویر باید کمتر از {kilobytes}KB باشد.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# برچسب} other {# برچسب}}",
-  "signin.code.expired": "این کد منقضی شده یا قبلاً استفاده شده است. لطفاً کد جدیدی درخواست کنید.",
-  "signin.code.invalid": "کدی که وارد کردید نامعتبر است. لطفاً دوباره امتحان کنید."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# برچسب} other {# برچسب}}"
 }

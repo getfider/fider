@@ -4,6 +4,7 @@ import { AvatarStack, Button } from "@fider/components"
 import { Fider } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import { VotesModal } from "./VotesModal"
+import { ManageVotersModal } from "./ManageVotersModal"
 import { HStack, VStack } from "@fider/components/layout"
 import { Trans } from "@lingui/react/macro"
 
@@ -11,26 +12,41 @@ interface VotesPanelProps {
   post: Post
   hideTitle?: boolean
   votes: Vote[]
+  onVotesChanged?: (delta: number) => void
 }
 
 export const VotesPanel = (props: VotesPanelProps) => {
   const fider = useFider()
   const [isVotesModalOpen, setIsVotesModalOpen] = useState(false)
+  const [isManageVotersModalOpen, setIsManageVotersModalOpen] = useState(false)
   const canShowAll = fider.session.isAuthenticated && Fider.session.user.isCollaborator
+  const isAdmin = fider.session.isAuthenticated && fider.session.user.isAdministrator
 
   const openModal = () => {
-    if (canShowAll) {
+    if (isAdmin) {
+      setIsManageVotersModalOpen(true)
+    } else if (canShowAll) {
       setIsVotesModalOpen(true)
     }
   }
 
-  const closeModal = () => setIsVotesModalOpen(false)
+  const closeModal = () => {
+    setIsVotesModalOpen(false)
+    setIsManageVotersModalOpen(false)
+  }
+
+  const handleVotesChanged = (delta: number) => {
+    if (props.onVotesChanged) {
+      props.onVotesChanged(delta)
+    }
+  }
 
   const extraVotesCount = props.post.votesCount - props.votes.length
 
   return (
     <VStack spacing={4}>
       <VotesModal post={props.post} isOpen={isVotesModalOpen} onClose={closeModal} />
+      <ManageVotersModal post={props.post} isOpen={isManageVotersModalOpen} onClose={closeModal} onVotesChanged={handleVotesChanged} />
       {!props.hideTitle && (
         <span className="text-category">
           <Trans id="label.voters">Voters</Trans>

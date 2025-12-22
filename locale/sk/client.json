@@ -1,4 +1,5 @@
 {
+  "action.addvote": "",
   "action.cancel": "Zrušiť",
   "action.change": "zmeniť",
   "action.close": "Zavrieť",
@@ -18,6 +19,13 @@
   "action.submit": "Potvrdiť",
   "action.vote": "Hlasovať za tento nápad",
   "action.voted": "Zahlasované!",
+  "managevoters.add.description": "",
+  "managevoters.add.success": "",
+  "managevoters.email.placeholder": "",
+  "managevoters.name.placeholder": "",
+  "managevoters.novoters": "",
+  "managevoters.remove.success": "",
+  "managevoters.title": "",
   "d41FkJ": "{count, plural, one {# značka} few {# značky} other {# značiek}}",
   "editor.markdownmode": "Prepnúť na markdown editor",
   "editor.richtextmode": "Prepnúť na bohatý textový editor",
@@ -204,8 +212,10 @@
   "showpost.votespanel.more": "+{extraVotesCount} viac",
   "showpost.votespanel.seedetails": "pozri detaily",
   "signin.code.edit": "Upraviť",
+  "signin.code.expired": "Platnosť tohto kódu vypršala alebo už bol použitý. Požiadajte o nový.",
   "signin.code.getnew": "Získať nový kód",
   "signin.code.instruction": "Zadajte kód, ktorý sme práve poslali na adresu <0>{email}</0>",
+  "signin.code.invalid": "Zadaný kód je neplatný. Skúste to znova.",
   "signin.code.placeholder": "Sem zadajte kód",
   "signin.code.sent": "Nový kód bol odoslaný na váš e-mail.",
   "signin.code.submit": "Odoslať",
@@ -222,7 +232,5 @@
   "signin.name.placeholder": "Vaše meno",
   "validation.custom.maxattachments": "Maximálny počet príloh je {number}.",
   "validation.custom.maximagesize": "Veľkosť obrázka musí byť menšia ako {kilobytes}KB.",
-  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}",
-  "signin.code.expired": "Platnosť tohto kódu vypršala alebo už bol použitý. Požiadajte o nový.",
-  "signin.code.invalid": "Zadaný kód je neplatný. Skúste to znova."
+  "{count, plural, one {# tag} other {# tags}}": "{count, plural, one {# tag} other {# tags}}"
 }
