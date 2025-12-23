@@ -39,7 +39,7 @@ type SMTPConfig struct {
 	Port           string `env:"EMAIL_SMTP_PORT"`
 	Username       string `env:"EMAIL_SMTP_USERNAME"`
 	Password       string `env:"EMAIL_SMTP_PASSWORD"`
-	AuthMechanism  string `env:"EMAIL_SMTP_AUTH_MECHANISM,default=LOGIN"`
+	AuthMechanism  string `env:"EMAIL_SMTP_AUTH_MECHANISM,default=AGNOSTIC"`
 	EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
 
 	// Specific settings for Auth Mechanism "XOAUTH2"

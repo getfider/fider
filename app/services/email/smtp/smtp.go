@@ -177,7 +177,7 @@ func generateMessageID(localName string) string {
 func authenticate(ctx context.Context, cfg env.SMTPConfig) (gosmtp.Auth, error) {
 	mech := strings.ToLower(strings.TrimSpace(cfg.AuthMechanism))
 	switch mech {
-	case "", "login":
+	case "", "agnostic":
 		if cfg.Username == "" && cfg.Password == "" {
 			return nil, nil
 		}
