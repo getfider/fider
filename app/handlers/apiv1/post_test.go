@@ -214,9 +214,10 @@ func TestCreatePostHandler_WithPublicTagAndPrivateTagAsCollaborator(t *testing.T
 
 		tagAssignments := make([]*cmd.AssignTag, 2)
 		bus.AddHandler(func(ctx context.Context, c *cmd.AssignTag) error {
-			if c.Tag.Slug == "public_tag" {
+			switch c.Tag.Slug {
+			case "public_tag":
 				tagAssignments[0] = c
-			} else if c.Tag.Slug == "private_tag" {
+			case "private_tag":
 				tagAssignments[1] = c
 			}
 			return nil

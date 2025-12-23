@@ -81,6 +81,10 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
+	if err := blob.ValidateKey(q.Key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", q.Key)
+	}
+
 	blob.EnsureAuthorizedPrefix(ctx, q.Key)
 
 	return using(ctx, func(tenantID sql.NullInt64) error {

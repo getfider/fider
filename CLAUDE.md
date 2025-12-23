@@ -122,7 +122,7 @@ The application includes pluggable services for:
 3. **Docker** - PostgreSQL and local SMTP (MailHog)
 4. **Air** - Go hot reload: `go install github.com/cosmtrek/air`
 5. **Godotenv** - Environment loading: `go install github.com/joho/godotenv/cmd/godotenv`
-6. **golangci-lint** - Go linting: `go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1`
+6. **golangci-lint** - Go linting: `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.7.2`
 
 **Environment Setup:**
 

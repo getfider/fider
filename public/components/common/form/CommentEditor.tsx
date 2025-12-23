@@ -5,10 +5,6 @@ import React, { useState, useRef, useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import { Markdown } from "tiptap-markdown"
 import Placeholder from "@tiptap/extension-placeholder"
-import Document from "@tiptap/extension-document"
-import Paragraph from "@tiptap/extension-paragraph"
-import Text from "@tiptap/extension-text"
-import HardBreak from "@tiptap/extension-hard-break"
 import { i18n } from "@lingui/core"
 import { useAllowedProtocols } from "@fider/hooks"
 
@@ -233,50 +229,34 @@ interface CommentEditorProps {
   maxImageSizeKB?: number
 }
 
-const markdownToHtml = (markdownString: string) => {
-  return markdownString
-    .split("\n\n")
-    .map((line: string) => `<p>${line}</p>`)
-    .join("")
-    .replace(/\\\n/g, "<br>")
-    .replace(/\n/g, "<br>")
-}
-
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
   const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
   const [selectedText, setSelectedText] = useState("")
+  const [markdownText, setMarkdownText] = useState(props.initialValue ?? "")
   const allowedProtocols = useAllowedProtocols()
 
   // Use a ref instead of state for tracking document images
   // This avoids the async state update issue and prevents unnecessary re-renders
   const documentImagesRef = useRef<Map<string, boolean>>(new Map())
 
-  const getIntialContent = () => {
-    if (isRawMarkdownMode) {
-      return markdownToHtml(props.initialValue ?? "")
-    } else {
-      return props.initialValue ?? ""
-    }
-  }
-
-  const [editorContent, setEditorContent] = useState(getIntialContent())
+  const [editorContent, setEditorContent] = useState(props.initialValue ?? "")
 
   const toggleMarkdownMode = () => {
-    if (editor) {
-      // Store current content before switching
-      let currentContent
-      if (isRawMarkdownMode) {
-        currentContent = editor.getText()
-      } else {
-        currentContent = markdownToHtml(editor.storage.markdown.getMarkdown())
+    if (isRawMarkdownMode) {
+      // Switching FROM markdown TO rich text
+      // Set the editor content to the markdown text
+      setEditorContent(markdownText)
+    } else {
+      // Switching FROM rich text TO markdown
+      // Get the markdown from the editor and store it
+      if (editor) {
+        const markdown = editor.storage.markdown.getMarkdown()
+        setMarkdownText(markdown)
       }
-      // Destroy current editor
-      editor.destroy()
-      setIsRawMarkdownMode(!isRawMarkdownMode)
-      setEditorContent(currentContent)
     }
+    setIsRawMarkdownMode(!isRawMarkdownMode)
   }
 
   // Handle image deletion
@@ -456,69 +436,58 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     }
   }
 
-  const extensions = isRawMarkdownMode
-    ? [
-        // Minimal extensions for markdown mode
-        Document,
-        Paragraph,
-        Text,
-        HardBreak,
-        Placeholder.configure({
-          placeholder: props.placeholder ?? "Write your comment here...",
-          emptyEditorClass: "tiptap-is-empty",
-        }),
-      ]
-    : [
-        StarterKit,
-        Link.configure({
-          openOnClick: true,
-          autolink: true,
-          defaultProtocol: "https",
-          protocols: allowedProtocols,
-          HTMLAttributes: {
-            class: "text-link",
-            target: "_blank",
-            rel: "noopener nofollow",
-          },
-        }),
-        Markdown.configure({
-          html: true,
-          breaks: true,
-        }),
-        CustomMention.configure({
-          HTMLAttributes: {
-            class: "mention",
-          },
-          suggestion,
-        }),
-        CustomImage.configure({
-          HTMLAttributes: {},
-          allowBase64: true,
-          onImageUpload: (upload) => {
-            if (props.onImageUploaded) {
-              // Initialize other required properties
-              props.onImageUploaded(upload)
-            }
-          },
-          onImageRemove: (id) => {
-            // This is called when an image is removed from the editor
-            handleImageRemove(id)
-          },
-          onGetImageSrc: (bkey) => {
-            if (props.onGetImageSrc) {
-              const imageSrc = props.onGetImageSrc(bkey)
-              if (imageSrc) {
-                return "data:image/jpeg;base64," + imageSrc
-              }
-            }
-            return ""
-          },
-        }),
-        Placeholder.configure({
-          placeholder: props.placeholder ?? "Write your comment here...",
-          emptyEditorClass: "tiptap-is-empty",
-        }),
-      ]
+  // Only use extensions for rich text mode
+  const extensions = [
+    StarterKit,
+    Link.configure({
+      openOnClick: true,
+      autolink: true,
+      defaultProtocol: "https",
+      protocols: allowedProtocols,
+      HTMLAttributes: {
+        class: "text-link",
+        target: "_blank",
+        rel: "noopener nofollow",
+      },
+    }),
+    Markdown.configure({
+      html: false,
+      breaks: true,
+    }),
+    CustomMention.configure({
+      HTMLAttributes: {
+        class: "mention",
+      },
+      suggestion,
+    }),
+    CustomImage.configure({
+      HTMLAttributes: {},
+      allowBase64: true,
+      onImageUpload: (upload) => {
+        if (props.onImageUploaded) {
+          // Initialize other required properties
+          props.onImageUploaded(upload)
+        }
+      },
+      onImageRemove: (id) => {
+        // This is called when an image is removed from the editor
+        handleImageRemove(id)
+      },
+      onGetImageSrc: (bkey) => {
+        if (props.onGetImageSrc) {
+          const imageSrc = props.onGetImageSrc(bkey)
+          if (imageSrc) {
+            return "data:image/jpeg;base64," + imageSrc
+          }
+        }
+        return ""
+      },
+    }),
+    Placeholder.configure({
+      placeholder: props.placeholder ?? "Write your comment here...",
+      emptyEditorClass: "tiptap-is-empty",
+    }),
+  ]
 
   const editor = useEditor(
     {
@@ -532,7 +501,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
       },
       editorProps: {
         attributes: {
-          class: isRawMarkdownMode ? "markdown-mode no-focus" : "no-focus",
+          class: "no-focus",
         },
         handlePaste: (view, event) => {
           // Check if the clipboard has files
@@ -590,8 +559,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         },
       },
     },
-    [isRawMarkdownMode, editorContent]
-  ) // Re-initialize when mode changes
+    [editorContent]
+  )
 
   // Initialize document images when editor is ready
   useEffect(() => {
@@ -602,7 +571,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   // Add keyboard event listener for shortcuts
   useEffect(() => {
-    if (editor) {
+    if (editor && !isRawMarkdownMode) {
       const editorElement = editor.view.dom
       editorElement.addEventListener("keydown", handleKeyDown)
 
@@ -610,7 +579,18 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         editorElement.removeEventListener("keydown", handleKeyDown)
       }
     }
-  }, [editor])
+  }, [editor, isRawMarkdownMode])
+
+  // Handle textarea changes in markdown mode
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value
+    setMarkdownText(newValue)
+
+    // Notify parent component
+    if (props.onChange) {
+      props.onChange(newValue)
+    }
+  }
 
   return (
     <ValidationContext.Consumer>
@@ -633,7 +613,19 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
                 setIsLinkModalOpen(true)
               }}
             />
-            <EditorContent editor={editor} data-testid="tiptap-editor" />
+            {isRawMarkdownMode ? (
+              <textarea
+                className="c-markdown-textarea no-focus"
+                value={markdownText}
+                onChange={handleTextareaChange}
+                onFocus={props.onFocus}
+                disabled={props.disabled}
+                placeholder={props.placeholder ?? "Write your comment here..."}
+                data-testid="markdown-textarea"
+              />
+            ) : (
+              <EditorContent editor={editor} data-testid="tiptap-editor" />
+            )}
           </div>
           <DisplayError fields={[props.field]} error={ctx.error} />
           <LinkInsertModal isOpen={isLinkModalOpen} onClose={() => setIsLinkModalOpen(false)} onInsertLink={handleInsertLink} selectedText={selectedText} />

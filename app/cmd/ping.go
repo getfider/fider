@@ -35,7 +35,7 @@ func RunPing() int {
 		return 1
 	}
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode >= 400 {
 		fmt.Printf("Request failed with status code: %d\n", resp.StatusCode)
 		return 1

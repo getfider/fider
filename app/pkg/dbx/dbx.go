@@ -146,7 +146,7 @@ func (trx *Trx) Get(data any, command string, args ...any) error {
 		return wrap(err, "failed to execute trx.Get")
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	if rows.Next() {
 		columns, _ := rows.Columns()
 		err := rowMapper.Map(data, columns, rows.Scan)
@@ -178,7 +178,7 @@ func (trx *Trx) Exists(command string, args ...any) (bool, error) {
 		return false, wrap(err, "failed to execute trx.Exists")
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	return rows.Next(), nil
 }
 
@@ -201,7 +201,7 @@ func (trx *Trx) Count(command string, args ...any) (int, error) {
 		return 0, wrap(err, "failed to execute trx.Count")
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	count := 0
 	for rows.Next() {
 		count++
@@ -228,7 +228,7 @@ func (trx *Trx) Select(data any, command string, args ...any) error {
 		return wrap(err, "failed to execute trx.Select")
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	sliceType := reflect.TypeOf(data).Elem()
 	items := reflect.New(sliceType).Elem()
 	itemType := sliceType.Elem().Elem()

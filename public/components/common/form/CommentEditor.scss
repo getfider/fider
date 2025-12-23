@@ -79,6 +79,27 @@
     border-color: var(--colors-red-600);
   }
 
+  .c-markdown-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: var(--colors-white);
+
+    &:focus {
+      outline: none;
+    }
+
+    &::placeholder {
+      color: var(--colors-gray-700);
+    }
+  }
+
   .tiptap {
     :first-child {
       margin-top: 0;

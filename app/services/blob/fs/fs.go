@@ -73,6 +73,10 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
+	if err := blob.ValidateKey(q.Key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", q.Key)
+	}
+
 	fullPath := keyFullPath(ctx, q.Key)
 	stats, err := os.Stat(fullPath)
 	if err != nil {

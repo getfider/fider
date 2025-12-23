@@ -72,7 +72,7 @@ func copyEnv() {
 
 func restartEnv() {
 	for k, v := range envVariables {
-		os.Setenv(k, v)
+		_ = os.Setenv(k, v)
 	}
 	env.Reload()
 }
