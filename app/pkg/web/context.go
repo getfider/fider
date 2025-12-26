@@ -493,16 +493,14 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 	_, err := c.Response.Write(b)
 	if err != nil {
 		elapsed := time.Since(c.Request.StartTime)
-		log.Errorf(c, "Failed to write blob response: @{Error} | URL: @{URL} | Method: @{Method} | ContentType: @{ContentType} | BlobSize: @{BlobSize} bytes | StatusCode: @{StatusCode} | Elapsed: @{Elapsed}ms", dto.Props{
-			"Error":       err.Error(),
-			"URL":         c.Request.URL.String(),
-			"Method":      c.Request.Method,
-			"ContentType": contentType,
-			"BlobSize":    len(b),
-			"StatusCode":  code,
-			"Elapsed":     elapsed.Milliseconds(),
-		})
-		return errors.Wrap(err, "failed to write response")
+		return errors.Wrap(err, "failed to write blob response: url=%s method=%s contentType=%s size=%d bytes status=%d elapsed=%dms",
+			c.Request.URL.String(),
+			c.Request.Method,
+			contentType,
+			len(b),
+			code,
+			elapsed.Milliseconds(),
+		)
 	}
 
 	return nil
