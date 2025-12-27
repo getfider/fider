@@ -267,6 +267,8 @@ func routes(r *web.Engine) *web.Engine {
 
 		adminApi.Use(middlewares.BlockLockedTenants())
 		adminApi.Delete("/api/v1/posts/:number", apiv1.DeletePost())
+		adminApi.Post("/api/v1/posts/:number/votes/on-behalf", apiv1.AddVoteOnBehalf())
+		adminApi.Delete("/api/v1/posts/:number/votes/:userID", apiv1.RemoveVoteOnBehalf())
 	}
 
 	return r
