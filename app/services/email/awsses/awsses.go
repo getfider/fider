@@ -3,10 +3,10 @@ package awsses
 import (
 	"context"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	ses "github.com/aws/aws-sdk-go/service/sesv2"
+	"github.com/aws/aws-sdk-go/aws" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
+	"github.com/aws/aws-sdk-go/aws/credentials" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
+	"github.com/aws/aws-sdk-go/aws/session" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
+	ses "github.com/aws/aws-sdk-go/service/sesv2" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"

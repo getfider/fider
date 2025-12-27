@@ -10,11 +10,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/aws" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
+	"github.com/aws/aws-sdk-go/aws/awserr" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
+	"github.com/aws/aws-sdk-go/aws/credentials" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
+	"github.com/aws/aws-sdk-go/aws/session" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
+	"github.com/aws/aws-sdk-go/service/s3" //nolint:staticcheck // SA1019: aws-sdk-go v1 is still in use
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models/cmd"
