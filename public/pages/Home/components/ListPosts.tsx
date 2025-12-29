@@ -9,9 +9,17 @@ interface ListPostsProps {
   tags: Tag[]
   emptyText: string
   minimalView?: boolean
+  onPostClick?: (postNumber: number, slug: string) => void
 }
 
-const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
+const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPostClick?: (postNumber: number, slug: string) => void }) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (props.onPostClick) {
+      e.preventDefault()
+      props.onPostClick(props.post.number, props.post.slug)
+    }
+  }
+
   return (
     <HStack spacing={4} align="start" className="c-posts-container__post">
       <div>
@@ -24,7 +32,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
           </div>
         )}
         <HStack justify="between">
-          <a className="text-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
+          <a className="text-title text-break hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`} onClick={handleClick}>
             {props.post.title}
           </a>
           {props.post.commentsCount > 0 && (
@@ -46,11 +54,18 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
   )
 }
 
-const MinimalListPostItem = (props: { post: Post; tags: Tag[] }) => {
+const MinimalListPostItem = (props: { post: Post; tags: Tag[]; onPostClick?: (postNumber: number, slug: string) => void }) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (props.onPostClick) {
+      e.preventDefault()
+      props.onPostClick(props.post.number, props.post.slug)
+    }
+  }
+
   return (
     <HStack spacing={4} align="start" className="c-posts-container__post">
       <HStack className="w-full" justify="between" align="start">
-        <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
+        <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`} onClick={handleClick}>
           {props.post.title}
         </a>
         {props.post.status !== "open" ? (
@@ -81,13 +96,13 @@ export const ListPosts = (props: ListPostsProps) => {
       {minimalView ? (
         <VStack spacing={2}>
           {props.posts.map((post) => (
-            <MinimalListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
+            <MinimalListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} onPostClick={props.onPostClick} />
           ))}
         </VStack>
       ) : (
         <VStack spacing={4} divide>
           {props.posts.map((post) => (
-            <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
+            <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} onPostClick={props.onPostClick} />
           ))}
         </VStack>
       )}
