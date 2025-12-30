@@ -31,7 +31,6 @@ import { useAttachments } from "@fider/hooks/useAttachments"
 
 interface PostDetailsProps {
   postNumber: number
-  onClose?: () => void
   // Optional initial data for SSR
   initialPost?: Post
   initialSubscribed?: boolean
@@ -96,7 +95,8 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
         setComments(commentsResult || [])
         setTags(tagsResult || [])
-        setVotes(votesResult.ok ? votesResult.data : [])
+        // Limit votes to 24 to match SSR behavior
+        setVotes(votesResult.ok ? votesResult.data.slice(0, 24) : [])
 
         // Fetch subscription status if authenticated
         if (Fider.session.isAuthenticated) {
@@ -247,12 +247,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
               <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${post.number}.atom`} />
 
               {!editMode && (
-                <HStack>
-                  {props.onClose && (
-                    <Button onClick={props.onClose}>
-                      <Icon sprite={IconX} />
-                    </Button>
-                  )}
+                <HStack spacing={4}>
                   <Dropdown position="left" renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}>
                     <Dropdown.ListItem onClick={onActionSelected("copy")} icon={IconDuplicate}>
                       <Trans id="action.copylink">Copy link</Trans>

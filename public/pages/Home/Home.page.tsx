@@ -1,17 +1,18 @@
 import "./Home.page.scss"
 import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
+import IconArrowLeft from "@fider/assets/images/heroicons-arrowleft.svg"
 
 import React, { useEffect, useState } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
-import { VStack } from "@fider/components/layout"
+import { HStack, VStack } from "@fider/components/layout"
 import { ShareFeedback } from "./components/ShareFeedback"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 import { isPostPending, setPostPending } from "./components/PostCache"
-import { PostDetails, PostDetailsOverlay } from "@fider/components/PostDetails"
+import { PostDetails } from "@fider/components/PostDetails"
 
 export interface HomePageProps {
   posts: Post[]
@@ -138,35 +139,44 @@ What can we do better? This is the place for you to vote, discuss and share idea
         isOpen={isShareFeedbackOpen && !fider.isReadOnly}
         onClose={() => setIsShareFeedbackOpen(false)}
       />
-      <div style={{ display: selectedPostId ? "none" : "block" }}>
+      <div>
         <Header hasInert={isShareFeedbackOpen && !fider.isReadOnly} />
-        <div id="p-home" className="page container" {...(isShareFeedbackOpen && !fider.isReadOnly && { inert: "true" })}>
-          <div className="p-home__welcome-col">
-            <VStack spacing={2} className="p-4">
-              <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
-              <Button className="c-input" type="submit" variant="secondary" onClick={handleNewPost}>
-                {fider.session.tenant.invitation || defaultInvitation}
-              </Button>
-            </VStack>
-            <div onClick={() => setIsShareFeedbackOpen(true)}>
-              <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+        {selectedPostId === null ? (
+          <div id="p-home" className="page container" {...(isShareFeedbackOpen && !fider.isReadOnly && { inert: "true" })}>
+            <div className="p-home__welcome-col">
+              <VStack spacing={2} className="p-4">
+                <Markdown text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
+                <Button className="c-input" type="submit" variant="secondary" onClick={handleNewPost}>
+                  {fider.session.tenant.invitation || defaultInvitation}
+                </Button>
+              </VStack>
+              <div onClick={() => setIsShareFeedbackOpen(true)}>
+                <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+              </div>
+            </div>
+            <div className="p-home__posts-col p-4">
+              {isLonely() ? (
+                <Lonely />
+              ) : (
+                <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} onPostClick={handlePostClick} />
+              )}
+              <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
             </div>
           </div>
-          <div className="p-home__posts-col p-4">
-            {isLonely() ? <Lonely /> : <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} onPostClick={handlePostClick} />}
-            <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
-          </div>
-        </div>
-      </div>
-
-      {selectedPostId && (
-        <PostDetailsOverlay onClose={handleCloseOverlay}>
-          <Header />
+        ) : (
           <div className="page container">
-            <PostDetails postNumber={selectedPostId} onClose={handleCloseOverlay} />
+            <Button onClick={handleCloseOverlay} variant="link">
+              <HStack spacing={2}>
+                <Icon sprite={IconArrowLeft} />
+                <span className="text-body clickable text-blue-600 hover">
+                  <Trans id="postdetails.backtoall">Back to all suggestions</Trans>
+                </span>
+              </HStack>
+            </Button>
+            <PostDetails postNumber={selectedPostId} />
           </div>
-        </PostDetailsOverlay>
-      )}
+        )}
+      </div>
     </>
   )
 }

@@ -4,7 +4,7 @@ import { Avatar, Dropdown } from "./common"
 import { Trans } from "@lingui/react/macro"
 import IconCog from "@fider/assets/images/heroicons-cog.svg"
 import IconWrench from "@fider/assets/images/heroicons-wrenchscrewdriver.svg"
-import IconLeft from "@fider/assets/images/heroicons-arrowleft.svg"
+import IconLeft from "@fider/assets/images/heroicons-arrowleft-rectangle.svg"
 
 export const UserMenu = () => {
   const fider = useFider()
