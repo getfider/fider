@@ -189,12 +189,12 @@ func authenticate(ctx context.Context, cfg env.SMTPConfig) (gosmtp.Auth, error) 
 		}
 
 		scopes := splitCommaScopes(cfg.Scopes)
-		tok, err := getClientCredentialsToken(ctx, cfg.TokenUrl, cfg.ClientId, cfg.ClientSecret, scopes)
+		token, err := getClientCredentialsToken(ctx, cfg.TokenUrl, cfg.ClientId, cfg.ClientSecret, scopes)
 		if err != nil {
 			return nil, err
 		}
 
-		return XOAuth2Auth(cfg.Username, tok.AccessToken, cfg.Host), nil
+		return XOAuth2Auth(cfg.Username, token, cfg.Host), nil
 
 	default:
 		return nil, errors.New("smtp: unsupported auth mechanism")

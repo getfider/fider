@@ -25,24 +25,38 @@ func splitCommaScopes(raw string) []string {
 	return out
 }
 
-func getClientCredentialsToken(ctx context.Context, tokenURL, clientID, clientSecret string, scopes []string) (*oauth2.Token, error) {
+func getClientCredentialsToken(ctx context.Context, tokenURL, clientID, clientSecret string, scopes []string) (string, error) {
 	if tokenURL == "" {
-		return nil, errors.New("smtp: oauth token url is required")
+		return "", errors.New("smtp: oauth token url is required")
 	}
 	if clientID == "" || clientSecret == "" {
-		return nil, errors.New("smtp: oauth client id/secret are required")
+		return "", errors.New("smtp: oauth client id/secret are required")
 	}
 
-	conf := clientcredentials.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		TokenURL:     tokenURL,
-		Scopes:       scopes,
-	}
+	key := tokenSourceKey(tokenURL, clientID, scopes)
 
-	tok, err := conf.Token(ctx)
+	tokenSourceMu.Lock()
+	tokenSource, ok := tokenSourceByKey[key]
+	if !ok {
+		conf := clientcredentials.Config{
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+			TokenURL:     tokenURL,
+			Scopes:       scopes,
+		}
+
+		base := conf.TokenSource(ctx)
+		tokenSource = oauth2.ReuseTokenSource(nil, base)
+		tokenSourceByKey[key] = tokenSource
+	}
+	tokenSourceMu.Unlock()
+
+	tok, err := tokenSource.Token()
 	if err != nil {
-		return nil, errors.Wrap(err, "smtp: failed to fetch oauth token")
+		return "", errors.Wrap(err, "smtp: failed to fetch oauth token")
 	}
-	return tok, nil
+	if tok == nil || tok.AccessToken == "" {
+		return "", errors.New("smtp: oauth returned empty access token")
+	}
+	return tok.AccessToken, nil
 }
