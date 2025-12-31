@@ -492,7 +492,15 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 
 	_, err := c.Response.Write(b)
 	if err != nil {
-		return errors.Wrap(err, "failed to write response")
+		elapsed := time.Since(c.Request.StartTime)
+		return errors.Wrap(err, "failed to write blob response: url=%s method=%s contentType=%s size=%d bytes status=%d elapsed=%dms",
+			c.Request.URL.String(),
+			c.Request.Method,
+			contentType,
+			len(b),
+			code,
+			elapsed.Milliseconds(),
+		)
 	}
 
 	return nil
