@@ -80,11 +80,10 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const [postResponse, commentsResult, tagsResult, votesResult] = await Promise.all([
+        const [postResponse, commentsResult, tagsResult] = await Promise.all([
           fetch(`/api/v1/posts/${props.postNumber}`).then((r) => r.json()),
           fetch(`/api/v1/posts/${props.postNumber}/comments`).then((r) => r.json()),
           fetch(`/api/v1/tags`).then((r) => r.json()),
-          actions.listVotes(props.postNumber),
         ])
 
         if (postResponse) {
@@ -95,19 +94,21 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
         setComments(commentsResult || [])
         setTags(tagsResult || [])
-        // Limit votes to 24 to match SSR behavior
-        setVotes(votesResult.ok ? votesResult.data.slice(0, 24) : [])
 
-        // Fetch subscription status if authenticated
+        // Fetch votes and subscription status if authenticated
         if (Fider.session.isAuthenticated) {
           try {
+            const votesResult = await actions.listVotes(props.postNumber)
+            // Limit votes to 24 to match SSR behavior
+            setVotes(votesResult.ok ? votesResult.data.slice(0, 24) : [])
+
             const subResponse = await fetch(`/api/v1/posts/${props.postNumber}/subscription`)
             if (subResponse.ok) {
               const subData = await subResponse.json()
               setSubscribed(subData.subscribed || false)
             }
           } catch (e) {
-            // Ignore subscription errors
+            // Ignore subscription and vote errors
           }
         }
       } catch (err) {
