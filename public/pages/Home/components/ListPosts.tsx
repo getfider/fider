@@ -11,15 +11,23 @@ interface ListPostsProps {
   tags: Tag[]
   emptyText: string
   minimalView?: boolean
+  onPostClick?: (postNumber: number, slug: string) => void
 }
 
-const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
+const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPostClick?: (postNumber: number, slug: string) => void }) => {
   const fider = useFider()
   const isModerationEnabled = fider.session.tenant.isModerationEnabled
   const isPending = isModerationEnabled && !props.post.isApproved
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (props.onPostClick) {
+      e.preventDefault()
+      props.onPostClick(props.post.number, props.post.slug)
+    }
+  }
+
   return (
-    <a href={`/posts/${props.post.number}/${props.post.slug}`} className="c-posts-container__post-link">
+    <a href={`/posts/${props.post.number}/${props.post.slug}`} className="c-posts-container__post-link" onClick={handleClick}>
       <VStack className="c-posts-container__post w-full" spacing={4}>
         {props.post.status !== "open" && (
           <div className="mb-1 align-self-start">
@@ -59,16 +67,23 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
   )
 }
 
-const MinimalListPostItem = (props: { post: Post; tags: Tag[] }) => {
+const MinimalListPostItem = (props: { post: Post; tags: Tag[]; onPostClick?: (postNumber: number, slug: string) => void }) => {
   const fider = useFider()
   const isModerationEnabled = fider.session.tenant.isModerationEnabled
   const isPending = isModerationEnabled && !props.post.isApproved
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (props.onPostClick) {
+      e.preventDefault()
+      props.onPostClick(props.post.number, props.post.slug)
+    }
+  }
 
   return (
     <HStack spacing={4} align="start" className="c-posts-container__post-minimal">
       <HStack className="w-full" justify="between" align="start">
         <HStack spacing={2} align="start" justify="between" className="w-full">
-          <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`}>
+          <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`} onClick={handleClick}>
             {props.post.title}
           </a>
           {isPending && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>}
@@ -101,13 +116,13 @@ export const ListPosts = (props: ListPostsProps) => {
       {minimalView ? (
         <VStack spacing={2}>
           {props.posts.map((post) => (
-            <MinimalListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
+            <MinimalListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} onPostClick={props.onPostClick} />
           ))}
         </VStack>
       ) : (
         <>
           {props.posts.map((post) => (
-            <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
+            <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} onPostClick={props.onPostClick} />
           ))}
         </>
       )}

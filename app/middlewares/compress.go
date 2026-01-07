@@ -34,7 +34,7 @@ func Compress() web.MiddlewareFunc {
 				}
 
 				err := next(c)
-				gw.Close()
+				_ = gw.Close()
 				return err
 			}
 			return next(c)

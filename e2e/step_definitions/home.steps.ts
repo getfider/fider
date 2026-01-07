@@ -17,6 +17,7 @@ Then("I click on the first post", async function (this: FiderWorld) {
 })
 
 Then("I search for {string}", async function (this: FiderWorld, searchTerm: string) {
+  await this.page.waitForSelector("#input-query", { state: "visible" })
   await this.page.type("#input-query", searchTerm)
 })
 
@@ -26,7 +27,8 @@ Given("I type {string} as the title", async function (this: FiderWorld, title: s
 
 Given("I type {string} as the description", async function (this: FiderWorld, description: string) {
   const editor = this.page.getByTestId("tiptap-editor")
-  // Click to focus, then type
+  // Wait for editor to be visible, click to focus, then type
+  await editor.waitFor({ state: "visible" })
   await editor.click()
   await this.page.keyboard.type(description)
 })

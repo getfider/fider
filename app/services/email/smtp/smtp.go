@@ -114,7 +114,7 @@ var Send = func(localName, serverAddress string, enableStartTLS bool, a gosmtp.A
 	if err != nil {
 		return err
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 	if err = c.Hello(localName); err != nil {
 		return err
 	}

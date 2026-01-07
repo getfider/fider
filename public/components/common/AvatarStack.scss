@@ -1,11 +1,17 @@
 @use "~@fider/assets/styles/variables.scss" as *;
 
 .c-avatar-stack {
+  opacity: 0;
+
   > * {
     border: 1px solid var(--colors-gray-300);
   }
 
   &--overlap & > * + * {
     margin-inline-start: spacing(-3);
+  }
+
+  &--loaded {
+    opacity: 1;
   }
 }

@@ -53,8 +53,8 @@ func (j fiderJob) Run() {
 
 		// Jobs should take at least 1sec before unlocking to avoid double execution
 		if elapsedMs <= 1000 {
-			waitMs := time.Duration(1000 - elapsedMs)
-			time.Sleep(waitMs * time.Millisecond)
+			wait := time.Duration(1000 - elapsedMs)
+			time.Sleep(wait * time.Millisecond)
 		}
 		unlock()
 	}

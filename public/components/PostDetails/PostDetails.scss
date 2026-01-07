@@ -1,0 +1,41 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+.post-details {
+  &__loading {
+    text-align: center;
+    padding: spacing(8);
+    font-size: 1.2rem;
+    color: var(--colors-gray-500);
+  }
+
+  &__main-col {
+    padding: spacing(4);
+    border-radius: get("border.radius.large");
+    margin-bottom: spacing(4);
+  }
+
+  &__action-col {
+    > :first-child {
+      padding: spacing(4);
+    }
+  }
+
+  @include media("lg") {
+    display: grid;
+    gap: spacing(6);
+    grid-template-columns: 2fr 6fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "Action Main"
+      "Action Main";
+
+    &__main-col {
+      grid-area: Main;
+      overflow: auto;
+    }
+
+    &__action-col {
+      grid-area: Action;
+    }
+  }
+}

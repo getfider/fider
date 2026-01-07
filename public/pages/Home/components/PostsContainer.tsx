@@ -18,6 +18,7 @@ interface PostsContainerProps {
   posts: Post[]
   tags: Tag[]
   countPerStatus: { [key: string]: number }
+  onPostClick?: (postNumber: number, slug: string) => void
 }
 
 interface PostsContainerState {
@@ -182,6 +183,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
             posts={this.state.posts}
             tags={this.props.tags}
             emptyText={i18n._({ id: "home.postscontainer.label.noresults", message: "No results matched your search, try something different." })}
+            onPostClick={this.props.onPostClick}
           />
           {this.state.loading && <Loader />}
           {showMoreLink && (

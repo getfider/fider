@@ -1,6 +1,6 @@
 import "./ShowPost.page.scss"
 
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 
 import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
 import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"

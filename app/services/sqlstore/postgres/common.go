@@ -24,7 +24,7 @@ func ToTSQuery(input string) string {
 
 // SanitizeString converts input to another string that only contains utf-8 characters and not-null characters
 func SanitizeString(input string) string {
-	input = strings.Replace(input, "\u0000", "", -1)
+	input = strings.ReplaceAll(input, "\u0000", "")
 	return strings.ToValidUTF8(input, "")
 }
 
@@ -62,23 +62,23 @@ func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {
 	case "most-discussed":
 		sort = "comments_count"
 	case "my-votes":
-		// Depracated: You can instead filter on my votes only for more flexibility than using this view.
+		// Deprecated: You can instead filter on my votes only for more flexibility than using this view.
 		condition = "AND has_voted = true"
 		sort = "id"
 	case "planned":
-		// Depracated: Use status filters instead
+		// Deprecated: Use status filters instead
 		sort = "response_date"
 		statusFilters = []enum.PostStatus{enum.PostPlanned}
 	case "started":
-		// Depracated: Use status filters instead
+		// Deprecated: Use status filters instead
 		sort = "response_date"
 		statusFilters = []enum.PostStatus{enum.PostStarted}
 	case "completed":
-		// Depracated: Use status filters instead
+		// Deprecated: Use status filters instead
 		sort = "response_date"
 		statusFilters = []enum.PostStatus{enum.PostCompleted}
 	case "declined":
-		// Depracated: Use status filters instead
+		// Deprecated: Use status filters instead
 		sort = "response_date"
 		statusFilters = []enum.PostStatus{enum.PostDeclined}
 	case "all":

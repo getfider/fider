@@ -11,10 +11,10 @@ import (
 )
 
 // ErrNotFound is returned when given blob is not found
-var ErrNotFound = errors.New("Blob not found")
+var ErrNotFound = errors.New("blob not found")
 
 // ErrInvalidKeyFormat is returned when blob key is in invalid format
-var ErrInvalidKeyFormat = errors.New("Blob key is in invalid format")
+var ErrInvalidKeyFormat = errors.New("blob key is in invalid format")
 
 // SanitizeFileName replaces invalid characters from given filename
 func SanitizeFileName(fileName string) string {
@@ -50,6 +50,6 @@ func EnsureAuthorizedPrefix(ctx context.Context, path string) {
 
 	// 'tenants' prefix is not valid when running outside a tenant context
 	if strings.HasPrefix(path, "tenants") {
-		panic(errors.New("Unauthorized access to 'tenants' path."))
+		panic(errors.New("unauthorized access to 'tenants' path"))
 	}
 }
