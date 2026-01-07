@@ -16,7 +16,7 @@ import (
 
 func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		isApproved := !tenant.IsModerationEnabled || user.IsCollaborator()
+		isApproved := !tenant.IsModerationEnabled || !user.RequiresModeration()
 		var id int
 		if err := trx.Get(&id, `
 			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at, is_approved) 
