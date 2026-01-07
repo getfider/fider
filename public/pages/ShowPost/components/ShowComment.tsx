@@ -247,7 +247,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                 {fider.session.tenant.isModerationEnabled && !comment.isApproved && (
                   <div className="mt-3">
                     {fider.session.isAuthenticated && fider.session.user.id === comment.user.id && (
-                      <div className="text-muted text-xs p-2 bg-yellow-50 rounded border-l-4 border-yellow-500">
+                      <div className="text-muted text-xs p-2 bg-yellow-50 rounded-md border-yellow-500">
                         <Trans id="showpost.moderation.comment.awaiting">Awaiting moderation.</Trans>
                       </div>
                     )}

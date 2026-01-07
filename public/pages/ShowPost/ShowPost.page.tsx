@@ -251,16 +251,16 @@ export default function ShowPostPage(props: ShowPostPageProps) {
               </VStack>
 
               {/* Moderation status banner for unapproved posts */}
-              {!editMode && fider.session.showModerationControls && !props.post.isApproved && (
+              {!editMode && !props.post.isApproved && (
                 <div>
-                  {fider.session.isAuthenticated && fider.session.user.id === props.post.user.id && (
-                    <div className="text-muted text-sm p-3 bg-yellow-50 rounded border-l-4 border-yellow-500">
+                  {fider.session.isAuthenticated && (
+                    <div className="text-muted text-sm p-3 bg-yellow-50 rounded-md mt-2 border-yellow-500">
                       <Trans id="showpost.moderation.awaiting">Awaiting moderation.</Trans>
                     </div>
                   )}
 
                   {/* Admin moderation buttons */}
-                  {fider.session.isAuthenticated && fider.session.user.isCollaborator && (
+                  {fider.session.isAuthenticated && fider.session.showModerationControls && fider.session.user.isCollaborator && (
                     <div className="p-3 bg-blue-50 rounded border-l-4 border-blue-500 mt-4">
                       <div className="mb-2 text-sm font-medium text-blue-800">
                         <Trans id="showpost.moderation.admin.title">Moderation</Trans>
