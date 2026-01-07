@@ -1,6 +1,9 @@
 @use "~@fider/assets/styles/variables.scss" as *;
 
-.post-details {
+// PostDetails component uses the same styles as ShowPost page
+// These are duplicated here so the component can be used standalone
+
+.p-show-post {
   &__loading {
     text-align: center;
     padding: spacing(8);
@@ -9,21 +12,198 @@
   }
 
   &__main-col {
-    padding: spacing(4);
-    border-radius: get("border.radius.large");
-    margin-bottom: spacing(4);
+    display: flex;
+    flex-direction: column;
+    gap: spacing(6);
   }
 
-  &__action-col {
-    > :first-child {
-      padding: spacing(4);
+  &__post-card {
+    background-color: var(--colors-white);
+    @include dark-mode {
+      background-color: var(--colors-gray-200);
+    }
+    border-radius: get("border.radius.xlarge");
+    padding: spacing(7);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    transition: box-shadow 0.2s ease-in-out;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: get("font.weight.xbold");
+    line-height: 1.2;
+    color: var(--colors-gray-900);
+
+    @include media("md") {
+      font-size: 32px;
+    }
+
+    @include media("lg") {
+      font-size: 36px;
     }
   }
 
-  @include media("lg") {
+  &__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    row-gap: spacing(2);
+  }
+
+  &__vote-section {
+    margin-top: spacing(10);
+  }
+
+  &__description-section {
+    margin-top: spacing(7);
+  }
+
+  &__description {
+    color: var(--colors-gray-800);
+    line-height: 1.6;
+  }
+
+  &__actions {
+    border-top: 5px solid var(--colors-blue-500);
+    padding-top: spacing(4);
+    margin-top: spacing(8);
+
+    // Remove flex-grow on mobile so Following button doesn't get pushed to the right
+    @include media("sm") {
+      .flex-grow {
+        display: none;
+      }
+    }
+  }
+
+  &__discussion-section {
+    display: flex;
+    flex-direction: column;
+    gap: spacing(6);
+  }
+
+  &__discussion-header {
+    margin-bottom: spacing(2);
+  }
+
+  &__discussion-count {
+    width: 25px;
+    height: 25px;
+    margin-left: spacing(4);
+    border-radius: 9999px;
+    text-align: center;
+    background-color: var(--colors-blue-100);
+    color: var(--colors-blue-400);
+    @include dark-mode {
+      background-color: var(--colors-blue-500);
+      color: var(--colors-blue-800);
+    }
+  }
+
+  &__powered-by-mobile {
+    display: block;
+    margin-top: spacing(6);
+
+    @include media("lg") {
+      display: none;
+    }
+  }
+
+  &__action-col {
+    display: flex;
+    flex-direction: column;
+    gap: spacing(4);
+
+    @include media("sm") {
+      margin-top: spacing(6);
+    }
+
+    // Hide desktop version on mobile
+    &--desktop {
+      display: none;
+
+      @include media("lg") {
+        display: flex;
+      }
+    }
+
+    // Show mobile version only on mobile
+    &--mobile {
+      display: flex;
+
+      @include media("lg") {
+        display: none;
+      }
+    }
+
+    > .card {
+      background-color: var(--colors-white);
+      @include dark-mode {
+        background-color: var(--colors-gray-200);
+      }
+      border-radius: get("border.radius.xlarge");
+      padding: spacing(6);
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    &__follow-button--follow,
+    &__follow-button--following {
+      text-align: center;
+      color: var(--colors-gray-800);
+      background-color: var(--colors-white);
+      border: 1px solid var(--colors-gray-800);
+      width: 100%;
+      @include dark-mode {
+        background-color: var(--colors-gray-100);
+        border: 1px solid var(--colors-gray-400);
+      }
+    }
+  }
+}
+
+.c-comment-input {
+  // Hide avatar on mobile for comment input
+  @include media("sm") {
+    .c-avatar {
+      display: none;
+    }
+  }
+}
+
+.c-comment-input-card {
+  flex-grow: 1;
+  background-color: var(--colors-white);
+  @include dark-mode {
+    background-color: var(--colors-gray-200);
+  }
+  border-radius: get("border.radius.xlarge");
+  padding: spacing(6);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.c-response-details {
+  &__card {
+    flex-grow: 1;
+    background-color: var(--colors-blue-50);
+    @include dark-mode {
+      background-color: var(--colors-gray-200);
+    }
+    border-radius: get("border.radius.xlarge");
+    padding: spacing(6);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
+
+  &__content {
+    color: var(--colors-gray-800);
+    line-height: 1.6;
+  }
+}
+
+@include media("lg") {
+  .p-show-post {
     display: grid;
     gap: spacing(6);
-    grid-template-columns: 2fr 6fr 1fr;
+    grid-template-columns: 320px 1fr;
     grid-template-rows: auto;
     grid-template-areas:
       "Action Main"
@@ -31,7 +211,6 @@
 
     &__main-col {
       grid-area: Main;
-      overflow: auto;
     }
 
     &__action-col {
