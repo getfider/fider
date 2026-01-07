@@ -191,7 +191,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
         clearError()
         clearCache()
         clearAttachments()
-        if (fider.session.isModerationRequiredForNewPost) {
+        if (!result.data.isApproved) {
           cache.session.set("POST_CREATED_MODERATION", "true")
         } else {
           cache.session.set("POST_CREATED_SUCCESS", "true")

@@ -102,7 +102,8 @@ func CreatePost() web.HandlerFunc {
 			"id":     newPost.Result.ID,
 			"number": newPost.Result.Number,
 			"title":  newPost.Result.Title,
-			"slug":   newPost.Result.Slug,
+			"slug":       newPost.Result.Slug,
+			"isApproved": newPost.Result.IsApproved,
 		})
 	}
 }

@@ -119,6 +119,7 @@ interface CreatePostResponse {
   number: number
   title: string
   slug: string
+  isApproved: boolean
 }
 
 export const createPost = async (title: string, description: string, attachments: ImageUpload[], tags: string[]): Promise<Result<CreatePostResponse>> => {
