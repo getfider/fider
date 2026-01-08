@@ -1,215 +1,376 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with the Fider codebase.
 
-## Common Development Commands
+## Repository Structure
 
-### Building
+**Backend (Go):**
 
-- `make build` - Build both server and UI
-- `make build-server` - Build Go server binary
-- `make build-ui` - Build UI assets with webpack
-- `make build-ssr` - Build SSR script and compile locales
+- `app/handlers/` - HTTP request handlers
+- `app/models/` - Data models (entity, cmd, query, action, dto)
+- `app/services/` - Business logic and external service integrations
+- `app/pkg/bus/` - Service registry and dispatch system
+- `app/cmd/routes.go` - All HTTP routes defined here
+- `migrations/` - Database migrations (numbered SQL files)
 
-### Running
+**Frontend (React/TypeScript):**
 
-- `make run` - Run Fider server (requires build first)
-- `make watch` - Start both server and UI in watch mode (recommended for development)
-- `make watch-server` - Run server in watch mode with air
-- `make watch-ui` - Run UI in watch mode with webpack
+- `public/pages/` - Page components (lazy-loaded)
+- `public/components/` - Reusable UI components
+- `public/services/` - Client-side services and API calls
+- `public/hooks/` - Custom React hooks
+- `public/assets/styles/` - SCSS styles with utility classes
+
+**Configuration:**
+
+- `.env` - Local environment config (copy from `.example.env`)
+- `Makefile` - Build and development commands
+
+## Local Development
+
+All commands are defined in the Makefile.
+
+**Development:**
+
+- `make watch` - Hot reload for both server and UI (use this for active development)
 - `make migrate` - Run database migrations
 
-### Testing
+**Testing:**
 
-- `make test` - Run both server and UI tests
-- `make test-server` - Run Go server tests (includes migration)
-- `make test-ui` - Run Jest tests for React components
-- `make coverage-server` - Run server tests with coverage
-- `make test-e2e-server` - Run E2E tests for server features
-- `make test-e2e-ui` - Run E2E tests for UI features
-
-### Linting
-
+- `make test` - Run all tests (both Go and Jest)
 - `make lint` - Lint both server and UI code
-- `make lint-server` - Run golangci-lint on Go code
-- `make lint-ui` - Run ESLint on TypeScript/React code
 
-### Other
+Essential: Run "make lint" and "make test" when you've completed any changes, to check the formatting and tests.
 
-- `make clean` - Remove build artifacts
-- `make help` - Show all available make targets
+**Building:**
 
-## Project Architecture
+- `make build` - Build production-ready binaries and assets
 
-### Backend (Go)
+## Code Patterns & Examples
 
-Fider uses a layered architecture with clean separation of concerns:
+### Backend: Adding a New API Endpoint
 
-**Core Structure:**
+**1. Define the route** in `app/cmd/routes.go`:
 
-- `main.go` - Entry point with command routing (ping, migrate, server)
-- `app/cmd/` - Command implementations and server bootstrap
-- `app/cmd/routes.go` - All routes are defined here
-- `app/handlers/` - HTTP handlers organized by functionality
-- `app/middlewares/` - HTTP middleware chain
-- `app/models/` - Data models (cmd, dto, entity, enum, query)
-- `app/services/` - Service implementations with dependency injection
-- `app/pkg/` - Reusable packages and utilities
+```go
+// Public API
+engine.Get("/api/v1/posts", handlers.SearchPosts())
 
-**Key Patterns:**
+// Authenticated API (requires login)
+engine.Get("/api/v1/user/settings", middlewares.IsAuthenticated(), handlers.UserSettings())
 
-- **Bus Architecture**: Uses `app/pkg/bus` for service registration and dispatch
-- **CQRS**: Commands and queries are separated in `app/models/`
-- **Service Layer**: All external services (email, blob storage, oauth) are abstracted
-- **Middleware Chain**: Authentication, tenant resolution, CORS, etc.
+// Admin only
+engine.Post("/api/v1/admin/members", middlewares.IsAuthenticated(), middlewares.IsAuthorized(enum.RoleAdministrator), handlers.CreateMember())
+```
 
-**Database:**
+**2. Create the handler** in `app/handlers/`:
 
-- PostgreSQL with custom migration system in `migrations/`
-- SQL-based data access through service interfaces
-- Tenant-aware data isolation
+```go
+package handlers
 
-### Frontend (React/TypeScript)
+import (
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/web"
+)
 
-Modern React application with TypeScript:
+// SearchPosts returns posts matching criteria
+func SearchPosts() web.HandlerFunc {
+	return func(c *web.Context) error {
+		q := &query.SearchPosts{
+			Query: c.QueryParam("query"),
+			Limit: 10,
+		}
 
-**Structure:**
+		if err := bus.Dispatch(c, q); err != nil {
+			return c.Failure(err)
+		}
 
-- `public/index.tsx` - Application entry point with React 18
-- `public/components/` - Reusable UI components
-- `public/pages/` - Page-level components organized by feature
-- `public/services/` - Client-side services and utilities
-- `public/hooks/` - Custom React hooks
+		return c.Ok(q.Result)
+	}
+}
+```
 
-**Key Features:**
+**3. Define the query** in `app/models/query/`:
 
-- **SSR Support**: Server-side rendering with hydration
-- **Internationalization**: LinguiJS for i18n with locale switching
-- **Component Library**: Extensive set of reusable components
-- **State Management**: React Context for global state
-- **Error Boundaries**: Comprehensive error handling
+```go
+package query
 
-**Build System:**
+import "github.com/getfider/fider/app/models/entity"
 
-- Webpack for bundling with CSS extraction
-- ESBuild for SSR compilation
-- SCSS for styling with utility classes
-- Asset optimization and code splitting
+type SearchPosts struct {
+	Query  string
+	Limit  int
+	Result []*entity.Post
+}
+```
 
-### API Design
+**4. Implement the service** in `app/services/`:
 
-RESTful API with multiple access levels:
+```go
+package postgres
 
-- `/api/v1/` - Public API (no auth required)
-- Member API - Authenticated users
-- Staff API - Collaborators and administrators
-- Admin API - Administrators only
+import (
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/dbx"
+)
 
-### Key Services
+func searchPosts(ctx context.Context, q *query.SearchPosts) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = []*entity.Post{}
+		return trx.Select(&q.Result,
+			"SELECT * FROM posts WHERE title ILIKE $1 LIMIT $2",
+			"%"+q.Query+"%", q.Limit,
+		)
+	})
+}
 
-The application includes pluggable services for:
+func init() {
+	bus.Register(Service{})
+}
 
-- **Email**: SMTP, Mailgun, AWS SES
-- **Blob Storage**: Filesystem, S3, SQL
-- **OAuth**: Custom providers, GitHub, Google, etc.
-- **Billing**: Stripe integration (optional)
-- **Webhooks**: Outbound event notifications
+func (s Service) Name() string {
+	return "Postgres"
+}
 
-## Development Setup Requirements
+func (s Service) Category() string {
+	return "sqlstore"
+}
 
-1. **Go 1.22+** - Backend development
-2. **Node.js 21/22** - Frontend build tools and TypeScript
-3. **Docker** - PostgreSQL and local SMTP (MailHog)
-4. **Air** - Go hot reload: `go install github.com/cosmtrek/air`
-5. **Godotenv** - Environment loading: `go install github.com/joho/godotenv/cmd/godotenv`
-6. **golangci-lint** - Go linting: `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.7.2`
+func (s Service) Enabled() bool {
+	return true
+}
 
-**Environment Setup:**
+func (s Service) Init() {
+	bus.AddHandler(searchPosts)
+}
+```
 
-- Copy `.example.env` to `.env` for local configuration
-- Run `docker compose up -d` for PostgreSQL and MailHog
-- MailHog UI available at http://localhost:8025
+### Frontend: Calling the API from React
 
-## Testing Strategy
+```typescript
+// In a React component
+import { http } from "@fider/services"
 
-**Backend Testing:**
+export const PostSearch: React.FC = () => {
+  const [posts, setPosts] = React.useState([])
+  const [query, setQuery] = React.useState("")
 
-- Unit tests alongside source files (`*_test.go`)
-- Integration tests with test database
-- E2E tests using Cucumber for server features
+  const handleSearch = async () => {
+    const result = await http.get<Post[]>(`/api/v1/posts?query=${query}`)
+    if (result.ok) {
+      setPosts(result.data)
+    }
+  }
 
-**Frontend Testing:**
+  return (
+    <div className="c-post-search">
+      <input className="c-post-search__input" value={query} onChange={(e) => setQuery(e.target.value)} />
+      <Button onClick={handleSearch}>Search</Button>
+    </div>
+  )
+}
+```
 
-- Jest for unit/component tests
-- Testing Library for React components
-- E2E tests using Cucumber + Playwright
+### Model Naming Conventions
 
-**Test Environment:**
+Use these strict prefixes in `app/models/`:
 
-- Uses `.test.env` for test-specific configuration
-- Automated database migrations before test runs
-- Coverage reporting available
+```go
+// entity.* - Database tables
+type entity.User struct {
+    ID    int
+    Name  string
+    Email string
+}
 
-## Code Organization Principles
+// action.* - User input for POST/PUT/PATCH (maps 1:1 to commands)
+type action.CreatePost struct {
+    Title       string
+    Description string
+}
 
-### Backend Model Naming Conventions
+// cmd.* - Commands to execute (potentially return values)
+type cmd.SendEmail struct {
+    To      string
+    Subject string
+    Body    string
+}
 
-Follow these strict naming patterns for `app/models/`:
+// query.* - Queries to fetch data
+type query.GetPostByID struct {
+    PostID int
+    Result *entity.Post
+}
 
-- **`action.<something>`** - User interactions for POST/PUT/PATCH requests, map 1-to-1 with Commands (e.g., `action.CreateNewUser`)
-- **`dto.<something>`** - Data transfer objects between packages/services (e.g., `dto.NewUserInfo`)
-- **`entity.<something>`** - Objects mapped to database tables (e.g., `entity.User`)
-- **`cmd.<something>`** - Commands that must be executed and potentially return values (e.g., `cmd.HttpRequest`, `cmd.LogDebug`, `cmd.SendMail`, `cmd.CreateNewUser`)
-- **`query.<something>`** - Queries to get information from somewhere (e.g., `query.GetUserById`, `query.GetAllPosts`)
+// dto.* - Data transfer between packages
+type dto.PostInfo struct {
+    Title     string
+    AuthorName string
+}
+```
 
-### Frontend Structure Conventions
+### CSS Conventions
 
-- **Page Organization**: Each page has its own folder under `public/pages/` with:
-  - `index.ts` - Module exporter
-  - `[PageName].page.tsx` - Main page component
-  - `[PageName].page.scss` - Page-specific styles
-  - `[PageName].page.spec.tsx` - Unit tests
-  - `./components/` - Page-specific components
+Most pages have a corresponding scss file. For example Home.Page.tsx imports Home.Page.scss which contains styles for various components in that page. These follow a BEM style:
 
-### CSS Naming Conventions
+```scss
+// Page ID: p-<page_name>
+#p-home {
+  // Component: c-<component>
+  .c-post-list {
+    // Element: c-<component>__<element>
+    &__item {
+      padding: 1rem;
+    }
 
-Fider uses BEM methodology combined with utility classes:
+    &__title {
+      font-size: 1.2rem;
+    }
 
-- **`p-<page_name>`** - HTML ID for each page component (e.g., `p-home`, `p-user-settings`)
-- **`c-<component_name>`** - Block class for components (e.g., `c-toggle`)
-- **`c-<component_name>__<element>`** - Element classes (e.g., `c-toggle__label`)
-- **`c-<component_name>--<state>`** - State modifiers (e.g., `c-toggle--checked`)
-- **`is-<state>`, `has-<state>`** - Global state modifiers
-- **Utility classes** - No prefix, used for common styling patterns. All utility classes are defined in public/assets/styles/utility
+    // Modifier: c-<component>--<state>
+    &--loading {
+      opacity: 0.5;
+    }
+  }
+}
+```
 
-### General Principles
+However, more recently, Utility classes were added to the codebase, to make it possible to apply classes in a utility style, similar to tailwind. If possible favour the utility classes over adding new styles for components and pages:
 
-**Backend:**
+```scss
+// Utility classes (no prefix) - defined in public/assets/styles/utility/
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.flex {
+  display: flex;
+}
+```
 
-- Services are dependency-injected through the bus system
-- All external dependencies are abstracted behind interfaces
-- Database queries are centralized in query objects
-- Handlers focus on HTTP concerns, business logic in services
+Important: Do not just apply tailwind classes to new code, tailwind is not in use in this project. Check what is available in the utility scss files.
 
-**Frontend:**
+## Common Tasks
 
-- Page components are lazy-loaded for performance
-- Shared components in `components/common/`
-- Business logic in services, not components
-- Type-safe API calls with proper error handling
+### Creating a Database Migration
 
-## Build and Deployment
+"up migrations" only.
 
-**Local Development:**
+```bash
+# Create new migration file in migrations/ directory
+# Format: YYYYMMDDHHMMSS_description.sql
+# Example: migrations/202601041200_add_user_preferences.sql
 
-- `make watch` for development with hot reload
-- Webpack dev server for fast UI rebuilds
-- Air for Go server hot reload
+CREATE TABLE user_preferences (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    theme VARCHAR(50),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-**Production Build:**
+```
 
-- `make build` creates optimized binaries and assets
-- SSR compilation for better SEO and performance
-- Asset optimization and minification
+Run with: `make migrate`
 
-This is a mature, production-ready feedback platform with comprehensive testing, i18n support, and a clean, maintainable architecture.
+### Adding a New Page Component
+
+```typescript
+// public/pages/MyNewPage/MyNewPage.page.tsx
+import React from "react"
+import { Page } from "@fider/components"
+
+interface MyNewPageProps {
+  // Props here
+}
+
+const MyNewPage: React.FC<MyNewPageProps> = (props) => {
+  return (
+    <Page id="p-my-new-page">
+      <h1>My New Page</h1>
+    </Page>
+  )
+}
+
+export default MyNewPage
+```
+
+```typescript
+// public/pages/MyNewPage/index.ts
+export { default as MyNewPage } from "./MyNewPage.page"
+```
+
+Register route in `app/handlers/` and lazy-load in `public/index.tsx`.
+
+### Using the Bus System
+
+The bus handles service registration and dispatch:
+
+```go
+// Register a service
+bus.Register(MyService{})
+
+// Dispatch a query
+q := &query.GetUserByID{UserID: 123}
+if err := bus.Dispatch(ctx, q); err != nil {
+    return err
+}
+user := q.Result
+
+// Dispatch a command
+c := &cmd.SendEmail{To: "user@example.com", Subject: "Welcome"}
+if err := bus.Dispatch(ctx, c); err != nil {
+    return err
+}
+```
+
+## Architecture Patterns
+
+**Backend (Go):**
+
+- CQRS: Separate commands (write) and queries (read)
+- Bus system: Dependency injection and service dispatch
+- Middleware chain: Auth, tenant resolution, CORS applied via routes
+- SQL-based data access: Direct SQL queries, no ORM
+
+**Frontend (React):**
+
+- SSR Support: Server-side rendering with React 18 hydration
+- i18n: LinguiJS for translations
+- Code splitting: Lazy-loaded page components
+- Type safety: Full TypeScript coverage
+
+## Troubleshooting
+
+**Database connection errors:**
+
+- Ensure Docker is running: `docker compose ps`
+- Check `.env` has correct `DATABASE_URL`
+- Run migrations: `make migrate`
+
+**Build failures:**
+
+- Clear build cache: `make clean && make build`
+- Check Go version: `go version` (need 1.22+)
+- Check Node version: `node --version` (need 21/22)
+
+**Tests failing:**
+
+- Ensure test database is migrated (happens automatically with `make test`)
+- Check `.test.env` configuration
+- Run specific test: `go test ./app/handlers -v -run TestName`
+
+**Port conflicts:**
+
+- Default ports: 3000 (app), 5432 (postgres), 8025 (mailhog)
+- Change in `.env` if needed
+
+## Development Tips
+
+- Use `make watch` for active development - it handles hot reload for both frontend and backend
+- MailHog captures all emails at http://localhost:8025
+- Frontend changes: Webpack rebuilds automatically
+- Backend changes: Air restarts server automatically
+- All routes are centralized in `app/cmd/routes.go` - start there when tracing request flow
+- Bus handlers are registered in service `Init()` methods
+- Utility CSS classes are in `public/assets/styles/utility/` - use these before adding custom styles
