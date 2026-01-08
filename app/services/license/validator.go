@@ -17,7 +17,7 @@ import (
 // This is the public key from the hosted Fider instance
 // Self-hosted instances automatically use this - no configuration needed
 // Can be overridden via LICENSE_PUBLIC_KEY environment variable
-const DefaultPublicKey = "EpyoY4Fc3TroE7MIEWlLHU8OGaEiPkPhOy+RVwwC1zk="
+const DefaultPublicKey = "Ldi94BbbFMnxOOSBGqJKxWyWCgdx4k0zu3zLtNaz3bA="
 
 // GenerateKey generates a commercial license key for a tenant using Ed25519 signatures
 // Format: FIDER-COMMERCIAL-{tenantID}-{timestamp}-{signature}

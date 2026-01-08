@@ -122,7 +122,7 @@ func TestValidateKey_InvalidFormat(t *testing.T) {
 	testCases := []string{
 		"INVALID-KEY",
 		"FIDER-INVALID-123-456-789",
-		"FIDER-COMMERCIAL-123", // Too few parts
+		"FIDER-COMMERCIAL-123",         // Too few parts
 		"FIDER-COMMERCIAL-abc-456-789", // Invalid tenant ID
 		"FIDER-COMMERCIAL-123-abc-789", // Invalid timestamp
 	}
@@ -147,7 +147,7 @@ func TestValidateKey_UsesEmbeddedDefault(t *testing.T) {
 
 	// Set private key to match the embedded public key (lPHzCZhOBBihIusKWs5lzXCgGxZEKBpCiplkmZSjGpU=)
 	// This is the corresponding private key for the DefaultPublicKey
-	env.Config.License.PrivateKey = "B0Srq+DtsBI6MwY4sljCywXNLWAizfCdiJ6emGx+xIqU8fMJmE4EGKEi6wpazmXNcKAbFkQoGkKKmWSZlKMalQ=="
+	env.Config.License.PrivateKey = "iKNP8chE8EGTivUb/+3Sx907LwSaZAFOd1BmrMFahHwt2L3gFtsUyfE45IEaokrFbJYKB3HiTTO7fMu01rPdsA=="
 	env.Config.License.PublicKey = "" // Leave empty to test embedded default
 
 	defer func() {
