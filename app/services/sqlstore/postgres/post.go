@@ -269,7 +269,7 @@ func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3, language = $4
 								 WHERE id = $5 AND tenant_id = $6`, c.Title, slug.Make(c.Title), c.Description, lang, c.Post.ID, tenant.ID)
 
-		if err != nil{
+		if err != nil {
 			return errors.Wrap(err, "failed update post")
 		}
 
@@ -533,10 +533,11 @@ func buildPostQuery(user *entity.User, filter string, moderationFilter string) s
 
 	// If user is a collaborator and has specified a moderation filter, apply it
 	if user != nil && user.IsCollaborator() && moderationFilter != "" {
-		if moderationFilter == "pending" {
+		switch moderationFilter {
+		case "pending":
 			// Show only unapproved posts
 			approvalFilter = " AND p.is_approved = false"
-		} else if moderationFilter == "approved" {
+		case "approved":
 			// Show only approved posts
 			approvalFilter = " AND p.is_approved = true"
 		}

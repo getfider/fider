@@ -3,7 +3,7 @@ import NoDataIllustration from "@fider/assets/images/undraw-no-data.svg"
 import IconPlusCircle from "@fider/assets/images/heroicons-pluscircle.svg"
 import IconArrowLeft from "@fider/assets/images/heroicons-arrowleft.svg"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
@@ -49,9 +49,11 @@ const Lonely = () => {
 
 const HomePage = (props: HomePageProps) => {
   const fider = useFider()
+  const postsContainerRef = useRef<PostsContainer>(null)
   const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(isPostPending())
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
   const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0)
+  const [isPostDirty, setIsPostDirty] = useState(false)
 
   useEffect(() => {
     // If we're showing the share feedback, make sure we clear the show pending flag (for draft posts)
@@ -67,6 +69,8 @@ const HomePage = (props: HomePageProps) => {
     // Save current scroll position
     setSavedScrollPosition(window.scrollY)
     setSelectedPostId(postNumber)
+    setLastOpenedPostId(postNumber) // Track which post was opened
+    setIsPostDirty(false) // Reset dirty flag when opening overlay
     window.history.pushState({ selectedPostId: postNumber }, "", `/posts/${postNumber}/${slug}`)
   }
 
@@ -74,11 +78,26 @@ const HomePage = (props: HomePageProps) => {
   const handleCloseOverlay = () => {
     setSelectedPostId(null)
     window.history.pushState({}, "", "/")
-    // Restore scroll position after state updates
-    setTimeout(() => {
-      window.scrollTo(0, savedScrollPosition)
-    }, 0)
   }
+
+  // Track which post was opened so we can update just that one
+  const [lastOpenedPostId, setLastOpenedPostId] = useState<number | null>(null)
+
+  // Update single post when closing overlay if data changed, and always restore scroll
+  useEffect(() => {
+    if (selectedPostId === null && lastOpenedPostId !== null) {
+      if (isPostDirty && postsContainerRef.current) {
+        postsContainerRef.current.updateSinglePost(lastOpenedPostId)
+        setIsPostDirty(false)
+      }
+      setLastOpenedPostId(null)
+
+      // Always restore scroll position when returning to home
+      setTimeout(() => {
+        window.scrollTo(0, savedScrollPosition)
+      }, 0)
+    }
+  }, [selectedPostId, lastOpenedPostId, isPostDirty, savedScrollPosition])
 
   // Handle browser back/forward buttons
   useEffect(() => {
@@ -86,10 +105,7 @@ const HomePage = (props: HomePageProps) => {
       const path = window.location.pathname
       if (path === "/" || path === "") {
         setSelectedPostId(null)
-        // Restore scroll position when going back to home
-        setTimeout(() => {
-          window.scrollTo(0, savedScrollPosition)
-        }, 0)
+        // Scroll restoration is handled in the useEffect above
       } else if (path.startsWith("/posts/")) {
         // Save scroll position before opening post
         setSavedScrollPosition(window.scrollY)
@@ -98,6 +114,7 @@ const HomePage = (props: HomePageProps) => {
         if (match) {
           const postNumber = parseInt(match[1], 10)
           setSelectedPostId(postNumber)
+          setLastOpenedPostId(postNumber) // Track which post was opened
         }
       }
     }
@@ -175,7 +192,9 @@ What can we do better? This is the place for you to vote, discuss and share idea
             <div className="p-home__welcome-col">
               <VStack spacing={6}>
                 <div>
-                  {fider.session.tenant.welcomeHeader && <h1 className="p-home__welcome-title mb-5">{parseWelcomeHeader(fider.session.tenant.welcomeHeader)}</h1>}
+                  {fider.session.tenant.welcomeHeader && (
+                    <h1 className="p-home__welcome-title mb-5">{parseWelcomeHeader(fider.session.tenant.welcomeHeader)}</h1>
+                  )}
                   <Markdown className="p-home__welcome-body" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
                 </div>
               </VStack>
@@ -190,7 +209,17 @@ What can we do better? This is the place for you to vote, discuss and share idea
                   <span>{fider.session.tenant.invitation || defaultInvitation}</span>
                 </HStack>
               </button>
-              {isLonely() ? <Lonely /> : <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} onPostClick={handlePostClick} />}
+              {isLonely() ? (
+                <Lonely />
+              ) : (
+                <PostsContainer
+                  ref={postsContainerRef}
+                  posts={props.posts}
+                  tags={props.tags}
+                  countPerStatus={props.countPerStatus}
+                  onPostClick={handlePostClick}
+                />
+              )}
               <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
             </div>
           </div>
@@ -204,7 +233,7 @@ What can we do better? This is the place for you to vote, discuss and share idea
                 </span>
               </HStack>
             </Button>
-            <PostDetails postNumber={selectedPostId} />
+            <PostDetails postNumber={selectedPostId} onDataChanged={() => setIsPostDirty(true)} />
           </div>
         )}
       </div>

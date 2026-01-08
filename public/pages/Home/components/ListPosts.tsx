@@ -116,7 +116,12 @@ export const ListPosts = (props: ListPostsProps) => {
       {minimalView ? (
         <VStack spacing={2}>
           {props.posts.map((post) => (
-            <MinimalListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} onPostClick={props.onPostClick} />
+            <MinimalListPostItem
+              key={post.id}
+              post={post}
+              tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)}
+              onPostClick={props.onPostClick}
+            />
           ))}
         </VStack>
       ) : (

@@ -5,6 +5,10 @@ export const getAllPosts = async (): Promise<Result<Post[]>> => {
   return await http.get<Post[]>("/api/v1/posts")
 }
 
+export const getPost = async (postNumber: number): Promise<Result<Post>> => {
+  return await http.get<Post>(`/api/v1/posts/${postNumber}`)
+}
+
 export interface SearchPostsParams {
   query?: string
   view?: string

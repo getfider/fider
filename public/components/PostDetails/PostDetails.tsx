@@ -10,20 +10,7 @@ import IconRSS from "@fider/assets/images/heroicons-rss.svg"
 import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 
-import {
-  ResponseDetails,
-  Button,
-  UserName,
-  Moment,
-  Markdown,
-  Input,
-  Form,
-  Icon,
-  Avatar,
-  PoweredByFider,
-  RSSModal,
-  ResponseLozenge,
-} from "@fider/components"
+import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, Icon, Avatar, PoweredByFider, RSSModal, ResponseLozenge } from "@fider/components"
 import { CommentInput } from "@fider/pages/ShowPost/components/CommentInput"
 import { ShowComment } from "@fider/pages/ShowPost/components/ShowComment"
 import { VoteSection } from "@fider/pages/ShowPost/components/VoteSection"
@@ -46,6 +33,7 @@ import { FollowButton } from "@fider/pages/ShowPost/components/FollowButton"
 
 interface PostDetailsProps {
   postNumber: number
+  onDataChanged?: () => void
   // Optional initial data for SSR
   initialPost?: Post
   initialSubscribed?: boolean
@@ -217,6 +205,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
         description: newDescription,
       })
       notify.success(<Trans id="showpost.save.success">Post updated successfully</Trans>)
+      props.onDataChanged?.() // Notify parent that data changed
     } else {
       setError(result.error)
     }
@@ -395,7 +384,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
           {/* Vote Section */}
           {!editMode && (
             <div className="p-show-post__vote-section">
-              <VoteSection post={post} votes={post.votesCount} />
+              <VoteSection post={post} votes={post.votesCount} onDataChanged={props.onDataChanged} />
             </div>
           )}
 

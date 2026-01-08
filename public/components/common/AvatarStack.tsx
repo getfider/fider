@@ -57,14 +57,7 @@ export const AvatarStack = (props: AvatarStackProps) => {
   return (
     <div className={classes}>
       {props.users.map((x, i) => (
-        <img
-          key={i}
-          className="c-avatar h-8 w-8"
-          alt={x.name}
-          src={`${x.avatarURL}?size=50`}
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-        />
+        <img key={i} className="c-avatar h-8 w-8" alt={x.name} src={`${x.avatarURL}?size=50`} onLoad={handleImageLoad} onError={handleImageError} />
       ))}
     </div>
   )

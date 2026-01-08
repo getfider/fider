@@ -16,7 +16,6 @@ interface ShowPostPageProps {
 }
 
 export default function ShowPostPage(props: ShowPostPageProps) {
-
   return (
     <>
       <Header />

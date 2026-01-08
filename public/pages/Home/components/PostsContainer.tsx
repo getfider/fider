@@ -123,6 +123,15 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     }, 500)
   }
 
+  public updateSinglePost = async (postNumber: number) => {
+    // Fetch the updated post and replace it in the array without changing order
+    const response = await actions.getPost(postNumber)
+    if (response.ok && this.state.posts) {
+      const updatedPosts = this.state.posts.map((post) => (post.number === postNumber ? response.data : post))
+      this.setState({ posts: updatedPosts })
+    }
+  }
+
   private handleFilterChanged = (filterState: FilterState) => {
     this.changeFilterCriteria({ filterState }, true)
   }

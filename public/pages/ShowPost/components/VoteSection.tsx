@@ -11,6 +11,7 @@ import { HStack, VStack } from "@fider/components/layout"
 interface VoteSectionProps {
   post: Post
   votes: number
+  onDataChanged?: () => void
 }
 
 export const VoteSection = (props: VoteSectionProps) => {
@@ -30,6 +31,7 @@ export const VoteSection = (props: VoteSectionProps) => {
     if (response.ok) {
       setVotes(hasVoted ? votes - 1 : votes + 1)
       setHasVoted(!hasVoted)
+      props.onDataChanged?.() // Notify parent that data changed
     }
   }
 
