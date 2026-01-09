@@ -377,7 +377,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
           {tags.length >= 1 && (
             <div className="pt-7">
-              <TagsPanel post={post} tags={tags} />
+              <TagsPanel post={post} tags={tags} onDataChanged={props.onDataChanged} />
             </div>
           )}
 

@@ -5,6 +5,7 @@ import { useFider } from "@fider/hooks"
 import { TagsSelect } from "@fider/components/common/TagsSelect"
 
 export interface TagsPanelProps {
+  onDataChanged?: () => void
   post: Post
   tags: Tag[]
 }
@@ -22,6 +23,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
     ])
 
     setAssignedTags(tags)
+    props.onDataChanged?.()
   }
 
   return <TagsSelect tags={props.tags} selected={assignedTags} canEdit={canEdit} selectionChanged={assignOrUnassignTag} asLinks />
