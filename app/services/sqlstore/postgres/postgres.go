@@ -81,6 +81,7 @@ func (s Service) Init() {
 	bus.AddHandler(deleteComment)
 	bus.AddHandler(getCommentByID)
 	bus.AddHandler(getCommentsByPost)
+	bus.AddHandler(getCommentRefs)
 
 	bus.AddHandler(countUsers)
 	bus.AddHandler(blockUser)
