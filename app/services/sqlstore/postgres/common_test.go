@@ -28,6 +28,8 @@ func TestToTSQuery(t *testing.T) {
 		{"hello|world", "hello|world"},
 		{"hello | world", "hello|world"},
 		{"hello & world", "hello|world"},
+		{"node-js", "node|js"},
+		{"real-time updates", "real|time|updates"},
 	}
 
 	for _, testcase := range testcases {
