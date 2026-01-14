@@ -416,7 +416,16 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const handleInsertLink = (text: string, url: string) => {
     if (!editor) return
 
-    editor.chain().focus().insertContent(`<a href="${url}" target="_blank" rel="noopener nofollow">${text}</a>`).run()
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: "text",
+        text: text,
+        marks: [{ type: "link", attrs: { href: url, target: "_blank", rel: "noopener nofollow" } }],
+      })
+      .unsetMark("link")
+      .run()
   }
 
   // Handle keyboard shortcuts
