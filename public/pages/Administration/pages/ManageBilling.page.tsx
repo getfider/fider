@@ -129,9 +129,9 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
     }
   }
 
-  const freeFeatures = ["Unlimited feedback posts", "Unlimited voters", "Your own subdomain or custom domain", "All core functionality", "Email notifications"]
+  const freeFeatures = ["250 suggestions", "Unlimited voters", "Your own subdomain or custom domain", "All core functionality"]
 
-  const proFeatures = ["Everything in Free", "Content Moderation", "Responsive email support", "Priority support"]
+  const proFeatures = ["Everything in free", "Unlimited suggestions", "Content moderation", "Billing month to month", "Responsive email support"]
 
   return (
     <AdminPageContainer id="p-admin-billing" name="billing" title="Billing" subtitle="Manage your subscription and billing">
