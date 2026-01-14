@@ -3,16 +3,18 @@ package webhook
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/tpl"
 	"github.com/getfider/fider/app/pkg/webhook"
-	"net/http"
-	"strings"
 )
 
 func init() {
@@ -159,10 +161,12 @@ func resultWithError(ctx context.Context, message, error string, result *dto.Web
 		"Error":   error,
 	})
 
-	webhooks := &query.MarkWebhookAsFailed{ID: result.Webhook.ID}
-	err := bus.Dispatch(ctx, webhooks)
-	if err != nil {
-		return nil, err
+	if env.Config.Webhook.DisableOnFailure {
+		webhooks := &query.MarkWebhookAsFailed{ID: result.Webhook.ID}
+		err := bus.Dispatch(ctx, webhooks)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return result, nil
