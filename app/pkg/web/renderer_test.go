@@ -21,7 +21,7 @@ import (
 )
 
 func compareRendererResponse(buf *bytes.Buffer, fileName string, ctx *web.Context) {
-	// os.WriteFile(env.Path(fileName), []byte(strings.Replace(buf.String(), ctx.ContextID(), "CONTEXT_ID", -1)), 0744)
+	// os.WriteFile(env.Path(fileName), []byte(strings.ReplaceAll(buf.String(), ctx.ContextID(), "CONTEXT_ID")), 0744)
 	bytes, err := os.ReadFile(env.Path(fileName))
 	Expect(err).IsNil()
 	Expect(strings.ReplaceAll(buf.String(), ctx.ContextID(), "CONTEXT_ID")).Equals(string(bytes))
