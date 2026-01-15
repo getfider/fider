@@ -141,6 +141,9 @@ type config struct {
 		Message string `env:"MAINTENANCE_MESSAGE"`
 		Until   string `env:"MAINTENANCE_UNTIL"`
 	}
+	Webhook struct {
+		DisableOnFailure bool `env:"WEBHOOK_DISABLE_ON_FAILURE,default=true"`
+	}
 	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
 	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
 	License          struct {

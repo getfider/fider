@@ -18,7 +18,7 @@ var replaceOr = strings.NewReplacer("|", " ")
 
 // ToTSQuery converts input to another string that can be safely used for ts_query
 func ToTSQuery(input string) string {
-	input = replaceOr.Replace(allowedTextRunes.ReplaceAllString(input, ""))
+	input = replaceOr.Replace(allowedTextRunes.ReplaceAllString(input, " "))
 	return strings.Join(strings.Fields(input), "|")
 }
 
