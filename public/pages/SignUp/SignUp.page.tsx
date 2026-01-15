@@ -100,7 +100,7 @@ const SignUpPage = () => {
   return (
     <div id="p-signup" className="page container w-max-6xl">
       <div className="h-20 text-center mb-4">
-        <img className="logo" alt="Logo" src="https://fider.io/images/logo-100x100.png" />
+        <img className="logo" alt="Logo" src="https://login.fider.io/static/assets/logo.png" />
       </div>
 
       <h3 className="text-display mb-2">1. Who are you?</h3>

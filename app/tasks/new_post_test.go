@@ -71,7 +71,7 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 		"content":  template.HTML("<p>TypeScript is great, please add support for it</p>"),
 		"view":     "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
 		"change":   "<a href='http://domain.com/settings'>change your notification preferences</a>",
-		"logo":     "https://fider.io/images/logo-100x100.png",
+		"logo":     "https://login.fider.io/static/assets/logo.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
 		Name: "Jon Snow",
