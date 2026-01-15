@@ -214,6 +214,7 @@ func routes(r *web.Engine) *web.Engine {
 		publicApi.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		publicApi.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
 		publicApi.Get("/api/v1/taggable-users", apiv1.ListTaggableUsers())
+		publicApi.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
 	}
 
 	// Operations used to manage the content of a site
@@ -248,7 +249,6 @@ func routes(r *web.Engine) *web.Engine {
 		staffApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
 
 		staffApi.Get("/api/v1/users", apiv1.ListUsers())
-		staffApi.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
 		staffApi.Post("/api/v1/invitations/send", apiv1.SendInvites())
 		staffApi.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 

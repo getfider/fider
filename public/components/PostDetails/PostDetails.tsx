@@ -111,20 +111,20 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
         setComments(commentsResult || [])
         setTags(tagsResult || [])
 
-        // Fetch votes and subscription status if authenticated
+        const votesResult = await actions.listVotes(props.postNumber)
+        // Limit votes to 24 to match SSR behavior
+        setVotes(votesResult.ok ? votesResult.data.slice(0, 24) : [])
+
+        // Fetch subscription status if authenticated
         if (Fider.session.isAuthenticated) {
           try {
-            const votesResult = await actions.listVotes(props.postNumber)
-            // Limit votes to 24 to match SSR behavior
-            setVotes(votesResult.ok ? votesResult.data.slice(0, 24) : [])
-
             const subResponse = await fetch(`/api/v1/posts/${props.postNumber}/subscription`)
             if (subResponse.ok) {
               const subData = await subResponse.json()
               setSubscribed(subData.subscribed || false)
             }
           } catch (e) {
-            // Ignore subscription and vote errors
+            // Ignore subscription errors
           }
         }
       } catch (err) {

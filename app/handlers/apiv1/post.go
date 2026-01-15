@@ -506,7 +506,8 @@ func ListVotes() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: true}
+		includeEmail := c.User() != nil && c.User().IsCollaborator()
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: includeEmail}
 		if err := bus.Dispatch(c, listVotes); err != nil {
 			return c.Failure(err)
 		}
