@@ -5,10 +5,13 @@ import "errors"
 // ErrNotFound represents an object not found error
 var ErrNotFound = errors.New("object not found")
 
+// ErrCommercialLicenseRequired is used when a commercial feature is accessed without a license
+var ErrCommercialLicenseRequired = errors.New("content moderation requires a commercial license")
+
 // InvitePlaceholder represents the placeholder used by members to invite other users
 var InvitePlaceholder = "%invite%"
 
-//ErrUserIDRequired is used when OAuth integration returns an empty user ID
+// ErrUserIDRequired is used when OAuth integration returns an empty user ID
 var ErrUserIDRequired = errors.New("UserID is required during OAuth integration")
 
 type key string

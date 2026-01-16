@@ -42,7 +42,7 @@ export const SideMenu = (props: SiteMenuProps) => {
       <VStack spacing={0} className="c-side-menu rounded-md shadow bg-white">
         <SideMenuItem name="general" title="General" href="/admin" isActive={activeItem === "general"} />
         <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
-        <SideMenuItem name="members" title="Members" href="/admin/members" isActive={activeItem === "members"} />
+        <SideMenuItem name="users" title="Users" href="/admin/users" isActive={activeItem === "users"} />
         <SideMenuItem name="tags" title="Tags" href="/admin/tags" isActive={activeItem === "tags"} />
         <SideMenuItem name="invitations" title="Invitations" href="/admin/invitations" isActive={activeItem === "invitations"} />
         <SideMenuItem name="authentication" title="Authentication" href="/admin/authentication" isActive={activeItem === "authentication"} />

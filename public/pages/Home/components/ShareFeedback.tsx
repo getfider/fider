@@ -5,7 +5,7 @@ import { SignInControl } from "@fider/components/common/SignInControl"
 import { Modal, CloseIcon, Form, Button, Input, LegalFooter } from "@fider/components/common"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
-import { actions, Failure, querystring, classSet } from "@fider/services"
+import { actions, Failure, querystring, classSet, cache } from "@fider/services"
 import { plainText } from "@fider/services/markdown"
 import { i18n } from "@lingui/core"
 import { Tag } from "@fider/models"
@@ -21,7 +21,6 @@ import {
   setCachedDescription,
   setCachedTags,
   setCachedTitle,
-  setPostCreated,
   setPostPending,
 } from "./PostCache"
 import { useAttachments } from "@fider/hooks/useAttachments"
@@ -192,7 +191,11 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
         clearError()
         clearCache()
         clearAttachments()
-        setPostCreated()
+        if (!result.data.isApproved) {
+          cache.session.set("POST_CREATED_MODERATION", "true")
+        } else {
+          cache.session.set("POST_CREATED_SUCCESS", "true")
+        }
         location.href = `/posts/${result.data.number}/${result.data.slug}`
       } else if (result.error) {
         setError(result.error)
@@ -209,6 +212,8 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     // This function is called when the editor is focused
     // We don't need to do anything special here
   }
+
+  const showSubmitButton = title.replace(/\s+/g, " ").trim().length > 9
 
   return (
     <Modal.Window className="c-share-feedback" isOpen={isOpen} onClose={handleClose} size="fullscreen" center={false}>
@@ -284,7 +289,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
           </div>
         ) : (
           /* For authenticated users, only show the submit button container when title is long enough */
-          title.replace(/\s+/g, " ").trim().length > 9 && (
+          showSubmitButton && (
             <div className="c-share-feedback__content animate-fade-in">
               <div className="c-share-feedback-signin">
                 <div className="flex justify-center">

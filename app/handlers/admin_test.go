@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -77,9 +78,9 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.UpdateSettings(), `{ 
-				"title": "GoT", 
-				"invitation": "Join us!", 
+			handlers.UpdateSettings(), `{
+				"title": "GoT",
+				"invitation": "Join us!",
 				"welcomeMessage": "Welcome to GoT Feedback Forum",
 				"locale": "pt-BR",
 				"logo": {
@@ -119,10 +120,10 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.UpdateSettings(), `{ 
-				"title": "GoT", 
-				"invitation": "Join us!", 
-				"locale": "en", 
+			handlers.UpdateSettings(), `{
+				"title": "GoT",
+				"invitation": "Join us!",
+				"locale": "en",
 				"welcomeMessage": "Welcome to GoT Feedback Forum",
 				"logo": {
 					"remove": true
@@ -200,7 +201,9 @@ func TestUpdatePrivacySettingsHandler(t *testing.T) {
 func TestManageMembersHandler(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetAllUsers) error {
+	bus.AddHandler(func(ctx context.Context, q *query.SearchUsers) error {
+		q.Result = []*entity.User{}
+		q.TotalCount = 0
 		return nil
 	})
 

@@ -222,7 +222,7 @@ func TestTenantStorage_AdvancedSettings(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantAdvancedSettings{
-		CustomCSS: ".primary { color: red; }",
+		CustomCSS:      ".primary { color: red; }",
 		AllowedSchemes: "^monero:[48]\n^bitcoin:(1|3|bc1)",
 	})
 	Expect(err).IsNil()

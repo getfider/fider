@@ -5,12 +5,13 @@ import { Button, Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 import { HStack, VStack } from "@fider/components/layout"
 
 interface VoteSectionProps {
   post: Post
   votes: number
+  onDataChanged?: () => void
 }
 
 export const VoteSection = (props: VoteSectionProps) => {
@@ -25,10 +26,12 @@ export const VoteSection = (props: VoteSectionProps) => {
       return
     }
 
-    const response = await actions.toggleVote(props.post.number)
+    const action = hasVoted ? actions.removeVote : actions.addVote
+    const response = await action(props.post.number)
     if (response.ok) {
-      setVotes(response.data.voted ? votes + 1 : votes - 1)
-      setHasVoted(response.data.voted)
+      setVotes(hasVoted ? votes - 1 : votes + 1)
+      setHasVoted(!hasVoted)
+      props.onDataChanged?.() // Notify parent that data changed
     }
   }
 
@@ -41,21 +44,23 @@ export const VoteSection = (props: VoteSectionProps) => {
   const icon = hasVoted ? IconCheck : IconThumbsUp
 
   return (
-    <VStack spacing={4}>
+    <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <div className="align-self-start">
-        <Button variant="primary" onClick={voteOrUndo} disabled={isDisabled} style={{ minWidth: "180px" }}>
-          <HStack spacing={2} justify="center" className="w-full">
-            <Icon sprite={icon} /> <span>{buttonText}</span>
-          </HStack>
-        </Button>
-      </div>
-      <HStack align="center">
-        <span className="text-semibold text-2xl" style={{ fontSize: "32px", minHeight: "48px" }}>
-          {votes}
-        </span>
-        <span className="text-semibold text-lg">{votes === 1 ? "Vote" : "Votes"}</span>
-      </HStack>
-    </VStack>
+      <VStack spacing={4}>
+        <div className="align-self-start">
+          <Button variant="primary" onClick={voteOrUndo} disabled={isDisabled} style={{ minWidth: "180px" }}>
+            <HStack spacing={2} justify="center" className="w-full">
+              <Icon sprite={icon} /> <span>{buttonText}</span>
+            </HStack>
+          </Button>
+        </div>
+        <HStack align="center" spacing={2}>
+          <span className="text-semibold text-2xl" style={{ fontSize: "32px", minHeight: "48px" }}>
+            {votes}
+          </span>
+          <span className="text-semibold text-lg">{votes === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+        </HStack>
+      </VStack>
+    </>
   )
 }

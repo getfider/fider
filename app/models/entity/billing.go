@@ -1,19 +1,5 @@
 package entity
 
-import (
-	"time"
-
-	"github.com/getfider/fider/app/models/enum"
-)
-
-type BillingState struct {
-	Status             enum.BillingStatus `json:"status"`
-	PlanID             string             `json:"planID"`
-	SubscriptionID     string             `json:"subscriptionID"`
-	TrialEndsAt        *time.Time         `json:"trialEndsAt"`
-	SubscriptionEndsAt *time.Time         `json:"subscriptionEndsAt"`
-}
-
 type BillingSubscription struct {
 	UpdateURL          string                    `json:"updateURL"`
 	CancelURL          string                    `json:"cancelURL"`
@@ -33,4 +19,11 @@ type BillingPayment struct {
 	Amount   float64 `json:"amount"`
 	Currency string  `json:"currency"`
 	Date     string  `json:"date"`
+}
+
+type StripeBillingState struct {
+	CustomerID           string `json:"customerID"`
+	SubscriptionID       string `json:"subscriptionID"`
+	LicenseKey           string `json:"licenseKey"`
+	PaddleSubscriptionID string `json:"paddleSubscriptionID"`
 }

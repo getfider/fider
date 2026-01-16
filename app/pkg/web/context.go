@@ -273,6 +273,10 @@ func (c *Context) Failure(err error) error {
 		return c.NotFound()
 	}
 
+	if cause == app.ErrCommercialLicenseRequired {
+		return c.Forbidden()
+	}
+
 	if renderErr := c.Page(http.StatusInternalServerError, Props{
 		Page:        "Error/Error500.page",
 		Title:       "Shoot! Well, this is unexpected…",
@@ -601,7 +605,7 @@ func LogoURL(ctx context.Context) string {
 	if hasTenant && tenant.LogoBlobKey != "" {
 		return AssetsURL(ctx, "/static/images/%s?size=200", tenant.LogoBlobKey)
 	}
-	return "https://fider.io/images/logo-100x100.png"
+	return "https://login.fider.io/static/assets/logo.png"
 }
 
 // BaseURL return the base URL from given context

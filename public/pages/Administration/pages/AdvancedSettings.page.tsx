@@ -7,12 +7,15 @@ import { AdminBasePage } from "../components/AdminBasePage"
 interface AdvancedSettingsPageProps {
   customCSS: string
   allowedSchemes: string
+  licenseKey: string
+  isCommercial: boolean
 }
 
 interface AdvancedSettingsPageState {
   customCSS: string
   allowedSchemes: string
   error?: Failure
+  copied: boolean
 }
 
 export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProps, AdvancedSettingsPageState> {
@@ -27,6 +30,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
     this.state = {
       customCSS: this.props.customCSS,
       allowedSchemes: this.props.allowedSchemes,
+      copied: false,
     }
   }
 
@@ -47,9 +51,37 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
     }
   }
 
+  private copyLicenseKey = (): void => {
+    navigator.clipboard.writeText(this.props.licenseKey)
+    this.setState({ copied: true })
+    setTimeout(() => this.setState({ copied: false }), 2000)
+  }
+
   public content() {
     return (
       <Form error={this.state.error}>
+        {this.props.isCommercial && this.props.licenseKey && (
+          <div className="field">
+            <label>Commercial License Key</label>
+            <p className="text-muted">Use this key to run Fider self-hosted with commercial features (content moderation).</p>
+            <div className="mt-2 mb-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  id="licenseKey"
+                  readOnly
+                  value={this.props.licenseKey}
+                  className="w-full font-mono text-sm bg-gray-50 border border-gray-300 rounded px-3 py-2"
+                  style={{ fontFamily: "monospace" }}
+                />
+                <Button size="small" onClick={this.copyLicenseKey} className="whitespace-nowrap">
+                  {this.state.copied ? "Copied!" : "Copy"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <TextArea
           field="customCSS"
           label="Custom CSS"

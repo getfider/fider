@@ -36,7 +36,24 @@ func Index() web.HandlerFunc {
 			searchPosts.MyPostsOnly = myPostsOnly
 		}
 
-		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
+		// Handle "pending" pseudo-status for moderation filtering
+		statusesParam := c.QueryParamAsArray("statuses")
+		hasPending := false
+		actualStatuses := []string{}
+		for _, status := range statusesParam {
+			if status == "pending" {
+				hasPending = true
+			} else {
+				actualStatuses = append(actualStatuses, status)
+			}
+		}
+
+		// Set moderation filter based on pending status
+		if hasPending {
+			searchPosts.ModerationFilter = "pending"
+		}
+
+		searchPosts.SetStatusesFromStrings(actualStatuses)
 		getAllTags := &query.GetAllTags{}
 		countPerStatus := &query.CountPostPerStatus{}
 
@@ -61,7 +78,8 @@ func Index() web.HandlerFunc {
 		return c.Page(http.StatusOK, web.Props{
 			Page:        "Home/Home.page",
 			Description: description,
-			Data:        data,
+			// Header:      c.Tenant().WelcomeHeader,
+			Data: data,
 		})
 	}
 }

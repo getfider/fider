@@ -4,80 +4,104 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/stripe/stripe-go/v83"
+	portalsession "github.com/stripe/stripe-go/v83/billingportal/session"
+	checkoutsession "github.com/stripe/stripe-go/v83/checkout/session"
 )
 
-// ManageBilling is the page used by administrators for billing settings
+// ManageBilling is the page used by administrators for Stripe billing settings
 func ManageBilling() web.HandlerFunc {
 	return func(c *web.Context) error {
-
-		// It's not possible to use custom domains on billing page, so redirect to Fider url
-		if c.Request.IsCustomDomain() {
-			url := fmt.Sprintf("https://%s.%s/admin/billing", c.Tenant().Subdomain, env.Config.HostDomain)
-			return c.Redirect(url)
-		}
-
-		billingState := &query.GetBillingState{}
+		billingState := &query.GetStripeBillingState{}
 		if err := bus.Dispatch(c, billingState); err != nil {
 			return c.Failure(err)
-		}
-
-		billingSubscription := &query.GetBillingSubscription{
-			SubscriptionID: billingState.Result.SubscriptionID,
-		}
-		if billingState.Result.Status == enum.BillingActive {
-			if err := bus.Dispatch(c, billingSubscription); err != nil {
-				return c.Failure(err)
-			}
 		}
 
 		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/ManageBilling.page",
 			Title: "Manage Billing · Site Settings",
 			Data: web.Map{
-				"paddle": web.Map{
-					"isSandbox":     env.Config.Paddle.IsSandbox,
-					"vendorId":      env.Config.Paddle.VendorID,
-					"monthlyPlanId": env.Config.Paddle.MonthlyPlanID,
-					"yearlyPlanId":  env.Config.Paddle.YearlyPlanID,
-				},
-				"status":             billingState.Result.Status,
-				"trialEndsAt":        billingState.Result.TrialEndsAt,
-				"subscriptionEndsAt": billingState.Result.SubscriptionEndsAt,
-				"subscription":       billingSubscription.Result,
+				"stripeCustomerID":     billingState.Result.CustomerID,
+				"stripeSubscriptionID": billingState.Result.SubscriptionID,
+				"licenseKey":           billingState.Result.LicenseKey,
+				"paddleSubscriptionID": billingState.Result.PaddleSubscriptionID,
+				"isCommercial":         c.Tenant().IsCommercial,
 			},
 		})
 	}
 }
 
-// GenerateCheckoutLink generates a Paddle-hosted checkout link for the service subscription
-func GenerateCheckoutLink() web.HandlerFunc {
+// CreateStripePortalSession creates a Stripe customer portal session
+func CreateStripePortalSession() web.HandlerFunc {
 	return func(c *web.Context) error {
-		action := new(actions.GenerateCheckoutLink)
-		if result := c.BindTo(action); !result.Ok {
-			return c.HandleValidation(result)
+		billingState := &query.GetStripeBillingState{}
+		if err := bus.Dispatch(c, billingState); err != nil {
+			return c.Failure(err)
 		}
 
-		generateLink := &cmd.GenerateCheckoutLink{
-			PlanID: action.PlanID,
-			Passthrough: dto.PaddlePassthrough{
-				TenantID: c.Tenant().ID,
-			},
+		if billingState.Result.CustomerID == "" {
+			return c.BadRequest(web.Map{"message": "No Stripe customer found"})
 		}
 
-		if err := bus.Dispatch(c, generateLink); err != nil {
+		stripe.Key = env.Config.Stripe.SecretKey
+
+		returnURL := c.BaseURL() + "/admin/billing"
+
+		params := &stripe.BillingPortalSessionParams{
+			Customer:  stripe.String(billingState.Result.CustomerID),
+			ReturnURL: stripe.String(returnURL),
+		}
+
+		s, err := portalsession.New(params)
+		if err != nil {
 			return c.Failure(err)
 		}
 
 		return c.Ok(web.Map{
-			"url": generateLink.URL,
+			"url": s.URL,
+		})
+	}
+}
+
+// CreateStripeCheckoutSession creates a Stripe checkout session for new subscriptions
+func CreateStripeCheckoutSession() web.HandlerFunc {
+	return func(c *web.Context) error {
+		stripe.Key = env.Config.Stripe.SecretKey
+
+		returnURL := c.BaseURL() + "/admin/billing"
+		tenantID := c.Tenant().ID
+
+		params := &stripe.CheckoutSessionParams{
+			Mode: stripe.String(string(stripe.CheckoutSessionModeSubscription)),
+			LineItems: []*stripe.CheckoutSessionLineItemParams{
+				{
+					Price:    stripe.String(env.Config.Stripe.PriceID),
+					Quantity: stripe.Int64(1),
+				},
+			},
+			SuccessURL: stripe.String(returnURL + "?checkout=success"),
+			CancelURL:  stripe.String(returnURL + "?checkout=cancelled"),
+			Metadata: map[string]string{
+				"tenant_id": fmt.Sprintf("%d", tenantID),
+			},
+			SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
+				Metadata: map[string]string{
+					"tenant_id": fmt.Sprintf("%d", tenantID),
+				},
+			},
+		}
+
+		s, err := checkoutsession.New(params)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{
+			"url": s.URL,
 		})
 	}
 }

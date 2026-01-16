@@ -1,0 +1,30 @@
+Fider Commercial License
+
+Copyright (c) 2026 Fider
+
+This software and associated documentation files (the "Software") contained within this
+"commercial" directory are proprietary and confidential to Fider.
+
+RESTRICTIONS:
+
+- You may NOT use, copy, modify, merge, publish, distribute, sublicense, or sell copies
+  of this Software without a valid commercial license from Fider.
+- You may NOT create derivative works based on this Software.
+- You may NOT reverse engineer, decompile, or disassemble this Software.
+
+PERMITTED USES:
+
+- You may view this Software's source code for evaluation purposes only.
+- You may use this Software in non-production development and testing environments.
+- Licensed users with valid commercial agreements may use this Software in production
+  in accordance with their license terms.
+
+NO WARRANTY:
+This Software is provided "as is", without warranty of any kind, express or implied,
+including but not limited to the warranties of merchantability, fitness for a particular
+purpose and noninfringement.
+
+For commercial licensing inquiries, please contact: [contact@fider.io]
+
+All other code in this repository (outside this "commercial" directory) remains under
+the AGPL-3.0 license as specified in the root LICENSE file.

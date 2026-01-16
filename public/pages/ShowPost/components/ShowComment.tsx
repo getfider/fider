@@ -83,6 +83,26 @@ export const ShowComment = (props: ShowCommentProps) => {
     }
   }
 
+  const handleApproveComment = async () => {
+    const result = await actions.approveComment(props.comment.id)
+    if (result.ok) {
+      notify.success(<Trans id="showpost.moderation.comment.approved">Comment approved successfully</Trans>)
+      setTimeout(() => location.reload(), 1500)
+    } else {
+      notify.error(<Trans id="showpost.moderation.comment.approveerror">Failed to approve comment</Trans>)
+    }
+  }
+
+  const handleDeclineComment = async () => {
+    const result = await actions.declineComment(props.comment.id)
+    if (result.ok) {
+      notify.success(<Trans id="showpost.moderation.comment.declined">Comment declined successfully</Trans>)
+      setTimeout(() => location.reload(), 1500)
+    } else {
+      notify.error(<Trans id="showpost.moderation.comment.declineerror">Failed to decline comment</Trans>)
+    }
+  }
+
   const toggleReaction = async (emoji: string) => {
     const response = await actions.toggleCommentReaction(props.post.number, comment.id, emoji)
     if (response.ok) {
@@ -158,25 +178,22 @@ export const ShowComment = (props: ShowCommentProps) => {
   )
 
   const classList = classSet({
-    "flex-grow rounded-md p-2 comment-area": true,
-    "bg-gray-100": !props.highlighted,
-    "bg-gray-200": props.highlighted,
+    "c-comment__content": true,
+    "c-comment__content--highlighted": props.highlighted,
   })
 
   return (
-    <div id={`comment-${comment.id}`}>
-      <HStack spacing={2} className="c-comment flex-items-baseline">
-        {modal()}
-        <div className="pt-4">
-          <Avatar user={comment.user} />
-        </div>
-        <div ref={node} className={classList}>
+    <div id={`comment-${comment.id}`} className="c-comment">
+      {modal()}
+      <HStack spacing={4} align="start">
+        <Avatar user={comment.user} size="large" />
+        <div ref={node} className={`c-comment__card ${classList}`}>
           <div className="mb-1">
             <HStack justify="between">
               <HStack>
-                <UserName user={comment.user} />{" "}
+                <UserName user={comment.user} /> <span className="text-sm text-gray-400">•</span>
                 <div className="text-xs">
-                  · <Moment locale={fider.currentLocale} date={comment.createdAt} /> {editedMetadata}
+                  <Moment locale={fider.currentLocale} date={comment.createdAt} /> {editedMetadata}
                 </div>
               </HStack>
               {!isEditing && (
@@ -225,6 +242,38 @@ export const ShowComment = (props: ShowCommentProps) => {
             ) : (
               <>
                 <Markdown text={comment.content} style="full" />
+
+                {/* Moderation status banner for unapproved comments */}
+                {fider.session.tenant.isModerationEnabled && !comment.isApproved && (
+                  <div className="mt-3">
+                    {fider.session.isAuthenticated && fider.session.user.id === comment.user.id && (
+                      <div className="text-muted text-xs p-2 bg-yellow-50 rounded-md border-yellow-500">
+                        <Trans id="showpost.moderation.comment.awaiting">Awaiting moderation.</Trans>
+                      </div>
+                    )}
+
+                    {/* Admin moderation buttons */}
+                    {fider.session.isAuthenticated && fider.session.user.isCollaborator && (
+                      <div className="p-2 bg-blue-50 rounded border-l-4 border-blue-500">
+                        <div className="mb-1 text-xs font-medium text-blue-800">
+                          <Trans id="home.postfilter.label.moderation">Moderation</Trans>
+                        </div>
+                        <div className="text-xs text-blue-700 mb-2">
+                          <Trans id="showpost.moderation.comment.admin.description">This comment needs your approval before being published</Trans>
+                        </div>
+                        <HStack spacing={1}>
+                          <Button variant="primary" size="small" onClick={handleApproveComment}>
+                            <Trans id="action.publish">Publish</Trans>
+                          </Button>
+                          <Button variant="danger" size="small" onClick={handleDeclineComment}>
+                            <Trans id="action.delete">Delete</Trans>
+                          </Button>
+                        </HStack>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <Reactions reactions={localReactionCounts} emojiSelectorRef={emojiSelectorRef} toggleReaction={toggleReaction} />
               </>
             )}

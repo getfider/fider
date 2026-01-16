@@ -43,6 +43,7 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Use(middlewares.ClientCache(365 * 24 * time.Hour))
 		assets.Get("/static/favicon", handlers.Favicon())
 		assets.Static("/assets/*filepath", "dist")
+		assets.Static("/static/assets/*filepath", "static")
 	}
 
 	feed := r.Group()
@@ -70,11 +71,10 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
 
-	if env.IsBillingEnabled() {
-		wh := r.Group()
-		{
-			wh.Post("/webhooks/paddle", webhooks.IncomingPaddleWebhook())
-		}
+	// Stripe webhooks (before CSRF middleware)
+	stripeWh := r.Group()
+	{
+		stripeWh.Post("/webhooks/stripe", webhooks.IncomingStripeWebhook())
 	}
 
 	r.Use(middlewares.CSRF())
@@ -164,8 +164,9 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/advanced", handlers.AdvancedSettingsPage())
 		ui.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", "", "Administration/pages/PrivacySettings.page"))
 		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", "", "Administration/pages/Invitations.page"))
-		ui.Get("/admin/members", handlers.ManageMembers())
+		ui.Get("/admin/users", handlers.ManageMembers())
 		ui.Get("/admin/tags", handlers.ManageTags())
+		ui.Get("/admin/moderation", handlers.GetModerationPageHandler())
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
 		ui.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 
@@ -191,10 +192,15 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
+		ui.Put("/_api/admin/users/:userID/trust", handlers.TrustUser())
+		ui.Delete("/_api/admin/users/:userID/trust", handlers.UntrustUser())
+		ui.Get("/_api/admin/moderation/items", handlers.GetModerationItemsHandler())
+		ui.Get("/_api/admin/moderation/count", handlers.GetModerationCountHandler())
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())
-			ui.Post("/_api/billing/checkout-link", handlers.GenerateCheckoutLink())
+			ui.Post("/_api/admin/billing/portal", handlers.CreateStripePortalSession())
+			ui.Post("/_api/admin/billing/checkout", handlers.CreateStripeCheckoutSession())
 		}
 	}
 
@@ -209,6 +215,7 @@ func routes(r *web.Engine) *web.Engine {
 		publicApi.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		publicApi.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
 		publicApi.Get("/api/v1/taggable-users", apiv1.ListTaggableUsers())
+		publicApi.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
 	}
 
 	// Operations used to manage the content of a site
@@ -243,7 +250,6 @@ func routes(r *web.Engine) *web.Engine {
 		staffApi.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
 
 		staffApi.Get("/api/v1/users", apiv1.ListUsers())
-		staffApi.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
 		staffApi.Post("/api/v1/invitations/send", apiv1.SendInvites())
 		staffApi.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 
@@ -264,6 +270,15 @@ func routes(r *web.Engine) *web.Engine {
 		adminApi.Post("/api/v1/tags", apiv1.CreateEditTag())
 		adminApi.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		adminApi.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
+
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve-and-verify", apiv1.GetApprovePostAndVerifyHandler())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline-and-block", apiv1.GetDeclinePostAndBlockHandler())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/approve", apiv1.GetApprovePostHandler())
+		adminApi.Post("/api/v1/admin/moderation/posts/:id/decline", apiv1.GetDeclinePostHandler())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve-and-verify", apiv1.GetApproveCommentAndVerifyHandler())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline-and-block", apiv1.GetDeclineCommentAndBlockHandler())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/approve", apiv1.GetApproveCommentHandler())
+		adminApi.Post("/api/v1/admin/moderation/comments/:id/decline", apiv1.GetDeclineCommentHandler())
 
 		adminApi.Use(middlewares.BlockLockedTenants())
 		adminApi.Delete("/api/v1/posts/:number", apiv1.DeletePost())

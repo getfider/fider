@@ -28,6 +28,7 @@ export interface UpdateTenantSettingsRequest {
   title: string
   invitation: string
   welcomeMessage: string
+  welcomeHeader: string
   cname: string
   locale: string
 }
@@ -90,6 +91,14 @@ export const blockUser = async (userID: number): Promise<Result> => {
 
 export const unblockUser = async (userID: number): Promise<Result> => {
   return await http.delete(`/_api/admin/users/${userID}/block`)
+}
+
+export const trustUser = async (userID: number): Promise<Result> => {
+  return await http.put(`/_api/admin/users/${userID}/trust`)
+}
+
+export const untrustUser = async (userID: number): Promise<Result> => {
+  return await http.delete(`/_api/admin/users/${userID}/trust`)
 }
 
 export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConfig>> => {

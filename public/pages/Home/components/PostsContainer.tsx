@@ -18,6 +18,7 @@ interface PostsContainerProps {
   posts: Post[]
   tags: Tag[]
   countPerStatus: { [key: string]: number }
+  onPostClick?: (postNumber: number, slug: string) => void
 }
 
 interface PostsContainerState {
@@ -104,12 +105,31 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     window.clearTimeout(this.timer)
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true })
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view: view, limit, tags, statuses, myVotes, myPosts, noTags }).then((response) => {
+      // Check if "pending" is in the statuses
+      const hasPending = statuses.includes("pending")
+      // Filter out "pending" from actual statuses to send to API
+      const actualStatuses = statuses.filter((s) => s !== "pending")
+      // Determine moderation filter
+      let moderation = ""
+      if (hasPending) {
+        moderation = "pending"
+      }
+
+      actions.searchPosts({ query, view: view, limit, tags, statuses: actualStatuses, myVotes, myPosts, noTags, moderation }).then((response) => {
         if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data })
         }
       })
     }, 500)
+  }
+
+  public updateSinglePost = async (postNumber: number) => {
+    // Fetch the updated post and replace it in the array without changing order
+    const response = await actions.getPost(postNumber)
+    if (response.ok && this.state.posts) {
+      const updatedPosts = this.state.posts.map((post) => (post.number === postNumber ? response.data : post))
+      this.setState({ posts: updatedPosts })
+    }
   }
 
   private handleFilterChanged = (filterState: FilterState) => {
@@ -144,7 +164,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
     return (
       <div className="c-posts-container">
-        <div className="c-posts-container__header mb-5">
+        <div className="c-posts-container__header">
           {!this.state.query && (
             <div className="c-posts-container__filter-col">
               <PostFilter
@@ -167,19 +187,22 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
             />
           </div>
         </div>
-        <ListPosts
-          posts={this.state.posts}
-          tags={this.props.tags}
-          emptyText={i18n._({ id: "home.postscontainer.label.noresults", message: "No results matched your search, try something different." })}
-        />
-        {this.state.loading && <Loader />}
-        {showMoreLink && (
-          <div className="my-4 ml-4">
-            <a href={showMoreLink} className="text-primary-base text-medium hover:underline" onClick={this.showMore}>
-              <Trans id="home.postscontainer.label.viewmore">View more posts</Trans>
-            </a>
-          </div>
-        )}
+        <div className="c-posts-container__list">
+          <ListPosts
+            posts={this.state.posts}
+            tags={this.props.tags}
+            emptyText={i18n._({ id: "home.postscontainer.label.noresults", message: "No results matched your search, try something different." })}
+            onPostClick={this.props.onPostClick}
+          />
+          {this.state.loading && <Loader />}
+          {showMoreLink && (
+            <div className="my-4 text-center">
+              <a href={showMoreLink} className="text-primary-base text-medium hover:underline" onClick={this.showMore}>
+                <Trans id="home.postscontainer.label.viewmore">View more posts</Trans>
+              </a>
+            </div>
+          )}
+        </div>
       </div>
     )
   }

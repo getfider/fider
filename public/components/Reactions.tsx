@@ -75,7 +75,7 @@ export const Reactions: React.FC<ReactionsProps> = ({ emojiSelectorRef, toggleRe
                   "clickable hover:bg-gray-200": fider.session.isAuthenticated && !reaction.includesMe,
                 })}
               >
-                {reaction.emoji} <span className="ml-1 font-semibold">{reaction.count}</span>
+                {reaction.emoji} <span className="ml-1 text-semibold">{reaction.count}</span>
               </span>
             ))}
           </>

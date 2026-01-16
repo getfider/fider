@@ -75,6 +75,10 @@
   overflow: hidden;
   background-color: var(--colors-white);
 
+  @include dark-mode {
+    background-color: var(--colors-gray-100);
+  }
+
   &.m-error {
     border-color: var(--colors-red-600);
   }

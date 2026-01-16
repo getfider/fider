@@ -18,15 +18,21 @@ func UserListCreateCompany(tenant entity.Tenant, user entity.User) worker.Task {
 			"Tenant": tenant.Name,
 			"User":   user.Email,
 		})
+
+		plan := enum.PlanFree
+		if tenant.IsCommercial {
+			plan = enum.PlanPro
+		}
+
 		if err := bus.Dispatch(c, &cmd.UserListCreateCompany{
-			Name:          tenant.Name,
-			TenantId:      tenant.ID,
-			SignedUpAt:    time.Now().Format(time.RFC3339),
-			BillingStatus: enum.BillingTrial.String(),
-			Subdomain:     tenant.Subdomain,
-			UserId:        user.ID,
-			UserEmail:     user.Email,
-			UserName:      user.Name,
+			Name:       tenant.Name,
+			TenantId:   tenant.ID,
+			SignedUpAt: time.Now().Format(time.RFC3339),
+			Plan:       plan,
+			Subdomain:  tenant.Subdomain,
+			UserId:     user.ID,
+			UserEmail:  user.Email,
+			UserName:   user.Name,
 		}); err != nil {
 			return c.Failure(err)
 		}
@@ -40,9 +46,9 @@ func UserListUpdateCompany(action *dto.UserListUpdateCompany) worker.Task {
 			"Tenant": action.Name,
 		})
 		if err := bus.Dispatch(c, &cmd.UserListUpdateCompany{
-			TenantId:      action.TenantID,
-			Name:          action.Name,
-			BillingStatus: action.BillingStatus,
+			TenantId: action.TenantID,
+			Name:     action.Name,
+			Plan:     action.Plan,
 		}); err != nil {
 			return c.Failure(err)
 		}

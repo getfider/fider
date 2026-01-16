@@ -21,10 +21,11 @@ func SearchPosts() web.HandlerFunc {
 			viewQueryParams = "all" // Set default value to "all" if not provided
 		}
 		searchPosts := &query.SearchPosts{
-			Query: c.QueryParam("query"),
-			View:  viewQueryParams,
-			Limit: c.QueryParam("limit"),
-			Tags:  c.QueryParamAsArray("tags"),
+			Query:            c.QueryParam("query"),
+			View:             viewQueryParams,
+			Limit:            c.QueryParam("limit"),
+			Tags:             c.QueryParamAsArray("tags"),
+			ModerationFilter: c.QueryParam("moderation"),
 		}
 		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
 			searchPosts.MyVotesOnly = myVotesOnly
@@ -101,7 +102,8 @@ func CreatePost() web.HandlerFunc {
 			"id":     newPost.Result.ID,
 			"number": newPost.Result.Number,
 			"title":  newPost.Result.Title,
-			"slug":   newPost.Result.Slug,
+			"slug":       newPost.Result.Slug,
+			"isApproved": newPost.Result.IsApproved,
 		})
 	}
 }
@@ -504,7 +506,8 @@ func ListVotes() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: true}
+		includeEmail := c.User() != nil && c.User().IsCollaborator()
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: includeEmail}
 		if err := bus.Dispatch(c, listVotes); err != nil {
 			return c.Failure(err)
 		}

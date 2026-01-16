@@ -5,5 +5,8 @@
   vertical-align: middle;
   display: inline-block;
   border: 2px solid var(--colors-white);
+  @include dark-mode {
+    border: 2px solid var(--colors-gray-200);
+  }
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }

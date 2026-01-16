@@ -4,7 +4,7 @@ import { VoteCounter } from "@fider/components"
 import { screen, fireEvent, render } from "@testing-library/react"
 import { fiderMock, httpMock, setupModalRoot } from "@fider/services/testing"
 import { FiderContext } from "@fider/services"
-import { act } from "react-dom/test-utils"
+import { act } from "react"
 
 let post: Post
 
@@ -22,6 +22,7 @@ beforeEach(() => {
     user: {
       id: 5,
       name: "John",
+      isTrusted: false,
       role: UserRole.Collaborator,
       status: UserStatus.Active,
       avatarURL: "/static/avatars/letter/5/John",
@@ -31,6 +32,7 @@ beforeEach(() => {
     votesCount: 5,
     commentsCount: 2,
     tags: [],
+    isApproved: true,
   }
 })
 
