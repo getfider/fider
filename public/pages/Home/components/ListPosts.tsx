@@ -29,11 +29,6 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
   return (
     <a href={`/posts/${props.post.number}/${props.post.slug}`} className="c-posts-container__post-link" onClick={handleClick}>
       <VStack className="c-posts-container__post w-full" spacing={4}>
-        {props.post.status !== "open" && (
-          <div className="mb-1 align-self-start">
-            <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />
-          </div>
-        )}
         <HStack justify="between" align="start">
           <HStack spacing={2} align="start" className="w-full">
             <h3 className="c-posts-container__post-title text-break">{props.post.title}</h3>
@@ -58,10 +53,13 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
             ))}
           </HStack>
         )}
-        <div className="c-posts-container__post-votes">
-          <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
-          <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
-        </div>
+        <HStack justify="between" align="center">
+          <div className="c-posts-container__post-votes">
+            <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
+            <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+          </div>
+          {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />}
+        </HStack>
       </VStack>
     </a>
   )
