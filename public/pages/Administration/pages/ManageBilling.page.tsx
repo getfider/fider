@@ -4,6 +4,7 @@ import { HStack, VStack } from "@fider/components/layout"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { http } from "@fider/services"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
+import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconInfo from "@fider/assets/images/heroicons-information-circle.svg"
 
 import "./ManageBilling.page.scss"
@@ -16,12 +17,17 @@ interface ManageBillingPageProps {
   hasCommercialFeatures: boolean
 }
 
+interface PlanFeature {
+  text: string
+  isNegative?: boolean
+}
+
 interface PlanCardProps {
   name: string
-  price: string
-  period: string
+  price?: string
+  period?: string
   description: string
-  features: string[]
+  features: (string | PlanFeature)[]
   isCurrent: boolean
   isHighlighted?: boolean
   buttonText: string
@@ -49,8 +55,14 @@ const PlanCard = (props: PlanCardProps) => {
         </HStack>
 
         <div className="flex flex-items-baseline">
-          <span className={`text-2xl text-bold ${textColor}`}>{props.price}</span>
-          {props.period && <span className={`text-sm c-plan-card__muted ${props.isHighlighted ? "" : "text-gray-500"}`}>/{props.period}</span>}
+          {props.price ? (
+            <>
+              <span className={`text-2xl text-bold ${textColor}`}>{props.price}</span>
+              {props.period && <span className={`text-sm c-plan-card__muted ${props.isHighlighted ? "" : "text-gray-500"}`}>/{props.period}</span>}
+            </>
+          ) : (
+            <span className="text-2xl">&nbsp;</span>
+          )}
         </div>
 
         <p className={`text-sm c-plan-card__muted ${props.isHighlighted ? "" : "text-gray-600"}`}>{props.description}</p>
@@ -61,26 +73,26 @@ const PlanCard = (props: PlanCardProps) => {
           </Button>
         )}
         {showCurrentLabel && <div className="text-center py-2 px-4 text-sm text-medium text-gray-500 bg-gray-200 rounded-md">Current Plan</div>}
+        {!showButton && !showCurrentLabel && <div className="py-2 px-4 text-sm">&nbsp;</div>}
 
         <VStack spacing={2} className={`pt-4 border-t c-plan-card__light ${props.isHighlighted ? "border-gray-700" : "border-gray-200 text-gray-700"}`}>
-          {props.features.map((feature, index) => (
-            <HStack key={index} spacing={2} align="start">
-              <Icon sprite={IconCheck} className="text-green-500" height="16" />
-              <span className="text-sm">{feature}</span>
-            </HStack>
-          ))}
+          {props.features.map((feature, index) => {
+            const featureText = typeof feature === "string" ? feature : feature.text
+            const isNegative = typeof feature === "object" && feature.isNegative
+            return (
+              <HStack key={index} spacing={2} align="start">
+                <Icon sprite={isNegative ? IconX : IconCheck} className={isNegative ? "text-red-500" : "text-green-500"} height="16" />
+                <span className="text-sm">{featureText}</span>
+              </HStack>
+            )
+          })}
         </VStack>
       </VStack>
     </div>
   )
 }
 
-interface PaddleMigrationBannerProps {
-  onUpgradeClick: () => void
-  isLoading: boolean
-}
-
-const PaddleMigrationBanner = (props: PaddleMigrationBannerProps) => {
+const PaddleMigrationBanner = () => {
   return (
     <div className="bg-blue-50 p-4 rounded mb-6 border border-blue-200">
       <HStack spacing={2} align="start">
@@ -88,11 +100,8 @@ const PaddleMigrationBanner = (props: PaddleMigrationBannerProps) => {
         <VStack spacing={1}>
           <p className="text-sm text-gray-900 text-medium">Migration to Stripe Billing</p>
           <p className="text-sm text-gray-700">
-            You&apos;re currently entitled to pro features because of your existing subscription.
-            <br />
-            <a onClick={props.onUpgradeClick} className="clickable text-blue-600">
-              {props.isLoading ? "Loading..." : "Switch to our new Stripe billing instead and save money"}
-            </a>
+            You&apos;re currently entitled to pro features because of your existing subscription. Switch to our new Stripe billing to manage your subscription
+            and save money.
           </p>
         </VStack>
       </HStack>
@@ -133,11 +142,17 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
 
   const proFeatures = ["Everything in free", "Unlimited suggestions", "Content moderation", "Billing month to month", "Responsive email support"]
 
+  const legacyProFeatures: PlanFeature[] = [
+    { text: "Same features as Pro" },
+    { text: "More expensive", isNegative: true },
+    { text: "Billing management not supported", isNegative: true },
+  ]
+
   return (
     <AdminPageContainer id="p-admin-billing" name="billing" title="Billing" subtitle="Manage your subscription and billing">
       <p>Fider is free forever. But if you need advanced features and support, consider upgrading to Pro.</p>
 
-      {isPaddleCustomer && <PaddleMigrationBanner onUpgradeClick={startCheckout} isLoading={isLoading} />}
+      {isPaddleCustomer && <PaddleMigrationBanner />}
 
       {displayAsCommercial && props.licenseKey && (
         <div className="bg-blue-50 p-4 rounded mb-4 border border-blue-200">
@@ -158,12 +173,24 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="Perfect for getting started with feedback collection."
           features={freeFeatures}
-          isCurrent={!displayAsCommercial}
+          isCurrent={!displayAsCommercial && !isPaddleCustomer}
           buttonText="Downgrade"
           buttonVariant="secondary"
           onButtonClick={displayAsCommercial ? openPortal : undefined}
           isLoading={isLoading && displayAsCommercial}
         />
+
+        {isPaddleCustomer && (
+          <PlanCard
+            name="Legacy Pro"
+            description="Your current plan from our previous billing system."
+            features={legacyProFeatures}
+            isCurrent={true}
+            buttonText="Current Plan"
+            buttonVariant="secondary"
+            isLoading={false}
+          />
+        )}
 
         <PlanCard
           name="Pro"
@@ -173,7 +200,7 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           features={proFeatures}
           isCurrent={displayAsCommercial}
           isHighlighted={true}
-          buttonText={displayAsCommercial ? "Manage Billing" : "Upgrade to Pro"}
+          buttonText={displayAsCommercial ? "Manage Billing" : isPaddleCustomer ? "Switch to new Pro Plan" : "Upgrade to Pro"}
           buttonVariant="primary"
           onButtonClick={displayAsCommercial ? openPortal : startCheckout}
           isLoading={isLoading}
