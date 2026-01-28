@@ -27,9 +27,9 @@ func ManageBilling() web.HandlerFunc {
 			Data: web.Map{
 				"stripeCustomerID":     billingState.Result.CustomerID,
 				"stripeSubscriptionID": billingState.Result.SubscriptionID,
-				"licenseKey":           billingState.Result.LicenseKey,
-				"paddleSubscriptionID": billingState.Result.PaddleSubscriptionID,
-				"isCommercial":         c.Tenant().IsCommercial,
+				"licenseKey":              billingState.Result.LicenseKey,
+				"paddleSubscriptionID":    billingState.Result.PaddleSubscriptionID,
+				"hasCommercialFeatures":   c.Tenant().HasCommercialFeatures,
 			},
 		})
 	}

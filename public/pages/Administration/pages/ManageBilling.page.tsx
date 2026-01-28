@@ -13,7 +13,7 @@ interface ManageBillingPageProps {
   stripeSubscriptionID: string
   licenseKey: string
   paddleSubscriptionID: string
-  isCommercial: boolean
+  hasCommercialFeatures: boolean
 }
 
 interface PlanCardProps {
@@ -104,10 +104,10 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
   const [isLoading, setIsLoading] = useState(false)
 
   // Detect Paddle customers who need to migrate
-  const isPaddleCustomer = Boolean(props.paddleSubscriptionID && !props.stripeSubscriptionID && props.isCommercial)
+  const isPaddleCustomer = Boolean(props.paddleSubscriptionID && !props.stripeSubscriptionID)
 
   // Display as commercial only if they're truly a Stripe customer
-  const displayAsCommercial = props.isCommercial && !isPaddleCustomer
+  const displayAsCommercial = props.hasCommercialFeatures && !isPaddleCustomer
 
   const openPortal = async () => {
     setIsLoading(true)

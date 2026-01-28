@@ -33,35 +33,35 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		return nil
 	}
 
-	// Compute isCommercial based on hosting mode
-	var isCommercial bool
+	// Compute hasCommercialFeatures based on hosting mode
+	var hasCommercialFeatures bool
 	if env.IsSingleHostMode() {
 		// Self-hosted: check if license service validated successfully
-		isCommercial = services.IsCommercialFeatureEnabled(services.FeatureContentModeration)
+		hasCommercialFeatures = services.IsCommercialFeatureEnabled(services.FeatureContentModeration)
 	} else {
 		// Hosted multi-tenant: check if this tenant has Pro subscription
-		isCommercial = t.IsPro
+		hasCommercialFeatures = t.IsPro
 	}
 
 	tenant := &entity.Tenant{
-		ID:                  t.ID,
-		Name:                t.Name,
-		Subdomain:           t.Subdomain,
-		CNAME:               t.CNAME,
-		Invitation:          t.Invitation,
-		WelcomeMessage:      t.WelcomeMessage,
-		WelcomeHeader:       t.WelcomeHeader,
-		Status:              enum.TenantStatus(t.Status),
-		Locale:              t.Locale,
-		IsPrivate:           t.IsPrivate,
-		LogoBlobKey:         t.LogoBlobKey,
-		CustomCSS:           t.CustomCSS,
-		AllowedSchemes:      t.AllowedSchemes,
-		IsEmailAuthAllowed:  t.IsEmailAuthAllowed,
-		IsFeedEnabled:       t.IsFeedEnabled,
-		PreventIndexing:     t.PreventIndexing,
-		IsModerationEnabled: t.IsModerationEnabled,
-		IsCommercial:        isCommercial,
+		ID:                    t.ID,
+		Name:                  t.Name,
+		Subdomain:             t.Subdomain,
+		CNAME:                 t.CNAME,
+		Invitation:            t.Invitation,
+		WelcomeMessage:        t.WelcomeMessage,
+		WelcomeHeader:         t.WelcomeHeader,
+		Status:                enum.TenantStatus(t.Status),
+		Locale:                t.Locale,
+		IsPrivate:             t.IsPrivate,
+		LogoBlobKey:           t.LogoBlobKey,
+		CustomCSS:             t.CustomCSS,
+		AllowedSchemes:        t.AllowedSchemes,
+		IsEmailAuthAllowed:    t.IsEmailAuthAllowed,
+		IsFeedEnabled:         t.IsFeedEnabled,
+		PreventIndexing:       t.PreventIndexing,
+		IsModerationEnabled:   t.IsModerationEnabled,
+		HasCommercialFeatures: hasCommercialFeatures,
 	}
 
 	return tenant
