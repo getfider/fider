@@ -208,9 +208,11 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbEntities.Tenant{}
 
 	err := trx.Get(&tenant, `
-		SELECT id, name, subdomain, cname, invitation, locale, welcome_message, welcome_header, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
-		FROM tenants
-		ORDER BY id LIMIT 1
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro,
+			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
+		FROM tenants t
+		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
+		ORDER BY t.id LIMIT 1
 	`)
 		if err != nil {
 			return errors.Wrap(err, "failed to get first tenant")
@@ -226,10 +228,12 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbEntities.Tenant{}
 
 	err := trx.Get(&tenant, `
-		SELECT id, name, subdomain, cname, invitation, locale, welcome_message, welcome_header, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro,
+			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
 		FROM tenants t
-		WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
-		ORDER BY cname DESC
+		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
+		WHERE t.subdomain = $1 OR t.subdomain = $2 OR t.cname = $3
+		ORDER BY t.cname DESC
 	`, env.Subdomain(q.Domain), q.Domain, q.Domain)
 		if err != nil {
 			return errors.Wrap(err, "failed to get tenant with domain '%s'", q.Domain)

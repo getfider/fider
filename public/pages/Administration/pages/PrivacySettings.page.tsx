@@ -71,7 +71,7 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
           </p>
         </Field>
         {/* Moderation requires commercial plan */}
-        {Fider.session.tenant.isCommercial && (
+        {Fider.session.tenant.hasCommercialFeatures && (
           <Field label="Content Moderation">
             <Toggle disabled={!Fider.session.user.isAdministrator} active={this.state.isModerationEnabled} onToggle={this.moderationToggle} />
             <p className="text-muted mt-1">
