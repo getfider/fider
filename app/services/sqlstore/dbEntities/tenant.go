@@ -8,24 +8,25 @@ import (
 )
 
 type Tenant struct {
-	ID                  int    `db:"id"`
-	Name                string `db:"name"`
-	Subdomain           string `db:"subdomain"`
-	CNAME               string `db:"cname"`
-	Invitation          string `db:"invitation"`
-	WelcomeMessage      string `db:"welcome_message"`
-	WelcomeHeader       string `db:"welcome_header"`
-	Status              int    `db:"status"`
-	Locale              string `db:"locale"`
-	IsPrivate           bool   `db:"is_private"`
-	LogoBlobKey         string `db:"logo_bkey"`
-	CustomCSS           string `db:"custom_css"`
-	AllowedSchemes      string `db:"allowed_schemes"`
-	IsEmailAuthAllowed  bool   `db:"is_email_auth_allowed"`
-	IsFeedEnabled       bool   `db:"is_feed_enabled"`
-	PreventIndexing     bool   `db:"prevent_indexing"`
-	IsModerationEnabled bool   `db:"is_moderation_enabled"`
-	IsPro               bool   `db:"is_pro"`
+	ID                   int    `db:"id"`
+	Name                 string `db:"name"`
+	Subdomain            string `db:"subdomain"`
+	CNAME                string `db:"cname"`
+	Invitation           string `db:"invitation"`
+	WelcomeMessage       string `db:"welcome_message"`
+	WelcomeHeader        string `db:"welcome_header"`
+	Status               int    `db:"status"`
+	Locale               string `db:"locale"`
+	IsPrivate            bool   `db:"is_private"`
+	LogoBlobKey          string `db:"logo_bkey"`
+	CustomCSS            string `db:"custom_css"`
+	AllowedSchemes       string `db:"allowed_schemes"`
+	IsEmailAuthAllowed   bool   `db:"is_email_auth_allowed"`
+	IsFeedEnabled        bool   `db:"is_feed_enabled"`
+	PreventIndexing      bool   `db:"prevent_indexing"`
+	IsModerationEnabled  bool   `db:"is_moderation_enabled"`
+	IsPro                bool   `db:"is_pro"`
+	HasPaddleSubscription bool  `db:"has_paddle_subscription"`
 }
 
 func (t *Tenant) ToModel() *entity.Tenant {
@@ -39,8 +40,8 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		// Self-hosted: check if license service validated successfully
 		hasCommercialFeatures = services.IsCommercialFeatureEnabled(services.FeatureContentModeration)
 	} else {
-		// Hosted multi-tenant: check if this tenant has Pro subscription
-		hasCommercialFeatures = t.IsPro
+		// Hosted multi-tenant: check if this tenant has Pro subscription or legacy Paddle subscription
+		hasCommercialFeatures = t.IsPro || t.HasPaddleSubscription
 	}
 
 	tenant := &entity.Tenant{

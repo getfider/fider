@@ -76,7 +76,7 @@ func activateStripeSubscription(ctx context.Context, c *cmd.ActivateStripeSubscr
 			INSERT INTO tenants_billing (tenant_id, stripe_customer_id, stripe_subscription_id, license_key)
 			VALUES ($1, $2, $3, $4)
 			ON CONFLICT (tenant_id) DO UPDATE
-			SET stripe_customer_id = $2, stripe_subscription_id = $3, license_key = $4
+			SET stripe_customer_id = $2, stripe_subscription_id = $3, license_key = $4, paddle_subscription_id = NULL
 		`, c.TenantID, c.CustomerID, c.SubscriptionID, c.LicenseKey)
 		if err != nil {
 			return errors.Wrap(err, "failed to activate stripe subscription")
