@@ -2,14 +2,17 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
 
@@ -17,7 +20,7 @@ func activateBillingSubscription(ctx context.Context, c *cmd.ActivateBillingSubs
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		_, err := trx.Execute(`
 			UPDATE tenants
-			SET is_pro = true, status = $2
+			SET is_pro = true, status = $2, prevent_indexing = false
 			WHERE id = $1
 		`, c.TenantID, enum.TenantActive)
 		if err != nil {
@@ -32,7 +35,7 @@ func cancelBillingSubscription(ctx context.Context, c *cmd.CancelBillingSubscrip
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		_, err := trx.Execute(`
 			UPDATE tenants
-			SET is_pro = false
+			SET is_pro = false, prevent_indexing = true
 			WHERE id = $1
 		`, c.TenantID)
 		if err != nil {
@@ -72,7 +75,23 @@ func getStripeBillingState(ctx context.Context, q *query.GetStripeBillingState) 
 
 func activateStripeSubscription(ctx context.Context, c *cmd.ActivateStripeSubscription) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
-		_, err := trx.Execute(`
+		// Check for existing Paddle subscription before migrating to Stripe
+		var paddleSubscriptionID sql.NullString
+		err := trx.Scalar(&paddleSubscriptionID, `
+			SELECT paddle_subscription_id FROM tenants_billing WHERE tenant_id = $1
+		`, c.TenantID)
+		if err != nil && errors.Cause(err) != app.ErrNotFound {
+			return errors.Wrap(err, "failed to check existing paddle subscription")
+		}
+		if paddleSubscriptionID.Valid && paddleSubscriptionID.String != "" {
+			log.Warnf(ctx, "PADDLE_TO_STRIPE_MIGRATION: Tenant @{TenantID} switching from Paddle (subscription: @{PaddleSubscriptionID}) to Stripe (subscription: @{StripeSubscriptionID})", dto.Props{
+				"TenantID":             c.TenantID,
+				"PaddleSubscriptionID": paddleSubscriptionID.String,
+				"StripeSubscriptionID": c.SubscriptionID,
+			})
+		}
+
+		_, err = trx.Execute(`
 			INSERT INTO tenants_billing (tenant_id, stripe_customer_id, stripe_subscription_id, license_key)
 			VALUES ($1, $2, $3, $4)
 			ON CONFLICT (tenant_id) DO UPDATE
@@ -84,9 +103,9 @@ func activateStripeSubscription(ctx context.Context, c *cmd.ActivateStripeSubscr
 
 		_, err = trx.Execute(`
 			UPDATE tenants
-			SET is_pro = true
+			SET is_pro = true, status = $2, prevent_indexing = false
 			WHERE id = $1
-		`, c.TenantID)
+		`, c.TenantID, enum.TenantActive)
 		if err != nil {
 			return errors.Wrap(err, "failed to set tenant to pro plan")
 		}
@@ -108,7 +127,7 @@ func cancelStripeSubscription(ctx context.Context, c *cmd.CancelStripeSubscripti
 
 		_, err = trx.Execute(`
 			UPDATE tenants
-			SET is_pro = false
+			SET is_pro = false, prevent_indexing = true
 			WHERE id = $1
 		`, c.TenantID)
 		if err != nil {

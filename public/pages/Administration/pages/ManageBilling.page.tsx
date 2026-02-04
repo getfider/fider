@@ -140,7 +140,14 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
 
   const freeFeatures = ["250 suggestions", "Unlimited voters", "Your own subdomain or custom domain", "All core functionality"]
 
-  const proFeatures = ["Everything in free", "Unlimited suggestions", "Content moderation", "Billing month to month", "Responsive email support"]
+  const proFeatures = [
+    "Everything in free",
+    "Unlimited suggestions",
+    "Content moderation",
+    "Search engine indexing",
+    "Billing month to month",
+    "Responsive email support",
+  ]
 
   const legacyProFeatures: PlanFeature[] = [
     { text: "Same features as Pro" },
