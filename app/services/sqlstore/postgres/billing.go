@@ -20,7 +20,7 @@ func activateBillingSubscription(ctx context.Context, c *cmd.ActivateBillingSubs
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		_, err := trx.Execute(`
 			UPDATE tenants
-			SET is_pro = true, status = $2
+			SET is_pro = true, status = $2, prevent_indexing = false
 			WHERE id = $1
 		`, c.TenantID, enum.TenantActive)
 		if err != nil {
@@ -35,7 +35,7 @@ func cancelBillingSubscription(ctx context.Context, c *cmd.CancelBillingSubscrip
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		_, err := trx.Execute(`
 			UPDATE tenants
-			SET is_pro = false
+			SET is_pro = false, prevent_indexing = true
 			WHERE id = $1
 		`, c.TenantID)
 		if err != nil {
@@ -103,7 +103,7 @@ func activateStripeSubscription(ctx context.Context, c *cmd.ActivateStripeSubscr
 
 		_, err = trx.Execute(`
 			UPDATE tenants
-			SET is_pro = true, status = $2
+			SET is_pro = true, status = $2, prevent_indexing = false
 			WHERE id = $1
 		`, c.TenantID, enum.TenantActive)
 		if err != nil {
@@ -127,7 +127,7 @@ func cancelStripeSubscription(ctx context.Context, c *cmd.CancelStripeSubscripti
 
 		_, err = trx.Execute(`
 			UPDATE tenants
-			SET is_pro = false
+			SET is_pro = false, prevent_indexing = true
 			WHERE id = $1
 		`, c.TenantID)
 		if err != nil {
