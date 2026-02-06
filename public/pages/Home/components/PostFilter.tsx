@@ -139,10 +139,11 @@ export const PostFilter = (props: PostFilterProps) => {
 
         {options.map((o) => {
           const isChecked = filterItems.some((f) => f.type === o.type && f.value === o.value)
+          const fieldKey = `${o.type}:${o.value.toString()}`
 
           return (
-            <Dropdown.ListItem onClick={handleChangeFilter(o)} key={o.value.toString()}>
-              <Checkbox field={o.value.toString()} checked={isChecked}>
+            <Dropdown.ListItem onClick={handleChangeFilter(o)} key={fieldKey}>
+              <Checkbox field={fieldKey} checked={isChecked}>
                 <HStack spacing={2}>
                   <span className={isChecked ? "text-semibold" : ""}>{o.label}</span>
                   {o.count && o.count > 0 && <span className="bg-gray-200 inline-block rounded-full px-1 w-min-4 text-2xs text-center">{o.count}</span>}
