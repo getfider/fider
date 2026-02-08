@@ -54,6 +54,7 @@ const HomePage = (props: HomePageProps) => {
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
   const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0)
   const [isPostDirty, setIsPostDirty] = useState(false)
+  const [savedSearch, setSavedSearch] = useState("")
 
   useEffect(() => {
     // If we're showing the share feedback, make sure we clear the show pending flag (for draft posts)
@@ -66,8 +67,9 @@ const HomePage = (props: HomePageProps) => {
 
   // Handle post clicks from ListPosts
   const handlePostClick = (postNumber: number, slug: string) => {
-    // Save current scroll position
+    // Save current scroll position and search params
     setSavedScrollPosition(window.scrollY)
+    setSavedSearch(window.location.search)
     setSelectedPostId(postNumber)
     setLastOpenedPostId(postNumber) // Track which post was opened
     setIsPostDirty(false) // Reset dirty flag when opening overlay
@@ -77,7 +79,7 @@ const HomePage = (props: HomePageProps) => {
   // Handle closing the overlay
   const handleCloseOverlay = () => {
     setSelectedPostId(null)
-    window.history.pushState({}, "", "/")
+    window.history.pushState({}, "", `/${savedSearch}`)
   }
 
   // Track which post was opened so we can update just that one
@@ -107,8 +109,9 @@ const HomePage = (props: HomePageProps) => {
         setSelectedPostId(null)
         // Scroll restoration is handled in the useEffect above
       } else if (path.startsWith("/posts/")) {
-        // Save scroll position before opening post
+        // Save scroll position and search params before opening post
         setSavedScrollPosition(window.scrollY)
+        setSavedSearch(window.location.search)
         // Extract post number from URL
         const match = path.match(/\/posts\/(\d+)/)
         if (match) {
@@ -187,43 +190,45 @@ What can we do better? This is the place for you to vote, discuss and share idea
       />
       <div>
         <Header hasInert={isShareFeedbackOpen && !fider.isReadOnly} />
-        {selectedPostId === null ? (
-          <div id="p-home" className="page container" {...(isShareFeedbackOpen && !fider.isReadOnly && { inert: "true" })}>
-            <div className="p-home__welcome-col">
-              <VStack spacing={6}>
-                <div>
-                  {fider.session.tenant.welcomeHeader && (
-                    <h1 className="p-home__welcome-title mb-5">{parseWelcomeHeader(fider.session.tenant.welcomeHeader)}</h1>
-                  )}
-                  <Markdown className="p-home__welcome-body" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
-                </div>
-              </VStack>
+        <div
+          id="p-home"
+          className="page container"
+          style={selectedPostId !== null ? { display: "none" } : undefined}
+          {...(isShareFeedbackOpen && !fider.isReadOnly && { inert: "true" })}
+        >
+          <div className="p-home__welcome-col">
+            <VStack spacing={6}>
               <div>
-                <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
+                {fider.session.tenant.welcomeHeader && <h1 className="p-home__welcome-title mb-5">{parseWelcomeHeader(fider.session.tenant.welcomeHeader)}</h1>}
+                <Markdown className="p-home__welcome-body" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
               </div>
-            </div>
-            <div className="p-home__posts-col">
-              <button className="p-home__add-idea-btn" onClick={handleNewPost}>
-                <HStack spacing={4} align="center">
-                  <Icon sprite={IconPlusCircle} className="p-home__add-idea-icon" />
-                  <span>{fider.session.tenant.invitation || defaultInvitation}</span>
-                </HStack>
-              </button>
-              {isLonely() ? (
-                <Lonely />
-              ) : (
-                <PostsContainer
-                  ref={postsContainerRef}
-                  posts={props.posts}
-                  tags={props.tags}
-                  countPerStatus={props.countPerStatus}
-                  onPostClick={handlePostClick}
-                />
-              )}
-              <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
+            </VStack>
+            <div>
+              <PoweredByFider slot="home-input" className="sm:hidden md:hidden lg:block mt-3" />
             </div>
           </div>
-        ) : (
+          <div className="p-home__posts-col">
+            <button className="p-home__add-idea-btn" onClick={handleNewPost}>
+              <HStack spacing={4} align="center">
+                <Icon sprite={IconPlusCircle} className="p-home__add-idea-icon" />
+                <span>{fider.session.tenant.invitation || defaultInvitation}</span>
+              </HStack>
+            </button>
+            {isLonely() ? (
+              <Lonely />
+            ) : (
+              <PostsContainer
+                ref={postsContainerRef}
+                posts={props.posts}
+                tags={props.tags}
+                countPerStatus={props.countPerStatus}
+                onPostClick={handlePostClick}
+              />
+            )}
+            <PoweredByFider slot="home-footer" className="lg:hidden xl:hidden mt-8" />
+          </div>
+        </div>
+        {selectedPostId !== null && (
           <div className="page container">
             <Button onClick={handleCloseOverlay} variant="link">
               <HStack spacing={2}>
