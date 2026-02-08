@@ -13,6 +13,6 @@ Then("I should see {string} as the post title", async function (this: FiderWorld
 })
 
 Then("I should see {int} vote\\(s)", async function (this: FiderWorld, voteCount: number) {
-  // Look for the vote count number with the specific styling
-  await expect(this.page.locator(".text-2xl").filter({ hasText: voteCount.toString() })).toBeVisible()
+  // Look for the vote count number within the post detail view
+  await expect(this.page.locator(".p-show-post .text-2xl").filter({ hasText: voteCount.toString() })).toBeVisible()
 })
