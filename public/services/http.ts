@@ -1,4 +1,4 @@
-import { analytics, notify, truncate } from "@fider/services"
+import { analytics, notify, truncate, Fider } from "@fider/services"
 
 export interface ErrorItem {
   field?: string
@@ -41,13 +41,27 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
     },
   }
 }
+function resolveUrl(url: string): string {
+  if (url.startsWith("/")) {
+    try {
+      const basePath = new URL(Fider.settings.baseURL).pathname.replace(/\/$/, "")
+      if (basePath && basePath !== "/" && !url.startsWith(basePath)) {
+        return basePath + url
+      }
+    } catch {
+      // Fider not initialized yet or invalid baseURL
+    }
+  }
+  return url
+}
+
 async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any): Promise<Result<T>> {
   const headers = [
     ["Accept", "application/json"],
     ["Content-Type", "application/json"],
   ]
   try {
-    const response = await fetch(url, {
+    const response = await fetch(resolveUrl(url), {
       method,
       headers,
       body: JSON.stringify(body),

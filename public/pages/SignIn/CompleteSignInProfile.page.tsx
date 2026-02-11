@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 
 import { Button, Form, Input, TenantLogo } from "@fider/components"
-import { actions, Failure } from "@fider/services"
+import { actions, Failure, Fider, basePath } from "@fider/services"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
 
@@ -23,9 +23,9 @@ const CompleteSignInProfilePage = (props: CompleteSignInProfilePageProps) => {
     const result = await actions.completeProfile(props.kind, props.k, name)
     if (result.ok) {
       if (props.c !== undefined) {
-        location.href = "/?c=" + props.c
+        location.href = Fider.settings.baseURL + "/?c=" + props.c
       } else {
-        location.href = "/"
+        location.href = Fider.settings.baseURL
       }
     } else if (result.error) {
       setError(result.error)
@@ -37,7 +37,7 @@ const CompleteSignInProfilePage = (props: CompleteSignInProfilePageProps) => {
       <div id="p-complete-profile" className="page container w-max-6xl bg-gray-100">
         <div className="flex flex-y justify-center full-height py-4">
           <div className="text-center mb-8">
-            <a href="/">
+            <a href={`${basePath()}/`}>
               <TenantLogo size={50} />
             </a>
           </div>

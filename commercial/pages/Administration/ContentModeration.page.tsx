@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"
 import { Button, Avatar, Loader, Icon, Markdown } from "@fider/components/common"
 import { Header } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
-import { actions, chopString, http, notify } from "@fider/services"
+import { actions, basePath, chopString, http, notify } from "@fider/services"
 import { User, UserStatus } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
@@ -174,7 +174,7 @@ const ContentModerationPage = () => {
 
   const renderModerationItem = (item: ModerationItem) => {
     const title = item.type == "post" ? item.title : item.postTitle
-    const link = item.type == "post" ? `/posts/${item.postNumber}/${item.postSlug}` : `/posts/${item.postNumber}/${item.postSlug}#comment-${item.id}`
+    const link = item.type == "post" ? `${basePath()}/posts/${item.postNumber}/${item.postSlug}` : `${basePath()}/posts/${item.postNumber}/${item.postSlug}#comment-${item.id}`
     const blocked = item.user.status === UserStatus.Blocked && <span className="text-red-700">blocked</span>
 
     return (

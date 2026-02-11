@@ -380,6 +380,6 @@ func CompleteSignInProfile() web.HandlerFunc {
 func SignOut() web.HandlerFunc {
 	return func(c *web.Context) error {
 		c.RemoveCookie(web.CookieAuthName)
-		return c.Redirect("/")
+		return c.Redirect(c.BaseURL())
 	}
 }

@@ -141,7 +141,7 @@ func SignUp() web.HandlerFunc {
 			}
 
 			if firstTenant.Result != nil {
-				return c.Redirect("/")
+				return c.Redirect(c.BaseURL())
 			}
 		} else {
 			baseURL := web.OAuthBaseURL(c)
