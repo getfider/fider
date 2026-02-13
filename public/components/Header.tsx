@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher, Icon, Button, ModerationIndicator } from "@fider/components"
 import { useFider } from "@fider/hooks"
+import { basePath } from "@fider/services"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
@@ -37,7 +38,7 @@ export const Header = (props: HeaderProps) => {
         <div className="container c-header__container">
           <div className="flex flex-wrap flex-items-center gap-2">
             <div className="flex flex-x flex-items-center justify-between w-full">
-              <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
+              <a href={`${basePath()}/`} className="flex flex-x flex-items-center flex--spacing-2 h-8">
                 <TenantLogo size={100} />
                 <h1 className="text-header">{fider.session.tenant.name}</h1>
               </a>

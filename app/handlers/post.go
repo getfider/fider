@@ -98,7 +98,7 @@ func PostDetails() web.HandlerFunc {
 		}
 
 		if c.Param("slug") != getPost.Result.Slug {
-			return c.Redirect(fmt.Sprintf("/posts/%d/%s", getPost.Result.Number, getPost.Result.Slug))
+			return c.Redirect(c.BaseURL() + fmt.Sprintf("/posts/%d/%s", getPost.Result.Number, getPost.Result.Slug))
 		}
 
 		isSubscribed := &query.UserSubscribedTo{PostID: getPost.Result.ID}

@@ -1,6 +1,7 @@
 import React from "react"
 import { Header } from "@fider/components"
 import { Button } from "@fider/components/common"
+import { basePath } from "@fider/services"
 
 // Dynamically import the commercial component
 const CommercialContentModerationPage = React.lazy(() => import("@commercial/pages/Administration/ContentModeration.page"))
@@ -20,7 +21,7 @@ const ContentModerationPage = () => {
           <div className="text-center p-8 border rounded mt-4">
             <h2 className="text-medium mb-4">Commercial Feature</h2>
             <p className="text-body mb-4">Content moderation is a commercial feature. Please upgrade to access the moderation queue.</p>
-            <Button size="small" variant="primary" href="/upgrade">
+            <Button size="small" variant="primary" href={`${basePath()}/upgrade`}>
               Upgrade to Commercial
             </Button>
           </div>

@@ -5,7 +5,7 @@ import { SignInControl } from "@fider/components/common/SignInControl"
 import { Modal, CloseIcon, Form, Button, Input, LegalFooter } from "@fider/components/common"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
-import { actions, Failure, querystring, classSet, cache } from "@fider/services"
+import { actions, Failure, querystring, classSet, cache, navigator } from "@fider/services"
 import { plainText } from "@fider/services/markdown"
 import { i18n } from "@lingui/core"
 import { Tag } from "@fider/models"
@@ -196,7 +196,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
         } else {
           cache.session.set("POST_CREATED_SUCCESS", "true")
         }
-        location.href = `/posts/${result.data.number}/${result.data.slug}`
+        navigator.goTo(`/posts/${result.data.number}/${result.data.slug}`)
       } else if (result.error) {
         setError(result.error)
       }

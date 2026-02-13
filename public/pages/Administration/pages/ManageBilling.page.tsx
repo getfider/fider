@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { Button, Icon } from "@fider/components"
+import { basePath } from "@fider/services"
 import { HStack, VStack } from "@fider/components/layout"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { http } from "@fider/services"
@@ -165,7 +166,7 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
         <div className="bg-blue-50 p-4 rounded mb-4 border border-blue-200">
           <p className="text-sm text-gray-700">
             If you want to run Fider self-hosted with commercial features,{" "}
-            <a href="/admin/advanced" className="text-blue-600 hover:text-blue-800 underline">
+            <a href={`${basePath()}/admin/advanced`} className="text-blue-600 hover:text-blue-800 underline">
               see advanced
             </a>
             .

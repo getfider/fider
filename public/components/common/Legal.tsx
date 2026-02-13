@@ -1,6 +1,7 @@
 import React from "react"
 import { Modal, Checkbox } from "@fider/components"
 import { useFider } from "@fider/hooks"
+import { basePath } from "@fider/services"
 import { Trans } from "@lingui/react/macro"
 
 interface LegalAgreementProps {
@@ -12,7 +13,7 @@ export const TermsOfService = () => {
 
   if (fider.settings.hasLegal) {
     return (
-      <a href="/terms" className="text-link" target="_blank">
+      <a href={`${basePath()}/terms`} className="text-link" target="_blank">
         <Trans id="legal.termsofservice">Terms of Service</Trans>
       </a>
     )
@@ -25,7 +26,7 @@ export const PrivacyPolicy = () => {
 
   if (fider.settings.hasLegal) {
     return (
-      <a href="/privacy" className="text-link" target="_blank">
+      <a href={`${basePath()}/privacy`} className="text-link" target="_blank">
         <Trans id="legal.privacypolicy">Privacy Policy</Trans>
       </a>
     )

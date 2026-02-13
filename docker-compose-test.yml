@@ -1,0 +1,124 @@
+version: "3.8"
+
+services:
+  # PostgreSQL for all test instances
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: fider
+      POSTGRES_PASSWORD: fider_pw
+      POSTGRES_DB: fider
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fider"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  # Scenario 1: Single-host WITHOUT sub-path
+  # Access at: https://fider.local
+  fider-single:
+    image: ghcr.io/3rg0n/fider:subpath-fix
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GO_ENV: production
+      DATABASE_URL: postgres://fider:fider_pw@postgres:5432/fider?sslmode=disable
+      HOST_MODE: single
+      BASE_URL: https://fider.local
+      JWT_SECRET: test-secret-key-for-local-testing
+      EMAIL_NOREPLY: noreply@fider.local
+      EMAIL_SMTP_HOST: mailhog
+      EMAIL_SMTP_PORT: 1025
+      BLOB_STORAGE: fs
+      BLOB_STORAGE_FS_PATH: /app/data
+    volumes:
+      - fider-single-data:/app/data
+    networks:
+      - default
+      - caddy
+
+  # Scenario 2: Single-host WITH sub-path
+  # Access at: https://app.local/feedback
+  fider-subpath:
+    image: ghcr.io/3rg0n/fider:subpath-fix
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GO_ENV: production
+      DATABASE_URL: postgres://fider:fider_pw@postgres:5432/fider_subpath?sslmode=disable
+      HOST_MODE: single
+      BASE_URL: https://app.local/feedback
+      JWT_SECRET: test-secret-key-for-local-testing-subpath
+      EMAIL_NOREPLY: noreply@app.local
+      EMAIL_SMTP_HOST: mailhog
+      EMAIL_SMTP_PORT: 1025
+      BLOB_STORAGE: fs
+      BLOB_STORAGE_FS_PATH: /app/data
+    volumes:
+      - fider-subpath-data:/app/data
+    networks:
+      - default
+      - caddy
+
+  # Scenario 3: Multi-host WITHOUT sub-path
+  # Access at: https://tenant1.multi.local, https://tenant2.multi.local
+  fider-multi:
+    image: ghcr.io/3rg0n/fider:subpath-fix
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GO_ENV: production
+      DATABASE_URL: postgres://fider:fider_pw@postgres:5432/fider_multi?sslmode=disable
+      HOST_MODE: multi
+      HOST_DOMAIN: multi.local
+      JWT_SECRET: test-secret-key-for-local-testing-multi
+      EMAIL_NOREPLY: noreply@multi.local
+      EMAIL_SMTP_HOST: mailhog
+      EMAIL_SMTP_PORT: 1025
+      BLOB_STORAGE: fs
+      BLOB_STORAGE_FS_PATH: /app/data
+    volumes:
+      - fider-multi-data:/app/data
+    networks:
+      - default
+      - caddy
+
+  # Caddy reverse proxy with automatic HTTPS
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./Caddyfile.test:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - caddy
+    depends_on:
+      - fider-single
+      - fider-subpath
+      - fider-multi
+
+volumes:
+  fider-single-data:
+  fider-subpath-data:
+  fider-multi-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  caddy:
+  default:

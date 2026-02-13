@@ -80,7 +80,7 @@ func RequireTenant() web.MiddlewareFunc {
 			tenant := c.Tenant()
 			if tenant == nil {
 				if env.IsSingleHostMode() {
-					return c.Redirect("/signup")
+					return c.Redirect(c.BaseURL() + "/signup")
 				}
 				return c.NotFound()
 			}
@@ -127,9 +127,9 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 				}
 
 				if redirectTarget != "" {
-					return c.Redirect("/signin?redirect=" + url.QueryEscape(redirectTarget))
+					return c.Redirect(c.BaseURL() + "/signin?redirect=" + url.QueryEscape(redirectTarget))
 				}
-				return c.Redirect("/signin")
+				return c.Redirect(c.BaseURL() + "/signin")
 			}
 			return next(c)
 		}
