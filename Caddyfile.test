@@ -1,0 +1,64 @@
+{
+	# Use internal CA for self-signed certificates
+	local_certs
+	# Enable debug logging
+	debug
+}
+
+# Scenario 1: Single-host WITHOUT sub-path
+# Direct proxy to Fider
+fider.local {
+	reverse_proxy fider-single:3000
+	log {
+		output stdout
+		format console
+	}
+}
+
+# Scenario 2: Single-host WITH sub-path
+# Root serves a simple landing page, /feedback/* routes to Fider
+app.local {
+	# Root path - simple HTML landing page
+	handle / {
+		respond `<!DOCTYPE html>
+<html>
+<head><title>App Landing</title></head>
+<body style="font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px;">
+	<h1>App Landing Page</h1>
+	<p>This simulates a main application at the root path.</p>
+	<p><a href="/feedback">Go to Feedback (Fider)</a></p>
+	<hr>
+	<p style="color: gray;">Testing scenario: Single-host with Fider at /feedback sub-path</p>
+</body>
+</html>` 200
+	}
+
+	# Fider at /feedback sub-path
+	handle /feedback* {
+		reverse_proxy fider-subpath:3000
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# Scenario 3: Multi-host WITHOUT sub-path
+# Wildcard subdomain routing
+*.multi.local {
+	reverse_proxy fider-multi:3000
+	log {
+		output stdout
+		format console
+	}
+}
+
+# Multi-host root domain for initial setup
+multi.local {
+	reverse_proxy fider-multi:3000
+	log {
+		output stdout
+		format console
+	}
+}
