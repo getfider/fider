@@ -13,7 +13,7 @@ export const TermsOfService = () => {
 
   if (fider.settings.hasLegal) {
     return (
-      <a href={`${basePath()}/terms`} className="text-link" target="_blank">
+      <a href={`${basePath()}/terms`} className="text-link" target="_blank" rel="noreferrer">
         <Trans id="legal.termsofservice">Terms of Service</Trans>
       </a>
     )
@@ -26,7 +26,7 @@ export const PrivacyPolicy = () => {
 
   if (fider.settings.hasLegal) {
     return (
-      <a href={`${basePath()}/privacy`} className="text-link" target="_blank">
+      <a href={`${basePath()}/privacy`} className="text-link" target="_blank" rel="noreferrer">
         <Trans id="legal.privacypolicy">Privacy Policy</Trans>
       </a>
     )

@@ -49,7 +49,9 @@ export const SideMenu = (props: SiteMenuProps) => {
         <SideMenuItem name="advanced" title="Advanced" href={`${basePath()}/admin/advanced`} isActive={activeItem === "advanced"} />
         {fider.session.user.isAdministrator && (
           <>
-            {fider.settings.isBillingEnabled && <SideMenuItem name="billing" title="Billing" href={`${basePath()}/admin/billing`} isActive={activeItem === "billing"} />}
+            {fider.settings.isBillingEnabled && (
+              <SideMenuItem name="billing" title="Billing" href={`${basePath()}/admin/billing`} isActive={activeItem === "billing"} />
+            )}
             <SideMenuItem name="webhooks" title="Webhooks" href={`${basePath()}/admin/webhooks`} isActive={activeItem === "webhooks"} />
             <SideMenuItem name="export" title="Export" href={`${basePath()}/admin/export`} isActive={activeItem === "export"} />
           </>

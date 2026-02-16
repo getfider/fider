@@ -98,6 +98,45 @@ func TestBaseURL_SingleHostMode_WithPath(t *testing.T) {
 	Expect(ctx.BaseURL()).Equals("https://example.com/feedback")
 }
 
+func TestBasePath_MultiHostMode(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "multi"
+
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
+
+	Expect(ctx.BasePath()).Equals("")
+}
+
+func TestBasePath_SingleHostMode_NoPath(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "single"
+	env.Config.BaseURL = "https://example.com"
+
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
+
+	Expect(ctx.BasePath()).Equals("")
+}
+
+func TestBasePath_SingleHostMode_WithPath(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "single"
+	env.Config.BaseURL = "https://example.com/feedback"
+
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
+
+	Expect(ctx.BasePath()).Equals("/feedback")
+}
+
+func TestBasePath_SingleHostMode_WithTrailingSlash(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "single"
+	env.Config.BaseURL = "https://example.com/feedback/"
+
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
+
+	Expect(ctx.BasePath()).Equals("/feedback")
+}
+
 func TestCurrentURL(t *testing.T) {
 	RegisterT(t)
 

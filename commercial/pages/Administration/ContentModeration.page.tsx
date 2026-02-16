@@ -174,7 +174,10 @@ const ContentModerationPage = () => {
 
   const renderModerationItem = (item: ModerationItem) => {
     const title = item.type == "post" ? item.title : item.postTitle
-    const link = item.type == "post" ? `${basePath()}/posts/${item.postNumber}/${item.postSlug}` : `${basePath()}/posts/${item.postNumber}/${item.postSlug}#comment-${item.id}`
+    const link =
+      item.type == "post"
+        ? `${basePath()}/posts/${item.postNumber}/${item.postSlug}`
+        : `${basePath()}/posts/${item.postNumber}/${item.postSlug}#comment-${item.id}`
     const blocked = item.user.status === UserStatus.Blocked && <span className="text-red-700">blocked</span>
 
     return (

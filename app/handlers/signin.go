@@ -305,8 +305,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 					}
 
 					webutil.AddAuthUserCookie(c, user)
-					baseURL := c.BaseURL()
-					return c.Redirect(baseURL)
+					return c.Redirect(c.BaseURL())
 				}
 
 				// Otherwise, show profile completion page
@@ -330,8 +329,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 
 		webutil.AddAuthUserCookie(c, userByEmail.Result)
 
-		baseURL := c.BaseURL()
-		return c.Redirect(baseURL)
+		return c.Redirect(c.BaseURL())
 	}
 }
 
@@ -380,6 +378,6 @@ func CompleteSignInProfile() web.HandlerFunc {
 func SignOut() web.HandlerFunc {
 	return func(c *web.Context) error {
 		c.RemoveCookie(web.CookieAuthName)
-		return c.Redirect(c.BaseURL())
+		return c.Redirect(c.BasePath() + "/")
 	}
 }
