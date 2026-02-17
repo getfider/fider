@@ -17,9 +17,14 @@ func Index() web.HandlerFunc {
 	return func(c *web.Context) error {
 		c.SetCanonicalURL("")
 
+		view := c.QueryParam("view")
+		if view == "" {
+			view = c.Tenant().DefaultSort
+		}
+
 		searchPosts := &query.SearchPosts{
 			Query: c.QueryParam("query"),
-			View:  c.QueryParam("view"),
+			View:  view,
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
@@ -60,6 +65,7 @@ func Index() web.HandlerFunc {
 
 		return c.Page(http.StatusOK, web.Props{
 			Page:        "Home/Home.page",
+			Title:       "Feedback",
 			Description: description,
 			Data:        data,
 		})

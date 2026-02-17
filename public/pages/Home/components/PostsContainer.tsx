@@ -4,7 +4,7 @@ import React from "react"
 
 import { Post, Tag, CurrentUser } from "@fider/models"
 import { Loader, Input } from "@fider/components"
-import { actions, navigator, querystring } from "@fider/services"
+import { actions, navigator, querystring, Fider } from "@fider/services"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import { PostFilter } from "./PostFilter"
@@ -41,7 +41,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
   constructor(props: PostsContainerProps) {
     super(props)
 
-    const view = querystring.get("view")
+    const view = querystring.get("view") || Fider.session.tenant.defaultSort
 
     this.state = {
       posts: this.props.posts,
@@ -77,7 +77,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
       this.searchPosts(
         query,
-        this.state.view || "trending",
+        this.state.view || Fider.session.tenant.defaultSort,
         this.state.limit,
         this.state.filterState.tags,
         this.state.filterState.statuses,

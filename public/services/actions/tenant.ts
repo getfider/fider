@@ -30,6 +30,8 @@ export interface UpdateTenantSettingsRequest {
   welcomeMessage: string
   cname: string
   locale: string
+  defaultSort: string
+  isRoadmapEnabled: boolean
 }
 
 export const updateTenantSettings = async (request: UpdateTenantSettingsRequest): Promise<Result> => {

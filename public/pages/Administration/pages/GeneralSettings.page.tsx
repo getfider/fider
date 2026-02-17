@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 
-import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader, Select } from "@fider/components"
+import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader, Select, Toggle, Field } from "@fider/components"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { actions, Failure, Fider } from "@fider/services"
 import { ImageUpload } from "@fider/models"
@@ -15,10 +15,12 @@ const GeneralSettingsPage = () => {
   const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
   const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
   const [locale, setLocale] = useState<string>(fider.session.tenant.locale)
+  const [defaultSort, setDefaultSort] = useState<string>(fider.session.tenant.defaultSort)
+  const [isRoadmapEnabled, setIsRoadmapEnabled] = useState<boolean>(fider.session.tenant.isRoadmapEnabled)
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, invitation, logo, locale })
+    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, invitation, logo, locale, defaultSort, isRoadmapEnabled })
     if (result.ok) {
       e.preventEnable()
       location.href = `/`
@@ -127,6 +129,26 @@ const GeneralSettingsPage = () => {
             </>
           )}
         </Select>
+
+        <Select
+          label="Default Sort"
+          field="defaultSort"
+          defaultValue={defaultSort}
+          options={[
+            { value: "most-wanted", label: "Most Wanted" },
+            { value: "trending", label: "Trending" },
+            { value: "most-discussed", label: "Most Discussed" },
+            { value: "recent", label: "Recent" },
+          ]}
+          onChange={(o) => setDefaultSort(o?.value || "most-wanted")}
+        />
+
+        <Field label="Roadmap">
+          <Toggle disabled={!fider.session.user.isAdministrator} active={isRoadmapEnabled} onToggle={setIsRoadmapEnabled} />
+          <p className="text-muted mt-1">
+            When enabled, the Roadmap page is accessible and visible in the navigation menu.
+          </p>
+        </Field>
 
         <div className="field">
           <Button disabled={!fider.session.user.isAdministrator} variant="primary" onClick={handleSave}>

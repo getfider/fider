@@ -14,6 +14,7 @@ export const Header = (props: HeaderProps) => {
   const fider = useFider()
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
+  const currentPath = typeof window !== "undefined" ? window.location.pathname : "/"
 
   const showSignInModal = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -36,10 +37,22 @@ export const Header = (props: HeaderProps) => {
       <HStack className="c-menu p-4 w-full">
         <div className="container">
           <HStack justify="between">
-            <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
-              <TenantLogo size={100} />
-              <h1 className="text-header">{fider.session.tenant.name}</h1>
-            </a>
+            <HStack spacing={4}>
+              <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
+                <TenantLogo size={100} />
+                <h1 className="text-header">{fider.session.tenant.name}</h1>
+              </a>
+              {fider.session.tenant.isRoadmapEnabled && (
+                <>
+                  <a href="/" className={`text-sm px-3 py-2 rounded-md transition-colors ${currentPath === "/" ? "font-bold text-primary-base" : "font-semibold text-gray-800 hover:text-primary-base hover:bg-gray-50"}`}>
+                    <Trans id="menu.feedback">Feedback</Trans>
+                  </a>
+                  <a href="/roadmap" className={`text-sm px-3 py-2 rounded-md transition-colors ${currentPath === "/roadmap" ? "font-bold text-primary-base" : "font-semibold text-gray-800 hover:text-primary-base hover:bg-gray-50"}`}>
+                    <Trans id="menu.roadmap">Roadmap</Trans>
+                  </a>
+                </>
+              )}
+            </HStack>
             {fider.session.isAuthenticated && (
               <HStack spacing={2}>
                 {fider.session.tenant.isFeedEnabled && (

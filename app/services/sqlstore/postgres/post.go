@@ -586,3 +586,35 @@ func buildPostQuery(user *entity.User, filter string) string {
 	}
 	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, filter)
 }
+
+func getPostsByStatuses(ctx context.Context, q *query.GetPostsByStatuses) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result = make(map[enum.PostStatus][]*entity.Post)
+
+		for _, status := range q.Statuses {
+			var posts []*dbPost
+
+			// Build the query with status filter
+			innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = $2")
+
+			sql := fmt.Sprintf(`
+				SELECT * FROM (%s) AS q
+				ORDER BY q.response_date DESC, q.id DESC
+				LIMIT 50
+			`, innerQuery)
+
+			err := trx.Select(&posts, sql, tenant.ID, status)
+			if err != nil {
+				return errors.Wrap(err, "failed to get posts for status %d", status)
+			}
+
+			// Convert to entity models
+			result := make([]*entity.Post, len(posts))
+			for i, post := range posts {
+				result[i] = post.toModel(ctx)
+			}
+			q.Result[status] = result
+		}
+		return nil
+	})
+}

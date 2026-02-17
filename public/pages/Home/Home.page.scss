@@ -12,6 +12,12 @@
     row-gap: 0;
   }
 
+  > h1 {
+    grid-column: 1 / -1;
+    margin-top: spacing(6);
+    margin-bottom: spacing(6);
+  }
+
   .p-home {
     &__welcome-col {
       > :first-child {

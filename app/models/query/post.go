@@ -64,3 +64,9 @@ func (q *SearchPosts) SetStatusesFromStrings(statuses []string) {
 		}
 	}
 }
+
+type GetPostsByStatuses struct {
+	Statuses []enum.PostStatus
+
+	Result map[enum.PostStatus][]*entity.Post
+}

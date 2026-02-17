@@ -190,12 +190,14 @@ func (action *ResendSignUpEmail) GetKind() enum.EmailVerificationKind {
 
 // UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
-	Logo           *dto.ImageUpload `json:"logo"`
-	Title          string           `json:"title"`
-	Invitation     string           `json:"invitation"`
-	WelcomeMessage string           `json:"welcomeMessage"`
-	Locale         string           `json:"locale"`
-	CNAME          string           `json:"cname" format:"lower"`
+	Logo             *dto.ImageUpload `json:"logo"`
+	Title            string           `json:"title"`
+	Invitation       string           `json:"invitation"`
+	WelcomeMessage   string           `json:"welcomeMessage"`
+	Locale           string           `json:"locale"`
+	CNAME            string           `json:"cname" format:"lower"`
+	DefaultSort      string           `json:"defaultSort"`
+	IsRoadmapEnabled bool             `json:"isRoadmapEnabled"`
 }
 
 func NewUpdateTenantSettings() *UpdateTenantSettings {
@@ -249,6 +251,18 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 	if action.CNAME != "" {
 		messages := validate.CNAME(ctx, action.CNAME)
 		result.AddFieldFailure("cname", messages...)
+	}
+
+	validSorts := []string{"trending", "most-wanted", "most-discussed", "recent"}
+	sortValid := false
+	for _, s := range validSorts {
+		if action.DefaultSort == s {
+			sortValid = true
+			break
+		}
+	}
+	if !sortValid {
+		action.DefaultSort = "most-wanted"
 	}
 
 	return result

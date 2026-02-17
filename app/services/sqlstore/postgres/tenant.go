@@ -31,7 +31,9 @@ type dbTenant struct {
 	AllowedSchemes     string `db:"allowed_schemes"`
 	IsEmailAuthAllowed bool   `db:"is_email_auth_allowed"`
 	IsFeedEnabled      bool   `db:"is_feed_enabled"`
+	IsRoadmapEnabled   bool   `db:"is_roadmap_enabled"`
 	PreventIndexing    bool   `db:"prevent_indexing"`
+	DefaultSort        string `db:"default_sort"`
 }
 
 func (t *dbTenant) toModel() *entity.Tenant {
@@ -54,7 +56,9 @@ func (t *dbTenant) toModel() *entity.Tenant {
 		AllowedSchemes:     t.AllowedSchemes,
 		IsEmailAuthAllowed: t.IsEmailAuthAllowed,
 		IsFeedEnabled:      t.IsFeedEnabled,
+		IsRoadmapEnabled:   t.IsRoadmapEnabled,
 		PreventIndexing:    t.PreventIndexing,
+		DefaultSort:        t.DefaultSort,
 	}
 
 	return tenant
@@ -153,8 +157,8 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 			c.Logo.BlobKey = ""
 		}
 
-		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5, locale = $6 WHERE id = $7"
-		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.CNAME, c.Logo.BlobKey, c.Locale, tenant.ID)
+		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5, locale = $6, default_sort = $7, is_roadmap_enabled = $8 WHERE id = $9"
+		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.CNAME, c.Logo.BlobKey, c.Locale, c.DefaultSort, c.IsRoadmapEnabled, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant settings")
 		}
@@ -163,6 +167,8 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 		tenant.Invitation = c.Invitation
 		tenant.CNAME = c.CNAME
 		tenant.WelcomeMessage = c.WelcomeMessage
+		tenant.DefaultSort = c.DefaultSort
+		tenant.IsRoadmapEnabled = c.IsRoadmapEnabled
 
 		return nil
 	})
@@ -261,8 +267,8 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 
 		var id int
 		err := trx.Get(&id,
-			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, prevent_indexing)
-			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true, true)
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, is_roadmap_enabled, prevent_indexing, default_sort)
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '', $5, true, true, true, true, 'most-wanted')
 			 RETURNING id`, c.Name, c.Subdomain, now, c.Status, env.Config.Locale)
 		if err != nil {
 			return err
@@ -290,7 +296,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, prevent_indexing
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_roadmap_enabled, prevent_indexing, default_sort
 			FROM tenants
 			ORDER BY id LIMIT 1
 		`)
@@ -309,7 +315,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, prevent_indexing
+			SELECT id, name, subdomain, cname, invitation, locale, welcome_message, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_roadmap_enabled, prevent_indexing, default_sort
 			FROM tenants t
 			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
 			ORDER BY cname DESC

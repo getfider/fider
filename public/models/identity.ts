@@ -12,6 +12,8 @@ export interface Tenant {
   allowedSchemes: string
   isEmailAuthAllowed: boolean
   isFeedEnabled: boolean
+  isRoadmapEnabled: boolean
+  defaultSort: string
 }
 
 export enum TenantStatus {
