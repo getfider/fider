@@ -27,13 +27,14 @@ type UpdateTenantEmailAuthAllowedSettings struct {
 }
 
 type UpdateTenantSettings struct {
-	Logo           *dto.ImageUpload
-	Title          string
-	Invitation     string
-	WelcomeMessage string
-	WelcomeHeader  string
-	CNAME          string
-	Locale         string
+	Logo             *dto.ImageUpload
+	Title            string
+	Invitation       string
+	WelcomeMessage   string
+	WelcomeHeader    string
+	CNAME            string
+	Locale           string
+	DefaultSort      string
 }
 
 type UpdateTenantAdvancedSettings struct {

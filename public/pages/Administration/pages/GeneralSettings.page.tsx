@@ -16,10 +16,11 @@ const GeneralSettingsPage = () => {
   const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
   const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
   const [locale, setLocale] = useState<string>(fider.session.tenant.locale)
+  const [defaultSort, setDefaultSort] = useState<string>(fider.session.tenant.defaultSort)
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, invitation, logo, locale })
+    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, invitation, logo, locale, defaultSort })
     if (result.ok) {
       e.preventEnable()
       location.href = `/`
@@ -142,6 +143,19 @@ const GeneralSettingsPage = () => {
             </>
           )}
         </Select>
+
+        <Select
+          label="Default Sort"
+          field="defaultSort"
+          defaultValue={defaultSort}
+          options={[
+            { value: "most-wanted", label: "Most Wanted" },
+            { value: "trending", label: "Trending" },
+            { value: "most-discussed", label: "Most Discussed" },
+            { value: "recent", label: "Recent" },
+          ]}
+          onChange={(o) => setDefaultSort(o?.value || "trending")}
+        />
 
         <div className="field">
           <Button disabled={!fider.session.user.isAdministrator} variant="primary" onClick={handleSave}>

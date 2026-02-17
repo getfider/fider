@@ -27,6 +27,7 @@ type Tenant struct {
 	IsModerationEnabled  bool   `db:"is_moderation_enabled"`
 	IsPro                bool   `db:"is_pro"`
 	HasPaddleSubscription bool  `db:"has_paddle_subscription"`
+	DefaultSort          string `db:"default_sort"`
 }
 
 func (t *Tenant) ToModel() *entity.Tenant {
@@ -63,6 +64,7 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		PreventIndexing:       t.PreventIndexing,
 		IsModerationEnabled:   t.IsModerationEnabled,
 		HasCommercialFeatures: hasCommercialFeatures,
+		DefaultSort:           t.DefaultSort,
 	}
 
 	return tenant
