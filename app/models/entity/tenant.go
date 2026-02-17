@@ -6,24 +6,26 @@ import (
 
 // Tenant represents a tenant
 type Tenant struct {
-	ID                  int               `json:"id"`
-	Name                string            `json:"name"`
-	Subdomain           string            `json:"subdomain"`
-	Invitation          string            `json:"invitation"`
-	WelcomeMessage      string            `json:"welcomeMessage"`
-	WelcomeHeader       string            `json:"welcomeHeader"`
-	CNAME               string            `json:"cname"`
-	Status              enum.TenantStatus `json:"status"`
-	Locale              string            `json:"locale"`
-	IsPrivate           bool              `json:"isPrivate"`
-	LogoBlobKey         string            `json:"logoBlobKey"`
-	CustomCSS           string            `json:"-"`
-	AllowedSchemes      string            `json:"allowedSchemes"`
-	IsEmailAuthAllowed  bool              `json:"isEmailAuthAllowed"`
-	IsFeedEnabled       bool              `json:"isFeedEnabled"`
-	PreventIndexing     bool              `json:"preventIndexing"`
-	IsModerationEnabled      bool              `json:"isModerationEnabled"`
-	HasCommercialFeatures    bool              `json:"hasCommercialFeatures"`
+	ID                    int               `json:"id"`
+	Name                  string            `json:"name"`
+	Subdomain             string            `json:"subdomain"`
+	Invitation            string            `json:"invitation"`
+	WelcomeMessage        string            `json:"welcomeMessage"`
+	WelcomeHeader         string            `json:"welcomeHeader"`
+	CNAME                 string            `json:"cname"`
+	Status                enum.TenantStatus `json:"status"`
+	Locale                string            `json:"locale"`
+	IsPrivate             bool              `json:"isPrivate"`
+	LogoBlobKey           string            `json:"logoBlobKey"`
+	CustomCSS             string            `json:"-"`
+	AllowedSchemes        string            `json:"allowedSchemes"`
+	IsEmailAuthAllowed    bool              `json:"isEmailAuthAllowed"`
+	IsFeedEnabled         bool              `json:"isFeedEnabled"`
+	IsRoadmapEnabled      bool              `json:"isRoadmapEnabled"`
+	PreventIndexing       bool              `json:"preventIndexing"`
+	IsModerationEnabled   bool              `json:"isModerationEnabled"`
+	HasCommercialFeatures bool              `json:"hasCommercialFeatures"`
+	DefaultSort           string            `json:"defaultSort"`
 }
 
 func (t *Tenant) IsDisabled() bool {

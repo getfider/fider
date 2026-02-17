@@ -15,6 +15,7 @@ export const Header = (props: HeaderProps) => {
   const fider = useFider()
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
+  const currentPath = typeof window !== "undefined" ? window.location.pathname : "/"
 
   const handleSignInClick = () => {
     setIsSignInModalOpen(true)
@@ -37,10 +38,22 @@ export const Header = (props: HeaderProps) => {
         <div className="container c-header__container">
           <div className="flex flex-wrap flex-items-center gap-2">
             <div className="flex flex-x flex-items-center justify-between w-full">
-              <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
-                <TenantLogo size={100} />
-                <h1 className="text-header">{fider.session.tenant.name}</h1>
-              </a>
+              <HStack spacing={4} className="flex-items-center">
+                <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
+                  <TenantLogo size={100} />
+                  <h1 className="text-header">{fider.session.tenant.name}</h1>
+                </a>
+                {fider.session.tenant.isRoadmapEnabled && (
+                  <>
+                    <a href="/" className={`text-sm px-3 py-2 rounded-md transition-colors ${currentPath === "/" ? "font-bold text-primary-base" : "font-semibold text-gray-800 hover:text-primary-base hover:bg-gray-50"}`}>
+                      <Trans id="menu.feedback">Feedback</Trans>
+                    </a>
+                    <a href="/roadmap" className={`text-sm px-3 py-2 rounded-md transition-colors ${currentPath === "/roadmap" ? "font-bold text-primary-base" : "font-semibold text-gray-800 hover:text-primary-base hover:bg-gray-50"}`}>
+                      <Trans id="menu.roadmap">Roadmap</Trans>
+                    </a>
+                  </>
+                )}
+              </HStack>
               {fider.session.isAuthenticated && (
                 <HStack spacing={2}>
                   {fider.session.tenant.isFeedEnabled && (

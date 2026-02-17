@@ -23,8 +23,10 @@ type Tenant struct {
 	AllowedSchemes       string `db:"allowed_schemes"`
 	IsEmailAuthAllowed   bool   `db:"is_email_auth_allowed"`
 	IsFeedEnabled        bool   `db:"is_feed_enabled"`
+	IsRoadmapEnabled     bool   `db:"is_roadmap_enabled"`
 	PreventIndexing      bool   `db:"prevent_indexing"`
 	IsModerationEnabled  bool   `db:"is_moderation_enabled"`
+	DefaultSort          string `db:"default_sort"`
 	IsPro                bool   `db:"is_pro"`
 	HasPaddleSubscription bool  `db:"has_paddle_subscription"`
 }
@@ -60,9 +62,11 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		AllowedSchemes:        t.AllowedSchemes,
 		IsEmailAuthAllowed:    t.IsEmailAuthAllowed,
 		IsFeedEnabled:         t.IsFeedEnabled,
+		IsRoadmapEnabled:      t.IsRoadmapEnabled,
 		PreventIndexing:       t.PreventIndexing,
 		IsModerationEnabled:   t.IsModerationEnabled,
 		HasCommercialFeatures: hasCommercialFeatures,
+		DefaultSort:           t.DefaultSort,
 	}
 
 	return tenant

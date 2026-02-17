@@ -59,13 +59,15 @@ func UpdateSettings() web.HandlerFunc {
 				Folder: "logos",
 			},
 			&cmd.UpdateTenantSettings{
-				Logo:           action.Logo,
-				Title:          action.Title,
-				Invitation:     action.Invitation,
-				WelcomeMessage: action.WelcomeMessage,
-				WelcomeHeader:  action.WelcomeHeader,
-				CNAME:          action.CNAME,
-				Locale:         action.Locale,
+				Logo:             action.Logo,
+				Title:            action.Title,
+				Invitation:       action.Invitation,
+				WelcomeMessage:   action.WelcomeMessage,
+				WelcomeHeader:    action.WelcomeHeader,
+				CNAME:            action.CNAME,
+				Locale:           action.Locale,
+				DefaultSort:      action.DefaultSort,
+				IsRoadmapEnabled: action.IsRoadmapEnabled,
 			},
 		); err != nil {
 			return c.Failure(err)

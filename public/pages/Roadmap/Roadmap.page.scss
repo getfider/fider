@@ -1,0 +1,155 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+#p-roadmap {
+  > h1 {
+    margin-top: spacing(6);
+    margin-bottom: spacing(6);
+  }
+
+  .c-roadmap-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: spacing(5);
+    margin-bottom: spacing(6);
+    align-items: start;
+
+    @include media("sm") {
+      grid-template-columns: 1fr;
+      gap: spacing(4);
+    }
+  }
+
+  .c-roadmap-column {
+    background: var(--colors-gray-50);
+    border-radius: get("border.radius.large");
+    border: 1px solid var(--colors-gray-200);
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+
+    &--planned {
+      .c-roadmap-column__title {
+        color: var(--colors-blue-600);
+      }
+      .c-roadmap-column__count {
+        background: var(--colors-blue-100);
+        color: var(--colors-blue-700);
+      }
+    }
+
+    &--started {
+      .c-roadmap-column__title {
+        color: var(--colors-green-500);
+      }
+      .c-roadmap-column__count {
+        background: var(--colors-green-100);
+        color: var(--colors-green-600);
+      }
+    }
+
+    &--completed {
+      .c-roadmap-column__title {
+        color: var(--colors-green-700);
+      }
+      .c-roadmap-column__count {
+        background: var(--colors-green-200);
+        color: var(--colors-green-800);
+      }
+    }
+
+    &__header {
+      padding: spacing(4);
+      border-bottom: 1px solid var(--colors-gray-200);
+      background: var(--colors-white);
+      border-radius: get("border.radius.large") get("border.radius.large") 0 0;
+    }
+
+    &__title {
+      font-weight: get("font.weight.semibold");
+      font-size: get("font.size.lg");
+      display: flex;
+      align-items: center;
+      gap: spacing(2);
+    }
+
+    &__icon {
+      font-size: get("font.size.base");
+    }
+
+    &__count {
+      padding: spacing(1) spacing(2.5);
+      border-radius: get("border.radius.full");
+      font-size: get("font.size.sm");
+      font-weight: get("font.weight.semibold");
+      min-width: 28px;
+      text-align: center;
+    }
+
+    &__posts {
+      padding: spacing(4);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: spacing(4);
+    }
+
+    &__empty {
+      padding: spacing(8) spacing(4);
+      text-align: center;
+      color: var(--colors-gray-500);
+      font-size: get("font.size.sm");
+    }
+
+    &__load-more {
+      width: 100%;
+      padding: spacing(3) spacing(4);
+      background: none;
+      border: none;
+      color: var(--colors-gray-500);
+      font-size: get("font.size.sm");
+      cursor: pointer;
+      text-align: center;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: var(--colors-primary-base);
+      }
+    }
+  }
+
+  .c-roadmap-card {
+    display: block;
+    background: var(--colors-white);
+    border-radius: get("border.radius.medium");
+    text-decoration: none;
+    padding: spacing(4);
+    transition: all 0.15s ease;
+    border: 1px solid var(--colors-gray-200);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    &:hover {
+      border-color: var(--colors-primary-light);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    &__title {
+      font-weight: get("font.weight.medium");
+      font-size: get("font.size.base");
+      line-height: 1.5;
+      color: var(--colors-gray-900);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+
+      &:hover {
+        color: var(--colors-primary-base);
+      }
+    }
+
+    &__meta {
+      font-size: get("font.size.sm");
+      color: var(--colors-gray-600);
+    }
+  }
+}
