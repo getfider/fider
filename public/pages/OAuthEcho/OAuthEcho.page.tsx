@@ -14,6 +14,7 @@ interface OAuthEchoPageProps {
     id: string
     name: string
     email: string
+    roles: string[]
   }
 }
 
@@ -39,6 +40,7 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, a
     const idOk = this.props.profile && this.props.profile.id !== ""
     const nameOk = this.props.profile && this.props.profile.name !== "Anonymous"
     const emailOk = this.props.profile && this.props.profile.email !== ""
+    const hasRoles = this.props.profile && this.props.profile.roles && this.props.profile.roles.length > 0
 
     let responseBody = ""
     try {
@@ -81,6 +83,13 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, a
                 Email is not required, but highly recommended. If invalid or not found, new users won&apos;t receive notifications.
               </span>
             )}
+          </VStack>
+          <VStack>
+            <HStack>
+              {hasRoles ? ok : warn}
+              <strong>Roles:</strong> {hasRoles ? this.props.profile.roles.join(", ") : "(none)"}
+            </HStack>
+            <span className="text-muted">Roles are optional and used for role-based access control when OAUTH_ALLOWED_ROLES is configured.</span>
           </VStack>
         </VStack>
       </>

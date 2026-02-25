@@ -3,6 +3,7 @@ package oauth
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -120,10 +121,17 @@ func parseOAuthRawProfile(ctx context.Context, c *cmd.ParseOAuthRawProfile) erro
 	// Extract and combine name parts
 	name := extractCompositeName(query, config.JSONUserNamePath)
 
+	// Extract roles if path is configured
+	var roles []string
+	if config.JSONUserRolesPath != "" {
+		roles = extractRolesFromJSON(c.Body, config.JSONUserRolesPath)
+	}
+
 	profile := &dto.OAuthUserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
 		Name:  name,
 		Email: strings.ToLower(strings.TrimSpace(query.String(config.JSONUserEmailPath))),
+		Roles: roles,
 	}
 
 	if profile.ID == "" {
@@ -191,6 +199,130 @@ func extractCompositeName(query *jsonq.Query, namePath string) string {
 	}
 
 	return ""
+}
+
+// Supports formats:
+// - "roles" for array of strings: ["ROLE_ADMIN", "ROLE_USER"]
+// - "roles[].id" for array of objects: [{"id": "ROLE_ADMIN"}, {"id": "ROLE_USER"}]
+// - "user.roles[].name" for nested array of objects
+func extractRolesFromJSON(jsonBody string, rolesPath string) []string {
+	rolesPath = strings.TrimSpace(rolesPath)
+	if rolesPath == "" {
+		return nil
+	}
+
+	// Parse the JSON body
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonBody), &data); err != nil {
+		return nil
+	}
+
+	// Check if we need to extract a field from array of objects (e.g., "roles[].id")
+	var fieldToExtract string
+	var actualPath string
+
+	if strings.Contains(rolesPath, "[].") {
+		parts := strings.Split(rolesPath, "[].")
+		if len(parts) == 2 {
+			actualPath = parts[0]
+			fieldToExtract = parts[1]
+		}
+	} else {
+		actualPath = rolesPath
+	}
+
+	// Navigate to the value using the path
+	value := navigateJSONPath(data, actualPath)
+	if value == nil {
+		return nil
+	}
+
+	// If it's an array
+	if arr, ok := value.([]interface{}); ok {
+		roles := make([]string, 0)
+
+		// If we need to extract a field from objects
+		if fieldToExtract != "" {
+			for _, item := range arr {
+				if obj, ok := item.(map[string]interface{}); ok {
+					if fieldValue, exists := obj[fieldToExtract]; exists {
+						if roleStr, ok := fieldValue.(string); ok && roleStr != "" {
+							roles = append(roles, strings.TrimSpace(roleStr))
+						}
+					}
+				}
+			}
+		} else {
+			// Array of strings
+			for _, item := range arr {
+				if roleStr, ok := item.(string); ok && roleStr != "" {
+					roles = append(roles, strings.TrimSpace(roleStr))
+				}
+			}
+		}
+
+		if len(roles) > 0 {
+			return roles
+		}
+	}
+
+	// If it's a string, try splitting
+	if str, ok := value.(string); ok {
+		str = strings.TrimSpace(str)
+		if str != "" {
+			// Try splitting by semicolon first, then comma
+			var roles []string
+			if strings.Contains(str, ";") {
+				roles = strings.Split(str, ";")
+			} else if strings.Contains(str, ",") {
+				roles = strings.Split(str, ",")
+			} else {
+				roles = []string{str}
+			}
+
+			// Trim whitespace from each role
+			cleanRoles := make([]string, 0)
+			for _, role := range roles {
+				role = strings.TrimSpace(role)
+				if role != "" {
+					cleanRoles = append(cleanRoles, role)
+				}
+			}
+			return cleanRoles
+		}
+	}
+
+	return nil
+}
+
+// navigateJSONPath navigates through nested JSON structure using dot notation
+// e.g., "user.profile.roles" will navigate data["user"]["profile"]["roles"]
+func navigateJSONPath(data map[string]interface{}, path string) interface{} {
+	if path == "" {
+		return nil
+	}
+
+	parts := strings.Split(path, ".")
+	var current interface{} = data
+
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+
+		if m, ok := current.(map[string]interface{}); ok {
+			if value, exists := m[part]; exists {
+				current = value
+			} else {
+				return nil
+			}
+		} else {
+			return nil
+		}
+	}
+
+	return current
 }
 
 func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizationURL) error {

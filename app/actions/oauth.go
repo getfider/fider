@@ -33,6 +33,7 @@ type CreateEditOAuthConfig struct {
 	JSONUserIDPath    string           `json:"jsonUserIDPath"`
 	JSONUserNamePath  string           `json:"jsonUserNamePath"`
 	JSONUserEmailPath string           `json:"jsonUserEmailPath"`
+	JSONUserRolesPath string           `json:"jsonUserRolesPath"`
 }
 
 func NewCreateEditOAuthConfig() *CreateEditOAuthConfig {
@@ -182,6 +183,10 @@ func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entity.
 
 	if len(action.JSONUserEmailPath) > 100 {
 		result.AddFieldFailure("jsonUserEmailPath", "JSON User Email Path must have less than 100 characters.")
+	}
+
+	if len(action.JSONUserRolesPath) > 100 {
+		result.AddFieldFailure("jsonUserRolesPath", "JSON User Roles Path must have less than 100 characters.")
 	}
 
 	return result

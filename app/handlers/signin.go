@@ -71,6 +71,17 @@ func NotInvitedPage() web.HandlerFunc {
 	}
 }
 
+// AccessDeniedPage renders the access denied page for OAuth role mismatches
+func AccessDeniedPage() web.HandlerFunc {
+	return func(c *web.Context) error {
+		return c.Page(http.StatusForbidden, web.Props{
+			Page:        "Error/AccessDenied.page",
+			Title:       "Access Denied",
+			Description: "You do not have the required permissions to access this site.",
+		})
+	}
+}
+
 // SignInByEmail checks if user exists and sends code only for existing users
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {

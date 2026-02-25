@@ -2,9 +2,10 @@ package dto
 
 //OAuthUserProfile represents an OAuth user profile
 type OAuthUserProfile struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID    string   `json:"id"`
+	Name  string   `json:"name"`
+	Email string   `json:"email"`
+	Roles []string `json:"roles"`
 }
 
 //OAuthProviderOption represents an OAuth provider that can be used to authenticate

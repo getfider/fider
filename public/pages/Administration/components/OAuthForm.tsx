@@ -27,6 +27,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
   const [jsonUserIDPath, setJSONUserIDPath] = useState((props.config && props.config.jsonUserIDPath) || "")
   const [jsonUserNamePath, setJSONUserNamePath] = useState((props.config && props.config.jsonUserNamePath) || "")
   const [jsonUserEmailPath, setJSONUserEmailPath] = useState((props.config && props.config.jsonUserEmailPath) || "")
+  const [jsonUserRolesPath, setJSONUserRolesPath] = useState((props.config && props.config.jsonUserRolesPath) || "")
   const [logo, setLogo] = useState<ImageUpload | undefined>()
   const [logoURL, setLogoURL] = useState<string | undefined>()
   const [logoBlobKey, setLogoBlobKey] = useState((props.config && props.config.logoBlobKey) || "")
@@ -47,6 +48,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
       jsonUserIDPath,
       jsonUserNamePath,
       jsonUserEmailPath,
+      jsonUserRolesPath,
       logo,
     })
     if (result.ok) {
@@ -157,7 +159,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
           .
         </p>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <Input
             field="jsonUserIDPath"
             label="ID"
@@ -191,6 +193,16 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             <p className="text-muted">
               Optional, but <strong>highly</strong> recommended.
             </p>
+          </Input>
+          <Input
+            field="jsonUserRolesPath"
+            label="Roles"
+            maxLength={100}
+            value={jsonUserRolesPath}
+            disabled={!fider.session.user.isAdministrator}
+            onChange={setJSONUserRolesPath}
+          >
+            <p className="text-muted">Optional. Used for role-based access control.</p>
           </Input>
         </div>
 

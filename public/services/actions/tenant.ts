@@ -118,6 +118,7 @@ export interface CreateEditOAuthConfigRequest {
   jsonUserIDPath: string
   jsonUserNamePath: string
   jsonUserEmailPath: string
+  jsonUserRolesPath: string
   logo?: ImageUpload
   isTrusted: boolean
 }

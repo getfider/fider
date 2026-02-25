@@ -17,6 +17,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
@@ -89,6 +90,17 @@ func OAuthToken() web.HandlerFunc {
 		oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
 		if err := bus.Dispatch(c, oauthUser); err != nil {
 			return c.Failure(err)
+		}
+
+		// Check if user has required roles (if OAUTH_ALLOWED_ROLES is configured)
+		if !hasAllowedRole(oauthUser.Result.Roles) {
+			log.Warnf(c, "User @{UserID} attempted OAuth login but does not have required role. User roles: @{UserRoles}, Allowed roles: @{AllowedRoles}",
+				dto.Props{
+					"UserID":       oauthUser.Result.ID,
+					"UserRoles":    oauthUser.Result.Roles,
+					"AllowedRoles": env.Config.OAuth.AllowedRoles,
+				})
+			return c.Redirect("/access-denied")
 		}
 
 		var user *entity.User
@@ -264,3 +276,42 @@ func SignInByOAuth() web.HandlerFunc {
 		return c.Redirect(authURL.Result)
 	}
 }
+
+// hasAllowedRole checks if the user has any of the allowed roles configured in OAUTH_ALLOWED_ROLES
+// If OAUTH_ALLOWED_ROLES is not set or empty, all users are allowed (returns true)
+// If set, user must have at least one of the specified roles
+func hasAllowedRole(userRoles []string) bool {
+	allowedRolesConfig := strings.TrimSpace(env.Config.OAuth.AllowedRoles)
+
+	// If no roles restriction is configured, allow all users
+	if allowedRolesConfig == "" {
+		return true
+	}
+
+	// Parse allowed roles from config (semicolon-separated)
+	allowedRoles := strings.Split(allowedRolesConfig, ";")
+	allowedRolesMap := make(map[string]bool)
+	for _, role := range allowedRoles {
+		role = strings.TrimSpace(role)
+		if role != "" {
+			allowedRolesMap[role] = true
+		}
+	}
+
+	// If no valid roles in config, allow all
+	if len(allowedRolesMap) == 0 {
+		return true
+	}
+
+	// Check if user has any of the allowed roles
+	for _, userRole := range userRoles {
+		userRole = strings.TrimSpace(userRole)
+		if allowedRolesMap[userRole] {
+			return true
+		}
+	}
+
+	// User doesn't have any of the required roles
+	return false
+}
+
