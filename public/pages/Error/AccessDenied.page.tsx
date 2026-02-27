@@ -2,7 +2,7 @@ import { Trans } from "@lingui/react/macro"
 import React from "react"
 import { ErrorPageWrapper } from "./components/ErrorPageWrapper"
 
-export const AccessDenied = () => {
+const AccessDenied = () => {
   return (
     <ErrorPageWrapper id="p-access-denied" showHomeLink={true}>
       <h1 className="text-display">
@@ -17,3 +17,5 @@ export const AccessDenied = () => {
     </ErrorPageWrapper>
   )
 }
+
+export default AccessDenied
