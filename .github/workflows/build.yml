@@ -101,7 +101,7 @@ jobs:
 
       - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: fider-image
           path: out/
@@ -135,7 +135,7 @@ jobs:
         with:
           node-version: 22.x
           cache: 'npm'
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: fider-image
           path: ./out
@@ -190,7 +190,7 @@ jobs:
         with:
           node-version: 22.x
           cache: 'npm'
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: fider-image
           path: ./out
