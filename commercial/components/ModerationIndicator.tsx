@@ -11,7 +11,7 @@ export const ModerationIndicator = () => {
   const [loading, setLoading] = useState(true)
 
   // Check if commercial license is available
-  const hasCommercialLicense = fider.session.tenant.isCommercial
+  const hasCommercialLicense = fider.session.tenant.hasCommercialFeatures
 
   useEffect(() => {
     const fetchCount = async () => {

@@ -83,7 +83,7 @@ func (s *commercialLicenseService) IsCommercialFeatureEnabled(feature string) bo
 	}
 
 	// In multi-tenant mode, this is a global check
-	// Per-tenant checking happens via tenant.IsCommercial()
+	// Per-tenant checking happens via tenant.HasCommercialFeatures
 	return true
 }
 

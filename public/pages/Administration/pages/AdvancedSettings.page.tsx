@@ -8,7 +8,7 @@ interface AdvancedSettingsPageProps {
   customCSS: string
   allowedSchemes: string
   licenseKey: string
-  isCommercial: boolean
+  hasCommercialFeatures: boolean
 }
 
 interface AdvancedSettingsPageState {
@@ -60,7 +60,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
   public content() {
     return (
       <Form error={this.state.error}>
-        {this.props.isCommercial && this.props.licenseKey && (
+        {this.props.hasCommercialFeatures && this.props.licenseKey && (
           <div className="field">
             <label>Commercial License Key</label>
             <p className="text-muted">Use this key to run Fider self-hosted with commercial features (content moderation).</p>
