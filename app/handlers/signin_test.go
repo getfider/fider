@@ -57,7 +57,8 @@ func TestSignInByEmailHandler_ExistingUser(t *testing.T) {
 		ExecutePost(handlers.SignInByEmail(), `{ "email": "jon.snow@got.com" }`)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(saveKeyCmd.Key).HasLen(6)
+	Expect(saveKeyCmd.Key).HasLen(64)
+	Expect(saveKeyCmd.Code).HasLen(6)
 	Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindSignIn)
 	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
 	Expect(response.Body.String()).ContainsSubstring(`"userExists":true`)
@@ -98,7 +99,8 @@ func TestSignInByEmailWithNameHandler_NewUser(t *testing.T) {
 		ExecutePost(handlers.SignInByEmailWithName(), `{ "email": "new.user@got.com", "name": "New User" }`)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(saveKeyCmd.Key).HasLen(6)
+	Expect(saveKeyCmd.Key).HasLen(64)
+	Expect(saveKeyCmd.Code).HasLen(6)
 	Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindSignIn)
 	Expect(saveKeyCmd.Request.GetEmail()).Equals("new.user@got.com")
 	Expect(saveKeyCmd.Request.GetName()).Equals("New User")
@@ -820,7 +822,7 @@ func TestVerifySignInCodeHandler_ExpiredCode(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "123456" }`)
 
-	Expect(code).Equals(http.StatusGone)
+	Expect(code).Equals(http.StatusBadRequest)
 }
 
 func TestVerifySignInCodeHandler_CorrectCode_ExistingUser(t *testing.T) {
@@ -951,6 +953,29 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_PrivateTenant(t *testing.T)
 	Expect(code).Equals(http.StatusForbidden)
 }
 
+func TestVerifySignInCodeHandler_AlreadyVerifiedCode_ShouldReject(t *testing.T) {
+	RegisterT(t)
+
+	verifiedAt := time.Now().Add(-1 * time.Minute)
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+		q.Result = &entity.EmailVerification{
+			Email:      "jon.snow@got.com",
+			Key:        "some-long-link-key",
+			CreatedAt:  time.Now().Add(-10 * time.Minute),
+			ExpiresAt:  time.Now().Add(5 * time.Minute),
+			VerifiedAt: &verifiedAt,
+		}
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "123456" }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
 func TestResendSignInCodeHandler_ValidEmail(t *testing.T) {
 	RegisterT(t)
 
@@ -966,7 +991,8 @@ func TestResendSignInCodeHandler_ValidEmail(t *testing.T) {
 		ExecutePost(handlers.ResendSignInCode(), `{ "email": "jon.snow@got.com" }`)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(saveKeyCmd.Key).HasLen(6)
+	Expect(saveKeyCmd.Key).HasLen(64)
+	Expect(saveKeyCmd.Code).HasLen(6)
 	Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindSignIn)
 	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
 }
