@@ -22,7 +22,7 @@ const GeneralSettingsPage = () => {
     const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, invitation, logo, locale })
     if (result.ok) {
       e.preventEnable()
-      location.href = `/`
+      location.href = Fider.settings.baseURL
     } else if (result.error) {
       setError(result.error)
     }
