@@ -11,6 +11,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-ui:
     name: test-ui
@@ -29,10 +33,6 @@ jobs:
   test-server:
     name: test-server
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [x86_64, arm64]
     services:
       minio:
         image: getfider/minio:0.0.2
@@ -128,7 +128,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: ["chromium", "webkit", "firefox"]
+        browser: ${{ github.event_name == 'pull_request' && fromJSON('["chromium"]') || fromJSON('["chromium","webkit","firefox"]') }}
     steps:
       - uses: actions/checkout@v6
       - name: Use Node.js 22.x
