@@ -47,6 +47,7 @@ type ActivateTenant struct {
 
 type SaveVerificationKey struct {
 	Key      string
+	Code     string
 	Duration time.Duration
 	Request  NewEmailVerification
 }
