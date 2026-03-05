@@ -146,7 +146,7 @@ func getVerificationByEmailAndCode(ctx context.Context, q *query.GetVerification
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND key = $3 AND kind = $4 LIMIT 1"
+		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND code = $3 AND kind = $4 LIMIT 1"
 		err := trx.Get(&verification, query, tenant.ID, q.Email, q.Code, q.Kind)
 		if err != nil {
 			return errors.Wrap(err, "failed to get email verification by email and code")
@@ -164,8 +164,13 @@ func saveVerificationKey(ctx context.Context, c *cmd.SaveVerificationKey) error 
 			userID = c.Request.GetUser().ID
 		}
 
-		query := "INSERT INTO email_verifications (tenant_id, email, created_at, expires_at, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
-		_, err := trx.Execute(query, tenant.ID, c.Request.GetEmail(), time.Now(), time.Now().Add(c.Duration), c.Key, c.Request.GetName(), c.Request.GetKind(), userID)
+		var code any
+		if c.Code != "" {
+			code = c.Code
+		}
+
+		query := "INSERT INTO email_verifications (tenant_id, email, created_at, expires_at, key, name, kind, user_id, code) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+		_, err := trx.Execute(query, tenant.ID, c.Request.GetEmail(), time.Now(), time.Now().Add(c.Duration), c.Key, c.Request.GetName(), c.Request.GetKind(), userID, code)
 		if err != nil {
 			return errors.Wrap(err, "failed to save verification key for kind '%d'", c.Request.GetKind())
 		}
