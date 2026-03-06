@@ -7,7 +7,6 @@ import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import IconClock from "@fider/assets/images/heroicons-clock.svg"
 import { HStack } from "@fider/components/layout"
 
-
 interface PostsSortProps {
   value: string
   onChange: (value: string) => void
