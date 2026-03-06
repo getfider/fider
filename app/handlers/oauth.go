@@ -92,8 +92,9 @@ func OAuthToken() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		// Check if user has required roles (if OAUTH_ALLOWED_ROLES is configured)
-		if !hasAllowedRole(oauthUser.Result.Roles) {
+		// Check if user has required roles (if OAUTH_ALLOWED_ROLES is configured AND provider has a roles path)
+		providerRolesPath := getProviderJSONUserRolesPath(c, provider)
+		if !hasAllowedRole(oauthUser.Result.Roles, providerRolesPath) {
 			log.Warnf(c, "User @{UserID} attempted OAuth login but does not have required role. User roles: @{UserRoles}, Allowed roles: @{AllowedRoles}",
 				dto.Props{
 					"UserID":       oauthUser.Result.ID,
@@ -163,6 +164,17 @@ func isTrustedOAuthProvider(ctx context.Context, provider string) bool {
 		return false
 	}
 	return customOAuthConfigByProvider.Result.IsTrusted
+}
+
+// getProviderJSONUserRolesPath returns the JSONUserRolesPath configured for a custom OAuth provider.
+// Returns empty string if the provider is a built-in provider or if the config cannot be retrieved.
+func getProviderJSONUserRolesPath(ctx context.Context, provider string) string {
+	customOAuthConfigByProvider := &query.GetCustomOAuthConfigByProvider{Provider: provider}
+	err := bus.Dispatch(ctx, customOAuthConfigByProvider)
+	if err != nil {
+		return ""
+	}
+	return customOAuthConfigByProvider.Result.JSONUserRolesPath
 }
 
 // OAuthCallback handles the redirect back from the OAuth provider
@@ -277,10 +289,13 @@ func SignInByOAuth() web.HandlerFunc {
 	}
 }
 
-// hasAllowedRole checks if the user has any of the allowed roles configured in OAUTH_ALLOWED_ROLES
-// If OAUTH_ALLOWED_ROLES is not set or empty, all users are allowed (returns true)
-// If set, user must have at least one of the specified roles
-func hasAllowedRole(userRoles []string) bool {
+// hasAllowedRole checks if the user has any of the allowed roles configured in OAUTH_ALLOWED_ROLES.
+// If OAUTH_ALLOWED_ROLES is not set or empty, all users are allowed (returns true).
+// If the provider has no JSONUserRolesPath configured, the role check is skipped (returns true).
+// This ensures that providers without a roles path (e.g. built-in Google/GitHub OAuth) are never
+// accidentally blocked in a multi-provider setup where OAUTH_ALLOWED_ROLES is configured for a
+// different provider that does return roles.
+func hasAllowedRole(userRoles []string, jsonUserRolesPath string) bool {
 	allowedRolesConfig := strings.TrimSpace(env.Config.OAuth.AllowedRoles)
 
 	// If no roles restriction is configured, allow all users
@@ -288,8 +303,13 @@ func hasAllowedRole(userRoles []string) bool {
 		return true
 	}
 
-	// Parse allowed roles from config (semicolon-separated)
-	allowedRoles := strings.Split(allowedRolesConfig, ";")
+	// If the provider has no roles path configured, skip the role check for this provider
+	if strings.TrimSpace(jsonUserRolesPath) == "" {
+		return true
+	}
+
+	// Parse allowed roles from config (comma-separated)
+	allowedRoles := strings.Split(allowedRolesConfig, ",")
 	allowedRolesMap := make(map[string]bool)
 	for _, role := range allowedRoles {
 		role = strings.TrimSpace(role)

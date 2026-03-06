@@ -211,118 +211,75 @@ func extractRolesFromJSON(jsonBody string, rolesPath string) []string {
 		return nil
 	}
 
-	// Parse the JSON body
-	var data map[string]interface{}
-	if err := json.Unmarshal([]byte(jsonBody), &data); err != nil {
-		return nil
-	}
-
-	// Check if we need to extract a field from array of objects (e.g., "roles[].id")
+	// Split "roles[].id" into actualPath="roles" and fieldToExtract="id"
 	var fieldToExtract string
 	var actualPath string
-
 	if strings.Contains(rolesPath, "[].") {
-		parts := strings.Split(rolesPath, "[].")
-		if len(parts) == 2 {
-			actualPath = parts[0]
-			fieldToExtract = parts[1]
-		}
+		parts := strings.SplitN(rolesPath, "[].", 2)
+		actualPath = parts[0]
+		fieldToExtract = parts[1]
 	} else {
 		actualPath = rolesPath
 	}
 
-	// Navigate to the value using the path
-	value := navigateJSONPath(data, actualPath)
-	if value == nil {
+	// Use jsonq to navigate to the value at actualPath
+	rawBytes := jsonq.New(jsonBody).Raw(actualPath)
+	if rawBytes == nil {
 		return nil
 	}
 
-	// If it's an array
-	if arr, ok := value.([]interface{}); ok {
-		roles := make([]string, 0)
-
-		// If we need to extract a field from objects
+	// Try to unmarshal as an array
+	var arr []json.RawMessage
+	if err := json.Unmarshal(rawBytes, &arr); err == nil {
+		roles := make([]string, 0, len(arr))
 		if fieldToExtract != "" {
+			// Array of objects — extract the named field from each element
 			for _, item := range arr {
-				if obj, ok := item.(map[string]interface{}); ok {
-					if fieldValue, exists := obj[fieldToExtract]; exists {
-						if roleStr, ok := fieldValue.(string); ok && roleStr != "" {
-							roles = append(roles, strings.TrimSpace(roleStr))
-						}
+				obj := jsonq.New(string(item))
+				if s := strings.TrimSpace(obj.String(fieldToExtract)); s != "" {
+					roles = append(roles, s)
+				}
+			}
+		} else {
+			// Array of plain strings
+			for _, item := range arr {
+				var s string
+				if err := json.Unmarshal(item, &s); err == nil {
+					if s = strings.TrimSpace(s); s != "" {
+						roles = append(roles, s)
 					}
 				}
 			}
-		} else {
-			// Array of strings
-			for _, item := range arr {
-				if roleStr, ok := item.(string); ok && roleStr != "" {
-					roles = append(roles, strings.TrimSpace(roleStr))
-				}
-			}
 		}
-
 		if len(roles) > 0 {
 			return roles
 		}
-	}
-
-	// If it's a string, try splitting
-	if str, ok := value.(string); ok {
-		str = strings.TrimSpace(str)
-		if str != "" {
-			// Try splitting by semicolon first, then comma
-			var roles []string
-			if strings.Contains(str, ";") {
-				roles = strings.Split(str, ";")
-			} else if strings.Contains(str, ",") {
-				roles = strings.Split(str, ",")
-			} else {
-				roles = []string{str}
-			}
-
-			// Trim whitespace from each role
-			cleanRoles := make([]string, 0)
-			for _, role := range roles {
-				role = strings.TrimSpace(role)
-				if role != "" {
-					cleanRoles = append(cleanRoles, role)
-				}
-			}
-			return cleanRoles
-		}
-	}
-
-	return nil
-}
-
-// navigateJSONPath navigates through nested JSON structure using dot notation
-// e.g., "user.profile.roles" will navigate data["user"]["profile"]["roles"]
-func navigateJSONPath(data map[string]interface{}, path string) interface{} {
-	if path == "" {
 		return nil
 	}
 
-	parts := strings.Split(path, ".")
-	var current interface{} = data
-
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			continue
-		}
-
-		if m, ok := current.(map[string]interface{}); ok {
-			if value, exists := m[part]; exists {
-				current = value
-			} else {
-				return nil
-			}
-		} else {
+	// Try to unmarshal as a plain string (comma-separated or single value)
+	var str string
+	if err := json.Unmarshal(rawBytes, &str); err == nil {
+		str = strings.TrimSpace(str)
+		if str == "" {
 			return nil
 		}
+		var parts []string
+		if strings.Contains(str, ",") {
+			parts = strings.Split(str, ",")
+		} else {
+			parts = []string{str}
+		}
+		roles := make([]string, 0, len(parts))
+		for _, r := range parts {
+			if r = strings.TrimSpace(r); r != "" {
+				roles = append(roles, r)
+			}
+		}
+		return roles
 	}
 
-	return current
+	return nil
 }
 
 func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizationURL) error {

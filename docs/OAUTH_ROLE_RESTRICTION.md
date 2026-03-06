@@ -9,12 +9,13 @@ This feature allows you to restrict OAuth login to users who have specific roles
 Add the following environment variable to your `.env` file:
 
 ```bash
-OAUTH_ALLOWED_ROLES=ROLE_ADMIN;ROLE_TEACHER
+OAUTH_ALLOWED_ROLES=ROLE_ADMIN,ROLE_TEACHER
 ```
 
-- **Format**: Semicolon-separated list of role names
+- **Format**: Comma-separated list of role names
 - **Case-sensitive**: Role names are matched exactly as they appear in the OAuth response
 - **Optional**: If not set or empty, all users are allowed to login (default behavior)
+- **Per-provider enforcement**: The role check is only applied to OAuth providers that have a **JSON User Roles Path** configured. Providers without a roles path (e.g. built-in Google or GitHub OAuth) are always allowed through, even when `OAUTH_ALLOWED_ROLES` is set. This prevents accidentally blocking users from providers that don't return roles.
 
 ### Examples
 
@@ -25,7 +26,7 @@ OAUTH_ALLOWED_ROLES=ROLE_ADMIN
 
 #### Allow admins and teachers:
 ```bash
-OAUTH_ALLOWED_ROLES=ROLE_ADMIN;ROLE_TEACHER
+OAUTH_ALLOWED_ROLES=ROLE_ADMIN,ROLE_TEACHER
 ```
 
 #### Allow all users (default):
@@ -100,7 +101,7 @@ This extracts the `id` field from each object in the `roles` array.
 ```
 **JSON User Roles Path**: `user.groups[].name`
 
-#### Comma or semicolon-separated string:
+#### Comma-separated string:
 ```json
 {
   "id": "12345",
