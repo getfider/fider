@@ -21,6 +21,7 @@ type SaveCustomOAuthConfig struct {
 	JSONUserNamePath  string
 	JSONUserEmailPath string
 	JSONUserRolesPath string
+	AllowedRoles      string
 }
 
 type ParseOAuthRawProfile struct {

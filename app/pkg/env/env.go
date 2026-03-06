@@ -99,7 +99,6 @@ type config struct {
 			ClientID string `env:"OAUTH_GITHUB_CLIENTID"`
 			Secret   string `env:"OAUTH_GITHUB_SECRET"`
 		}
-		AllowedRoles string `env:"OAUTH_ALLOWED_ROLES"`
 	}
 	Email struct {
 		Type      string `env:"EMAIL"` // possible values: smtp, mailgun, awsses

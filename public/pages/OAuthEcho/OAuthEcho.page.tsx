@@ -16,6 +16,8 @@ interface OAuthEchoPageProps {
     email: string
     roles: string[]
   }
+  configuredRolesPath: string
+  configuredAllowedRoles: string
 }
 
 const ok = <Icon sprite={IconCheckCircle} className="h-4 text-green-500" />
@@ -41,6 +43,17 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, a
     const nameOk = this.props.profile && this.props.profile.name !== "Anonymous"
     const emailOk = this.props.profile && this.props.profile.email !== ""
     const hasRoles = this.props.profile && this.props.profile.roles && this.props.profile.roles.length > 0
+
+    const { configuredRolesPath, configuredAllowedRoles } = this.props
+    const roleCheckConfigured = configuredRolesPath && configuredAllowedRoles
+    let roleCheckPasses = true
+    if (roleCheckConfigured && this.props.profile) {
+      const allowed = configuredAllowedRoles
+        .split(",")
+        .map((r) => r.trim())
+        .filter((r) => r !== "")
+      roleCheckPasses = allowed.length === 0 || (this.props.profile.roles || []).some((r) => allowed.includes(r.trim()))
+    }
 
     let responseBody = ""
     try {
@@ -89,8 +102,26 @@ export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, a
               {hasRoles ? ok : warn}
               <strong>Roles:</strong> {hasRoles ? this.props.profile.roles.join(", ") : "(none)"}
             </HStack>
-            <span className="text-muted">Roles are optional and used for role-based access control when OAUTH_ALLOWED_ROLES is configured.</span>
+            <span className="text-muted">
+              Roles are optional and used for role-based access control when <strong>Allowed Roles</strong> is configured on this provider.
+            </span>
           </VStack>
+          {roleCheckConfigured && (
+            <VStack>
+              <HStack>
+                {roleCheckPasses ? ok : error}
+                <strong>Role check:</strong>{" "}
+                {roleCheckPasses ? (
+                  <span className="text-green-700">Pass</span>
+                ) : (
+                  <span className="text-red-700">Fail — this user would be redirected to /access-denied</span>
+                )}
+              </HStack>
+              <span className="text-muted">
+                Configured roles path: <strong>{configuredRolesPath}</strong> · Allowed roles: <strong>{configuredAllowedRoles}</strong>
+              </span>
+            </VStack>
+          )}
         </VStack>
       </>
     )

@@ -28,6 +28,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
   const [jsonUserNamePath, setJSONUserNamePath] = useState((props.config && props.config.jsonUserNamePath) || "")
   const [jsonUserEmailPath, setJSONUserEmailPath] = useState((props.config && props.config.jsonUserEmailPath) || "")
   const [jsonUserRolesPath, setJSONUserRolesPath] = useState((props.config && props.config.jsonUserRolesPath) || "")
+  const [allowedRoles, setAllowedRoles] = useState((props.config && props.config.allowedRoles) || "")
   const [logo, setLogo] = useState<ImageUpload | undefined>()
   const [logoURL, setLogoURL] = useState<string | undefined>()
   const [logoBlobKey, setLogoBlobKey] = useState((props.config && props.config.logoBlobKey) || "")
@@ -49,6 +50,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
       jsonUserNamePath,
       jsonUserEmailPath,
       jsonUserRolesPath,
+      allowedRoles,
       logo,
     })
     if (result.ok) {
@@ -153,7 +155,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
         <h3 className="text-title mt-8 mb-2">JSON Path</h3>
         <p>
           Find out more about{" "}
-          <a rel="noopener" className="text-link" target="_blank" href="https://fider.io/docs/configuring-oauth#configuring-the-json-paths">
+          <a rel="noopener" className="text-link" target="_blank" href="https://docs.fider.io/configuring-oauth#configuring-the-json-paths">
             configuring the JSON Paths
           </a>
           .
@@ -202,9 +204,23 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             disabled={!fider.session.user.isAdministrator}
             onChange={setJSONUserRolesPath}
           >
-            <p className="text-muted">Optional. Used for role-based access control.</p>
+            <p className="text-muted">Optional. JSON path to extract roles from the provider profile.</p>
           </Input>
         </div>
+
+        <Input
+          field="allowedRoles"
+          label="Allowed Roles"
+          maxLength={500}
+          value={allowedRoles}
+          disabled={!fider.session.user.isAdministrator}
+          onChange={setAllowedRoles}
+        >
+          <p className="text-muted">
+            Optional. Comma-separated list of roles allowed to sign in, e.g. <strong>ROLE_ADMIN,ROLE_TEACHER</strong>. Only enforced when a Roles JSON path is
+            also configured. Leave empty to allow all roles.
+          </p>
+        </Input>
 
         <Field label="Trusted Source">
           <Toggle field="isTrusted" active={isTrusted} onToggle={setTrusted} label={isTrusted ? "Yes" : "No"} />

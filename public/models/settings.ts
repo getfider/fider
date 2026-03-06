@@ -48,6 +48,7 @@ export interface OAuthConfig {
   jsonUserNamePath: string
   jsonUserEmailPath: string
   jsonUserRolesPath: string
+  allowedRoles: string
   isTrusted: boolean
 }
 

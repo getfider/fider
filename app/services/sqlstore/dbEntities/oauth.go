@@ -23,12 +23,17 @@ type OAuthConfig struct {
 	JSONUserNamePath  string         `db:"json_user_name_path"`
 	JSONUserEmailPath string         `db:"json_user_email_path"`
 	JSONUserRolesPath sql.NullString `db:"json_user_roles_path"`
+	AllowedRoles      sql.NullString `db:"allowed_roles"`
 }
 
 func (m *OAuthConfig) ToModel() *entity.OAuthConfig {
 	rolesPath := ""
 	if m.JSONUserRolesPath.Valid {
 		rolesPath = m.JSONUserRolesPath.String
+	}
+	allowedRoles := ""
+	if m.AllowedRoles.Valid {
+		allowedRoles = m.AllowedRoles.String
 	}
 
 	return &entity.OAuthConfig{
@@ -48,5 +53,6 @@ func (m *OAuthConfig) ToModel() *entity.OAuthConfig {
 		JSONUserNamePath:  m.JSONUserNamePath,
 		JSONUserEmailPath: m.JSONUserEmailPath,
 		JSONUserRolesPath: rolesPath,
+		AllowedRoles:      allowedRoles,
 	}
 }

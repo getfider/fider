@@ -28,6 +28,7 @@ type OAuthConfig struct {
 	JSONUserNamePath  string
 	JSONUserEmailPath string
 	JSONUserRolesPath string
+	AllowedRoles      string
 }
 
 // MarshalJSON returns the JSON encoding of OAuthConfig
@@ -53,5 +54,6 @@ func (o OAuthConfig) MarshalJSON() ([]byte, error) {
 		"jsonUserNamePath":  o.JSONUserNamePath,
 		"jsonUserEmailPath": o.JSONUserEmailPath,
 		"jsonUserRolesPath": o.JSONUserRolesPath,
+		"allowedRoles":      o.AllowedRoles,
 	})
 }
