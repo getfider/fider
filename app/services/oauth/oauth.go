@@ -3,6 +3,7 @@ package oauth
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -120,10 +121,17 @@ func parseOAuthRawProfile(ctx context.Context, c *cmd.ParseOAuthRawProfile) erro
 	// Extract and combine name parts
 	name := extractCompositeName(query, config.JSONUserNamePath)
 
+	// Extract roles if path is configured
+	var roles []string
+	if config.JSONUserRolesPath != "" {
+		roles = extractRolesFromJSON(c.Body, config.JSONUserRolesPath)
+	}
+
 	profile := &dto.OAuthUserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
 		Name:  name,
 		Email: strings.ToLower(strings.TrimSpace(query.String(config.JSONUserEmailPath))),
+		Roles: roles,
 	}
 
 	if profile.ID == "" {
@@ -191,6 +199,87 @@ func extractCompositeName(query *jsonq.Query, namePath string) string {
 	}
 
 	return ""
+}
+
+// Supports formats:
+// - "roles" for array of strings: ["ROLE_ADMIN", "ROLE_USER"]
+// - "roles[].id" for array of objects: [{"id": "ROLE_ADMIN"}, {"id": "ROLE_USER"}]
+// - "user.roles[].name" for nested array of objects
+func extractRolesFromJSON(jsonBody string, rolesPath string) []string {
+	rolesPath = strings.TrimSpace(rolesPath)
+	if rolesPath == "" {
+		return nil
+	}
+
+	// Split "roles[].id" into actualPath="roles" and fieldToExtract="id"
+	var fieldToExtract string
+	var actualPath string
+	if strings.Contains(rolesPath, "[].") {
+		parts := strings.SplitN(rolesPath, "[].", 2)
+		actualPath = parts[0]
+		fieldToExtract = parts[1]
+	} else {
+		actualPath = rolesPath
+	}
+
+	// Use jsonq to navigate to the value at actualPath
+	rawBytes := jsonq.New(jsonBody).Raw(actualPath)
+	if rawBytes == nil {
+		return nil
+	}
+
+	// Try to unmarshal as an array
+	var arr []json.RawMessage
+	if err := json.Unmarshal(rawBytes, &arr); err == nil {
+		roles := make([]string, 0, len(arr))
+		if fieldToExtract != "" {
+			// Array of objects — extract the named field from each element
+			for _, item := range arr {
+				obj := jsonq.New(string(item))
+				if s := strings.TrimSpace(obj.String(fieldToExtract)); s != "" {
+					roles = append(roles, s)
+				}
+			}
+		} else {
+			// Array of plain strings
+			for _, item := range arr {
+				var s string
+				if err := json.Unmarshal(item, &s); err == nil {
+					if s = strings.TrimSpace(s); s != "" {
+						roles = append(roles, s)
+					}
+				}
+			}
+		}
+		if len(roles) > 0 {
+			return roles
+		}
+		return nil
+	}
+
+	// Try to unmarshal as a plain string (comma-separated or single value)
+	var str string
+	if err := json.Unmarshal(rawBytes, &str); err == nil {
+		str = strings.TrimSpace(str)
+		if str == "" {
+			return nil
+		}
+		var parts []string
+		if strings.Contains(str, ",") {
+			parts = strings.Split(str, ",")
+		} else {
+			parts = []string{str}
+		}
+		roles := make([]string, 0, len(parts))
+		for _, r := range parts {
+			if r = strings.TrimSpace(r); r != "" {
+				roles = append(roles, r)
+			}
+		}
+		return roles
+	}
+
+	return nil
 }
 
 func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizationURL) error {

@@ -242,6 +242,8 @@ func SaveOAuthConfig() web.HandlerFunc {
 				JSONUserIDPath:    action.JSONUserIDPath,
 				JSONUserNamePath:  action.JSONUserNamePath,
 				JSONUserEmailPath: action.JSONUserEmailPath,
+				JSONUserRolesPath: action.JSONUserRolesPath,
+				AllowedRoles:      action.AllowedRoles,
 			},
 		); err != nil {
 			return c.Failure(err)

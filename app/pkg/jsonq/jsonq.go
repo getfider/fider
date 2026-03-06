@@ -86,6 +86,16 @@ func (q *Query) Contains(selector string) bool {
 	return q.get(selector) != nil
 }
 
+//Raw returns the raw JSON bytes at the given dot-notation selector, or nil if not found.
+func (q *Query) Raw(selector string) []byte {
+	msg := q.get(selector)
+	if msg == nil {
+		return nil
+	}
+	b, _ := msg.MarshalJSON()
+	return b
+}
+
 func (q *Query) get(selector string) *json.RawMessage {
 	if selector == "" {
 		return nil
