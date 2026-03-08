@@ -3,7 +3,7 @@ package oauth
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
+
 	"fmt"
 	"net/url"
 	"strings"
@@ -201,85 +201,55 @@ func extractCompositeName(query *jsonq.Query, namePath string) string {
 	return ""
 }
 
+// extractRolesFromJSON extracts role strings from a JSON body at the given path.
 // Supports formats:
 // - "roles" for array of strings: ["ROLE_ADMIN", "ROLE_USER"]
 // - "roles[].id" for array of objects: [{"id": "ROLE_ADMIN"}, {"id": "ROLE_USER"}]
 // - "user.roles[].name" for nested array of objects
+// - "role" for a single string or comma-separated value
 func extractRolesFromJSON(jsonBody string, rolesPath string) []string {
 	rolesPath = strings.TrimSpace(rolesPath)
 	if rolesPath == "" {
 		return nil
 	}
 
-	// Split "roles[].id" into actualPath="roles" and fieldToExtract="id"
-	var fieldToExtract string
-	var actualPath string
+	q := jsonq.New(jsonBody)
+
+	// "roles[].id" — array of objects, extract field from each
 	if strings.Contains(rolesPath, "[].") {
 		parts := strings.SplitN(rolesPath, "[].", 2)
-		actualPath = parts[0]
-		fieldToExtract = parts[1]
-	} else {
-		actualPath = rolesPath
+		return trimNonEmpty(q.ArrayFieldStrings(parts[0], parts[1]))
 	}
 
-	// Use jsonq to navigate to the value at actualPath
-	rawBytes := jsonq.New(jsonBody).Raw(actualPath)
-	if rawBytes == nil {
+	// "roles" — array of strings or single (possibly comma-separated) string
+	values := q.Strings(rolesPath)
+	if len(values) == 0 {
 		return nil
 	}
 
-	// Try to unmarshal as an array
-	var arr []json.RawMessage
-	if err := json.Unmarshal(rawBytes, &arr); err == nil {
-		roles := make([]string, 0, len(arr))
-		if fieldToExtract != "" {
-			// Array of objects — extract the named field from each element
-			for _, item := range arr {
-				obj := jsonq.New(string(item))
-				if s := strings.TrimSpace(obj.String(fieldToExtract)); s != "" {
-					roles = append(roles, s)
-				}
-			}
-		} else {
-			// Array of plain strings
-			for _, item := range arr {
-				var s string
-				if err := json.Unmarshal(item, &s); err == nil {
-					if s = strings.TrimSpace(s); s != "" {
-						roles = append(roles, s)
-					}
-				}
-			}
-		}
-		if len(roles) > 0 {
-			return roles
-		}
+	// Single string may contain comma-separated roles
+	if len(values) == 1 && strings.Contains(values[0], ",") {
+		values = strings.Split(values[0], ",")
+	}
+
+	return trimNonEmpty(values)
+}
+
+// trimNonEmpty trims whitespace from each string and returns only non-empty values.
+func trimNonEmpty(ss []string) []string {
+	if ss == nil {
 		return nil
 	}
-
-	// Try to unmarshal as a plain string (comma-separated or single value)
-	var str string
-	if err := json.Unmarshal(rawBytes, &str); err == nil {
-		str = strings.TrimSpace(str)
-		if str == "" {
-			return nil
+	result := make([]string, 0, len(ss))
+	for _, s := range ss {
+		if s = strings.TrimSpace(s); s != "" {
+			result = append(result, s)
 		}
-		var parts []string
-		if strings.Contains(str, ",") {
-			parts = strings.Split(str, ",")
-		} else {
-			parts = []string{str}
-		}
-		roles := make([]string, 0, len(parts))
-		for _, r := range parts {
-			if r = strings.TrimSpace(r); r != "" {
-				roles = append(roles, r)
-			}
-		}
-		return roles
 	}
-
-	return nil
+	if len(result) == 0 {
+		return nil
+	}
+	return result
 }
 
 func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizationURL) error {
