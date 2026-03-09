@@ -16,11 +16,13 @@ import (
 type SignInByEmail struct {
 	Email            string `json:"email" format:"lower"`
 	VerificationCode string
+	LinkKey          string
 }
 
 func NewSignInByEmail() *SignInByEmail {
 	return &SignInByEmail{
 		VerificationCode: entity.GenerateEmailVerificationCode(),
+		LinkKey:          entity.GenerateEmailVerificationKey(),
 	}
 }
 
@@ -118,11 +120,13 @@ type SignInByEmailWithName struct {
 	Email            string `json:"email" format:"lower"`
 	Name             string `json:"name"`
 	VerificationCode string
+	LinkKey          string
 }
 
 func NewSignInByEmailWithName() *SignInByEmailWithName {
 	return &SignInByEmailWithName{
 		VerificationCode: entity.GenerateEmailVerificationCode(),
+		LinkKey:          entity.GenerateEmailVerificationKey(),
 	}
 }
 
