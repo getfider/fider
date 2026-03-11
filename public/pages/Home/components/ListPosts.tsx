@@ -1,6 +1,6 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { ShowTag, Markdown, Icon, ResponseLozenge } from "@fider/components"
+import { ShowTag, Markdown, Icon, ResponseLozenge, VoteCounter } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
@@ -54,9 +54,8 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
           </HStack>
         )}
         <HStack justify="between" align="center">
-          <div className="c-posts-container__post-votes">
-            <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
-            <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+          <div onClick={(e) => e.preventDefault()}>
+            <VoteCounter post={props.post} />
           </div>
           {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />}
         </HStack>
@@ -91,7 +90,7 @@ const MinimalListPostItem = (props: { post: Post; tags: Tag[]; onPostClick?: (po
             <ResponseLozenge status={props.post.status} response={props.post.response} size={"micro"} />
           </div>
         ) : (
-          <span className="text-gray-700 text-sm">+{props.post.votesCount}</span>
+          <span className={props.post.hasVoted ? "text-primary text-semibold text-sm" : "text-gray-700 text-sm"}>+{props.post.votesCount}</span>
         )}
       </HStack>
     </HStack>
