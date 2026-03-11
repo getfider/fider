@@ -56,7 +56,15 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
         <HStack justify="between" align="center">
           <div className="c-posts-container__post-votes">
             <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
-            <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+            <span className="text-gray-700">
+              {props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}
+              {props.post.hasVoted && (
+                <>
+                  {" · "}
+                  <Trans id="action.voted">Voted!</Trans>
+                </>
+              )}
+            </span>
           </div>
           {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />}
         </HStack>
