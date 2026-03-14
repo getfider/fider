@@ -110,23 +110,9 @@ func OAuthToken() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		// Check if user has the required roles for this provider.
-		// Both AllowedRoles and JSONUserRolesPath must be set on the provider for the check to run.
-		var providerRolesPath, providerAllowedRoles string
-		if customConfig != nil {
-			providerRolesPath = customConfig.JSONUserRolesPath
-			providerAllowedRoles = customConfig.AllowedRoles
-		}
-		if !hasAllowedRole(oauthUser.Result.Roles, providerRolesPath, providerAllowedRoles) {
-			log.Warnf(c, "User @{UserID} attempted OAuth login but does not have required role. User roles: @{UserRoles}, Allowed roles: @{AllowedRoles}",
-				dto.Props{
-					"UserID":       oauthUser.Result.ID,
-					"UserRoles":    oauthUser.Result.Roles,
-					"AllowedRoles": providerAllowedRoles,
-				})
-			return c.Redirect("/access-denied")
-		}
-
+		// Look up the existing Fider user first (by provider UID, then by email).
+		// We need this before the role check so that administrators and collaborators
+		// can always sign in regardless of OAuth role changes.
 		var user *entity.User
 
 		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.Result.ID}
@@ -137,6 +123,26 @@ func OAuthToken() web.HandlerFunc {
 			userByEmail := &query.GetUserByEmail{Email: oauthUser.Result.Email}
 			err = bus.Dispatch(c, userByEmail)
 			user = userByEmail.Result
+		}
+
+		// Check if user has the required roles for this provider.
+		// Both AllowedRoles and JSONUserRolesPath must be set on the provider for the check to run.
+		// Administrators and collaborators already trusted in Fider are always allowed through,
+		// regardless of their current OAuth roles.
+		var providerRolesPath, providerAllowedRoles string
+		if customConfig != nil {
+			providerRolesPath = customConfig.JSONUserRolesPath
+			providerAllowedRoles = customConfig.AllowedRoles
+		}
+		isFiderPrivileged := user != nil && (user.Role == enum.RoleAdministrator || user.Role == enum.RoleCollaborator)
+		if !isFiderPrivileged && !hasAllowedRole(oauthUser.Result.Roles, providerRolesPath, providerAllowedRoles) {
+			log.Warnf(c, "User @{UserID} attempted OAuth login but does not have required role. User roles: @{UserRoles}, Allowed roles: @{AllowedRoles}",
+				dto.Props{
+					"UserID":       oauthUser.Result.ID,
+					"UserRoles":    oauthUser.Result.Roles,
+					"AllowedRoles": providerAllowedRoles,
+				})
+			return c.Redirect("/access-denied")
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
