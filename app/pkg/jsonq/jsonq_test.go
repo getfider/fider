@@ -136,3 +136,66 @@ func TestContainsNested(t *testing.T) {
 	Expect(query.Contains("name")).IsFalse()
 	Expect(query.Contains("failures.what")).IsFalse()
 }
+
+func TestStrings_ArrayOfStrings(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "roles": ["ROLE_ADMIN", "ROLE_USER"] }`)
+	Expect(query.Strings("roles")).Equals([]string{"ROLE_ADMIN", "ROLE_USER"})
+}
+
+func TestStrings_SingleString(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "role": "ROLE_ADMIN" }`)
+	Expect(query.Strings("role")).Equals([]string{"ROLE_ADMIN"})
+}
+
+func TestStrings_NestedPath(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "user": { "profile": { "roles": ["ROLE_ADMIN"] } } }`)
+	Expect(query.Strings("user.profile.roles")).Equals([]string{"ROLE_ADMIN"})
+}
+
+func TestStrings_MissingSelectorReturnsNil(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "name": "Jon" }`)
+	Expect(query.Strings("roles")).IsNil()
+}
+
+func TestStrings_EmptyArrayReturnsNil(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "roles": [] }`)
+	Expect(query.Strings("roles")).IsNil()
+}
+
+func TestArrayFieldStrings_ExtractField(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "roles": [{"id": "ROLE_ADMIN", "name": "Admin"}, {"id": "ROLE_USER", "name": "User"}] }`)
+	Expect(query.ArrayFieldStrings("roles", "id")).Equals([]string{"ROLE_ADMIN", "ROLE_USER"})
+}
+
+func TestArrayFieldStrings_NestedPath(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "user": { "groups": [{"name": "ROLE_ADMIN"}, {"name": "ROLE_USER"}] } }`)
+	Expect(query.ArrayFieldStrings("user.groups", "name")).Equals([]string{"ROLE_ADMIN", "ROLE_USER"})
+}
+
+func TestArrayFieldStrings_MissingSelectorReturnsNil(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "name": "Jon" }`)
+	Expect(query.ArrayFieldStrings("roles", "id")).IsNil()
+}
+
+func TestArrayFieldStrings_NotArrayReturnsNil(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "roles": "not an array" }`)
+	Expect(query.ArrayFieldStrings("roles", "id")).IsNil()
+}
