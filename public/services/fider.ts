@@ -42,9 +42,7 @@ export class FiderSession {
   }
 
   public get isModerationRequiredForNewPost(): boolean {
-    return (
-      this.pTenant.isPro && this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isTrusted
-    )
+    return this.pTenant.isPro && this.pTenant.isModerationEnabled && this.isAuthenticated && this.pUser!.role === "visitor" && !this.pUser!.isTrusted
   }
 
   public get showModerationControls(): boolean {
