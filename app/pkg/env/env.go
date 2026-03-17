@@ -146,11 +146,6 @@ type config struct {
 	}
 	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
 	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
-	License          struct {
-		PrivateKey string `env:"LICENSE_PRIVATE_KEY"` // Ed25519 private key for hosted instances (base64 encoded)
-		PublicKey  string `env:"LICENSE_PUBLIC_KEY"`  // Ed25519 public key for license validation (base64 encoded)
-		Key        string `env:"COMMERCIAL_KEY"`      // Self-hosted instance's license key
-	}
 }
 
 // Config is a strongly typed reference to all configuration parsed from Environment Variables
