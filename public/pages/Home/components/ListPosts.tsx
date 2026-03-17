@@ -2,6 +2,7 @@ import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
 import { ShowTag, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
+import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
@@ -56,15 +57,13 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
         <HStack justify="between" align="center">
           <div className="c-posts-container__post-votes">
             <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
-            <span className="text-gray-700">
-              {props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}
-              {props.post.hasVoted && (
-                <>
-                  {" · "}
-                  <Trans id="action.voted">Voted!</Trans>
-                </>
-              )}
-            </span>
+            <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+            {props.post.hasVoted && (
+              <span className="text-xs text-blue-600 ml-2" style={{ display: "inline-flex", alignItems: "center" }}>
+                <Icon sprite={IconCheck} className="h-3 w-3 mr-1" />
+                <Trans id="action.voted">Voted!</Trans>
+              </span>
+            )}
           </div>
           {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />}
         </HStack>
