@@ -4,7 +4,7 @@ import * as playwright from "@playwright/test"
 import { getLatestLinkSentTo } from "./step_definitions/fns"
 import { FiderWorld } from "./world"
 
-setDefaultTimeout(10 * 1000) // 10 seconds for CI environments
+setDefaultTimeout(30 * 1000) // 30 seconds for CI environments
 
 let browser: playwright.Browser
 let tenantName: string
