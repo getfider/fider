@@ -91,12 +91,20 @@ func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) er
 				c.Scope, c.JSONUserIDPath, c.JSONUserNamePath,
 				c.JSONUserEmailPath, c.JSONUserRolesPath, c.AllowedRoles, c.Logo.BlobKey)
 		} else {
+			// Detect if allowed_roles is being changed. If so, we must rotate all
+			// user security stamps so that currently-logged-in users are forced to
+			// re-authenticate and have their OAuth roles re-evaluated.
+			var prevAllowedRoles string
+			_ = trx.Scalar(&prevAllowedRoles,
+				"SELECT COALESCE(allowed_roles, '') FROM oauth_providers WHERE tenant_id = $1 AND id = $2",
+				tenant.ID, c.ID)
+
 			query := `
 				UPDATE oauth_providers 
 				SET display_name = $3, status = $4, client_id = $5, client_secret = $6, 
-						authorize_url = $7, profile_url = $8, token_url = $9, scope = $10, 
-						json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13,
-						json_user_roles_path = $14, allowed_roles = $15, logo_bkey = $16, is_trusted = $17
+					authorize_url = $7, profile_url = $8, token_url = $9, scope = $10,
+					json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13,
+					json_user_roles_path = $14, allowed_roles = $15, logo_bkey = $16, is_trusted = $17
 			WHERE tenant_id = $1 AND id = $2`
 
 			_, err = trx.Execute(query, tenant.ID, c.ID,
@@ -104,6 +112,16 @@ func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) er
 				c.AuthorizeURL, c.ProfileURL, c.TokenURL,
 				c.Scope, c.JSONUserIDPath, c.JSONUserNamePath,
 				c.JSONUserEmailPath, c.JSONUserRolesPath, c.AllowedRoles, c.Logo.BlobKey, c.IsTrusted)
+
+			if err == nil && prevAllowedRoles != c.AllowedRoles {
+				// Rotate stamps inside the same transaction so the change is atomic.
+				if _, stampErr := trx.Execute(
+					"UPDATE users SET security_stamp = md5(random()::text || id::text) WHERE tenant_id = $1",
+					tenant.ID,
+				); stampErr != nil {
+					return errors.Wrap(stampErr, "failed to rotate security stamps after allowed_roles change")
+				}
+			}
 		}
 
 		if err != nil {
