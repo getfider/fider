@@ -179,6 +179,16 @@ var (
 		IsRTL:             false,
 	}
 
+	// LocaleChineseTW represents Chinese (Traditional)
+	LocaleChineseCN = Locale{
+		Code:              "zh-TW",
+		Name:              "Chinese (Traditional)",
+		MessageFormatCode: "zh-tw",
+		PostgresConfig:    "simple",
+		LinguaLanguage:    lingua.Chinese,
+		IsRTL:             false,
+	}
+
 	// LocalePersian represents Persian (Farsi)
 	LocalePersian = Locale{
 		Code:              "fa",
