@@ -91,9 +91,11 @@ func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) er
 				c.Scope, c.JSONUserIDPath, c.JSONUserNamePath,
 				c.JSONUserEmailPath, c.JSONUserRolesPath, c.AllowedRoles, c.Logo.BlobKey)
 		} else {
-			// Detect if allowed_roles is being changed. If so, we must rotate all
-			// user security stamps so that currently-logged-in users are forced to
-			// re-authenticate and have their OAuth roles re-evaluated.
+			// Detect if allowed_roles is being changed. If so, we must rotate
+			// security stamps for all other users so that currently-logged-in users
+			// are forced to re-authenticate and have their OAuth roles re-evaluated.
+			// The user making this change is excluded so their own session is not
+			// invalidated.
 			var prevAllowedRoles string
 			_ = trx.Scalar(&prevAllowedRoles,
 				"SELECT COALESCE(allowed_roles, '') FROM oauth_providers WHERE tenant_id = $1 AND id = $2",
@@ -115,10 +117,21 @@ func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) er
 
 			if err == nil && prevAllowedRoles != c.AllowedRoles {
 				// Rotate stamps inside the same transaction so the change is atomic.
-				if _, stampErr := trx.Execute(
-					"UPDATE users SET security_stamp = md5(random()::text || id::text) WHERE tenant_id = $1",
-					tenant.ID,
-				); stampErr != nil {
+				// Exclude the current user so they are not forced to re-authenticate
+				// after making the change — their session should remain valid.
+				var stampErr error
+				if user != nil {
+					_, stampErr = trx.Execute(
+						"UPDATE users SET security_stamp = md5(random()::text || id::text) WHERE tenant_id = $1 AND id != $2",
+						tenant.ID, user.ID,
+					)
+				} else {
+					_, stampErr = trx.Execute(
+						"UPDATE users SET security_stamp = md5(random()::text || id::text) WHERE tenant_id = $1",
+						tenant.ID,
+					)
+				}
+				if stampErr != nil {
 					return errors.Wrap(stampErr, "failed to rotate security stamps after allowed_roles change")
 				}
 			}
