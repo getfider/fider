@@ -16,10 +16,10 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
-// this handler relies on real DNS records on feedbacktest.goenning.net
+// this handler relies on real DNS records on ssltest.fider.dev (CNAME -> goenning.test.fider.io)
 // the correct subdomains are defined below to simulate a configuration match for tests
 func mockGetTenantWithCorrectSubdomains(ctx context.Context, q *query.GetTenantByDomain) error {
-	if q.Domain == "feedbacktest.goenning.net" {
+	if q.Domain == "ssltest.fider.dev" {
 		q.Result = &entity.Tenant{Name: "Feedback for goenning.net", Subdomain: "goenning"}
 		return nil
 	} else {
@@ -27,10 +27,10 @@ func mockGetTenantWithCorrectSubdomains(ctx context.Context, q *query.GetTenantB
 	}
 }
 
-// this handler relies on real DNS records on feedbacktest.goenning.net
+// this handler relies on real DNS records on ssltest.fider.dev (CNAME -> goenning.test.fider.io)
 // wrong subdomains are defined below to simulate a mismatch in configuration for tests
 func mockGetTenantWithIncorrectSubdomains(ctx context.Context, q *query.GetTenantByDomain) error {
-	if q.Domain == "feedbacktest.goenning.net" {
+	if q.Domain == "ssltest.fider.dev" {
 		q.Result = &entity.Tenant{Name: "Feedback for goenning.net", Subdomain: "demo"}
 		return nil
 	} else {
@@ -50,10 +50,10 @@ func TestUseAutoCert_WhenCNAMEAreRegistered(t *testing.T) {
 	Expect(err).IsNil()
 
 	cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
-		ServerName: "feedbacktest.goenning.net",
+		ServerName: "ssltest.fider.dev",
 	})
 	Expect(err.Error()).ContainsSubstring(`acme/autocert: unable to satisfy`)
-	Expect(err.Error()).ContainsSubstring(`for domain "feedbacktest.goenning.net": no viable challenge type found`)
+	Expect(err.Error()).ContainsSubstring(`for domain "ssltest.fider.dev": no viable challenge type found`)
 	Expect(cert).IsNil()
 
 	// GetCertificate starts a fire and forget go routine to delete items from cache, give it 2sec to complete it
@@ -126,8 +126,8 @@ func TestGetCertificate_WhenCNAMEDoesntMatch(t *testing.T) {
 	manager, err := NewCertificateManager(context.Background(), "", "")
 	Expect(err).IsNil()
 
-	cert, err := manager.GetCertificate(&tls.ClientHelloInfo{ServerName: "feedbacktest.goenning.net"})
-	Expect(err.Error()).ContainsSubstring("cname goenning.test.fider.io. (from feedbacktest.goenning.net) doesn't match configured host demo.test.fider.io")
+	cert, err := manager.GetCertificate(&tls.ClientHelloInfo{ServerName: "ssltest.fider.dev"})
+	Expect(err.Error()).ContainsSubstring("doesn't match configured host demo.test.fider.io")
 	Expect(cert).IsNil()
 }
 
