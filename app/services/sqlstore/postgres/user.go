@@ -279,8 +279,8 @@ func updateCurrentUser(ctx context.Context, c *cmd.UpdateCurrentUser) error {
 		if c.Avatar.Remove {
 			c.Avatar.BlobKey = ""
 		}
-		cmd := "UPDATE users SET name = $3, avatar_type = $4, avatar_bkey = $5, security_stamp = $6 WHERE id = $1 AND tenant_id = $2"
-		_, err := trx.Execute(cmd, user.ID, tenant.ID, c.Name, c.AvatarType, c.Avatar.BlobKey, generateSecurityStamp())
+		cmd := "UPDATE users SET name = $3, avatar_type = $4, avatar_bkey = $5 WHERE id = $1 AND tenant_id = $2"
+		_, err := trx.Execute(cmd, user.ID, tenant.ID, c.Name, c.AvatarType, c.Avatar.BlobKey)
 		if err != nil {
 			return errors.Wrap(err, "failed to update user")
 		}
