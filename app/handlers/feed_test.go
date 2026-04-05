@@ -5,6 +5,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -181,6 +182,59 @@ func TestFeedDisabled(t *testing.T) {
 		Execute(handlers.CommentFeed())
 
 	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestCommentFeedHandler_HTMLEscaped(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID:          1,
+		Number:      1,
+		Title:       "The Post",
+		Slug:        "the-post",
+		Description: "Description of the post",
+		CreatedAt:   time.Date(2023, 1, 1, 10, 0, 0, 0, time.UTC),
+		User:        &entity.User{ID: 1, Name: "Jon Snow"},
+		Status:      enum.PostOpen,
+	}
+
+	xssComment := &entity.Comment{
+		ID:        1,
+		Content:   `<script>alert("XSS")</script>`,
+		CreatedAt: time.Date(2023, 1, 2, 10, 0, 0, 0, time.UTC),
+		User:      &entity.User{ID: 2, Name: "Arya Stark"},
+	}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentsByPost) error {
+		q.Result = []*entity.Comment{xssComment}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAssignedTags) error {
+		q.Result = []*entity.Tag{}
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("path", "1.atom").
+		Execute(handlers.CommentFeed())
+
+	Expect(code).Equals(http.StatusOK)
+
+	body := response.Body.String()
+	// The <script> tag must NOT appear unescaped in the feed output
+	Expect(strings.Contains(body, "<script>")).IsFalse()
+	Expect(strings.Contains(body, "alert(")).IsFalse()
 }
 
 func TestPrivacyEnabled(t *testing.T) {
