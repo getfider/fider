@@ -15,6 +15,7 @@ export interface Tenant {
   isFeedEnabled: boolean
   isModerationEnabled: boolean
   hasCommercialFeatures: boolean
+  defaultSort: string
 }
 
 export enum TenantStatus {

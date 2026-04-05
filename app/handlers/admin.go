@@ -66,6 +66,7 @@ func UpdateSettings() web.HandlerFunc {
 				WelcomeHeader:  action.WelcomeHeader,
 				CNAME:          action.CNAME,
 				Locale:         action.Locale,
+				DefaultSort:    action.DefaultSort,
 			},
 		); err != nil {
 			return c.Failure(err)
