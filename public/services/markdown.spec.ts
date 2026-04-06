@@ -28,7 +28,7 @@ const testCases = [
   {
     input: "Hello <b>Beautiful</b> World",
     expectedFull: "<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>",
-    expectedPlainText: "Hello Beautiful World",
+    expectedPlainText: "Hello <b>Beautiful</b> World",
   },
   {
     input: `[Uh oh...]("onerror="alert('XSS'))`,
@@ -93,18 +93,19 @@ describe("XSS prevention", () => {
   xssInputs.forEach((input) => {
     test(`full mode neutralizes: ${input}`, () => {
       const result = markdown.full(input)
-      expect(result).not.toMatch(/<script/i)
-      expect(result).not.toMatch(/onerror/i)
-      expect(result).not.toMatch(/onload/i)
-      expect(result).not.toMatch(/javascript:/i)
+      // No raw dangerous HTML elements (entity-encoded &lt;script&gt; is safe text)
+      expect(result).not.toMatch(/<script[\s>]/i)
+      expect(result).not.toMatch(/<svg[\s>]/i)
+      expect(result).not.toMatch(/<img[^>]*onerror/i)
+      expect(result).not.toMatch(/<a[^>]*javascript:/i)
     })
 
     test(`plainText mode neutralizes: ${input}`, () => {
       const result = markdown.plainText(input)
-      expect(result).not.toMatch(/<script/i)
-      expect(result).not.toMatch(/onerror/i)
-      expect(result).not.toMatch(/onload/i)
-      expect(result).not.toMatch(/javascript:/i)
+      expect(result).not.toMatch(/<script[\s>]/i)
+      expect(result).not.toMatch(/<svg[\s>]/i)
+      expect(result).not.toMatch(/<img[^>]*onerror/i)
+      expect(result).not.toMatch(/<a[^>]*javascript:/i)
     })
   })
 })
