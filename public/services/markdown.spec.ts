@@ -88,12 +88,7 @@ testCases.forEach((x) => {
 })
 
 describe("XSS prevention", () => {
-  const xssInputs = [
-    '<script>alert(1)</script>',
-    '<img src=x onerror=alert(1)>',
-    '<svg onload=alert(1)>',
-    '<a href="javascript:alert(1)">click</a>',
-  ]
+  const xssInputs = ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>", "<svg onload=alert(1)>", '<a href="javascript:alert(1)">click</a>']
 
   xssInputs.forEach((input) => {
     test(`full mode neutralizes: ${input}`, () => {

@@ -234,7 +234,7 @@ func TestCommentFeedHandler_HTMLEscaped(t *testing.T) {
 	body := response.Body.String()
 	// The <script> tag must NOT appear unescaped in the feed output
 	Expect(strings.Contains(body, "<script>")).IsFalse()
-	Expect(strings.Contains(body, "alert(")).IsFalse()
+	Expect(strings.Contains(body, "</script>")).IsFalse()
 }
 
 func TestPrivacyEnabled(t *testing.T) {
