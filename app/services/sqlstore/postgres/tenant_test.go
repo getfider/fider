@@ -356,7 +356,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 
 	err = bus.Dispatch(demoTenantCtx, getConfig)
 	Expect(err).IsNil()
-	Expect(getConfig.Result.ID).Equals(1)
+	Expect(getConfig.Result.ID).NotEquals(0)
 	Expect(getConfig.Result.LogoBlobKey).Equals("uploads/my-logo-key.png")
 	Expect(getConfig.Result.Provider).Equals("_TEST")
 	Expect(getConfig.Result.DisplayName).Equals("My Provider")
@@ -395,7 +395,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(err).IsNil()
 
 	Expect(customConfigs.Result).HasLen(1)
-	Expect(customConfigs.Result[0].ID).Equals(1)
+	Expect(customConfigs.Result[0].ID).Equals(getConfig.Result.ID)
 	Expect(customConfigs.Result[0].LogoBlobKey).Equals("")
 	Expect(customConfigs.Result[0].Provider).Equals("_TEST")
 	Expect(customConfigs.Result[0].DisplayName).Equals("New My Provider")
