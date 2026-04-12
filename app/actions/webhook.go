@@ -73,7 +73,7 @@ func (action *CreateEditWebhook) Validate(ctx context.Context, _ *entity.User) *
 
 		if previewWebhook.Result.Url.Error != "" {
 			result.AddFieldFailure("url", "URL template must compile to enable the Webhook.")
-		} else if messages := validate.URL(ctx, previewWebhook.Result.Url.Value); len(messages) > 0 {
+		} else if messages := validate.WebhookURL(previewWebhook.Result.Url.Value); len(messages) > 0 {
 			result.AddFieldFailure("url", messages...)
 		}
 
