@@ -6,9 +6,11 @@ import (
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/services/blob"
 )
 
 func TestUploadImage(t *testing.T) {
@@ -17,6 +19,9 @@ func TestUploadImage(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.StoreBlob) error {
 		return nil
+	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetBlobByKey) error {
+		return blob.ErrNotFound
 	})
 
 	uploadImage := &cmd.UploadImage{
@@ -61,6 +66,9 @@ func TestUploadMultipleImages(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.StoreBlob) error {
 		return nil
+	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetBlobByKey) error {
+		return blob.ErrNotFound
 	})
 
 	uploadImages := &cmd.UploadImages{

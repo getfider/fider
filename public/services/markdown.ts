@@ -72,12 +72,13 @@ plainTextRenderer.html = (html) => html
 plainTextRenderer.del = (text) => text
 
 const entities: { [key: string]: string } = {
-  // "<": "&lt;",
-  // ">": "&gt;",
+  "<": "&lt;",
+  ">": "&gt;",
 }
 
 const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag)
-const sanitize = (input: string) => (DOMPurify.isSupported ? DOMPurify.sanitize(input) : input)
+const stripTags = (input: string) => input.replace(/<[^>]*>/g, "")
+const sanitize = (input: string) => (DOMPurify.isSupported ? DOMPurify.sanitize(input) : stripTags(input))
 // Helper function to decode HTML entities back to readable characters
 const decodeHtmlEntities = (text: string): string => {
   return text.replace(/&[#\w]+;/g, (entity) => {
