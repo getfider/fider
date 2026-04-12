@@ -87,7 +87,8 @@ func SignInByEmail() web.HandlerFunc {
 		// Only send code if user exists
 		if userExists {
 			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-				Key:      action.VerificationCode,
+				Key:      action.LinkKey,
+				Code:     action.VerificationCode,
 				Duration: 15 * time.Minute,
 				Request:  action,
 			})
@@ -95,7 +96,7 @@ func SignInByEmail() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationCode))
+			c.Enqueue(tasks.SendSignInEmail(action.Email, action.LinkKey, action.VerificationCode))
 		}
 
 		return c.Ok(web.Map{
@@ -129,7 +130,8 @@ func SignInByEmailWithName() web.HandlerFunc {
 
 		// Save verification with name
 		err = bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      action.VerificationCode,
+			Key:      action.LinkKey,
+			Code:     action.VerificationCode,
 			Duration: 15 * time.Minute,
 			Request:  action,
 		})
@@ -137,7 +139,7 @@ func SignInByEmailWithName() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationCode))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.LinkKey, action.VerificationCode))
 
 		return c.Ok(web.Map{})
 	}
@@ -169,18 +171,20 @@ func VerifySignInCode() web.HandlerFunc {
 
 		result := verification.Result
 
-		// Check if already verified (with grace period)
+		// Code is single-use: reject if already verified
 		if result.VerifiedAt != nil {
-			if time.Since(*result.VerifiedAt) > 5*time.Minute {
-				return c.Gone()
-			}
-		} else {
-			// Check if expired
-			if time.Now().After(result.ExpiresAt) {
-				// Mark as verified to prevent reuse
-				_ = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Code})
-				return c.Gone()
-			}
+			return c.BadRequest(web.Map{
+				"code": "Invalid or expired verification code",
+			})
+		}
+
+		// Check if expired
+		if time.Now().After(result.ExpiresAt) {
+			// Mark as verified to prevent reuse
+			_ = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
+			return c.BadRequest(web.Map{
+				"code": "Invalid or expired verification code",
+			})
 		}
 
 		// Check if user exists
@@ -207,7 +211,7 @@ func VerifySignInCode() web.HandlerFunc {
 					}
 
 					// Mark code as verified
-					err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Code})
+					err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
 					if err != nil {
 						return c.Failure(err)
 					}
@@ -226,7 +230,7 @@ func VerifySignInCode() web.HandlerFunc {
 		}
 
 		// Mark code as verified
-		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: action.Code})
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -254,7 +258,8 @@ func ResendSignInCode() web.HandlerFunc {
 
 		// Save new verification code
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
-			Key:      action.VerificationCode,
+			Key:      action.LinkKey,
+			Code:     action.VerificationCode,
 			Duration: 15 * time.Minute,
 			Request:  action,
 		})
@@ -263,7 +268,7 @@ func ResendSignInCode() web.HandlerFunc {
 		}
 
 		// Send new email
-		c.Enqueue(tasks.SendSignInEmail(action.Email, action.VerificationCode))
+		c.Enqueue(tasks.SendSignInEmail(action.Email, action.LinkKey, action.VerificationCode))
 
 		return c.Ok(web.Map{})
 	}

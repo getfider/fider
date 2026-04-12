@@ -16,7 +16,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 	bus.Init(emailmock.Service{})
 
 	worker := mock.NewWorker()
-	task := tasks.SendSignInEmail("jon@got.com", "9876")
+	task := tasks.SendSignInEmail("jon@got.com", "theLinkKey123", "987654")
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -39,8 +39,8 @@ func TestSendSignInEmailTask(t *testing.T) {
 		Address: "jon@got.com",
 		Props: dto.Props{
 			"siteName": mock.DemoTenant.Name,
-			"code":     "9876",
-			"link":     "<a href='http://domain.com/signin/verify?k=9876'>http://domain.com/signin/verify?k=9876</a>",
+			"code":     "987654",
+			"link":     "<a href='http://domain.com/signin/verify?k=theLinkKey123'>http://domain.com/signin/verify?k=theLinkKey123</a>",
 		},
 	})
 }

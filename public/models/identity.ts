@@ -14,7 +14,7 @@ export interface Tenant {
   isEmailAuthAllowed: boolean
   isFeedEnabled: boolean
   isModerationEnabled: boolean
-  isCommercial: boolean
+  hasCommercialFeatures: boolean
 }
 
 export enum TenantStatus {

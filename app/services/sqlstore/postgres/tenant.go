@@ -145,7 +145,7 @@ func getVerificationByEmailAndCode(ctx context.Context, q *query.GetVerification
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND key = $3 AND kind = $4 LIMIT 1"
+		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND code = $3 AND kind = $4 LIMIT 1"
 		err := trx.Get(&verification, query, tenant.ID, q.Email, q.Code, q.Kind)
 		if err != nil {
 			return errors.Wrap(err, "failed to get email verification by email and code")
@@ -163,8 +163,13 @@ func saveVerificationKey(ctx context.Context, c *cmd.SaveVerificationKey) error 
 			userID = c.Request.GetUser().ID
 		}
 
-		query := "INSERT INTO email_verifications (tenant_id, email, created_at, expires_at, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
-		_, err := trx.Execute(query, tenant.ID, c.Request.GetEmail(), time.Now(), time.Now().Add(c.Duration), c.Key, c.Request.GetName(), c.Request.GetKind(), userID)
+		var code any
+		if c.Code != "" {
+			code = c.Code
+		}
+
+		query := "INSERT INTO email_verifications (tenant_id, email, created_at, expires_at, key, name, kind, user_id, code) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+		_, err := trx.Execute(query, tenant.ID, c.Request.GetEmail(), time.Now(), time.Now().Add(c.Duration), c.Key, c.Request.GetName(), c.Request.GetKind(), userID, code)
 		if err != nil {
 			return errors.Wrap(err, "failed to save verification key for kind '%d'", c.Request.GetKind())
 		}
@@ -208,9 +213,11 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbEntities.Tenant{}
 
 	err := trx.Get(&tenant, `
-		SELECT id, name, subdomain, cname, invitation, locale, welcome_message, welcome_header, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
-		FROM tenants
-		ORDER BY id LIMIT 1
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro,
+			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
+		FROM tenants t
+		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
+		ORDER BY t.id LIMIT 1
 	`)
 		if err != nil {
 			return errors.Wrap(err, "failed to get first tenant")
@@ -226,10 +233,12 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbEntities.Tenant{}
 
 	err := trx.Get(&tenant, `
-		SELECT id, name, subdomain, cname, invitation, locale, welcome_message, welcome_header, status, is_private, logo_bkey, custom_css, allowed_schemes, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled, prevent_indexing, is_pro
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro,
+			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
 		FROM tenants t
-		WHERE subdomain = $1 OR subdomain = $2 OR cname = $3
-		ORDER BY cname DESC
+		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
+		WHERE t.subdomain = $1 OR t.subdomain = $2 OR t.cname = $3
+		ORDER BY t.cname DESC
 	`, env.Subdomain(q.Domain), q.Domain, q.Domain)
 		if err != nil {
 			return errors.Wrap(err, "failed to get tenant with domain '%s'", q.Domain)
