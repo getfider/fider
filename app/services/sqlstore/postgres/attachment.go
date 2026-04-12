@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
@@ -95,9 +96,17 @@ func getAttachments(ctx context.Context, q *query.GetAttachments) error {
 
 func uploadImage(ctx context.Context, c *cmd.UploadImage) error {
 	if c.Image.Upload != nil && len(c.Image.Upload.Content) > 0 {
-		if c.Image.BlobKey == "" {
+		// Regenerate key if empty or wrong folder prefix (prevents cross-folder overwrites)
+		if c.Image.BlobKey == "" || !strings.HasPrefix(c.Image.BlobKey, c.Folder+"/") {
 			c.Image.BlobKey = fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
 		}
+
+		// If a blob already exists at this key, generate a new key to prevent overwriting
+		existsQ := &query.GetBlobByKey{Key: c.Image.BlobKey}
+		if err := bus.Dispatch(ctx, existsQ); err == nil {
+			c.Image.BlobKey = fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
+		}
+
 		err := bus.Dispatch(ctx, &cmd.StoreBlob{
 			Key:         c.Image.BlobKey,
 			Content:     c.Image.Upload.Content,
