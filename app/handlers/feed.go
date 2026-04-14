@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/xml"
 	"fmt"
-	"html"
 	"net/http"
 	"strconv"
 	"strings"
@@ -325,7 +324,7 @@ func CommentFeed() web.HandlerFunc {
 					}
 					return formatTime(*comment.EditedAt)
 				}(),
-				Content: &Content{Type: "html", Body: string(markdown.Full(html.UnescapeString(comment.Content), true))},
+				Content: &Content{Type: "html", Body: string(markdown.Full(comment.Content, true))},
 				Id:      fmt.Sprintf("%s/posts/%d/#comment-%d", web.BaseURL(c), post.Number, comment.ID),
 				Link:    []Link{{Href: fmt.Sprintf("%s/posts/%d/#comment-%d", web.BaseURL(c), post.Number, comment.ID), Type: "text/html", Rel: "alternate"}},
 			})

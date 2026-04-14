@@ -13,7 +13,6 @@ import (
 	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
 
-
 func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		isApproved := !tenant.IsModerationEnabled || !user.RequiresModeration()
@@ -96,9 +95,7 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = nil
 
-		comment := dbEntities.Comment{}
-		err := trx.Get(&comment,
-			`SELECT c.id, 
+		query := fmt.Sprintf(`SELECT c.id, 
 							c.content, 
 							c.created_at, 
 							c.edited_at, 
@@ -126,7 +123,11 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 			AND e.tenant_id = c.tenant_id
 			WHERE c.id = $1
 			AND c.tenant_id = $2
-			AND c.deleted_at IS NULL`, q.CommentID, tenant.ID)
+			AND c.deleted_at IS NULL%s`, buildApprovalFilter(user))
+
+		comment := dbEntities.Comment{}
+		err := trx.Get(&comment,
+			query, q.CommentID, tenant.ID)
 
 		if err != nil {
 			return err
@@ -135,6 +136,19 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment.ToModel(ctx)
 		return nil
 	})
+}
+
+func buildApprovalFilter(user *entity.User) string {
+	if user != nil && user.IsCollaborator() {
+		// Admins and collaborators can see all comments
+		return ""
+	} else if user != nil {
+		// Regular users can see approved comments + their own unapproved comments
+		return fmt.Sprintf(" AND (c.is_approved = true OR c.user_id = %d)", user.ID)
+	} else {
+		// Anonymous users can only see approved comments
+		return " AND c.is_approved = true"
+	}
 }
 
 func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
@@ -146,20 +160,10 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 		if user != nil {
 			userId = user.ID
 		}
-		
+
 		// Build approval filter based on user permissions
-		approvalFilter := ""
-		if user != nil && user.IsCollaborator() {
-			// Admins and collaborators can see all comments
-			approvalFilter = ""
-		} else if user != nil {
-			// Regular users can see approved comments + their own unapproved comments
-			approvalFilter = fmt.Sprintf(" AND (c.is_approved = true OR c.user_id = %d)", user.ID)
-		} else {
-			// Anonymous users can only see approved comments
-			approvalFilter = " AND c.is_approved = true"
-		}
-		
+		approvalFilter := buildApprovalFilter(user)
+
 		query := fmt.Sprintf(`
 			WITH agg_attachments AS ( 
 					SELECT 
@@ -234,7 +238,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 			AND p.tenant_id = $2
 			AND c.deleted_at IS NULL%s
 			ORDER BY c.created_at DESC`, approvalFilter)
-		
+
 		err := trx.Select(&comments, query, q.Post.ID, tenant.ID, userId)
 		if err != nil {
 			return errors.Wrap(err, "failed get comments of post with id '%d'", q.Post.ID)
