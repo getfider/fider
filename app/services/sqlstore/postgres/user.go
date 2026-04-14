@@ -14,9 +14,16 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 	"github.com/lib/pq"
 )
+
+// generateSecurityStamp creates a new random security stamp for a user.
+// Rotating the stamp invalidates all existing sessions for that user.
+func generateSecurityStamp() string {
+	return rand.String(64)
+}
 
 func countUsers(ctx context.Context, q *query.CountUsers) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
@@ -33,8 +40,8 @@ func countUsers(ctx context.Context, q *query.CountUsers) error {
 func blockUser(ctx context.Context, c *cmd.BlockUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if _, err := trx.Execute(
-			"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
-			c.UserID, tenant.ID, enum.UserBlocked,
+			"UPDATE users SET status = $3, security_stamp = $4 WHERE id = $1 AND tenant_id = $2",
+			c.UserID, tenant.ID, enum.UserBlocked, generateSecurityStamp(),
 		); err != nil {
 			return errors.Wrap(err, "failed to block user")
 		}
@@ -45,8 +52,8 @@ func blockUser(ctx context.Context, c *cmd.BlockUser) error {
 func unblockUser(ctx context.Context, c *cmd.UnblockUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if _, err := trx.Execute(
-			"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
-			c.UserID, tenant.ID, enum.UserActive,
+			"UPDATE users SET status = $3, security_stamp = $4 WHERE id = $1 AND tenant_id = $2",
+			c.UserID, tenant.ID, enum.UserActive, generateSecurityStamp(),
 		); err != nil {
 			return errors.Wrap(err, "failed to unblock user")
 		}
@@ -166,8 +173,8 @@ func userSubscribedTo(ctx context.Context, q *query.UserSubscribedTo) error {
 
 func changeUserRole(ctx context.Context, c *cmd.ChangeUserRole) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		cmd := "UPDATE users SET role = $3 WHERE id = $1 AND tenant_id = $2"
-		_, err := trx.Execute(cmd, c.UserID, tenant.ID, c.Role)
+		cmd := "UPDATE users SET role = $3, security_stamp = $4 WHERE id = $1 AND tenant_id = $2"
+		_, err := trx.Execute(cmd, c.UserID, tenant.ID, c.Role, generateSecurityStamp())
 		if err != nil {
 			return errors.Wrap(err, "failed to change user's role")
 		}
@@ -237,11 +244,13 @@ func registerUser(ctx context.Context, c *cmd.RegisterUser) error {
 		now := time.Now()
 		c.User.Status = enum.UserActive
 		c.User.Email = strings.ToLower(strings.TrimSpace(c.User.Email))
+		stamp := generateSecurityStamp()
 		if err := trx.Get(&c.User.ID,
-			"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7, '') RETURNING id",
-			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, enum.UserActive, enum.AvatarTypeGravatar); err != nil {
+			"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey, security_stamp) VALUES ($1, $2, $3, $4, $5, $6, $7, '', $8) RETURNING id",
+			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, enum.UserActive, enum.AvatarTypeGravatar, stamp); err != nil {
 			return errors.Wrap(err, "failed to register new user")
 		}
+		c.User.SecurityStamp = stamp
 
 		for _, provider := range c.User.Providers {
 			cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_at) VALUES ($1, $2, $3, $4, $5)"
@@ -328,7 +337,7 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var users []*dbEntities.User
 		err := trx.Select(&users, `
-			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey
+			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted, security_stamp
 			FROM users
 			WHERE tenant_id = $1
 			AND status != $2
@@ -370,7 +379,7 @@ func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
 
 func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*entity.User, error) {
 	user := dbEntities.User{}
-	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted FROM users WHERE status != %d AND ", enum.UserDeleted)
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted, security_stamp FROM users WHERE status != %d AND ", enum.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
 		return nil, err
@@ -397,9 +406,9 @@ func searchUsers(ctx context.Context, q *query.SearchUsers) error {
 		}
 
 		baseQuery := `
-			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted
-			FROM users
-			WHERE tenant_id = $1 AND status != $2
+				SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted, security_stamp
+				FROM users
+				WHERE tenant_id = $1 AND status != $2
 		`
 		args := []interface{}{tenant.ID, enum.UserDeleted}
 		argIndex := 3
@@ -482,6 +491,19 @@ func searchUsers(ctx context.Context, q *query.SearchUsers) error {
 		q.Result = make([]*entity.User, len(users))
 		for i, user := range users {
 			q.Result[i] = user.ToModel(ctx)
+		}
+		return nil
+	})
+}
+
+func rotateAllUserSecurityStamps(ctx context.Context, c *cmd.RotateAllUserSecurityStamps) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		_, err := trx.Execute(
+			"UPDATE users SET security_stamp = md5(random()::text || id::text) WHERE tenant_id = $1",
+			tenant.ID,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to rotate all user security stamps")
 		}
 		return nil
 	})
