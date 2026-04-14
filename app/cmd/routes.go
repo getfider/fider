@@ -182,6 +182,8 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Administration/pages/Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
 		ui.Get("/admin/export/backup.zip", handlers.ExportBackupZip())
+		ui.Get("/admin/export/tags.json", handlers.ExportTagsJSON())
+		ui.Post("/_api/admin/import/tags", handlers.ImportTagsJSON())
 		ui.Get("/admin/webhooks", handlers.ManageWebhooks())
 		ui.Post("/_api/admin/webhook", handlers.CreateWebhook())
 		ui.Put("/_api/admin/webhook/:id", handlers.UpdateWebhook())

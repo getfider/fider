@@ -59,7 +59,7 @@ func requestHandler(ctx context.Context, c *cmd.HTTPRequest) error {
 	}
 
 	defer func() { _ = res.Body.Close() }()
-	respBody, err := io.ReadAll(res.Body)
+	respBody, err := io.ReadAll(io.LimitReader(res.Body, 1<<20)) // 1 MB limit
 	if err != nil {
 		return err
 	}
