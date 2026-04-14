@@ -48,6 +48,7 @@ const pages: { [key: string]: any } = {
   "Error/Error410.page": require(`./pages/Error/Error410.page`),
   "Error/Error500.page": require(`./pages/Error/Error500.page`),
   "Error/NotInvited.page": require(`./pages/Error/NotInvited.page`),
+  "Error/AccessDenied.page": require(`./pages/Error/AccessDenied.page`),
 }
 
 function ssrRender(url: string, args: any) {

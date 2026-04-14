@@ -120,6 +120,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/signin/complete", handlers.CompleteSignInProfilePage())
 	r.Get("/loginemailsent", handlers.LoginEmailSentPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
+	r.Get("/access-denied", handlers.AccessDeniedPage())
 	r.Get("/signin/verify", handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
 	r.Get("/invite/verify", handlers.VerifySignInKey(enum.EmailVerificationKindUserInvitation))
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())

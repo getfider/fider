@@ -103,6 +103,7 @@ func (s Service) Init() {
 	bus.AddHandler(getAllUsers)
 	bus.AddHandler(getAllUsersNames)
 	bus.AddHandler(searchUsers)
+	bus.AddHandler(rotateAllUserSecurityStamps)
 
 	bus.AddHandler(createTenant)
 	bus.AddHandler(getFirstTenant)
