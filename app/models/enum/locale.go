@@ -180,7 +180,7 @@ var (
 	}
 
 	// LocaleChineseTW represents Chinese (Traditional)
-	LocaleChineseCN = Locale{
+	LocaleChineseTW = Locale{
 		Code:              "zh-TW",
 		Name:              "Chinese (Traditional)",
 		MessageFormatCode: "zh-tw",
@@ -217,6 +217,7 @@ var (
 		LocaleGreek,
 		LocaleArabic,
 		LocaleChineseCN,
+		LocaleChineseTW,
 		LocalePersian,
 	}
 )
