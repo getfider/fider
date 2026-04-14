@@ -5,7 +5,7 @@ module github.com/getfider/fider
 go 1.25.0
 
 require (
-	github.com/aws/aws-sdk-go v1.55.8
+	github.com/aws/aws-sdk-go v1.41.14
 	github.com/cosmtrek/air v1.27.3
 	github.com/goenning/imagic v0.0.1
 	github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055
