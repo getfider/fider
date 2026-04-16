@@ -70,13 +70,9 @@ plainTextRenderer.code = (code) => code
 plainTextRenderer.codespan = (code) => code
 plainTextRenderer.html = (html) => html
 plainTextRenderer.del = (text) => text
+plainTextRenderer.blockquote = (quote) => quote
 
-const entities: { [key: string]: string } = {
-  "<": "&lt;",
-  ">": "&gt;",
-}
-
-const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag)
+const encodeHTML = (s: string) => s.replace(/</g, "&lt;")
 const stripTags = (input: string) => input.replace(/<[^>]*>/g, "")
 const sanitize = (input: string) => (DOMPurify.isSupported ? DOMPurify.sanitize(input) : stripTags(input))
 // Helper function to decode HTML entities back to readable characters

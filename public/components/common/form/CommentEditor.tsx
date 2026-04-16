@@ -22,6 +22,7 @@ import IconOrderedList from "@fider/assets/images/heroicons-orderedlist.svg"
 import IconBulletList from "@fider/assets/images/heroicons-bulletlist.svg"
 import IconPhotograph from "@fider/assets/images/heroicons-photograph.svg"
 import IconLink from "@fider/assets/images/heroicons-link.svg"
+import IconBlockquote from "@fider/assets/images/heroicons-blockquote.svg"
 import { DisplayError, hasError, Icon, ValidationContext } from "@fider/components"
 import { fileToBase64 } from "@fider/services"
 import { generateBkey } from "@fider/services/bkey"
@@ -150,6 +151,15 @@ const MenuBar = ({
               className={`c-editor-button ${editor.isActive("codeBlock") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconCode} />
+            </button>
+            <button
+              disabled={disabled}
+              type="button"
+              title="Quote"
+              onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              className={`c-editor-button ${editor.isActive("blockquote") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+            >
+              <Icon sprite={IconBlockquote} />
             </button>
             <button
               disabled={disabled}
