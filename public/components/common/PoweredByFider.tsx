@@ -14,7 +14,7 @@ export const PoweredByFider = (props: PoweredByFiderProps) => {
   const medium = "powered-by"
   const campaign = props.slot
   const version = fider.settings?.version
-  const versionString = version && version !== "dev" ? ` v${version}` : ""
+  const versionString = fider.isSingleHostMode() && version && version !== "dev" ? `v${version}` : ""
 
   const className = classSet({
     "c-powered": true,
@@ -24,8 +24,9 @@ export const PoweredByFider = (props: PoweredByFiderProps) => {
   return (
     <div className={className}>
       <a rel="noopener" href={`https://fider.io?utm_source=${source}&utm_medium=${medium}&utm_campaign=${campaign}`} target="_blank">
-        {`Powered by Fider${versionString} ⚡`}
+        {"Powered by Fider ⚡"}
       </a>
+      {versionString && <span>{versionString}</span>}
     </div>
   )
 }
