@@ -1,5 +1,5 @@
-name: build
-
+name: CI Build and Test Pipeline
+# This workflow automatically validates the project on code changes
 on:
   release:
     types: [published]
