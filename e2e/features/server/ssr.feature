@@ -6,7 +6,7 @@ Feature: SSR
     When I send the request
     Then I should see http status 200
     And I should not see ">Powered by Fider ⚡</a>" on the response body
-    And I should see "This website requires JavaScript, please enable and reload the page." on the response body
+    And I should see "This website requires JavaScript, please enable it in your browser settings and reload the page." on the response body
     And I should see "/assets/js/vendor" on the response body
 
   Scenario: Home page with a GoogleBot User-Agent should be server-side rendered
@@ -15,5 +15,5 @@ Feature: SSR
     When I send the request
     Then I should see http status 200
     And I should see ">Powered by Fider ⚡</a>" on the response body
-    And I should not see "This website requires JavaScript, please enable and reload the page." on the response body
+    And I should not see "This website requires JavaScript, please enable it in your browser settings and reload the page." on the response body
     And I should not see "/assets/js/vendor" on the response body
