@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app"
@@ -19,6 +20,15 @@ import (
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
+
+func normalizeHTML(s string) string {
+	s = strings.ReplaceAll(s, "\r\n", "\n")
+	lines := strings.Split(s, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimSpace(line)
+	}
+	return strings.Join(lines, "\n")
+}
 
 var ctx context.Context
 
@@ -64,7 +74,7 @@ func TestSend_Success(t *testing.T) {
 	Expect(values.Get("subject")).Equals("Message to: Hello")
 	Expect(values["o:tag"][0]).Equals("template:echo_test")
 	Expect(values["o:tag"][1]).Equals("tenant:got")
-	Expect(values.Get("html")).Equals(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	Expect(normalizeHTML(values.Get("html"))).Equals(normalizeHTML(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -117,7 +127,7 @@ func TestSend_Success(t *testing.T) {
 			</tr>
 		</table>
 	</body>
-</html>`)
+</html>`))
 }
 
 func TestSend_SkipEmptyAddress(t *testing.T) {
@@ -209,7 +219,7 @@ func TestBatch_Success(t *testing.T) {
 	Expect(values["o:tag"][0]).Equals("template:echo_test")
 	Expect(values["o:tag"][1]).Equals("tenant:got")
 	Expect(values.Get("recipient-variables")).Equals("{\"arya.start@got.com\":{\"name\":\"Arya\"},\"jon.snow@got.com\":{\"name\":\"Jon\"}}")
-	Expect(values.Get("html")).Equals(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	Expect(normalizeHTML(values.Get("html"))).Equals(normalizeHTML(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -262,7 +272,7 @@ func TestBatch_Success(t *testing.T) {
 			</tr>
 		</table>
 	</body>
-</html>`)
+</html>`))
 }
 
 func TestGetBaseURL(t *testing.T) {
