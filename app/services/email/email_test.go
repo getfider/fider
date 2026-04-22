@@ -61,7 +61,7 @@ func TestRenderMessage(t *testing.T) {
 			</tr>
 			<tr>
 				<td style="padding:0 20px;">
-					<span style="color:#666;font-size:12px">{{ "email.footer.noreply" | translate }}</span>
+					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
 				</td>
 			</tr>
 			
