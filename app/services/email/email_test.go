@@ -2,7 +2,6 @@ package email_test
 
 import (
 	"context"
-	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app/models/dto"
@@ -11,15 +10,6 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
-func normalizeHTML(s string) string {
-	s = strings.ReplaceAll(s, "\r\n", "\n")
-	lines := strings.Split(s, "\n")
-	for i, line := range lines {
-		lines[i] = strings.TrimSpace(line)
-	}
-	return strings.Join(lines, "\n")
-}
-
 func TestRenderMessage(t *testing.T) {
 	RegisterT(t)
 
@@ -27,7 +17,7 @@ func TestRenderMessage(t *testing.T) {
 		"name": "Fider",
 	})
 	Expect(message.Subject).Equals("Message to: Fider")
-	Expect(normalizeHTML(message.Body)).Equals(normalizeHTML(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	Expect(message.Body).Equals(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -63,7 +53,7 @@ func TestRenderMessage(t *testing.T) {
 			<tr>
 				<td align="center">
 					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:2px solid #E0E0E0;min-width:320px;max-width:640px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 4px 8px rgba(0,0,0,0.08);">
-						Hello Fider! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!
+					Hello Fider! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!
 					</table>
 				</td>
 			</tr>
@@ -80,7 +70,7 @@ func TestRenderMessage(t *testing.T) {
 			</tr>
 		</table>
 	</body>
-</html>`))
+</html>`)
 }
 
 func TestCanSendTo(t *testing.T) {
@@ -93,7 +83,6 @@ func TestCanSendTo(t *testing.T) {
 		canSend   bool
 	}{
 		{
-			allowlist: "(^.+@fider.io$)|(^darthvader\\.fider(\\+.*)?@gmail\\.com$)",
 			blocklist: "",
 			input:     []string{"me@fider.io", "me+123@fider.io", "darthvader.fider@gmail.com", "darthvader.fider+434@gmail.com"},
 			canSend:   true,

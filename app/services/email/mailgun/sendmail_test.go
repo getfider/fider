@@ -4,7 +4,6 @@ import (
 	"context"
 	"io"
 	"net/url"
-	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app"
@@ -20,15 +19,6 @@ import (
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
-
-func normalizeHTML(s string) string {
-	s = strings.ReplaceAll(s, "\r\n", "\n")
-	lines := strings.Split(s, "\n")
-	for i, line := range lines {
-		lines[i] = strings.TrimSpace(line)
-	}
-	return strings.Join(lines, "\n")
-}
 
 var ctx context.Context
 
@@ -74,7 +64,7 @@ func TestSend_Success(t *testing.T) {
 	Expect(values.Get("subject")).Equals("Message to: Hello")
 	Expect(values["o:tag"][0]).Equals("template:echo_test")
 	Expect(values["o:tag"][1]).Equals("tenant:got")
-	Expect(normalizeHTML(values.Get("html"))).Equals(normalizeHTML(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	Expect(values.Get("html")).Equals(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -110,7 +100,7 @@ func TestSend_Success(t *testing.T) {
 			<tr>
 				<td align="center">
 					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:2px solid #E0E0E0;min-width:320px;max-width:640px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 4px 8px rgba(0,0,0,0.08);">
-						Hello Fider! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!
+					Hello Fider! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!
 					</table>
 				</td>
 			</tr>
@@ -127,7 +117,7 @@ func TestSend_Success(t *testing.T) {
 			</tr>
 		</table>
 	</body>
-</html>`))
+</html>`)
 }
 
 func TestSend_SkipEmptyAddress(t *testing.T) {
@@ -219,7 +209,7 @@ func TestBatch_Success(t *testing.T) {
 	Expect(values["o:tag"][0]).Equals("template:echo_test")
 	Expect(values["o:tag"][1]).Equals("tenant:got")
 	Expect(values.Get("recipient-variables")).Equals("{\"arya.start@got.com\":{\"name\":\"Arya\"},\"jon.snow@got.com\":{\"name\":\"Jon\"}}")
-	Expect(normalizeHTML(values.Get("html"))).Equals(normalizeHTML(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+	Expect(values.Get("html")).Equals(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -255,7 +245,7 @@ func TestBatch_Success(t *testing.T) {
 			<tr>
 				<td align="center">
 					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:2px solid #E0E0E0;min-width:320px;max-width:640px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 4px 8px rgba(0,0,0,0.08);">
-						Hello %recipient.name%! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!
+					Hello %recipient.name%! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!
 					</table>
 				</td>
 			</tr>
@@ -272,7 +262,7 @@ func TestBatch_Success(t *testing.T) {
 			</tr>
 		</table>
 	</body>
-</html>`))
+</html>`)
 }
 
 func TestGetBaseURL(t *testing.T) {
