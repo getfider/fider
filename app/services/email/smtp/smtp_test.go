@@ -68,7 +68,8 @@ func TestSend_Success(t *testing.T) {
 	Expect(requests[0].to).Equals([]string{"jon.snow@got.com"})
 	Expect(string(requests[0].body)).ContainsSubstring("From: \"Fider Test\" <noreply@random.org>\r\nReply-To: noreply@random.org\r\nTo: \"Jon Sow\" <jon.snow@got.com>\r\nSubject: Message to: Hello\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\nDate: ")
 	Expect(string(requests[0].body)).ContainsSubstring("Message-ID: ")
-	Expect(string(requests[0].body)).ContainsSubstring("Hello World Hello!")
+	Expect(string(requests[0].body)).ContainsSubstring("Hello Hello! This is a test email sent from Fider.
+If you have received this email, It means your email settings are correct!")
 
 	var validID = regexp.MustCompile(`.*Message-ID: <[a-z0-9\-].*\.[0-9].*@.*>.*`)
 	Expect(validID.MatchString(string(requests[0].body))).IsTrue()
@@ -150,7 +151,8 @@ func TestBatch_Success(t *testing.T) {
 	Expect(requests[0].to).Equals([]string{"jon.snow@got.com"})
 	Expect(string(requests[0].body)).ContainsSubstring("From: \"Fider Test\" <noreply@random.org>\r\nReply-To: noreply@random.org\r\nTo: \"Jon Sow\" <jon.snow@got.com>\r\nSubject: Message to: Jon\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\nDate: ")
 	Expect(string(requests[0].body)).ContainsSubstring("Message-ID: ")
-	Expect(string(requests[0].body)).ContainsSubstring("Hello World Jon!")
+	Expect(string(requests[0].body)).ContainsSubstring("Hello Jon! This is a test email sent from Fider.
+If you have received this email, It means your email settings are correct!")
 
 	Expect(requests[1].servername).Equals("localhost:1234")
 	Expect(requests[1].auth).Equals(smtp.AgnosticAuth("", "us3r", "p4ss", "localhost"))
@@ -158,5 +160,6 @@ func TestBatch_Success(t *testing.T) {
 	Expect(requests[1].to).Equals([]string{"arya.start@got.com"})
 	Expect(string(requests[1].body)).ContainsSubstring("From: \"Fider Test\" <noreply@random.org>\r\nReply-To: noreply@random.org\r\nTo: \"Arya Stark\" <arya.start@got.com>\r\nSubject: Message to: Arya\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\nDate: ")
 	Expect(string(requests[1].body)).ContainsSubstring("Message-ID: ")
-	Expect(string(requests[1].body)).ContainsSubstring("Hello World Arya!")
+	Expect(string(requests[1].body)).ContainsSubstring("Hello Arya! This is a test email sent from Fider.
+If you have received this email, It means your email settings are correct!")
 }
