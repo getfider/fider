@@ -17,60 +17,64 @@ func TestRenderMessage(t *testing.T) {
 		"name": "Fider",
 	})
 	Expect(message.Subject).Equals("Message to: Fider")
-	Expect(message.Body).Equals(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<meta name="viewport" content="width=device-width">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<style>
-			.user-content {
-				text-align: left;
-				padding: 20px;
-				margin: 10px;
-				border-radius: 5px;
-				color: #1c262d;
-				border: 2px solid #E0E0E0;
-				min-width: 320px;
-				max-width: 640px;
-				overflow-wrap: break-word;
-				word-break: break-word;
-				table-layout: fixed;
-				box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-
-				pre:has(code) {
-					white-space: break-spaces;
-				}
-			}
-		</style>
-	</head>
-	<body bgcolor="#F7F7F7" style="font-size:18px">
-		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:18px;">
-			<tr>
-				<td height="40">&nbsp;</td>
-			</tr>
-
-			<tr>
-				<td align="center">
-					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:2px solid #E0E0E0;min-width:320px;max-width:640px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 4px 8px rgba(0,0,0,0.08);">
-						Hello Fider! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td height="20">&nbsp;</td>
-			</tr>
-			<tr>
-				<td style="padding:0 20px;">
-					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
-				</td>
-			</tr>
-			<tr>
-				<td height="40">&nbsp;</td>
-			</tr>
-		</table>
-	</body>
-</html>`)
+	Expect(message.Body).Equals(`        		 [string] <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+        <html>
+        	<head>
+        		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        		<meta name="viewport" content="width=device-width">
+        		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+        		<style>
+        			.user-content {
+        				text-align: left;
+        				padding: 20px;
+        				margin: 10px;
+        				border-radius: 5px;
+        				color: #1c262d;
+        				border: 2px solid #E0E0E0;
+        				min-width: 320px;
+        				max-width: 640px;
+        				overflow-wrap: break-word;
+        				word-break: break-word;
+        				table-layout: fixed;
+        				box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        
+        				pre:has(code) {
+        					white-space: break-spaces;
+        				}
+        			}
+        		</style>
+        	</head>
+        	<body bgcolor="#F7F7F7" style="font-size:18px">
+        		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:18px;">
+        			<tr>
+        				<td height="40">&nbsp;</td>
+        			</tr>
+        			
+        			<tr>
+        				<td align="center">
+        					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:2px solid #E0E0E0;min-width:320px;max-width:640px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 4px 8px rgba(0,0,0,0.08);">
+        						
+        Hello Fider! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!
+        
+        					</table>
+        				</td>
+        			</tr>
+        			
+        			<tr>
+        				<td height="20">&nbsp;</td>
+        			</tr>
+        			<tr>
+        				<td style="padding:0 20px;">
+        					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
+        				</td>
+        			</tr>
+        			
+        			<tr>
+        				<td height="40">&nbsp;</td>
+        			</tr>
+        		</table>
+        	</body>
+        </html>`)
 }
 
 func TestCanSendTo(t *testing.T) {
