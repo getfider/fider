@@ -22,6 +22,6 @@ Given("I sign in as {string}", async function (this: FiderWorld, userName: strin
   await this.page.fill("#input-code", code)
   await this.page.getByRole("button", { name: "submit" }).click()
 
-  // Wait for navigation after successful code verification
-  await this.page.waitForLoadState("networkidle")
+  // Wait for the signed-in UI to appear instead of waiting for network idle.
+  await this.page.getByRole("button", { name: "Enter your suggestion" }).waitFor({ state: "visible" })
 })
