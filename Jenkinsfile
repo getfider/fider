@@ -9,8 +9,8 @@ pipeline {
         GO_VERSION = '1.25'
         NODE_VERSION = '22.x'
         POSTGRES_VERSION = '17'
-        GOPATH = "${WORKSPACE}\\go"
-        PATH = "${WORKSPACE}\\go\\bin;${env.PATH}"
+        GOPATH = "${WORKSPACE}/go"
+        PATH = "${WORKSPACE}/go/bin;${env.PATH}"
     }
     
     // Pipeline triggers
@@ -202,14 +202,14 @@ Review coverage reports and ESLint violations in the artifacts.
                 }
                 powershell '''
                     $golangciUrl = "https://github.com/golangci/golangci-lint/releases/download/v2.7.2/golangci-lint-2.7.2-windows-amd64.zip"
-                    $outputPath = "$env:TEMP\golangci-lint.zip"
-                    $extractPath = "$env:GOPATH\bin"
+                    $outputPath = "$env:TEMP/golangci-lint.zip"
+                    $extractPath = "$env:GOPATH/bin"
                     
                     if (-not (Test-Path $extractPath)) {
                         New-Item -ItemType Directory -Path $extractPath -Force | Out-Null
                     }
                     
-                    if (-not (Test-Path "$extractPath\golangci-lint.exe")) {
+                    if (-not (Test-Path "$extractPath/golangci-lint.exe")) {
                         Write-Host "Downloading golangci-lint..."
                         Invoke-WebRequest -Uri $golangciUrl -OutFile $outputPath -ErrorAction Stop
                         Expand-Archive -Path $outputPath -DestinationPath $extractPath -Force
@@ -224,7 +224,7 @@ Review coverage reports and ESLint violations in the artifacts.
                     echo "Running Go linter..."
                 }
                 powershell '''
-                    $env:PATH = "$env:GOPATH\bin;$env:PATH"
+                    $env:PATH = "$env:GOPATH/bin;$env:PATH"
                     Write-Host "Running golangci-lint..."
                     golangci-lint run ./... 2>&1 | Tee-Object -FilePath golangci-report.txt
                     Write-Host "✓ Linting completed"
@@ -346,8 +346,8 @@ See go-test-output.txt for detailed test results.
                     docker inspect fider-image:latest | ConvertTo-Json | Out-File -FilePath image-info.json
                     
                     # Store metadata
-                    $sha7 | Out-File -FilePath out\sha7
-                    $env:GIT_BRANCH | Out-File -FilePath out\ref
+                    $sha7 | Out-File -FilePath out/sha7
+                    $env:GIT_BRANCH | Out-File -FilePath out/ref
                     
                     $metadata = @{
                         sha = $env:GIT_COMMIT
@@ -359,7 +359,7 @@ See go-test-output.txt for detailed test results.
                         build_user = $env:BUILD_USER
                     } | ConvertTo-Json
                     
-                    $metadata | Out-File -FilePath out\build-metadata.json
+                    $metadata | Out-File -FilePath out/build-metadata.json
                 '''
             }
             post {
