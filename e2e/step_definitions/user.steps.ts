@@ -13,7 +13,17 @@ Given("I sign in as {string}", async function (this: FiderWorld, userName: strin
   }
 
   const userEmail = `${userName}-${this.tenantName}@fider.io`
-  await this.page.getByRole("button", { name: "Sign in" }).click()
+  const emailInput = this.page.locator(".c-signin-control #input-email")
+  const signInButton = this.page.getByRole("button", { name: /sign in/i })
+
+  if (!(await emailInput.isVisible({ timeout: 2000 }).catch(() => false))) {
+    if (await signInButton.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await signInButton.click()
+    } else {
+      await this.page.locator("#c-header .c-button--primary").first().click()
+    }
+  }
+
   await this.page.fill(".c-signin-control #input-email", userEmail)
   await this.page.click(".c-signin-control .c-button--primary")
 
@@ -22,6 +32,6 @@ Given("I sign in as {string}", async function (this: FiderWorld, userName: strin
   await this.page.fill("#input-code", code)
   await this.page.getByRole("button", { name: "submit" }).click()
 
-  // Wait for navigation after successful code verification
-  await this.page.waitForLoadState("networkidle")
+  // Wait for signed-in home UI instead of waiting for network idle.
+  await this.page.getByRole("button", { name: /enter your suggestion/i }).waitFor({ state: "visible" })
 })
