@@ -12,7 +12,7 @@ export async function isAuthenticated(page: Page): Promise<boolean> {
 // On E2E test, every user is created as {userName}-{tenantName}
 export async function isAuthenticatedAsUser(page: Page, userName: string): Promise<boolean> {
   const serverData = JSON.parse(await page.innerText("#server-data"))
-  return serverData.user ? serverData.email.startsWith(userName) : false
+  return serverData.user ? serverData.user.email.startsWith(userName) : false
 }
 
 export async function getLatestLinkSentTo(address: string): Promise<string> {

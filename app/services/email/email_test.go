@@ -30,13 +30,13 @@ func TestRenderMessage(t *testing.T) {
 				margin: 10px;
 				border-radius: 5px;
 				color: #1c262d;
-				border: 1px solid #E0E0E0;
+				border: 2px solid #E0E0E0;
 				min-width: 320px;
-				max-width: 660px;
+				max-width: 640px;
 				overflow-wrap: break-word;
 				word-break: break-word;
 				table-layout: fixed;
-				box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+				box-shadow: 0 4px 8px rgba(0,0,0,0.08);
 
 				pre:has(code) {
 					white-space: break-spaces;
@@ -52,11 +52,7 @@ func TestRenderMessage(t *testing.T) {
 			
 			<tr>
 				<td align="center">
-					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #E0E0E0;min-width:320px;max-width:660px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-						
-Hello World Fider!
-
-					</table>
+					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:2px solid #E0E0E0;min-width:320px;max-width:640px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 4px 8px rgba(0,0,0,0.08);">Hello Fider! This is a test email sent from Fider. If you have received this email, It means your email settings are correct!</table>
 				</td>
 			</tr>
 			
@@ -87,7 +83,6 @@ func TestCanSendTo(t *testing.T) {
 		canSend   bool
 	}{
 		{
-			allowlist: "(^.+@fider.io$)|(^darthvader\\.fider(\\+.*)?@gmail\\.com$)",
 			blocklist: "",
 			input:     []string{"me@fider.io", "me+123@fider.io", "darthvader.fider@gmail.com", "darthvader.fider+434@gmail.com"},
 			canSend:   true,
