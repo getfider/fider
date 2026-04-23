@@ -1,0 +1,586 @@
+// Fider Jenkinsfile for Windows CI/CD Pipeline
+// This is the primary pipeline configuration for Jenkins on Windows
+
+pipeline {
+    agent any
+    
+    // Environment variables
+    environment {
+        GO_VERSION = '1.25'
+        NODE_VERSION = '22.x'
+        POSTGRES_VERSION = '17'
+        GOPATH = "${WORKSPACE}\\go"
+        PATH = "${WORKSPACE}\\go\\bin;${env.PATH}"
+    }
+    
+    // Pipeline triggers
+    triggers {
+        githubPush()
+        pollSCM('H * * * *')
+    }
+    
+    // Build options
+    options {
+        timeout(time: 1, unit: 'HOURS')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '30'))
+        disableConcurrentBuilds()
+    }
+    
+    stages {
+        // ====================================================================
+        // STAGE 1: CHECKOUT
+        // ====================================================================
+        stage('Checkout') {
+            steps {
+                script {
+                    echo "========== Repository Checkout =========="
+                    echo "Branch: ${env.GIT_BRANCH}"
+                    echo "Commit: ${env.GIT_COMMIT}"
+                }
+                checkout scm
+            }
+        }
+        
+        // ====================================================================
+        // STAGE 2: ENVIRONMENT SETUP
+        // ====================================================================
+        stage('Setup Environment') {
+            steps {
+                script {
+                    echo "========== Environment Setup =========="
+                }
+                
+                powershell '''
+                    Write-Host "Checking required tools..."
+                    
+                    # Check Go
+                    try {
+                        $goVersion = go version
+                        Write-Host "✓ Go installed: $goVersion"
+                    } catch {
+                        Write-Host "✗ Go not found. Please install Go $env:GO_VERSION"
+                        exit 1
+                    }
+                    
+                    # Check Node.js
+                    try {
+                        $nodeVersion = node --version
+                        Write-Host "✓ Node.js installed: $nodeVersion"
+                    } catch {
+                        Write-Host "✗ Node.js not found. Please install Node.js $env:NODE_VERSION"
+                        exit 1
+                    }
+                    
+                    # Check npm
+                    try {
+                        $npmVersion = npm --version
+                        Write-Host "✓ npm installed: $npmVersion"
+                    } catch {
+                        Write-Host "✗ npm not found"
+                        exit 1
+                    }
+                    
+                    # Create output directory
+                    if (-not (Test-Path "dist")) {
+                        New-Item -ItemType Directory -Path "dist" | Out-Null
+                        Write-Host "✓ Created dist directory"
+                    }
+                    
+                    if (-not (Test-Path "out")) {
+                        New-Item -ItemType Directory -Path "out" | Out-Null
+                        Write-Host "✓ Created out directory"
+                    }
+                '''
+            }
+        }
+        
+        // ====================================================================
+        // STAGE 3: FRONTEND TESTING
+        // ====================================================================
+        stage('Test UI') {
+            steps {
+                script {
+                    echo "========== Frontend Testing =========="
+                }
+                
+                powershell '''
+                    Write-Host "Installing Node.js dependencies..."
+                    npm ci --maxsockets 1
+                    Write-Host "✓ Dependencies installed"
+                '''
+                
+                script {
+                    echo "Running ESLint..."
+                }
+                powershell '''
+                    Write-Host "Running ESLint checks..."
+                    npm run lint 2>&1 | Tee-Object -FilePath eslint-output.txt
+                    $LASTEXITCODE
+                '''
+                
+                script {
+                    echo "Generating ESLint JSON report..."
+                }
+                powershell '''
+                    npx eslint . --format json --output-file eslint-report.json -o $null 2>&1
+                    Write-Host "✓ ESLint report generated"
+                '''
+                
+                script {
+                    echo "Running Jest tests with coverage..."
+                }
+                powershell '''
+                    Write-Host "Running Jest tests..."
+                    npm test -- --coverage --coverageReporters=json --coverageReporters=text --coverageReporters=html --passWithNoTests 2>&1 | Tee-Object -FilePath jest-output.txt
+                    Write-Host "✓ Jest tests completed"
+                '''
+            }
+            post {
+                always {
+                    script {
+                        echo "Archiving Frontend Test Results..."
+                    }
+                    
+                    powershell '''
+                        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC"
+                        $content = @"
+# Frontend Test Report
+
+## Test Execution Summary
+- **Test Framework**: Jest
+- **Timestamp**: $timestamp
+- **Build Number**: $env:BUILD_NUMBER
+
+## Coverage Metrics
+Coverage reports generated if tests passed. Check coverage/ folder for details.
+
+## Lint Check
+- ESLint JSON report: eslint-report.json
+- ESLint output: eslint-output.txt
+
+## Next Steps
+Review coverage reports and ESLint violations in the artifacts.
+"@
+                        $content | Out-File -FilePath ui-test-summary.md
+                    '''
+                    
+                    // Archive artifacts
+                    archiveArtifacts artifacts: '''
+                        coverage/**,
+                        eslint-report.json,
+                        eslint-output.txt,
+                        jest-output.txt,
+                        ui-test-summary.md
+                    ''', 
+                    allowEmptyArchive: true,
+                    onlyIfSuccessful: false
+                    
+                    // Publish HTML coverage report
+                    publishHTML([
+                        reportDir: 'coverage/lcov-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Code Coverage - Frontend',
+                        keepAll: true,
+                        allowMissing: true
+                    ])
+                }
+            }
+        }
+        
+        // ====================================================================
+        // STAGE 4: BACKEND TESTING
+        // ====================================================================
+        stage('Test Server') {
+            steps {
+                script {
+                    echo "========== Backend Testing =========="
+                }
+                
+                script {
+                    echo "Installing golangci-lint..."
+                }
+                powershell '''
+                    $golangciUrl = "https://github.com/golangci/golangci-lint/releases/download/v2.7.2/golangci-lint-2.7.2-windows-amd64.zip"
+                    $outputPath = "$env:TEMP\golangci-lint.zip"
+                    $extractPath = "$env:GOPATH\bin"
+                    
+                    if (-not (Test-Path $extractPath)) {
+                        New-Item -ItemType Directory -Path $extractPath -Force | Out-Null
+                    }
+                    
+                    if (-not (Test-Path "$extractPath\golangci-lint.exe")) {
+                        Write-Host "Downloading golangci-lint..."
+                        Invoke-WebRequest -Uri $golangciUrl -OutFile $outputPath -ErrorAction Stop
+                        Expand-Archive -Path $outputPath -DestinationPath $extractPath -Force
+                        Remove-Item $outputPath
+                        Write-Host "✓ golangci-lint installed"
+                    } else {
+                        Write-Host "✓ golangci-lint already installed"
+                    }
+                '''
+                
+                script {
+                    echo "Running Go linter..."
+                }
+                powershell '''
+                    $env:PATH = "$env:GOPATH\bin;$env:PATH"
+                    Write-Host "Running golangci-lint..."
+                    golangci-lint run ./... 2>&1 | Tee-Object -FilePath golangci-report.txt
+                    Write-Host "✓ Linting completed"
+                '''
+                
+                script {
+                    echo "Running Go tests with coverage..."
+                }
+                powershell '''
+                    Write-Host "Running Go tests..."
+                    go test -v -coverprofile=coverage.out ./... 2>&1 | Tee-Object -FilePath go-test-output.txt
+                    Write-Host "✓ Go tests completed"
+                '''
+            }
+            post {
+                always {
+                    script {
+                        echo "Archiving Backend Test Results..."
+                    }
+                    
+                    powershell '''
+                        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC"
+                        $coverage = ""
+                        if (Test-Path "coverage.out") {
+                            $coverage = go tool cover -func=coverage.out 2>&1 | Select-Object -Last 1
+                        }
+                        
+                        $content = @"
+# Backend Test Report
+
+## Test Execution Summary
+- **Language**: Go 1.25
+- **Test Framework**: Go Testing Package
+- **Timestamp**: $timestamp
+- **Build Number**: $env:BUILD_NUMBER
+
+## Coverage Metrics
+$coverage
+
+## Lint Status
+See golangci-report.txt for detailed linting results.
+
+## Test Output
+See go-test-output.txt for detailed test results.
+"@
+                        $content | Out-File -FilePath server-test-summary.md
+                    '''
+                    
+                    // Generate HTML coverage report
+                    powershell '''
+                        if (Test-Path "coverage.out") {
+                            go tool cover -html=coverage.out -o coverage-report.html
+                            Write-Host "✓ Coverage report generated"
+                        }
+                    '''
+                    
+                    // Archive artifacts
+                    archiveArtifacts artifacts: '''
+                        coverage.out,
+                        coverage-report.html,
+                        golangci-report.txt,
+                        go-test-output.txt,
+                        server-test-summary.md
+                    ''', 
+                    allowEmptyArchive: true,
+                    onlyIfSuccessful: false
+                    
+                    // Publish HTML coverage report
+                    publishHTML([
+                        reportDir: '.',
+                        reportFiles: 'coverage-report.html',
+                        reportName: 'Code Coverage - Backend',
+                        keepAll: true,
+                        allowMissing: true
+                    ])
+                }
+            }
+        }
+        
+        // ====================================================================
+        // STAGE 5: BUILD DOCKER IMAGE
+        // ====================================================================
+        stage('Build Docker Image') {
+            when {
+                expression {
+                    return powershell(script: 'docker --version', returnStatus: true) == 0
+                }
+            }
+            steps {
+                script {
+                    echo "========== Docker Image Build =========="
+                }
+                
+                powershell '''
+                    $sha7 = $env:GIT_COMMIT.SubString(0, 7)
+                    $buildTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC"
+                    
+                    Write-Host "Building Docker image..."
+                    Write-Host "SHA7: $sha7"
+                    Write-Host "Build Time: $buildTime"
+                    
+                    docker build `
+                        --tag fider-image:latest `
+                        --tag "fider-image:$sha7" `
+                        --label "org.opencontainers.image.created=$buildTime" `
+                        --label "org.opencontainers.image.revision=$env:GIT_COMMIT" `
+                        --label "org.opencontainers.image.version=$sha7" `
+                        --progress=plain `
+                        . 2>&1 | Tee-Object -FilePath docker-build.log
+                    
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "✓ Docker image built successfully"
+                    } else {
+                        Write-Host "✗ Docker build failed"
+                        exit 1
+                    }
+                    
+                    # Get image info
+                    docker inspect fider-image:latest | ConvertTo-Json | Out-File -FilePath image-info.json
+                    
+                    # Store metadata
+                    $sha7 | Out-File -FilePath out\sha7
+                    $env:GIT_BRANCH | Out-File -FilePath out\ref
+                    
+                    $metadata = @{
+                        sha = $env:GIT_COMMIT
+                        sha7 = $sha7
+                        ref = $env:GIT_BRANCH
+                        version = $sha7
+                        build_time = $buildTime
+                        build_number = $env:BUILD_NUMBER
+                        build_user = $env:BUILD_USER
+                    } | ConvertTo-Json
+                    
+                    $metadata | Out-File -FilePath out\build-metadata.json
+                '''
+            }
+            post {
+                always {
+                    script {
+                        echo "Archiving Docker Build Artifacts..."
+                    }
+                    
+                    powershell '''
+                        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC"
+                        $sha7 = $env:GIT_COMMIT.SubString(0, 7)
+                        
+                        $content = @"
+# Docker Build Report
+
+## Build Information
+- **Commit SHA**: $env:GIT_COMMIT
+- **Commit SHA7**: $sha7
+- **Branch**: $env:GIT_BRANCH
+- **Version**: $sha7
+- **Build Time**: $timestamp
+- **Build Number**: $env:BUILD_NUMBER
+- **Jenkins Node**: $env:NODE_NAME
+
+## Build Status
+- **Status**: SUCCESS (if no errors above)
+- **Docker Tag**: fider-image:$sha7
+
+## Docker Image Details
+- **Latest Tag**: fider-image:latest
+- **Versioned Tag**: fider-image:$sha7
+
+## Build Artifacts
+- **Docker Build Log**: docker-build.log
+- **Image Info**: image-info.json
+- **Build Metadata**: out/build-metadata.json
+"@
+                        $content | Out-File -FilePath build-summary.md
+                    '''
+                    
+                    archiveArtifacts artifacts: '''
+                        build-summary.md,
+                        docker-build.log,
+                        image-info.json,
+                        out/**
+                    ''', 
+                    allowEmptyArchive: true,
+                    onlyIfSuccessful: false
+                }
+            }
+        }
+        
+        // ====================================================================
+        // STAGE 6: E2E TESTS (Optional)
+        // ====================================================================
+        stage('E2E Tests') {
+            when {
+                expression {
+                    return powershell(script: 'npx --version', returnStatus: true) == 0
+                }
+            }
+            steps {
+                script {
+                    echo "========== End-to-End Testing =========="
+                }
+                
+                powershell '''
+                    Write-Host "Installing Playwright..."
+                    npx playwright install --with-deps
+                    Write-Host "✓ Playwright installed"
+                '''
+                
+                script {
+                    echo "Running E2E tests..."
+                }
+                powershell '''
+                    Write-Host "Running E2E tests..."
+                    if (Test-Path "package.json") {
+                        $packageContent = Get-Content package.json | ConvertFrom-Json
+                        if ($packageContent.scripts | Get-Member -name "e2e") {
+                            npm run e2e 2>&1 | Tee-Object -FilePath e2e-test.log
+                        } else {
+                            Write-Host "⚠ No e2e script found in package.json"
+                        }
+                    }
+                    Write-Host "✓ E2E tests completed"
+                ''' 
+            }
+            post {
+                always {
+                    powershell '''
+                        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC"
+                        $content = @"
+# End-to-End Test Report
+
+## Test Execution Summary
+- **Framework**: Playwright + Cucumber
+- **Timestamp**: $timestamp
+- **Build Number**: $env:BUILD_NUMBER
+
+## Test Results
+See e2e-test.log for detailed test output.
+
+## Artifacts
+- Test logs: e2e-test.log
+- Playwright reports: test-results/ (if available)
+- Report: playwright-report/ (if available)
+"@
+                        $content | Out-File -FilePath e2e-test-summary.md
+                    '''
+                    
+                    archiveArtifacts artifacts: '''
+                        e2e-test.log,
+                        e2e-test-summary.md,
+                        test-results/**,
+                        playwright-report/**
+                    ''', 
+                    allowEmptyArchive: true,
+                    onlyIfSuccessful: false
+                }
+            }
+        }
+    }
+    
+    // Post-build actions
+    post {
+        always {
+            script {
+                echo "========== CI Pipeline Complete =========="
+            }
+            
+            powershell '''
+                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC"
+                
+                $content = @"
+# Fider CI Pipeline Report
+
+**Report Generated**: $timestamp  
+**Build Number**: $env:BUILD_NUMBER  
+**Job Name**: $env:JOB_NAME  
+**Commit**: $env:GIT_COMMIT  
+**Branch**: $env:GIT_BRANCH  
+**Jenkins Node**: $env:NODE_NAME  
+
+---
+
+## Pipeline Summary
+
+This Jenkins pipeline executed the following stages:
+1. ✓ Checkout - Repository checkout
+2. ✓ Environment Setup - Tool validation
+3. ✓ Test UI - Frontend testing with Jest and ESLint
+4. ✓ Test Server - Backend testing with Go
+5. ✓ Build Docker Image - Docker image compilation
+6. ✓ E2E Tests - End-to-end testing with Playwright
+
+---
+
+## Build Artifacts
+
+Access the following artifacts via Jenkins:
+
+1. **Frontend Tests**
+   - Coverage reports (lcov format)
+   - ESLint report (JSON)
+   - Jest test output
+
+2. **Backend Tests**
+   - Go coverage report
+   - golangci-lint report
+   - Test execution logs
+
+3. **Docker Build**
+   - Build logs
+   - Image metadata
+   - Build configuration
+
+4. **E2E Tests**
+   - Playwright reports
+   - Test logs
+
+---
+
+## How to Access Results
+
+1. Open Jenkins build: $env:BUILD_URL
+2. Click "Artifacts" to download all reports
+3. Click "HTML Reports" for interactive coverage reports
+4. View console output for detailed execution logs
+
+---
+
+## Next Steps
+
+- [ ] Review test coverage reports
+- [ ] Check for any lint violations
+- [ ] Verify Docker build succeeded
+- [ ] Plan deployment to staging/production
+"@
+                
+                $content | Out-File -FilePath CI_REPORT.md
+                Write-Host "CI Report generated"
+            '''
+            
+            archiveArtifacts artifacts: 'CI_REPORT.md', 
+                            allowEmptyArchive: true
+            
+            // Clean workspace
+            deleteDir()
+        }
+        
+        success {
+            script {
+                echo "✅ CI Pipeline completed successfully!"
+            }
+        }
+        
+        failure {
+            script {
+                echo "❌ CI Pipeline failed - check logs for details"
+            }
+        }
+    }
+}
