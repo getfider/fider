@@ -48,7 +48,7 @@ locale-reset: ## Reset translation for specific keys in all non-English locales 
 	fi
 	@keys="$(KEY) $(KEYS)"; \
 	echo "Resetting translations for: $$keys"; \
-	for lang in ar cs de el es-ES fa fr it ja ko nl pl pt-BR ru si-LK sk sv-SE tr zh-CN; do \
+	for lang in ar cs de el es-ES fa fr it ja ko nl pl pt-BR ru si-LK sk sv-SE tr zh-CN zh-TW; do \
 		echo "  Updating $$lang..."; \
 		temp_file=$$(mktemp); \
 		jq_expr=""; \

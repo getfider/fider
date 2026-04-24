@@ -3,6 +3,7 @@ package oauth
 import (
 	"context"
 	"encoding/base64"
+
 	"fmt"
 	"net/url"
 	"strings"
@@ -120,10 +121,17 @@ func parseOAuthRawProfile(ctx context.Context, c *cmd.ParseOAuthRawProfile) erro
 	// Extract and combine name parts
 	name := extractCompositeName(query, config.JSONUserNamePath)
 
+	// Extract roles if path is configured
+	var roles []string
+	if config.JSONUserRolesPath != "" {
+		roles = extractRolesFromJSON(c.Body, config.JSONUserRolesPath)
+	}
+
 	profile := &dto.OAuthUserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
 		Name:  name,
 		Email: strings.ToLower(strings.TrimSpace(query.String(config.JSONUserEmailPath))),
+		Roles: roles,
 	}
 
 	if profile.ID == "" {
@@ -191,6 +199,57 @@ func extractCompositeName(query *jsonq.Query, namePath string) string {
 	}
 
 	return ""
+}
+
+// extractRolesFromJSON extracts role strings from a JSON body at the given path.
+// Supports formats:
+// - "roles" for array of strings: ["ROLE_ADMIN", "ROLE_USER"]
+// - "roles[].id" for array of objects: [{"id": "ROLE_ADMIN"}, {"id": "ROLE_USER"}]
+// - "user.roles[].name" for nested array of objects
+// - "role" for a single string or comma-separated value
+func extractRolesFromJSON(jsonBody string, rolesPath string) []string {
+	rolesPath = strings.TrimSpace(rolesPath)
+	if rolesPath == "" {
+		return nil
+	}
+
+	q := jsonq.New(jsonBody)
+
+	// "roles[].id" — array of objects, extract field from each
+	if strings.Contains(rolesPath, "[].") {
+		parts := strings.SplitN(rolesPath, "[].", 2)
+		return trimNonEmpty(q.ArrayFieldStrings(parts[0], parts[1]))
+	}
+
+	// "roles" — array of strings or single (possibly comma-separated) string
+	values := q.Strings(rolesPath)
+	if len(values) == 0 {
+		return nil
+	}
+
+	// Single string may contain comma-separated roles
+	if len(values) == 1 && strings.Contains(values[0], ",") {
+		values = strings.Split(values[0], ",")
+	}
+
+	return trimNonEmpty(values)
+}
+
+// trimNonEmpty trims whitespace from each string and returns only non-empty values.
+func trimNonEmpty(ss []string) []string {
+	if ss == nil {
+		return nil
+	}
+	result := make([]string, 0, len(ss))
+	for _, s := range ss {
+		if s = strings.TrimSpace(s); s != "" {
+			result = append(result, s)
+		}
+	}
+	if len(result) == 0 {
+		return nil
+	}
+	return result
 }
 
 func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizationURL) error {

@@ -426,3 +426,184 @@ func TestUser_Impersonation_ValidUser(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Body.String()).Equals("Arya Stark")
 }
+
+// TestUser_SecurityStamp_Match verifies that a token whose security stamp
+// matches the DB value grants access normally.
+func TestUser_SecurityStamp_Match(t *testing.T) {
+	RegisterT(t)
+
+	userWithStamp := &entity.User{
+		ID:            mock.JonSnow.ID,
+		Name:          mock.JonSnow.Name,
+		Email:         mock.JonSnow.Email,
+		Tenant:        mock.DemoTenant,
+		Status:        enum.UserActive,
+		Role:          enum.RoleAdministrator,
+		SecurityStamp: "stamp-abc123",
+		Providers:     mock.JonSnow.Providers,
+	}
+
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:        userWithStamp.ID,
+		UserName:      userWithStamp.Name,
+		SecurityStamp: "stamp-abc123",
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == userWithStamp.ID {
+			q.Result = userWithStamp
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant).
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c *web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Jon Snow")
+}
+
+// TestUser_SecurityStamp_Mismatch verifies that a browser session is redirected to
+// /signin when the stamp in the JWT no longer matches the DB stamp (e.g. after a
+// role change or an OAuth provider allowed-roles update).
+func TestUser_SecurityStamp_Mismatch(t *testing.T) {
+	RegisterT(t)
+
+	userWithStamp := &entity.User{
+		ID:            mock.JonSnow.ID,
+		Name:          mock.JonSnow.Name,
+		Email:         mock.JonSnow.Email,
+		Tenant:        mock.DemoTenant,
+		Status:        enum.UserActive,
+		Role:          enum.RoleAdministrator,
+		SecurityStamp: "stamp-new", // DB has been updated
+		Providers:     mock.JonSnow.Providers,
+	}
+
+	// Token carries the OLD stamp
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:        userWithStamp.ID,
+		UserName:      userWithStamp.Name,
+		SecurityStamp: "stamp-old",
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == userWithStamp.ID {
+			q.Result = userWithStamp
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/settings").
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c *web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	// Browser request: should redirect to /signin with the current path as return URL
+	Expect(status).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).ContainsSubstring("/signin")
+	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring(web.CookieAuthName + "=;")
+}
+
+// TestUser_SecurityStamp_Mismatch_AJAX verifies that an AJAX request receives a 401
+// JSON response (not a redirect) when the security stamp is stale.
+func TestUser_SecurityStamp_Mismatch_AJAX(t *testing.T) {
+	RegisterT(t)
+
+	userWithStamp := &entity.User{
+		ID:            mock.JonSnow.ID,
+		Name:          mock.JonSnow.Name,
+		Email:         mock.JonSnow.Email,
+		Tenant:        mock.DemoTenant,
+		Status:        enum.UserActive,
+		Role:          enum.RoleAdministrator,
+		SecurityStamp: "stamp-new",
+		Providers:     mock.JonSnow.Providers,
+	}
+
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:        userWithStamp.ID,
+		UserName:      userWithStamp.Name,
+		SecurityStamp: "stamp-old",
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == userWithStamp.ID {
+			q.Result = userWithStamp
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Accept", "application/json").
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c *web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	// AJAX request: should get a 401 JSON, not a redirect
+	Expect(status).Equals(http.StatusUnauthorized)
+}
+
+// TestUser_SecurityStamp_EmptyInToken verifies backward compatibility:
+// old tokens without a stamp embedded must still be accepted.
+func TestUser_SecurityStamp_EmptyInToken(t *testing.T) {
+	RegisterT(t)
+
+	userWithStamp := &entity.User{
+		ID:            mock.JonSnow.ID,
+		Name:          mock.JonSnow.Name,
+		Email:         mock.JonSnow.Email,
+		Tenant:        mock.DemoTenant,
+		Status:        enum.UserActive,
+		Role:          enum.RoleAdministrator,
+		SecurityStamp: "stamp-in-db",
+		Providers:     mock.JonSnow.Providers,
+	}
+
+	// Old token: no SecurityStamp field
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   userWithStamp.ID,
+		UserName: userWithStamp.Name,
+		// SecurityStamp deliberately omitted (simulates pre-stamp tokens)
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == userWithStamp.ID {
+			q.Result = userWithStamp
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant).
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c *web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	// Old tokens without a stamp must still work (backward compatible)
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Jon Snow")
+}
+

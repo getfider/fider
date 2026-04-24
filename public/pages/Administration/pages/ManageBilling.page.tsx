@@ -12,9 +12,8 @@ import "./ManageBilling.page.scss"
 interface ManageBillingPageProps {
   stripeCustomerID: string
   stripeSubscriptionID: string
-  licenseKey: string
   paddleSubscriptionID: string
-  hasCommercialFeatures: boolean
+  isPro: boolean
 }
 
 interface PlanFeature {
@@ -115,8 +114,8 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
   // Detect Paddle customers who need to migrate
   const isPaddleCustomer = Boolean(props.paddleSubscriptionID && !props.stripeSubscriptionID)
 
-  // Display as commercial only if they're truly a Stripe customer
-  const displayAsCommercial = props.hasCommercialFeatures && !isPaddleCustomer
+  // Display as Pro only if they're truly a Stripe customer
+  const displayAsPro = props.isPro && !isPaddleCustomer
 
   const openPortal = async () => {
     setIsLoading(true)
@@ -140,14 +139,7 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
 
   const freeFeatures = ["250 suggestions", "Unlimited voters", "Your own subdomain or custom domain", "All core functionality"]
 
-  const proFeatures = [
-    "Everything in free",
-    "Unlimited suggestions",
-    "Content moderation",
-    "Search engine indexing",
-    "Billing month to month",
-    "Responsive email support",
-  ]
+  const proFeatures = ["Everything in free", "Unlimited suggestions", "Content moderation", "Search engine indexing", "Billing month to month"]
 
   const legacyProFeatures: PlanFeature[] = [
     { text: "Same features as Pro" },
@@ -161,18 +153,6 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
 
       {isPaddleCustomer && <PaddleMigrationBanner />}
 
-      {displayAsCommercial && props.licenseKey && (
-        <div className="bg-blue-50 p-4 rounded mb-4 border border-blue-200">
-          <p className="text-sm text-gray-700">
-            If you want to run Fider self-hosted with commercial features,{" "}
-            <a href="/admin/advanced" className="text-blue-600 hover:text-blue-800 underline">
-              see advanced
-            </a>
-            .
-          </p>
-        </div>
-      )}
-
       <div className="c-billing-plans">
         <PlanCard
           name="Free"
@@ -180,11 +160,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="Perfect for getting started with feedback collection."
           features={freeFeatures}
-          isCurrent={!displayAsCommercial && !isPaddleCustomer}
+          isCurrent={!displayAsPro && !isPaddleCustomer}
           buttonText="Downgrade"
           buttonVariant="secondary"
-          onButtonClick={displayAsCommercial ? openPortal : undefined}
-          isLoading={isLoading && displayAsCommercial}
+          onButtonClick={displayAsPro ? openPortal : undefined}
+          isLoading={isLoading && displayAsPro}
         />
 
         {isPaddleCustomer && (
@@ -205,11 +185,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="For teams that need advanced features and support."
           features={proFeatures}
-          isCurrent={displayAsCommercial}
+          isCurrent={displayAsPro}
           isHighlighted={true}
-          buttonText={displayAsCommercial ? "Manage Billing" : isPaddleCustomer ? "Switch to new Pro Plan" : "Upgrade to Pro"}
+          buttonText={displayAsPro ? "Manage Billing" : isPaddleCustomer ? "Switch to new Pro Plan" : "Upgrade to Pro"}
           buttonVariant="primary"
-          onButtonClick={displayAsCommercial ? openPortal : startCheckout}
+          onButtonClick={displayAsPro ? openPortal : startCheckout}
           isLoading={isLoading}
         />
       </div>

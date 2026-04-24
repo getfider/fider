@@ -83,7 +83,7 @@ const HttpHeader = (props: HttpHeaderProps) => {
 export const WebhookForm = (props: WebhookFormProps) => {
   const [name, setName] = useState(props.webhook?.name || "")
   const [type, _setType] = useState(props.webhook?.type || WebhookType.NEW_POST)
-  const [status, _setStatus] = useState(props.webhook?.status || WebhookStatus.DISABLED)
+  const [status, _setStatus] = useState(props.webhook?.status || WebhookStatus.ENABLED)
   const [url, setUrl] = useState(props.webhook?.url || "")
   const [content, setContent] = useState(props.webhook?.content || "")
   const [httpMethod, setHttpMethod] = useState(props.webhook?.http_method || "POST")

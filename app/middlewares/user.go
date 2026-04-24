@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -54,6 +55,26 @@ func User() web.MiddlewareFunc {
 						return next(c)
 					}
 					return err
+				}
+
+				// Security stamp check: if the JWT contains a stamp (new tokens only),
+				// validate it against the current DB stamp. A mismatch means the user's
+				// security-relevant data has changed (e.g. role changed, account blocked,
+				// or OAuth allowed-roles updated) and they must re-authenticate so that
+				// access controls are re-evaluated.
+				if claims.SecurityStamp != "" && user != nil && claims.SecurityStamp != user.SecurityStamp {
+					c.RemoveCookie(web.CookieAuthName)
+					if c.IsAjax() {
+						return c.JSON(401, web.Map{})
+					}
+					redirectTarget := c.Request.URL.RequestURI()
+					if redirectTarget != "" &&
+						redirectTarget != "/" &&
+						!strings.HasPrefix(redirectTarget, "/signin") &&
+						!strings.HasPrefix(redirectTarget, "/signout") {
+						return c.Redirect("/signin?redirect=" + url.QueryEscape(redirectTarget))
+					}
+					return c.Redirect("/signin")
 				}
 			} else if c.Request.IsAPI() {
 				authHeader := c.Request.GetHeader("Authorization")

@@ -86,6 +86,78 @@ func (q *Query) Contains(selector string) bool {
 	return q.get(selector) != nil
 }
 
+//Raw returns the raw JSON bytes at the given dot-notation selector, or nil if not found.
+func (q *Query) Raw(selector string) []byte {
+	msg := q.get(selector)
+	if msg == nil {
+		return nil
+	}
+	b, _ := msg.MarshalJSON()
+	return b
+}
+
+//Strings returns a slice of strings at the given selector.
+//If the value is a JSON array of strings, each element is returned.
+//If the value is a single string, a one-element slice is returned.
+//Returns nil if the selector doesn't exist or the value is not a string/array.
+func (q *Query) Strings(selector string) []string {
+	raw := q.Raw(selector)
+	if raw == nil {
+		return nil
+	}
+
+	// Try array of strings first
+	var arr []json.RawMessage
+	if err := json.Unmarshal(raw, &arr); err == nil {
+		result := make([]string, 0, len(arr))
+		for _, item := range arr {
+			var s string
+			if err := json.Unmarshal(item, &s); err == nil && s != "" {
+				result = append(result, s)
+			}
+		}
+		if len(result) > 0 {
+			return result
+		}
+		return nil
+	}
+
+	// Try single string
+	var s string
+	if err := json.Unmarshal(raw, &s); err == nil && s != "" {
+		return []string{s}
+	}
+
+	return nil
+}
+
+//ArrayFieldStrings iterates the JSON array at selector and extracts the named
+//field from each object element, returning the values as a string slice.
+//Returns nil if the selector doesn't exist or the value is not an array.
+func (q *Query) ArrayFieldStrings(selector string, field string) []string {
+	raw := q.Raw(selector)
+	if raw == nil {
+		return nil
+	}
+
+	var arr []json.RawMessage
+	if err := json.Unmarshal(raw, &arr); err != nil {
+		return nil
+	}
+
+	result := make([]string, 0, len(arr))
+	for _, item := range arr {
+		obj := New(string(item))
+		if s := obj.String(field); s != "" {
+			result = append(result, s)
+		}
+	}
+	if len(result) > 0 {
+		return result
+	}
+	return nil
+}
+
 func (q *Query) get(selector string) *json.RawMessage {
 	if selector == "" {
 		return nil

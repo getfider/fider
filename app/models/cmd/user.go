@@ -54,3 +54,5 @@ type UpdateCurrentUser struct {
 	AvatarType enum.AvatarType
 	Avatar     *dto.ImageUpload
 }
+
+type RotateAllUserSecurityStamps struct {}
