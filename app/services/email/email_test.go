@@ -10,6 +10,20 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
+func TestRenderMessage_SubjectUnescapesHTMLEntities(t *testing.T) {
+	RegisterT(t)
+
+	// Reproducer for the issue where characters like '+', '"', '&', '<', '>'
+	// in the rendered subject ended up as their numeric HTML entities
+	// (e.g. "&#43;", "&#34;") because the subject is rendered through
+	// html/template along with the body. SMTP headers are plain text and
+	// must contain the literal characters.
+	message := email.RenderMessage(context.Background(), "echo_test", email.NoReply, dto.Props{
+		"name": `Encontrar+se "quoted" & <tagged>`,
+	})
+	Expect(message.Subject).Equals(`Message to: Encontrar+se "quoted" & <tagged>`)
+}
+
 func TestRenderMessage(t *testing.T) {
 	RegisterT(t)
 
