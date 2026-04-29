@@ -454,7 +454,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 			condition, statuses, _ := getViewData(*q, 4)
 
-			if q.MyPostsOnly {
+			if q.MyPostsOnly && user != nil {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
 			}
 
@@ -473,7 +473,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 		} else {
 			condition, statuses, sort := getViewData(*q, 3)
 
-			if q.MyPostsOnly {
+			if q.MyPostsOnly && user != nil {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
 			}
 
