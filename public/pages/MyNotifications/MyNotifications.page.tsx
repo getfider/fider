@@ -1,7 +1,7 @@
 import React from "react"
 
 import { Notification } from "@fider/models"
-import { Header, Markdown, Moment, PageTitle } from "@fider/components"
+import { Header, Link, Markdown, Moment, PageTitle } from "@fider/components"
 import { actions, Fider } from "@fider/services"
 import { HStack, VStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
@@ -38,9 +38,9 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
     return notifications.map((n) => {
       return (
         <div key={n.id}>
-          <a className="text-link block" href={`/notifications/${n.id}`}>
+          <Link className="text-link block" href={`/notifications/${n.id}`}>
             <Markdown text={n.title} style="full" />
-          </a>
+          </Link>
           <span className="text-muted">
             <Moment locale={Fider.currentLocale} date={n.createdAt} />
           </span>

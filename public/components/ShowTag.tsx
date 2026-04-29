@@ -5,7 +5,7 @@ import { Tag } from "@fider/models"
 import { classSet } from "@fider/services"
 import EyeSlash from "@fider/assets/images/heroicons-eyeslash.svg"
 import TagSolid from "@fider/assets/images/heroicons-tagsolid.svg"
-import { Icon } from "./common"
+import { Icon, Link } from "./common"
 
 interface TagProps {
   tag: Tag
@@ -32,7 +32,7 @@ export const ShowTag = (props: TagProps) => {
   }
 
   return (
-    <a
+    <Link
       // always add an href, so the tag can be selected by keyboard in the TagsSelect
       href={props.link && props.tag.slug ? `/?tags=${props.tag.slug}` : ""}
       title={`${props.tag.name}${props.tag.isPublic ? "" : " (Private)"}`}
@@ -42,6 +42,6 @@ export const ShowTag = (props: TagProps) => {
       <Icon style={{ color: `#${props.tag.color}` }} className="pr-1" height="18" width="18" sprite={TagSolid}></Icon>
       {!props.tag.isPublic && !props.circular && <Icon height="14" width="14" sprite={EyeSlash} className="mr-1" />}
       {props.circular ? "" : props.tag.name || "Tag"}
-    </a>
+    </Link>
   )
 }
