@@ -98,6 +98,9 @@ func getViewData(query query.SearchPosts, tagsPlaceholder int) (string, []enum.P
 	}
 
 	if query.NoTagsOnly {
+		// NoTagsOnly takes precedence: combining "untagged" with specific tag
+		// filters produces contradictory SQL that always returns zero rows.
+		query.Tags = nil
 		condition += " AND tags = '{}'"
 	}
 

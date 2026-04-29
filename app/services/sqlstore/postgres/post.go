@@ -466,7 +466,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			`, innerQuery, searchPredicate, condition, score, q.Limit)
 
 			params := []interface{}{tenant.ID, pq.Array(statuses), tsQuery}
-			if len(q.Tags) > 0 {
+			if len(q.Tags) > 0 && !q.NoTagsOnly {
 				params = append(params, pq.Array(q.Tags))
 			}
 			err = trx.Select(&posts, sql, params...)
@@ -484,7 +484,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				LIMIT %s
 			`, innerQuery, condition, sort, q.Limit)
 			params := []interface{}{tenant.ID, pq.Array(statuses)}
-			if len(q.Tags) > 0 {
+			if len(q.Tags) > 0 && !q.NoTagsOnly {
 				params = append(params, pq.Array(q.Tags))
 			}
 			err = trx.Select(&posts, sql, params...)
