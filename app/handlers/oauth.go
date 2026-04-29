@@ -31,13 +31,13 @@ func OAuthEcho() web.HandlerFunc {
 
 		code := c.QueryParam("code")
 		if code == "" {
-			return c.Redirect(c.BasePath() + "/")
+			return c.RedirectTo("/")
 		}
 
 		identifier := c.QueryParam("identifier")
 		if identifier == "" || identifier != c.SessionID() {
 			log.Warn(c, "OAuth identifier doesn't match with user session ID. Aborting sign in process.")
-			return c.Redirect(c.BasePath() + "/")
+			return c.RedirectTo("/")
 		}
 
 		rawProfile := &query.GetOAuthRawProfile{Provider: provider, Code: code}
@@ -142,13 +142,13 @@ func OAuthToken() web.HandlerFunc {
 					"UserRoles":    oauthUser.Result.Roles,
 					"AllowedRoles": providerAllowedRoles,
 				})
-			return c.Redirect("/access-denied")
+			return c.RedirectTo("/access-denied")
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				isTrusted := customConfig != nil && customConfig.IsTrusted
 				if c.Tenant().IsPrivate && !isTrusted {
-					return c.Redirect(c.BasePath() + "/not-invited")
+					return c.RedirectTo("/not-invited")
 				}
 
 				user = &entity.User{

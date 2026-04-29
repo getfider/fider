@@ -543,6 +543,13 @@ func (c *Context) Redirect(url string) error {
 	return nil
 }
 
+// RedirectTo redirects to a root-relative path, automatically prepending
+// BasePath() for sub-path hosting. Callers pass natural paths (e.g. "/signin")
+// instead of manually concatenating c.BasePath() + "/signin" at every site.
+func (c *Context) RedirectTo(path string) error {
+	return c.Redirect(c.BasePath() + path)
+}
+
 // PermanentRedirect the request to a provided URL
 func (c *Context) PermanentRedirect(url string) error {
 	c.Response.Header().Set("Cache-Control", "no-cache, no-store")
