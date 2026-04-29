@@ -161,10 +161,11 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
   public render() {
     const showMoreLink = this.getShowMoreLink()
+    const headerClass = this.state.query ? "c-posts-container__header c-posts-container__header--searching" : "c-posts-container__header"
 
     return (
       <div className="c-posts-container">
-        <div className="c-posts-container__header">
+        <div className={headerClass}>
           <div className="c-posts-container__filter-col">
             <PostFilter
               tags={this.props.tags}
