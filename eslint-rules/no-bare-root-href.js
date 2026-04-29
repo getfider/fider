@@ -19,8 +19,7 @@ module.exports = {
       description: "Disallow bare root-relative hrefs in JSX; use <Link> or resolveHref()",
     },
     messages: {
-      bareHref:
-        "Avoid hardcoded root-relative href on <{{element}}>; use the <Link> component or resolveHref() so sub-path hosting is respected.",
+      bareHref: "Avoid hardcoded root-relative href on <{{element}}>; use the <Link> component or resolveHref() so sub-path hosting is respected.",
     },
     schema: [],
   },
