@@ -13,10 +13,11 @@ import (
 
 func encode(user *entity.User) string {
 	token, err := jwt.Encode(jwt.FiderClaims{
-		UserID:    user.ID,
-		UserName:  user.Name,
-		UserEmail: user.Email,
-		Origin:    jwt.FiderClaimsOriginUI,
+		UserID:        user.ID,
+		UserName:      user.Name,
+		UserEmail:     user.Email,
+		Origin:        jwt.FiderClaimsOriginUI,
+		SecurityStamp: user.SecurityStamp,
 		Metadata: jwt.Metadata{
 			ExpiresAt: jwt.Time(time.Now().Add(365 * 24 * time.Hour)),
 		},

@@ -11,9 +11,6 @@ export const ModerationIndicator = () => {
   const [count, setCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
-  // Check if commercial license is available
-  const hasCommercialLicense = fider.session.tenant.hasCommercialFeatures
-
   useEffect(() => {
     const fetchCount = async () => {
       try {
@@ -37,12 +34,7 @@ export const ModerationIndicator = () => {
     }
   }, [fider.session.user, fider.session.tenant.isModerationEnabled])
 
-  // Don't show the indicator if commercial license is not available
-  if (!hasCommercialLicense) {
-    return null
-  }
-
-  // Don't show the indicator if user is not admin/collaborator or moderation is disabled
+  // Don't show if user is not admin/collaborator or moderation is disabled
   if (!fider.session.user.isAdministrator && !fider.session.user.isCollaborator) {
     return null
   }

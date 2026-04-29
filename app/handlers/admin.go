@@ -27,19 +27,12 @@ func GeneralSettingsPage() web.HandlerFunc {
 // AdvancedSettingsPage is the advanced settings page
 func AdvancedSettingsPage() web.HandlerFunc {
 	return func(c *web.Context) error {
-		billingState := &query.GetStripeBillingState{}
-		if err := bus.Dispatch(c, billingState); err != nil {
-			return c.Failure(err)
-		}
-
 		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/AdvancedSettings.page",
 			Title: "Advanced · Site Settings",
 			Data: web.Map{
-				"customCSS":              c.Tenant().CustomCSS,
-				"allowedSchemes":         c.Tenant().AllowedSchemes,
-				"licenseKey":             billingState.Result.LicenseKey,
-				"hasCommercialFeatures": c.Tenant().HasCommercialFeatures,
+				"customCSS":      c.Tenant().CustomCSS,
+				"allowedSchemes": c.Tenant().AllowedSchemes,
 			},
 		})
 	}
@@ -242,6 +235,8 @@ func SaveOAuthConfig() web.HandlerFunc {
 				JSONUserIDPath:    action.JSONUserIDPath,
 				JSONUserNamePath:  action.JSONUserNamePath,
 				JSONUserEmailPath: action.JSONUserEmailPath,
+				JSONUserRolesPath: action.JSONUserRolesPath,
+				AllowedRoles:      action.AllowedRoles,
 			},
 		); err != nil {
 			return c.Failure(err)
