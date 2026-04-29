@@ -466,7 +466,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				enum.PostDeclined,
 			}), tsQuery)
 		} else {
-			condition, statuses, sort := getViewData(*q)
+			condition, statuses, sort := getViewData(*q, 3)
 
 			if q.MyPostsOnly {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
