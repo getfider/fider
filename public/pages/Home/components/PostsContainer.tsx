@@ -165,17 +165,15 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     return (
       <div className="c-posts-container">
         <div className="c-posts-container__header">
-          {!this.state.query && (
-            <div className="c-posts-container__filter-col">
-              <PostFilter
-                tags={this.props.tags}
-                activeFilter={this.state.filterState}
-                filtersChanged={this.handleFilterChanged}
-                countPerStatus={this.props.countPerStatus}
-              />
-              <PostsSort onChange={this.handleSortChanged} value={this.state.view} />
-            </div>
-          )}
+          <div className="c-posts-container__filter-col">
+            <PostFilter
+              tags={this.props.tags}
+              activeFilter={this.state.filterState}
+              filtersChanged={this.handleFilterChanged}
+              countPerStatus={this.props.countPerStatus}
+            />
+            {!this.state.query && <PostsSort onChange={this.handleSortChanged} value={this.state.view} />}
+          </div>
           <div className="c-posts-container__search-col">
             <Input
               field="query"
