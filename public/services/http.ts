@@ -1,4 +1,4 @@
-import { analytics, notify, truncate, Fider } from "@fider/services"
+import { analytics, notify, truncate, Fider, resolveHref } from "@fider/services"
 
 export interface ErrorItem {
   field?: string
@@ -33,7 +33,7 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
     // Redirect to /signin so they re-authenticate and the role check runs again.
     if (Fider.session.isAuthenticated) {
       const redirect = encodeURIComponent(window.location.pathname + window.location.search)
-      window.location.href = `/signin?redirect=${redirect}`
+      window.location.href = resolveHref(`/signin?redirect=${redirect}`)
       // Return a never-resolving promise so no further code runs while navigating.
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       return new Promise<Result<T>>(() => {})
@@ -51,27 +51,13 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
     },
   }
 }
-function resolveUrl(url: string): string {
-  if (url.startsWith("/")) {
-    try {
-      const basePath = new URL(Fider.settings.baseURL).pathname.replace(/\/$/, "")
-      if (basePath && basePath !== "/" && !url.startsWith(basePath)) {
-        return basePath + url
-      }
-    } catch {
-      // Fider not initialized yet or invalid baseURL
-    }
-  }
-  return url
-}
-
 async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any): Promise<Result<T>> {
   const headers = [
     ["Accept", "application/json"],
     ["Content-Type", "application/json"],
   ]
   try {
-    const response = await fetch(resolveUrl(url), {
+    const response = await fetch(resolveHref(url), {
       method,
       headers,
       body: JSON.stringify(body),
