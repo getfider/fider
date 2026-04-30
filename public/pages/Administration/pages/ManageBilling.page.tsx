@@ -19,6 +19,7 @@ interface ManageBillingPageProps {
 interface PlanFeature {
   text: string
   isNegative?: boolean
+  onClick?: () => void
 }
 
 interface PlanCardProps {
@@ -78,10 +79,17 @@ const PlanCard = (props: PlanCardProps) => {
           {props.features.map((feature, index) => {
             const featureText = typeof feature === "string" ? feature : feature.text
             const isNegative = typeof feature === "object" && feature.isNegative
+            const onClick = typeof feature === "object" ? feature.onClick : undefined
             return (
-              <HStack key={index} spacing={2} align="start">
+              <HStack key={index} spacing={2} align="center">
                 <Icon sprite={isNegative ? IconX : IconCheck} className={isNegative ? "text-red-500" : "text-green-500"} height="16" />
-                <span className="text-sm">{featureText}</span>
+                {onClick ? (
+                  <a className="text-sm clickable text-blue-200 clickable" onClick={onClick}>
+                    {featureText}
+                  </a>
+                ) : (
+                  <span className="text-sm">{featureText}</span>
+                )}
               </HStack>
             )
           })}
@@ -139,7 +147,26 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
 
   const freeFeatures = ["250 suggestions", "Unlimited voters", "Your own subdomain or custom domain", "All core functionality"]
 
-  const proFeatures = ["Everything in free", "Unlimited suggestions", "Content moderation", "Search engine indexing", "Billing month to month"]
+  const startAnnualCheckout = async () => {
+    setIsLoading(true)
+    const result = await http.post<{ url: string }>("/_api/admin/billing/checkout/annual")
+    if (result.ok) {
+      window.location.href = result.data.url
+    } else {
+      setIsLoading(false)
+    }
+  }
+
+  const proFeatures: (string | PlanFeature)[] = [
+    "Everything in free",
+    "Unlimited suggestions",
+    "Content moderation",
+    "Search engine indexing",
+    {
+      text: "Option to pay annually",
+      onClick: startAnnualCheckout,
+    },
+  ]
 
   const legacyProFeatures: PlanFeature[] = [
     { text: "Same features as Pro" },
