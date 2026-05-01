@@ -216,6 +216,7 @@ func routes(r *web.Engine) *web.Engine {
 			ui.Get("/admin/billing", handlers.ManageBilling())
 			ui.Post("/_api/admin/billing/portal", handlers.CreateStripePortalSession())
 			ui.Post("/_api/admin/billing/checkout", handlers.CreateStripeCheckoutSession())
+			ui.Post("/_api/admin/billing/checkout/annual", handlers.CreateStripeAnnualCheckoutSession())
 		}
 	}
 
