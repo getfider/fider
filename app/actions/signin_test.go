@@ -2,6 +2,7 @@ package actions_test
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/getfider/fider/app/actions"
@@ -34,6 +35,42 @@ func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
 	ExpectSuccess(result)
 	Expect(action.VerificationCode).IsNotEmpty()
 	Expect(len(action.VerificationCode)).Equals(6)
+}
+
+func TestSignInByEmail_VerificationCodeNotOverwrittenByJSON(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.NewSignInByEmail()
+	originalCode := action.VerificationCode
+	originalKey := action.LinkKey
+
+	// Simulate attacker trying to overwrite internal fields via JSON binding
+	payload := []byte(`{"email":"attacker@evil.com","VerificationCode":"000000","LinkKey":"attacker-key"}`)
+	err := json.Unmarshal(payload, action)
+	Expect(err).IsNil()
+
+	// VerificationCode and LinkKey must NOT be overwritten
+	Expect(action.VerificationCode).Equals(originalCode)
+	Expect(action.LinkKey).Equals(originalKey)
+	// Email should still bind normally
+	Expect(action.Email).Equals("attacker@evil.com")
+}
+
+func TestSignInByEmailWithName_VerificationCodeNotOverwrittenByJSON(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.NewSignInByEmailWithName()
+	originalCode := action.VerificationCode
+	originalKey := action.LinkKey
+
+	payload := []byte(`{"email":"attacker@evil.com","name":"Attacker","VerificationCode":"000000","LinkKey":"attacker-key"}`)
+	err := json.Unmarshal(payload, action)
+	Expect(err).IsNil()
+
+	Expect(action.VerificationCode).Equals(originalCode)
+	Expect(action.LinkKey).Equals(originalKey)
+	Expect(action.Email).Equals("attacker@evil.com")
+	Expect(action.Name).Equals("Attacker")
 }
 
 func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
