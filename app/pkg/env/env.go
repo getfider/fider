@@ -156,7 +156,7 @@ func init() {
 	Reload()
 }
 
-// Reload configuration from current Enviornment Variables
+// Reload configuration from current Environment Variables
 func Reload() {
 	Config = config{}
 	err := envdecode.Decode(&Config)
