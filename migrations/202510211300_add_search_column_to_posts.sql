@@ -7,25 +7,25 @@ RETURNS regconfig AS $$
 BEGIN
 	RETURN CASE lang
         WHEN 'ar' THEN 'arabic'::regconfig
-        WHEN 'cs' THEN 'simple'::regconfig   -- Czech not supported, fallback to simple
+        WHEN 'cs' THEN 'simple'::regconfig   -- Czech not supported, fall back to simple
         WHEN 'de' THEN 'german'::regconfig
-        WHEN 'el' THEN 'simple'::regconfig   -- Greek not supported, fallback to simple
+        WHEN 'el' THEN 'simple'::regconfig   -- Greek not supported, fall back to simple
         WHEN 'en' THEN 'english'::regconfig
         WHEN 'es-ES' THEN 'spanish'::regconfig
-        WHEN 'fa' THEN 'simple'::regconfig    -- Farsi not supported, fallback to simple
+        WHEN 'fa' THEN 'simple'::regconfig    -- Farsi not supported, fall back to simple
         WHEN 'fr' THEN 'french'::regconfig
         WHEN 'it' THEN 'italian'::regconfig
-        WHEN 'ja' THEN 'simple'::regconfig    -- Japanese not supported, fallback to simple
-        WHEN 'ko' THEN 'simple'::regconfig    -- Korean not supported, fallback to simple
+        WHEN 'ja' THEN 'simple'::regconfig    -- Japanese not supported, fall back to simple
+        WHEN 'ko' THEN 'simple'::regconfig    -- Korean not supported, fall back to simple
         WHEN 'nl' THEN 'dutch'::regconfig
-        WHEN 'pl' THEN 'simple'::regconfig    -- Polish not supported, fallback to simple
+        WHEN 'pl' THEN 'simple'::regconfig    -- Polish not supported, fall back to simple
         WHEN 'pt-BR' THEN 'portuguese'::regconfig
         WHEN 'ru' THEN 'russian'::regconfig
-        WHEN 'sk' THEN 'simple'::regconfig    -- Slovak not supported, fallback to simple
-        WHEN 'si-LK' THEN 'simple'::regconfig   -- Sinhala not supported, fallback to simple
+        WHEN 'sk' THEN 'simple'::regconfig    -- Slovak not supported, fall back to simple
+        WHEN 'si-LK' THEN 'simple'::regconfig   -- Sinhala not supported, fall back to simple
         WHEN 'sv-SE' THEN 'swedish'::regconfig
         WHEN 'tr' THEN 'turkish'::regconfig
-        WHEN 'zh-CN' THEN 'simple'::regconfig -- Chinese not supported, fallback to simple
+        WHEN 'zh-CN' THEN 'simple'::regconfig -- Chinese not supported, fall back to simple
 		ELSE 'simple'::regconfig
 	END;
 END;

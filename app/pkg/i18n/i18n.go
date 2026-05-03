@@ -69,7 +69,7 @@ func getLocaleData(locale string) localeData {
 }
 
 // getMessage returns the translated message for a given locale
-// If given key is not found, it'll fallback to English
+// If given key is not found, it'll fall back to English
 func getMessage(locale, key string) (string, *messageformat.Parser) {
 	localeData := getLocaleData(locale)
 	if str, ok := localeData.file[key]; ok && str != "" {
