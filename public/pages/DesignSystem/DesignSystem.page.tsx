@@ -409,7 +409,7 @@ const DesignSystemPage = () => {
 
         <h2 className="text-display2 mb-3 mt-6">13. Hints</h2>
 
-        <Hint permanentCloseKey="ui-toolkip-example">Did you know that you can close this permanently?</Hint>
+        <Hint permanentCloseKey="ui-tooltip-example">Did you know that you can close this permanently?</Hint>
         <Hint>You can&apos;t close this one :)</Hint>
 
         <h2 className="text-display2 mb-3 mt-6">14. Form</h2>
