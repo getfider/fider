@@ -65,7 +65,7 @@ const functions: StringObject<FunctionSpecification> = {
   },
   quote: {
     params: [{ type: "string", desc: "The input string to quote" }],
-    description: "Enquote a string and escape inner special characters",
+    description: "Quote a string and escape inner special characters",
     info: "You should use this function when using a value as a JSON field",
   },
   escape: {
