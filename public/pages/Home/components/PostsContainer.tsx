@@ -26,7 +26,7 @@ interface PostsContainerState {
   posts?: Post[] // All posts
   view: string
   filterState: FilterState // Filter state
-  query: string // Seach query
+  query: string // Search query
   limit?: number // Limit
 }
 
