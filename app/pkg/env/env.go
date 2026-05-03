@@ -177,7 +177,7 @@ func Reload() {
 		}
 	}
 
-	// Email Type can be inferred if absense
+	// Email Type can be inferred if absence
 	if Config.Email.Type == "" {
 		if Config.Email.Mailgun.APIKey != "" {
 			Config.Email.Type = "mailgun"
