@@ -6,7 +6,7 @@ This document explains everything that needs to change in Fider to facilitate th
 
 ## Settings
 
-This is a optional feature. Admins will be able to toggle this. This is done in the public/pages/Administration/pages/PrivacySettings.page.tsx page. Similar to how the other settings are controlled in this page. There needs to be a new column in the "tenants" database table called "is_moderation_enabled" to control this, so you're going to need a new migration file in migrations/
+This is an optional feature. Admins will be able to toggle this. This is done in the public/pages/Administration/pages/PrivacySettings.page.tsx page. Similar to how the other settings are controlled in this page. There needs to be a new column in the "tenants" database table called "is_moderation_enabled" to control this, so you're going to need a new migration file in migrations/
 
 ## New posts and comments
 
