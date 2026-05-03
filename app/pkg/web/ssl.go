@@ -133,7 +133,7 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 		}
 		serverName = strings.Trim(serverName, ".")
 
-		// If ServerName is empty or does't contain a dot, just return the certificate
+		// If ServerName is empty or doesn't contain a dot, just return the certificate
 		if serverName == "" || !strings.Contains(serverName, ".") {
 			return &m.cert, nil
 		}
