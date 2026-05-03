@@ -236,7 +236,7 @@ func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *v
 	return result
 }
 
-// SetResponse represents the action to update an post response
+// SetResponse represents the action to update a post response
 type SetResponse struct {
 	Number         int             `route:"number"`
 	Status         enum.PostStatus `json:"status"`

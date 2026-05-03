@@ -93,7 +93,7 @@ func (action *DeleteTag) Validate(ctx context.Context, user *entity.User) *valid
 	return validate.Success()
 }
 
-// AssignUnassignTag is used to assign or remove a tag to/from an post
+// AssignUnassignTag is used to assign or remove a tag to/from a post
 type AssignUnassignTag struct {
 	Slug   string `route:"slug"`
 	Number int    `route:"number"`
