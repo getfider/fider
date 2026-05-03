@@ -31,7 +31,7 @@ func TestHasAllowedRole_WhitespaceOnlyConfig_AllowsAll(t *testing.T) {
 
 func TestHasAllowedRole_NoRolesPath_SkipsCheck(t *testing.T) {
 	// Provider without a roles path must always be allowed through,
-	// regardless of whether the user carries matching roles or not.
+	// regardless of whether or not the user carries matching roles.
 	if !hasAllowedRole([]string{}, "", "ROLE_ADMIN") {
 		t.Error("expected true when provider has no JSONUserRolesPath (check should be skipped)")
 	}
@@ -116,4 +116,3 @@ func TestHasAllowedRole_ConfigWithOnlyCommas_AllowsAll(t *testing.T) {
 		t.Error("expected true when config contains only separators (no valid roles)")
 	}
 }
-
