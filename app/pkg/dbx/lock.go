@@ -15,7 +15,7 @@ func hash(s string) uint32 {
 }
 
 // Try to obtain an advisory lock
-// returns true and an unlock function if lock was aquired
+// returns true and an unlock function if lock was acquired
 func TryLock(ctx context.Context, trx *Trx, key string) (bool, func()) {
 	var locked bool
 	if err := trx.Scalar(&locked, "SELECT pg_try_advisory_xact_lock($1)", hash(key)); err != nil {
