@@ -264,8 +264,8 @@ func (action *SetResponse) Validate(ctx context.Context, user *entity.User) *val
 			result.AddFieldFailure("originalNumber", i18n.T(ctx, "validation.custom.selfduplicate"))
 		}
 
-		getOriginaPost := &query.GetPostByNumber{Number: action.OriginalNumber}
-		err := bus.Dispatch(ctx, getOriginaPost)
+		getOriginalPost := &query.GetPostByNumber{Number: action.OriginalNumber}
+		err := bus.Dispatch(ctx, getOriginalPost)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				result.AddFieldFailure("originalNumber", i18n.T(ctx, "validation.custom.originalpostnotfound"))
@@ -274,8 +274,8 @@ func (action *SetResponse) Validate(ctx context.Context, user *entity.User) *val
 			}
 		}
 
-		if getOriginaPost.Result != nil {
-			action.Original = getOriginaPost.Result
+		if getOriginalPost.Result != nil {
+			action.Original = getOriginalPost.Result
 		}
 	}
 
