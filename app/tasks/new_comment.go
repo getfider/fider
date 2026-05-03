@@ -105,7 +105,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 
 		}
 
-		// Standard email notitifications
+		// Standard email notifications
 		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
