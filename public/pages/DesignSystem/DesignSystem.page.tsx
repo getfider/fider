@@ -418,7 +418,7 @@ const DesignSystemPage = () => {
           <Input label="Title" field="title">
             <p className="text-muted">This is the explanation for the field above.</p>
           </Input>
-          <Input label="Disabled!" field="unamed" disabled={true} value={"you can't change this!"} />
+          <Input label="Disabled!" field="unnamed" disabled={true} value={"you can't change this!"} />
           <Input label="Name" field="name" placeholder={"Your name goes here..."} />
           <Input label="Subdomain" field="subdomain" suffix=".fider.io" />
           <Input label="Email" field="email" suffix={<Button variant="primary">Sign in</Button>} />
