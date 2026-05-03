@@ -81,7 +81,7 @@ func TestDetailsHandler(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 }
 
-func TestDetailsHandler_RedirectOnDifferentSlu(t *testing.T) {
+func TestDetailsHandler_RedirectOnDifferentSlug(t *testing.T) {
 	RegisterT(t)
 
 	post := &entity.Post{Number: 1, Title: "My Post Title", Slug: "my-post-title"}
