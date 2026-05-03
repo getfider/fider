@@ -48,7 +48,7 @@ export const useAttachments = (options: UseAttachmentsOptions = {}): UseAttachme
           // 1.If the bkey exists in attachments:
           // 1.1 If there is something in upload.content, then it's a new upload that's not yet saved, so just remove the entry from attachments.
           // 1.2 If there is nothing in upload.content, it's been previously uploaded, so set the remove flag to true.
-          // 2. If the bkey doesn't exist, then you're editing, and attachments hasn't been "primed" so add it as a new one but with with remove flag set to true
+          // 2. If the bkey doesn't exist, then you're editing, and attachments hasn't been "primed" so add it as a new one but with the remove flag set to true
 
           const existing = prev.find((att) => att.bkey === upload.bkey)
 
