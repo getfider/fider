@@ -102,7 +102,7 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
         <TextArea field="message" label="Message" minRows={8} value={this.state.message} onChange={this.setMessage}>
           <div className="text-muted">
             <p>
-              This is the content of the invite. Be polite and explain what this invite is for, otherwise there&apos;s a high change people will ignore your
+              This is the content of the invite. Be polite and explain what this invite is for; otherwise, there&apos;s a high change people will ignore your
               message.
             </p>
             <p>

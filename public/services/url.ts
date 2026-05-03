@@ -7,7 +7,7 @@ export const normalizeUrl = (url: string) => {
   // Parse the scheme from the URL (e.g. https, mailto, monero, bitcoin, etc.)
   const trimmedUrl = url.trim()
   const scheme = trimmedUrl.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):/)?.[1]?.toLowerCase()
-  // For URLs without a scheme, add https://, otherwise return the URL as is
+  // For URLs without a scheme, add https://; otherwise, return the URL as is
   return scheme ? trimmedUrl : `https://${trimmedUrl}`
 }
 

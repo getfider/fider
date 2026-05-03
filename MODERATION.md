@@ -12,7 +12,7 @@ This is a optional feature. Admins will be able to toggle this. This is done in 
 
 Posts and comments will need a new column "is_approved" to determine if the post or comment has been approved to be shown. Again, this will need adding to the migration.
 
-When a new post or comment is added, if moderation is enabled then is_approved will be false, otherwise it will be true. New posts are added via public/pages/Home/components/ShareFeedback.tsx and comments via public/pages/ShowPost/components/CommentInput.tsx.
+When a new post or comment is added, if moderation is enabled then is_approved will be false; otherwise, it will be true. New posts are added via public/pages/Home/components/ShareFeedback.tsx and comments via public/pages/ShowPost/components/CommentInput.tsx.
 
 Once added, the post is only visible to the person who added it (and admins, see below). When you view the post (or the comment) via public/pages/ShowPost/ShowPost.page.tsx, there needs to be a message to tell you that it's awaiting moderation.
 
