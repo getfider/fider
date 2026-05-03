@@ -71,7 +71,7 @@ const functions: StringObject<FunctionSpecification> = {
   escape: {
     params: [{ type: "string", desc: "The input string to escape" }],
     description: "Escape inner special characters of a string, without enquoting it",
-    info: "You should use this function when using a value within an enquoted string",
+    info: "You should use this function when using a value within a quoted string",
   },
   urlquery: {
     params: [{ type: "string", desc: "The input string to encode as URL query value" }],
