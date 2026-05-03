@@ -182,7 +182,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 			err   error
 		)
 
-		// When searching for email subscrivers, skip users with email supressed
+		// When searching for email subscribers, skip users with email supressed
 		supressionCondition := ""
 		if q.Channel == enum.NotificationChannelEmail {
 			supressionCondition = "AND u.email_supressed_at IS NULL"
