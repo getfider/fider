@@ -32,7 +32,7 @@ _ If comment: "New comment: <comment>" (truncated to 200 chars)
 _ If post: "New post: <post title>"
 _ Thumbs up button to approve \* Thumbs down button to decline
 
-If you click the description for a post or comment, it will take you to the post, and if you clicked a comment, will highlight the comment (this is already supported, see how the public/pages/ShowPost/ShowPost.page.tsx page highlights comments). When you are an admin, and it's a post that's awaiting moderation, the in place of the voting button, we need 2 buttons - one to approve, one to decline. The same is true for comments, there should be an approve / decline set of buttons udner the comment.
+If you click the description for a post or comment, it will take you to the post, and if you clicked a comment, will highlight the comment (this is already supported, see how the public/pages/ShowPost/ShowPost.page.tsx page highlights comments). When you are an admin, and it's a post that's awaiting moderation, the in place of the voting button, we need 2 buttons - one to approve, one to decline. The same is true for comments, there should be an approve / decline set of buttons under the comment.
 
 Declining a post or comment will delete it entirely. We should ask the user to confirm the action.
 
