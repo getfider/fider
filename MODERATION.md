@@ -21,7 +21,7 @@ Once added, the post is only visible to the person who added it (and admins, see
 The "admin" section of fider looks like this (public/pages/Administration/components/AdminBasePage.tsx):
 ![alt text](<CleanShot 2025-07-01 at 20.39.05@2x.png>)
 
-There neeeds to be a new menu item on the left for "Moderation"
+There needs to be a new menu item on the left for "Moderation"
 
 Clicking on that presents you with a tablular view of all non-moderated posts and comments.
 For each row, display the following columns:
