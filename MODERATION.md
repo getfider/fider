@@ -23,7 +23,7 @@ The "admin" section of fider looks like this (public/pages/Administration/compon
 
 There needs to be a new menu item on the left for "Moderation"
 
-Clicking on that presents you with a tablular view of all non-moderated posts and comments.
+Clicking on that presents you with a tabular view of all non-moderated posts and comments.
 For each row, display the following columns:
 _ A checkbox to allow you to select multiple rows
 _ User's name and date of post (e.g. "Matt, 10 minutes ago")
