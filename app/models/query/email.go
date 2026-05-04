@@ -2,7 +2,7 @@ package query
 
 import "time"
 
-type FetchRecentSupressions struct {
+type FetchRecentSuppressions struct {
 	StartTime time.Time
 
 	//Output

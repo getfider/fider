@@ -39,7 +39,7 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	bus.AddListener(sendMail)
-	bus.AddHandler(fetchRecentSupressions)
+	bus.AddHandler(fetchRecentSuppressions)
 }
 
 // Try getting the URL of the Mailgun API using Environment vars and the Sender's domain

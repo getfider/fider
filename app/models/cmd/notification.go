@@ -33,9 +33,9 @@ type RemoveSubscriber struct {
 	User *entity.User
 }
 
-type SupressEmail struct {
+type SuppressEmail struct {
 	EmailAddresses []string
 
 	//Output
-	NumOfSupressedEmailAddresses int
+	NumOfSuppressedEmailAddresses int
 }

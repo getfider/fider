@@ -316,7 +316,7 @@ func TestSubscription_SubscribedToDifferentPost(t *testing.T) {
 	Expect(q.Result[0].ID).Equals(jonSnow.ID)
 }
 
-func TestSubscription_EmailSupressed(t *testing.T) {
+func TestSubscription_EmailSuppressed(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -342,8 +342,8 @@ func TestSubscription_EmailSupressed(t *testing.T) {
 	Expect(q.Result[0].ID).Equals(jonSnow.ID)
 	Expect(q.Result[1].ID).Equals(aryaStark.ID)
 
-	//Supress the email and verify that AryaStark is not an active subscriber anymore
-	err = bus.Dispatch(aryaStarkCtx, &cmd.SupressEmail{EmailAddresses: []string{aryaStark.Email}})
+	//Suppress the email and verify that AryaStark is not an active subscriber anymore
+	err = bus.Dispatch(aryaStarkCtx, &cmd.SuppressEmail{EmailAddresses: []string{aryaStark.Email}})
 	Expect(err).IsNil()
 
 	q = &query.GetActiveSubscribers{Number: newPost1.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventNewComment}
