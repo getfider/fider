@@ -43,6 +43,10 @@ func TestSignInByEmailHandler_ExistingUser(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.InvalidateVerificationsByEmail) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		if q.Email == "jon.snow@got.com" {
 			q.Result = mock.JonSnow
@@ -86,6 +90,10 @@ func TestSignInByEmailWithNameHandler_NewUser(t *testing.T) {
 	var saveKeyCmd *cmd.SaveVerificationKey
 	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
 		saveKeyCmd = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.InvalidateVerificationsByEmail) error {
 		return nil
 	})
 
@@ -788,7 +796,33 @@ func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
 func TestVerifySignInCodeHandler_InvalidCode(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "jon.snow@got.com",
+			Key:       "some-long-link-key",
+			Code:      "123456",
+			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(15 * time.Minute),
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "999999" }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestVerifySignInCodeHandler_NoActiveVerification(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
 		return app.ErrNotFound
 	})
 
@@ -800,41 +834,80 @@ func TestVerifySignInCodeHandler_InvalidCode(t *testing.T) {
 	Expect(code).Equals(http.StatusBadRequest)
 }
 
-func TestVerifySignInCodeHandler_ExpiredCode(t *testing.T) {
+func TestVerifySignInCodeHandler_MaxAttemptsExceeded(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
 		q.Result = &entity.EmailVerification{
 			Email:     "jon.snow@got.com",
-			Key:       "123456",
-			CreatedAt: time.Now().Add(-20 * time.Minute),
-			ExpiresAt: time.Now().Add(-5 * time.Minute),
+			Key:       "some-long-link-key",
+			Code:      "123456",
+			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(15 * time.Minute),
+			Attempts:  5,
 		}
 		return nil
 	})
 
-	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
-		return nil
-	})
-
 	server := mock.NewServer()
-	code, _ := server.
+	code, response := server.
 		OnTenant(mock.DemoTenant).
 		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "123456" }`)
 
 	Expect(code).Equals(http.StatusBadRequest)
+	Expect(response.Body.String()).ContainsSubstring("Too many attempts")
+}
+
+func TestVerifySignInCodeHandler_WrongCode_FinalAttempt_InvalidatesCode(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "jon.snow@got.com",
+			Key:       "some-long-link-key",
+			Code:      "123456",
+			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(15 * time.Minute),
+			Attempts:  4, // This is the 5th attempt (0-indexed)
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		return nil
+	})
+
+	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		verified = true
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "999999" }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+	Expect(verified).IsTrue()
+	Expect(response.Body.String()).ContainsSubstring("Too many attempts")
 }
 
 func TestVerifySignInCodeHandler_CorrectCode_ExistingUser(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
 		q.Result = &entity.EmailVerification{
 			Email:     "jon.snow@got.com",
-			Key:       "123456",
+			Key:       "some-long-link-key",
+			Code:      "123456",
 			CreatedAt: time.Now(),
 			ExpiresAt: time.Now().Add(15 * time.Minute),
 		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
 		return nil
 	})
 
@@ -859,14 +932,19 @@ func TestVerifySignInCodeHandler_CorrectCode_ExistingUser(t *testing.T) {
 func TestVerifySignInCodeHandler_CorrectCode_NewUser_WithoutName(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
 		q.Result = &entity.EmailVerification{
 			Email:     "new.user@got.com",
-			Key:       "123456",
+			Key:       "some-long-link-key",
+			Code:      "123456",
 			CreatedAt: time.Now(),
 			ExpiresAt: time.Now().Add(15 * time.Minute),
 			Name:      "", // No name stored (legacy flow)
 		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
 		return nil
 	})
 
@@ -886,14 +964,19 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_WithoutName(t *testing.T) {
 func TestVerifySignInCodeHandler_CorrectCode_NewUser_WithName(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
 		q.Result = &entity.EmailVerification{
 			Email:     "new.user@got.com",
-			Key:       "123456",
+			Key:       "some-long-link-key",
+			Code:      "123456",
 			CreatedAt: time.Now(),
 			ExpiresAt: time.Now().Add(15 * time.Minute),
 			Name:      "New User", // Name stored (new flow)
 		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
 		return nil
 	})
 
@@ -932,13 +1015,18 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_PrivateTenant(t *testing.T)
 	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
 		q.Result = &entity.EmailVerification{
 			Email:     "new.user@got.com",
-			Key:       "123456",
+			Key:       "some-long-link-key",
+			Code:      "123456",
 			CreatedAt: time.Now(),
 			ExpiresAt: time.Now().Add(15 * time.Minute),
 		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
 		return nil
 	})
 
@@ -953,28 +1041,10 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_PrivateTenant(t *testing.T)
 	Expect(code).Equals(http.StatusForbidden)
 }
 
-func TestVerifySignInCodeHandler_AlreadyVerifiedCode_ShouldReject(t *testing.T) {
-	RegisterT(t)
-
-	verifiedAt := time.Now().Add(-1 * time.Minute)
-	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByEmailAndCode) error {
-		q.Result = &entity.EmailVerification{
-			Email:      "jon.snow@got.com",
-			Key:        "some-long-link-key",
-			CreatedAt:  time.Now().Add(-10 * time.Minute),
-			ExpiresAt:  time.Now().Add(5 * time.Minute),
-			VerifiedAt: &verifiedAt,
-		}
-		return nil
-	})
-
-	server := mock.NewServer()
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		ExecutePost(handlers.VerifySignInCode(), `{ "email": "jon.snow@got.com", "code": "123456" }`)
-
-	Expect(code).Equals(http.StatusBadRequest)
-}
+// Note: AlreadyVerifiedCode test removed — the new flow uses GetActiveVerificationByEmail
+// which filters out verified records at the SQL level (verified_at IS NULL).
+// If all codes are verified, GetActiveVerificationByEmail returns ErrNotFound,
+// which is covered by TestVerifySignInCodeHandler_NoActiveVerification.
 
 func TestResendSignInCodeHandler_ValidEmail(t *testing.T) {
 	RegisterT(t)
@@ -985,12 +1055,21 @@ func TestResendSignInCodeHandler_ValidEmail(t *testing.T) {
 		return nil
 	})
 
+	invalidated := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.InvalidateVerificationsByEmail) error {
+		Expect(c.Email).Equals("jon.snow@got.com")
+		Expect(c.Kind).Equals(enum.EmailVerificationKindSignIn)
+		invalidated = true
+		return nil
+	})
+
 	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		ExecutePost(handlers.ResendSignInCode(), `{ "email": "jon.snow@got.com" }`)
 
 	Expect(code).Equals(http.StatusOK)
+	Expect(invalidated).IsTrue()
 	Expect(saveKeyCmd.Key).HasLen(64)
 	Expect(saveKeyCmd.Code).HasLen(6)
 	Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindSignIn)

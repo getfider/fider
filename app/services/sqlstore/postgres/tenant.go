@@ -130,7 +130,7 @@ func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) er
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
+		query := "SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
 		err := trx.Get(&verification, query, q.Key, q.Kind)
 		if err != nil {
 			return errors.Wrap(err, "failed to get email verification by its key")
@@ -145,7 +145,7 @@ func getVerificationByEmailAndCode(ctx context.Context, q *query.GetVerification
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND code = $3 AND kind = $4 LIMIT 1"
+		query := "SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND code = $3 AND kind = $4 LIMIT 1"
 		err := trx.Get(&verification, query, tenant.ID, q.Email, q.Code, q.Kind)
 		if err != nil {
 			return errors.Wrap(err, "failed to get email verification by email and code")
@@ -183,6 +183,52 @@ func setKeyAsVerified(ctx context.Context, c *cmd.SetKeyAsVerified) error {
 		_, err := trx.Execute(query, time.Now(), tenant.ID, c.Key)
 		if err != nil {
 			return errors.Wrap(err, "failed to update verified date of email verification request")
+		}
+		return nil
+	})
+}
+
+func getActiveVerificationByEmail(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		verification := dbEntities.EmailVerification{}
+
+		query := `SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts
+		          FROM email_verifications
+		          WHERE tenant_id = $1 AND email = $2 AND kind = $3
+		            AND verified_at IS NULL AND expires_at > $4
+		          ORDER BY created_at DESC
+		          LIMIT 1`
+		err := trx.Get(&verification, query, tenant.ID, q.Email, q.Kind, time.Now())
+		if err != nil {
+			return errors.Wrap(err, "failed to get active email verification by email")
+		}
+
+		q.Result = verification.ToModel()
+		return nil
+	})
+}
+
+func incrementVerificationAttempts(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		_, err := trx.Execute(
+			"UPDATE email_verifications SET attempts = attempts + 1 WHERE tenant_id = $1 AND key = $2",
+			tenant.ID, c.Key,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to increment verification attempts")
+		}
+		return nil
+	})
+}
+
+func invalidateVerificationsByEmail(ctx context.Context, c *cmd.InvalidateVerificationsByEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		_, err := trx.Execute(
+			"UPDATE email_verifications SET verified_at = $1 WHERE tenant_id = $2 AND email = $3 AND kind = $4 AND verified_at IS NULL",
+			time.Now(), tenant.ID, c.Email, c.Kind,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to invalidate verifications for email '%s'", c.Email)
 		}
 		return nil
 	})
@@ -253,10 +299,10 @@ func getPendingSignUpVerification(ctx context.Context, q *query.GetPendingSignUp
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := `SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id 
-		          FROM email_verifications 
+		query := `SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts
+		          FROM email_verifications
 		          WHERE tenant_id = $1 AND kind = $2 AND verified_at IS NULL
-		          ORDER BY created_at DESC 
+		          ORDER BY created_at DESC
 		          LIMIT 1`
 		err := trx.Get(&verification, query, tenant.ID, enum.EmailVerificationKindSignUp)
 		if err != nil {
