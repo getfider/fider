@@ -8,7 +8,7 @@ import (
 type NotificationChannel int
 
 var (
-	//NotificationChannelWeb is a in-app notification
+	//NotificationChannelWeb is an in-app notification
 	NotificationChannelWeb NotificationChannel = 1
 	//NotificationChannelEmail is an email notification
 	NotificationChannelEmail NotificationChannel = 2

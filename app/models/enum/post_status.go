@@ -10,9 +10,9 @@ var (
 	PostStarted PostStatus = 1
 	//PostCompleted is used when the post has been accepted and already implemented
 	PostCompleted PostStatus = 2
-	//PostDeclined is used when organizers decide to decline an post
+	//PostDeclined is used when organizers decide to decline a post
 	PostDeclined PostStatus = 3
-	//PostPlanned is used when organizers have accepted an post and it's on the roadmap
+	//PostPlanned is used when organizers have accepted a post and it's on the roadmap
 	PostPlanned PostStatus = 4
 	//PostDuplicate is used when the post has already been posted before
 	PostDuplicate PostStatus = 5

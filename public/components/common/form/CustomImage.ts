@@ -66,7 +66,7 @@ export const CustomImage = Image.extend<CustomImageOptions>({
           }
 
           // When serializing to markdown, we use a special syntax: ![](fider-image:bkey)
-          // Use bkey if available, otherwise fall back to id
+          // Use bkey if available; otherwise, fall back to id
           const imageId = node.attrs.bkey || node.attrs.id || ""
           state.write(`![](fider-image:${imageId})`)
         },

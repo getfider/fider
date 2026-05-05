@@ -39,4 +39,4 @@ Fider uses a combination of BEM and Utility Classes.
 
 - `is-<state>`, `has-<state>` are global style modifiers that have a broader impact.
 
-- Utility classes do not have a preffix.
+- Utility classes do not have a prefix.

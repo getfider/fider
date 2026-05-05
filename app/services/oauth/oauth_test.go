@@ -539,7 +539,7 @@ func TestParseOAuthRawProfile_CompositeName(t *testing.T) {
 			expectedID:    "123",
 		},
 		{
-			name:          "Composite path with missing field",
+			name:          "Composite path missing a field",
 			jsonBody:      `{"id": "123", "firstname": "Jon", "email": "jon.snow@got.com"}`,
 			jsonNamePath:  "firstname + ' ' + lastname",
 			expectedName:  "Jon", // lastname is missing, so only firstname is used

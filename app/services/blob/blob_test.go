@@ -63,7 +63,7 @@ var tests = []struct {
 	test blobTestCase
 }{
 	{"AllOperations", AllOperations},
-	{"DeleteUnkownFile", DeleteUnkownFile},
+	{"DeleteUnknownFile", DeleteUnknownFile},
 	{"KeyFormats", KeyFormats},
 	{"PathTraversalOnRead", PathTraversalOnRead},
 	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
@@ -135,7 +135,7 @@ func AllOperations(ctx context.Context) {
 	}
 }
 
-func DeleteUnkownFile(ctx context.Context) {
+func DeleteUnknownFile(ctx context.Context) {
 	err := bus.Dispatch(ctx, &cmd.DeleteBlob{
 		Key: "path/somefile.txt",
 	})

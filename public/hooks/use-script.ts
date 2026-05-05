@@ -16,7 +16,7 @@ export function useScript(src: string) {
       }
 
       // Fetch existing script element by src
-      // It may have been added by another intance of this hook
+      // It may have been added by another instance of this hook
       let script: HTMLScriptElement | null = document.querySelector(`script[src="${src}"]`)
       if (!script) {
         // Create script

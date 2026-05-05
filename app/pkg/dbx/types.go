@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-// NullInt representa a nullable integer
+// NullInt represents a nullable integer
 type NullInt struct {
 	sql.NullInt64
 }
@@ -18,7 +18,7 @@ func (r NullInt) MarshalJSON() ([]byte, error) {
 	return json.Marshal(nil)
 }
 
-// NullString representa a nullable string
+// NullString represents a nullable string
 type NullString struct {
 	sql.NullString
 }
@@ -31,7 +31,7 @@ func (r NullString) MarshalJSON() ([]byte, error) {
 	return json.Marshal(nil)
 }
 
-// NullTime representa a nullable time.Time
+// NullTime represents a nullable time.Time
 type NullTime struct {
 	sql.NullTime
 }

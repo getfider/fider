@@ -105,7 +105,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 
 		}
 
-		// Standard email notitifications
+		// Standard email notifications
 		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
@@ -288,14 +288,14 @@ func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recip
 	author := c.User()
 	tenant := c.Tenant()
 	baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
-	messaleLocaleString := "email.new_comment.text"
+	messageLocaleString := "email.new_comment.text"
 	if event.UserSettingsKeyName == enum.NotificationEventMention.UserSettingsKeyName {
-		messaleLocaleString = "email.new_mention.text"
+		messageLocaleString = "email.new_mention.text"
 	}
 
 	mailProps := dto.Props{
 		"title":               post.Title,
-		"messageLocaleString": messaleLocaleString,
+		"messageLocaleString": messageLocaleString,
 		"siteName":            tenant.Name,
 		"userName":            author.Name,
 		"content":             markdown.Full(comment, false),

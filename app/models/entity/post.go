@@ -7,7 +7,7 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 )
 
-//Post represents an post on a tenant board
+//Post represents a post on a tenant board
 type Post struct {
 	ID            int             `json:"id"`
 	Number        int             `json:"number"`

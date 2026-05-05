@@ -2,7 +2,7 @@
 
 There are many ways you can contribute to Fider.
 
-- **Send us a Pull Request** on GitHub. Make sure you read our [Getting Started](#getting-started-with-fider-codebase) guide to learn how to setup the development environment;
+- **Send us a Pull Request** on GitHub. Make sure you read our [Getting Started](#getting-started-with-fider-codebase) guide to learn how to set up the development environment;
 - **Translate Fider** to your language. See our [translation guide](/locale/README.md) to learn how to add a new language;
 - **Report issues** and bug reports on https://github.com/getfider/fider/issues;
 - **Give feedback** and vote on features you'd like to see at https://feedback.fider.io;
@@ -41,7 +41,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
   a fake SMTP server running at port **1025** and a UI (to check sent emails) at http://localhost:8025. The `.example.env` is already
   configured to use it. If you want to, you can edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server
   details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign
-  up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep
+  up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to set up an email service, keep
   an eye on the server logs. Sometimes it's necessary to navigate to some URLs that are only sent by email, but are also written to the logs.
 
 #### 3. To start the application

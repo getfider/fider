@@ -43,10 +43,10 @@ func (s Service) Enabled() bool {
 func (s Service) Init() {
 	MessageHistory = make([]*HistoryItem, 0)
 	bus.AddListener(sendMail)
-	bus.AddHandler(fetchRecentSupressions)
+	bus.AddHandler(fetchRecentSuppressions)
 }
 
-func fetchRecentSupressions(ctx context.Context, c *query.FetchRecentSupressions) error {
+func fetchRecentSuppressions(ctx context.Context, c *query.FetchRecentSuppressions) error {
 	// not implemented for Email Mock
 	return nil
 }

@@ -11,7 +11,7 @@ import (
 // MaxDimensionSize is the max width/height of an image. If image is bigger than this, it'll be resized.
 const MaxDimensionSize = 1500
 
-// MultiImageUploadOpts arguments to validate mulitple image upload process
+// MultiImageUploadOpts arguments to validate multiple image upload process
 type MultiImageUploadOpts struct {
 	MaxUploads   int
 	IsRequired   bool
@@ -30,7 +30,7 @@ type ImageUploadOpts struct {
 	MaxKilobytes int
 }
 
-//MultiImageUpload validates multiple image uploads
+// MultiImageUpload validates multiple image uploads
 func MultiImageUpload(ctx context.Context, currentAttachments []string, uploads []*dto.ImageUpload, opts MultiImageUploadOpts) ([]string, error) {
 	if currentAttachments == nil {
 		currentAttachments = []string{}
@@ -71,7 +71,7 @@ func MultiImageUpload(ctx context.Context, currentAttachments []string, uploads 
 	return []string{}, nil
 }
 
-//ImageUpload validates given image upload
+// ImageUpload validates given image upload
 func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadOpts) ([]string, error) {
 	messages := []string{}
 

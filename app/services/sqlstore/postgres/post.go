@@ -140,7 +140,7 @@ func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
 func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if c.Status == enum.PostDuplicate {
-			return errors.New("Use MarkAsDuplicate to change an post status to Duplicate")
+			return errors.New("Use MarkAsDuplicate to change a post status to Duplicate")
 		}
 
 		respondedAt := time.Now()

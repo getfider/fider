@@ -34,7 +34,7 @@ func (t AvatarType) MarshalText() ([]byte, error) {
 	return []byte(avatarTypesIDs[t]), nil
 }
 
-// UnmarshalText parse string into a avatar type
+// UnmarshalText parse string into an avatar type
 func (t *AvatarType) UnmarshalText(text []byte) error {
 	*t = avatarTypesName[string(text)]
 	return nil

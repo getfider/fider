@@ -43,10 +43,10 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	bus.AddListener(sendMail)
-	bus.AddHandler(fetchRecentSupressions)
+	bus.AddHandler(fetchRecentSuppressions)
 }
 
-func fetchRecentSupressions(ctx context.Context, c *query.FetchRecentSupressions) error {
+func fetchRecentSuppressions(ctx context.Context, c *query.FetchRecentSuppressions) error {
 	//not implemented for SMTP
 	return nil
 }

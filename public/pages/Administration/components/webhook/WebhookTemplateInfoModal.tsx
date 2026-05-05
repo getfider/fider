@@ -65,13 +65,13 @@ const functions: StringObject<FunctionSpecification> = {
   },
   quote: {
     params: [{ type: "string", desc: "The input string to quote" }],
-    description: "Enquote a string and escape inner special characters",
+    description: "Quote a string and escape inner special characters",
     info: "You should use this function when using a value as a JSON field",
   },
   escape: {
     params: [{ type: "string", desc: "The input string to escape" }],
-    description: "Escape inner special characters of a string, without enquoting it",
-    info: "You should use this function when using a value within an enquoted string",
+    description: "Escape inner special characters of a string, without quoting it",
+    info: "You should use this function when using a value within a quoted string",
   },
   urlquery: {
     params: [{ type: "string", desc: "The input string to encode as URL query value" }],
@@ -114,7 +114,7 @@ export const WebhookTemplateInfoModal = (props: WebhookTemplateInfoProps) => {
           <div>
             <h3 className="text-title mb-1">What is a template?</h3>
             <p>
-              The template engine used is the native Go <code>text/template</code> package. The simpliest way to create a template is to write your text, and
+              The template engine used is the native Go <code>text/template</code> package. The simplest way to create a template is to write your text, and
               insert the property name, prefixed by a dot, enclosed in double braces with spaces within (wierd? complete!). Example:
             </p>
             <pre className="text-left">{textExample}</pre>

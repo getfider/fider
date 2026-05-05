@@ -124,7 +124,7 @@ func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*Cert
 
 // GetCertificate decides which certificate to use
 // It first tries to use loaded certificate for incoming request if it's compatible
-// Otherwise fallsback to a automatically generated certificate by Let's Encrypt
+// Otherwise falls back to automatically generated certificate by Let's Encrypt
 func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	if m.leaf != nil {
 		serverName, err := idna.Lookup.ToASCII(hello.ServerName)
@@ -133,7 +133,7 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 		}
 		serverName = strings.Trim(serverName, ".")
 
-		// If ServerName is empty or does't contain a dot, just return the certificate
+		// If ServerName is empty or doesn't contain a dot, just return the certificate
 		if serverName == "" || !strings.Contains(serverName, ".") {
 			return &m.cert, nil
 		}
