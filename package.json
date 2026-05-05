@@ -14,7 +14,7 @@
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
     "@tiptap/suggestion": "^2.11.5",
-    "dompurify": "^3.3.2",
+    "dompurify": "^3.4.1",
     "inter-ui": "^4.1.0",
     "marked": "^4.0.15",
     "prosemirror-markdown": "^1.13.1",
