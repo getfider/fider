@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react"
 import IconBell from "@fider/assets/images/heroicons-bell.svg"
 import { useFider } from "@fider/hooks"
 import { actions, Fider } from "@fider/services"
-import { Avatar, Icon, Markdown, Moment } from "./common"
+import { Avatar, Icon, Link, Markdown, Moment } from "./common"
 import { Dropdown } from "./common/Dropdown"
 import { Notification } from "@fider/models"
 import { VStack } from "./layout"
@@ -14,7 +14,7 @@ import { Trans } from "@lingui/react/macro"
 
 export const NotificationItem = ({ notification }: { notification: Notification }) => {
   return (
-    <a href={`/notifications/${notification.id}`} className="px-3 pr-5 hover py-4 flex flex-x flex--spacing-4 flex-items-center">
+    <Link href={`/notifications/${notification.id}`} className="px-3 pr-5 hover py-4 flex flex-x flex--spacing-4 flex-items-center">
       <Avatar user={{ name: notification.authorName, avatarURL: notification.avatarURL }} />
       <div>
         <Markdown className="c-notification-indicator-text" text={notification.title} style="full" />
@@ -22,7 +22,7 @@ export const NotificationItem = ({ notification }: { notification: Notification 
           <Moment locale={Fider.currentLocale} date={notification.createdAt} />
         </span>
       </div>
-    </a>
+    </Link>
   )
 }
 

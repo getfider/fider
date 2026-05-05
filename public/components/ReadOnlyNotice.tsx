@@ -1,5 +1,6 @@
 import React from "react"
 import { useFider } from "@fider/hooks"
+import { basePath } from "@fider/services"
 import { Message } from "./common"
 
 export const ReadOnlyNotice = () => {
@@ -12,7 +13,7 @@ export const ReadOnlyNotice = () => {
     return (
       <Message alignment="center" type="warning">
         This website is currently in read-only mode because there is no active subscription. Visit{" "}
-        <a className="text-link" href="/admin/billing">
+        <a className="text-link" href={`${basePath()}/admin/billing`}>
           Billing
         </a>{" "}
         to subscribe.

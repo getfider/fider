@@ -377,7 +377,26 @@ func (c *Context) RemoveCookie(name string) {
 
 // BaseURL returns base URL
 func (c *Context) BaseURL() string {
+	if env.IsSingleHostMode() {
+		return env.Config.BaseURL
+	}
 	return c.Request.BaseURL()
+}
+
+// BasePath returns the path prefix from BASE_URL for sub-path hosting.
+// Returns "" when Fider is hosted at the domain root, or "/feedback" when
+// hosted at example.com/feedback. Use this for building redirect paths.
+func (c *Context) BasePath() string {
+	if env.IsSingleHostMode() {
+		u, err := url.Parse(env.Config.BaseURL)
+		if err == nil {
+			p := strings.TrimRight(u.Path, "/")
+			if p != "" {
+				return p
+			}
+		}
+	}
+	return ""
 }
 
 // QueryParam returns querystring parameter for given key
@@ -522,6 +541,13 @@ func (c *Context) Redirect(url string) error {
 	c.Response.Header().Set("Location", url)
 	c.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
+}
+
+// RedirectTo redirects to a root-relative path, automatically prepending
+// BasePath() for sub-path hosting. Callers pass natural paths (e.g. "/signin")
+// instead of manually concatenating c.BasePath() + "/signin" at every site.
+func (c *Context) RedirectTo(path string) error {
+	return c.Redirect(c.BasePath() + path)
 }
 
 // PermanentRedirect the request to a provided URL
