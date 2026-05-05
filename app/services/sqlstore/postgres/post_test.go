@@ -818,6 +818,113 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 
 }
 
+func TestSearchPosts_RespectsFilters(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	openPost := &cmd.AddNewPost{Title: "kanban open ticket", Description: "first kanban post"}
+	startedPost := &cmd.AddNewPost{Title: "kanban started flow", Description: "second kanban post"}
+	completedPost := &cmd.AddNewPost{Title: "kanban completed item", Description: "third kanban post"}
+	openByJon := &cmd.AddNewPost{Title: "kanban open from jon", Description: "fourth kanban post"}
+	err := bus.Dispatch(aryaStarkCtx, openPost, completedPost)
+	Expect(err).IsNil()
+	err = bus.Dispatch(jonSnowCtx, startedPost, openByJon)
+	Expect(err).IsNil()
+
+	bus.MustDispatch(aryaStarkCtx,
+		&cmd.SetPostResponse{Post: startedPost.Result, Text: "Working on it", Status: enum.PostStarted},
+		&cmd.SetPostResponse{Post: completedPost.Result, Text: "Done", Status: enum.PostCompleted},
+	)
+
+	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
+	bus.MustDispatch(aryaStarkCtx, addBug)
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: startedPost.Result})
+
+	bus.MustDispatch(aryaStarkCtx, &cmd.AddVote{Post: openPost.Result, User: aryaStark})
+
+	testCases := []struct {
+		name          string
+		searchParams  *query.SearchPosts
+		expectedCount int
+		expectedIDs   []int
+	}{
+		{
+			name:          "Default search excludes Completed and Declined",
+			searchParams:  &query.SearchPosts{Query: "kanban"},
+			expectedCount: 3,
+			expectedIDs:   []int{openPost.Result.ID, startedPost.Result.ID, openByJon.Result.ID},
+		},
+		{
+			name: "Search with explicit Completed status",
+			searchParams: &query.SearchPosts{
+				Query:    "kanban",
+				Statuses: []enum.PostStatus{enum.PostCompleted},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{completedPost.Result.ID},
+		},
+		{
+			name: "Search with explicit Open status",
+			searchParams: &query.SearchPosts{
+				Query:    "kanban",
+				Statuses: []enum.PostStatus{enum.PostOpen},
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{openPost.Result.ID, openByJon.Result.ID},
+		},
+		{
+			name: "Search with tag filter",
+			searchParams: &query.SearchPosts{
+				Query: "kanban",
+				Tags:  []string{addBug.Result.Slug},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{startedPost.Result.ID},
+		},
+		{
+			name: "Search with MyVotesOnly",
+			searchParams: &query.SearchPosts{
+				Query:       "kanban",
+				MyVotesOnly: true,
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{openPost.Result.ID},
+		},
+		{
+			name: "Search with MyPostsOnly",
+			searchParams: &query.SearchPosts{
+				Query:       "kanban",
+				MyPostsOnly: true,
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{openPost.Result.ID},
+		},
+		{
+			name: "Search with NoTagsOnly",
+			searchParams: &query.SearchPosts{
+				Query:      "kanban",
+				NoTagsOnly: true,
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{openPost.Result.ID, openByJon.Result.ID},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err = bus.Dispatch(aryaStarkCtx, tc.searchParams)
+			Expect(err).IsNil()
+			Expect(tc.searchParams.Result).HasLen(tc.expectedCount)
+
+			foundIDs := make([]int, len(tc.searchParams.Result))
+			for i, post := range tc.searchParams.Result {
+				foundIDs[i] = post.ID
+			}
+			Expect(foundIDs).ContainsOnly(tc.expectedIDs)
+		})
+	}
+}
+
 func TestPostStorage_IsReferenced(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
@@ -35,7 +36,7 @@ func MapLocaleToTSConfig(locale string) string {
 	return enum.MapLocaleToTSConfig(locale)
 }
 
-func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {
+func getViewData(query query.SearchPosts, tagsPlaceholder int) (string, []enum.PostStatus, string) {
 	var (
 		condition string
 		sort      string
@@ -97,11 +98,14 @@ func getViewData(query query.SearchPosts) (string, []enum.PostStatus, string) {
 	}
 
 	if query.NoTagsOnly {
+		// NoTagsOnly takes precedence: combining "untagged" with specific tag
+		// filters produces contradictory SQL that always returns zero rows.
+		query.Tags = nil
 		condition += " AND tags = '{}'"
 	}
 
 	if len(query.Tags) > 0 {
-		condition += " AND tags && $3"
+		condition += fmt.Sprintf(" AND tags && $%d", tagsPlaceholder)
 	}
 	return condition, statusFilters, sort
 }
