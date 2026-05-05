@@ -12,11 +12,13 @@ type EmailVerification struct {
 	Email      string
 	Name       string
 	Key        string
+	Code       string
 	UserID     int
 	Kind       enum.EmailVerificationKind
 	CreatedAt  time.Time
 	ExpiresAt  time.Time
 	VerifiedAt *time.Time
+	Attempts   int
 }
 
 // GenerateEmailVerificationKey returns a 64 chars key

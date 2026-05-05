@@ -13,11 +13,13 @@ type EmailVerification struct {
 	Name       string                     `db:"name"`
 	Email      string                     `db:"email"`
 	Key        string                     `db:"key"`
+	Code       dbx.NullString             `db:"code"`
 	Kind       enum.EmailVerificationKind `db:"kind"`
 	UserID     dbx.NullInt                `db:"user_id"`
 	CreatedAt  time.Time                  `db:"created_at"`
 	ExpiresAt  time.Time                  `db:"expires_at"`
 	VerifiedAt dbx.NullTime               `db:"verified_at"`
+	Attempts   int                        `db:"attempts"`
 }
 
 func (t *EmailVerification) ToModel() *entity.EmailVerification {
@@ -25,10 +27,12 @@ func (t *EmailVerification) ToModel() *entity.EmailVerification {
 		Name:       t.Name,
 		Email:      t.Email,
 		Key:        t.Key,
+		Code:       t.Code.String,
 		Kind:       t.Kind,
 		CreatedAt:  t.CreatedAt,
 		ExpiresAt:  t.ExpiresAt,
 		VerifiedAt: nil,
+		Attempts:   t.Attempts,
 	}
 
 	if t.VerifiedAt.Valid {
