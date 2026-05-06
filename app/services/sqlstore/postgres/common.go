@@ -58,6 +58,12 @@ func getViewData(query query.SearchPosts, tagsPlaceholder int) (string, []enum.P
 	switch query.View {
 	case "recent":
 		sort = "id"
+	case "recently-responded":
+		// Limit the result set to posts an admin has actually responded to;
+		// without this filter, open posts with NULL response_date dominate the
+		// tail of the list and make the sort look broken.
+		condition += " AND response_date IS NOT NULL"
+		sort = "response_date"
 	case "most-wanted":
 		sort = "votes_count"
 	case "most-discussed":

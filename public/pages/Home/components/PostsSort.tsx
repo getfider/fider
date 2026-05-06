@@ -18,6 +18,11 @@ export const PostsSort: React.FC<PostsSortProps> = ({ value = "trending", onChan
     { value: "most-wanted", label: i18n._({ id: "home.postfilter.option.mostwanted", message: "Most Wanted" }), icon: IconThumbsUp },
     { value: "most-discussed", label: i18n._({ id: "home.postfilter.option.mostdiscussed", message: "Most Discussed" }), icon: IconChat },
     { value: "recent", label: i18n._({ id: "home.postfilter.option.recent", message: "Recent" }), icon: IconClock },
+    {
+      value: "recently-responded",
+      label: i18n._({ id: "home.postfilter.option.recentlyresponded", message: "Recently Responded" }),
+      icon: IconClock,
+    },
   ]
 
   const selectedItem = options.find((x) => x.value === value) || options[0]

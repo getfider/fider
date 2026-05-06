@@ -91,7 +91,11 @@ const MinimalListPostItem = (props: { post: Post; tags: Tag[]; onPostClick?: (po
           <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`} onClick={handleClick}>
             {props.post.title}
           </a>
-          {isPending && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>}
+          {isPending && (
+            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+              <Trans id="post.pending">pending</Trans>
+            </span>
+          )}
         </HStack>
         {props.post.status !== "open" ? (
           <div>
