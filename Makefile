@@ -135,5 +135,11 @@ clean: ## Remove all build-generated content
 	rm -rf ./dist
 	rm -f ssr.js
 
+update-disposable-list: ## Refresh the bundled disposable email domain list from upstream
+	@echo "Fetching latest disposable email blocklist..."
+	@curl -fsSL https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/main/disposable_email_blocklist.conf \
+	  -o app/pkg/disposable/domains.txt
+	@echo "Done. Review the diff and commit."
+
 help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
