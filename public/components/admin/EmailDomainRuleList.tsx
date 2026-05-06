@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-import { Trans } from "@lingui/macro"
 import { Button, Input } from "@fider/components"
 import { addEmailDomainRule, deleteEmailDomainRule, EmailDomainRule } from "@fider/services/actions/disposable"
 import { notify } from "@fider/services"
@@ -47,11 +46,7 @@ export const EmailDomainRuleList: React.FC<Props> = ({ ruleType, rules, onChange
   return (
     <div className="c-email-domain-rule-list">
       <div className="c-email-domain-rule-list__chips">
-        {(!rules || rules.length === 0) && (
-          <span className="text-muted">
-            <Trans id="admin.disposable.empty">No domains added yet.</Trans>
-          </span>
-        )}
+        {(!rules || rules.length === 0) && <span className="text-muted">No domains added yet.</span>}
         {(rules ?? []).map((r) => (
           <span key={r.id} className="c-email-domain-rule-list__chip">
             <span className="c-email-domain-rule-list__domain">{r.domain}</span>
@@ -64,7 +59,7 @@ export const EmailDomainRuleList: React.FC<Props> = ({ ruleType, rules, onChange
       <div className="c-email-domain-rule-list__add">
         <Input field="domain" placeholder={placeholder} value={input} onChange={setInput} disabled={busy} />
         <Button onClick={submit} disabled={busy || !input.trim()}>
-          <Trans id="admin.disposable.add">Add</Trans>
+          Add
         </Button>
       </div>
       {error && <div className="c-email-domain-rule-list__error">{error}</div>}

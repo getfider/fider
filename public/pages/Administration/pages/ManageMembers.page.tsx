@@ -8,7 +8,6 @@ import HeroIconFilter from "@fider/assets/images/heroicons-filter.svg"
 import { actions, Fider } from "@fider/services"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { HStack, VStack } from "@fider/components/layout"
-import { Trans } from "@lingui/react/macro"
 import { DisposableUsersModal } from "../components/DisposableUsersModal"
 
 interface ManageMembersPageProps {
@@ -222,7 +221,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
       {Fider.session.tenant.blockDisposableEmails && (
         <div className="mb-4">
           <Button variant="danger" onClick={() => setShowDisposableModal(true)}>
-            <Trans id="admin.members.findDisposable">Find disposable accounts</Trans>
+            Find disposable accounts
           </Button>
         </div>
       )}

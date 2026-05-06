@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react"
-import { Trans } from "@lingui/react/macro"
 import { Modal, Button, Loader } from "@fider/components"
 import { notify } from "@fider/services"
 import { listDisposableUsers, bulkDeleteDisposableUsers, DisposableUserRow } from "@fider/services/actions/disposable"
@@ -77,9 +76,7 @@ export const DisposableUsersModal: React.FC<Props> = ({ onClose }) => {
 
   return (
     <Modal.Window isOpen={true} size="large" canClose={!busy} onClose={onClose}>
-      <Modal.Header>
-        <Trans id="admin.members.disposableModal.title">Delete disposable accounts</Trans>
-      </Modal.Header>
+      <Modal.Header>Delete disposable accounts</Modal.Header>
       <Modal.Content>
         {loading && <Loader />}
         {!loading && (
@@ -139,20 +136,20 @@ export const DisposableUsersModal: React.FC<Props> = ({ onClose }) => {
         {!confirming && (
           <>
             <Button variant="tertiary" disabled={busy} onClick={onClose}>
-              <Trans id="action.cancel">Cancel</Trans>
+              Cancel
             </Button>
             <Button variant="danger" disabled={loading || selectedIds.length === 0} onClick={() => setConfirming(true)}>
-              <Trans id="admin.members.disposableModal.deleteSelected">Delete selected</Trans>
+              Delete selected
             </Button>
           </>
         )}
         {confirming && (
           <>
             <Button variant="tertiary" disabled={busy} onClick={() => setConfirming(false)}>
-              <Trans id="action.cancel">Cancel</Trans>
+              Cancel
             </Button>
             <Button variant="danger" disabled={busy} onClick={performDelete}>
-              <Trans id="action.confirm">Confirm</Trans>
+              Confirm
             </Button>
           </>
         )}

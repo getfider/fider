@@ -7,7 +7,6 @@ import { actions, notify, Fider, Failure } from "@fider/services"
 import { AdminBasePage } from "../components/AdminBasePage"
 import { EmailDomainRuleList } from "@fider/components/admin/EmailDomainRuleList"
 import { listEmailDomainRules, updateBlockDisposableEmails, EmailDomainRule } from "@fider/services/actions/disposable"
-import { Trans } from "@lingui/macro"
 
 import IconPlay from "@fider/assets/images/heroicons-play.svg"
 import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
@@ -227,14 +226,10 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
           </VStack>
         </div>
         <div>
-          <h2 className="text-display">
-            <Trans id="admin.disposable.title">Disposable email blocking</Trans>
-          </h2>
+          <h2 className="text-display">Disposable email blocking</h2>
           <p className="text-muted my-2">
-            <Trans id="admin.disposable.description">
-              When enabled, sign-ups from known throwaway email providers will be rejected. About 3,000 providers are blocked by a built-in list. You can extend or
-              override the list below.
-            </Trans>
+            When enabled, sign-ups from known throwaway email providers will be rejected. About 3,000 providers are blocked by a built-in list. You can extend or
+            override the list below.
           </p>
           <Field label="Block Disposable Email Providers" className="mt-2">
             <Toggle
@@ -247,16 +242,12 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
           </Field>
           {this.state.blockDisposableEmails && (
             <>
-              <h3 className="text-display mt-4">
-                <Trans id="admin.disposable.deny.title">Additional blocked domains</Trans>
-              </h3>
+              <h3 className="text-display mt-4">Additional blocked domains</h3>
               <EmailDomainRuleList ruleType="deny" rules={this.state.denyRules} onChange={this.refreshRules} />
 
-              <h3 className="text-display mt-4">
-                <Trans id="admin.disposable.allow.title">Allowed domains (override built-in list)</Trans>
-              </h3>
+              <h3 className="text-display mt-4">Allowed domains (override built-in list)</h3>
               <p className="text-muted my-1">
-                <Trans id="admin.disposable.allow.help">Use this if a domain is incorrectly flagged by the built-in list.</Trans>
+                Use this if a domain is incorrectly flagged by the built-in list.
               </p>
               <EmailDomainRuleList ruleType="allow" rules={this.state.allowRules} onChange={this.refreshRules} />
             </>
