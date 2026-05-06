@@ -64,6 +64,20 @@ func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacy
 	})
 }
 
+func updateTenantBlockDisposableEmails(ctx context.Context, c *cmd.UpdateTenantBlockDisposableEmails) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		_, err := trx.Execute(
+			"UPDATE tenants SET block_disposable_emails = $1 WHERE id = $2",
+			c.BlockDisposableEmails, tenant.ID,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to update tenant block_disposable_emails")
+		}
+		tenant.BlockDisposableEmails = c.BlockDisposableEmails
+		return nil
+	})
+}
+
 func updateTenantEmailAuthAllowedSettings(ctx context.Context, c *cmd.UpdateTenantEmailAuthAllowedSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		_, err := trx.Execute("UPDATE tenants SET is_email_auth_allowed = $1 WHERE id = $2", c.IsEmailAuthAllowed, tenant.ID)

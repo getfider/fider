@@ -106,6 +106,22 @@ func TestTenantStorage_UpdatePrivacy(t *testing.T) {
 	Expect(getByDomain.Result.IsPrivate).IsTrue()
 }
 
+func TestTenantStorage_UpdateBlockDisposableEmails(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	setOn := &cmd.UpdateTenantBlockDisposableEmails{BlockDisposableEmails: true}
+	getByDomain := &query.GetTenantByDomain{Domain: "demo"}
+	err := bus.Dispatch(demoTenantCtx, setOn, getByDomain)
+	Expect(err).IsNil()
+	Expect(getByDomain.Result.BlockDisposableEmails).IsTrue()
+
+	setOff := &cmd.UpdateTenantBlockDisposableEmails{BlockDisposableEmails: false}
+	err = bus.Dispatch(demoTenantCtx, setOff, getByDomain)
+	Expect(err).IsNil()
+	Expect(getByDomain.Result.BlockDisposableEmails).IsFalse()
+}
+
 func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
