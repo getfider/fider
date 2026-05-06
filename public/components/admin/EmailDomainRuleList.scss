@@ -1,0 +1,52 @@
+.c-email-domain-rule-list {
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    min-height: 2rem;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    background: #eef2f7;
+    border-radius: 999px;
+    padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  &__domain {
+    margin-right: 0.5rem;
+  }
+
+  &__remove {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: #6b7280;
+    padding: 0 0.25rem;
+
+    &:hover {
+      color: #111827;
+    }
+  }
+
+  &__add {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    > * {
+      margin: 0;
+    }
+  }
+
+  &__error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+}
