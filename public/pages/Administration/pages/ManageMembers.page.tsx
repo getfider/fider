@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react"
-import { Input, Avatar, Icon, Dropdown, Pagination } from "@fider/components"
+import { Input, Avatar, Icon, Dropdown, Pagination, Button } from "@fider/components"
 import { User, UserRole, UserStatus } from "@fider/models"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
@@ -8,6 +8,8 @@ import HeroIconFilter from "@fider/assets/images/heroicons-filter.svg"
 import { actions, Fider } from "@fider/services"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { HStack, VStack } from "@fider/components/layout"
+import { Trans } from "@lingui/react/macro"
+import { DisposableUsersModal } from "../components/DisposableUsersModal"
 
 interface ManageMembersPageProps {
   users: User[]
@@ -79,6 +81,7 @@ const UserListItem = (props: UserListItemExtendedProps) => {
 export default function ManageMembersPage(props: ManageMembersPageProps) {
   const [query, setQuery] = useState("")
   const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all")
+  const [showDisposableModal, setShowDisposableModal] = useState(false)
   const [users, setUsers] = useState<User[]>(props.users)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(props.totalPages)
@@ -216,6 +219,14 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
 
   return (
     <AdminPageContainer id="p-admin-members" name="users" title="Members" subtitle="Manage your site administrators and collaborators">
+      {Fider.session.tenant.blockDisposableEmails && (
+        <div className="mb-4">
+          <Button variant="danger" onClick={() => setShowDisposableModal(true)}>
+            <Trans id="admin.members.findDisposable">Find disposable accounts</Trans>
+          </Button>
+        </div>
+      )}
+      {showDisposableModal && <DisposableUsersModal onClose={() => setShowDisposableModal(false)} />}
       <div className="flex gap-4 flex-items-center mb-4">
         <div className="flex-grow">
           <Input
