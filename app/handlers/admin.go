@@ -135,6 +135,22 @@ func UpdateEmailAuthAllowed() web.HandlerFunc {
 	}
 }
 
+// UpdateBlockDisposableEmails toggles the disposable-email blocking feature.
+func UpdateBlockDisposableEmails() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.UpdateTenantBlockDisposableEmails)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+		if err := bus.Dispatch(c, &cmd.UpdateTenantBlockDisposableEmails{
+			BlockDisposableEmails: action.BlockDisposableEmails,
+		}); err != nil {
+			return c.Failure(err)
+		}
+		return c.Ok(web.Map{})
+	}
+}
+
 // ManageMembers is the page used by administrators to change member's role
 func ManageMembers() web.HandlerFunc {
 	return func(c *web.Context) error {

@@ -196,6 +196,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacySettings())
 		ui.Post("/_api/admin/settings/emailauth", handlers.UpdateEmailAuthAllowed())
+		ui.Post("/_api/admin/settings/disposable-emails", handlers.UpdateBlockDisposableEmails())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
 		ui.Post("/_api/admin/oauth/:provider/status", handlers.SetSystemProviderStatus())
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())

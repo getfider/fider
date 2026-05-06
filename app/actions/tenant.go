@@ -320,3 +320,18 @@ func (action *UpdateTenantEmailAuthAllowed) Validate(ctx context.Context, user *
 
 	return result
 }
+
+// UpdateTenantBlockDisposableEmails toggles disposable-email blocking
+type UpdateTenantBlockDisposableEmails struct {
+	BlockDisposableEmails bool `json:"blockDisposableEmails"`
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *UpdateTenantBlockDisposableEmails) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return user != nil && user.Role == enum.RoleAdministrator
+}
+
+// Validate if current model is valid
+func (action *UpdateTenantBlockDisposableEmails) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	return validate.Success()
+}
