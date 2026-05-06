@@ -1,4 +1,4 @@
-package postgres
+﻿package postgres
 
 import (
 	"context"
@@ -70,6 +70,7 @@ var (
 																p.description,
 																p.created_at,
 																p.search,
+																p.search_response,
 																COALESCE(agg_s.all, 0) as votes_count,
 																COALESCE(agg_c.all, 0) as comments_count,
 																COALESCE(agg_s.recent, 0) AS recent_votes_count,
