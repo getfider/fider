@@ -121,6 +121,8 @@ func (s Service) Init() {
 	bus.AddHandler(addEmailDomainRule)
 	bus.AddHandler(deleteEmailDomainRule)
 	bus.AddHandler(getEmailDomainRules)
+	bus.AddHandler(getDisposableUsers)
+	bus.AddHandler(bulkDeleteUsersByID)
 
 	bus.AddHandler(getVerificationByKey)
 	bus.AddHandler(getVerificationByEmailAndCode)
