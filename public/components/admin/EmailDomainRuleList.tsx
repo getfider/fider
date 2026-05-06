@@ -47,12 +47,12 @@ export const EmailDomainRuleList: React.FC<Props> = ({ ruleType, rules, onChange
   return (
     <div className="c-email-domain-rule-list">
       <div className="c-email-domain-rule-list__chips">
-        {rules.length === 0 && (
+        {(!rules || rules.length === 0) && (
           <span className="text-muted">
             <Trans id="admin.disposable.empty">No domains added yet.</Trans>
           </span>
         )}
-        {rules.map((r) => (
+        {(rules ?? []).map((r) => (
           <span key={r.id} className="c-email-domain-rule-list__chip">
             <span className="c-email-domain-rule-list__domain">{r.domain}</span>
             <button type="button" aria-label="Remove" className="c-email-domain-rule-list__remove" onClick={() => remove(r.id)}>

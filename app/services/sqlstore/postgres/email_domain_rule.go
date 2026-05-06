@@ -51,6 +51,8 @@ func deleteEmailDomainRule(ctx context.Context, c *cmd.DeleteEmailDomainRule) er
 
 func getEmailDomainRules(ctx context.Context, q *query.GetEmailDomainRules) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		q.Result.Deny = []*entity.EmailDomainRule{}
+		q.Result.Allow = []*entity.EmailDomainRule{}
 		rows := []*dbEntities.EmailDomainRule{}
 		err := trx.Select(&rows,
 			`SELECT id, domain, rule_type, created_at, created_by
