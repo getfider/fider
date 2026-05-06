@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/models/entity"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -40,5 +42,22 @@ func (action *AddEmailDomainRule) Validate(ctx context.Context, user *entity.Use
 	if action.RuleType != entity.EmailDomainRuleDeny && action.RuleType != entity.EmailDomainRuleAllow {
 		result.AddFieldFailure("ruleType", "Invalid rule type.")
 	}
+
+	if result.Ok {
+		existing := &query.GetEmailDomainRules{}
+		if err := bus.Dispatch(ctx, existing); err == nil {
+			rules := existing.Result.Deny
+			if action.RuleType == entity.EmailDomainRuleAllow {
+				rules = existing.Result.Allow
+			}
+			for _, r := range rules {
+				if strings.EqualFold(r.Domain, action.Domain) {
+					result.AddFieldFailure("domain", "This domain is already in this list.")
+					break
+				}
+			}
+		}
+	}
+
 	return result
 }
