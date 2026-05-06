@@ -22,8 +22,9 @@ type Tenant struct {
 	IsEmailAuthAllowed  bool              `json:"isEmailAuthAllowed"`
 	IsFeedEnabled       bool              `json:"isFeedEnabled"`
 	PreventIndexing     bool              `json:"preventIndexing"`
-	IsModerationEnabled bool              `json:"isModerationEnabled"`
-	IsPro               bool              `json:"isPro"`
+	IsModerationEnabled   bool              `json:"isModerationEnabled"`
+	BlockDisposableEmails bool              `json:"blockDisposableEmails"`
+	IsPro                 bool              `json:"isPro"`
 }
 
 func (t *Tenant) IsDisabled() bool {
