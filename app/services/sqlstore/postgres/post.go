@@ -450,10 +450,33 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
 
 			score := fmt.Sprintf("ts_rank_cd(q.search, %s) + ts_rank_cd(q.search, %s)", tsQueryExpr, tsQuerySimple)
-
 			searchPredicate := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
 
-			condition, statuses, _ := getViewData(*q, 4)
+			// Collaborators and administrators can also match against the response text
+			// (e.g. version numbers written when closing a post).
+			// We use websearch_to_tsquery($4) with the raw query so that version
+			// strings like "v9.9.9" are preserved as a single token rather than
+			// being split by the ToTSQuery sanitizer.
+			isCollaboratorSearch := user != nil && user.IsCollaborator()
+			if isCollaboratorSearch {
+				wsQueryExpr := fmt.Sprintf("websearch_to_tsquery('%s', $4)", tsConfig)
+				wsQuerySimple := "websearch_to_tsquery('simple', $4)"
+				score += fmt.Sprintf(
+					" + ts_rank_cd(coalesce(q.search_response, ''::tsvector), %s)"+
+						" + ts_rank_cd(coalesce(q.search_response, ''::tsvector), %s)",
+					wsQueryExpr, wsQuerySimple,
+				)
+				searchPredicate += fmt.Sprintf(
+					` OR q.search_response @@ %s OR q.search_response @@ %s`,
+					wsQueryExpr, wsQuerySimple,
+				)
+			}
+
+			tagsPlaceholder := 4
+			if isCollaboratorSearch {
+				tagsPlaceholder = 5
+			}
+			condition, statuses, _ := getViewData(*q, tagsPlaceholder)
 
 			if q.MyPostsOnly && user != nil {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
@@ -467,6 +490,9 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			`, innerQuery, searchPredicate, condition, score, q.Limit)
 
 			params := []interface{}{tenant.ID, pq.Array(statuses), tsQuery}
+			if isCollaboratorSearch {
+				params = append(params, q.Query) // $4 = raw query for websearch_to_tsquery
+			}
 			if len(q.Tags) > 0 && !q.NoTagsOnly {
 				params = append(params, pq.Array(q.Tags))
 			}
