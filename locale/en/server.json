@@ -14,6 +14,7 @@
   "validation.maxstringlen": "{name} must have less than {len} characters.",
   "validation.custom.maxattachments": "A maximum of {number} attachments are allowed per post.",
   "validation.custom.differentemail": "Choose a different email.",
+  "validation.custom.disposableemail": "This email provider is not allowed. Please use a permanent email address.",
   "validation.custom.emailtaken": "This email is already in use by someone else",
   "validation.custom.descriptivetitle": "Title needs to be more descriptive.",
   "validation.custom.duplicatetitle": "This has already been posted before.",

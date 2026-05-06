@@ -52,6 +52,9 @@ func (action *SignInByEmail) Validate(ctx context.Context, user *entity.User) *v
 
 	messages := validate.Email(ctx, action.Email)
 	result.AddFieldFailure("email", messages...)
+	if len(messages) == 0 {
+		result.AddFieldFailure("email", validate.EmailNotDisposable(ctx, action.Email)...)
+	}
 
 	return result
 }
@@ -146,6 +149,9 @@ func (action *SignInByEmailWithName) Validate(ctx context.Context, user *entity.
 	} else {
 		messages := validate.Email(ctx, action.Email)
 		result.AddFieldFailure("email", messages...)
+		if len(messages) == 0 {
+			result.AddFieldFailure("email", validate.EmailNotDisposable(ctx, action.Email)...)
+		}
 	}
 
 	if action.Name == "" {

@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -112,6 +114,70 @@ func TestWebhookURL_AllowedAddresses(t *testing.T) {
 		messages := validate.WebhookURL(rawurl)
 		Expect(messages).HasLen(0)
 	}
+}
+
+func TestEmailNotDisposable_ToggleOff(t *testing.T) {
+	RegisterT(t)
+
+	// Toggle is off: always returns nil regardless of the email domain
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{BlockDisposableEmails: false})
+	Expect(validate.EmailNotDisposable(ctx, "foo@mailinator.com")).HasLen(0)
+	Expect(validate.EmailNotDisposable(ctx, "foo@gmail.com")).HasLen(0)
+}
+
+func TestEmailNotDisposable_NoTenant(t *testing.T) {
+	RegisterT(t)
+
+	// No tenant in context: always returns nil
+	Expect(validate.EmailNotDisposable(context.Background(), "foo@mailinator.com")).HasLen(0)
+}
+
+func TestEmailNotDisposable_ToggleOn_Blocks(t *testing.T) {
+	RegisterT(t)
+
+	// Register a stub handler that returns no tenant-level rules (bundled list only)
+	bus.AddHandler(func(ctx context.Context, q *query.GetEmailDomainRules) error {
+		return nil
+	})
+
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{BlockDisposableEmails: true})
+
+	// mailinator.com is in the bundled list, should be blocked
+	messages := validate.EmailNotDisposable(ctx, "foo@mailinator.com")
+	Expect(len(messages) > 0).IsTrue()
+
+	// gmail.com is not in the bundled list, should be allowed
+	Expect(validate.EmailNotDisposable(ctx, "foo@gmail.com")).HasLen(0)
+}
+
+func TestEmailNotDisposable_ToggleOn_TenantAllowOverrides(t *testing.T) {
+	RegisterT(t)
+
+	// Tenant allow rule overrides the bundled deny list
+	bus.AddHandler(func(ctx context.Context, q *query.GetEmailDomainRules) error {
+		q.Result.Allow = []*entity.EmailDomainRule{{Domain: "mailinator.com"}}
+		return nil
+	})
+
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{BlockDisposableEmails: true})
+
+	// mailinator.com is in the bundled list but also in tenant allow, so it should pass
+	Expect(validate.EmailNotDisposable(ctx, "foo@mailinator.com")).HasLen(0)
+}
+
+func TestEmailNotDisposable_ToggleOn_TenantDenyBlocks(t *testing.T) {
+	RegisterT(t)
+
+	// Tenant deny rule blocks a domain not in the bundled list
+	bus.AddHandler(func(ctx context.Context, q *query.GetEmailDomainRules) error {
+		q.Result.Deny = []*entity.EmailDomainRule{{Domain: "customdisposable.example"}}
+		return nil
+	})
+
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{BlockDisposableEmails: true})
+
+	messages := validate.EmailNotDisposable(ctx, "foo@customdisposable.example")
+	Expect(len(messages) > 0).IsTrue()
 }
 
 func TestInvalidCNAME(t *testing.T) {

@@ -59,6 +59,9 @@ func (action *InviteUsers) Validate(ctx context.Context, user *entity.User) *val
 			if email != "" {
 				messages := validate.Email(ctx, email)
 				result.AddFieldFailure("recipients", messages...)
+				if len(messages) == 0 {
+					result.AddFieldFailure("recipients", validate.EmailNotDisposable(ctx, email)...)
+				}
 			}
 		}
 

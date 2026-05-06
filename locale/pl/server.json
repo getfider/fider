@@ -14,6 +14,7 @@
   "validation.maxstringlen": "{name} musi być krótsza niż {len} znaków.",
   "validation.custom.maxattachments": "Można dodać maksymalnie {number} załączników do jednego posta.",
   "validation.custom.differentemail": "Wybierz inny adres e-mail.",
+  "validation.custom.disposableemail": "Ten dostawca poczty nie jest dozwolony. Użyj stałego adresu e-mail.",
   "validation.custom.emailtaken": "Ten e-mail jest już używany przez kogoś innego",
   "validation.custom.descriptivetitle": "Tytuł musi być bardziej precyzyjny.",
   "validation.custom.duplicatetitle": "Ktoś już o tym wcześniej napisał.",
