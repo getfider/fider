@@ -200,6 +200,8 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/_api/admin/email-domain-rules", handlers.ListEmailDomainRules())
 		ui.Post("/_api/admin/email-domain-rules", handlers.AddEmailDomainRule())
 		ui.Delete("/_api/admin/email-domain-rules/:id", handlers.DeleteEmailDomainRule())
+		ui.Get("/_api/admin/disposable-users", handlers.ListDisposableUsers())
+		ui.Post("/_api/admin/disposable-users/delete", handlers.BulkDeleteDisposableUsers())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
 		ui.Post("/_api/admin/oauth/:provider/status", handlers.SetSystemProviderStatus())
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
