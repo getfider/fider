@@ -127,7 +127,8 @@ export const DisposableUsersModal: React.FC<Props> = ({ onClose }) => {
             {confirming && (
               <div className="c-disposable-modal__confirm mt-4">
                 <p>
-                  This will permanently delete {selectedIds.length} users and their votes. Posts and comments will remain but be anonymized. This cannot be undone.
+                  This will permanently delete {selectedIds.length} users and their votes. Posts and comments will remain but be anonymized. This cannot be
+                  undone.
                 </p>
               </div>
             )}

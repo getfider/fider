@@ -17,8 +17,8 @@ func TestGetDisposableUsers_BundledMatch(t *testing.T) {
 
 	// mailinator.com is in the bundled disposable list.
 	_, err := trx.Execute(
-		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		"Fake User", "fake@mailinator.com", demoTenant.ID, 1, 1, 2, "",
+		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey, security_stamp) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		"Fake User", "fake@mailinator.com", demoTenant.ID, 1, 1, 2, "", "",
 	)
 	Expect(err).IsNil()
 
@@ -41,8 +41,8 @@ func TestGetDisposableUsers_TenantDeny(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	_, err := trx.Execute(
-		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		"Spam User", "user@spam.example", demoTenant.ID, 1, 1, 2, "",
+		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey, security_stamp) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		"Spam User", "user@spam.example", demoTenant.ID, 1, 1, 2, "", "",
 	)
 	Expect(err).IsNil()
 
@@ -68,8 +68,8 @@ func TestGetDisposableUsers_AllowOverridesBundled(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	_, err := trx.Execute(
-		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		"Allowed", "ok@mailinator.com", demoTenant.ID, 1, 1, 2, "",
+		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey, security_stamp) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+		"Allowed", "ok@mailinator.com", demoTenant.ID, 1, 1, 2, "", "",
 	)
 	Expect(err).IsNil()
 
@@ -90,14 +90,14 @@ func TestBulkDeleteUsersByID(t *testing.T) {
 
 	var id1, id2 int
 	err := trx.Get(&id1,
-		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-		"Bulk Target One", "bulk1@mailinator.com", demoTenant.ID, 1, 1, 2, "",
+		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey, security_stamp) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+		"Bulk Target One", "bulk1@mailinator.com", demoTenant.ID, 1, 1, 2, "", "",
 	)
 	Expect(err).IsNil()
 
 	err = trx.Get(&id2,
-		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-		"Bulk Target Two", "bulk2@mailinator.com", demoTenant.ID, 1, 1, 2, "",
+		`INSERT INTO users (name, email, tenant_id, role, status, avatar_type, avatar_bkey, security_stamp) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+		"Bulk Target Two", "bulk2@mailinator.com", demoTenant.ID, 1, 1, 2, "", "",
 	)
 	Expect(err).IsNil()
 
