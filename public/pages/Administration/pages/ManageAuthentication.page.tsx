@@ -5,6 +5,9 @@ import { OAuthConfig, OAuthProviderOption } from "@fider/models"
 import { OAuthForm } from "../components/OAuthForm"
 import { actions, notify, Fider, Failure } from "@fider/services"
 import { AdminBasePage } from "../components/AdminBasePage"
+import { EmailDomainRuleList } from "@fider/components/admin/EmailDomainRuleList"
+import { listEmailDomainRules, updateBlockDisposableEmails, EmailDomainRule } from "@fider/services/actions/disposable"
+import { Trans } from "@lingui/macro"
 
 import IconPlay from "@fider/assets/images/heroicons-play.svg"
 import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
@@ -13,12 +16,18 @@ import { HStack, VStack } from "@fider/components/layout"
 
 interface ManageAuthenticationPageProps {
   providers: OAuthProviderOption[]
+  blockDisposableEmails: boolean
+  denyRules: EmailDomainRule[]
+  allowRules: EmailDomainRule[]
 }
 
 interface ManageAuthenticationPageState {
   isAdding: boolean
   isEmailAuthAllowed: boolean
   canDisableEmailAuth: boolean
+  blockDisposableEmails: boolean
+  denyRules: EmailDomainRule[]
+  allowRules: EmailDomainRule[]
   editing?: OAuthConfig
   error?: Failure
 }
@@ -35,6 +44,9 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
       isAdding: false,
       isEmailAuthAllowed: Fider.session.tenant.isEmailAuthAllowed,
       canDisableEmailAuth: props.providers.map((o) => o.isEnabled).reduce((a, b) => a || b, false),
+      blockDisposableEmails: props.blockDisposableEmails,
+      denyRules: props.denyRules || [],
+      allowRules: props.allowRules || [],
     }
   }
 
@@ -80,6 +92,24 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
         }
       }
     )
+  }
+
+  private toggleBlockDisposable = async (active: boolean) => {
+    this.setState({ blockDisposableEmails: active })
+    const r = await updateBlockDisposableEmails(active)
+    if (!r.ok) {
+      this.setState({ blockDisposableEmails: !active })
+      notify.error("Unable to save this setting.")
+      return
+    }
+    notify.success("Setting saved.")
+  }
+
+  private refreshRules = async () => {
+    const r = await listEmailDomainRules()
+    if (r.ok) {
+      this.setState({ denyRules: r.data.deny, allowRules: r.data.allow })
+    }
   }
 
   private toggleSystemProvider = async (provider: OAuthProviderOption, active: boolean) => {
@@ -195,6 +225,42 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
               )}
             </div>
           </VStack>
+        </div>
+        <div>
+          <h2 className="text-display">
+            <Trans id="admin.disposable.title">Disposable email blocking</Trans>
+          </h2>
+          <p className="text-muted my-2">
+            <Trans id="admin.disposable.description">
+              When enabled, sign-ups from known throwaway email providers will be rejected. About 3,000 providers are blocked by a built-in list. You can extend or
+              override the list below.
+            </Trans>
+          </p>
+          <Field label="Block Disposable Email Providers" className="mt-2">
+            <Toggle
+              field="blockDisposableEmails"
+              label={this.state.blockDisposableEmails ? "Yes" : "No"}
+              disabled={!Fider.session.user.isAdministrator}
+              active={this.state.blockDisposableEmails}
+              onToggle={this.toggleBlockDisposable}
+            />
+          </Field>
+          {this.state.blockDisposableEmails && (
+            <>
+              <h3 className="text-display mt-4">
+                <Trans id="admin.disposable.deny.title">Additional blocked domains</Trans>
+              </h3>
+              <EmailDomainRuleList ruleType="deny" rules={this.state.denyRules} onChange={this.refreshRules} />
+
+              <h3 className="text-display mt-4">
+                <Trans id="admin.disposable.allow.title">Allowed domains (override built-in list)</Trans>
+              </h3>
+              <p className="text-muted my-1">
+                <Trans id="admin.disposable.allow.help">Use this if a domain is incorrectly flagged by the built-in list.</Trans>
+              </p>
+              <EmailDomainRuleList ruleType="allow" rules={this.state.allowRules} onChange={this.refreshRules} />
+            </>
+          )}
         </div>
       </VStack>
     )

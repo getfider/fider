@@ -198,11 +198,19 @@ func ManageAuthentication() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		rulesQ := &query.GetEmailDomainRules{}
+		if err := bus.Dispatch(c, rulesQ); err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(http.StatusOK, web.Props{
 			Page:  "Administration/pages/ManageAuthentication.page",
 			Title: "Authentication · Site Settings",
 			Data: web.Map{
-				"providers": listProviders.Result,
+				"providers":             listProviders.Result,
+				"blockDisposableEmails": c.Tenant().BlockDisposableEmails,
+				"denyRules":             rulesQ.Result.Deny,
+				"allowRules":            rulesQ.Result.Allow,
 			},
 		})
 	}

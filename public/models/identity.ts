@@ -12,6 +12,7 @@ export interface Tenant {
   logoBlobKey: string
   allowedSchemes: string
   isEmailAuthAllowed: boolean
+  blockDisposableEmails: boolean
   isFeedEnabled: boolean
   isModerationEnabled: boolean
   isPro: boolean
