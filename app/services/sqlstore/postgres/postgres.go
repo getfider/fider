@@ -89,6 +89,7 @@ func (s Service) Init() {
 	bus.AddHandler(regenerateAPIKey)
 	bus.AddHandler(userSubscribedTo)
 	bus.AddHandler(deleteCurrentUser)
+	bus.AddHandler(deleteUserByID)
 	bus.AddHandler(changeUserEmail)
 	bus.AddHandler(changeUserRole)
 	bus.AddHandler(updateCurrentUserSettings)

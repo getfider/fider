@@ -55,4 +55,13 @@ type UpdateCurrentUser struct {
 	Avatar     *dto.ImageUpload
 }
 
-type RotateAllUserSecurityStamps struct {}
+type RotateAllUserSecurityStamps struct{}
+
+type DeleteUserByID struct {
+	UserID int
+}
+
+type BulkDeleteUsersByID struct {
+	UserIDs []int
+	Result  int // count actually deleted
+}

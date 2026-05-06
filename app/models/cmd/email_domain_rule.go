@@ -11,16 +11,3 @@ type AddEmailDomainRule struct {
 type DeleteEmailDomainRule struct {
 	ID int
 }
-
-type UpdateTenantBlockDisposableEmails struct {
-	BlockDisposableEmails bool
-}
-
-type DeleteUserByID struct {
-	UserID int
-}
-
-type BulkDeleteUsersByID struct {
-	UserIDs []int
-	Result  int // count actually deleted
-}

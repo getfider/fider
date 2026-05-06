@@ -420,3 +420,41 @@ func TestUserStorage_BlockUser(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(getUser.Result.Status).Equals(enum.UserActive)
 }
+
+type minimalUser struct {
+	Name   string `db:"name"`
+	Email  string `db:"email"`
+	Status int    `db:"status"`
+}
+
+// Regression — ensure self-delete still works after the refactor.
+func TestUserStorage_DeleteCurrentUser_StillWorks(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	err := bus.Dispatch(aryaStarkCtx, &cmd.DeleteCurrentUser{})
+	Expect(err).IsNil()
+
+	var u minimalUser
+	err = trx.Get(&u, "SELECT name, email, status FROM users WHERE id = $1", aryaStark.ID)
+	Expect(err).IsNil()
+	Expect(u.Status).Equals(int(enum.UserDeleted))
+	Expect(u.Name).Equals("")
+	Expect(u.Email).Equals("")
+}
+
+// New — admin can delete an arbitrary user by ID.
+func TestUserStorage_DeleteUserByID(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	// Use demoTenantCtx (admin context) to delete a different user.
+	err := bus.Dispatch(demoTenantCtx, &cmd.DeleteUserByID{UserID: aryaStark.ID})
+	Expect(err).IsNil()
+
+	var u minimalUser
+	err = trx.Get(&u, "SELECT name, email, status FROM users WHERE id = $1", aryaStark.ID)
+	Expect(err).IsNil()
+	Expect(u.Status).Equals(int(enum.UserDeleted))
+	Expect(u.Email).Equals("")
+}

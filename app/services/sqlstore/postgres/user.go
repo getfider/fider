@@ -73,38 +73,47 @@ func untrustUser(ctx context.Context, c *cmd.UntrustUser) error {
 	})
 }
 
+func deleteUserInternal(trx *dbx.Trx, tenantID, userID int) error {
+	if _, err := trx.Execute(
+		"UPDATE users SET role = $3, status = $4, name = '', email = '', api_key = null, api_key_date = null WHERE id = $1 AND tenant_id = $2",
+		userID, tenantID, enum.RoleVisitor, enum.UserDeleted,
+	); err != nil {
+		return errors.Wrap(err, "failed to delete user %d", userID)
+	}
+
+	tables := []struct {
+		name       string
+		userColumn string
+	}{
+		{"user_providers", "user_id"},
+		{"user_settings", "user_id"},
+		{"notifications", "user_id"},
+		{"notifications", "author_id"},
+		{"post_votes", "user_id"},
+		{"post_subscribers", "user_id"},
+		{"email_verifications", "user_id"},
+	}
+
+	for _, table := range tables {
+		if _, err := trx.Execute(
+			fmt.Sprintf("DELETE FROM %s WHERE %s = $1 AND tenant_id = $2", table.name, table.userColumn),
+			userID, tenantID,
+		); err != nil {
+			return errors.Wrap(err, "failed to delete user %d's %s records", userID, table.name)
+		}
+	}
+	return nil
+}
+
 func deleteCurrentUser(ctx context.Context, c *cmd.DeleteCurrentUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		if _, err := trx.Execute(
-			"UPDATE users SET role = $3, status = $4, name = '', email = '', api_key = null, api_key_date = null WHERE id = $1 AND tenant_id = $2",
-			user.ID, tenant.ID, enum.RoleVisitor, enum.UserDeleted,
-		); err != nil {
-			return errors.Wrap(err, "failed to delete current user")
-		}
+		return deleteUserInternal(trx, tenant.ID, user.ID)
+	})
+}
 
-		var tables = []struct {
-			name       string
-			userColumn string
-		}{
-			{"user_providers", "user_id"},
-			{"user_settings", "user_id"},
-			{"notifications", "user_id"},
-			{"notifications", "author_id"},
-			{"post_votes", "user_id"},
-			{"post_subscribers", "user_id"},
-			{"email_verifications", "user_id"},
-		}
-
-		for _, table := range tables {
-			if _, err := trx.Execute(
-				fmt.Sprintf("DELETE FROM %s WHERE %s = $1 AND tenant_id = $2", table.name, table.userColumn),
-				user.ID, tenant.ID,
-			); err != nil {
-				return errors.Wrap(err, "failed to delete current user's %s records", table)
-			}
-		}
-
-		return nil
+func deleteUserByID(ctx context.Context, c *cmd.DeleteUserByID) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		return deleteUserInternal(trx, tenant.ID, c.UserID)
 	})
 }
 

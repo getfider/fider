@@ -75,3 +75,7 @@ type InvalidateVerificationsByEmail struct {
 
 type InvalidatePreviousSignUpKeys struct {
 }
+
+type UpdateTenantBlockDisposableEmails struct {
+	BlockDisposableEmails bool
+}
