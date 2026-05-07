@@ -228,8 +228,8 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
         <div>
           <h2 className="text-display">Disposable email blocking</h2>
           <p className="text-muted my-2">
-            When enabled, sign-ups from known throwaway email providers will be rejected. About 3,000 providers are blocked by a built-in list. You can extend or
-            override the list below.
+            When enabled, sign-ups from known throwaway email providers will be rejected. About 3,000 providers are blocked by a built-in list. You can extend
+            or override the list below.
           </p>
           <Field label="Block Disposable Email Providers" className="mt-2">
             <Toggle
@@ -246,9 +246,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthen
               <EmailDomainRuleList ruleType="deny" rules={this.state.denyRules} onChange={this.refreshRules} />
 
               <h3 className="text-display mt-4">Allowed domains (override built-in list)</h3>
-              <p className="text-muted my-1">
-                Use this if a domain is incorrectly flagged by the built-in list.
-              </p>
+              <p className="text-muted my-1">Use this if a domain is incorrectly flagged by the built-in list.</p>
               <EmailDomainRuleList ruleType="allow" rules={this.state.allowRules} onChange={this.refreshRules} />
             </>
           )}
