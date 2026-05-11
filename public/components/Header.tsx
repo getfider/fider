@@ -16,6 +16,10 @@ export const Header = (props: HeaderProps) => {
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [isRSSModalOpen, setIsRSSModalOpen] = useState(false)
 
+  const pathname = typeof window !== "undefined" ? window.location.pathname : "/"
+  const isRoadmapActive = pathname === "/roadmap"
+  const isFeedbackActive = !isRoadmapActive
+
   const handleSignInClick = () => {
     setIsSignInModalOpen(true)
   }
@@ -37,10 +41,20 @@ export const Header = (props: HeaderProps) => {
         <div className="container c-header__container">
           <div className="flex flex-wrap flex-items-center gap-2">
             <div className="flex flex-x flex-items-center justify-between w-full">
-              <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
-                <TenantLogo size={100} />
-                <h1 className="text-header">{fider.session.tenant.name}</h1>
-              </a>
+              <div className="flex flex-x flex-items-center flex-wrap gap-4">
+                <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
+                  <TenantLogo size={100} />
+                  <h1 className="text-header">{fider.session.tenant.name}</h1>
+                </a>
+                <HStack spacing={4} className="flex-items-center ml-2">
+                  <a href="/" className={`c-header__nav-link ${isFeedbackActive ? "c-header__nav-link--active" : ""}`}>
+                    <Trans id="header.nav.feedback">All Feedback</Trans>
+                  </a>
+                  <a href="/roadmap" className={`c-header__nav-link ${isRoadmapActive ? "c-header__nav-link--active" : ""}`}>
+                    <Trans id="header.nav.roadmap">Roadmap</Trans>
+                  </a>
+                </HStack>
+              </div>
               {fider.session.isAuthenticated && (
                 <HStack spacing={2}>
                   {fider.session.tenant.isFeedEnabled && (

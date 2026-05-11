@@ -16,4 +16,21 @@
       width: auto;
     }
   }
+
+  .c-header__nav-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--colors-gray-500);
+    text-decoration: none;
+    transition: color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      color: var(--colors-gray-900);
+    }
+
+    &--active {
+      color: var(--colors-gray-900);
+      box-shadow: 0 2px 0 0 var(--colors-primary-base);
+    }
+  }
 }
