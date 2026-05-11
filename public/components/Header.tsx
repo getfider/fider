@@ -39,56 +39,54 @@ export const Header = (props: HeaderProps) => {
       <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/global.atom`} />
       <HStack className="c-menu p-4 w-full">
         <div className="container c-header__container">
-          <div className="flex flex-wrap flex-items-center gap-2">
-            <div className="flex flex-x flex-items-center justify-between w-full">
-              <div className="flex flex-x flex-items-center flex-wrap gap-4">
-                <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
-                  <TenantLogo size={100} />
-                  <h1 className="text-header">{fider.session.tenant.name}</h1>
+          <div className="flex flex-wrap flex-items-center justify-between gap-2 w-full">
+            <div className="flex flex-x flex-items-center flex-wrap gap-4">
+              <a href="/" className="flex flex-x flex-items-center flex--spacing-2 h-8">
+                <TenantLogo size={100} />
+                <h1 className="text-header">{fider.session.tenant.name}</h1>
+              </a>
+              <HStack spacing={4} className="flex-items-center ml-2">
+                <a href="/" className={`c-header__nav-link ${isFeedbackActive ? "c-header__nav-link--active" : ""}`}>
+                  <Trans id="header.nav.feedback">All Feedback</Trans>
                 </a>
-                <HStack spacing={4} className="flex-items-center ml-2">
-                  <a href="/" className={`c-header__nav-link ${isFeedbackActive ? "c-header__nav-link--active" : ""}`}>
-                    <Trans id="header.nav.feedback">All Feedback</Trans>
-                  </a>
-                  <a href="/roadmap" className={`c-header__nav-link ${isRoadmapActive ? "c-header__nav-link--active" : ""}`}>
-                    <Trans id="header.nav.roadmap">Roadmap</Trans>
-                  </a>
-                </HStack>
-              </div>
-              {fider.session.isAuthenticated && (
-                <HStack spacing={2}>
-                  {fider.session.tenant.isFeedEnabled && (
-                    <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
-                      <Icon sprite={IconRss} className="h-6 text-gray-500" />
-                    </button>
-                  )}
-                  <ThemeSwitcher />
-                  <NotificationIndicator />
-                  <UserMenu />
-                </HStack>
-              )}
-              {!fider.session.isAuthenticated && (
-                <HStack spacing={2}>
-                  {fider.session.tenant.isFeedEnabled && (
-                    <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
-                      <Icon sprite={IconRss} className="h-6 text-gray-500" />
-                    </button>
-                  )}
-                  <ThemeSwitcher />
-                  <Button variant="primary" size="default" onClick={handleSignInClick}>
-                    <HStack spacing={1} className="flex-items-center">
-                      <span>
-                        <Trans id="action.signin">Sign in</Trans>
-                      </span>
-                    </HStack>
-                  </Button>
-                </HStack>
-              )}
+                <a href="/roadmap" className={`c-header__nav-link ${isRoadmapActive ? "c-header__nav-link--active" : ""}`}>
+                  <Trans id="header.nav.roadmap">Roadmap</Trans>
+                </a>
+              </HStack>
             </div>
             {fider.session.isAuthenticated && (
               <div className="c-header__moderation">
                 <ModerationIndicator />
               </div>
+            )}
+            {fider.session.isAuthenticated && (
+              <HStack spacing={2}>
+                {fider.session.tenant.isFeedEnabled && (
+                  <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
+                    <Icon sprite={IconRss} className="h-6 text-gray-500" />
+                  </button>
+                )}
+                <ThemeSwitcher />
+                <NotificationIndicator />
+                <UserMenu />
+              </HStack>
+            )}
+            {!fider.session.isAuthenticated && (
+              <HStack spacing={2}>
+                {fider.session.tenant.isFeedEnabled && (
+                  <button title={atomFeedTitle} className="c-themeswitcher" onClick={showRSSModal}>
+                    <Icon sprite={IconRss} className="h-6 text-gray-500" />
+                  </button>
+                )}
+                <ThemeSwitcher />
+                <Button variant="primary" size="default" onClick={handleSignInClick}>
+                  <HStack spacing={1} className="flex-items-center">
+                    <span>
+                      <Trans id="action.signin">Sign in</Trans>
+                    </span>
+                  </HStack>
+                </Button>
+              </HStack>
             )}
           </div>
         </div>
