@@ -1,4 +1,4 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-webhook-properties {
   border-spacing: 0;
@@ -44,7 +44,7 @@
     @each $color in ("gray", "blue", "green", "red") {
       &--#{$color} {
         font-family: get("font.family.code");
-        color: get("colors.#{$color}.600");
+        color: var(--colors-#{$color}-600);
       }
     }
 

@@ -2,58 +2,89 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
 
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-var onlyalphanumeric = regexp.MustCompile("[^a-zA-Z0-9 |]+")
+// allowedTextRunes matches any character that is NOT a Unicode letter (\p{L}), number (\p{N}), space, or pipe.
+// This allows both Latin and non-Latin scripts to be preserved for full-text search.
+var allowedTextRunes = regexp.MustCompile(`[^\p{L}\p{N} |]+`)
 var replaceOr = strings.NewReplacer("|", " ")
 
 // ToTSQuery converts input to another string that can be safely used for ts_query
 func ToTSQuery(input string) string {
-	input = replaceOr.Replace(onlyalphanumeric.ReplaceAllString(input, ""))
+	input = replaceOr.Replace(allowedTextRunes.ReplaceAllString(input, " "))
 	return strings.Join(strings.Fields(input), "|")
 }
 
-func getViewData(view string) (string, []enum.PostStatus, string) {
+// SanitizeString converts input to another string that only contains utf-8 characters and not-null characters
+func SanitizeString(input string) string {
+	input = strings.ReplaceAll(input, "\u0000", "")
+	return strings.ToValidUTF8(input, "")
+}
+
+// MapLocaleToTSConfig maps a tenant's locale short key to the corresponding PostgreSQL text search configuration.
+// Returns 'simple' if no match is found or if PostgreSQL doesn't have native support for the language.
+// All locale definitions are centralized in app/models/enum/locale.go
+func MapLocaleToTSConfig(locale string) string {
+	return enum.MapLocaleToTSConfig(locale)
+}
+
+func getViewData(query query.SearchPosts, tagsPlaceholder int) (string, []enum.PostStatus, string) {
 	var (
 		condition string
 		sort      string
 	)
-	statuses := []enum.PostStatus{
-		enum.PostOpen,
-		enum.PostStarted,
-		enum.PostPlanned,
+	statusFilters := query.Statuses
+	if len(statusFilters) == 0 {
+		// Use a sensible default list of status filters
+		statusFilters = []enum.PostStatus{
+			enum.PostOpen,
+			enum.PostStarted,
+			enum.PostPlanned,
+		}
 	}
-	switch view {
-	case "recent":
-		sort = "id"
-	case "my-votes":
+
+	if query.MyVotesOnly {
 		condition = "AND has_voted = true"
+	}
+
+	switch query.View {
+	case "recent":
 		sort = "id"
 	case "most-wanted":
 		sort = "votes_count"
 	case "most-discussed":
 		sort = "comments_count"
+	case "my-votes":
+		// Deprecated: You can instead filter on my votes only for more flexibility than using this view.
+		condition = "AND has_voted = true"
+		sort = "id"
 	case "planned":
+		// Deprecated: Use status filters instead
 		sort = "response_date"
-		statuses = []enum.PostStatus{enum.PostPlanned}
+		statusFilters = []enum.PostStatus{enum.PostPlanned}
 	case "started":
+		// Deprecated: Use status filters instead
 		sort = "response_date"
-		statuses = []enum.PostStatus{enum.PostStarted}
+		statusFilters = []enum.PostStatus{enum.PostStarted}
 	case "completed":
+		// Deprecated: Use status filters instead
 		sort = "response_date"
-		statuses = []enum.PostStatus{enum.PostCompleted}
+		statusFilters = []enum.PostStatus{enum.PostCompleted}
 	case "declined":
+		// Deprecated: Use status filters instead
 		sort = "response_date"
-		statuses = []enum.PostStatus{enum.PostDeclined}
+		statusFilters = []enum.PostStatus{enum.PostDeclined}
 	case "all":
 		sort = "id"
-		statuses = []enum.PostStatus{
+		statusFilters = []enum.PostStatus{
 			enum.PostOpen,
 			enum.PostStarted,
 			enum.PostPlanned,
@@ -65,7 +96,18 @@ func getViewData(view string) (string, []enum.PostStatus, string) {
 	default:
 		sort = "((COALESCE(recent_votes_count, 0)*5 + COALESCE(recent_comments_count, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_at)/3600) + 2, 1.4)"
 	}
-	return condition, statuses, sort
+
+	if query.NoTagsOnly {
+		// NoTagsOnly takes precedence: combining "untagged" with specific tag
+		// filters produces contradictory SQL that always returns zero rows.
+		query.Tags = nil
+		condition += " AND tags = '{}'"
+	}
+
+	if len(query.Tags) > 0 {
+		condition += fmt.Sprintf(" AND tags && $%d", tagsPlaceholder)
+	}
+	return condition, statusFilters, sort
 }
 
 func buildAvatarURL(ctx context.Context, avatarType enum.AvatarType, id int, name, avatarBlobKey string) string {

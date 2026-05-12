@@ -33,6 +33,8 @@ type CreateEditOAuthConfig struct {
 	JSONUserIDPath    string           `json:"jsonUserIDPath"`
 	JSONUserNamePath  string           `json:"jsonUserNamePath"`
 	JSONUserEmailPath string           `json:"jsonUserEmailPath"`
+	JSONUserRolesPath string           `json:"jsonUserRolesPath"`
+	AllowedRoles      string           `json:"allowedRoles"`
 }
 
 func NewCreateEditOAuthConfig() *CreateEditOAuthConfig {
@@ -46,7 +48,40 @@ func (action *CreateEditOAuthConfig) IsAuthorized(ctx context.Context, user *ent
 	return user != nil && user.IsAdministrator()
 }
 
+// SetSystemProviderStatus is used to enable/disable built-in OAuth providers
+type SetSystemProviderStatus struct {
+	Provider  string `json:"provider"`
+	IsEnabled bool   `json:"isEnabled"`
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *SetSystemProviderStatus) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return user != nil && user.IsAdministrator()
+}
+
 // Validate if current model is valid
+func (action *SetSystemProviderStatus) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	result := validate.Success()
+
+	if !action.IsEnabled {
+		tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+		activeProviders := &query.ListActiveOAuthProviders{}
+		if err := bus.Dispatch(ctx, activeProviders); err != nil {
+			return validate.Failed("Cannot retrieve OAuth providers")
+		}
+
+		if !tenant.IsEmailAuthAllowed && len(activeProviders.Result) == 1 {
+			result.AddFieldFailure("isEnabled", "You cannot disable this provider with neither email auth nor any other provider enabled.")
+		}
+	}
+
+	if action.Provider == "" {
+		result.AddFieldFailure("provider", "Provider is required.")
+	}
+
+	return result
+}
+
 func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
@@ -149,6 +184,14 @@ func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entity.
 
 	if len(action.JSONUserEmailPath) > 100 {
 		result.AddFieldFailure("jsonUserEmailPath", "JSON User Email Path must have less than 100 characters.")
+	}
+
+	if len(action.JSONUserRolesPath) > 100 {
+		result.AddFieldFailure("jsonUserRolesPath", "JSON User Roles Path must have less than 100 characters.")
+	}
+
+	if len(action.AllowedRoles) > 500 {
+		result.AddFieldFailure("allowedRoles", "Allowed Roles must have less than 500 characters.")
 	}
 
 	return result

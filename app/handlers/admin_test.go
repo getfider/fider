@@ -3,11 +3,12 @@ package handlers_test
 import (
 	"context"
 	"encoding/base64"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -69,7 +70,7 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 		return nil
 	})
 
-	logoBytes, _ := ioutil.ReadFile(env.Etc("logo.png"))
+	logoBytes, _ := os.ReadFile(env.Etc("logo.png"))
 	logoB64 := base64.StdEncoding.EncodeToString(logoBytes)
 
 	server := mock.NewServer()
@@ -77,9 +78,9 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.UpdateSettings(), `{ 
-				"title": "GoT", 
-				"invitation": "Join us!", 
+			handlers.UpdateSettings(), `{
+				"title": "GoT",
+				"invitation": "Join us!",
 				"welcomeMessage": "Welcome to GoT Feedback Forum",
 				"locale": "pt-BR",
 				"logo": {
@@ -119,10 +120,10 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.UpdateSettings(), `{ 
-				"title": "GoT", 
-				"invitation": "Join us!", 
-				"locale": "en", 
+			handlers.UpdateSettings(), `{
+				"title": "GoT",
+				"invitation": "Join us!",
+				"locale": "en",
 				"welcomeMessage": "Welcome to GoT Feedback Forum",
 				"logo": {
 					"remove": true
@@ -134,7 +135,7 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 	ExpectHandler(&cmd.UploadImage{}).CalledOnce()
 }
 
-func TestUpdatePrivacyHandler(t *testing.T) {
+func TestUpdatePrivacySettingsHandler(t *testing.T) {
 	RegisterT(t)
 
 	var updateCmd *cmd.UpdateTenantPrivacySettings
@@ -148,18 +149,61 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.UpdatePrivacy(),
-			`{ "isPrivate": true }`,
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": true, "isFeedEnabled": false }`,
 		)
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(updateCmd.IsPrivate).IsTrue()
+	Expect(updateCmd.IsFeedEnabled).IsFalse()
+
+	server = mock.NewServer()
+	code, _ = server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": false, "isFeedEnabled": false }`,
+		)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(updateCmd.IsPrivate).IsFalse()
+	Expect(updateCmd.IsFeedEnabled).IsFalse()
+
+	server = mock.NewServer()
+	code, _ = server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": false, "isFeedEnabled": true }`,
+		)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(updateCmd.IsPrivate).IsFalse()
+	Expect(updateCmd.IsFeedEnabled).IsTrue()
+
+	server = mock.NewServer()
+	code, _ = server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": true, "isFeedEnabled": true }`,
+		)
+
+	Expect(code).Equals(http.StatusBadRequest)
+	// Should be same as last request
+	Expect(updateCmd.IsPrivate).IsFalse()
+	Expect(updateCmd.IsFeedEnabled).IsTrue()
 }
 
 func TestManageMembersHandler(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetAllUsers) error {
+	bus.AddHandler(func(ctx context.Context, q *query.SearchUsers) error {
+		q.Result = []*entity.User{}
+		q.TotalCount = 0
 		return nil
 	})
 

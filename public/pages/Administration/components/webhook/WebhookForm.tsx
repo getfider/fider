@@ -83,7 +83,7 @@ const HttpHeader = (props: HttpHeaderProps) => {
 export const WebhookForm = (props: WebhookFormProps) => {
   const [name, setName] = useState(props.webhook?.name || "")
   const [type, _setType] = useState(props.webhook?.type || WebhookType.NEW_POST)
-  const [status, _setStatus] = useState(props.webhook?.status || WebhookStatus.DISABLED)
+  const [status, _setStatus] = useState(props.webhook?.status || WebhookStatus.ENABLED)
   const [url, setUrl] = useState(props.webhook?.url || "")
   const [content, setContent] = useState(props.webhook?.content || "")
   const [httpMethod, setHttpMethod] = useState(props.webhook?.http_method || "POST")
@@ -152,7 +152,7 @@ export const WebhookForm = (props: WebhookFormProps) => {
           This webhook has failed
         </Message>
       )}
-      <h2 className="text-title mb-2">{title}</h2>
+      <h2 className="text-title mb-4">{title}</h2>
       <Form className="c-webhook-form" error={error}>
         <Input field="name" label="Name" value={name} onChange={setName} placeholder="My awesome webhook" />
         <Select
@@ -167,7 +167,7 @@ export const WebhookForm = (props: WebhookFormProps) => {
           ]}
           onChange={setType}
         />
-        <Field label="Status">
+        <Field label="Enabled">
           <Toggle active={status === WebhookStatus.ENABLED} onToggle={setStatus} />
           {status === WebhookStatus.FAILED && <p className="text-muted mt-1">This webhook was disabled due to a trigger failure</p>}
         </Field>
@@ -190,7 +190,7 @@ export const WebhookForm = (props: WebhookFormProps) => {
         />
         <Input field="http_method" label="HTTP Method" value={httpMethod} onChange={setHttpMethod} placeholder="POST" />
         <Field label="HTTP Headers" afterLabel={<HoverInfo text="Those headers are sent in the request when the webhook is triggered" />}>
-          <VStack spacing={2}>
+          <VStack spacing={0}>
             {Object.entries(httpHeaders).map(([header, value]) => (
               <HttpHeader key={header} header={header} value={value} onEdit={setHttpHeader} onRemove={removeHttpHeader} />
             ))}

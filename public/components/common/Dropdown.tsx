@@ -2,12 +2,15 @@ import "./Dropdown.scss"
 
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 import { classSet } from "@fider/services"
+import { Icon } from "@fider/components/common/Icon"
 
 interface DropdownListItemProps {
   href?: string
+  type?: string
   onClick?: () => void
   className?: string
   children: React.ReactNode
+  icon?: SpriteSymbol
 }
 
 const ListItem = (props: DropdownListItemProps) => {
@@ -22,7 +25,8 @@ const ListItem = (props: DropdownListItemProps) => {
 
   if (props.href) {
     return (
-      <a href={props.href} className={`c-dropdown__listitem ${props.className}`}>
+      <a href={props.href} className={`c-dropdown__listitem ${props.className}`} type={props.type || "button"}>
+        {props.icon && <Icon sprite={props.icon} className="mr-2" width="16" height="16" />}
         {props.children}
       </a>
     )
@@ -30,6 +34,7 @@ const ListItem = (props: DropdownListItemProps) => {
 
   return (
     <div onClick={handleClick} className={`c-dropdown__listitem ${props.className}`}>
+      {props.icon && <Icon sprite={props.icon} className="mr-2" width="16" height="16" />}
       {props.children}
     </div>
   )
@@ -42,7 +47,10 @@ const Divider = () => {
 interface DropdownProps {
   renderHandle: JSX.Element
   position?: "left" | "right"
+  onToggled?: (isOpen: boolean) => void
   children: React.ReactNode
+  wide?: boolean
+  fullsceenSm?: boolean
 }
 
 interface DropdownContextFuncs {
@@ -57,12 +65,19 @@ export const Dropdown = (props: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const position = props.position || "right"
 
+  const changeToggleState = (newState: boolean) => {
+    setIsOpen(newState)
+    if (props.onToggled) {
+      props.onToggled(newState)
+    }
+  }
+
   const toggleIsOpen = () => {
-    setIsOpen(!isOpen)
+    changeToggleState(!isOpen)
   }
 
   const close = () => {
-    setIsOpen(false)
+    changeToggleState(false)
   }
 
   const handleClick = (e: MouseEvent) => {
@@ -82,7 +97,9 @@ export const Dropdown = (props: DropdownProps) => {
   }, [])
 
   const listClassName = classSet({
+    "c-dropdown__list--wide": props.wide,
     "c-dropdown__list shadow-lg": true,
+    "c-dropdown__list--fullscreen-small": props.fullsceenSm,
     [`c-dropdown__list--${position}`]: position === "left",
   })
 

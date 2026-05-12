@@ -11,6 +11,7 @@ const GeneralSettingsPage = () => {
   const fider = useFider()
   const [title, setTitle] = useState<string>(fider.session.tenant.name)
   const [welcomeMessage, setWelcomeMessage] = useState<string>(fider.session.tenant.welcomeMessage)
+  const [welcomeHeader, setWelcomeHeader] = useState<string>(fider.session.tenant.welcomeHeader)
   const [invitation, setInvitation] = useState<string>(fider.session.tenant.invitation)
   const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
   const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
@@ -18,7 +19,7 @@ const GeneralSettingsPage = () => {
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, invitation, logo, locale })
+    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, invitation, logo, locale })
     if (result.ok) {
       e.preventEnable()
       location.href = `/`
@@ -44,10 +45,21 @@ const GeneralSettingsPage = () => {
   return (
     <AdminPageContainer id="p-admin-general" name="general" title="General" subtitle="Manage your site settings">
       <Form error={error}>
-        <Input field="title" label="Title" maxLength={60} value={title} disabled={!fider.session.user.isAdministrator} onChange={setTitle}>
+        <Input field="title" label="Your Fider board's title" maxLength={60} value={title} disabled={!fider.session.user.isAdministrator} onChange={setTitle}>
+          <p className="text-muted">Keep it short and snappy. Your product / service name is usually best.</p>
+        </Input>
+
+        <Input
+          field="welcomeHeader"
+          label="Welcome Header"
+          maxLength={100}
+          value={welcomeHeader}
+          disabled={!fider.session.user.isAdministrator}
+          placeholder="Help us build the _best feedback platform_"
+          onChange={setWelcomeHeader}
+        >
           <p className="text-muted">
-            The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The product/service name is usually the best
-            choice.
+            Large header text shown on the home page. Leave empty to hide. Wrap text with underscores (e.g., _highlighted_) to show it in blue.
           </p>
         </Input>
 
@@ -59,8 +71,8 @@ const GeneralSettingsPage = () => {
           onChange={setWelcomeMessage}
         >
           <p className="text-muted">
-            The message is shown on this site&apos;s home page. Use it to help visitors understad what this space is about and the importance of their feedback.
-            Leave it empty for a default message.
+            The message is shown on this site&apos;s home page. Use it to help visitors understand what this space is about and the importance of their
+            feedback.
           </p>
         </TextArea>
 
@@ -73,16 +85,11 @@ const GeneralSettingsPage = () => {
           placeholder="Enter your suggestion here..."
           onChange={setInvitation}
         >
-          <p className="text-muted">
-            This text is used as a placeholder for the suggestion&apos;s text box. Use it to invite your visitors into sharing their suggestions and feedback.
-            Leave it empty for a default message.
-          </p>
+          <p className="text-muted">Placeholder text in the suggestion&apos;s box. It should invite your visitors into sharing their feedback.</p>
         </Input>
 
-        <ImageUploader label="Logo" field="logo" bkey={fider.session.tenant.logoBlobKey} disabled={!fider.session.user.isAdministrator} onChange={setLogo}>
-          <p className="text-muted">
-            We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 200x200 pixels.
-          </p>
+        <ImageUploader label="Your Logo" field="logo" bkey={fider.session.tenant.logoBlobKey} disabled={!fider.session.user.isAdministrator} onChange={setLogo}>
+          <p className="text-muted">JPG, GIF or PNG smaller than 100KB, minimum size 200x200 pixels.</p>
         </ImageUploader>
 
         {!Fider.isSingleHostMode() && (
@@ -104,8 +111,7 @@ const GeneralSettingsPage = () => {
                 ]
               ) : (
                 <p>
-                  Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcompany.com</code>
-                  ).
+                  Use custom domains to access Fider via your own domain name <code>feedback.yourcompany.com</code>
                 </p>
               )}
             </div>
@@ -118,19 +124,19 @@ const GeneralSettingsPage = () => {
           defaultValue={locale}
           options={Object.entries(locales).map(([k, v]) => ({
             value: k,
-            label: `${v.text} (${v.translated}%)`,
+            label: v.text,
           }))}
           onChange={(o) => setLocale(o?.value || "en")}
         >
           {locale !== "en" && (
             <>
               <p className="text-muted">
-                This language is currently <strong>{locales[locale].translated}%</strong> translated by the Open Source community. If you find a mistake or
-                would like to improve its quality, visit{" "}
-                <a className="text-link" target="_blank" rel="noopener" href="https://crowdin.com/project/fider">
-                  Crowdin
+                This language is translated by the Open Source community. If you find a mistake or would like to improve its quality, you can find the
+                translations on{" "}
+                <a className="text-link" target="_blank" rel="noopener" href="https://github.com/getfider/fider/tree/main/locale">
+                  GitHub
                 </a>{" "}
-                and contribute with your own translations. No technical knowledge required.
+                and contribute with your own translations.
               </p>
               <p className="text-muted">Only public pages are translated. Internal and/or administrative pages will remain in English.</p>
             </>

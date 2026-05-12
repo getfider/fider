@@ -2,6 +2,7 @@ package web_test
 
 import (
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app/models/entity"
@@ -52,11 +53,47 @@ func TestReactRenderer_RenderEmptyHomeHTML(t *testing.T) {
 		},
 	})
 	Expect(html).ContainsSubstring(`<div class="c-dev-banner">DEV</div>`)
-	Expect(html).ContainsSubstring(`<input type="text" class="c-input" id="input-title"`)
+	Expect(html).ContainsSubstring(`<button class="p-home__add-idea-btn">`)
+	Expect(html).ContainsSubstring(`Enter your suggestion here...`)
 	Expect(html).ContainsSubstring(`What can we do better? This is the place for you to vote, discuss and share ideas.`)
 	Expect(html).ContainsSubstring(`No posts have been created yet.`)
 	Expect(html).ContainsSubstring(`Powered by Fider`)
 	Expect(err).IsNil()
+}
+
+func TestReactRenderer_RenderWithMaliciousURL(t *testing.T) {
+	RegisterT(t)
+
+	r, err := web.NewReactRenderer("ssr.js")
+	Expect(err).IsNil()
+
+	// Attempt to break out of the JS string literal and inject code via the URL.
+	// The URL contains a literal double-quote followed by JS that would, if interpolated
+	// unsafely, execute server-side and emit attacker-controlled content into the SSR
+	// output. After the fix the URL must be JSON-encoded into the ssrRender call so the
+	// injection becomes inert.
+	u := &url.URL{
+		Scheme:   "https",
+		Host:     "demo.test.fider.io",
+		Path:     "/",
+		RawQuery: `q=",{"page":"Error/Error404.page","settings":{},"tenant":{"locale":"en"}});` + "`<h1>RCE-PROOF</h1>`" + `//`,
+	}
+	html, err := r.Render(u, web.Map{
+		"page": "Home/Home.page",
+		"tenant": &entity.Tenant{
+			Locale: "en",
+		},
+		"settings": web.Map{
+			"locale": "en",
+		},
+		"props": web.Map{
+			"posts":          make([]web.Map, 0),
+			"tags":           make([]web.Map, 0),
+			"countPerStatus": web.Map{},
+		},
+	})
+	Expect(err).IsNil()
+	Expect(strings.Contains(html, `<h1>RCE-PROOF</h1>`)).IsFalse()
 }
 
 func TestReactRenderer_RenderEmptyHomeHTML_Portuguese(t *testing.T) {
@@ -81,7 +118,8 @@ func TestReactRenderer_RenderEmptyHomeHTML_Portuguese(t *testing.T) {
 		},
 	})
 	Expect(html).ContainsSubstring(`<div class="c-dev-banner">DEV</div>`)
-	Expect(html).ContainsSubstring(`<input type="text" class="c-input" id="input-title"`)
+	Expect(html).ContainsSubstring(`<button class="p-home__add-idea-btn">`)
+	Expect(html).ContainsSubstring(`Insira sua sugestão aqui...`)
 	Expect(html).ContainsSubstring(`O que podemos fazer melhor? Este é o lugar para você votar, discutir e compartilhar ideias.`)
 	Expect(html).ContainsSubstring(`Nenhuma postagem foi criada ainda.`)
 	Expect(html).ContainsSubstring(`Powered by Fider`)

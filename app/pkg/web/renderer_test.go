@@ -3,8 +3,8 @@ package web_test
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
@@ -21,10 +21,10 @@ import (
 )
 
 func compareRendererResponse(buf *bytes.Buffer, fileName string, ctx *web.Context) {
-	// ioutil.WriteFile(env.Path(fileName), []byte(strings.Replace(buf.String(), ctx.ContextID(), "CONTEXT_ID", -1)), 0744)
-	bytes, err := ioutil.ReadFile(env.Path(fileName))
+	// os.WriteFile(env.Path(fileName), []byte(strings.ReplaceAll(buf.String(), ctx.ContextID(), "CONTEXT_ID")), 0744)
+	bytes, err := os.ReadFile(env.Path(fileName))
 	Expect(err).IsNil()
-	Expect(strings.Replace(buf.String(), ctx.ContextID(), "CONTEXT_ID", -1)).Equals(string(bytes))
+	Expect(strings.ReplaceAll(buf.String(), ctx.ContextID(), "CONTEXT_ID")).Equals(string(bytes))
 }
 
 func TestRenderer_Basic(t *testing.T) {

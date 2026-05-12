@@ -1,8 +1,6 @@
 package query
 
 import (
-	"time"
-
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
@@ -29,6 +27,23 @@ type GetVerificationByKey struct {
 	Result *entity.EmailVerification
 }
 
+type GetVerificationByEmailAndCode struct {
+	Email string
+	Code  string
+	Kind  enum.EmailVerificationKind
+
+	// Output
+	Result *entity.EmailVerification
+}
+
+type GetActiveVerificationByEmail struct {
+	Email string
+	Kind  enum.EmailVerificationKind
+
+	// Output
+	Result *entity.EmailVerification
+}
+
 type GetFirstTenant struct {
 
 	// Output
@@ -42,9 +57,7 @@ type GetTenantByDomain struct {
 	Result *entity.Tenant
 }
 
-type GetTrialingTenantContacts struct {
-	TrialExpiresOn time.Time
-
+type GetPendingSignUpVerification struct {
 	// Output
-	Contacts []*entity.User
+	Result *entity.EmailVerification
 }

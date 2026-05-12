@@ -6,6 +6,7 @@ import { HStack } from "@fider/components/layout"
 import "./Checkbox.scss"
 
 interface CheckboxProps {
+  children?: React.ReactNode
   field: string
   checked?: boolean
   onChange?: (checked: boolean) => void
@@ -14,7 +15,8 @@ interface CheckboxProps {
 export const Checkbox: React.FC<CheckboxProps> = (props) => {
   const [checked, setChecked] = useState<boolean>(props.checked || false)
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Original onChange handler
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked: boolean = e.currentTarget.checked
 
     setChecked(isChecked)
@@ -34,7 +36,20 @@ export const Checkbox: React.FC<CheckboxProps> = (props) => {
         >
           <div className="c-checkbox">
             <HStack>
-              <input id={`input-${props.field}`} type="checkbox" checked={checked} onChange={onChange} />
+              <input
+                id={`input-${props.field}`}
+                type="checkbox"
+                checked={checked}
+                onChange={(e) => {
+                  // Clear error for this field when user interacts with it
+                  if (ctx.clearError && hasError(props.field, ctx.error)) {
+                    ctx.clearError(props.field)
+                  }
+
+                  // Call the original onChange handler
+                  handleChange(e)
+                }}
+              />
               <label htmlFor={`input-${props.field}`} className="text-sm">
                 {props.children}
               </label>

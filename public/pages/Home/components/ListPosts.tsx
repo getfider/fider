@@ -1,47 +1,113 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
-import { ShowTag, ShowPostResponse, VoteCounter, Markdown, Icon } from "@fider/components"
+import { ShowTag, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
+import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { HStack, VStack } from "@fider/components/layout"
+import { useFider } from "@fider/hooks"
+import { Trans } from "@lingui/react/macro"
 
 interface ListPostsProps {
   posts?: Post[]
   tags: Tag[]
   emptyText: string
+  minimalView?: boolean
+  onPostClick?: (postNumber: number, slug: string) => void
 }
 
-const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
+const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPostClick?: (postNumber: number, slug: string) => void }) => {
+  const fider = useFider()
+  const isModerationEnabled = fider.session.tenant.isModerationEnabled
+  const isPending = isModerationEnabled && !props.post.isApproved
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (props.onPostClick) {
+      e.preventDefault()
+      props.onPostClick(props.post.number, props.post.slug)
+    }
+  }
+
   return (
-    <HStack center={true}>
-      <div className="align-self-start">
-        <VoteCounter post={props.post} />
-      </div>
-      <VStack className="w-full" spacing={2}>
-        <HStack justify="between">
-          <a className="text-title hover:text-primary-base" href={`/posts/${props.post.number}/${props.post.slug}`}>
-            {props.post.title}
-          </a>
+    <a href={`/posts/${props.post.number}/${props.post.slug}`} className="c-posts-container__post-link" onClick={handleClick}>
+      <VStack className="c-posts-container__post w-full" spacing={4}>
+        <HStack justify="between" align="start">
+          <HStack spacing={2} align="start" className="w-full">
+            <h3 className="c-posts-container__post-title text-break">{props.post.title}</h3>
+            {isPending && (
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded flex-shrink-0">
+                <Trans id="post.pending">pending</Trans>
+              </span>
+            )}
+          </HStack>
           {props.post.commentsCount > 0 && (
-            <HStack className="text-muted">
-              {props.post.commentsCount} <Icon sprite={IconChatAlt2} className="h-4 ml-1" />
+            <HStack spacing={1} className="c-posts-container__post-comments flex-shrink-0">
+              <span>{props.post.commentsCount}</span>
+              <Icon sprite={IconChatAlt2} className="h-5 w-5" />
             </HStack>
           )}
         </HStack>
-        <Markdown className="text-gray-600" maxLength={300} text={props.post.description} style="plainText" />
-        <ShowPostResponse status={props.post.status} response={props.post.response} />
+        <Markdown className="c-posts-container__postdescription" maxLength={300} text={props.post.description} style="plainText" />
         {props.tags.length >= 1 && (
-          <HStack className="flex-wrap">
+          <HStack spacing={0} className="gap-2 flex-wrap">
             {props.tags.map((tag) => (
-              <ShowTag key={tag.id} tag={tag} link />
+              <ShowTag key={tag.id} tag={tag} />
             ))}
           </HStack>
         )}
+        <HStack justify="between" align="center">
+          <div className="c-posts-container__post-votes">
+            <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
+            <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+            {props.post.hasVoted && (
+              <span className="text-xs text-blue-600 ml-2 inline-flex flex-items-center">
+                <Icon sprite={IconCheck} className="h-3 w-3 mr-1" />
+                <Trans id="action.voted">Voted!</Trans>
+              </span>
+            )}
+          </div>
+          {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />}
+        </HStack>
       </VStack>
+    </a>
+  )
+}
+
+const MinimalListPostItem = (props: { post: Post; tags: Tag[]; onPostClick?: (postNumber: number, slug: string) => void }) => {
+  const fider = useFider()
+  const isModerationEnabled = fider.session.tenant.isModerationEnabled
+  const isPending = isModerationEnabled && !props.post.isApproved
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (props.onPostClick) {
+      e.preventDefault()
+      props.onPostClick(props.post.number, props.post.slug)
+    }
+  }
+
+  return (
+    <HStack spacing={4} align="start" className="c-posts-container__post-minimal">
+      <HStack className="w-full" justify="between" align="start">
+        <HStack spacing={2} align="start" justify="between" className="w-full">
+          <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`} onClick={handleClick}>
+            {props.post.title}
+          </a>
+          {isPending && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>}
+        </HStack>
+        {props.post.status !== "open" ? (
+          <div>
+            <ResponseLozenge status={props.post.status} response={props.post.response} size={"micro"} />
+          </div>
+        ) : (
+          <span className="text-gray-700 text-sm">+{props.post.votesCount}</span>
+        )}
+      </HStack>
     </HStack>
   )
 }
 
 export const ListPosts = (props: ListPostsProps) => {
+  const { minimalView = false } = props
+
   if (!props.posts) {
     return null
   }
@@ -51,10 +117,25 @@ export const ListPosts = (props: ListPostsProps) => {
   }
 
   return (
-    <VStack spacing={4} divide={true} center={true}>
-      {props.posts.map((post) => (
-        <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
-      ))}
-    </VStack>
+    <>
+      {minimalView ? (
+        <VStack spacing={2}>
+          {props.posts.map((post) => (
+            <MinimalListPostItem
+              key={post.id}
+              post={post}
+              tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)}
+              onPostClick={props.onPostClick}
+            />
+          ))}
+        </VStack>
+      ) : (
+        <>
+          {props.posts.map((post) => (
+            <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} onPostClick={props.onPostClick} />
+          ))}
+        </>
+      )}
+    </>
   )
 }

@@ -10,45 +10,8 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
-
-type dbOAuthConfig struct {
-	ID                int    `db:"id"`
-	Provider          string `db:"provider"`
-	DisplayName       string `db:"display_name"`
-	LogoBlobKey       string `db:"logo_bkey"`
-	Status            int    `db:"status"`
-	IsTrusted         bool   `db:"is_trusted"`
-	ClientID          string `db:"client_id"`
-	ClientSecret      string `db:"client_secret"`
-	AuthorizeURL      string `db:"authorize_url"`
-	TokenURL          string `db:"token_url"`
-	Scope             string `db:"scope"`
-	ProfileURL        string `db:"profile_url"`
-	JSONUserIDPath    string `db:"json_user_id_path"`
-	JSONUserNamePath  string `db:"json_user_name_path"`
-	JSONUserEmailPath string `db:"json_user_email_path"`
-}
-
-func (m *dbOAuthConfig) toModel() *entity.OAuthConfig {
-	return &entity.OAuthConfig{
-		ID:                m.ID,
-		Provider:          m.Provider,
-		DisplayName:       m.DisplayName,
-		Status:            m.Status,
-		IsTrusted:         m.IsTrusted,
-		LogoBlobKey:       m.LogoBlobKey,
-		ClientID:          m.ClientID,
-		ClientSecret:      m.ClientSecret,
-		AuthorizeURL:      m.AuthorizeURL,
-		TokenURL:          m.TokenURL,
-		ProfileURL:        m.ProfileURL,
-		Scope:             m.Scope,
-		JSONUserIDPath:    m.JSONUserIDPath,
-		JSONUserNamePath:  m.JSONUserNamePath,
-		JSONUserEmailPath: m.JSONUserEmailPath,
-	}
-}
 
 func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
@@ -56,12 +19,13 @@ func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuth
 			return app.ErrNotFound
 		}
 
-		config := &dbOAuthConfig{}
+		config := &dbEntities.OAuthConfig{}
 		err := trx.Get(config, `
 		SELECT id, provider, display_name, status, is_trusted, logo_bkey,
 					 client_id, client_secret, authorize_url,
 					 profile_url, token_url, scope, json_user_id_path,
-					 json_user_name_path, json_user_email_path
+					 json_user_name_path, json_user_email_path, json_user_roles_path,
+					 allowed_roles
 		FROM oauth_providers
 		WHERE tenant_id = $1 AND provider = $2
 		`, tenant.ID, q.Provider)
@@ -69,7 +33,7 @@ func getCustomOAuthConfigByProvider(ctx context.Context, q *query.GetCustomOAuth
 			return err
 		}
 
-		q.Result = config.toModel()
+		q.Result = config.ToModel()
 		return nil
 	})
 }
@@ -80,13 +44,14 @@ func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) 
 			return nil
 		}
 
-		configs := []*dbOAuthConfig{}
+		configs := []*dbEntities.OAuthConfig{}
 		if tenant != nil {
 			err := trx.Select(&configs, `
 			SELECT id, provider, display_name, status, is_trusted, logo_bkey,
 						 client_id, client_secret, authorize_url,
 						 profile_url, token_url, scope, json_user_id_path,
-						 json_user_name_path, json_user_email_path
+						 json_user_name_path, json_user_email_path, json_user_roles_path,
+						 allowed_roles
 			FROM oauth_providers
 			WHERE tenant_id = $1
 			ORDER BY id`, tenant.ID)
@@ -97,7 +62,7 @@ func listCustomOAuthConfig(ctx context.Context, q *query.ListCustomOAuthConfig) 
 
 		q.Result = make([]*entity.OAuthConfig, len(configs))
 		for i, config := range configs {
-			q.Result[i] = config.toModel()
+			q.Result[i] = config.ToModel()
 		}
 		return nil
 	})
@@ -116,29 +81,69 @@ func saveCustomOAuthConfig(ctx context.Context, c *cmd.SaveCustomOAuthConfig) er
 				tenant_id, provider, display_name, status, is_trusted,
 				client_id, client_secret, authorize_url,
 				profile_url, token_url, scope, json_user_id_path,
-				json_user_name_path, json_user_email_path, logo_bkey
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+				json_user_name_path, json_user_email_path, json_user_roles_path, allowed_roles, logo_bkey
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 			RETURNING id`
 
 			err = trx.Get(&c.ID, query, tenant.ID, c.Provider,
 				c.DisplayName, c.Status, c.IsTrusted, c.ClientID, c.ClientSecret,
 				c.AuthorizeURL, c.ProfileURL, c.TokenURL,
 				c.Scope, c.JSONUserIDPath, c.JSONUserNamePath,
-				c.JSONUserEmailPath, c.Logo.BlobKey)
+				c.JSONUserEmailPath, c.JSONUserRolesPath, c.AllowedRoles, c.Logo.BlobKey)
 		} else {
+			// Detect if role-related fields are being changed. If the new configuration
+			// is active (both allowed_roles and json_user_roles_path are non-empty) and
+			// either field changed, we must rotate security stamps for all other users so
+			// that currently-logged-in users are forced to re-authenticate and have their
+			// OAuth roles re-evaluated. The user making this change is excluded so their
+			// own session is not invalidated.
+			var prevAllowedRoles string
+			_ = trx.Scalar(&prevAllowedRoles,
+				"SELECT COALESCE(allowed_roles, '') FROM oauth_providers WHERE tenant_id = $1 AND id = $2",
+				tenant.ID, c.ID)
+			var prevJSONUserRolesPath string
+			_ = trx.Scalar(&prevJSONUserRolesPath,
+				"SELECT COALESCE(json_user_roles_path, '') FROM oauth_providers WHERE tenant_id = $1 AND id = $2",
+				tenant.ID, c.ID)
+
 			query := `
 				UPDATE oauth_providers 
 				SET display_name = $3, status = $4, client_id = $5, client_secret = $6, 
-						authorize_url = $7, profile_url = $8, token_url = $9, scope = $10, 
-						json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13,
-						logo_bkey = $14, is_trusted = $15
+					authorize_url = $7, profile_url = $8, token_url = $9, scope = $10,
+					json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13,
+					json_user_roles_path = $14, allowed_roles = $15, logo_bkey = $16, is_trusted = $17
 			WHERE tenant_id = $1 AND id = $2`
 
 			_, err = trx.Execute(query, tenant.ID, c.ID,
 				c.DisplayName, c.Status, c.ClientID, c.ClientSecret,
 				c.AuthorizeURL, c.ProfileURL, c.TokenURL,
 				c.Scope, c.JSONUserIDPath, c.JSONUserNamePath,
-				c.JSONUserEmailPath, c.Logo.BlobKey, c.IsTrusted)
+				c.JSONUserEmailPath, c.JSONUserRolesPath, c.AllowedRoles, c.Logo.BlobKey, c.IsTrusted)
+
+			if err == nil && (prevAllowedRoles != c.AllowedRoles || prevJSONUserRolesPath != c.JSONUserRolesPath) {
+				// Only rotate security stamps if the new configuration still enforces
+				// role-based access control. Both allowed_roles and json_user_roles_path
+				// must be non-empty for restrictions to be active. If either is empty,
+				// access control is effectively deactivated and all users can log in,
+				// so forcing re-authentication is unnecessary.
+				if c.AllowedRoles != "" && c.JSONUserRolesPath != "" {
+					var stampErr error
+					if user != nil {
+						_, stampErr = trx.Execute(
+							"UPDATE users SET security_stamp = md5(random()::text || id::text) WHERE tenant_id = $1 AND id != $2",
+							tenant.ID, user.ID,
+						)
+					} else {
+						_, stampErr = trx.Execute(
+							"UPDATE users SET security_stamp = md5(random()::text || id::text) WHERE tenant_id = $1",
+							tenant.ID,
+						)
+					}
+					if stampErr != nil {
+						return errors.Wrap(stampErr, "failed to rotate security stamps after allowed_roles change")
+					}
+				}
+			}
 		}
 
 		if err != nil {

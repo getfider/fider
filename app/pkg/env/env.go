@@ -16,17 +16,22 @@ import (
 )
 
 var (
-	// this value is set by the CI build
+	// these values are set by the CI build
 	commithash = ""
-	version    = "0.22.0"
+	version    = ""
 )
 
 func Version() string {
-	if commithash == "" {
-		return fmt.Sprintf("%s-dev", version)
+	v := version
+	if v == "" {
+		v = "dev"
 	}
 
-	return fmt.Sprintf("%s-%s", version, commithash)
+	if commithash == "" {
+		return v
+	}
+
+	return fmt.Sprintf("%s-%s", v, commithash)
 }
 
 type config struct {
@@ -42,22 +47,25 @@ type config struct {
 		WriteTimeout time.Duration `env:"HTTP_WRITE_TIMEOUT,default=10s,strict"`
 		IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=120s,strict"`
 	}
-	Port       string `env:"PORT,default=3000"`
-	HostMode   string `env:"HOST_MODE,default=single"`
-	HostDomain string `env:"HOST_DOMAIN"`
-	BaseURL    string `env:"BASE_URL"`
-	Locale     string `env:"LOCALE,default=en"`
-	JWTSecret  string `env:"JWT_SECRET,required"`
-	Paddle     struct {
-		IsSandbox      bool   `env:"PADDLE_SANDBOX,default=false"`
-		VendorID       string `env:"PADDLE_VENDOR_ID"`
-		VendorAuthCode string `env:"PADDLE_VENDOR_AUTHCODE"`
-		PlanID         string `env:"PADDLE_PLAN_ID"`
-		PublicKey      string `env:"PADDLE_PUBLIC_KEY"`
+	Port                        string `env:"PORT,default=3000"`
+	Host                        string `env:"HOST,default="`
+	HostMode                    string `env:"HOST_MODE,default=single"`
+	HostDomain                  string `env:"HOST_DOMAIN"`
+	BaseURL                     string `env:"BASE_URL"`
+	Locale                      string `env:"LOCALE,default=en"`
+	JWTSecret                   string `env:"JWT_SECRET,required"`
+	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
+	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
+	Stripe                      struct {
+		SecretKey     string `env:"STRIPE_SECRET_KEY"`
+		WebhookSecret string `env:"STRIPE_WEBHOOK_SECRET"`
+		PriceID       string `env:"STRIPE_PRICE_ID"`
+		AnnualPriceID string `env:"STRIPE_ANNUAL_PRICE_ID"`
 	}
 	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
 		Port    string `env:"METRICS_PORT,default=4000"`
+		Host    string `env:"METRICS_HOST,default="`
 	}
 	Database struct {
 		URL          string `env:"DATABASE_URL,required"`
@@ -66,6 +74,10 @@ type config struct {
 	}
 	CDN struct {
 		Host string `env:"CDN_HOST"`
+	}
+	UserList struct {
+		Enabled bool   `env:"USER_LIST_ENABLED,default=false"`
+		ApiKey  string `env:"USER_LIST_APIKEY"`
 	}
 	Log struct {
 		Level      string `env:"LOG_LEVEL,default=INFO"`
@@ -130,7 +142,11 @@ type config struct {
 		Message string `env:"MAINTENANCE_MESSAGE"`
 		Until   string `env:"MAINTENANCE_UNTIL"`
 	}
-	GoogleAnalytics string `env:"GOOGLE_ANALYTICS"`
+	Webhook struct {
+		DisableOnFailure bool `env:"WEBHOOK_DISABLE_ON_FAILURE,default=true"`
+	}
+	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
+	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
 }
 
 // Config is a strongly typed reference to all configuration parsed from Environment Variables
@@ -172,23 +188,23 @@ func Reload() {
 		}
 	}
 
-	emailType := Config.Email.Type
-	if emailType == "mailgun" {
+	switch Config.Email.Type {
+	case "mailgun":
 		mustBeSet("EMAIL_MAILGUN_API")
 		mustBeSet("EMAIL_MAILGUN_DOMAIN")
-	} else if emailType == "awsses" {
+	case "awsses":
 		mustBeSet("EMAIL_AWSSES_REGION")
 		mustBeSet("EMAIL_AWSSES_ACCESS_KEY_ID")
 		mustBeSet("EMAIL_AWSSES_SECRET_ACCESS_KEY")
-	} else if emailType == "smtp" {
+	case "smtp":
 		mustBeSet("EMAIL_SMTP_HOST")
 		mustBeSet("EMAIL_SMTP_PORT")
 	}
 
-	bsType := Config.BlobStorage.Type
-	if bsType == "s3" {
+	switch Config.BlobStorage.Type {
+	case "s3":
 		mustBeSet("BLOB_STORAGE_S3_BUCKET")
-	} else if bsType == "fs" {
+	case "fs":
 		mustBeSet("BLOB_STORAGE_FS_PATH")
 	}
 }
@@ -226,14 +242,25 @@ func MultiTenantDomain() string {
 	return ""
 }
 
-// IsBillingEnabled returns true if Paddle is configured
+// IsBillingEnabled returns true if Stripe is configured and running in multi-tenant mode
+// Billing is only available in multi-tenant hosted mode, not in single-host self-hosted mode
 func IsBillingEnabled() bool {
-	return Config.Paddle.VendorID != "" && Config.Paddle.VendorAuthCode != ""
+	return IsMultiHostMode() && Config.Stripe.SecretKey != ""
+}
+
+// IsMultiHostMode returns true if host mode is set to multi tenant
+func IsMultiHostMode() bool {
+	return Config.HostMode == "multi"
 }
 
 // IsProduction returns true on Fider production environment
 func IsProduction() bool {
 	return Config.Environment == "production" || (!IsTest() && !IsDevelopment())
+}
+
+// SearchNoiseWords returns a list of words that should be ignored on search
+func SearchNoiseWords() []string {
+	return strings.Split(Config.SearchNoiseWords, "|")
 }
 
 // IsTest returns true on Fider test environment
@@ -273,14 +300,14 @@ func Subdomain(host string) string {
 
 	domain := MultiTenantDomain()
 	if domain != "" && strings.Contains(host, domain) {
-		return strings.Replace(host, domain, "", -1)
+		return strings.ReplaceAll(host, domain, "")
 	}
 
 	if Config.CDN.Host != "" {
 		domain = Config.CDN.Host
 		parts := strings.Split(domain, ":")
 		if parts[0] != "" && strings.Contains(host, "."+parts[0]) {
-			return strings.Replace(host, "."+parts[0], "", -1)
+			return strings.ReplaceAll(host, "."+parts[0], "")
 		}
 	}
 

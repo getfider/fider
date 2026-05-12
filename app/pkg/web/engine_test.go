@@ -1,7 +1,7 @@
 package web_test
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -70,12 +70,12 @@ func TestEngine_StartRequestStop(t *testing.T) {
 	resp, err := http.Get("http://127.0.0.1:8080/hello")
 	Expect(err).IsNil()
 	Expect(resp.StatusCode).Equals(http.StatusOK)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 
 	resp, err = http.Get("http://127.0.0.1:8080/world")
 	Expect(err).IsNil()
 	Expect(resp.StatusCode).Equals(http.StatusNotFound)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 
 	StopServer()
 
@@ -91,15 +91,15 @@ func TestEngine_MiddlewareAfterHandler(t *testing.T) {
 	resp, err := http.Get("http://127.0.0.1:8080/api/ping")
 	Expect(err).IsNil()
 	Expect(resp.StatusCode).Equals(http.StatusOK)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 
 	resp, err = http.Get("http://127.0.0.1:8080/api/echo?name=John")
 	Expect(err).IsNil()
 	Expect(resp.StatusCode).Equals(http.StatusOK)
-	content, err := ioutil.ReadAll(resp.Body)
+	content, err := io.ReadAll(resp.Body)
 	Expect(err).IsNil()
 	Expect(string(content)).Equals("John")
-	resp.Body.Close()
+	_ = resp.Body.Close()
 
 	StopServer()
 }

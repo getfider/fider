@@ -3,7 +3,7 @@ package dbx
 import (
 	"context"
 	"database/sql"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"time"
 
@@ -53,7 +53,7 @@ func BeginTx(ctx context.Context) (*Trx, error) {
 }
 
 func load(path string) {
-	content, err := ioutil.ReadFile(env.Path(path))
+	content, err := os.ReadFile(env.Path(path))
 	if err != nil {
 		panic(wrap(err, "failed to read file %s", path))
 	}
@@ -71,7 +71,7 @@ func Seed() {
 	}
 }
 
-//Trx represents a Database transaction
+// Trx represents a Database transaction
 type Trx struct {
 	tx  *sql.Tx
 	ctx context.Context
@@ -146,7 +146,7 @@ func (trx *Trx) Get(data any, command string, args ...any) error {
 		return wrap(err, "failed to execute trx.Get")
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	if rows.Next() {
 		columns, _ := rows.Columns()
 		err := rowMapper.Map(data, columns, rows.Scan)
@@ -178,7 +178,7 @@ func (trx *Trx) Exists(command string, args ...any) (bool, error) {
 		return false, wrap(err, "failed to execute trx.Exists")
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	return rows.Next(), nil
 }
 
@@ -201,7 +201,7 @@ func (trx *Trx) Count(command string, args ...any) (int, error) {
 		return 0, wrap(err, "failed to execute trx.Count")
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	count := 0
 	for rows.Next() {
 		count++
@@ -209,7 +209,7 @@ func (trx *Trx) Count(command string, args ...any) (int, error) {
 	return count, nil
 }
 
-//Select all matched rows bind to given data
+// Select all matched rows bind to given data
 func (trx *Trx) Select(data any, command string, args ...any) error {
 	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
@@ -228,7 +228,7 @@ func (trx *Trx) Select(data any, command string, args ...any) error {
 		return wrap(err, "failed to execute trx.Select")
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	sliceType := reflect.TypeOf(data).Elem()
 	items := reflect.New(sliceType).Elem()
 	itemType := sliceType.Elem().Elem()
@@ -250,7 +250,7 @@ func (trx *Trx) Select(data any, command string, args ...any) error {
 	return nil
 }
 
-//Query all matched rows and return raw sql.Rows
+// Query all matched rows and return raw sql.Rows
 func (trx *Trx) Query(command string, args ...any) (*sql.Rows, error) {
 	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)

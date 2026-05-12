@@ -2,7 +2,7 @@ package handlers_test
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -62,7 +62,7 @@ func TestRobotsTXT(t *testing.T) {
 	code, response := server.
 		WithURL("https://demo.test.fider.io/robots.txt").
 		Execute(handlers.RobotsTXT())
-	content, _ := ioutil.ReadAll(response.Body)
+	content, _ := io.ReadAll(response.Body)
 	Expect(code).Equals(http.StatusOK)
 	Expect(string(content)).Equals(`User-agent: *
 Disallow: /_api/
@@ -89,7 +89,7 @@ func TestSitemap(t *testing.T) {
 		WithURL("http://demo.test.fider.io:3000/sitemap.xml").
 		Execute(handlers.Sitemap())
 
-	bytes, _ := ioutil.ReadAll(response.Body)
+	bytes, _ := io.ReadAll(response.Body)
 	Expect(code).Equals(http.StatusOK)
 	Expect(string(bytes)).Equals(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url> <loc>http://demo.test.fider.io:3000</loc> </url></urlset>`)
 }
@@ -112,7 +112,7 @@ func TestSitemap_WithPosts(t *testing.T) {
 		WithURL("http://demo.test.fider.io:3000/sitemap.xml").
 		Execute(handlers.Sitemap())
 
-	bytes, _ := ioutil.ReadAll(response.Body)
+	bytes, _ := io.ReadAll(response.Body)
 	Expect(code).Equals(http.StatusOK)
 	Expect(string(bytes)).Equals(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url> <loc>http://demo.test.fider.io:3000</loc> </url><url> <loc>http://demo.test.fider.io:3000/posts/1/my-new-idea-1</loc> </url><url> <loc>http://demo.test.fider.io:3000/posts/2/the-other-idea</loc> </url></urlset>`)
 }

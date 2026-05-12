@@ -15,8 +15,11 @@ func Secure() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			cdnHost := env.Config.CDN.Host
-			if cdnHost != "" && !env.IsSingleHostMode() {
-				cdnHost = "*." + cdnHost
+			if cdnHost != "" {
+				if !env.IsSingleHostMode() {
+					cdnHost = "*." + cdnHost
+				}
+				cdnHost = " " + cdnHost
 			}
 			csp := fmt.Sprintf(web.CspPolicyTemplate, c.ContextID(), cdnHost)
 
@@ -24,6 +27,19 @@ func Secure() web.MiddlewareFunc {
 			c.Response.Header().Set("X-XSS-Protection", "1; mode=block")
 			c.Response.Header().Set("X-Content-Type-Options", "nosniff")
 			c.Response.Header().Set("Referrer-Policy", "no-referrer-when-downgrade")
+			return next(c)
+		}
+	}
+}
+
+// Secure middleware is responsible for blocking CSRF attacks
+func CSRF() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c *web.Context) error {
+			var isWriteRequest = c.Request.Method == "POST" || c.Request.Method == "PUT" || c.Request.Method == "DELETE"
+			if isWriteRequest && !c.IsAjax() {
+				return c.Forbidden()
+			}
 			return next(c)
 		}
 	}

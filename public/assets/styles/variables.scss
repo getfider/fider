@@ -1,28 +1,48 @@
+@use "~inter-ui/default" with (
+  $inter-font-display: swap,
+  $inter-font-path: "~inter-ui/web"
+);
+
+@use "~inter-ui/variable" with (
+  $inter-font-display: swap,
+  $inter-font-path: "~inter-ui/variable"
+);
+
 @import "variables/_functions";
 @import "variables/_colors";
+@import "variables/_dark-colors";
 @import "variables/_spacing";
 @import "variables/_sizing";
 @import "variables/_text";
+@import "utility/_theme.scss";
+
+/* @include get-theme("dark"); */
+$colors: $dark-colors;
+
+@include default.all;
+@include variable.all;
 
 $all: (
   colors: $colors,
   font: $font,
   border: (
     radius: (
-      small: 4px,
-      medium: 6px,
-      large: 8px,
+      small: 6px,
+      medium: 8px,
+      large: 12px,
+      xlarge: 20px,
       full: 999px,
     ),
   ),
 );
 
 // Queries
-$medias: "sm", "md", "lg", "xl";
+$medias: "sm", "md", "lg", "xl", "xl2";
 $sm-width: 576px;
 $md-width: 768px;
 $lg-width: 992px;
 $xl-width: 1200px;
+$xl2-width: 1400px;
 
 @mixin media($media) {
   @if $media == "sm" {
@@ -41,6 +61,10 @@ $xl-width: 1200px;
     @media only screen and (min-width: #{$xl-width}) {
       @content;
     }
+  } @else if $media == "xl2" {
+    @media only screen and (min-width: #{$xl2-width}) {
+      @content;
+    }
   }
 }
 
@@ -49,4 +73,16 @@ $xl-width: 1200px;
   opacity: 0.45 !important;
   background-image: none !important;
   pointer-events: none !important;
+}
+
+@mixin dark-mode() {
+  body[data-theme="dark"] & {
+    @content;
+  }
+}
+
+@mixin light-mode() {
+  body[data-theme="light"] & {
+    @content;
+  }
 }

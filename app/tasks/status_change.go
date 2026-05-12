@@ -15,7 +15,7 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
-//NotifyAboutStatusChange sends a notification (web and email) to subscribers
+// NotifyAboutStatusChange sends a notification (web and email) to subscribers
 func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) worker.Task {
 	return describe("Notify about post status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same
@@ -72,7 +72,7 @@ func NotifyAboutStatusChange(post *entity.Post, prevStatus enum.PostStatus) work
 			"title":       post.Title,
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), baseURL, "/posts/%d/%s", post.Number, post.Slug),
 			"siteName":    tenant.Name,
-			"content":     markdown.Full(post.Response.Text),
+			"content":     markdown.Full(post.Response.Text, true),
 			"status":      i18n.T(c, fmt.Sprintf("enum.poststatus.%s", post.Status.Name())),
 			"duplicate":   duplicate,
 			"view":        linkWithText(i18n.T(c, "email.subscription.view"), baseURL, "/posts/%d/%s", post.Number, post.Slug),

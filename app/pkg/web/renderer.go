@@ -17,8 +17,6 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/tpl"
 
-	"io/ioutil"
-
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -44,7 +42,7 @@ type assetsFile struct {
 	} `json:"namedChunkGroups"`
 }
 
-//Renderer is the default HTML Render
+// Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
 	assets        *clientAssets
@@ -85,9 +83,9 @@ func (r *Renderer) loadAssets() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to open file: assets.json")
 	}
-	defer jsonFile.Close()
+	defer func() { _ = jsonFile.Close() }()
 
-	jsonBytes, _ := ioutil.ReadAll(jsonFile)
+	jsonBytes, _ := io.ReadAll(jsonFile)
 	file := &assetsFile{}
 	err = json.Unmarshal([]byte(jsonBytes), file)
 	if err != nil {
@@ -131,7 +129,7 @@ func getClientAssets(assets []distAsset) *clientAssets {
 	return clientAssets
 }
 
-//Render a template based on parameters
+// Render a template based on parameters
 func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context) {
 	var err error
 
@@ -161,7 +159,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 	public["title"] = title
 
 	if props.Description != "" {
-		description := strings.Replace(props.Description, "\n", " ", -1)
+		description := strings.ReplaceAll(props.Description, "\n", " ")
 		public["description"] = fmt.Sprintf("%.150s", description)
 	}
 
@@ -169,6 +167,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 	private["logo"] = LogoURL(ctx)
 
 	locale := i18n.GetLocale(ctx)
+	localeDirection := i18n.GetLocaleDirection(ctx)
 	localeChunkName := fmt.Sprintf("locale-%s-client-json", locale)
 
 	// webpack replaces "/" and "." with "-", so we do the same here
@@ -205,16 +204,20 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
-		"mode":             env.Config.HostMode,
-		"locale":           locale,
-		"environment":      env.Config.Environment,
-		"googleAnalytics":  env.Config.GoogleAnalytics,
-		"domain":           env.MultiTenantDomain(),
-		"hasLegal":         env.HasLegal(),
-		"isBillingEnabled": env.IsBillingEnabled(),
-		"baseURL":          ctx.BaseURL(),
-		"assetsURL":        AssetsURL(ctx, ""),
-		"oauth":            oauthProviders.Result,
+		"mode":                env.Config.HostMode,
+		"locale":              locale,
+		"localeDirection":     localeDirection,
+		"version":             env.Version(),
+		"environment":         env.Config.Environment,
+		"googleAnalytics":     env.Config.GoogleAnalytics,
+		"domain":              env.MultiTenantDomain(),
+		"hasLegal":            env.HasLegal(),
+		"isBillingEnabled":    env.IsBillingEnabled(),
+		"baseURL":             ctx.BaseURL(),
+		"assetsURL":           AssetsURL(ctx, ""),
+		"oauth":               oauthProviders.Result,
+		"postWithTags":        env.Config.PostCreationWithTagsEnabled,
+		"allowAllowedSchemes": env.Config.AllowAllowedSchemes,
 	}
 
 	if ctx.IsAuthenticated() {
@@ -230,6 +233,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 			"avatarBlobKey":   u.AvatarBlobKey,
 			"isAdministrator": u.IsAdministrator(),
 			"isCollaborator":  u.IsCollaborator(),
+			"isTrusted":       u.IsTrusted,
 		}
 	}
 

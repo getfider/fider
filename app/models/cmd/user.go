@@ -14,6 +14,10 @@ type UnblockUser struct {
 	UserID int
 }
 
+type UntrustUser struct {
+	UserID int
+}
+
 type RegenerateAPIKey struct {
 	Result string
 }
@@ -50,3 +54,5 @@ type UpdateCurrentUser struct {
 	AvatarType enum.AvatarType
 	Avatar     *dto.ImageUpload
 }
+
+type RotateAllUserSecurityStamps struct {}

@@ -1,8 +1,9 @@
 ## This is a self-documented Makefile. For usage information, run `make help`:
 ##
-## For more information, refer to https://suva.sh/posts/well-documented-makefiles/
+## For more information, refer to https://www.thapaliya.com/en/writings/well-documented-makefiles/
 
 LDFLAGS += -X github.com/getfider/fider/app/pkg/env.commithash=${COMMITHASH}
+LDFLAGS += -X github.com/getfider/fider/app/pkg/env.version=${VERSION}
 
 
 
@@ -33,20 +34,54 @@ build-ssr: ## Build SSR script and locales
 
 
 
+##@ Localization
+
+locale-extract: ## Extract and overwrite English locale from source code
+	npx lingui extract --overwrite
+
+locale-reset: ## Reset translation for specific keys in all non-English locales (use KEY="key.name" or KEYS="key1 key2 ...")
+	@if [ -z "$(KEY)$(KEYS)" ]; then \
+		echo "Error: KEY or KEYS variable is required."; \
+		echo "Usage: make locale-reset KEY=\"some.key\""; \
+		echo "   or: make locale-reset KEYS=\"key1 key2 key3\""; \
+		exit 1; \
+	fi
+	@keys="$(KEY) $(KEYS)"; \
+	echo "Resetting translations for: $$keys"; \
+	for lang in ar cs de el es-ES fa fr it ja ko nl pl pt-BR ru si-LK sk sv-SE tr zh-CN zh-TW; do \
+		echo "  Updating $$lang..."; \
+		temp_file=$$(mktemp); \
+		jq_expr=""; \
+		for key in $$keys; do \
+			if [ -n "$$key" ]; then \
+				if [ -z "$$jq_expr" ]; then \
+					jq_expr=".[\""$$key"\"] = \"\""; \
+				else \
+					jq_expr="$$jq_expr | .[\""$$key"\"] = \"\""; \
+				fi; \
+			fi; \
+		done; \
+		jq "$$jq_expr" locale/$$lang/client.json > $$temp_file && \
+		mv $$temp_file locale/$$lang/client.json; \
+	done
+	@echo "Done!"
+
+
+
 ##@ Testing
 
 test: test-server test-ui ## Test server and ui code
 
-test-server: build-server build-ssr ## Run all server tests
+test-server: build-server build-ssr ## Run all server tests (set SHORT=false for full tests including network-dependent tests)
 	godotenv -f .test.env ./fider migrate
-	godotenv -f .test.env go test ./... -race
+	godotenv -f .test.env go test ./... -race $(if $(filter false,$(SHORT)),,-short)
 
 test-ui: ## Run all UI tests
 	TZ=GMT npx jest ./public
 
-coverage-server: build-server build-ssr ## Run all server tests (with code coverage)
+coverage-server: build-server build-ssr ## Run all server tests (with code coverage, set SHORT=false for full tests)
 	godotenv -f .test.env ./fider migrate
-	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all -p=8 -race
+	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all -p=8 -race $(if $(filter false,$(SHORT)),,-short)
 
 
 
@@ -57,6 +92,15 @@ test-e2e-server: ## Run all E2E tests
 
 test-e2e-ui: ## Run all E2E tests
 	npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet
+
+test-e2e-ui-headed: ## Run all E2E tests with visible browser
+	HEADED=true npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet
+
+test-e2e-ui-scenario: ## Run specific E2E test scenario (use NAME="scenario name")
+	npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet --name "$(NAME)"
+
+test-e2e-ui-scenario-headed: ## Run specific E2E test scenario with visible browser (use NAME="scenario name")
+	HEADED=true npx cucumber-js e2e/features/ui/**/*.feature --require-module ts-node/register --require 'e2e/**/*.ts' --publish-quiet --name "$(NAME)"
 
 
 
@@ -78,7 +122,7 @@ watch-ui: ## Build and run server in watch mode
 lint: lint-server lint-ui ## Lint server and ui
 
 lint-server: ## Lint server code
-	golangci-lint run --timeout 2m
+	golangci-lint run --timeout 3m
 
 lint-ui: ## Lint ui code
 	npx eslint .

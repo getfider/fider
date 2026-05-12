@@ -31,12 +31,17 @@ const plugins = [
       modules: false,
     },
   }),
-  new PurgecssPlugin({
-    paths: glob.sync(`./public/**/*.{html,tsx}`, { nodir: true }),
-    defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
-    safelist: [/--/, /__/, /data-/],
-  }),
 ]
+
+if (isProduction) {
+  plugins.push(
+    new PurgecssPlugin({
+      paths: [...glob.sync(`./public/**/*.{html,tsx}`, { nodir: true })],
+      defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
+      safelist: [/--/, /__/, /data-/, /tiptap/],
+    })
+  )
+}
 
 // On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
 const maxSizeFactor = isProduction ? 1 : 14
@@ -63,7 +68,7 @@ module.exports = {
   performance: {
     maxEntrypointSize: 368640 * maxSizeFactor, // 360 KiB. Should ideally be ~240 KiB
     maxAssetSize: 194560 * maxSizeFactor, // 190 KiB
-    hints: "error",
+    hints: "warning",
   },
   module: {
     rules: [
@@ -84,7 +89,7 @@ module.exports = {
       },
       {
         test: /\.svg$/,
-        include: publicFolder,
+        include: [publicFolder],
         use: ["svg-sprite-loader", "svgo-loader"],
       },
     ],

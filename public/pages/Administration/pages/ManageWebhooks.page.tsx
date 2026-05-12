@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Button } from "@fider/components"
 
-import { Webhook, WebhookData, WebhookStatus, WebhookType } from "@fider/models"
+import { Webhook, WebhookData, WebhookStatus } from "@fider/models"
 import { actions, Failure } from "@fider/services"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { WebhookForm } from "../components/webhook/WebhookForm"
@@ -30,10 +30,9 @@ interface WebhooksListProps {
 const WebhooksList = (props: WebhooksListProps) => {
   return (
     <div>
-      <h2 className="text-display">{props.title}</h2>
-      <p className="text-muted">These webhooks are triggered every time {props.description}.</p>
+      <h2 className="text-display mb-4">My Webhooks</h2>
       <VStack spacing={4} divide>
-        {props.list.length === 0 ? <p className="text-muted">There aren’t any &quot;{props.title.toLowerCase()}&quot; webhook yet.</p> : props.list}
+        {props.list.length === 0 ? <p className="text-muted">There aren’t any webhooks yet.</p> : props.list}
       </VStack>
     </div>
   )
@@ -70,7 +69,7 @@ const ManageWebhooksPage = (props: ManageWebhooksPageProps) => {
 
   const handleWebhookDeleted = (webhook: Webhook) => {
     const idx = allWebhooks.indexOf(webhook)
-    setAllWebhooks(allWebhooks.splice(idx, 1) && allWebhooks)
+    setAllWebhooks(allWebhooks.filter((_, i) => i !== idx))
   }
 
   const handleWebhookEdited = async (data: WebhookData): Promise<Failure | undefined> => {
@@ -98,8 +97,8 @@ const ManageWebhooksPage = (props: ManageWebhooksPageProps) => {
     sortWebhooks()
   }
 
-  const getWebhookList = (filter: (webhook: Webhook) => boolean) => {
-    return allWebhooks.filter(filter).map((w) => {
+  const getWebhookItems = () => {
+    return allWebhooks.map((w) => {
       return (
         <WebhookListItem
           key={w.id}
@@ -126,27 +125,19 @@ const ManageWebhooksPage = (props: ManageWebhooksPageProps) => {
     return render(<WebhookForm onSave={handleWebhookEdited} onCancel={cancelEdit} webhook={editing} />)
   }
 
-  const newPostList = getWebhookList((w) => w.type === WebhookType.NEW_POST)
-  const newCommentList = getWebhookList((w) => w.type === WebhookType.NEW_COMMENT)
-  const changeStatusList = getWebhookList((w) => w.type === WebhookType.CHANGE_STATUS)
-  const deletePostList = getWebhookList((w) => w.type === WebhookType.DELETE_POST)
-
   return render(
     <VStack spacing={8}>
       <p>
         Use webhooks to integrate Fider with other applications like Slack, Discord, Zapier and many others.{" "}
-        <a className="text-link" href="https://fider.io/docs/using-webhooks" target="_blank" rel="noopener">
+        <a className="text-link" href="https://docs.fider.io/using-webhooks" target="_blank" rel="noopener">
           Learn more in our documentation
         </a>
         .
       </p>
-      <WebhooksList title="New Post" description="a new post is created on this site" list={newPostList} />
-      <WebhooksList title="New Comment" description="a new comment is created on any post" list={newCommentList} />
-      <WebhooksList title="Change Status" description="the status of a post is changed" list={changeStatusList} />
-      <WebhooksList title="Delete Post" description="a post is deleted on this site" list={deletePostList} />
+      <WebhooksList title="New Post" description="a new post is created on this site" list={getWebhookItems()} />
       <div>
         <Button variant="secondary" onClick={addNew}>
-          Add new
+          Add new webhook
         </Button>
       </div>
     </VStack>

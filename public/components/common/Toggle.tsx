@@ -1,6 +1,6 @@
 import "./Toggle.scss"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { classSet } from "@fider/services"
 import { HStack } from "../layout"
 import { DisplayError, ValidationContext } from "@fider/components"
@@ -15,6 +15,10 @@ interface ToggleProps {
 
 export const Toggle: React.FC<ToggleProps> = (props) => {
   const [active, setActive] = useState(props.active)
+
+  useEffect(() => {
+    setActive(props.active)
+  }, [props.active])
 
   const toggle = () => {
     if (props.disabled) {

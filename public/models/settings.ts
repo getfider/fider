@@ -20,6 +20,8 @@ export interface SystemSettings {
   baseURL: string
   assetsURL: string
   oauth: OAuthProviderOption[]
+  postWithTags: boolean
+  allowAllowedSchemes: boolean
 }
 
 export interface UserSettings {
@@ -45,6 +47,8 @@ export interface OAuthConfig {
   jsonUserIDPath: string
   jsonUserNamePath: string
   jsonUserEmailPath: string
+  jsonUserRolesPath: string
+  allowedRoles: string
   isTrusted: boolean
 }
 

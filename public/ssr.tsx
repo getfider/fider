@@ -7,19 +7,28 @@ import { DevBanner, ReadOnlyNotice } from "./components"
 import { activateI18NSync } from "./services"
 import { I18nProvider } from "@lingui/react"
 
+// NOTE: All locale definitions are centralized in app/models/enum/locale.go
+// See locale/locales.ts for the complete list of steps when adding a new locale
 // Locale files must be bundled for SSR to work synchronously
 const messages: { [key: string]: any } = {
   en: require(`../locale/en/client`),
   "pt-BR": require(`../locale/pt-BR/client`),
   "sv-SE": require(`../locale/sv-SE/client`),
+  it: require(`../locale/it/client`),
   "es-ES": require(`../locale/es-ES/client`),
+  "zh-CN": require(`../locale/zh-CN/client`),
+  "zh-TW": require(`../locale/zh-TW/client`),
+  el: require(`../locale/el/client`),
   nl: require(`../locale/nl/client`),
   de: require(`../locale/de/client`),
   fr: require(`../locale/fr/client`),
+  ja: require(`../locale/ja/client`),
   pl: require(`../locale/pl/client`),
   ru: require(`../locale/ru/client`),
   sk: require(`../locale/sk/client`),
   tr: require(`../locale/tr/client`),
+  ar: require(`../locale/ar/client`),
+  fa: require(`../locale/fa/client`),
 }
 
 // ESBuild doesn't support Dynamic Imports, so we need to map them statically
@@ -39,6 +48,7 @@ const pages: { [key: string]: any } = {
   "Error/Error410.page": require(`./pages/Error/Error410.page`),
   "Error/Error500.page": require(`./pages/Error/Error500.page`),
   "Error/NotInvited.page": require(`./pages/Error/NotInvited.page`),
+  "Error/AccessDenied.page": require(`./pages/Error/AccessDenied.page`),
 }
 
 function ssrRender(url: string, args: any) {

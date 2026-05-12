@@ -8,6 +8,7 @@ import "./Input.scss"
 import { HStack } from "@fider/components/layout"
 
 interface InputProps {
+  children?: React.ReactNode
   field: string
   label?: string
   className?: string
@@ -21,16 +22,32 @@ interface InputProps {
   disabled?: boolean
   suffix?: string | JSX.Element
   placeholder?: string
+  inputMode?: "text" | "numeric" | "decimal" | "tel" | "search" | "email" | "url"
   onIconClick?: () => void
   onFocus?: () => void
   inputRef?: React.MutableRefObject<any>
   onChange?: (value: string) => void
+  onKeyDown?: (e: KeyboardEvent) => void
 }
 
 export const Input: React.FunctionComponent<InputProps> = (props) => {
+  // Original onChange handler
   const onChange = (e: React.FormEvent<HTMLInputElement>) => {
     if (props.onChange) {
       props.onChange(e.currentTarget.value)
+    }
+  }
+
+  // Original onFocus handler
+  const onFocus = () => {
+    if (props.onFocus) {
+      props.onFocus()
+    }
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (props.onKeyDown) {
+      props.onKeyDown(e.nativeEvent)
     }
   }
 
@@ -53,7 +70,7 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
               {props.afterLabel}
             </label>
           )}
-          <HStack spacing={0} center={!!props.icon} className="relative">
+          <HStack spacing={0} align={props.icon ? "center" : undefined} className="relative">
             <input
               className={classSet({
                 "c-input": true,
@@ -64,15 +81,25 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
               id={`input-${props.field}`}
               type="text"
               autoComplete={props.autoComplete}
+              inputMode={props.inputMode}
               tabIndex={props.noTabFocus ? -1 : undefined}
               ref={props.inputRef}
               autoFocus={props.autoFocus}
-              onFocus={props.onFocus}
+              onFocus={onFocus}
               maxLength={props.maxLength}
               disabled={props.disabled}
               value={props.value}
               placeholder={props.placeholder}
-              onChange={onChange}
+              onChange={(e) => {
+                // Clear error for this field when user interacts with it
+                if (ctx.clearError && hasError(props.field, ctx.error)) {
+                  ctx.clearError(props.field)
+                }
+
+                // Call the original onChange handler
+                onChange(e)
+              }}
+              onKeyDown={(e) => onKeyDown(e)}
             />
             {icon}
             {suffix}

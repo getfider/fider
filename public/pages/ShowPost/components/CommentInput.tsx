@@ -1,34 +1,47 @@
-import React, { useState, useRef } from "react"
+import React, { useCallback, useState, useEffect } from "react"
 
-import { Post, ImageUpload } from "@fider/models"
-import { Avatar, UserName, Button, TextArea, Form, MultiImageUploader } from "@fider/components"
+import { Post } from "@fider/models"
+import { Avatar, Button, Form } from "@fider/components"
 import { SignInModal } from "@fider/components"
 
 import { cache, actions, Failure, Fider } from "@fider/services"
-import { useFider } from "@fider/hooks"
 import { HStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
+
+import { useFider } from "@fider/hooks"
+import { useAttachments } from "@fider/hooks/useAttachments"
+import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 interface CommentInputProps {
   post: Post
 }
 
-const CACHE_TITLE_KEY = "CommentInput-Comment-"
+const CACHE_TITLE_KEY = "CommentInput-Comment-Title-"
+const CACHE_ATTACHMENTS_KEY = "CommentInput-Comment-Attachments-"
 
 export const CommentInput = (props: CommentInputProps) => {
-  const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`
+  const getCacheKey = (cachePrefix: string) => `${cachePrefix}${props.post.id}`
+
+  const getContentFromCache = () => {
+    return cache.session.get(getCacheKey(CACHE_TITLE_KEY))
+  }
 
   const fider = useFider()
-  const inputRef = useRef<HTMLTextAreaElement>()
-  const [content, setContent] = useState((fider.session.isAuthenticated && cache.session.get(getCacheKey())) || "")
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
-  const [attachments, setAttachments] = useState<ImageUpload[]>([])
   const [error, setError] = useState<Failure | undefined>(undefined)
+  const [isClient, setIsClient] = useState(false)
 
-  const commentChanged = (newContent: string) => {
-    cache.session.set(getCacheKey(), newContent)
-    setContent(newContent)
-  }
+  // Use the attachments hook
+  const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
+    cacheKey: getCacheKey(CACHE_ATTACHMENTS_KEY),
+    maxAttachments: 2,
+  })
+
+  // Check if we're running on the client after component mounts
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const hideModal = () => setIsSignInModalOpen(false)
   const clearError = () => setError(undefined)
@@ -36,51 +49,65 @@ export const CommentInput = (props: CommentInputProps) => {
   const submit = async () => {
     clearError()
 
-    const result = await actions.createComment(props.post.number, content, attachments)
+    const content = getContentFromCache()
+
+    const result = await actions.createComment(props.post.number, content || "", attachments)
     if (result.ok) {
-      cache.session.remove(getCacheKey())
+      clearAttachments()
+      cache.session.remove(getCacheKey(CACHE_TITLE_KEY))
+      if (fider.session.isModerationRequiredForNewPost) {
+        cache.session.set("COMMENT_CREATED_MODERATION", "true")
+      }
       location.reload()
     } else {
       setError(result.error)
     }
   }
 
-  const handleOnFocus = () => {
-    if (!fider.session.isAuthenticated && inputRef.current) {
-      inputRef.current.blur()
+  const editorFocused = () => {
+    if (!fider.session.isAuthenticated) {
       setIsSignInModalOpen(true)
     }
   }
 
+  const hasContent = true
+
+  const commentChanged = useCallback((value: string): void => {
+    cache.session.set(getCacheKey(CACHE_TITLE_KEY), value)
+  }, [])
+
   return (
     <>
       <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
-      <HStack spacing={2} center={false} className="c-comment-input">
-        {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
-        <div className="flex-grow bg-gray-50 rounded-md p-2">
+      <HStack spacing={4} className="c-comment-input" align="start">
+        {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} size="large" />}
+        <div className="c-comment-input-card">
           <Form error={error}>
-            {Fider.session.isAuthenticated && (
-              <div className="mb-1">
-                <UserName user={Fider.session.user} />
-              </div>
-            )}
-            <TextArea
-              placeholder={t({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
-              field="content"
-              disabled={fider.isReadOnly}
-              value={content}
-              minRows={1}
-              onChange={commentChanged}
-              onFocus={handleOnFocus}
-              inputRef={inputRef}
-            />
-            {content && (
+            {isClient ? (
               <>
-                <MultiImageUploader field="attachments" maxUploads={2} onChange={setAttachments} />
-                <Button variant="primary" onClick={submit}>
-                  <Trans id="action.submit">Submit</Trans>
-                </Button>
+                <CommentEditor
+                  field="content"
+                  disabled={!Fider.session.isAuthenticated}
+                  onChange={commentChanged}
+                  onFocus={editorFocused}
+                  initialValue={getContentFromCache()}
+                  placeholder={i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
+                  maxAttachments={2}
+                  maxImageSizeKB={5 * 1024}
+                  onGetImageSrc={getImageSrc}
+                  onImageUploaded={handleImageUploaded}
+                />
+
+                {hasContent && (
+                  <>
+                    <Button disabled={!fider.session.isAuthenticated} variant="primary" onClick={submit} className="mt-4">
+                      <Trans id="action.postcomment">Post</Trans>
+                    </Button>
+                  </>
+                )}
               </>
+            ) : (
+              <div className="comment-input-placeholder p-2">{i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}</div>
             )}
           </Form>
         </div>

@@ -1,30 +1,19 @@
 package cmd
 
-import (
-	"time"
-
-	"github.com/getfider/fider/app/models/dto"
-)
-
-type GenerateCheckoutLink struct {
-	Passthrough dto.PaddlePassthrough
-
-	// Output
-	URL string
-}
-
 type ActivateBillingSubscription struct {
-	TenantID       int
-	SubscriptionID string
-	PlanID         string
+	TenantID int
 }
 
 type CancelBillingSubscription struct {
-	TenantID           int
-	SubscriptionEndsAt time.Time
+	TenantID int
 }
 
-type LockExpiredTenants struct {
-	//Output
-	NumOfTenantsLocked int64
+type ActivateStripeSubscription struct {
+	TenantID       int
+	CustomerID     string
+	SubscriptionID string
+}
+
+type CancelStripeSubscription struct {
+	TenantID int
 }

@@ -2,6 +2,7 @@ package validate
 
 import (
 	"context"
+	"net"
 	"net/url"
 	"regexp"
 	"strings"
@@ -53,6 +54,53 @@ func URL(ctx context.Context, rawurl string) []string {
 	}
 
 	return []string{}
+}
+
+// WebhookURL validates that a URL is well-formed and does not target private/internal networks
+func WebhookURL(rawurl string) []string {
+	u, err := url.Parse(rawurl)
+	if err != nil || u.Host == "" {
+		return []string{"This URL is not valid."}
+	}
+
+	scheme := strings.ToLower(u.Scheme)
+	if scheme != "http" && scheme != "https" {
+		return []string{"Only http and https URLs are allowed."}
+	}
+
+	hostname := u.Hostname()
+
+	if strings.EqualFold(hostname, "localhost") {
+		return []string{"This URL is not allowed because it targets a private or internal network address."}
+	}
+
+	if ip := net.ParseIP(hostname); ip != nil {
+		if isBlockedIP(ip) {
+			return []string{"This URL is not allowed because it targets a private or internal network address."}
+		}
+		return []string{}
+	}
+
+	addrs, err := net.LookupHost(hostname)
+	if err != nil {
+		return []string{"Could not resolve the hostname in this URL."}
+	}
+
+	for _, addr := range addrs {
+		if ip := net.ParseIP(addr); ip != nil && isBlockedIP(ip) {
+			return []string{"This URL is not allowed because it targets a private or internal network address."}
+		}
+	}
+
+	return []string{}
+}
+
+func isBlockedIP(ip net.IP) bool {
+	return ip.IsLoopback() ||
+		ip.IsPrivate() ||
+		ip.IsLinkLocalUnicast() ||
+		ip.IsLinkLocalMulticast() ||
+		ip.IsUnspecified()
 }
 
 //CNAME validates given cname

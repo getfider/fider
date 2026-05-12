@@ -72,6 +72,10 @@ esbuild
     },
     inject: ["./esbuild-shim.js"],
     outfile: "ssr.js",
+    alias: {
+      "@fider": "./public",
+      "@locale": "./locale",
+    },
     plugins: [emptyCSS, emptySVG, babelPlugin()],
   })
   .catch(() => process.exit(1))

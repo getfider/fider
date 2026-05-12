@@ -3,6 +3,7 @@ package oauth
 import (
 	"context"
 	"encoding/base64"
+
 	"fmt"
 	"net/url"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jsonq"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 	"golang.org/x/oauth2"
@@ -115,10 +117,21 @@ func parseOAuthRawProfile(ctx context.Context, c *cmd.ParseOAuthRawProfile) erro
 	}
 
 	query := jsonq.New(c.Body)
+
+	// Extract and combine name parts
+	name := extractCompositeName(query, config.JSONUserNamePath)
+
+	// Extract roles if path is configured
+	var roles []string
+	if config.JSONUserRolesPath != "" {
+		roles = extractRolesFromJSON(c.Body, config.JSONUserRolesPath)
+	}
+
 	profile := &dto.OAuthUserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
-		Name:  strings.TrimSpace(query.String(config.JSONUserNamePath)),
+		Name:  name,
 		Email: strings.ToLower(strings.TrimSpace(query.String(config.JSONUserEmailPath))),
+		Roles: roles,
 	}
 
 	if profile.ID == "" {
@@ -142,6 +155,103 @@ func parseOAuthRawProfile(ctx context.Context, c *cmd.ParseOAuthRawProfile) erro
 	return nil
 }
 
+// extractCompositeName handles composite name selectors
+// Format can be:
+// - Simple path: "name"
+// - Fallback paths: "name, login" (tries name, if empty tries login)
+// - Composite paths: "firstname + ' ' + lastname" (combines multiple fields)
+func extractCompositeName(query *jsonq.Query, namePath string) string {
+	// Check if it's a composite path (contains '+')
+	if strings.Contains(namePath, "+") {
+		// Split by '+' and process each part
+		parts := strings.Split(namePath, "+")
+		var result strings.Builder
+
+		for _, part := range parts {
+			part = strings.TrimSpace(part)
+
+			// If it's a string literal (enclosed in quotes or single quotes)
+			if (strings.HasPrefix(part, "'") && strings.HasSuffix(part, "'")) ||
+				(strings.HasPrefix(part, "\"") && strings.HasSuffix(part, "\"")) {
+				// Extract the literal without quotes
+				literal := part[1 : len(part)-1]
+				result.WriteString(literal)
+			} else {
+				// It's a JSON path
+				value := strings.TrimSpace(query.String(part))
+				if value != "" {
+					result.WriteString(value)
+				}
+			}
+		}
+
+		return strings.TrimSpace(result.String())
+	}
+
+	// Handle fallback paths (comma-separated)
+	paths := strings.Split(namePath, ",")
+	for _, path := range paths {
+		path = strings.TrimSpace(path)
+		value := strings.TrimSpace(query.String(path))
+		if value != "" {
+			return value
+		}
+	}
+
+	return ""
+}
+
+// extractRolesFromJSON extracts role strings from a JSON body at the given path.
+// Supports formats:
+// - "roles" for array of strings: ["ROLE_ADMIN", "ROLE_USER"]
+// - "roles[].id" for array of objects: [{"id": "ROLE_ADMIN"}, {"id": "ROLE_USER"}]
+// - "user.roles[].name" for nested array of objects
+// - "role" for a single string or comma-separated value
+func extractRolesFromJSON(jsonBody string, rolesPath string) []string {
+	rolesPath = strings.TrimSpace(rolesPath)
+	if rolesPath == "" {
+		return nil
+	}
+
+	q := jsonq.New(jsonBody)
+
+	// "roles[].id" — array of objects, extract field from each
+	if strings.Contains(rolesPath, "[].") {
+		parts := strings.SplitN(rolesPath, "[].", 2)
+		return trimNonEmpty(q.ArrayFieldStrings(parts[0], parts[1]))
+	}
+
+	// "roles" — array of strings or single (possibly comma-separated) string
+	values := q.Strings(rolesPath)
+	if len(values) == 0 {
+		return nil
+	}
+
+	// Single string may contain comma-separated roles
+	if len(values) == 1 && strings.Contains(values[0], ",") {
+		values = strings.Split(values[0], ",")
+	}
+
+	return trimNonEmpty(values)
+}
+
+// trimNonEmpty trims whitespace from each string and returns only non-empty values.
+func trimNonEmpty(ss []string) []string {
+	if ss == nil {
+		return nil
+	}
+	result := make([]string, 0, len(ss))
+	for _, s := range ss {
+		if s = strings.TrimSpace(s); s != "" {
+			result = append(result, s)
+		}
+	}
+	if len(result) == 0 {
+		return nil
+	}
+	return result
+}
+
 func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizationURL) error {
 	config, err := getConfig(ctx, q.Provider)
 	if err != nil {
@@ -155,7 +265,18 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 	parameters.Add("scope", config.Scope)
 	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, q.Provider))
 	parameters.Add("response_type", "code")
-	parameters.Add("state", q.Redirect+"|"+q.Identifier)
+
+	state, err := jwt.Encode(jwt.OAuthStateClaims{
+		Redirect:   q.Redirect,
+		Identifier: q.Identifier,
+		Code:       q.Code,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	parameters.Add("state", state)
 
 	authURL.RawQuery = parameters.Encode()
 	q.Result = authURL.String()
@@ -271,15 +392,26 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 
 	oauthBaseURL := web.OAuthBaseURL(ctx)
 	for _, p := range oauthProviders.Result {
+		isCustomProvider := string(p.Provider[0]) == "_"
+		isEnabled := p.Status == enum.OAuthConfigEnabled
+
+		// For built-in (non-custom) providers, check tenant-level override
+		if !isCustomProvider && isEnabled {
+			tenantStatus := &query.GetTenantProviderStatus{Provider: p.Provider}
+			if err := bus.Dispatch(ctx, tenantStatus); err == nil && tenantStatus.Result != nil {
+				isEnabled = tenantStatus.Result.IsEnabled
+			}
+		}
+
 		list = append(list, &dto.OAuthProviderOption{
 			Provider:         p.Provider,
 			DisplayName:      p.DisplayName,
 			ClientID:         p.ClientID,
 			URL:              fmt.Sprintf("/oauth/%s", p.Provider),
 			CallbackURL:      fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, p.Provider),
-			IsCustomProvider: string(p.Provider[0]) == "_",
+			IsCustomProvider: isCustomProvider,
 			LogoBlobKey:      p.LogoBlobKey,
-			IsEnabled:        p.Status == enum.OAuthConfigEnabled,
+			IsEnabled:        isEnabled,
 		})
 	}
 
@@ -290,6 +422,13 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 func getConfig(ctx context.Context, provider string) (*entity.OAuthConfig, error) {
 	for _, config := range systemProviders {
 		if config.Status == enum.OAuthConfigEnabled && config.Provider == provider {
+			// Check tenant-level override for built-in providers
+			tenantStatus := &query.GetTenantProviderStatus{Provider: provider}
+			if err := bus.Dispatch(ctx, tenantStatus); err == nil && tenantStatus.Result != nil {
+				if !tenantStatus.Result.IsEnabled {
+					return nil, fmt.Errorf("provider %s is disabled for this tenant", provider)
+				}
+			}
 			return config, nil
 		}
 	}

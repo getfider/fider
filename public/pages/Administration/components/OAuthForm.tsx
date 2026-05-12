@@ -27,6 +27,8 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
   const [jsonUserIDPath, setJSONUserIDPath] = useState((props.config && props.config.jsonUserIDPath) || "")
   const [jsonUserNamePath, setJSONUserNamePath] = useState((props.config && props.config.jsonUserNamePath) || "")
   const [jsonUserEmailPath, setJSONUserEmailPath] = useState((props.config && props.config.jsonUserEmailPath) || "")
+  const [jsonUserRolesPath, setJSONUserRolesPath] = useState((props.config && props.config.jsonUserRolesPath) || "")
+  const [allowedRoles, setAllowedRoles] = useState((props.config && props.config.allowedRoles) || "")
   const [logo, setLogo] = useState<ImageUpload | undefined>()
   const [logoURL, setLogoURL] = useState<string | undefined>()
   const [logoBlobKey, setLogoBlobKey] = useState((props.config && props.config.logoBlobKey) || "")
@@ -47,6 +49,8 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
       jsonUserIDPath,
       jsonUserNamePath,
       jsonUserEmailPath,
+      jsonUserRolesPath,
+      allowedRoles,
       logo,
     })
     if (result.ok) {
@@ -86,7 +90,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             disabled={!fider.session.user.isAdministrator}
             onChange={setDisplayName}
           />
-          <Field label="Button Preview">
+          <Field className="flex flex-y" label="Button Preview">
             <SocialSignInButton option={{ displayName: displayName || "Button", provider, logoBlobKey, logoURL }} />
           </Field>
         </div>
@@ -149,8 +153,15 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
         </Input>
 
         <h3 className="text-title mt-8 mb-2">JSON Path</h3>
+        <p>
+          Find out more about{" "}
+          <a rel="noopener" className="text-link" target="_blank" href="https://docs.fider.io/configuring-oauth#configuring-the-json-paths">
+            configuring the JSON Paths
+          </a>
+          .
+        </p>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <Input
             field="jsonUserIDPath"
             label="ID"
@@ -159,10 +170,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             disabled={!fider.session.user.isAdministrator}
             onChange={setJSONUserIDPath}
           >
-            <p className="text-muted">
-              Path to extract User ID from the JSON. This ID <strong>must</strong> be unique within the provider or unexpected side effects might happen. For
-              example below, the path would be <strong>id</strong>.
-            </p>
+            <p className="text-muted">Make sure it&apos;s unique. </p>
           </Input>
           <Input
             field="jsonUserNamePath"
@@ -173,8 +181,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             onChange={setJSONUserNamePath}
           >
             <p className="text-muted">
-              Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong> recommended. For the example below, the path would
-              be <strong>profile.name</strong>.
+              Optional, but <strong>highly</strong> recommended.
             </p>
           </Input>
           <Input
@@ -186,28 +193,34 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
             onChange={setJSONUserEmailPath}
           >
             <p className="text-muted">
-              Path to extract user Email from the JSON. This is optional, but <strong>highly</strong> recommended. For the example below, the path would be{" "}
-              <strong>profile.emails[0]</strong>.
+              Optional, but <strong>highly</strong> recommended.
             </p>
+          </Input>
+          <Input
+            field="jsonUserRolesPath"
+            label="Roles"
+            maxLength={100}
+            value={jsonUserRolesPath}
+            disabled={!fider.session.user.isAdministrator}
+            onChange={setJSONUserRolesPath}
+          >
+            <p className="text-muted">Optional. JSON path to extract roles from the provider profile.</p>
           </Input>
         </div>
 
-        <h3 className="text-title mb-2">Example Response</h3>
-
-        <pre>
-          {`{ 
-  id: "35235"
-  title: "Sr. Account Manager",
-  profile: {
-    dob: "01/05/2018",
-    name: "John Doe"
-    emails: [
-      "john.doe@company.com"
-    ]
-  }
-}
-          `}
-        </pre>
+        <Input
+          field="allowedRoles"
+          label="Allowed Roles"
+          maxLength={500}
+          value={allowedRoles}
+          disabled={!fider.session.user.isAdministrator}
+          onChange={setAllowedRoles}
+        >
+          <p className="text-muted">
+            Optional. Comma-separated list of roles allowed to sign in, e.g. <strong>ROLE_ADMIN,ROLE_TEACHER</strong>. Only enforced when a Roles JSON path is
+            also configured. Leave empty to allow all roles.
+          </p>
+        </Input>
 
         <Field label="Trusted Source">
           <Toggle field="isTrusted" active={isTrusted} onToggle={setTrusted} label={isTrusted ? "Yes" : "No"} />

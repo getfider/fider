@@ -1,9 +1,10 @@
 import React from "react"
-import { formatDate, timeSince } from "@fider/services"
+import { classSet, formatDate, timeSince } from "@fider/services"
 
 interface MomentText {
   locale: string
   date: Date | string
+  className?: string
   format?: "relative" | "full" | "short" | "date"
 }
 
@@ -28,8 +29,13 @@ export const Moment = (props: MomentText) => {
 
   const tooltip = props.format === "short" ? formatDate(props.locale, props.date, "full") : undefined
 
+  const className = classSet({
+    ...(props.className ? { [props.className]: true } : {}),
+    date: true,
+  })
+
   return (
-    <span className="date" data-tooltip={tooltip}>
+    <span className={className} data-tooltip={tooltip}>
       {display}
     </span>
   )

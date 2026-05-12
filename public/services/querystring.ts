@@ -18,7 +18,8 @@ export const set = (name: string, value: any): string => {
 export const get = (name: string): string => {
   name = name.replace(/[[\]]/g, "\\$&")
   const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)")
-  const results = regex.exec(navigator.url())
+  const url = navigator.url()
+  const results = regex.exec(url)
 
   if (!results || !results[2]) {
     return ""

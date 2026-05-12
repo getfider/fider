@@ -6,10 +6,15 @@ export interface Tenant {
   locale: string
   invitation: string
   welcomeMessage: string
+  welcomeHeader: string
   status: TenantStatus
   isPrivate: boolean
   logoBlobKey: string
+  allowedSchemes: string
   isEmailAuthAllowed: boolean
+  isFeedEnabled: boolean
+  isModerationEnabled: boolean
+  isPro: boolean
 }
 
 export enum TenantStatus {
@@ -22,9 +27,16 @@ export enum TenantStatus {
 export interface User {
   id: number
   name: string
+  email?: string
   role: UserRole
   status: UserStatus
+  isTrusted: boolean
   avatarURL: string
+}
+
+export interface UserNames {
+  id: number
+  name: string
 }
 
 export enum UserAvatarType {
@@ -49,6 +61,10 @@ export const isCollaborator = (role: UserRole): boolean => {
   return role === UserRole.Collaborator || role === UserRole.Administrator
 }
 
+export const requiresModeration = (user: User): boolean => {
+  return user.role === UserRole.Visitor && !user.isTrusted
+}
+
 export interface CurrentUser {
   id: number
   name: string
@@ -60,4 +76,5 @@ export interface CurrentUser {
   status: UserStatus
   isAdministrator: boolean
   isCollaborator: boolean
+  isTrusted: boolean
 }

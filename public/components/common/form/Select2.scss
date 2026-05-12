@@ -9,10 +9,10 @@
 //     font-size: get("font.size.sm");
 //     line-height: 20px;
 //     text-align: left;
-//     background-color: get("colors.white");
+//     background-color: var(--colors-white);
 //     padding: sizing(2);
 //     border-radius: get("border.radius.medium");
-//     border: 1px solid get("colors.gray.300");
+//     border: 1px solid var(--colors-gray-300);
 //   }
 
 //   &__list {
@@ -22,9 +22,9 @@
 //     overflow: auto;
 //     max-height: 15rem;
 //     padding: spacing(1) 0;
-//     background-color: get("colors.white");
+//     background-color: var(--colors-white);
 //     border-radius: get("border.radius.medium");
-//     border: 1px solid get("colors.gray.300");
+//     border: 1px solid var(--colors-gray-300);
 //     list-style-type: none;
 //     z-index: 10;
 
@@ -32,7 +32,7 @@
 //       padding: spacing(2);
 //       &:hover {
 //         cursor: pointer;
-//         background-color: get("colors.gray.200");
+//         background-color: var(--colors-gray-200);
 //       }
 //     }
 //   }

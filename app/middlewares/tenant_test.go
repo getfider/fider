@@ -42,10 +42,11 @@ func TestMultiTenant(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
-		if q.Domain == "avengers.test.fider.io" {
+		switch q.Domain {
+		case "avengers.test.fider.io":
 			q.Result = mock.AvengersTenant
 			return nil
-		} else if q.Domain == "demo.test.fider.io" {
+		case "demo.test.fider.io":
 			q.Result = mock.DemoTenant
 			return nil
 		}
@@ -139,10 +140,11 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
-		if q.Domain == "avengers.test.fider.io" {
+		switch q.Domain {
+		case "avengers.test.fider.io":
 			q.Result = mock.AvengersTenant
 			return nil
-		} else if q.Domain == "demo.test.fider.io" {
+		case "demo.test.fider.io":
 			q.Result = mock.DemoTenant
 			return nil
 		}

@@ -1,4 +1,7 @@
-@import "variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
+
 @import "reset.scss";
 @import "utility.scss";
 @import "tooltip.scss";
+@include theme($light-colors, '[data-theme="light"]');
+@include theme($dark-colors, '[data-theme="dark"]');

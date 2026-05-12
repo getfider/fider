@@ -2,15 +2,21 @@
 
 {{define "body"}}
 <tr>
-  <td>
-    <p style="padding-bottom:10px;border-bottom:1px solid #efefef;color:#1c262d">
+  <td style="padding:20px 30px 30px 30px;">
+    <p style="padding-bottom:10px;border-bottom:1px solid #efefef;color:#1c262d;margin:0 0 15px 0;">
       {{ translate "email.new_post.text" (dict "userName" (.userName | stripHtml) "title" (.title | stripHtml) "postLink" .postLink) | html }}
     </p>
-    {{ .content }}
-    <p style="color:#666;font-size:14px">
-      — <br />
-      {{ translate "email.footer.subscription_notice3" (dict "view" .view "change" .change) | html }}
-    </p>
+    <div style="margin:0;">
+      {{ .content }}
+    </div>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;">
+      <tr>
+        <td style="color:#666;font-size:14px;padding:0;">
+          —<br /><br />
+          {{ translate "email.footer.subscription_notice3" (dict "view" .view "change" .change) | html }}
+        </td>
+      </tr>
+    </table>
   </td>
 </tr>
 {{end}}

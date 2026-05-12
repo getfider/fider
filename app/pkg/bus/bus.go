@@ -110,7 +110,7 @@ func Dispatch(ctx context.Context, msgs ...Msg) error {
 		key := getKey(msg)
 		handler := handlers[key]
 		if handler == nil {
-			panic(fmt.Errorf("could not find handler for '%s'.", key))
+			panic(fmt.Errorf("could not find handler for '%s'", key))
 		}
 
 		var params = []reflect.Value{

@@ -1,0 +1,21 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+.c-votes-modal {
+  &__list {
+    margin-top: spacing(4);
+  }
+
+  &__item {
+    padding: spacing(4);
+    transition: background-color 0.15s ease;
+
+    &--alternate {
+      background-color: var(--colors-gray-50);
+    }
+  }
+
+  &__date {
+    padding-right: spacing(4);
+    flex-shrink: 0;
+  }
+}

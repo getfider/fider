@@ -1,6 +1,8 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-image-upload {
+  margin-bottom: 0;
+
   input[type="file"] {
     display: none;
   }
@@ -12,7 +14,7 @@
       padding: 5px;
       min-width: 50px;
       min-height: 50px;
-      border: 1px solid get("colors.gray.300");
+      border: 1px solid var(--colors-gray-300);
       cursor: pointer;
     }
     .c-button {
@@ -20,7 +22,12 @@
       top: 4px;
       right: 4px;
       border-radius: 50%;
-      padding: 4px 6px;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 }

@@ -13,7 +13,7 @@ var placeholderFinder = regexp.MustCompile("@{.*?}")
 
 // Parse is used to merge props into format and return a text message
 func Parse(format string, props dto.Props, colorize bool) string {
-	if props == nil || len(props) == 0 {
+	if len(props) == 0 {
 		return format
 	}
 

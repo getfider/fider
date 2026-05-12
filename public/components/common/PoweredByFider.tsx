@@ -1,6 +1,5 @@
 import React from "react"
-import { useFider } from "@fider/hooks"
-import { classSet } from "@fider/services"
+import { classSet, FiderContext } from "@fider/services"
 
 import "./PoweredByFider.scss"
 
@@ -10,11 +9,12 @@ interface PoweredByFiderProps {
 }
 
 export const PoweredByFider = (props: PoweredByFiderProps) => {
-  const fider = useFider()
-
-  const source = encodeURIComponent(fider.session.tenant.subdomain)
+  const fider = React.useContext(FiderContext)
+  const source = encodeURIComponent(window?.location?.host || "")
   const medium = "powered-by"
   const campaign = props.slot
+  const version = fider.settings?.version?.split("-")[0]
+  const versionString = fider.isSingleHostMode() && version && version !== "dev" ? `${version}` : ""
 
   const className = classSet({
     "c-powered": true,
@@ -23,9 +23,10 @@ export const PoweredByFider = (props: PoweredByFiderProps) => {
 
   return (
     <div className={className}>
-      <a rel="noopener" href={`https://fider.io?utm_source=${source}&utm_medium=${medium}&utm_campaign=${campaign}`} target="_blank">
-        Powered by Fider
+      <a rel="noopener" className="text-2xs" href={`https://fider.io?utm_source=${source}&utm_medium=${medium}&utm_campaign=${campaign}`} target="_blank">
+        Powered by Fider ⚡
       </a>
+      {versionString && <span className="text-2xs block">{versionString}</span>}
     </div>
   )
 }

@@ -2,74 +2,27 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/rand"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
+	"github.com/lib/pq"
 )
 
-type dbUser struct {
-	ID            sql.NullInt64  `db:"id"`
-	Name          sql.NullString `db:"name"`
-	Email         sql.NullString `db:"email"`
-	Tenant        *dbTenant      `db:"tenant"`
-	Role          sql.NullInt64  `db:"role"`
-	Status        sql.NullInt64  `db:"status"`
-	AvatarType    sql.NullInt64  `db:"avatar_type"`
-	AvatarBlobKey sql.NullString `db:"avatar_bkey"`
-	Providers     []*dbUserProvider
-}
-
-type dbUserProvider struct {
-	Name sql.NullString `db:"provider"`
-	UID  sql.NullString `db:"provider_uid"`
-}
-
-func (u *dbUser) toModel(ctx context.Context) *entity.User {
-	if u == nil {
-		return nil
-	}
-
-	avatarURL := ""
-	avatarType := enum.AvatarType(u.AvatarType.Int64)
-	if u.AvatarType.Valid {
-		avatarURL = buildAvatarURL(ctx, avatarType, int(u.ID.Int64), u.Name.String, u.AvatarBlobKey.String)
-	}
-
-	user := &entity.User{
-		ID:            int(u.ID.Int64),
-		Name:          u.Name.String,
-		Email:         u.Email.String,
-		Tenant:        u.Tenant.toModel(),
-		Role:          enum.Role(u.Role.Int64),
-		Providers:     make([]*entity.UserProvider, len(u.Providers)),
-		Status:        enum.UserStatus(u.Status.Int64),
-		AvatarType:    avatarType,
-		AvatarBlobKey: u.AvatarBlobKey.String,
-		AvatarURL:     avatarURL,
-	}
-
-	for i, p := range u.Providers {
-		user.Providers[i] = &entity.UserProvider{
-			Name: p.Name.String,
-			UID:  p.UID.String,
-		}
-	}
-
-	return user
-}
-
-type dbUserSetting struct {
-	Key   string `db:"key"`
-	Value string `db:"value"`
+// generateSecurityStamp creates a new random security stamp for a user.
+// Rotating the stamp invalidates all existing sessions for that user.
+func generateSecurityStamp() string {
+	return rand.String(64)
 }
 
 func countUsers(ctx context.Context, q *query.CountUsers) error {
@@ -87,8 +40,8 @@ func countUsers(ctx context.Context, q *query.CountUsers) error {
 func blockUser(ctx context.Context, c *cmd.BlockUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if _, err := trx.Execute(
-			"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
-			c.UserID, tenant.ID, enum.UserBlocked,
+			"UPDATE users SET status = $3, security_stamp = $4 WHERE id = $1 AND tenant_id = $2",
+			c.UserID, tenant.ID, enum.UserBlocked, generateSecurityStamp(),
 		); err != nil {
 			return errors.Wrap(err, "failed to block user")
 		}
@@ -99,10 +52,22 @@ func blockUser(ctx context.Context, c *cmd.BlockUser) error {
 func unblockUser(ctx context.Context, c *cmd.UnblockUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if _, err := trx.Execute(
-			"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
-			c.UserID, tenant.ID, enum.UserActive,
+			"UPDATE users SET status = $3, security_stamp = $4 WHERE id = $1 AND tenant_id = $2",
+			c.UserID, tenant.ID, enum.UserActive, generateSecurityStamp(),
 		); err != nil {
 			return errors.Wrap(err, "failed to unblock user")
+		}
+		return nil
+	})
+}
+
+func untrustUser(ctx context.Context, c *cmd.UntrustUser) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		if _, err := trx.Execute(
+			"UPDATE users SET is_trusted = false WHERE id = $1 AND tenant_id = $2",
+			c.UserID, tenant.ID,
+		); err != nil {
+			return errors.Wrap(err, "failed to untrust user")
 		}
 		return nil
 	})
@@ -208,8 +173,8 @@ func userSubscribedTo(ctx context.Context, q *query.UserSubscribedTo) error {
 
 func changeUserRole(ctx context.Context, c *cmd.ChangeUserRole) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		cmd := "UPDATE users SET role = $3 WHERE id = $1 AND tenant_id = $2"
-		_, err := trx.Execute(cmd, c.UserID, tenant.ID, c.Role)
+		cmd := "UPDATE users SET role = $3, security_stamp = $4 WHERE id = $1 AND tenant_id = $2"
+		_, err := trx.Execute(cmd, c.UserID, tenant.ID, c.Role, generateSecurityStamp())
 		if err != nil {
 			return errors.Wrap(err, "failed to change user's role")
 		}
@@ -252,7 +217,7 @@ func getCurrentUserSettings(ctx context.Context, q *query.GetCurrentUserSettings
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		q.Result = make(map[string]string)
 
-		var settings []*dbUserSetting
+		var settings []*dbEntities.UserSetting
 		err := trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1 AND tenant_id = $2", user.ID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get user settings")
@@ -279,11 +244,13 @@ func registerUser(ctx context.Context, c *cmd.RegisterUser) error {
 		now := time.Now()
 		c.User.Status = enum.UserActive
 		c.User.Email = strings.ToLower(strings.TrimSpace(c.User.Email))
+		stamp := generateSecurityStamp()
 		if err := trx.Get(&c.User.ID,
-			"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7, '') RETURNING id",
-			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, enum.UserActive, enum.AvatarTypeGravatar); err != nil {
+			"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey, security_stamp) VALUES ($1, $2, $3, $4, $5, $6, $7, '', $8) RETURNING id",
+			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, enum.UserActive, enum.AvatarTypeGravatar, stamp); err != nil {
 			return errors.Wrap(err, "failed to register new user")
 		}
+		c.User.SecurityStamp = stamp
 
 		for _, provider := range c.User.Providers {
 			cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_at) VALUES ($1, $2, $3, $4, $5)"
@@ -348,13 +315,13 @@ func getUserByProvider(ctx context.Context, q *query.GetUserByProvider) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		var userID int
 		if err := trx.Scalar(&userID, `
-			SELECT user_id 
-			FROM user_providers up 
-			INNER JOIN users u 
-			ON u.id = up.user_id 
-			AND u.tenant_id = up.tenant_id 
-			WHERE up.provider = $1 
-			AND up.provider_uid = $2 
+			SELECT user_id
+			FROM user_providers up
+			INNER JOIN users u
+			ON u.id = up.user_id
+			AND u.tenant_id = up.tenant_id
+			WHERE up.provider = $1
+			AND up.provider_uid = $2
 			AND u.tenant_id = $3`, q.Provider, q.UID, tenant.ID); err != nil {
 			return errors.Wrap(err, "failed to get user by provider '%s' and uid '%s'", q.Provider, q.UID)
 		}
@@ -368,11 +335,11 @@ func getUserByProvider(ctx context.Context, q *query.GetUserByProvider) error {
 
 func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		var users []*dbUser
+		var users []*dbEntities.User
 		err := trx.Select(&users, `
-			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey
-			FROM users 
-			WHERE tenant_id = $1 
+			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted, security_stamp
+			FROM users
+			WHERE tenant_id = $1
 			AND status != $2
 			ORDER BY id`, tenant.ID, enum.UserDeleted)
 		if err != nil {
@@ -381,15 +348,38 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 
 		q.Result = make([]*entity.User, len(users))
 		for i, user := range users {
-			q.Result[i] = user.toModel(ctx)
+			q.Result[i] = user.ToModel(ctx)
+		}
+		return nil
+	})
+}
+
+func getAllUsersNames(ctx context.Context, q *query.GetAllUsersNames) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		var users []*dbEntities.User
+		err := trx.Select(&users, `
+			SELECT name
+			FROM users
+			WHERE tenant_id = $1
+			AND status = $2
+			ORDER BY id`, tenant.ID, enum.UserActive)
+		if err != nil {
+			return errors.Wrap(err, "failed to get all users")
+		}
+
+		q.Result = make([]*dto.UserNames, len(users))
+		for i, user := range users {
+			q.Result[i] = &dto.UserNames{
+				Name: user.Name.String,
+			}
 		}
 		return nil
 	})
 }
 
 func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*entity.User, error) {
-	user := dbUser{}
-	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey FROM users WHERE status != %d AND ", enum.UserDeleted)
+	user := dbEntities.User{}
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted, security_stamp FROM users WHERE status != %d AND ", enum.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
 		return nil, err
@@ -400,5 +390,121 @@ func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...any) (*
 		return nil, err
 	}
 
-	return user.toModel(ctx), nil
+	return user.ToModel(ctx), nil
+}
+
+func searchUsers(ctx context.Context, q *query.SearchUsers) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		if q.Roles == nil {
+			q.Roles = []string{}
+		}
+		if q.Limit <= 0 {
+			q.Limit = 10
+		}
+		if q.Page <= 0 {
+			q.Page = 1
+		}
+
+		baseQuery := `
+				SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted, security_stamp
+				FROM users
+				WHERE tenant_id = $1 AND status != $2
+		`
+		args := []interface{}{tenant.ID, enum.UserDeleted}
+		argIndex := 3
+
+		// Add search filter
+		if q.Query != "" {
+			baseQuery += fmt.Sprintf(" AND (name ILIKE $%d OR email ILIKE $%d)", argIndex, argIndex+1)
+			searchTerm := "%" + q.Query + "%"
+			args = append(args, searchTerm, searchTerm)
+			argIndex += 2
+		}
+
+		// Add role filter
+		if len(q.Roles) > 0 {
+			roleValues := make([]interface{}, len(q.Roles))
+			for i, roleStr := range q.Roles {
+				switch roleStr {
+				case "administrator":
+					roleValues[i] = enum.RoleAdministrator
+				case "collaborator":
+					roleValues[i] = enum.RoleCollaborator
+				case "visitor":
+					roleValues[i] = enum.RoleVisitor
+				default:
+					roleValues[i] = enum.RoleVisitor
+				}
+			}
+			baseQuery += fmt.Sprintf(" AND role = ANY($%d)", argIndex)
+			args = append(args, pq.Array(roleValues))
+		}
+
+		baseQuery += " ORDER BY role desc, name"
+
+		// First, get the total count for pagination
+		countQuery := `SELECT COUNT(*) FROM users WHERE tenant_id = $1 AND status != $2`
+		countArgs := []interface{}{tenant.ID, enum.UserDeleted}
+		countArgIndex := 3
+
+		// Add the same filters for counting
+		if q.Query != "" {
+			countQuery += fmt.Sprintf(" AND (name ILIKE $%d OR email ILIKE $%d)", countArgIndex, countArgIndex+1)
+			searchTerm := "%" + q.Query + "%"
+			countArgs = append(countArgs, searchTerm, searchTerm)
+			countArgIndex += 2
+		}
+
+		if len(q.Roles) > 0 {
+			roleValues := make([]interface{}, len(q.Roles))
+			for i, roleStr := range q.Roles {
+				switch roleStr {
+				case "administrator":
+					roleValues[i] = enum.RoleAdministrator
+				case "collaborator":
+					roleValues[i] = enum.RoleCollaborator
+				case "visitor":
+					roleValues[i] = enum.RoleVisitor
+				default:
+					roleValues[i] = enum.RoleVisitor
+				}
+			}
+			countQuery += fmt.Sprintf(" AND role = ANY($%d)", countArgIndex)
+			countArgs = append(countArgs, pq.Array(roleValues))
+		}
+
+		err := trx.Get(&q.TotalCount, countQuery, countArgs...)
+		if err != nil {
+			return errors.Wrap(err, "failed to count users")
+		}
+
+		// Add pagination to main query
+		offset := (q.Page - 1) * q.Limit
+		baseQuery += fmt.Sprintf(" LIMIT %d OFFSET %d", q.Limit, offset)
+
+		var users []*dbEntities.User
+		err = trx.Select(&users, baseQuery, args...)
+		if err != nil {
+			return errors.Wrap(err, "failed to search users")
+		}
+
+		q.Result = make([]*entity.User, len(users))
+		for i, user := range users {
+			q.Result[i] = user.ToModel(ctx)
+		}
+		return nil
+	})
+}
+
+func rotateAllUserSecurityStamps(ctx context.Context, c *cmd.RotateAllUserSecurityStamps) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		_, err := trx.Execute(
+			"UPDATE users SET security_stamp = md5(random()::text || id::text) WHERE tenant_id = $1",
+			tenant.ID,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to rotate all user security stamps")
+		}
+		return nil
+	})
 }

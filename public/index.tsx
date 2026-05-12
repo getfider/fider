@@ -1,7 +1,7 @@
 import "@fider/assets/styles/index.scss"
 
 import React, { Suspense } from "react"
-import ReactDOM from "react-dom"
+import { createRoot } from "react-dom/client"
 import { ErrorBoundary, Loader, ReadOnlyNotice, DevBanner } from "@fider/components"
 import { classSet, Fider, FiderContext, actions, activateI18N } from "@fider/services"
 
@@ -43,22 +43,24 @@ const bootstrapApp = (i18n: I18n) => {
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
   })
 
-  ReactDOM.render(
-    <React.StrictMode>
-      <ErrorBoundary onError={logProductionError}>
-        <I18nProvider i18n={i18n}>
-          <FiderContext.Provider value={fider}>
-            <DevBanner />
-            <ReadOnlyNotice />
-            <Suspense fallback={<Loading />}>{React.createElement(component, fider.session.props)}</Suspense>
-          </FiderContext.Provider>
-        </I18nProvider>
-      </ErrorBoundary>
-    </React.StrictMode>,
-    document.getElementById("root")
-  )
+  const rootElement = document.getElementById("root")
+  if (rootElement) {
+    const root = createRoot(rootElement)
+    root.render(
+      <React.StrictMode>
+        <ErrorBoundary onError={logProductionError}>
+          <I18nProvider i18n={i18n}>
+            <FiderContext.Provider value={fider}>
+              <DevBanner />
+              <ReadOnlyNotice />
+              <Suspense fallback={<Loading />}>{React.createElement(component, fider.session.props)}</Suspense>
+            </FiderContext.Provider>
+          </I18nProvider>
+        </ErrorBoundary>
+      </React.StrictMode>
+    )
+  }
 }
-
 const fider = Fider.initialize()
 __webpack_nonce__ = fider.session.contextID
 __webpack_public_path__ = `${fider.settings.assetsURL}/assets/`

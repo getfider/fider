@@ -1,6 +1,9 @@
 package query
 
-import "github.com/getfider/fider/app/models/entity"
+import (
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
+)
 
 type CountUsers struct {
 	Result int
@@ -43,4 +46,18 @@ type GetUserByProvider struct {
 
 type GetAllUsers struct {
 	Result []*entity.User
+}
+
+type GetAllUsersNames struct {
+	Result []*dto.UserNames
+}
+
+type SearchUsers struct {
+	Query string
+	Roles []string
+	Page  int
+	Limit int
+
+	Result     []*entity.User
+	TotalCount int
 }

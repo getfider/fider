@@ -1,12 +1,15 @@
+import "./VotesModal.scss"
+
 import React, { useEffect, useState } from "react"
 import { Post, Vote } from "@fider/models"
 import { Modal, Button, Loader, Avatar, UserName, Moment, Input } from "@fider/components"
-import { actions } from "@fider/services"
+import { actions, classSet } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import { HStack, VStack } from "@fider/components/layout"
-import { t, Trans } from "@lingui/macro"
+import { i18n } from "@lingui/core"
+import { Trans } from "@lingui/react/macro"
 
 interface VotesModalProps {
   isOpen: boolean
@@ -60,21 +63,28 @@ export const VotesModal: React.FC<VotesModalProps> = (props) => {
               field="query"
               icon={query ? IconX : IconSearch}
               onIconClick={query ? clearSearch : undefined}
-              placeholder={t({ id: "modal.showvotes.query.placeholder", message: "Search for users by name..." })}
+              placeholder={i18n._({ id: "modal.showvotes.query.placeholder", message: "Search for users by name..." })}
               value={query}
               onChange={handleSearchFilterChanged}
             />
-            <VStack spacing={2} className="h-max-5xl overflow-scroll">
-              {filteredVotes.map((x) => (
-                <HStack key={x.user.id} justify="between">
-                  <HStack>
+            <VStack spacing={0} className="h-max-5xl overflow-auto c-votes-modal__list">
+              {filteredVotes.map((x, index) => (
+                <HStack
+                  key={x.user.id}
+                  justify="between"
+                  className={classSet({
+                    "c-votes-modal__item": true,
+                    "c-votes-modal__item--alternate": index % 2 === 1,
+                  })}
+                >
+                  <HStack spacing={4}>
                     <Avatar user={x.user} />
-                    <VStack spacing={0}>
+                    <VStack spacing={1}>
                       <UserName user={x.user} />
-                      <span className="text-muted">{x.user.email}</span>
+                      <span className="text-muted text-sm">{x.user.email}</span>
                     </VStack>
                   </HStack>
-                  <span className="text-muted">
+                  <span className="text-muted text-sm c-votes-modal__date">
                     <Moment locale={fider.currentLocale} date={x.createdAt} />
                   </span>
                 </HStack>

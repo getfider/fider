@@ -19,5 +19,11 @@ debug
 debug.test
 .DS_Store
 cover.out
+gcloud-key.json
 coverage.tmp
 tsconfig.tsbuildinfo
+etc/*.pem
+fider_schema.sql
+fider.sql
+.zed/debug.json
+WARP.md

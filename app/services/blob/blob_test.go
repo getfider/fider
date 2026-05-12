@@ -2,7 +2,6 @@ package blob_test
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -66,6 +65,7 @@ var tests = []struct {
 	{"AllOperations", AllOperations},
 	{"DeleteUnkownFile", DeleteUnkownFile},
 	{"KeyFormats", KeyFormats},
+	{"PathTraversalOnRead", PathTraversalOnRead},
 	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
 	{"SameKey_DifferentTenant_Delete", SameKey_DifferentTenant_Delete},
 	{"ListBlobsFromTenant", ListBlobsFromTenant},
@@ -103,7 +103,7 @@ func AllOperations(ctx context.Context) {
 	}
 
 	for _, testCase := range testCases {
-		bytes, _ := ioutil.ReadFile(env.Path(testCase.localPath))
+		bytes, _ := os.ReadFile(env.Path(testCase.localPath))
 		err := bus.Dispatch(ctx, &cmd.StoreBlob{
 			Key:         testCase.key,
 			Content:     bytes,
@@ -147,7 +147,7 @@ func SameKey_DifferentTenant(ctx context.Context) {
 	ctxWithTenant2 := context.WithValue(ctx, app.TenantCtxKey, tenant2)
 
 	key := "path/to/file3.txt"
-	bytes, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
+	bytes, _ := os.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
 
 	err := bus.Dispatch(ctxWithTenant1, &cmd.StoreBlob{
 		Key:         key,
@@ -180,8 +180,8 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 	ctxWithTenant2 := context.WithValue(ctx, app.TenantCtxKey, tenant2)
 
 	key := "path/to/super-file.txt"
-	bytes1, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file.txt"))
-	bytes2, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
+	bytes1, _ := os.ReadFile(env.Path("/app/services/blob/testdata/file.txt"))
+	bytes2, _ := os.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
 
 	err := bus.Dispatch(ctxWithTenant1, &cmd.StoreBlob{
 		Key:         key,
@@ -304,6 +304,24 @@ func ListUnauthorizedBlobs(ctx context.Context) {
 	Expect(err).IsNil()
 }
 
+func PathTraversalOnRead(ctx context.Context) {
+	// Test that path traversal attempts are blocked on read operations
+	traversalKeys := []string{
+		"../file.txt",
+		"../../etc/passwd",
+		"path/../file.txt",
+		"path/../../file.txt",
+		"../../../etc/passwd",
+	}
+
+	for _, key := range traversalKeys {
+		q := &query.GetBlobByKey{Key: key}
+		err := bus.Dispatch(ctx, q)
+		Expect(errors.Cause(err)).Equals(blob.ErrInvalidKeyFormat)
+		Expect(q.Result).IsNil()
+	}
+}
+
 func KeyFormats(ctx context.Context) {
 	testCases := []struct {
 		key   string
@@ -339,6 +357,26 @@ func KeyFormats(ctx context.Context) {
 		},
 		{
 			key:   rand.String(513),
+			valid: false,
+		},
+		{
+			key:   "../file.txt",
+			valid: false,
+		},
+		{
+			key:   "path/../file.txt",
+			valid: false,
+		},
+		{
+			key:   "../../etc/passwd",
+			valid: false,
+		},
+		{
+			key:   "path/../../file.txt",
+			valid: false,
+		},
+		{
+			key:   "path/to/../../file.txt",
 			valid: false,
 		},
 	}

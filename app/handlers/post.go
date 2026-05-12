@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/csv"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -22,6 +23,37 @@ func Index() web.HandlerFunc {
 			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
+
+		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
+			searchPosts.MyVotesOnly = myVotesOnly
+		}
+
+		if noTagsOnly, err := c.QueryParamAsBool("notags"); err == nil {
+			searchPosts.NoTagsOnly = noTagsOnly
+		}
+
+		if myPostsOnly, err := c.QueryParamAsBool("myposts"); err == nil {
+			searchPosts.MyPostsOnly = myPostsOnly
+		}
+
+		// Handle "pending" pseudo-status for moderation filtering
+		statusesParam := c.QueryParamAsArray("statuses")
+		hasPending := false
+		actualStatuses := []string{}
+		for _, status := range statusesParam {
+			if status == "pending" {
+				hasPending = true
+			} else {
+				actualStatuses = append(actualStatuses, status)
+			}
+		}
+
+		// Set moderation filter based on pending status
+		if hasPending {
+			searchPosts.ModerationFilter = "pending"
+		}
+
+		searchPosts.SetStatusesFromStrings(actualStatuses)
 		getAllTags := &query.GetAllTags{}
 		countPerStatus := &query.CountPostPerStatus{}
 
@@ -36,14 +68,18 @@ func Index() web.HandlerFunc {
 			description = "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share posts."
 		}
 
+		data := web.Map{
+			"searchNoiseWords": env.SearchNoiseWords(),
+			"posts":            searchPosts.Result,
+			"tags":             getAllTags.Result,
+			"countPerStatus":   countPerStatus.Result,
+		}
+
 		return c.Page(http.StatusOK, web.Props{
 			Page:        "Home/Home.page",
 			Description: description,
-			Data: web.Map{
-				"posts":          searchPosts.Result,
-				"tags":           getAllTags.Result,
-				"countPerStatus": countPerStatus.Result,
-			},
+			// Header:      c.Tenant().WelcomeHeader,
+			Data: data,
 		})
 	}
 }
@@ -68,7 +104,7 @@ func PostDetails() web.HandlerFunc {
 		isSubscribed := &query.UserSubscribedTo{PostID: getPost.Result.ID}
 		getComments := &query.GetCommentsByPost{Post: getPost.Result}
 		getAllTags := &query.GetAllTags{}
-		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, Limit: 6, IncludeEmail: false}
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, Limit: 24, IncludeEmail: false}
 		getAttachments := &query.GetAttachments{Post: getPost.Result}
 		if err := bus.Dispatch(c, getAllTags, getComments, listVotes, isSubscribed, getAttachments); err != nil {
 			return c.Failure(err)

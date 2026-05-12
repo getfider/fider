@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"image/color"
 	"image/png"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -23,7 +23,7 @@ import (
 	"github.com/goenning/letteravatar"
 )
 
-//LetterAvatar returns a letter gravatar picture based on given name
+// LetterAvatar returns a letter gravatar picture based on given name
 func LetterAvatar() web.HandlerFunc {
 	return func(c *web.Context) error {
 		id := c.Param("id")
@@ -55,7 +55,7 @@ func LetterAvatar() web.HandlerFunc {
 	}
 }
 
-//Gravatar returns a gravatar picture of fallsback to letter avatar based on name
+// Gravatar returns a gravatar picture of fallsback to letter avatar based on name
 func Gravatar() web.HandlerFunc {
 	return func(c *web.Context) error {
 		id, err := c.ParamAsInt("id")
@@ -109,7 +109,7 @@ func Gravatar() web.HandlerFunc {
 	}
 }
 
-//Favicon returns the Fider favicon by given size
+// Favicon returns the Fider favicon by given size
 func Favicon() web.HandlerFunc {
 	return func(c *web.Context) error {
 		var (
@@ -128,7 +128,7 @@ func Favicon() web.HandlerFunc {
 			bytes = q.Result.Content
 			contentType = q.Result.ContentType
 		} else {
-			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
+			bytes, err = os.ReadFile(env.Path("favicon.png"))
 			contentType = "image/png"
 			if err != nil {
 				return c.Failure(err)
@@ -161,7 +161,7 @@ func Favicon() web.HandlerFunc {
 	}
 }
 
-//ViewUploadedImage returns any uploaded image by given ID and size
+// ViewUploadedImage returns any uploaded image by given ID and size
 func ViewUploadedImage() web.HandlerFunc {
 	return func(c *web.Context) error {
 		bkey := c.Param("bkey")

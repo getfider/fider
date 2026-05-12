@@ -72,7 +72,7 @@ func isValidHostName(ctx context.Context, host string) error {
 
 	cname, err := net.DefaultResolver.LookupCNAME(ctx, host)
 	if err != nil {
-		return errors.Wrap(err, "failed to lookup CNAME")
+		return errors.Wrap(errInvalidHostName, "failed to lookup CNAME")
 	}
 
 	if cname == "" {
@@ -86,7 +86,7 @@ func isValidHostName(ctx context.Context, host string) error {
 	return nil
 }
 
-//CertificateManager is used to manage SSL certificates
+// CertificateManager is used to manage SSL certificates
 type CertificateManager struct {
 	ctx     context.Context
 	cert    tls.Certificate
@@ -94,7 +94,7 @@ type CertificateManager struct {
 	autotls autocert.Manager
 }
 
-//NewCertificateManager creates a new CertificateManager
+// NewCertificateManager creates a new CertificateManager
 func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*CertificateManager, error) {
 	manager := &CertificateManager{
 		ctx: ctx,
@@ -122,9 +122,9 @@ func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*Cert
 	return manager, nil
 }
 
-//GetCertificate decides which certificate to use
-//It first tries to use loaded certificate for incoming request if it's compatible
-//Otherwise fallsback to a automatically generated certificate by Let's Encrypt
+// GetCertificate decides which certificate to use
+// It first tries to use loaded certificate for incoming request if it's compatible
+// Otherwise fallsback to a automatically generated certificate by Let's Encrypt
 func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	if m.leaf != nil {
 		serverName, err := idna.Lookup.ToASCII(hello.ServerName)
@@ -159,7 +159,13 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 	cert, err := m.autotls.GetCertificate(hello)
 	if err != nil {
 		if errors.Cause(err) == errInvalidHostName {
-			log.Warn(m.ctx, err.Error())
+			// In multi-tenant mode, CNAME errors are expected customer DNS misconfigurations
+			// In single-tenant mode, they indicate actual setup issues the admin should know about
+			if env.IsSingleHostMode() {
+				log.Warn(m.ctx, err.Error())
+			} else {
+				log.Debug(m.ctx, err.Error())
+			}
 		} else {
 			log.Error(m.ctx, errors.Wrap(err, "failed to get certificate for %s", hello.ServerName))
 		}
@@ -168,7 +174,7 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 	return cert, err
 }
 
-//StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
+// StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
 func (m *CertificateManager) StartHTTPServer() {
 	err := http.ListenAndServe(":80", m.autotls.HTTPHandler(nil))
 	if err != nil {

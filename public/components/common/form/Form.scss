@@ -1,20 +1,21 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-form-field {
-  margin-bottom: spacing(5);
+  margin-bottom: spacing(7);
 
   > label {
     display: block;
-    font-size: get("font.size.sm");
+    font-size: get("font.size.base");
     margin-bottom: spacing(1);
-    font-weight: 500;
+    font-weight: 600;
   }
 
   &:last-child {
-    margin-bottom: 0;
-
+    &:not(.flex-x > &) {
+      margin-bottom: 0;
+    }
     .flex-x > & {
-      margin-bottom: spacing(2);
+      // margin-bottom: spacing(2);
     }
   }
 }

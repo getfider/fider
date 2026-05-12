@@ -1,0 +1,13 @@
+.similar-posts-container {
+  transition: max-height 0.5s ease-in-out;
+}
+
+.similar-posts-hidden {
+  max-height: 0;
+  //   opacity: 0;
+}
+
+.similar-posts-visible {
+  max-height: 100vh;
+  //   opacity: 1;
+}

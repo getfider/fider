@@ -2,6 +2,9 @@ package actions
 
 import (
 	"context"
+	"fmt"
+	"time"
+
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -15,22 +18,27 @@ import (
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
-//CreateTenant is the input model used to create a tenant
+// CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
 	Token           string `json:"token"`
 	Name            string `json:"name"`
 	Email           string `json:"email" format:"lower"`
-	VerificationKey string
-	TenantName      string `json:"tenantName"`
-	LegalAgreement  bool   `json:"legalAgreement"`
-	Subdomain       string `json:"subdomain" format:"lower"`
-	UserClaims      *jwt.OAuthClaims
+	VerificationKey string           `json:"-"`
+	TenantName      string           `json:"tenantName"`
+	LegalAgreement  bool             `json:"legalAgreement"`
+	Subdomain       string           `json:"subdomain" format:"lower"`
+	UserClaims      *jwt.OAuthClaims `json:"-"`
 }
 
 func NewCreateTenant() *CreateTenant {
 	return &CreateTenant{
 		VerificationKey: entity.GenerateEmailVerificationKey(),
 	}
+}
+
+// GetVerificationKey returns the verification key
+func (action *CreateTenant) GetVerificationKey() string {
+	return action.VerificationKey
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -89,32 +97,104 @@ func (action *CreateTenant) Validate(ctx context.Context, user *entity.User) *va
 	return result
 }
 
-//GetEmail returns the email being verified
+// GetEmail returns the email being verified
 func (action *CreateTenant) GetEmail() string {
 	return action.Email
 }
 
-//GetName returns the name of the email owner
+// GetName returns the name of the email owner
 func (action *CreateTenant) GetName() string {
 	return action.Name
 }
 
-//GetUser returns the current user performing this action
+// GetUser returns the current user performing this action
 func (action *CreateTenant) GetUser() *entity.User {
 	return nil
 }
 
-//GetKind returns EmailVerificationKindSignUp
+// GetKind returns EmailVerificationKindSignUp
 func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
 	return enum.EmailVerificationKindSignUp
 }
 
-//UpdateTenantSettings is the input model used to update tenant settings
+// ResendSignUpEmail is the input model used to resend signup verification email
+type ResendSignUpEmail struct {
+	VerificationKey string `json:"-"`
+}
+
+func NewResendSignUpEmail() *ResendSignUpEmail {
+	return &ResendSignUpEmail{
+		VerificationKey: entity.GenerateEmailVerificationKey(),
+	}
+}
+
+// GetVerificationKey returns the verification key
+func (action *ResendSignUpEmail) GetVerificationKey() string {
+	return action.VerificationKey
+}
+
+// GetEmail returns empty string (not used in this action)
+func (action *ResendSignUpEmail) GetEmail() string {
+	return ""
+}
+
+// GetName returns empty string (not used in this action)
+func (action *ResendSignUpEmail) GetName() string {
+	return ""
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *ResendSignUpEmail) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return true
+}
+
+// Validate if current model is valid
+func (action *ResendSignUpEmail) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	result := validate.Success()
+
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+	if !hasTenant || tenant.Status != enum.TenantPending {
+		return validate.Failed("This operation is only allowed for pending tenants.")
+	}
+
+	// Get the most recent pending signup verification
+	pendingVerification := &query.GetPendingSignUpVerification{}
+	if err := bus.Dispatch(ctx, pendingVerification); err != nil {
+		return validate.Error(err)
+	}
+
+	// Check if last resend was within 1 minutes (rate limiting)
+	if pendingVerification.Result != nil {
+		timeSinceLastSend := time.Since(pendingVerification.Result.CreatedAt)
+		if timeSinceLastSend < 1*time.Minute {
+			remainingTime := 1*time.Minute - timeSinceLastSend
+			remainingSeconds := int(remainingTime.Seconds()) % 60
+
+			message := fmt.Sprintf("Please wait %d seconds to resend the verification email.", remainingSeconds)
+			result.AddFieldFailure("", message)
+		}
+	}
+
+	return result
+}
+
+// GetUser returns the current user performing this action
+func (action *ResendSignUpEmail) GetUser() *entity.User {
+	return nil
+}
+
+// GetKind returns EmailVerificationKindSignUp
+func (action *ResendSignUpEmail) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignUp
+}
+
+// UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
 	Logo           *dto.ImageUpload `json:"logo"`
 	Title          string           `json:"title"`
 	Invitation     string           `json:"invitation"`
 	WelcomeMessage string           `json:"welcomeMessage"`
+	WelcomeHeader  string           `json:"welcomeHeader"`
 	Locale         string           `json:"locale"`
 	CNAME          string           `json:"cname" format:"lower"`
 }
@@ -163,6 +243,10 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
 	}
 
+	if len(action.WelcomeHeader) > 100 {
+		result.AddFieldFailure("welcomeHeader", "Welcome Header must have less than 100 characters.")
+	}
+
 	if !i18n.IsValidLocale(action.Locale) {
 		result.AddFieldFailure("locale", "Locale is invalid.")
 	}
@@ -175,9 +259,10 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 	return result
 }
 
-//UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
+// UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
 type UpdateTenantAdvancedSettings struct {
-	CustomCSS string `json:"customCSS"`
+	CustomCSS      string `json:"customCSS"`
+	AllowedSchemes string `json:"allowedSchemes"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -190,18 +275,23 @@ func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *
 	return validate.Success()
 }
 
-//UpdateTenantPrivacy is the input model used to update tenant privacy settings
-type UpdateTenantPrivacy struct {
-	IsPrivate bool `json:"isPrivate"`
+// UpdateTenantPrivacySettings is the input model used to update tenant privacy settings
+type UpdateTenantPrivacySettings struct {
+	IsPrivate           bool `json:"isPrivate"`
+	IsFeedEnabled       bool `json:"isFeedEnabled"`
+	IsModerationEnabled bool `json:"isModerationEnabled"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (action *UpdateTenantPrivacy) IsAuthorized(ctx context.Context, user *entity.User) bool {
+func (action *UpdateTenantPrivacySettings) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
-func (action *UpdateTenantPrivacy) Validate(ctx context.Context, user *entity.User) *validate.Result {
+func (action *UpdateTenantPrivacySettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	if action.IsPrivate && action.IsFeedEnabled {
+		return validate.Failed("Feed can not be enabled when set to private.")
+	}
 	return validate.Success()
 }
 

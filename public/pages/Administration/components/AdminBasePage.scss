@@ -1,4 +1,4 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-admin-basepage {
   display: grid;
@@ -6,6 +6,6 @@
   gap: spacing(4);
 
   @include media("lg") {
-    grid-template-columns: 1fr 5fr;
+    grid-template-columns: 1fr 4fr 1fr;
   }
 }

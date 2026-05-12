@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -15,16 +16,45 @@ import (
 // SearchPosts return existing posts based on search criteria
 func SearchPosts() web.HandlerFunc {
 	return func(c *web.Context) error {
-		searchPosts := &query.SearchPosts{
-			Query: c.QueryParam("query"),
-			View:  c.QueryParam("view"),
-			Limit: c.QueryParam("limit"),
-			Tags:  c.QueryParamAsArray("tags"),
+		viewQueryParams := c.QueryParam("view")
+		if viewQueryParams == "" {
+			viewQueryParams = "all" // Set default value to "all" if not provided
 		}
+		searchPosts := &query.SearchPosts{
+			Query:            c.QueryParam("query"),
+			View:             viewQueryParams,
+			Limit:            c.QueryParam("limit"),
+			Tags:             c.QueryParamAsArray("tags"),
+			ModerationFilter: c.QueryParam("moderation"),
+		}
+		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
+			searchPosts.MyVotesOnly = myVotesOnly
+		}
+		if noTagsOnly, err := c.QueryParamAsBool("notags"); err == nil {
+			searchPosts.NoTagsOnly = noTagsOnly
+		}
+		if myPostsOnly, err := c.QueryParamAsBool("myposts"); err == nil {
+			searchPosts.MyPostsOnly = myPostsOnly
+		}
+		searchPosts.SetStatusesFromStrings(c.QueryParamAsArray("statuses"))
+
 		if err := bus.Dispatch(c, searchPosts); err != nil {
 			return c.Failure(err)
 		}
 
+		return c.Ok(searchPosts.Result)
+	}
+}
+
+// FindSimilarPosts return posts similar to query
+func FindSimilarPosts() web.HandlerFunc {
+	return func(c *web.Context) error {
+		searchPosts := &query.FindSimilarPosts{
+			Query: c.QueryParam("query"),
+		}
+		if err := bus.Dispatch(c, searchPosts); err != nil {
+			return c.Failure(err)
+		}
 		return c.Ok(searchPosts.Result)
 	}
 }
@@ -56,6 +86,15 @@ func CreatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if env.Config.PostCreationWithTagsEnabled {
+			for _, tag := range action.Tags {
+				assignTag := &cmd.AssignTag{Tag: tag, Post: newPost.Result}
+				if err := bus.Dispatch(c, assignTag); err != nil {
+					return c.Failure(err)
+				}
+			}
+		}
+
 		c.Enqueue(tasks.NotifyAboutNewPost(newPost.Result))
 
 		metrics.TotalPosts.Inc()
@@ -63,7 +102,8 @@ func CreatePost() web.HandlerFunc {
 			"id":     newPost.Result.ID,
 			"number": newPost.Result.Number,
 			"title":  newPost.Result.Title,
-			"slug":   newPost.Result.Slug,
+			"slug":       newPost.Result.Slug,
+			"isApproved": newPost.Result.IsApproved,
 		})
 	}
 }
@@ -93,24 +133,30 @@ func UpdatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		updatePost := &cmd.UpdatePost{
+			Post:        action.Post,
+			Title:       action.Title,
+			Description: action.Description,
+		}
+
 		err := bus.Dispatch(c,
 			&cmd.UploadImages{
 				Images: action.Attachments,
 				Folder: "attachments",
 			},
-			&cmd.UpdatePost{
-				Post:        action.Post,
-				Title:       action.Title,
-				Description: action.Description,
-			},
+			updatePost,
 			&cmd.SetAttachments{
 				Post:        action.Post,
 				Attachments: action.Attachments,
 			},
 		)
+
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		// Notify about mentions in the updated post
+		c.Enqueue(tasks.NotifyAboutUpdatedPost(updatePost.Result))
 
 		return c.Ok(web.Map{})
 	}
@@ -169,10 +215,7 @@ func DeletePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if action.Text != "" {
-			// Only send notification if user wrote a comment.
-			c.Enqueue(tasks.NotifyAboutDeletedPost(action.Post))
-		}
+		c.Enqueue(tasks.NotifyAboutDeletedPost(action.Post, action.Text != ""))
 
 		return c.Ok(web.Map{})
 	}
@@ -196,6 +239,11 @@ func ListComments() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		for _, comment := range getComments.Result {
+			commentString := entity.CommentString(comment.Content)
+			comment.Content = commentString.SanitizeMentions()
+		}
+
 		return c.Ok(getComments.Result)
 	}
 }
@@ -213,7 +261,38 @@ func GetComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		commentString := entity.CommentString(commentByID.Result.Content)
+		commentByID.Result.Content = commentString.SanitizeMentions()
+
 		return c.Ok(commentByID.Result)
+	}
+}
+
+// ToggleReaction adds or removes a reaction on a comment
+func ToggleReaction() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.ToggleCommentReaction)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		getComment := &query.GetCommentByID{CommentID: action.Comment}
+		if err := bus.Dispatch(c, getComment); err != nil {
+			return c.Failure(err)
+		}
+
+		toggleReaction := &cmd.ToggleCommentReaction{
+			Comment: getComment.Result,
+			Emoji:   action.Reaction,
+			User:    c.User(),
+		}
+		if err := bus.Dispatch(c, toggleReaction); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{
+			"added": toggleReaction.Result,
+		})
 	}
 }
 
@@ -242,6 +321,9 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		// For processing, restore the original content
+		addNewComment.Result.Content = action.Content
+
 		if err := bus.Dispatch(c, &cmd.SetAttachments{
 			Post:        getPost.Result,
 			Comment:     addNewComment.Result,
@@ -250,7 +332,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, action.Content))
+		c.Enqueue(tasks.NotifyAboutNewComment(addNewComment.Result, getPost.Result))
 
 		metrics.TotalComments.Inc()
 		return c.Ok(web.Map{
@@ -265,6 +347,16 @@ func UpdateComment() web.HandlerFunc {
 		action := new(actions.EditComment)
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
+		}
+
+		getPost := &query.GetPostByID{PostID: action.Post.ID}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		comment := &entity.Comment{
+			ID:      action.ID,
+			Content: action.Content,
 		}
 
 		err := bus.Dispatch(c,
@@ -285,6 +377,10 @@ func UpdateComment() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		// Update the content
+
+		c.Enqueue(tasks.NotifyAboutUpdatedComment(getPost.Result, comment))
 
 		return c.Ok(web.Map{})
 	}
@@ -333,6 +429,52 @@ func RemoveVote() web.HandlerFunc {
 	}
 }
 
+func ToggleVote() web.HandlerFunc {
+	return func(c *web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		if getPost.Result == nil {
+			return c.NotFound()
+		}
+
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID}
+		if err := bus.Dispatch(c, listVotes); err != nil {
+			return c.Failure(err)
+		}
+
+		hasVoted := false
+		for _, vote := range listVotes.Result {
+			if vote.User.ID == c.User().ID {
+				hasVoted = true
+				break
+			}
+		}
+
+		if hasVoted {
+			err := bus.Dispatch(c, &cmd.RemoveVote{Post: getPost.Result, User: c.User()})
+			if err != nil {
+				return c.Failure(err)
+			}
+			return c.Ok(web.Map{"voted": false})
+		}
+
+		err = bus.Dispatch(c, &cmd.AddVote{Post: getPost.Result, User: c.User()})
+		if err != nil {
+			return c.Failure(err)
+		}
+		metrics.TotalVotes.Inc()
+		return c.Ok(web.Map{"voted": true})
+	}
+}
+
 // Subscribe adds current user to list of subscribers of given post
 func Subscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -364,9 +506,9 @@ func ListVotes() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: true}
-		err = bus.Dispatch(c, listVotes)
-		if err != nil {
+		includeEmail := c.User() != nil && c.User().IsCollaborator()
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, IncludeEmail: includeEmail}
+		if err := bus.Dispatch(c, listVotes); err != nil {
 			return c.Failure(err)
 		}
 
@@ -385,9 +527,8 @@ func addOrRemove(c *web.Context, getCommand func(post *entity.Post, user *entity
 		return c.Failure(err)
 	}
 
-	cmd := getCommand(getPost.Result, c.User())
-	err = bus.Dispatch(c, cmd)
-	if err != nil {
+	command := getCommand(getPost.Result, c.User())
+	if err := bus.Dispatch(c, command); err != nil {
 		return c.Failure(err)
 	}
 

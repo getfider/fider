@@ -1,9 +1,12 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
 .c-multi-image-uploader {
+  padding-top: spacing(2);
   .c-multi-image-uploader-instances {
     display: flex;
     flex-wrap: wrap;
     .c-image-upload {
-      margin-right: 10px;
+      margin-inline-end: 10px;
     }
   }
 }

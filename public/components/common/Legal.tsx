@@ -1,7 +1,7 @@
 import React from "react"
 import { Modal, Checkbox } from "@fider/components"
 import { useFider } from "@fider/hooks"
-import { Trans } from "@lingui/macro"
+import { Trans } from "@lingui/react/macro"
 
 interface LegalAgreementProps {
   onChange: (agreed: boolean) => void
@@ -38,9 +38,10 @@ export const LegalNotice = () => {
 
   if (fider.settings.hasLegal) {
     return (
-      <p className="text-muted">
+      <p className="px-9">
         <Trans id="legal.notice">
-          By signing in, you agree to the <PrivacyPolicy /> and <TermsOfService />.
+          By signing in, you agree to the <br />
+          <PrivacyPolicy /> and <TermsOfService />.
         </Trans>
       </p>
     )

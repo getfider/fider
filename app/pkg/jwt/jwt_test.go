@@ -53,7 +53,7 @@ func TestJWT_Decode_DifferentSignMethod(t *testing.T) {
 	Expect(err).IsNil()
 
 	decoded, err := jwt.DecodeFiderClaims(token)
-	Expect(err.Error()).ContainsSubstring("Unexpected signing method: none")
+	Expect(err.Error()).ContainsSubstring("unexpected signing method: none")
 	Expect(decoded).IsNil()
 }
 

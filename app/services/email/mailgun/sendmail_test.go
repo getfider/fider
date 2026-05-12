@@ -2,7 +2,7 @@ package mailgun_test
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"testing"
 
@@ -53,7 +53,7 @@ func TestSend_Success(t *testing.T) {
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Authorization")).Equals("Basic YXBpOm15czNjcjN0azN5")
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/x-www-form-urlencoded")
 
-	bytes, err := ioutil.ReadAll(httpclientmock.RequestsHistory[0].Body)
+	bytes, err := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
 	Expect(err).IsNil()
 	values, err := url.ParseQuery(string(bytes))
 	Expect(err).IsNil()
@@ -70,6 +70,26 @@ func TestSend_Success(t *testing.T) {
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<style>
+			.user-content {
+				text-align: left;
+				padding: 20px;
+				margin: 10px;
+				border-radius: 5px;
+				color: #1c262d;
+				border: 1px solid #E0E0E0;
+				min-width: 320px;
+				max-width: 660px;
+				overflow-wrap: break-word;
+				word-break: break-word;
+				table-layout: fixed;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+				pre:has(code) {
+					white-space: break-spaces;
+				}
+			}
+		</style>
 	</head>
 	<body bgcolor="#F7F7F7" style="font-size:18px">
 		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:18px;">
@@ -79,7 +99,7 @@ func TestSend_Success(t *testing.T) {
 			
 			<tr>
 				<td align="center">
-					<table bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;min-width:320px;max-width:660px;">
+					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #E0E0E0;min-width:320px;max-width:660px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 						
 Hello World Hello!
 
@@ -88,7 +108,10 @@ Hello World Hello!
 			</tr>
 			
 			<tr>
-				<td>
+				<td height="20">&nbsp;</td>
+			</tr>
+			<tr>
+				<td style="padding:0 20px;">
 					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
 				</td>
 			</tr>
@@ -175,7 +198,7 @@ func TestBatch_Success(t *testing.T) {
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Authorization")).Equals("Basic YXBpOm15czNjcjN0azN5")
 	Expect(httpclientmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/x-www-form-urlencoded")
 
-	bytes, err := ioutil.ReadAll(httpclientmock.RequestsHistory[0].Body)
+	bytes, err := io.ReadAll(httpclientmock.RequestsHistory[0].Body)
 	Expect(err).IsNil()
 	values, err := url.ParseQuery(string(bytes))
 	Expect(err).IsNil()
@@ -196,6 +219,26 @@ func TestBatch_Success(t *testing.T) {
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<style>
+			.user-content {
+				text-align: left;
+				padding: 20px;
+				margin: 10px;
+				border-radius: 5px;
+				color: #1c262d;
+				border: 1px solid #E0E0E0;
+				min-width: 320px;
+				max-width: 660px;
+				overflow-wrap: break-word;
+				word-break: break-word;
+				table-layout: fixed;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+				pre:has(code) {
+					white-space: break-spaces;
+				}
+			}
+		</style>
 	</head>
 	<body bgcolor="#F7F7F7" style="font-size:18px">
 		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:18px;">
@@ -205,7 +248,7 @@ func TestBatch_Success(t *testing.T) {
 			
 			<tr>
 				<td align="center">
-					<table bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;min-width:320px;max-width:660px;">
+					<table class="user-content" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;margin:10px;border-radius:5px;color:#1c262d;border:1px solid #E0E0E0;min-width:320px;max-width:660px;overflow-wrap:break-word;word-break:break-word;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 						
 Hello World %recipient.name%!
 
@@ -214,7 +257,10 @@ Hello World %recipient.name%!
 			</tr>
 			
 			<tr>
-				<td>
+				<td height="20">&nbsp;</td>
+			</tr>
+			<tr>
+				<td style="padding:0 20px;">
 					<span style="color:#666;font-size:12px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
 				</td>
 			</tr>

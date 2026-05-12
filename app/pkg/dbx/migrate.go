@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	stdErrors "errors"
-	"io/ioutil"
 	"os"
 	"sort"
 	"strconv"
@@ -17,7 +16,7 @@ import (
 )
 
 // ErrNoChanges means that the migration process didn't change execute any file
-var ErrNoChanges = stdErrors.New("nothing to migrate.")
+var ErrNoChanges = stdErrors.New("nothing to migrate")
 
 // Migrate the database to latest version
 func Migrate(ctx context.Context, path string) error {
@@ -92,7 +91,7 @@ func Migrate(ctx context.Context, path string) error {
 
 func runMigration(ctx context.Context, version int, path, fileName string) error {
 	filePath := env.Path(path + "/" + fileName)
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to read file '%s'", filePath)
 	}

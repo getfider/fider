@@ -1,13 +1,16 @@
 import "./Modal.scss"
 
-import React, { useEffect, useRef } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 import ReactDOM from "react-dom"
 import { classSet } from "@fider/services"
+import { Icon } from "@fider/components"
+import IconX from "@fider/assets/images/heroicons-x.svg"
 
 interface ModalWindowProps {
+  children?: React.ReactNode
   className?: string
   isOpen: boolean
-  size?: "small" | "large" | "fluid"
+  size?: "small" | "large" | "fluid" | "fullscreen"
   canClose?: boolean
   center?: boolean
   onClose: () => void
@@ -18,8 +21,17 @@ interface ModalFooterProps {
   children?: React.ReactNode
 }
 
-const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
+const ModalWindow: React.FunctionComponent<ModalWindowProps> = ({ size = "small", canClose = true, center = true, ...props }) => {
   const root = useRef<HTMLElement>(document.getElementById("root-modal"))
+
+  const keyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.code === "Escape") {
+        close()
+      }
+    },
+    [props.onClose]
+  )
 
   useEffect(() => {
     if (props.isOpen) {
@@ -29,21 +41,18 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
       document.body.style.overflow = ""
       document.removeEventListener("keydown", keyDown, false)
     }
-  }, [props.isOpen])
+
+    return () => {
+      document.removeEventListener("keydown", keyDown, false)
+    }
+  }, [props.isOpen, keyDown])
 
   const swallow = (evt: React.MouseEvent<HTMLDivElement>) => {
     evt.stopPropagation()
   }
 
-  const keyDown = (event: KeyboardEvent) => {
-    if (event.keyCode === 27) {
-      // ESC
-      close()
-    }
-  }
-
   const close = () => {
-    if (props.canClose) {
+    if (canClose) {
       props.onClose()
     }
   }
@@ -55,8 +64,8 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
   const className = classSet({
     "c-modal-window": true,
     [`${props.className}`]: !!props.className,
-    "c-modal-window--center": props.center,
-    [`c-modal-window--${props.size}`]: true,
+    "c-modal-window--center": center,
+    [`c-modal-window--${size}`]: true,
   })
 
   return ReactDOM.createPortal(
@@ -70,13 +79,6 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = (props) => {
     root.current
   )
 }
-
-ModalWindow.defaultProps = {
-  size: "small",
-  canClose: true,
-  center: true,
-}
-
 const Header = (props: { children: React.ReactNode }) => <div className="c-modal-header">{props.children}</div>
 const Content = (props: { children: React.ReactNode }) => <div className="c-modal-content">{props.children}</div>
 const Footer = (props: ModalFooterProps) => {
@@ -87,6 +89,10 @@ const Footer = (props: ModalFooterProps) => {
   })
   return <div className={className}>{props.children}</div>
 }
+
+export const CloseIcon = ({ closeModal }: { closeModal: () => void }) => (
+  <Icon sprite={IconX} height="30" width="30" onClick={closeModal} className="c-modal-closeicon" />
+)
 
 export const Modal = {
   Window: ModalWindow,

@@ -1,3 +1,4 @@
+import { Tag } from "@fider/models"
 import { Fider } from "."
 
 export const delay = (ms: number) => {
@@ -38,7 +39,7 @@ export const formatDate = (locale: string, input: Date | string, format: DateFor
   }
 }
 
-export const timeSince = (locale: string, now: Date, date: Date): string => {
+export const timeSince = (locale: string, now: Date, date: Date, dateFormat: DateFormat = "short"): string => {
   try {
     const seconds = Math.round((now.getTime() - date.getTime()) / 1000)
     const minutes = Math.round(seconds / 60)
@@ -57,10 +58,9 @@ export const timeSince = (locale: string, now: Date, date: Date): string => {
       rtf.format(-1 * years, "years")
     )
   } catch {
-    return formatDate(locale, date, "short")
+    return formatDate(locale, date, dateFormat)
   }
 }
-
 export const fileToBase64 = async (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
@@ -120,4 +120,61 @@ export const truncate = (input: string, maxLength: number): string => {
 
 export type StringObject<T = any> = {
   [key: string]: T
+}
+
+export const copyToClipboard = (text: string): Promise<void> => {
+  if (window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
+    return window.navigator.clipboard.writeText(text)
+  }
+  return Promise.reject(new Error("Clipboard API not available"))
+}
+
+export const clearUrlHash = (replace?: boolean) => {
+  const oldURL = window.location.href
+  const newURL = window.location.pathname + window.location.search
+  if (replace) {
+    window.history.replaceState("", document.title, newURL)
+  } else {
+    window.history.pushState("", document.title, newURL)
+  }
+  // Trigger event manually
+  const hashChangeEvent = new HashChangeEvent("hashchange", {
+    oldURL,
+    newURL,
+    cancelable: true,
+    bubbles: true,
+    composed: false,
+  })
+  if (!window.dispatchEvent(hashChangeEvent)) {
+    // Event got cancelled
+    window.history.replaceState("", document.title, oldURL)
+  }
+}
+
+// Helper function to sort tags by 'isPublic' status and then by name
+export const sortTags = (tags: Tag[]) => {
+  return tags.sort((a, b) => {
+    // First compare by 'isPublic' status (false comes before true)
+    if (a.isPublic !== b.isPublic) {
+      return a.isPublic ? 1 : -1
+    }
+
+    // If 'isPublic' status is the same, sort alphabetically by name
+    return a.name.localeCompare(b.name)
+  })
+}
+
+export const chopString = (input: string, length: number): string => {
+  if (!input || input.length <= length) {
+    return input
+  }
+
+  const truncated = input.substring(0, length)
+  const lastSpaceIndex = truncated.lastIndexOf(" ")
+
+  if (lastSpaceIndex === -1) {
+    return truncated + "..."
+  }
+
+  return truncated.substring(0, lastSpaceIndex) + "..."
 }

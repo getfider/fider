@@ -22,6 +22,7 @@ type Post struct {
 	Status        enum.PostStatus `json:"status"`
 	Response      *PostResponse   `json:"response,omitempty"`
 	Tags          []string        `json:"tags"`
+	IsApproved    bool            `json:"isApproved"`
 }
 
 // CanBeVoted returns true if this post can have its vote changed

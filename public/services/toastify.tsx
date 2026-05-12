@@ -1,6 +1,6 @@
 import { I18nProvider } from "@lingui/react"
 import React from "react"
-import ReactDOM from "react-dom"
+import ReactDOM from "react-dom/client"
 import { i18n } from "@lingui/core"
 
 import { ToastContainer, toast, ToastContent, ToastOptions } from "react-toastify"
@@ -11,15 +11,17 @@ let hasContainer = false
 const setup = () => {
   if (!hasContainer) {
     hasContainer = true
-    ReactDOM.render(
-      <I18nProvider i18n={i18n}>
-        <ToastContainer position={toast.POSITION.TOP_RIGHT} />
-      </I18nProvider>,
-      document.getElementById("root-toastify")
-    )
+    const rootElement = document.getElementById("root-toastify")
+    if (rootElement) {
+      const root = ReactDOM.createRoot(rootElement)
+      root.render(
+        <I18nProvider i18n={i18n}>
+          <ToastContainer position={toast.POSITION.TOP_RIGHT} />
+        </I18nProvider>
+      )
+    }
   }
 }
-
 export const success = (content: ToastContent, options?: ToastOptions) => {
   setup()
   toast.success(content, options)

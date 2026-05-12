@@ -1,0 +1,162 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+/* Styling for content elements */
+.fider-tiptap-editor .ProseMirror {
+  pre {
+    margin: 0 0 0.25em 0;
+  }
+  ul,
+  ol {
+    padding-inline-start: 1.5em;
+    margin: 0.5em 0;
+  }
+
+  a {
+    color: #3b82f6;
+    text-decoration: underline;
+  }
+}
+
+.c-editor-toolbar {
+  border-bottom: 1px solid var(--colors-gray-300);
+  padding: spacing(1);
+  min-height: 40px;
+  width: 100%;
+}
+
+.c-editor-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.c-editor-button,
+.c-markdown-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: spacing(1.5);
+  border-radius: get("border.radius.small");
+  background: transparent;
+  border: none;
+  color: var(--colors-gray-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--colors-gray-100);
+    color: var(--colors-gray-900);
+  }
+
+  &.is-disabled {
+    // background-color: var(--colors-gray-300);
+    color: var(--colors-gray-500);
+  }
+
+  svg {
+    width: spacing(4.5);
+    height: spacing(4.5);
+  }
+}
+
+.c-editor-button {
+  &.is-active {
+    background-color: var(--colors-gray-300);
+    color: var(--colors-gray-900);
+  }
+}
+
+.c-markdown-toggle {
+  height: 28px;
+}
+
+.fider-tiptap-editor {
+  border: 1px solid var(--colors-gray-400);
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--colors-white);
+
+  @include dark-mode {
+    background-color: var(--colors-gray-100);
+  }
+
+  &.m-error {
+    border-color: var(--colors-red-600);
+  }
+
+  .c-markdown-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: var(--colors-white);
+
+    &:focus {
+      outline: none;
+    }
+
+    &::placeholder {
+      color: var(--colors-gray-700);
+    }
+  }
+
+  .tiptap {
+    :first-child {
+      margin-top: 0;
+    }
+
+    padding: 12px;
+    min-height: 120px;
+    outline: none;
+
+    &:focus {
+      outline: none;
+    }
+
+    .mention {
+      background-color: var(--colors-blue-100);
+      border-radius: get("border.radius.medium");
+      box-decoration-break: clone;
+      color: var(--colors-blue-600);
+      padding-inline-start: spacing(1);
+      padding-inline-end: spacing(1);
+      padding-top: 4px;
+      padding-bottom: 4px;
+      &::after {
+        content: "\200B";
+      }
+    }
+
+    // Inline images
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin: 8px 0;
+      display: block;
+      cursor: pointer;
+    }
+
+    .fider-inline-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin: 8px 0;
+      display: block;
+      cursor: pointer;
+    }
+
+    // Placeholder
+    p.tiptap-is-empty:first-child::before {
+      color: var(--colors-gray-700);
+      content: attr(data-placeholder);
+      float: left;
+      height: 0;
+      pointer-events: none;
+    }
+  }
+}

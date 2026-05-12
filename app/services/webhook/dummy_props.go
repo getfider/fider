@@ -2,12 +2,13 @@ package webhook
 
 import (
 	"context"
+	"time"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/webhook"
-	"time"
 )
 
 var dummyPost = &entity.Post{
@@ -55,6 +56,7 @@ func dummyTriggerProps(c context.Context, webhookType enum.WebhookType) webhook.
 	case enum.WebhookNewComment:
 		props.SetPost(dummyPost, "post", baseURL, true, true)
 		props["comment"] = "An example **comment** on a post."
+		props["comment_id"] = 12
 	case enum.WebhookChangeStatus:
 		props.SetPost(dummyPost, "post", baseURL, true, true)
 		props["post_old_status"] = enum.PostOpen.Name()

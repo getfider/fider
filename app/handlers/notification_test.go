@@ -55,20 +55,22 @@ func TestReadNotificationHandler(t *testing.T) {
 	not2 := &entity.Notification{ID: 2, Link: "/def"}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetNotificationByID) error {
-		if q.ID == 1 {
+		switch q.ID {
+		case 1:
 			q.Result = not1
-		} else if q.ID == 2 {
+		case 2:
 			q.Result = not2
-		} else {
+		default:
 			q.Result = nil
 		}
 		return nil
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.MarkNotificationAsRead) error {
-		if c.ID == 1 {
+		switch c.ID {
+		case 1:
 			not1.Read = true
-		} else if c.ID == 2 {
+		case 2:
 			not2.Read = true
 		}
 		return nil

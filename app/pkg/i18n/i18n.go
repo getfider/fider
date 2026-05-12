@@ -4,29 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"sync"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/gotnospirit/messageformat"
 )
-
-// localeToPlurals maps between Fider locale and gotnospirit/messageformat culture
-var localeToPlurals = map[string]string{
-	"en":    "en",
-	"pt-BR": "pt",
-	"sv-SE": "se",
-	"es-ES": "es",
-	"nl":    "nl",
-	"de":    "de",
-	"fr":    "fr",
-	"pl":    "pl",
-	"ru":    "ru",
-	"sk":    "sk",
-	"tr":    "tr",
-}
 
 type Params map[string]any
 
@@ -52,7 +38,7 @@ func getLocaleData(locale string) localeData {
 		return item
 	}
 
-	content, err := ioutil.ReadFile(env.Path(fmt.Sprintf("locale/%s/server.json", locale)))
+	content, err := os.ReadFile(env.Path(fmt.Sprintf("locale/%s/server.json", locale)))
 	if err != nil {
 		panic(errors.Wrap(err, "failed to read locale file"))
 	}
@@ -63,7 +49,12 @@ func getLocaleData(locale string) localeData {
 		panic(errors.Wrap(err, "failed unmarshal to json"))
 	}
 
-	parser, err := messageformat.NewWithCulture(localeToPlurals[locale])
+	localeInfo, found := enum.GetLocaleByCode(locale)
+	if !found {
+		panic(errors.New("unknown locale: %s", locale))
+	}
+
+	parser, err := messageformat.NewWithCulture(localeInfo.MessageFormatCode)
 	if err != nil {
 		panic(errors.Wrap(err, "failed create parser"))
 	}
@@ -95,10 +86,7 @@ func getMessage(locale, key string) (string, *messageformat.Parser) {
 
 // IsValidLocale returns true if given locale is valid
 func IsValidLocale(locale string) bool {
-	if _, ok := localeToPlurals[locale]; ok {
-		return true
-	}
-	return false
+	return enum.IsValidLocale(locale)
 }
 
 // GetLocale returns the locale defined in context
@@ -111,6 +99,18 @@ func GetLocale(ctx context.Context) string {
 	return env.Config.Locale
 }
 
+func GetLocaleDirection(ctx context.Context) string {
+    locale := GetLocale(ctx)
+
+    localeInfo, found := enum.GetLocaleByCode(locale)
+    if found && localeInfo.IsRTL {
+        return "rtl"
+    }
+
+    return "ltr"
+}
+
+
 // T translates a given key to current locale
 // Params is used to replace variables and pluralize
 func T(ctx context.Context, key string, params ...Params) string {
@@ -122,12 +122,12 @@ func T(ctx context.Context, key string, params ...Params) string {
 
 	parsedMsg, err := parser.Parse(msg)
 	if err != nil {
-		panic(errors.Wrap(err, fmt.Sprintf("failed to parse msg '%s'", msg)))
+		panic(errors.Wrap(err, "failed to parse msg %s", msg))
 	}
 
 	str, err := parsedMsg.FormatMap(params[0])
 	if err != nil {
-		panic(errors.Wrap(err, fmt.Sprintf("failed to format msg '%s' with params '%v'", msg, params[0])))
+		panic(errors.Wrap(err, "failed to format msg '%s' with params '%v'", msg, params[0]))
 	}
 
 	return str

@@ -5,14 +5,14 @@
 }
 
 .page {
-  padding-top: spacing(4);
-  padding-bottom: spacing(4);
+  padding-top: spacing(6);
+  padding-bottom: spacing(6);
 }
 
 @include media("sm") {
   .page {
     width: calc(100vw - 20px);
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-inline-start: 10px;
+    margin-inline-end: 10px;
   }
 }

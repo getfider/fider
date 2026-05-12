@@ -20,3 +20,13 @@ export const assignTag = async (slug: string, postNumber: number): Promise<Resul
 export const unassignTag = async (slug: string, postNumber: number): Promise<Result> => {
   return http.delete(`/api/v1/posts/${postNumber}/tags/${slug}`).then(http.event("tag", "unassign"))
 }
+
+export interface ImportTagsResult {
+  created: number
+  skipped: number
+  errors: string[]
+}
+
+export const importTags = async (tags: Array<{ name: string; color: string; isPublic: boolean }>): Promise<Result<ImportTagsResult>> => {
+  return http.post<ImportTagsResult>(`/_api/admin/import/tags`, tags).then(http.event("tag", "import"))
+}

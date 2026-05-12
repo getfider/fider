@@ -1,62 +1,37 @@
-import React, { useState, useEffect } from "react"
-import { Modal, SignInControl, LegalFooter } from "@fider/components"
-import { Button } from "./common"
-import { Trans } from "@lingui/macro"
-import { useFider } from "@fider/hooks"
+import React from "react"
+import { Modal, SignInControl, LegalFooter, TenantLogo } from "@fider/components"
+import { CloseIcon } from "./common"
+import { Trans } from "@lingui/react/macro"
+import { HStack, VStack } from "./layout"
 
 interface SignInModalProps {
   isOpen: boolean
   onClose: () => void
 }
 
-export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) => {
-  const [email, setEmail] = useState("")
-  const fider = useFider()
-
-  useEffect(() => {
-    if (email) {
-      setTimeout(() => setEmail(""), 5000)
-    }
-  }, [email])
-
-  const onEmailSent = (value: string): void => {
-    setEmail(value)
-  }
-
-  if (props.isOpen && fider.settings.oauth.length == 1 && !(fider.session.tenant ? fider.session.tenant.isEmailAuthAllowed : true)) {
-    // Redirect to only provider on clicking sign in
-    window.location.href = fider.settings.oauth.pop()?.url ?? ""
-    return <></>
-  }
-
-  const closeModal = () => {
-    setEmail("")
+export const SignInModal: React.FC<SignInModalProps> = (props) => {
+  const onCodeVerified = (): void => {
+    // User is authenticated - close modal and reload to refresh the page
     props.onClose()
+    location.reload()
   }
-
-  const content = email ? (
-    <>
-      <p>
-        <Trans id="signin.message.emailsent">
-          We have just sent a confirmation link to <b>{email}</b>. Click the link and you’ll be signed in.
-        </Trans>
-      </p>
-      <p>
-        <Button variant="tertiary" onClick={closeModal}>
-          <Trans id="action.ok">OK</Trans>
-        </Button>
-      </p>
-    </>
-  ) : (
-    <SignInControl useEmail={true} onEmailSent={onEmailSent} />
-  )
 
   return (
-    <Modal.Window isOpen={props.isOpen} onClose={closeModal}>
+    <Modal.Window isOpen={props.isOpen} onClose={props.onClose}>
       <Modal.Header>
-        <Trans id="modal.signin.header">Sign in to participate and vote</Trans>
+        <VStack spacing={8}>
+          <HStack justify="between">
+            <TenantLogo size={24} useFiderIfEmpty={true} />
+            <CloseIcon closeModal={props.onClose} />
+          </HStack>
+          <p>
+            <Trans id="modal.signin.header">Join the conversation</Trans>
+          </p>
+        </VStack>
       </Modal.Header>
-      <Modal.Content>{content}</Modal.Content>
+      <Modal.Content>
+        <SignInControl useEmail={true} onCodeVerified={onCodeVerified} />
+      </Modal.Content>
       <LegalFooter />
     </Modal.Window>
   )

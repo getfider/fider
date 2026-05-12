@@ -10,8 +10,16 @@
   position: relative;
 }
 
+.absolute {
+  position: absolute;
+}
+
 .inline-block {
   display: inline-block;
+}
+
+.inline-flex {
+  display: inline-flex;
 }
 
 @each $media in $medias {
@@ -63,6 +71,22 @@
   }
 }
 
+@include media("xl2") {
+  .container {
+    width: 1320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.box {
+  border-radius: get("border.radius.large");
+  background-color: var(--colors-white);
+  border: 1px solid var(--colors-gray-200);
+  padding: spacing(4);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+}
+
 .flex {
   display: flex;
 }
@@ -83,8 +107,16 @@
   flex-wrap: wrap;
 }
 
+.align-self-end {
+  align-self: end;
+}
+
 .align-self-start {
   align-self: start;
+}
+
+.align-self-center {
+  align-self: center;
 }
 
 .flex-items-center {
@@ -93,6 +125,14 @@
 
 .flex-items-baseline {
   align-items: baseline;
+}
+
+.flex-items-start {
+  align-items: start;
+}
+
+.flex-items-end {
+  align-items: end;
 }
 
 .justify-between {
@@ -107,13 +147,17 @@
   justify-content: center;
 }
 
+.justify-end {
+  justify-content: end;
+}
+
 .justify-full > * {
   flex: 1 1 0;
 }
 
 @each $i in 0, 1, 2, 4, 6, 8 {
   .flex-x.flex--spacing-#{$i} > * + * {
-    margin-left: spacing($i);
+    margin-inline-start: spacing($i);
   }
   .flex-y.flex--spacing-#{$i} > * + * {
     margin-top: spacing($i);
@@ -122,16 +166,16 @@
 
 @each $i in 2, 4, 6 {
   .flex-x.flex--divide-#{$i} > *:first-child {
-    padding-right: spacing($i);
+    padding-inline-end: spacing($i);
   }
   .flex-x.flex--divide-#{$i} > * + * {
-    padding-right: spacing($i);
-    padding-left: spacing($i);
-    border: 0 solid get("colors.gray.100");
-    border-left-width: 1px;
+    padding-inline-end: spacing($i);
+    padding-inline-start: spacing($i);
+    border: 0 solid var(--colors-gray-200);
+    border-inline-start-width: 1px;
   }
   .flex-x.flex--divide-#{$i} > *:last-child {
-    padding-right: 0;
+    padding-inline-end: 0;
   }
   .flex-y.flex--divide-#{$i} > *:first-child {
     padding-bottom: spacing($i);
@@ -139,7 +183,7 @@
   .flex-y.flex--divide-#{$i} > * + * {
     padding-top: spacing($i);
     padding-bottom: spacing($i);
-    border: 0 solid get("colors.gray.100");
+    border: 0 solid var(--colors-gray-200);
     border-top-width: 1px;
   }
   .flex-y.flex--divide-#{$i} > *:last-child {
@@ -148,16 +192,16 @@
 }
 
 .shadow-sm {
-  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
 .shadow {
-  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
 }
 .shadow-md {
-  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
 }
 .shadow-lg {
-  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 }
 
 .rounded {
@@ -168,6 +212,16 @@
   border-radius: sizing(2);
 }
 
+.rounded-md-t {
+  border-top-left-radius: sizing(2);
+  border-top-right-radius: sizing(2);
+}
+
+.rounded-md-b {
+  border-bottom-left-radius: sizing(2);
+  border-bottom-right-radius: sizing(2);
+}
+
 .rounded-full {
   border-radius: 999px;
 }
@@ -176,19 +230,48 @@
   visibility: hidden;
 }
 
+.border-t {
+  border-top: 1px solid;
+}
+
+.border-b {
+  border-bottom: 1px solid;
+}
+
+.border-l {
+  border-inline-start: 1px solid;
+}
+
 .overflow-scroll {
   overflow: scroll;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
 }
 
 .border {
   border: 1px solid transparent;
 }
 
-.border-2 {
-  border: 2px solid transparent;
+@each $i in 2, 3, 4, 6 {
+  .border-#{$i} {
+    border: #{$i}px solid transparent;
+  }
 }
 
 .clickable {
   cursor: pointer;
   pointer-events: inherit;
+}
+
+.hover {
+  transition: all 0.15s ease;
+  &:hover {
+    background-color: var(--colors-gray-50);
+  }
 }

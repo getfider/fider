@@ -1,4 +1,4 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-dropdown {
   display: inline-block;
@@ -11,6 +11,8 @@
     border: none;
     padding: 0;
     cursor: pointer;
+    color: var(--colors-black);
+    display: flex;
   }
 
   &__list {
@@ -21,28 +23,43 @@
     min-width: sizing(40);
     max-width: sizing(60);
     padding: spacing(1) 0;
-    background-color: get("colors.white");
+    background-color: var(--colors-white);
     border-radius: get("border.radius.medium");
-    border: 1px solid get("colors.gray.300");
+    border: 1px solid var(--colors-gray-200);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
     z-index: 10;
 
     &--left {
       right: 0;
     }
+
+    &--wide {
+      max-width: sizing(180);
+    }
+
+    &--fullscreen-small {
+      @include media("sm") {
+        position: fixed;
+        left: 0;
+        width: 100vw;
+      }
+    }
   }
 
   &__listitem {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: spacing(2);
+    transition: background-color 0.15s ease;
     &:hover {
       cursor: pointer;
-      background-color: get("colors.gray.100");
+      background-color: var(--colors-gray-50);
     }
   }
 
   &__divider {
     margin: spacing(1);
-    background-color: get("colors.gray.200");
+    background-color: var(--colors-gray-200);
     height: 1px;
     border: none;
   }

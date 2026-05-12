@@ -4,4 +4,6 @@ export interface Notification {
   link: string
   read: boolean
   createdAt: string
+  authorName: string
+  avatarURL: string
 }

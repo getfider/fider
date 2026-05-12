@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components"
+import { SignInControl, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components"
 import { jwt, actions, Failure, querystring, Fider } from "@fider/services"
 import { Divider } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
@@ -19,7 +19,6 @@ interface SubdomainState {
 const SignUpPage = () => {
   const fider = useFider()
 
-  const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLegalAgreed, setIsLegalAgreed] = useState(false)
   const [tenantName, setTenantName] = useState("")
   const [userName, setUserName] = useState("")
@@ -51,23 +50,18 @@ const SignUpPage = () => {
     })
 
     if (result.ok) {
-      if (user) {
-        if (fider.isSingleHostMode()) {
-          location.reload()
-        } else {
-          let baseURL = `${location.protocol}//${subdomain.name}${fider.settings.domain}`
-          if (location.port) {
-            baseURL = `${baseURL}:${location.port}`
-          }
-
-          location.href = baseURL
-        }
+      if (fider.isSingleHostMode()) {
+        location.reload()
       } else {
-        setIsSubmitted(true)
+        let baseURL = `${location.protocol}//${subdomain.name}${fider.settings.domain}`
+        if (location.port) {
+          baseURL = `${baseURL}:${location.port}`
+        }
+
+        location.href = baseURL
       }
     } else if (result.error) {
       setError(result.error)
-      setIsSubmitted(false)
     }
   }
 
@@ -103,27 +97,10 @@ const SignUpPage = () => {
     }
   }, [subdomain.name])
 
-  const noop = () => {
-    // do nothing
-  }
-
-  const modal = (
-    <Modal.Window canClose={false} isOpen={isSubmitted} onClose={noop}>
-      <Modal.Header>Thank you for registering!</Modal.Header>
-      <Modal.Content>
-        <p>
-          We have just sent a confirmation link to <b>{userEmail}</b>.
-        </p>
-        <p>Click the link to complete the registration.</p>
-      </Modal.Content>
-    </Modal.Window>
-  )
-
   return (
     <div id="p-signup" className="page container w-max-6xl">
-      {modal}
       <div className="h-20 text-center mb-4">
-        <img className="logo" alt="Logo" src="https://fider.io/images/logo-100x100.png" />
+        <img className="logo" alt="Logo" src="https://login.fider.io/static/assets/logo.png" />
       </div>
 
       <h3 className="text-display mb-2">1. Who are you?</h3>
@@ -172,7 +149,6 @@ const SignUpPage = () => {
       <Button variant="primary" size="large" onClick={confirm}>
         Confirm
       </Button>
-      {fider.settings.isBillingEnabled && <div className="mt-2 text-muted">Your trial starts today and ends in 15 days.</div>}
     </div>
   )
 }

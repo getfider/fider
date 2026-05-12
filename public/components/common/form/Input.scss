@@ -1,17 +1,34 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-input {
   line-height: get("font.size.xl");
-  background-color: get("colors.white");
+  background-color: var(--colors-white);
+  color: var(--colors-black);
   width: 100%;
-  padding: sizing(2);
-  border: 1px solid get("colors.gray.300");
+  padding: sizing(2) sizing(3);
+  border: 1px solid var(--colors-gray-300);
   border-radius: get("border.radius.medium");
   -webkit-appearance: none;
   appearance: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+
+  &:hover {
+    border-color: var(--colors-gray-400);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--colors-primary-base);
+    box-shadow: 0 0 0 3px rgba(45, 87, 237, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  }
 
   &:disabled {
     @include disabled();
+  }
+
+  &::placeholder {
+    color: var(--colors-gray-600);
   }
 
   & + svg,
@@ -21,23 +38,24 @@
     padding: spacing(2);
     margin: 0;
     right: 0;
+    left: unset;
   }
 
   &__suffix {
     display: flex;
     align-items: center;
-    background-color: get("colors.gray.200");
+    background-color: var(--colors-gray-200);
     padding: spacing(2);
     border-top-right-radius: get("border.radius.medium");
     border-bottom-right-radius: get("border.radius.medium");
   }
 
   &--icon {
-    padding-right: spacing(8);
+    padding-inline-end: spacing(8);
   }
 
   &--error {
-    border-color: get("colors.red.600");
+    border-color: var(--colors-red-600);
   }
 
   &--suffixed {
@@ -51,5 +69,13 @@
         border-bottom-right-radius: 0;
       }
     }
+  }
+}
+
+:dir(rtl) .c-input {
+  & + svg,
+  & + img {
+    left: 0;
+    right: unset;
   }
 }

@@ -90,7 +90,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		b.Set("From", c.From.String())
 		b.Set("Reply-To", c.From.Address)
 		b.Set("To", to.String())
-		b.Set("Subject", message.Subject)
+		b.Set("Subject", email.EncodeSubject(message.Subject))
 		b.Set("MIME-version", "1.0")
 		b.Set("Content-Type", "text/html; charset=\"UTF-8\"")
 		b.Set("Date", time.Now().Format(time.RFC1123Z))
@@ -114,7 +114,7 @@ var Send = func(localName, serverAddress string, enableStartTLS bool, a gosmtp.A
 	if err != nil {
 		return err
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 	if err = c.Hello(localName); err != nil {
 		return err
 	}

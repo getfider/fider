@@ -27,10 +27,11 @@ const (
 
 // FiderClaims represents what goes into JWT tokens
 type FiderClaims struct {
-	UserID    int    `json:"user/id"`
-	UserName  string `json:"user/name"`
-	UserEmail string `json:"user/email"`
-	Origin    string `json:"origin"`
+	UserID        int    `json:"user/id"`
+	UserName      string `json:"user/name"`
+	UserEmail     string `json:"user/email"`
+	Origin        string `json:"origin"`
+	SecurityStamp string `json:"user/security_stamp,omitempty"`
 	Metadata
 }
 
@@ -40,6 +41,14 @@ type OAuthClaims struct {
 	OAuthProvider string `json:"oauth/provider"`
 	OAuthName     string `json:"oauth/name"`
 	OAuthEmail    string `json:"oauth/email"`
+	Metadata
+}
+
+// OAuthStateClaims represents what goes into JWT tokens used for OAuth state parameter
+type OAuthStateClaims struct {
+	Redirect   string `json:"oauthstate/redirect"`
+	Identifier string `json:"oauthstate/identifier"`
+	Code       string `json:"oauthstate/code"`
 	Metadata
 }
 
@@ -73,10 +82,20 @@ func DecodeOAuthClaims(token string) (*OAuthClaims, error) {
 	return claims, nil
 }
 
+// DecodeOAuthStateClaims extract OAuthClaims from given JWT token
+func DecodeOAuthStateClaims(token string) (*OAuthStateClaims, error) {
+	claims := &OAuthStateClaims{}
+	err := decode(token, claims)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode OAuthState claims")
+	}
+	return claims, nil
+}
+
 func decode(token string, claims jwtgo.Claims) error {
 	jwtToken, err := jwtgo.ParseWithClaims(token, claims, func(t *jwtgo.Token) (any, error) {
 		if _, ok := t.Method.(*jwtgo.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
 
 		return []byte(jwtSecret), nil

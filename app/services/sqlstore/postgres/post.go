@@ -2,10 +2,12 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/pemistahl/lingua-go"
 
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
@@ -14,75 +16,19 @@ import (
 	"github.com/lib/pq"
 
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 )
 
-type dbPost struct {
-	ID             int            `db:"id"`
-	Number         int            `db:"number"`
-	Title          string         `db:"title"`
-	Slug           string         `db:"slug"`
-	Description    string         `db:"description"`
-	CreatedAt      time.Time      `db:"created_at"`
-	User           *dbUser        `db:"user"`
-	HasVoted       bool           `db:"has_voted"`
-	VotesCount     int            `db:"votes_count"`
-	CommentsCount  int            `db:"comments_count"`
-	RecentVotes    int            `db:"recent_votes_count"`
-	RecentComments int            `db:"recent_comments_count"`
-	Status         int            `db:"status"`
-	Response       sql.NullString `db:"response"`
-	RespondedAt    dbx.NullTime   `db:"response_date"`
-	ResponseUser   *dbUser        `db:"response_user"`
-	OriginalNumber sql.NullInt64  `db:"original_number"`
-	OriginalTitle  sql.NullString `db:"original_title"`
-	OriginalSlug   sql.NullString `db:"original_slug"`
-	OriginalStatus sql.NullInt64  `db:"original_status"`
-	Tags           []string       `db:"tags"`
-}
-
-func (i *dbPost) toModel(ctx context.Context) *entity.Post {
-	post := &entity.Post{
-		ID:            i.ID,
-		Number:        i.Number,
-		Title:         i.Title,
-		Slug:          i.Slug,
-		Description:   i.Description,
-		CreatedAt:     i.CreatedAt,
-		HasVoted:      i.HasVoted,
-		VotesCount:    i.VotesCount,
-		CommentsCount: i.CommentsCount,
-		Status:        enum.PostStatus(i.Status),
-		User:          i.User.toModel(ctx),
-		Tags:          i.Tags,
-	}
-
-	if i.Response.Valid {
-		post.Response = &entity.PostResponse{
-			Text:        i.Response.String,
-			RespondedAt: i.RespondedAt.Time,
-			User:        i.ResponseUser.toModel(ctx),
-		}
-		if post.Status == enum.PostDuplicate && i.OriginalNumber.Valid {
-			post.Response.Original = &entity.OriginalPost{
-				Number: int(i.OriginalNumber.Int64),
-				Slug:   i.OriginalSlug.String,
-				Title:  i.OriginalTitle.String,
-				Status: enum.PostStatus(i.OriginalStatus.Int64),
-			}
-		}
-	}
-	return post
-}
-
 var (
-	sqlSelectPostsWhere = `	WITH 
-													agg_tags AS ( 
-														SELECT 
-																post_id, 
+	sqlSelectPostsWhere = `	WITH
+													agg_tags AS (
+														SELECT
+																post_id,
 																ARRAY_REMOVE(ARRAY_AGG(tags.slug), NULL) as tags
 														FROM post_tags
 														INNER JOIN tags
@@ -90,14 +36,14 @@ var (
 														AND tags.tenant_id = post_tags.tenant_id
 														WHERE post_tags.tenant_id = $1
 														%s
-														GROUP BY post_id 
-													), 
+														GROUP BY post_id
+													),
 													agg_comments AS (
-															SELECT 
-																	post_id, 
-																	COUNT(CASE WHEN comments.created_at > CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent,
-																	COUNT(*) as all
-															FROM comments 
+															SELECT
+																	post_id,
+																	COUNT(CASE WHEN comments.created_at > CURRENT_DATE - INTERVAL '30 days' AND comments.is_approved = true THEN 1 END) as recent,
+																	COUNT(CASE WHEN comments.is_approved = true THEN 1 END) as all
+															FROM comments
 															INNER JOIN posts
 															ON posts.id = comments.post_id
 															AND posts.tenant_id = comments.tenant_id
@@ -106,30 +52,31 @@ var (
 															GROUP BY post_id
 													),
 													agg_votes AS (
-															SELECT 
-															post_id, 
+															SELECT
+															post_id,
 																	COUNT(CASE WHEN post_votes.created_at > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
 																	COUNT(*) as all
-															FROM post_votes 
+															FROM post_votes
 															INNER JOIN posts
 															ON posts.id = post_votes.post_id
 															AND posts.tenant_id = post_votes.tenant_id
 															WHERE posts.tenant_id = $1
 															GROUP BY post_id
 													)
-													SELECT p.id, 
-																p.number, 
-																p.title, 
-																p.slug, 
-																p.description, 
+													SELECT p.id,
+																p.number,
+																p.title,
+																p.slug,
+																p.description,
 																p.created_at,
+																p.search,
 																COALESCE(agg_s.all, 0) as votes_count,
 																COALESCE(agg_c.all, 0) as comments_count,
 																COALESCE(agg_s.recent, 0) AS recent_votes_count,
-																COALESCE(agg_c.recent, 0) AS recent_comments_count,																
-																p.status, 
-																u.id AS user_id, 
-																u.name AS user_name, 
+																COALESCE(agg_c.recent, 0) AS recent_comments_count,
+																p.status,
+																u.id AS user_id,
+																u.name AS user_name,
 																u.email AS user_email,
 																u.role AS user_role,
 																u.status AS user_status,
@@ -137,9 +84,9 @@ var (
 																u.avatar_bkey AS user_avatar_bkey,
 																p.response,
 																p.response_date,
-																r.id AS response_user_id, 
-																r.name AS response_user_name, 
-																r.email AS response_user_email, 
+																r.id AS response_user_id,
+																r.name AS response_user_name,
+																r.email AS response_user_email,
 																r.role AS response_user_role,
 																r.status AS response_user_status,
 																r.avatar_type AS response_user_avatar_type,
@@ -149,7 +96,8 @@ var (
 																d.slug AS original_slug,
 																d.status AS original_status,
 																COALESCE(agg_t.tags, ARRAY[]::text[]) AS tags,
-																COALESCE(%s, false) AS has_voted
+																COALESCE(%s, false) AS has_voted,
+																p.is_approved
 													FROM posts p
 													INNER JOIN users u
 													ON u.id = p.user_id
@@ -164,7 +112,7 @@ var (
 													ON agg_c.post_id = p.id
 													LEFT JOIN agg_votes agg_s
 													ON agg_s.post_id = p.id
-													LEFT JOIN agg_tags agg_t 
+													LEFT JOIN agg_tags agg_t
 													ON agg_t.post_id = p.id
 													WHERE p.status != ` + strconv.Itoa(int(enum.PostDeleted)) + ` AND %s`
 )
@@ -174,7 +122,7 @@ func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
 		q.Result = false
 
 		exists, err := trx.Exists(`
-			SELECT 1 FROM posts p 
+			SELECT 1 FROM posts p
 			INNER JOIN posts o
 			ON o.tenant_id = p.tenant_id
 			AND o.id = p.original_id
@@ -201,8 +149,8 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 		}
 
 		_, err := trx.Execute(`
-		UPDATE posts 
-		SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
+		UPDATE posts
+		SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6
 		WHERE id = $1 and tenant_id = $2
 		`, c.Post.ID, tenant.ID, c.Text, respondedAt, user.ID, c.Status)
 		if err != nil {
@@ -226,22 +174,22 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 			respondedAt = c.Post.Response.RespondedAt
 		}
 
-		var users []*dbUser
+		var users []*dbEntities.User
 		err := trx.Select(&users, "SELECT user_id AS id FROM post_votes WHERE post_id = $1 AND tenant_id = $2", c.Post.ID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get votes of post with id '%d'", c.Post.ID)
 		}
 
 		for _, u := range users {
-			err := bus.Dispatch(ctx, &cmd.AddVote{Post: c.Original, User: u.toModel(ctx)})
+			err := bus.Dispatch(ctx, &cmd.AddVote{Post: c.Original, User: u.ToModel(ctx)})
 			if err != nil {
 				return err
 			}
 		}
 
 		_, err = trx.Execute(`
-		UPDATE posts 
-		SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
+		UPDATE posts
+		SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6
 		WHERE id = $1 and tenant_id = $2
 		`, c.Post.ID, tenant.ID, c.Original.ID, respondedAt, user.ID, enum.PostDuplicate)
 		if err != nil {
@@ -287,11 +235,15 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 
 func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		isApproved := !tenant.IsModerationEnabled || !user.RequiresModeration()
 		var id int
+		// Detect language using lingua-go
+		lang := detectPostLanguage(c.Title, c.Description)
+
 		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status) 
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0) 
-			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now())
+			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status, is_approved, language)
+			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0, $7, $8)
+			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now(), isApproved, lang)
 		if err != nil {
 			return errors.Wrap(err, "failed add new post")
 		}
@@ -312,8 +264,11 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 
 func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
-													 WHERE id = $4 AND tenant_id = $5`, c.Title, slug.Make(c.Title), c.Description, c.Post.ID, tenant.ID)
+		// Detect language using lingua-go
+		lang := detectPostLanguage(c.Title, c.Description)
+		_, err := trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3, language = $4
+								 WHERE id = $5 AND tenant_id = $6`, c.Title, slug.Make(c.Title), c.Description, lang, c.Post.ID, tenant.ID)
+
 		if err != nil {
 			return errors.Wrap(err, "failed update post")
 		}
@@ -327,9 +282,30 @@ func updatePost(ctx context.Context, c *cmd.UpdatePost) error {
 	})
 }
 
+// detectPostLanguage uses lingua-go to detect the language of a post and maps it to a PostgreSQL tsvector config or 'simple'.
+// All language mappings are centralized in app/models/enum/locale.go
+func detectPostLanguage(title, description string) string {
+	// Get all supported lingua languages from the centralized locale enum
+	linguaLangs := enum.GetLinguaLanguages()
+	detector := lingua.NewLanguageDetectorBuilder().FromLanguages(linguaLangs...).Build()
+	text := strings.TrimSpace(title + " " + description)
+	lang, exists := detector.DetectLanguageOf(text)
+	if !exists {
+		return "simple"
+	}
+
+	locale, ok := enum.GetLocaleByLinguaLanguage(lang)
+	if !ok {
+		return "simple"
+	}
+
+	// Map to PostgreSQL tsvector config using the locale's PostgresConfig
+	return locale.PostgresConfig
+}
+
 func getPostByID(ctx context.Context, q *query.GetPostByID) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.id = $2"), tenant.ID, q.PostID)
+		post, err := querySinglePost(ctx, trx, buildSinglePostQuery(user, "p.tenant_id = $1 AND p.id = $2"), tenant.ID, q.PostID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with id '%d'", q.PostID)
 		}
@@ -340,7 +316,7 @@ func getPostByID(ctx context.Context, q *query.GetPostByID) error {
 
 func getPostBySlug(ctx context.Context, q *query.GetPostBySlug) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.slug = $2"), tenant.ID, q.Slug)
+		post, err := querySinglePost(ctx, trx, buildSinglePostQuery(user, "p.tenant_id = $1 AND p.slug = $2"), tenant.ID, q.Slug)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with slug '%s'", q.Slug)
 		}
@@ -351,7 +327,7 @@ func getPostBySlug(ctx context.Context, q *query.GetPostBySlug) error {
 
 func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		post, err := querySinglePost(ctx, trx, buildPostQuery(user, "p.tenant_id = $1 AND p.number = $2"), tenant.ID, q.Number)
+		post, err := querySinglePost(ctx, trx, buildSinglePostQuery(user, "p.tenant_id = $1 AND p.number = $2"), tenant.ID, q.Number)
 		if err != nil {
 			return errors.Wrap(err, "failed to get post with number '%d'", q.Number)
 		}
@@ -360,12 +336,94 @@ func getPostByNumber(ctx context.Context, q *query.GetPostByNumber) error {
 	})
 }
 
+func preprocessSearchQuery(query string) string {
+	// Common noise words that don't add search value
+
+	noiseWords := env.SearchNoiseWords()
+
+	words := strings.Fields(strings.ToLower(query))
+	var filteredWords []string
+
+	for _, word := range words {
+		isNoise := false
+		for _, noise := range noiseWords {
+			if word == noise {
+				isNoise = true
+				break
+			}
+		}
+		if !isNoise && len(word) > 2 { // Also filter very short words
+			filteredWords = append(filteredWords, word)
+		}
+	}
+
+	return strings.Join(filteredWords, " ")
+}
+
+func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)", "")
+
+		filteredQuery := preprocessSearchQuery(q.Query)
+
+		var (
+			posts []*dbEntities.Post
+			err   error
+		)
+
+		if filteredQuery == "" {
+			q.Result = make([]*entity.Post, 0)
+		} else {
+			tsConfig := MapLocaleToTSConfig(tenant.Locale)
+
+			// Build tsquery with AND operator between words and prefix matching on each word
+			// The search column already contains both language-specific and simple tsvectors
+			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
+			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
+
+			// Use ts_rank_cd (cover density ranking) for better relevance scoring
+			// Query against the generated search column which combines language-specific and simple tsvectors
+			score := fmt.Sprintf("ts_rank_cd(q.search, %s) + ts_rank_cd(q.search, %s)", tsQueryExpr, tsQuerySimple)
+
+			// Match against the pre-computed search column
+			whereParts := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
+
+			sql := fmt.Sprintf(`
+				SELECT * FROM (%s) AS q
+				WHERE %s
+				ORDER BY %s DESC
+				LIMIT 5
+			`, innerQuery, whereParts, score)
+			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
+				enum.PostOpen,
+				enum.PostStarted,
+				enum.PostPlanned,
+				enum.PostCompleted,
+				enum.PostDeclined,
+			}), ToTSQuery(SanitizeString(q.Query)))
+		}
+		if err != nil {
+			return errors.Wrap(err, "failed to find similar posts")
+		}
+
+		q.Result = make([]*entity.Post, len(posts))
+		for i, post := range posts {
+			q.Result[i] = post.ToModel(ctx)
+		}
+		return nil
+	})
+}
+
 func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)")
+		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)", q.ModerationFilter)
 
 		if q.Tags == nil {
 			q.Tags = []string{}
+		}
+
+		if q.Statuses == nil {
+			q.Statuses = []enum.PostStatus{}
 		}
 
 		if q.Limit != "all" {
@@ -375,33 +433,61 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 		}
 
 		var (
-			posts []*dbPost
+			posts []*dbEntities.Post
 			err   error
 		)
 		if q.Query != "" {
-			scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
+			tsQuery := ToTSQuery(SanitizeString(q.Query))
+			if tsQuery == "" {
+				q.Result = make([]*entity.Post, 0)
+				return nil
+			}
+
+			tsConfig := MapLocaleToTSConfig(tenant.Locale)
+
+			tsQueryExpr := fmt.Sprintf("to_tsquery('%s', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))", tsConfig)
+			tsQuerySimple := "to_tsquery('simple', regexp_replace(regexp_replace($3, '\\\\s+', ':* & ', 'g'), '$', ':*'))"
+
+			score := fmt.Sprintf("ts_rank_cd(q.search, %s) + ts_rank_cd(q.search, %s)", tsQueryExpr, tsQuerySimple)
+
+			searchPredicate := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
+
+			condition, statuses, _ := getViewData(*q, 4)
+
+			if q.MyPostsOnly && user != nil {
+				condition += " AND user_id = " + strconv.Itoa(user.ID)
+			}
+
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
-				WHERE %s > 0.1
+				SELECT * FROM (%s) AS q
+				WHERE (%s) %s
 				ORDER BY %s DESC
 				LIMIT %s
-			`, innerQuery, scoreField, scoreField, q.Limit)
-			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
-				enum.PostOpen,
-				enum.PostStarted,
-				enum.PostPlanned,
-				enum.PostCompleted,
-				enum.PostDeclined,
-			}), ToTSQuery(q.Query), q.Query)
+			`, innerQuery, searchPredicate, condition, score, q.Limit)
+
+			params := []interface{}{tenant.ID, pq.Array(statuses), tsQuery}
+			if len(q.Tags) > 0 && !q.NoTagsOnly {
+				params = append(params, pq.Array(q.Tags))
+			}
+			err = trx.Select(&posts, sql, params...)
 		} else {
-			condition, statuses, sort := getViewData(q.View)
+			condition, statuses, sort := getViewData(*q, 3)
+
+			if q.MyPostsOnly && user != nil {
+				condition += " AND user_id = " + strconv.Itoa(user.ID)
+			}
+
 			sql := fmt.Sprintf(`
-				SELECT * FROM (%s) AS q 
-				WHERE tags @> $3 %s
+				SELECT * FROM (%s) AS q
+				WHERE 1 = 1 %s
 				ORDER BY %s DESC
 				LIMIT %s
 			`, innerQuery, condition, sort, q.Limit)
-			err = trx.Select(&posts, sql, tenant.ID, pq.Array(statuses), pq.Array(q.Tags))
+			params := []interface{}{tenant.ID, pq.Array(statuses)}
+			if len(q.Tags) > 0 && !q.NoTagsOnly {
+				params = append(params, pq.Array(q.Tags))
+			}
+			err = trx.Select(&posts, sql, params...)
 		}
 
 		if err != nil {
@@ -410,7 +496,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 		q.Result = make([]*entity.Post, len(posts))
 		for i, post := range posts {
-			q.Result[i] = post.toModel(ctx)
+			q.Result[i] = post.ToModel(ctx)
 		}
 		return nil
 	})
@@ -428,16 +514,16 @@ func getAllPosts(ctx context.Context, q *query.GetAllPosts) error {
 }
 
 func querySinglePost(ctx context.Context, trx *dbx.Trx, query string, args ...any) (*entity.Post, error) {
-	post := dbPost{}
+	post := dbEntities.Post{}
 
 	if err := trx.Get(&post, query, args...); err != nil {
 		return nil, err
 	}
 
-	return post.toModel(ctx), nil
+	return post.ToModel(ctx), nil
 }
 
-func buildPostQuery(user *entity.User, filter string) string {
+func buildPostQuery(user *entity.User, filter string, moderationFilter string) string {
 	tagCondition := `AND tags.is_public = true`
 	if user != nil && user.IsCollaborator() {
 		tagCondition = ``
@@ -446,5 +532,58 @@ func buildPostQuery(user *entity.User, filter string) string {
 	if user != nil {
 		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", user.ID)
 	}
-	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, filter)
+
+	// Add approval filtering based on moderation filter and user permissions
+	approvalFilter := ""
+
+	// If user is a collaborator and has specified a moderation filter, apply it
+	if user != nil && user.IsCollaborator() && moderationFilter != "" {
+		switch moderationFilter {
+		case "pending":
+			// Show only unapproved posts
+			approvalFilter = " AND p.is_approved = false"
+		case "approved":
+			// Show only approved posts
+			approvalFilter = " AND p.is_approved = true"
+		}
+		// If moderationFilter is neither "pending" nor "approved", show all posts (no filter)
+	} else if user != nil {
+		// Regular authenticated users can see approved posts + their own unapproved posts
+		approvalFilter = fmt.Sprintf(" AND (p.is_approved = true OR p.user_id = %d)", user.ID)
+	} else {
+		// Anonymous users can only see approved posts
+		approvalFilter = " AND p.is_approved = true"
+	}
+
+	combinedFilter := filter + approvalFilter
+	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, combinedFilter)
+}
+
+// buildSinglePostQuery is used for fetching individual posts (by ID, slug, or number)
+// Collaborators can view any post for moderation purposes
+func buildSinglePostQuery(user *entity.User, filter string) string {
+	tagCondition := `AND tags.is_public = true`
+	if user != nil && user.IsCollaborator() {
+		tagCondition = ``
+	}
+	hasVotedSubQuery := "null"
+	if user != nil {
+		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", user.ID)
+	}
+
+	// Approval filtering for single post views
+	approvalFilter := ""
+	if user != nil && user.IsCollaborator() {
+		// Collaborators can view any post (for moderation purposes)
+		approvalFilter = ""
+	} else if user != nil {
+		// Regular authenticated users can see approved posts + their own unapproved posts
+		approvalFilter = fmt.Sprintf(" AND (p.is_approved = true OR p.user_id = %d)", user.ID)
+	} else {
+		// Anonymous users can only see approved posts
+		approvalFilter = " AND p.is_approved = true"
+	}
+
+	combinedFilter := filter + approvalFilter
+	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, combinedFilter)
 }

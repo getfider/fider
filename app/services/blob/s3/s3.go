@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"path"
 	"sort"
 	"strconv"
@@ -28,7 +28,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 )
 
-//DefaultClient is an S3 Client
+// DefaultClient is an S3 Client
 var DefaultClient *s3.S3
 
 func init() {
@@ -107,6 +107,10 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
+	if err := blob.ValidateKey(q.Key); err != nil {
+		return wrap(err, "failed to validate blob key '%s'", q.Key)
+	}
+
 	resp, err := DefaultClient.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(env.Config.BlobStorage.S3.BucketName),
 		Key:    aws.String(keyFullPathURL(ctx, q.Key)),
@@ -117,9 +121,9 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		}
 		return wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return wrap(err, "failed to read blob body '%s' from S3", q.Key)
 	}

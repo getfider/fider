@@ -6,10 +6,12 @@ import { AdminBasePage } from "../components/AdminBasePage"
 
 interface AdvancedSettingsPageProps {
   customCSS: string
+  allowedSchemes: string
 }
 
 interface AdvancedSettingsPageState {
   customCSS: string
+  allowedSchemes: string
   error?: Failure
 }
 
@@ -24,6 +26,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
 
     this.state = {
       customCSS: this.props.customCSS,
+      allowedSchemes: this.props.allowedSchemes,
     }
   }
 
@@ -31,8 +34,12 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
     this.setState({ customCSS })
   }
 
+  private setAllowedSchemes = (allowedSchemes: string): void => {
+    this.setState({ allowedSchemes })
+  }
+
   private handleSave = async (): Promise<void> => {
-    const result = await actions.updateTenantAdvancedSettings(this.state.customCSS)
+    const result = await actions.updateTenantAdvancedSettings(this.state.customCSS, this.state.allowedSchemes)
     if (result.ok) {
       location.reload()
     } else {
@@ -69,6 +76,26 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
             </li>
           </ul>
         </TextArea>
+
+        {Fider.settings.allowAllowedSchemes && (
+          <TextArea
+            field="allowedSchemes"
+            label="Allowed URL Schemes"
+            disabled={!Fider.session.user.isAdministrator}
+            minRows={3}
+            value={this.state.allowedSchemes}
+            onChange={this.setAllowedSchemes}
+          >
+            <p className="text-muted">
+              By default, uncommon URL schemes are forbidden in links.
+              <br />
+              If you want to allow linking monero or bitcoin addresses, you should add <code>^monero:[48]</code> or <code>^bitcoin:(1|3|bc1)</code> here.
+            </p>
+            <p className="text-muted">
+              These are regular expressions, one per line, matched against the link address. <code>^javascript</code> is always rejected.
+            </p>
+          </TextArea>
+        )}
 
         {Fider.session.user.isAdministrator && (
           <div className="field">

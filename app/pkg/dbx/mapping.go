@@ -1,6 +1,7 @@
 package dbx
 
 import (
+	"database/sql"
 	"fmt"
 	"reflect"
 	"sync"
@@ -63,7 +64,11 @@ func (m *RowMapper) Map(dest any, columns []string, scanner func(dest ...any) er
 			panic(fmt.Sprintf("Field not found for column %s", c))
 		}
 
-		if field.Kind() == reflect.Slice && field.Type().Elem().Kind() != reflect.Uint8 {
+		// Check if the field type implements sql.Scanner
+		scannerType := reflect.TypeOf((*sql.Scanner)(nil)).Elem()
+		implementsScanner := field.Addr().Type().Implements(scannerType)
+
+		if field.Kind() == reflect.Slice && field.Type().Elem().Kind() != reflect.Uint8 && !implementsScanner {
 			obj := reflect.New(reflect.MakeSlice(field.Type(), 0, 0).Type()).Elem()
 			field.Set(obj)
 			pointers[i] = pq.Array(field.Addr().Interface())

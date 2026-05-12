@@ -1,7 +1,7 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-hoverinfo {
-  margin-left: spacing(1);
+  margin-inline-start: spacing(1);
 
   &__icon {
     vertical-align: middle;

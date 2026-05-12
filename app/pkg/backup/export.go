@@ -29,7 +29,7 @@ func exportTable(ctx context.Context, tableName string) ([]byte, error) {
 }
 
 func jsonify(rows *sql.Rows) []map[string]any {
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	columns, err := rows.Columns()
 	if err != nil {
 		panic(err.Error())

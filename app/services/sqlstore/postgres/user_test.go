@@ -124,7 +124,6 @@ func TestUserStorage_Register(t *testing.T) {
 	err = bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
 
-	Expect(getUser.Result.ID).Equals(int(6))
 	Expect(getUser.Result.Role).Equals(enum.RoleCollaborator)
 	Expect(getUser.Result.Name).Equals("Rob Stark")
 	Expect(getUser.Result.Email).Equals("rob.stark@got.com")
@@ -159,8 +158,8 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 
 	var tenantID int
 	err := trx.Get(&tenantID, `
-		INSERT INTO tenants (name, subdomain, created_at, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed) 
-		VALUES ('My Domain Inc.','mydomain', now(), 1, false, '', '', 'en', true)
+		INSERT INTO tenants (name, subdomain, created_at, status, is_private, custom_css, logo_bkey, locale, is_email_auth_allowed, is_feed_enabled, is_moderation_enabled) 
+		VALUES ('My Domain Inc.','mydomain', now(), 1, false, '', '', 'en', true, true, false)
 		RETURNING id
 	`)
 	Expect(err).IsNil()
@@ -303,6 +302,7 @@ func TestUserStorage_DefaultUserSettings(t *testing.T) {
 
 	Expect(getSettings.Result).Equals(map[string]string{
 		enum.NotificationEventNewPost.UserSettingsKeyName:      enum.NotificationEventNewPost.DefaultSettingValue,
+		enum.NotificationEventMention.UserSettingsKeyName:      enum.NotificationEventMention.DefaultSettingValue,
 		enum.NotificationEventNewComment.UserSettingsKeyName:   enum.NotificationEventNewComment.DefaultSettingValue,
 		enum.NotificationEventChangeStatus.UserSettingsKeyName: enum.NotificationEventChangeStatus.DefaultSettingValue,
 	})

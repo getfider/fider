@@ -17,7 +17,9 @@ type CreateTenant struct {
 }
 
 type UpdateTenantPrivacySettings struct {
-	IsPrivate bool
+	IsPrivate           bool
+	IsFeedEnabled       bool
+	IsModerationEnabled bool
 }
 
 type UpdateTenantEmailAuthAllowedSettings struct {
@@ -29,12 +31,14 @@ type UpdateTenantSettings struct {
 	Title          string
 	Invitation     string
 	WelcomeMessage string
+	WelcomeHeader  string
 	CNAME          string
 	Locale         string
 }
 
 type UpdateTenantAdvancedSettings struct {
-	CustomCSS string
+	CustomCSS      string
+	AllowedSchemes string
 }
 
 type ActivateTenant struct {
@@ -43,11 +47,12 @@ type ActivateTenant struct {
 
 type SaveVerificationKey struct {
 	Key      string
+	Code     string
 	Duration time.Duration
 	Request  NewEmailVerification
 }
 
-//NewEmailVerification is used to define an email verification process
+// NewEmailVerification is used to define an email verification process
 type NewEmailVerification interface {
 	GetEmail() string
 	GetName() string
@@ -57,4 +62,16 @@ type NewEmailVerification interface {
 
 type SetKeyAsVerified struct {
 	Key string
+}
+
+type IncrementVerificationAttempts struct {
+	Key string
+}
+
+type InvalidateVerificationsByEmail struct {
+	Email string
+	Kind  enum.EmailVerificationKind
+}
+
+type InvalidatePreviousSignUpKeys struct {
 }

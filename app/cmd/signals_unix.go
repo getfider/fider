@@ -24,8 +24,8 @@ func handleExtraSignal(s os.Signal, e *web.Engine) int {
 		_ = pprof.Lookup("goroutine").WriteTo(buf, 1)
 		_ = pprof.Lookup("heap").WriteTo(buf, 1)
 		buf.WriteString("\n")
-		buf.WriteString(fmt.Sprintf("# Worker Queue: %d\n", e.Worker().Length()))
-		buf.WriteString(fmt.Sprintf("# Num Goroutines: %d\n", runtime.NumGoroutine()))
+		fmt.Fprintf(buf, "# Worker Queue: %d\n", e.Worker().Length())
+		fmt.Fprintf(buf, "# Num Goroutines: %d\n", runtime.NumGoroutine())
 		println(buf.String())
 	}
 	return -1

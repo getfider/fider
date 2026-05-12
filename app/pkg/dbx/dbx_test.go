@@ -3,7 +3,6 @@ package dbx_test
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -262,7 +261,7 @@ func TestByteArray(t *testing.T) {
 		Content     []byte `db:"file"`
 	}
 
-	fileContent, err := ioutil.ReadFile(env.Path("/favicon.png"))
+	fileContent, err := os.ReadFile(env.Path("/favicon.png"))
 	Expect(err).IsNil()
 
 	_, err = trx.Execute(`

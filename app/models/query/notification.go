@@ -25,3 +25,10 @@ type GetActiveSubscribers struct {
 
 	Result []*entity.User
 }
+
+type GetMentionNotifications struct {
+	CommentID int
+	PostID    int
+
+	Result []*entity.MentionNotification
+}

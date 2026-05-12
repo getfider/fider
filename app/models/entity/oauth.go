@@ -2,6 +2,14 @@ package entity
 
 import "encoding/json"
 
+// TenantProvider represents tenant-level OAuth provider settings
+type TenantProvider struct {
+	ID        int
+	TenantID  int
+	Provider  string
+	IsEnabled bool
+}
+
 // OAuthConfig is the configuration of a custom OAuth provider
 type OAuthConfig struct {
 	ID                int
@@ -19,6 +27,8 @@ type OAuthConfig struct {
 	JSONUserIDPath    string
 	JSONUserNamePath  string
 	JSONUserEmailPath string
+	JSONUserRolesPath string
+	AllowedRoles      string
 }
 
 // MarshalJSON returns the JSON encoding of OAuthConfig
@@ -43,5 +53,7 @@ func (o OAuthConfig) MarshalJSON() ([]byte, error) {
 		"jsonUserIDPath":    o.JSONUserIDPath,
 		"jsonUserNamePath":  o.JSONUserNamePath,
 		"jsonUserEmailPath": o.JSONUserEmailPath,
+		"jsonUserRolesPath": o.JSONUserRolesPath,
+		"allowedRoles":      o.AllowedRoles,
 	})
 }

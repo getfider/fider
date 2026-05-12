@@ -1,29 +1,30 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-message {
   padding: spacing(4);
   margin-bottom: spacing(2);
+  border-radius: get("border.radius.medium");
 
   &--icon {
-    border-left-width: 2px;
-    border-left-style: solid;
+    border-inline-start-width: 3px;
+    border-inline-start-style: solid;
   }
 
   &--success {
-    color: get("colors.green.800");
-    border-color: get("colors.green.800");
-    background-color: get("colors.green.50");
+    color: var(--colors-green-800);
+    border-color: var(--colors-green-800);
+    background-color: var(--colors-green-50);
   }
 
   &--warning {
-    color: get("colors.yellow.800");
-    border-color: get("colors.yellow.800");
-    background-color: get("colors.yellow.50");
+    color: var(--colors-yellow-800);
+    border-color: var(--colors-yellow-800);
+    background-color: var(--colors-yellow-50);
   }
 
   &--error {
-    color: get("colors.red.800");
-    border-color: get("colors.red.800");
-    background-color: get("colors.red.50");
+    color: var(--colors-red-800);
+    border-color: var(--colors-red-800);
+    background-color: var(--colors-red-50);
   }
 }

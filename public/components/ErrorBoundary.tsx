@@ -3,6 +3,7 @@ import { ErrorPage } from "@fider/pages/Error/Error.page"
 import { FiderContext } from "@fider/services"
 
 interface ErrorBoundaryProps {
+  children?: React.ReactNode
   onError?: (err: Error) => void
 }
 

@@ -2,7 +2,6 @@ package fs
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -74,6 +73,10 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
+	if err := blob.ValidateKey(q.Key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", q.Key)
+	}
+
 	fullPath := keyFullPath(ctx, q.Key)
 	stats, err := os.Stat(fullPath)
 	if err != nil {
@@ -83,7 +86,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		return errors.Wrap(err, "failed to get stats '%s' from FileSystem", q.Key)
 	}
 
-	file, err := ioutil.ReadFile(fullPath)
+	file, err := os.ReadFile(fullPath)
 	if err != nil {
 		return errors.Wrap(err, "failed to get read '%s' from FileSystem", q.Key)
 	}
@@ -108,7 +111,7 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 		return errors.Wrap(err, "failed to create folder '%s' on FileSystem", fullPath)
 	}
 
-	err = ioutil.WriteFile(fullPath, c.Content, perm)
+	err = os.WriteFile(fullPath, c.Content, perm)
 	if err != nil {
 		return errors.Wrap(err, "failed to create file '%s' on FileSystem", fullPath)
 	}

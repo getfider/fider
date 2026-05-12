@@ -44,7 +44,7 @@ func TestSendInvites(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"subject": "My Subject",
-		"logo":    "https://fider.io/images/logo-100x100.png",
+		"logo":    "https://login.fider.io/static/assets/logo.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
 		Name: "Jon Snow",
@@ -53,13 +53,13 @@ func TestSendInvites(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Address: "user1@domain.com",
 		Props: dto.Props{
-			"message": template.HTML(`<p>Click here: <a href="http://domain.com/invite/verify?k=1234">http://domain.com/invite/verify?k=1234</a></p>`),
+			"message": template.HTML(`<p>Click here: <a href="http://domain.com/invite/verify?k=1234" rel="nofollow noreferrer">http://domain.com/invite/verify?k=1234</a></p>`),
 		},
 	})
 	Expect(emailmock.MessageHistory[0].To[1]).Equals(dto.Recipient{
 		Address: "user2@domain.com",
 		Props: dto.Props{
-			"message": template.HTML(`<p>Click here: <a href="http://domain.com/invite/verify?k=5678">http://domain.com/invite/verify?k=5678</a></p>`),
+			"message": template.HTML(`<p>Click here: <a href="http://domain.com/invite/verify?k=5678" rel="nofollow noreferrer">http://domain.com/invite/verify?k=5678</a></p>`),
 		},
 	})
 

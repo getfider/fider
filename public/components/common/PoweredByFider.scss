@@ -1,13 +1,12 @@
-@import "~@fider/assets/styles/variables.scss";
+@use "~@fider/assets/styles/variables.scss" as *;
 
 .c-powered {
   text-align: center;
 
   a {
-    color: get("colors.gray.700");
-    font-size: 11px;
+    color: var(--colors-blue-700);
   }
   a:hover {
-    color: get("colors.gray.900");
+    color: var(--colors-gray-900);
   }
 }

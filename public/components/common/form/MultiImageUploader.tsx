@@ -10,18 +10,19 @@ interface MultiImageUploaderProps {
   field: string
   maxUploads: number
   bkeys?: string[]
+  addImageButton?: React.ReactNode
   onChange?: (uploads: ImageUpload[]) => void
+  noPadding?: boolean
 }
 
 interface MultiImageUploaderInstances {
   [key: string]: {
-    element: JSX.Element
+    element: React.JSX.Element
     upload?: ImageUpload
   }
 }
 
 interface MultiImageUploaderState {
-  count: number
   instances: MultiImageUploaderInstances
   removed: ImageUpload[]
 }
@@ -30,42 +31,40 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
   constructor(props: MultiImageUploaderProps) {
     super(props)
 
-    let count = 1
     const instances = {}
     if (props.bkeys) {
       for (const bkey of props.bkeys) {
-        count++
         this.addNewElement(instances, bkey)
       }
     }
 
-    if (count <= this.props.maxUploads) {
-      count++
+    if (Object.keys(instances).length <= this.props.maxUploads) {
       this.addNewElement(instances)
     }
 
-    this.state = { instances, count, removed: [] }
+    this.state = { instances, removed: [] }
   }
 
-  private imageUploaded = (upload: ImageUpload, instanceID: string) => {
+  private imageUploaded = (upload: ImageUpload, instanceID: string, ctx?: React.ContextType<typeof ValidationContext>) => {
+    // Clear error for this field when user interacts with it
+    if (ctx?.clearError && hasError(this.props.field, ctx.error)) {
+      ctx.clearError(this.props.field)
+    }
+
     const instances = { ...this.state.instances }
     const removed = [...this.state.removed]
-    let count = this.state.count
     if (upload.remove) {
       if (upload.bkey) {
         removed.push(upload)
       }
       delete instances[instanceID]
-      if (--count === this.props.maxUploads) {
-        this.addNewElement(instances)
-      }
     } else {
       instances[instanceID].upload = upload
-      if (count++ <= this.props.maxUploads) {
-        this.addNewElement(instances)
-      }
     }
-    this.setState({ instances, count, removed }, this.triggerOnChange)
+    if (Object.keys(instances).length < this.props.maxUploads && !this.hasUploadButton(instances)) {
+      this.addNewElement(instances)
+    }
+    this.setState({ instances, removed }, this.triggerOnChange)
   }
 
   private triggerOnChange() {
@@ -81,8 +80,30 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
   private addNewElement(instances: MultiImageUploaderInstances, bkey?: string) {
     const id = btoa(Math.random().toString())
     instances[id] = {
-      element: <ImageUploader key={id} bkey={bkey} instanceID={id} field="attachment" onChange={this.imageUploaded} />,
+      element: (
+        <ValidationContext.Consumer>
+          {(ctx) => (
+            <ImageUploader
+              key={id}
+              bkey={bkey}
+              instanceID={id}
+              field="attachment"
+              onChange={(upload, instanceID) => this.imageUploaded(upload, instanceID || "", ctx)}
+              addImageButton={this.props.addImageButton}
+            />
+          )}
+        </ValidationContext.Consumer>
+      ),
     }
+  }
+
+  private hasUploadButton(instances: MultiImageUploaderInstances) {
+    for (const instance of Object.values(instances)) {
+      if (instance.upload == null) {
+        return true
+      }
+    }
+    return false
   }
 
   public render() {
@@ -95,6 +116,7 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
               "c-form-field": true,
               "c-multi-image-uploader": true,
               "m-error": hasError(this.props.field, ctx.error),
+              "pt-0": this.props.noPadding,
             })}
           >
             <div className="c-multi-image-uploader-instances">{elements}</div>

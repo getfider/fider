@@ -15,7 +15,7 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
-//SendInvites sends one email to each invited recipient
+// SendInvites sends one email to each invited recipient
 func SendInvites(subject, message string, invitations []*actions.UserInvitation) worker.Task {
 	return describe("Send invites", func(c *worker.Context) error {
 		to := make([]dto.Recipient, len(invitations))
@@ -30,9 +30,9 @@ func SendInvites(subject, message string, invitations []*actions.UserInvitation)
 			}
 
 			url := fmt.Sprintf("%s/invite/verify?k=%s", web.BaseURL(c), invite.VerificationKey)
-			toMessage := strings.Replace(message, app.InvitePlaceholder, url, -1)
+			toMessage := strings.ReplaceAll(message, app.InvitePlaceholder, url)
 			to[i] = dto.NewRecipient("", invite.Email, dto.Props{
-				"message": markdown.Full(toMessage),
+				"message": markdown.Full(toMessage, true),
 			})
 		}
 

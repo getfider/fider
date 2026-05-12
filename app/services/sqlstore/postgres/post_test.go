@@ -1,11 +1,12 @@
 package postgres_test
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -23,10 +24,10 @@ func TestPostStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1, true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2, true, 'english')", now)
 	Expect(err).IsNil()
 
 	allPosts := &query.GetAllPosts{}
@@ -58,6 +59,185 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(search10.Result).HasLen(1)
 	Expect(search10.Result[0].Slug).Equals("add-twitter-integration")
 	Expect(search0.Result).HasLen(0)
+}
+func TestPostStorage_SearchGermanPosts(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Wann kommt der \"Wächter\" für das neue Stunden- und Vertretungsplanmodul?', 'wann-kommt-der-wachter-fur-das-neue-stunden-und-vertretungsplanmodul', 1, 'Description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Neuer Stunden/ Vertretungsplanwächter', 'neuer-stunden-vertretungsplanwachter', 2, 'no description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Ungeklärte Vertretung wird zu Entfall', 'ungeklarte-vertretung-wird-zu-entfall', 3, 'some description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Vertretungsplan drucken', 'vertretungsplan-drucken', 4, 'another description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Vertretungsplanung Wochenansicht', 'vertretungsplanung-wochenansicht', 5, 'description here', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('VertretungsBoard', 'vertretungsboard', 6, 'board description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Abwesenheiten Vertretungsplan', 'abwesenheiten-vertretungsplan', 7, 'final description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	Expect(err).IsNil()
+
+	// Search for "Vertretung" - with German stemming, should match all posts containing Vertretung* variants
+	allPosts := &query.SearchPosts{Query: "Vertretung"}
+	err = bus.Dispatch(germanTenantCtx, allPosts)
+	Expect(err).IsNil()
+	// All 7 posts contain "Vertretung" or variants like "Vertretungsplan", "Vertretungsplanung", etc.
+	// German stemming correctly identifies these as the same root word
+	Expect(allPosts.Result).HasLen(7)
+
+}
+
+func TestPostStorage_SearchEnglishPosts_SingleWord(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	// Create posts with various forms of "integration"
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Add Twitter Integration', 'add-twitter-integration', 1, 'Would be great to integrate with Twitter', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('GitHub Integration Needed', 'github-integration-needed', 2, 'Please add GitHub integration', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Integrate with Slack', 'integrate-with-slack', 3, 'Slack integration would be useful', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Email Notifications', 'email-notifications', 4, 'Add email notification support', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	// Search for "integration" - should match posts 1, 2, and 3 (with stemming, "integrate" = "integration")
+	searchIntegration := &query.SearchPosts{Query: "integration"}
+	err = bus.Dispatch(demoTenantCtx, searchIntegration)
+	Expect(err).IsNil()
+	Expect(searchIntegration.Result).HasLen(3)
+
+	// Verify the results contain the expected posts (should match all variations due to stemming)
+	slugs := map[string]bool{}
+	for _, post := range searchIntegration.Result {
+		slugs[post.Slug] = true
+	}
+	Expect(slugs["add-twitter-integration"]).IsTrue()
+	Expect(slugs["github-integration-needed"]).IsTrue()
+	Expect(slugs["integrate-with-slack"]).IsTrue()
+}
+
+func TestPostStorage_SearchEnglishPosts_MultiWord(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Dark Mode Support', 'dark-mode-support', 1, 'Add dark mode to the application', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Light Theme Customization', 'light-theme-customization', 2, 'Customize the light theme colors', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Dark Theme Colors', 'dark-theme-colors', 3, 'Change dark theme color scheme', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('User Profile', 'user-profile', 4, 'Improve user profile page', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	searchDarkTheme := &query.SearchPosts{Query: "dark theme"}
+	err = bus.Dispatch(demoTenantCtx, searchDarkTheme)
+	Expect(err).IsNil()
+
+	Expect(searchDarkTheme.Result).HasLen(3)
+}
+
+func TestPostStorage_SearchEnglishPosts_PartialMatch(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Authentication System', 'authentication-system', 1, 'Improve authentication', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Authorization Rules', 'authorization-rules', 2, 'Add better authorization', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('OAuth Support', 'oauth-support', 3, 'Support OAuth providers', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	// Search for "auth" - should match posts 1 and 2 (prefix matching)
+	searchAuth := &query.SearchPosts{Query: "auth"}
+	err = bus.Dispatch(demoTenantCtx, searchAuth)
+	Expect(err).IsNil()
+	Expect(searchAuth.Result).HasLen(2)
+
+	slugs := map[string]bool{}
+	for _, post := range searchAuth.Result {
+		slugs[post.Slug] = true
+	}
+	Expect(slugs["authentication-system"]).IsTrue()
+	Expect(slugs["authorization-rules"]).IsTrue()
+}
+
+func TestPostStorage_SearchEnglishPosts_CaseInsensitive(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('API Documentation', 'api-documentation', 1, 'Improve API docs', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Rest API Endpoints', 'rest-api-endpoints', 2, 'Add more REST API endpoints', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	// Search with different cases - all should return same results
+	searchLower := &query.SearchPosts{Query: "api"}
+	searchUpper := &query.SearchPosts{Query: "API"}
+	searchMixed := &query.SearchPosts{Query: "Api"}
+
+	err = bus.Dispatch(demoTenantCtx, searchLower, searchUpper, searchMixed)
+	Expect(err).IsNil()
+
+	Expect(searchLower.Result).HasLen(2)
+	Expect(searchUpper.Result).HasLen(2)
+	Expect(searchMixed.Result).HasLen(2)
+}
+
+func TestPostStorage_SearchEnglishPosts_DescriptionMatch(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	now := time.Now()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Feature Request', 'feature-request-1', 1, 'Add support for exporting data to CSV format', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Another Feature', 'feature-request-2', 2, 'Improve the dashboard layout', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Export Functionality', 'export-functionality', 3, 'Export reports in PDF format', $1, 1, 1, 0, true, 'english')", now)
+	Expect(err).IsNil()
+
+	// Search for "export" - should match posts 1 and 3 (one in description, one in title)
+	searchExport := &query.SearchPosts{Query: "export"}
+	err = bus.Dispatch(demoTenantCtx, searchExport)
+	Expect(err).IsNil()
+	Expect(searchExport.Result).HasLen(2)
+
+	slugs := map[string]bool{}
+	for _, post := range searchExport.Result {
+		slugs[post.Slug] = true
+	}
+	Expect(slugs["feature-request-1"]).IsTrue()
+	Expect(slugs["export-functionality"]).IsTrue()
 }
 
 func TestPostStorage_AddAndGet(t *testing.T) {
@@ -125,10 +305,10 @@ func TestPostStorage_AddAndReturnComments(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(commentsByPost.Result).HasLen(2)
 
-	Expect(commentsByPost.Result[0].Content).Equals("Comment #1")
-	Expect(commentsByPost.Result[0].User.Name).Equals("Jon Snow")
-	Expect(commentsByPost.Result[1].Content).Equals("Comment #2")
-	Expect(commentsByPost.Result[1].User.Name).Equals("Arya Stark")
+	Expect(commentsByPost.Result[0].Content).Equals("Comment #2")
+	Expect(commentsByPost.Result[0].User.Name).Equals("Arya Stark")
+	Expect(commentsByPost.Result[1].Content).Equals("Comment #1")
+	Expect(commentsByPost.Result[1].User.Name).Equals("Jon Snow")
 }
 
 func TestPostStorage_AddGetUpdateComment(t *testing.T) {
@@ -512,6 +692,239 @@ func TestPostStorage_WithTags(t *testing.T) {
 	Expect(getPost.Result.Tags[1]).Equals(addFeatureRequest.Result.Slug)
 }
 
+func TestGetPosts_Different_Statuses(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "New Post, hello there.", Description: "with this description 3"}
+	startedPost := &cmd.AddNewPost{Title: "Started Post, yes we're doing this", Description: "with this description"}
+	completedPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description 2"}
+	duplicatePost := &cmd.AddNewPost{Title: "New Post, hello there again", Description: "with this description 2"}
+	declinedPost := &cmd.AddNewPost{Title: "Nope, not this", Description: "with this description 2"}
+	plannedPost := &cmd.AddNewPost{Title: "Yes we're going to do this", Description: "with this description 2"}
+	err := bus.Dispatch(aryaStarkCtx, startedPost, completedPost, newPost, duplicatePost, declinedPost, plannedPost)
+	Expect(err).IsNil()
+
+	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
+	addFeatureRequest := &cmd.AddNewTag{Name: "Feature Request", Color: "00FF00", IsPublic: false}
+	voteForPostRequest := &cmd.AddVote{Post: newPost.Result, User: aryaStark}
+	bus.MustDispatch(aryaStarkCtx, addBug, addFeatureRequest, voteForPostRequest)
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: newPost.Result})
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: newPost.Result})
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: completedPost.Result})
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: completedPost.Result})
+
+	completedPostResponse := &cmd.SetPostResponse{Post: completedPost.Result, Text: "We're doing this", Status: enum.PostCompleted}
+	startedPostResponse := &cmd.SetPostResponse{Post: startedPost.Result, Text: "We're doing this", Status: enum.PostStarted}
+	declinedPostResponse := &cmd.SetPostResponse{Post: declinedPost.Result, Text: "We're not doing this", Status: enum.PostDeclined}
+	plannedPostResponse := &cmd.SetPostResponse{Post: plannedPost.Result, Text: "This is planned", Status: enum.PostPlanned}
+	duplicatePostResponse := &cmd.SetPostResponse{Post: duplicatePost.Result, Text: "This is a dupe", Status: enum.PostDeclined}
+
+	err = bus.Dispatch(aryaStarkCtx, startedPostResponse, completedPostResponse, duplicatePostResponse, declinedPostResponse, plannedPostResponse)
+	Expect(err).IsNil()
+
+	testCases := []struct {
+		name          string
+		searchParams  *query.SearchPosts
+		expectedCount int
+		expectedIDs   []int
+	}{
+		{
+			name:          "Default Search (Everything except declined, completed and duplicate)",
+			searchParams:  &query.SearchPosts{},
+			expectedCount: 3,
+			expectedIDs:   []int{startedPost.Result.ID, newPost.Result.ID, plannedPost.Result.ID},
+		},
+		{
+			name: "Started and Completed",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{enum.PostStarted, enum.PostCompleted},
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{startedPost.Result.ID, completedPost.Result.ID},
+		},
+		{
+			name: "Only Started",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{enum.PostStarted},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{startedPost.Result.ID},
+		},
+		{
+			name: "My votes only",
+			searchParams: &query.SearchPosts{
+				MyVotesOnly: true,
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{newPost.Result.ID},
+		},
+		{
+			name: "Legacy view for my votes only should still work",
+			searchParams: &query.SearchPosts{
+				View: "my-votes",
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{newPost.Result.ID},
+		},
+		{
+			name: "All statuses",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{
+					enum.PostStarted,
+					enum.PostCompleted,
+					enum.PostDeclined,
+					enum.PostDuplicate,
+					enum.PostPlanned,
+					enum.PostOpen,
+				},
+			},
+			expectedCount: 6,
+			expectedIDs:   []int{startedPost.Result.ID, completedPost.Result.ID, newPost.Result.ID, duplicatePost.Result.ID, declinedPost.Result.ID, plannedPost.Result.ID},
+		},
+		{
+			name: "Completed, with bug tag",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{enum.PostCompleted},
+				Tags:     []string{addBug.Result.Slug},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{completedPost.Result.ID},
+		},
+		{
+			name: "Open and Completed, with bug tag",
+			searchParams: &query.SearchPosts{
+				Statuses: []enum.PostStatus{enum.PostCompleted, enum.PostOpen},
+				Tags:     []string{addBug.Result.Slug},
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{completedPost.Result.ID, newPost.Result.ID},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err = bus.Dispatch(aryaStarkCtx, tc.searchParams)
+			Expect(err).IsNil()
+			Expect(tc.searchParams.Result).HasLen(tc.expectedCount)
+
+			foundIDs := make([]int, len(tc.searchParams.Result))
+			for i, post := range tc.searchParams.Result {
+				foundIDs[i] = post.ID
+			}
+			Expect(foundIDs).ContainsOnly(tc.expectedIDs)
+		})
+	}
+
+}
+
+func TestSearchPosts_RespectsFilters(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	openPost := &cmd.AddNewPost{Title: "kanban open ticket", Description: "first kanban post"}
+	startedPost := &cmd.AddNewPost{Title: "kanban started flow", Description: "second kanban post"}
+	completedPost := &cmd.AddNewPost{Title: "kanban completed item", Description: "third kanban post"}
+	openByJon := &cmd.AddNewPost{Title: "kanban open from jon", Description: "fourth kanban post"}
+	err := bus.Dispatch(aryaStarkCtx, openPost, completedPost)
+	Expect(err).IsNil()
+	err = bus.Dispatch(jonSnowCtx, startedPost, openByJon)
+	Expect(err).IsNil()
+
+	bus.MustDispatch(aryaStarkCtx,
+		&cmd.SetPostResponse{Post: startedPost.Result, Text: "Working on it", Status: enum.PostStarted},
+		&cmd.SetPostResponse{Post: completedPost.Result, Text: "Done", Status: enum.PostCompleted},
+	)
+
+	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
+	bus.MustDispatch(aryaStarkCtx, addBug)
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: startedPost.Result})
+
+	bus.MustDispatch(aryaStarkCtx, &cmd.AddVote{Post: openPost.Result, User: aryaStark})
+
+	testCases := []struct {
+		name          string
+		searchParams  *query.SearchPosts
+		expectedCount int
+		expectedIDs   []int
+	}{
+		{
+			name:          "Default search excludes Completed and Declined",
+			searchParams:  &query.SearchPosts{Query: "kanban"},
+			expectedCount: 3,
+			expectedIDs:   []int{openPost.Result.ID, startedPost.Result.ID, openByJon.Result.ID},
+		},
+		{
+			name: "Search with explicit Completed status",
+			searchParams: &query.SearchPosts{
+				Query:    "kanban",
+				Statuses: []enum.PostStatus{enum.PostCompleted},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{completedPost.Result.ID},
+		},
+		{
+			name: "Search with explicit Open status",
+			searchParams: &query.SearchPosts{
+				Query:    "kanban",
+				Statuses: []enum.PostStatus{enum.PostOpen},
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{openPost.Result.ID, openByJon.Result.ID},
+		},
+		{
+			name: "Search with tag filter",
+			searchParams: &query.SearchPosts{
+				Query: "kanban",
+				Tags:  []string{addBug.Result.Slug},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{startedPost.Result.ID},
+		},
+		{
+			name: "Search with MyVotesOnly",
+			searchParams: &query.SearchPosts{
+				Query:       "kanban",
+				MyVotesOnly: true,
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{openPost.Result.ID},
+		},
+		{
+			name: "Search with MyPostsOnly",
+			searchParams: &query.SearchPosts{
+				Query:       "kanban",
+				MyPostsOnly: true,
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{openPost.Result.ID},
+		},
+		{
+			name: "Search with NoTagsOnly",
+			searchParams: &query.SearchPosts{
+				Query:      "kanban",
+				NoTagsOnly: true,
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{openPost.Result.ID, openByJon.Result.ID},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err = bus.Dispatch(aryaStarkCtx, tc.searchParams)
+			Expect(err).IsNil()
+			Expect(tc.searchParams.Result).HasLen(tc.expectedCount)
+
+			foundIDs := make([]int, len(tc.searchParams.Result))
+			for i, post := range tc.searchParams.Result {
+				foundIDs[i] = post.ID
+			}
+			Expect(foundIDs).ContainsOnly(tc.expectedIDs)
+		})
+	}
+}
+
 func TestPostStorage_IsReferenced(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
@@ -577,7 +990,7 @@ func TestPostStorage_Attachments(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(getAttachments1.Result).HasLen(0)
 
-	bytes, err := ioutil.ReadFile(env.Path("favicon.png"))
+	bytes, err := os.ReadFile(env.Path("favicon.png"))
 	Expect(err).IsNil()
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
@@ -650,4 +1063,80 @@ func TestPostStorage_Attachments(t *testing.T) {
 	err = bus.Dispatch(jonSnowCtx, getAttachments1)
 	Expect(err).IsNil()
 	Expect(getAttachments1.Result).HasLen(0)
+}
+
+func TestToggleReaction_Add(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	newComment := &cmd.AddNewComment{Post: newPost.Result, Content: "This is my comment"}
+	err = bus.Dispatch(jonSnowCtx, newComment)
+	Expect(err).IsNil()
+
+	// Now add a reaction
+	reaction := &cmd.ToggleCommentReaction{Comment: newComment.Result, Emoji: "👍", User: jonSnow}
+	err = bus.Dispatch(jonSnowCtx, reaction)
+	Expect(err).IsNil()
+	Expect(reaction.Result).IsTrue()
+
+	// Get the comment, and check that the reaction was added
+	commentByID := &query.GetCommentsByPost{Post: &entity.Post{ID: newPost.Result.ID}}
+	err = bus.Dispatch(jonSnowCtx, commentByID)
+	Expect(err).IsNil()
+
+	Expect(commentByID.Result).IsNotNil()
+	Expect(commentByID.Result[0].ReactionCounts).IsNotNil()
+	Expect(len(commentByID.Result[0].ReactionCounts)).Equals(1)
+	Expect(commentByID.Result[0].ReactionCounts[0].Emoji).Equals("👍")
+	Expect(commentByID.Result[0].ReactionCounts[0].Count).Equals(1)
+	Expect(commentByID.Result[0].ReactionCounts[0].IncludesMe).IsTrue()
+
+	// Now remove the reaction
+	reaction = &cmd.ToggleCommentReaction{Comment: newComment.Result, Emoji: "👍", User: jonSnow}
+	err = bus.Dispatch(jonSnowCtx, reaction)
+	Expect(err).IsNil()
+	Expect(reaction.Result).IsFalse()
+
+	// Get the comment, and check that the reaction was removed
+	commentByID = &query.GetCommentsByPost{Post: &entity.Post{ID: newPost.Result.ID}}
+	err = bus.Dispatch(jonSnowCtx, commentByID)
+	Expect(err).IsNil()
+
+	Expect(commentByID.Result).IsNotNil()
+	Expect(commentByID.Result[0].ReactionCounts).IsNil()
+}
+
+func TestViewReactions_AnonymousUser(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	newComment := &cmd.AddNewComment{Post: newPost.Result, Content: "This is my comment"}
+	err = bus.Dispatch(jonSnowCtx, newComment)
+	Expect(err).IsNil()
+
+	// Now add a reaction
+	reaction := &cmd.ToggleCommentReaction{Comment: newComment.Result, Emoji: "👍", User: jonSnow}
+	err = bus.Dispatch(jonSnowCtx, reaction)
+	Expect(err).IsNil()
+	Expect(reaction.Result).IsTrue()
+
+	// Get the comment as an anonymous user, and check that the reaction was added
+	commentByID := &query.GetCommentsByPost{Post: &entity.Post{ID: newPost.Result.ID}}
+	err = bus.Dispatch(demoTenantCtx, commentByID)
+	Expect(err).IsNil()
+
+	Expect(commentByID.Result).IsNotNil()
+	Expect(commentByID.Result[0].ReactionCounts).IsNotNil()
+	Expect(len(commentByID.Result[0].ReactionCounts)).Equals(1)
+	Expect(commentByID.Result[0].ReactionCounts[0].Emoji).Equals("👍")
+	Expect(commentByID.Result[0].ReactionCounts[0].Count).Equals(1)
+	Expect(commentByID.Result[0].ReactionCounts[0].IncludesMe).IsFalse()
 }

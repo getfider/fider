@@ -72,6 +72,48 @@ func TestValidURL(t *testing.T) {
 	}
 }
 
+func TestWebhookURL_BlockedAddresses(t *testing.T) {
+	RegisterT(t)
+
+	for _, rawurl := range []string{
+		"http://localhost/hook",
+		"http://localhost:8080/hook",
+		"http://LOCALHOST/hook",
+		"http://127.0.0.1/hook",
+		"http://127.0.0.2/hook",
+		"http://[::1]/hook",
+		"http://10.0.0.1/hook",
+		"http://10.255.255.255/hook",
+		"http://172.16.0.1/hook",
+		"http://172.31.255.255/hook",
+		"http://192.168.1.1/hook",
+		"http://192.168.0.100:8080/hook",
+		"http://169.254.169.254/latest/meta-data/",
+		"http://169.254.1.1/hook",
+		"http://0.0.0.0/hook",
+		"ftp://example.com/hook",
+		"file:///etc/passwd",
+		"gopher://example.com",
+	} {
+		messages := validate.WebhookURL(rawurl)
+		Expect(len(messages) > 0).IsTrue()
+	}
+}
+
+func TestWebhookURL_AllowedAddresses(t *testing.T) {
+	RegisterT(t)
+
+	for _, rawurl := range []string{
+		"https://hooks.slack.com/services/T00/B00/xxx",
+		"https://discord.com/api/webhooks/123/abc",
+		"http://example.com/webhook",
+		"https://203.0.113.1/hook",
+	} {
+		messages := validate.WebhookURL(rawurl)
+		Expect(messages).HasLen(0)
+	}
+}
+
 func TestInvalidCNAME(t *testing.T) {
 	RegisterT(t)
 

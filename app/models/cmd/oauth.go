@@ -20,6 +20,8 @@ type SaveCustomOAuthConfig struct {
 	JSONUserIDPath    string
 	JSONUserNamePath  string
 	JSONUserEmailPath string
+	JSONUserRolesPath string
+	AllowedRoles      string
 }
 
 type ParseOAuthRawProfile struct {
@@ -27,4 +29,9 @@ type ParseOAuthRawProfile struct {
 	Body     string
 
 	Result *dto.OAuthUserProfile
+}
+
+type SetTenantProviderStatus struct {
+	Provider  string
+	IsEnabled bool
 }

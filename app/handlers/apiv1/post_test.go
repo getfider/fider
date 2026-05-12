@@ -17,6 +17,7 @@ import (
 	"github.com/getfider/fider/app/handlers/apiv1"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 )
 
@@ -61,6 +62,186 @@ func TestCreatePostHandler_WithoutTitle(t *testing.T) {
 		ExecutePost(apiv1.CreatePost(), `{ "title": "" }`)
 
 	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestCreatePostHandler_WithNonExistentTag(t *testing.T) {
+	if env.Config.PostCreationWithTagsEnabled {
+		RegisterT(t)
+
+		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+			return app.ErrNotFound
+		})
+		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+			return app.ErrNotFound
+		})
+
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.JonSnow).
+			ExecutePost(apiv1.CreatePost(), `{ "title": "My newest post :)", "tags": ["inexistent_tag"]}`)
+
+		Expect(code).Equals(http.StatusBadRequest)
+	}
+}
+
+func TestCreatePostHandler_WithPrivateTagAsVisitor(t *testing.T) {
+	if env.Config.PostCreationWithTagsEnabled {
+		RegisterT(t)
+
+		privateTag := &entity.Tag{
+			ID:       1,
+			Name:     "private_tag",
+			Slug:     "private_tag",
+			Color:    "blue",
+			IsPublic: false,
+		}
+		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+			if q.Slug == "private_tag" {
+				q.Result = privateTag
+				return nil
+			}
+			return app.ErrNotFound
+		})
+
+		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+			return app.ErrNotFound
+		})
+
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.AryaStark).
+			ExecutePost(apiv1.CreatePost(), `{ "title": "My newest post :)", "tags": ["private_tag"]}`)
+
+		Expect(code).Equals(http.StatusForbidden)
+	}
+}
+
+func TestCreatePostHandler_WithPublicTagAsVisitor(t *testing.T) {
+	if env.Config.PostCreationWithTagsEnabled {
+		RegisterT(t)
+
+		var newPost *cmd.AddNewPost
+		bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
+			newPost = c
+			c.Result = &entity.Post{
+				ID:          1,
+				Title:       c.Title,
+				Description: c.Description,
+			}
+			return nil
+		})
+
+		publicTag := &entity.Tag{
+			ID:       1,
+			Name:     "public_tag",
+			Slug:     "public_tag",
+			Color:    "red",
+			IsPublic: true,
+		}
+		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+			if q.Slug == "public_tag" {
+				q.Result = publicTag
+				return nil
+			}
+			return app.ErrNotFound
+		})
+
+		var tagAssignment *cmd.AssignTag
+		bus.AddHandler(func(ctx context.Context, c *cmd.AssignTag) error {
+			tagAssignment = c
+			return nil
+		})
+
+		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+			return app.ErrNotFound
+		})
+
+		bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+		bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
+		bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.AryaStark).
+			ExecutePost(apiv1.CreatePost(), `{ "title": "My newest post :)", "tags": ["public_tag"]}`)
+
+		Expect(code).Equals(http.StatusOK)
+		Expect(tagAssignment.Tag).Equals(publicTag)
+		Expect(tagAssignment.Post).Equals(newPost.Result)
+	}
+}
+
+func TestCreatePostHandler_WithPublicTagAndPrivateTagAsCollaborator(t *testing.T) {
+	if env.Config.PostCreationWithTagsEnabled {
+		RegisterT(t)
+
+		var newPost *cmd.AddNewPost
+		bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
+			newPost = c
+			c.Result = &entity.Post{
+				ID:          1,
+				Title:       c.Title,
+				Description: c.Description,
+			}
+			return nil
+		})
+
+		publicTag := &entity.Tag{
+			ID:       1,
+			Name:     "public_tag",
+			Slug:     "public_tag",
+			Color:    "red",
+			IsPublic: true,
+		}
+		privateTag := &entity.Tag{
+			ID:       1,
+			Name:     "private_tag",
+			Slug:     "private_tag",
+			Color:    "blue",
+			IsPublic: false,
+		}
+		bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+			if q.Slug == "public_tag" {
+				q.Result = publicTag
+				return nil
+			}
+			if q.Slug == "private_tag" {
+				q.Result = privateTag
+				return nil
+			}
+			return app.ErrNotFound
+		})
+
+		tagAssignments := make([]*cmd.AssignTag, 2)
+		bus.AddHandler(func(ctx context.Context, c *cmd.AssignTag) error {
+			switch c.Tag.Slug {
+			case "public_tag":
+				tagAssignments[0] = c
+			case "private_tag":
+				tagAssignments[1] = c
+			}
+			return nil
+		})
+
+		bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+			return app.ErrNotFound
+		})
+
+		bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+		bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
+		bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.JonSnow).
+			ExecutePost(apiv1.CreatePost(), `{ "title": "My newest post :)", "tags": ["public_tag", "private_tag"]}`)
+
+		Expect(code).Equals(http.StatusOK)
+		Expect(tagAssignments[0].Tag).Equals(publicTag)
+		Expect(tagAssignments[1].Tag).Equals(privateTag)
+		Expect(tagAssignments[0].Post).Equals(newPost.Result)
+		Expect(tagAssignments[1].Post).Equals(newPost.Result)
+	}
 }
 
 func TestGetPostHandler(t *testing.T) {
@@ -124,11 +305,11 @@ func TestUpdatePostHandler_NonAuthorized(t *testing.T) {
 	RegisterT(t)
 
 	post := &entity.Post{
-		ID: 5,
-		Number: 5,
-		Title: "My First Post",
+		ID:          5,
+		Number:      5,
+		Title:       "My First Post",
 		Description: "Such an amazing description",
-		User: mock.JonSnow,
+		User:        mock.JonSnow,
 	}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
@@ -151,12 +332,12 @@ func TestUpdatePostHandler_IsOwner_AfterGracePeriod(t *testing.T) {
 	RegisterT(t)
 
 	post := &entity.Post{
-		ID: 5,
-		Number: 5,
-		Title: "My First Post",
+		ID:          5,
+		Number:      5,
+		Title:       "My First Post",
 		Description: "Such an amazing description",
-		User: mock.AryaStark,
-		CreatedAt: time.Now().UTC().Add(-2 * time.Hour),
+		User:        mock.AryaStark,
+		CreatedAt:   time.Now().UTC().Add(-2 * time.Hour),
 	}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
@@ -175,17 +356,16 @@ func TestUpdatePostHandler_IsOwner_AfterGracePeriod(t *testing.T) {
 	Expect(code).Equals(http.StatusForbidden)
 }
 
-
 func TestUpdatePostHandler_IsOwner_WithinGracePeriod(t *testing.T) {
 	RegisterT(t)
 
 	post := &entity.Post{
-		ID: 5,
-		Number: 5,
-		Title: "My First Post",
+		ID:          5,
+		Number:      5,
+		Title:       "My First Post",
 		Description: "Such an amazing description",
-		User: mock.AryaStark,
-		CreatedAt: time.Now().UTC(),
+		User:        mock.AryaStark,
+		CreatedAt:   time.Now().UTC(),
 	}
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		if q.Number == post.Number {
@@ -544,6 +724,36 @@ func TestPostCommentHandler(t *testing.T) {
 	Expect(newComment.Content).Equals("This is a comment!")
 }
 
+func TestPostCommentHandlerMentions(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = post
+		return nil
+	})
+
+	var newComment *cmd.AddNewComment
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewComment) error {
+		newComment = c
+		c.Result = &entity.Comment{ID: 1, Content: c.Content}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecutePost(apiv1.PostComment(), `{ "content": "Hello @[Jon Snow]!" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(newComment.Post).Equals(post)
+	Expect(newComment.Content).Equals("Hello @[Jon Snow]!")
+}
+
 func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	RegisterT(t)
 
@@ -576,6 +786,11 @@ func TestUpdateCommentHandler_Authorized(t *testing.T) {
 	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByID) error {
+		q.Result = post
 		return nil
 	})
 
@@ -653,4 +868,116 @@ func TestListCommentHandler(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	Expect(query.IsArray()).IsTrue()
 	Expect(query.ArrayLength()).Equals(2)
+}
+
+func TestCommentReactionToggleHandler(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		q.Result = comment
+		return nil
+	})
+
+	testCases := []struct {
+		name     string
+		user     *entity.User
+		reaction string
+	}{
+		{"JonSnow reacts with like", mock.JonSnow, "👍"},
+		{"AryaStark reacts with smile", mock.AryaStark, "👍"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var toggleReaction *cmd.ToggleCommentReaction
+			bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+				toggleReaction = c
+				return nil
+			})
+
+			code, _ := mock.NewServer().
+				OnTenant(mock.DemoTenant).
+				AsUser(tc.user).
+				AddParam("number", 1).
+				AddParam("id", comment.ID).
+				AddParam("reaction", tc.reaction).
+				ExecutePost(apiv1.ToggleReaction(), ``)
+
+			Expect(code).Equals(http.StatusOK)
+			Expect(toggleReaction.Emoji).Equals(tc.reaction)
+			Expect(toggleReaction.Comment).Equals(comment)
+			Expect(toggleReaction.User).Equals(tc.user)
+		})
+	}
+}
+
+func TestCommentReactionToggleHandler_InvalidEmoji(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		q.Result = comment
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", 1).
+		AddParam("id", comment.ID).
+		AddParam("reaction", "like").
+		ExecutePost(apiv1.ToggleReaction(), ``)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
+	RegisterT(t)
+
+	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		q.Result = comment
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AddParam("number", 1).
+		AddParam("id", comment.ID).
+		AddParam("reaction", "👍").
+		ExecutePost(apiv1.ToggleReaction(), ``)
+
+	Expect(code).Equals(http.StatusForbidden)
+}
+
+func TestCommentReactionToggleHandler_MismatchingTenantAndComment(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", 1).
+		AddParam("id", 1).
+		AddParam("reaction", "👍").
+		ExecutePost(apiv1.ToggleReaction(), ``)
+
+	Expect(code).Equals(http.StatusNotFound)
 }

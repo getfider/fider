@@ -1,4 +1,4 @@
-import { analytics, notify, truncate } from "@fider/services"
+import { analytics, notify, truncate, Fider } from "@fider/services"
 
 export interface ErrorItem {
   field?: string
@@ -28,6 +28,16 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
   if (response.status === 500) {
     notify.error("An unexpected error occurred while processing your request.")
   } else if (response.status === 401) {
+    // If the user was authenticated but received a 401 it means their session was
+    // invalidated (e.g. security stamp rotated after an OAuth allowed-roles change).
+    // Redirect to /signin so they re-authenticate and the role check runs again.
+    if (Fider.session.isAuthenticated) {
+      const redirect = encodeURIComponent(window.location.pathname + window.location.search)
+      window.location.href = `/signin?redirect=${redirect}`
+      // Return a never-resolving promise so no further code runs while navigating.
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      return new Promise<Result<T>>(() => {})
+    }
     notify.error("You need to be authenticated to perform this operation.")
   } else if (response.status === 403) {
     notify.error("You are not authorized to perform this operation.")

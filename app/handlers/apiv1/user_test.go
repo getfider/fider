@@ -20,11 +20,12 @@ import (
 func TestListUsersHandler(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetAllUsers) error {
+	bus.AddHandler(func(ctx context.Context, q *query.SearchUsers) error {
 		q.Result = []*entity.User{
 			{ID: 1, Name: "User 1"},
 			{ID: 2, Name: "User 2"},
 		}
+		q.TotalCount = 2
 		return nil
 	})
 
@@ -35,8 +36,9 @@ func TestListUsersHandler(t *testing.T) {
 		ExecuteAsJSON(apiv1.ListUsers())
 
 	Expect(status).Equals(http.StatusOK)
-	Expect(query.IsArray()).IsTrue()
-	Expect(query.ArrayLength()).Equals(2)
+	Expect(query.IsArray()).IsFalse() // Should be an object, not an array
+	Expect(query.Int32("totalCount")).Equals(2)
+	Expect(query.Contains("users")).IsTrue()
 }
 
 func TestCreateUser_ExistingEmail(t *testing.T) {

@@ -1,0 +1,11 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+.c-mention-selector {
+  position: absolute;
+  z-index: 1000;
+  width: 200px;
+  border-radius: get("border.radius.small");
+  background-color: var(--colors-white);
+  border: 1px solid var(--colors-gray-200);
+  padding: spacing(2);
+}

@@ -17,7 +17,6 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/robfig/cron"
 
-	_ "github.com/getfider/fider/app/services/billing/paddle"
 	_ "github.com/getfider/fider/app/services/blob/fs"
 	_ "github.com/getfider/fider/app/services/blob/s3"
 	_ "github.com/getfider/fider/app/services/blob/sql"
@@ -30,11 +29,12 @@ import (
 	_ "github.com/getfider/fider/app/services/log/sql"
 	_ "github.com/getfider/fider/app/services/oauth"
 	_ "github.com/getfider/fider/app/services/sqlstore/postgres"
+	_ "github.com/getfider/fider/app/services/userlist"
 	_ "github.com/getfider/fider/app/services/webhook"
 )
 
-//RunServer starts the Fider Server
-//Returns an exitcode, 0 for OK and 1 for ERROR
+// RunServer starts the Fider Server
+// Returns an exitcode, 0 for OK and 1 for ERROR
 func RunServer() int {
 	svcs := bus.Init()
 	ctx := log.WithProperty(context.Background(), log.PropertyKeyTag, "BOOTSTRAP")
@@ -49,7 +49,7 @@ func RunServer() int {
 	startJobs(ctx)
 
 	e := routes(web.New())
-	go e.Start(":" + env.Config.Port)
+	go e.Start(env.Config.Host + ":" + env.Config.Port)
 	return listenSignals(e)
 }
 
@@ -58,18 +58,6 @@ func startJobs(ctx context.Context) {
 	c := cron.New()
 	_ = c.AddJob(jobs.NewJob(ctx, "PurgeExpiredNotificationsJob", jobs.PurgeExpiredNotificationsJobHandler{}))
 	_ = c.AddJob(jobs.NewJob(ctx, "EmailSupressionJob", jobs.EmailSupressionJobHandler{}))
-
-	if env.IsBillingEnabled() {
-		_ = c.AddJob(jobs.NewJob(ctx, "LockExpiredTenantsJob", jobs.LockExpiredTenantsJobHandler{}))
-		_ = c.AddJob(jobs.NewJob(ctx, "TrialReminder7DaysJob", jobs.TrialReminderJobHandler{
-			Days:         7,
-			TemplateName: "trial_7days",
-		}))
-		_ = c.AddJob(jobs.NewJob(ctx, "TrialReminder1DayJob", jobs.TrialReminderJobHandler{
-			Days:         1,
-			TemplateName: "trial_1day",
-		}))
-	}
 
 	c.Start()
 }
