@@ -115,7 +115,7 @@ export const WebhookTemplateInfoModal = (props: WebhookTemplateInfoProps) => {
             <h3 className="text-title mb-1">What is a template?</h3>
             <p>
               The template engine used is the native Go <code>text/template</code> package. The simplest way to create a template is to write your text, and
-              insert the property name, prefixed by a dot, enclosed in double braces with spaces within (wierd? complete!). Example:
+              insert the property name, prefixed by a dot, enclosed in double braces with spaces within (weird? complete!). Example:
             </p>
             <pre className="text-left">{textExample}</pre>
             <p>
