@@ -4,7 +4,7 @@ import IconArrowLeft from "@fider/assets/images/heroicons-arrowleft.svg"
 
 import React, { useState, useCallback } from "react"
 import { Post, Tag } from "@fider/models"
-import { Header, ResponseLozenge, Button, Icon } from "@fider/components"
+import { Header, Button, Icon, ResponseLozenge } from "@fider/components"
 import { ListPosts } from "@fider/pages/Home/components/ListPosts"
 import { VStack, HStack } from "@fider/components/layout"
 import { useFider, usePostOverlay } from "@fider/hooks"
@@ -89,28 +89,56 @@ const RoadmapBoard = (props: RoadmapPageProps) => {
   )
 }
 
+const SkeletonCard = () => (
+  <div className="c-roadmap-upsell__card">
+    <div className="c-roadmap-upsell__bar c-roadmap-upsell__bar--lg" />
+    <div className="c-roadmap-upsell__bar c-roadmap-upsell__bar--sm" />
+    <div className="c-roadmap-upsell__bar c-roadmap-upsell__bar--md" />
+    <div className="c-roadmap-upsell__bar c-roadmap-upsell__bar--md" />
+  </div>
+)
+
+const SkeletonColumn = ({ status }: { status: string }) => (
+  <div className="c-roadmap-column">
+    <div className="c-roadmap-column__header">
+      <ResponseLozenge status={status} response={null} />
+    </div>
+    <div className="c-roadmap-column__body">
+      <SkeletonCard />
+      <SkeletonCard />
+    </div>
+  </div>
+)
+
 const RoadmapUpsell = () => {
   const fider = useFider()
   const isAdmin = fider.session.isAuthenticated && fider.session.user.isAdministrator
-  const showBillingLink = isAdmin && fider.settings.isBillingEnabled
+  const showBillingCta = isAdmin && fider.settings.isBillingEnabled
 
   return (
-    <div className="page container">
-      <div className="text-center py-8">
-        <h2 className="text-display mb-2">
-          <Trans id="roadmap.upsell.title">Roadmap</Trans>
-        </h2>
-        <p className="text-muted mb-4">
-          <Trans id="roadmap.upsell.description">
-            The roadmap view is a PRO feature that lets you visualize your planned, in-progress, and completed posts in a kanban-style board.
-          </Trans>
+    <div id="p-roadmap-upsell" className="page container">
+      <div className="c-roadmap-upsell__skeleton" aria-hidden="true">
+        <div className="c-roadmap-board">
+          <SkeletonColumn status="planned" />
+          <SkeletonColumn status="started" />
+          <SkeletonColumn status="completed" />
+        </div>
+      </div>
+      <VStack spacing={4} className="c-roadmap-upsell flex-items-center text-center">
+        <h1 className="c-roadmap-upsell__title text-display">
+          <Trans id="roadmap.upsell.title">See what&apos;s happening in the Roadmap view</Trans>
+        </h1>
+        <p className="c-roadmap-upsell__subtitle text-muted">
+          <Trans id="roadmap.upsell.description">Upgrade to Pro to unlock your Roadmap</Trans>
         </p>
-        {showBillingLink && (
-          <a href="/admin/billing" className="text-link">
-            <Trans id="roadmap.upsell.billing">Upgrade to PRO</Trans>
+        {showBillingCta && (
+          <a href="/admin/billing">
+            <Button variant="primary" size="large">
+              <Trans id="roadmap.upsell.billing">Upgrade to PRO</Trans>
+            </Button>
           </a>
         )}
-      </div>
+      </VStack>
     </div>
   )
 }
