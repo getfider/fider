@@ -138,7 +138,7 @@ func TestDeleteComment(t *testing.T) {
 func TestAddNewComment_TooLongContent(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.AddNewComment{Content: strings.Repeat("a", 4001)}
+	action := &actions.AddNewComment{Content: strings.Repeat("a", 2001)}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "content")
 }
@@ -146,7 +146,7 @@ func TestAddNewComment_TooLongContent(t *testing.T) {
 func TestAddNewComment_AtMaxLength(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.AddNewComment{Content: strings.Repeat("a", 4000)}
+	action := &actions.AddNewComment{Content: strings.Repeat("a", 2000)}
 	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 }
@@ -154,7 +154,7 @@ func TestAddNewComment_AtMaxLength(t *testing.T) {
 func TestEditComment_TooLongContent(t *testing.T) {
 	RegisterT(t)
 
-	action := &actions.EditComment{Content: strings.Repeat("a", 4001)}
+	action := &actions.EditComment{Content: strings.Repeat("a", 2001)}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "content")
 }

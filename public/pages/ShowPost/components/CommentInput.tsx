@@ -27,7 +27,7 @@ export const CommentInput = (props: CommentInputProps) => {
     return cache.session.get(getCacheKey(CACHE_TITLE_KEY))
   }
 
-  const COMMENT_MAX_LENGTH = 4000
+  const COMMENT_MAX_LENGTH = 2000
 
   const fider = useFider()
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)

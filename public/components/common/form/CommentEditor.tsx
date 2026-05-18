@@ -240,7 +240,7 @@ interface CommentEditorProps {
   maxLength?: number
 }
 
-const DEFAULT_MAX_LENGTH = 4000
+const DEFAULT_MAX_LENGTH = 2000
 
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const maxLength = props.maxLength ?? DEFAULT_MAX_LENGTH

@@ -227,7 +227,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                   placeholder={comment.content}
                   maxAttachments={2}
                   maxImageSizeKB={5 * 1024}
-                  maxLength={4000}
+                  maxLength={2000}
                   onGetImageSrc={getImageSrc}
                   onImageUploaded={handleImageUploaded}
                 />
