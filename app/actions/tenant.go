@@ -23,11 +23,11 @@ type CreateTenant struct {
 	Token           string `json:"token"`
 	Name            string `json:"name"`
 	Email           string `json:"email" format:"lower"`
-	VerificationKey string
-	TenantName      string `json:"tenantName"`
-	LegalAgreement  bool   `json:"legalAgreement"`
-	Subdomain       string `json:"subdomain" format:"lower"`
-	UserClaims      *jwt.OAuthClaims
+	VerificationKey string           `json:"-"`
+	TenantName      string           `json:"tenantName"`
+	LegalAgreement  bool             `json:"legalAgreement"`
+	Subdomain       string           `json:"subdomain" format:"lower"`
+	UserClaims      *jwt.OAuthClaims `json:"-"`
 }
 
 func NewCreateTenant() *CreateTenant {
@@ -119,7 +119,7 @@ func (action *CreateTenant) GetKind() enum.EmailVerificationKind {
 
 // ResendSignUpEmail is the input model used to resend signup verification email
 type ResendSignUpEmail struct {
-	VerificationKey string
+	VerificationKey string `json:"-"`
 }
 
 func NewResendSignUpEmail() *ResendSignUpEmail {

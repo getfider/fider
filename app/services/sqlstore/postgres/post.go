@@ -450,25 +450,30 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 			score := fmt.Sprintf("ts_rank_cd(q.search, %s) + ts_rank_cd(q.search, %s)", tsQueryExpr, tsQuerySimple)
 
-			whereParts := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
+			searchPredicate := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
+
+			condition, statuses, _ := getViewData(*q, 4)
+
+			if q.MyPostsOnly && user != nil {
+				condition += " AND user_id = " + strconv.Itoa(user.ID)
+			}
 
 			sql := fmt.Sprintf(`
 				SELECT * FROM (%s) AS q
-				WHERE %s
+				WHERE (%s) %s
 				ORDER BY %s DESC
 				LIMIT %s
-			`, innerQuery, whereParts, score, q.Limit)
-			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
-				enum.PostOpen,
-				enum.PostStarted,
-				enum.PostPlanned,
-				enum.PostCompleted,
-				enum.PostDeclined,
-			}), tsQuery)
-		} else {
-			condition, statuses, sort := getViewData(*q)
+			`, innerQuery, searchPredicate, condition, score, q.Limit)
 
-			if q.MyPostsOnly {
+			params := []interface{}{tenant.ID, pq.Array(statuses), tsQuery}
+			if len(q.Tags) > 0 && !q.NoTagsOnly {
+				params = append(params, pq.Array(q.Tags))
+			}
+			err = trx.Select(&posts, sql, params...)
+		} else {
+			condition, statuses, sort := getViewData(*q, 3)
+
+			if q.MyPostsOnly && user != nil {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
 			}
 
@@ -479,7 +484,7 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				LIMIT %s
 			`, innerQuery, condition, sort, q.Limit)
 			params := []interface{}{tenant.ID, pq.Array(statuses)}
-			if len(q.Tags) > 0 {
+			if len(q.Tags) > 0 && !q.NoTagsOnly {
 				params = append(params, pq.Array(q.Tags))
 			}
 			err = trx.Select(&posts, sql, params...)

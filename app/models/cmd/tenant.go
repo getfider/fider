@@ -64,5 +64,14 @@ type SetKeyAsVerified struct {
 	Key string
 }
 
+type IncrementVerificationAttempts struct {
+	Key string
+}
+
+type InvalidateVerificationsByEmail struct {
+	Email string
+	Kind  enum.EmailVerificationKind
+}
+
 type InvalidatePreviousSignUpKeys struct {
 }

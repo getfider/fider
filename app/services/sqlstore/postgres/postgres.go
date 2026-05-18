@@ -118,8 +118,11 @@ func (s Service) Init() {
 
 	bus.AddHandler(getVerificationByKey)
 	bus.AddHandler(getVerificationByEmailAndCode)
+	bus.AddHandler(getActiveVerificationByEmail)
 	bus.AddHandler(saveVerificationKey)
 	bus.AddHandler(setKeyAsVerified)
+	bus.AddHandler(incrementVerificationAttempts)
+	bus.AddHandler(invalidateVerificationsByEmail)
 	bus.AddHandler(getPendingSignUpVerification)
 	bus.AddHandler(invalidatePreviousSignUpKeys)
 

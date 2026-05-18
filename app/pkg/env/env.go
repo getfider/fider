@@ -60,6 +60,7 @@ type config struct {
 		SecretKey     string `env:"STRIPE_SECRET_KEY"`
 		WebhookSecret string `env:"STRIPE_WEBHOOK_SECRET"`
 		PriceID       string `env:"STRIPE_PRICE_ID"`
+		AnnualPriceID string `env:"STRIPE_ANNUAL_PRICE_ID"`
 	}
 	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
