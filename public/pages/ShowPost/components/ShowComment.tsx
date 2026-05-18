@@ -232,7 +232,7 @@ export const ShowComment = (props: ShowCommentProps) => {
                   onImageUploaded={handleImageUploaded}
                 />
                 <div className="mt-2">
-                  <Button size="small" onClick={saveEdit} variant="primary" disabled={newContent.length > 2000}>
+                  <Button size="small" onClick={saveEdit} variant="primary" disabled={newContent.length > 4000}>
                     <Trans id="action.save">Save</Trans>
                   </Button>
                   <Button variant="tertiary" size="small" onClick={cancelEdit}>

@@ -158,3 +158,11 @@ func TestEditComment_TooLongContent(t *testing.T) {
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "content")
 }
+
+func TestEditComment_AtMaxLength(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.EditComment{Content: strings.Repeat("a", 4000)}
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+}
