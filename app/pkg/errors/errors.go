@@ -30,7 +30,7 @@ func Wrap(err error, format string, a ...any) error {
 	return wrap(err, 0, format, a...)
 }
 
-// Panicked wraps panick errow with extra details of error
+// Panicked wraps panic error with extra details of error
 func Panicked(r any) error {
 	err, ok := r.(error)
 	if !ok {

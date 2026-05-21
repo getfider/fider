@@ -13,7 +13,7 @@ import (
 
 // Known base URLs
 // Should Mailgun add other regions we'll just need to add their URLs here
-// Use upper case keys - incoming env var values are normalized before being used
+// Use uppercase keys - incoming env var values are normalized before being used
 var baseURLs = map[string]string{
 	"US": "https://api.mailgun.net/v3/%s",
 	"EU": "https://api.eu.mailgun.net/v3/%s",
@@ -39,7 +39,7 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	bus.AddListener(sendMail)
-	bus.AddHandler(fetchRecentSupressions)
+	bus.AddHandler(fetchRecentSuppressions)
 }
 
 // Try getting the URL of the Mailgun API using Environment vars and the Sender's domain

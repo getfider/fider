@@ -70,7 +70,7 @@ import navigator from "./navigator"
     expected: "?tags=bug,feature&age=30",
   },
 ].forEach((x) => {
-  test(`stringfy('${x.object}') should be ${x.expected}`, () => {
+  test(`stringify('${x.object}') should be ${x.expected}`, () => {
     const result = qs.stringify(x.object)
     expect(result).toEqual(x.expected)
   })

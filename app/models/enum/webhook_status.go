@@ -8,7 +8,7 @@ const (
 	WebhookEnabled WebhookStatus = 1
 	// WebhookDisabled means the webhook cannot be triggered
 	WebhookDisabled WebhookStatus = 2
-	// WebhookFailed means an error occured when the webhook was previously triggered and has been disabled
+	// WebhookFailed means an error occurred when the webhook was previously triggered and has been disabled
 	WebhookFailed WebhookStatus = 3
 )
 

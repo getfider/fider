@@ -54,7 +54,7 @@ func SetSignUpAuthCookie(ctx *web.Context, user *entity.User) {
 	})
 }
 
-//GetSignUpAuthCookie returns the temporary temporary domain-wide Auth Token and removes it
+//GetSignUpAuthCookie returns the temporary domain-wide Auth Token and removes it
 func GetSignUpAuthCookie(ctx *web.Context) string {
 	cookie, err := ctx.Request.Cookie(web.CookieSignUpAuthName)
 	if err == nil {

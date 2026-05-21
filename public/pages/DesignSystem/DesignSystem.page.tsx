@@ -409,7 +409,7 @@ const DesignSystemPage = () => {
 
         <h2 className="text-display2 mb-3 mt-6">13. Hints</h2>
 
-        <Hint permanentCloseKey="ui-toolkip-example">Did you know that you can close this permanently?</Hint>
+        <Hint permanentCloseKey="ui-tooltip-example">Did you know that you can close this permanently?</Hint>
         <Hint>You can&apos;t close this one :)</Hint>
 
         <h2 className="text-display2 mb-3 mt-6">14. Form</h2>
@@ -418,7 +418,7 @@ const DesignSystemPage = () => {
           <Input label="Title" field="title">
             <p className="text-muted">This is the explanation for the field above.</p>
           </Input>
-          <Input label="Disabled!" field="unamed" disabled={true} value={"you can't change this!"} />
+          <Input label="Disabled!" field="unnamed" disabled={true} value={"you can't change this!"} />
           <Input label="Name" field="name" placeholder={"Your name goes here..."} />
           <Input label="Subdomain" field="subdomain" suffix=".fider.io" />
           <Input label="Email" field="email" suffix={<Button variant="primary">Sign in</Button>} />

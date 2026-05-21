@@ -2,7 +2,7 @@ import { http, Result, navigator, analytics } from "@fider/services"
 
 const ignoreErrors = [
   "http://gj.track.uc.cn/collect", // CSP error: UC Browser tries to use sendBeacon to this domain, which is blocked by our CSP rule
-  "null is not an object (evaluating 'c.sheet.insertRule')", // CSP error: UC Browser throws this error even when page is loaded sucessfully
+  "null is not an object (evaluating 'c.sheet.insertRule')", // CSP error: UC Browser throws this error even when page is loaded successfully
   "Refused to evaluate a string as JavaScript because 'unsafe-eval'", // CSP error: usually thrown because of bad Chrome Extensions
   "vid_mate_check is not defined", // CSP error: thrown by VidMate, an Android Browser
   "SecurityError: Failed to read the 'cssRules' property from 'CSSStyleSheet': Cannot access rules", // CSP error: usually thrown because of bad Chrome Extensions

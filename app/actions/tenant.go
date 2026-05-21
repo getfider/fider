@@ -20,9 +20,9 @@ import (
 
 // CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
-	Token           string `json:"token"`
-	Name            string `json:"name"`
-	Email           string `json:"email" format:"lower"`
+	Token           string           `json:"token"`
+	Name            string           `json:"name"`
+	Email           string           `json:"email" format:"lower"`
 	VerificationKey string           `json:"-"`
 	TenantName      string           `json:"tenantName"`
 	LegalAgreement  bool             `json:"legalAgreement"`
@@ -290,7 +290,7 @@ func (action *UpdateTenantPrivacySettings) IsAuthorized(ctx context.Context, use
 // Validate if current model is valid
 func (action *UpdateTenantPrivacySettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	if action.IsPrivate && action.IsFeedEnabled {
-		return validate.Failed("Feed can not be enabled when set to private.")
+		return validate.Failed("Feed cannot be enabled when set to private.")
 	}
 	return validate.Success()
 }

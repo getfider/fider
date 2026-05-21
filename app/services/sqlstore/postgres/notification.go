@@ -182,10 +182,10 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 			err   error
 		)
 
-		// When searching for email subscrivers, skip users with email supressed
-		supressionCondition := ""
+		// When searching for email subscribers, skip users with email supressed
+		suppressionCondition := ""
 		if q.Channel == enum.NotificationChannelEmail {
-			supressionCondition = "AND u.email_supressed_at IS NULL"
+			suppressionCondition = "AND u.email_supressed_at IS NULL"
 		}
 
 		// If the event doesn't require a subscription, notify everyone
@@ -204,7 +204,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 					(set.value IS NULL AND u.role = ANY($3))
 					OR CAST(set.value AS integer) & $4 > 0
 				)
-				ORDER by u.id`, supressionCondition),
+				ORDER by u.id`, suppressionCondition),
 				q.Event.UserSettingsKeyName,
 				tenant.ID,
 				pq.Array(q.Event.DefaultEnabledUserRoles),
@@ -232,7 +232,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 					(set.value IS NULL AND u.role = ANY($5))
 					OR CAST(set.value AS integer) & $6 > 0
 				)
-				ORDER by u.id`, supressionCondition),
+				ORDER by u.id`, suppressionCondition),
 				q.Number,
 				enum.SubscriberActive,
 				q.Event.UserSettingsKeyName,
@@ -273,14 +273,14 @@ func internalAddSubscriber(trx *dbx.Trx, post *entity.Post, tenant *entity.Tenan
 	return nil
 }
 
-func supressEmail(ctx context.Context, c *cmd.SupressEmail) error {
+func suppressEmail(ctx context.Context, c *cmd.SuppressEmail) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		cmd := "UPDATE users SET email_supressed_at = $1 WHERE email = ANY($2) AND email_supressed_at IS NULL"
 		rowsCount, err := trx.Execute(cmd, time.Now(), pq.Array(c.EmailAddresses))
 		if err != nil {
-			return errors.Wrap(err, "failed to update supress email: %s", strings.Join(c.EmailAddresses, ","))
+			return errors.Wrap(err, "failed to update suppress email: %s", strings.Join(c.EmailAddresses, ","))
 		}
-		c.NumOfSupressedEmailAddresses = int(rowsCount)
+		c.NumOfSuppressedEmailAddresses = int(rowsCount)
 		return nil
 	})
 }

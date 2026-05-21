@@ -26,8 +26,8 @@ type EventsResponse struct {
 	} `json:"paging"`
 }
 
-func fetchRecentSupressions(ctx context.Context, q *query.FetchRecentSupressions) error {
-	supressedAddresses := make(map[string]bool)
+func fetchRecentSuppressions(ctx context.Context, q *query.FetchRecentSuppressions) error {
+	suppressedAddresses := make(map[string]bool)
 
 	params := url.Values{}
 	params.Set("event", "failed")
@@ -43,13 +43,13 @@ func fetchRecentSupressions(ctx context.Context, q *query.FetchRecentSupressions
 		}
 
 		for _, item := range res.Items {
-			supressedAddresses[strings.TrimSpace(item.Recipient)] = true
+			suppressedAddresses[strings.TrimSpace(item.Recipient)] = true
 		}
 
 		// No more emails to fetch
 		if len(res.Items) == 0 {
 			q.EmailAddresses = make([]string, 0)
-			for email := range supressedAddresses {
+			for email := range suppressedAddresses {
 				q.EmailAddresses = append(q.EmailAddresses, email)
 			}
 			return nil

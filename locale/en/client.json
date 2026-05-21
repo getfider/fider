@@ -224,7 +224,7 @@
   "signin.code.sent": "A new code has been sent to your email.",
   "signin.email.placeholder": "Email address",
   "signin.message.email": "Continue with Email",
-  "signin.message.emaildisabled": "Email authentication has been disabled by an administrator. If you have an administrator account and need to bypass this restriction, please <0>click here</0>.",
+  "signin.message.emaildisabled": "Email authentication has been disabled by an administrator. If you have an administrator account and need to, you can <0>bypass this restriction</0>.",
   "signin.message.emailsent": "We have just sent a confirmation link to <0>{email}</0>. Click the link and you’ll be signed in.",
   "signin.message.locked.text": "To reactivate this site, sign in with an administrator account and update the required settings.",
   "signin.message.locked.title": "<0>{0}</0> is currently locked.",

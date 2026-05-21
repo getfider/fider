@@ -49,7 +49,7 @@ func (q *Query) String(selector string) string {
 	return ""
 }
 
-//Int32 returns a integer value from the json object based on its selector
+//Int32 returns an integer value from the json object based on its selector
 func (q *Query) Int32(selector string) int {
 	data := q.get(selector)
 	if data != nil {

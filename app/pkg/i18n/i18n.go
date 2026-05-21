@@ -69,7 +69,7 @@ func getLocaleData(locale string) localeData {
 }
 
 // getMessage returns the translated message for a given locale
-// If given key is not found, it'll fallback to english
+// If given key is not found, it'll fall back to English
 func getMessage(locale, key string) (string, *messageformat.Parser) {
 	localeData := getLocaleData(locale)
 	if str, ok := localeData.file[key]; ok && str != "" {
@@ -100,16 +100,15 @@ func GetLocale(ctx context.Context) string {
 }
 
 func GetLocaleDirection(ctx context.Context) string {
-    locale := GetLocale(ctx)
+	locale := GetLocale(ctx)
 
-    localeInfo, found := enum.GetLocaleByCode(locale)
-    if found && localeInfo.IsRTL {
-        return "rtl"
-    }
+	localeInfo, found := enum.GetLocaleByCode(locale)
+	if found && localeInfo.IsRTL {
+		return "rtl"
+	}
 
-    return "ltr"
+	return "ltr"
 }
-
 
 // T translates a given key to current locale
 // Params is used to replace variables and pluralize

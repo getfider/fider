@@ -52,7 +52,7 @@ func (s Service) Init() {
 
 	sesClient = ses.New(awsSession)
 	bus.AddListener(sendMail)
-	bus.AddHandler(fetchRecentSupressions)
+	bus.AddHandler(fetchRecentSuppressions)
 }
 
 func sendMail(ctx context.Context, c *cmd.SendMail) {
@@ -128,13 +128,13 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 	}
 }
 
-func fetchRecentSupressions(ctx context.Context, q *query.FetchRecentSupressions) error {
+func fetchRecentSuppressions(ctx context.Context, q *query.FetchRecentSuppressions) error {
 	response, err := sesClient.ListSuppressedDestinationsWithContext(ctx, &ses.ListSuppressedDestinationsInput{
 		StartDate: aws.Time(q.StartTime),
 		PageSize:  aws.Int64(1000),
 	})
 	if err != nil {
-		return errors.Wrap(err, "failed to list supressed destinations")
+		return errors.Wrap(err, "failed to list suppressed destinations")
 	}
 
 	q.EmailAddresses = make([]string, 0)

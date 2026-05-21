@@ -55,7 +55,7 @@ func LetterAvatar() web.HandlerFunc {
 	}
 }
 
-// Gravatar returns a gravatar picture of fallsback to letter avatar based on name
+// Gravatar returns a gravatar picture or falls back to letter avatar based on name
 func Gravatar() web.HandlerFunc {
 	return func(c *web.Context) error {
 		id, err := c.ParamAsInt("id")

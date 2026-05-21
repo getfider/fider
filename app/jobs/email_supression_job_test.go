@@ -11,29 +11,29 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 )
 
-func TestEmailSupressionJob_Schedule_IsCorrect(t *testing.T) {
+func TestEmailSuppressionJob_Schedule_IsCorrect(t *testing.T) {
 	RegisterT(t)
 
-	job := &jobs.EmailSupressionJobHandler{}
+	job := &jobs.EmailSuppressionJobHandler{}
 	Expect(job.Schedule()).Equals("0 5 * * * *")
 }
 
-func TestEmailSupressionJob_ShouldSupressRecentFailures(t *testing.T) {
+func TestEmailSuppressionJob_ShouldSuppressRecentFailures(t *testing.T) {
 	RegisterT(t)
 
-	bus.AddHandler(func(ctx context.Context, q *query.FetchRecentSupressions) error {
+	bus.AddHandler(func(ctx context.Context, q *query.FetchRecentSuppressions) error {
 		q.EmailAddresses = []string{
 			"test1@gmail.com", "test2@gmail.com",
 		}
 		return nil
 	})
 
-	bus.AddHandler(func(ctx context.Context, c *cmd.SupressEmail) error {
+	bus.AddHandler(func(ctx context.Context, c *cmd.SuppressEmail) error {
 		Expect(c.EmailAddresses).Equals([]string{"test1@gmail.com", "test2@gmail.com"})
 		return nil
 	})
 
-	job := &jobs.EmailSupressionJobHandler{}
+	job := &jobs.EmailSuppressionJobHandler{}
 	err := job.Run(jobs.Context{
 		Context: context.Background(),
 	})

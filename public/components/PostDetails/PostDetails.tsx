@@ -66,7 +66,7 @@ const PostMetaInfo = ({ post, locale }: { post: Post; locale: string }) => (
 )
 
 export const PostDetails: React.FC<PostDetailsProps> = (props) => {
-  // If we have initial data, use it; otherwise we'll fetch
+  // If we have initial data, use it; otherwise, we'll fetch
   const [post, setPost] = useState<Post | null>(props.initialPost || null)
   const [subscribed, setSubscribed] = useState(props.initialSubscribed || false)
   const [comments, setComments] = useState<Comment[]>(props.initialComments || [])
