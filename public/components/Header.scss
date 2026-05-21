@@ -1,11 +1,47 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
 #c-header {
+  .c-header__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .c-header__brand {
+    flex-basis: 100%;
+
+    @include media("md") {
+      flex-basis: auto;
+    }
+  }
+
+  .c-header__nav {
+    @include media("md") {
+      margin-left: 0.5rem;
+    }
+  }
+
+  .c-header__actions {
+    margin-left: auto;
+  }
+
   .c-header__moderation {
     order: 99;
     flex-basis: 100%;
 
-    @media (min-width: 1024px) {
+    @include media("xl") {
       order: 0;
       flex: 0 1 auto;
+      flex-basis: auto;
+      margin-left: auto;
+    }
+  }
+
+  @include media("xl") {
+    .c-header__actions {
+      margin-left: 0;
     }
   }
 
