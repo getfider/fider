@@ -3,6 +3,7 @@ package email
 import (
 	"bytes"
 	"context"
+	"html"
 	"mime"
 	"strings"
 	"unicode"
@@ -53,8 +54,15 @@ func RenderMessage(ctx context.Context, templateName string, fromAddress string,
 	lines := strings.Split(bf.String(), "\n")
 	body := strings.TrimLeft(strings.Join(lines[2:], "\n"), " ")
 
+	// The subject is rendered through html/template (because it shares the
+	// template set with the HTML body), which escapes characters like '+',
+	// '"', '&', '<', '>' to numeric entities (e.g. "&#43;"). SMTP headers
+	// are plain text and clients do not decode HTML entities in them, so
+	// undo the escaping for the subject only.
+	subject := html.UnescapeString(strings.TrimLeft(lines[0], "subject: "))
+
 	return &Message{
-		Subject: strings.TrimLeft(lines[0], "subject: "),
+		Subject: subject,
 		Body:    body,
 	}
 }

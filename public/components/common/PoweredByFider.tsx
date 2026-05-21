@@ -13,8 +13,8 @@ export const PoweredByFider = (props: PoweredByFiderProps) => {
   const source = encodeURIComponent(window?.location?.host || "")
   const medium = "powered-by"
   const campaign = props.slot
-  const version = fider.settings?.version
-  const versionString = fider.isSingleHostMode() && version && version !== "dev" ? `v${version}` : ""
+  const version = fider.settings?.version?.split("-")[0]
+  const versionString = fider.isSingleHostMode() && version && version !== "dev" ? `${version}` : ""
 
   const className = classSet({
     "c-powered": true,

@@ -36,6 +36,14 @@ type GetVerificationByEmailAndCode struct {
 	Result *entity.EmailVerification
 }
 
+type GetActiveVerificationByEmail struct {
+	Email string
+	Kind  enum.EmailVerificationKind
+
+	// Output
+	Result *entity.EmailVerification
+}
+
 type GetFirstTenant struct {
 
 	// Output

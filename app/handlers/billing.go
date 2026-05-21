@@ -66,41 +66,53 @@ func CreateStripePortalSession() web.HandlerFunc {
 	}
 }
 
-// CreateStripeCheckoutSession creates a Stripe checkout session for new subscriptions
-func CreateStripeCheckoutSession() web.HandlerFunc {
-	return func(c *web.Context) error {
-		stripe.Key = env.Config.Stripe.SecretKey
+// createCheckoutSession creates a Stripe checkout session for the given price ID
+func createCheckoutSession(c *web.Context, priceID string) error {
+	stripe.Key = env.Config.Stripe.SecretKey
 
-		returnURL := c.BaseURL() + "/admin/billing"
-		tenantID := c.Tenant().ID
+	returnURL := c.BaseURL() + "/admin/billing"
+	tenantID := c.Tenant().ID
 
-		params := &stripe.CheckoutSessionParams{
-			Mode: stripe.String(string(stripe.CheckoutSessionModeSubscription)),
-			LineItems: []*stripe.CheckoutSessionLineItemParams{
-				{
-					Price:    stripe.String(env.Config.Stripe.PriceID),
-					Quantity: stripe.Int64(1),
-				},
+	params := &stripe.CheckoutSessionParams{
+		Mode: stripe.String(string(stripe.CheckoutSessionModeSubscription)),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				Price:    stripe.String(priceID),
+				Quantity: stripe.Int64(1),
 			},
-			SuccessURL: stripe.String(returnURL + "?checkout=success"),
-			CancelURL:  stripe.String(returnURL + "?checkout=cancelled"),
+		},
+		SuccessURL: stripe.String(returnURL + "?checkout=success"),
+		CancelURL:  stripe.String(returnURL + "?checkout=cancelled"),
+		Metadata: map[string]string{
+			"tenant_id": fmt.Sprintf("%d", tenantID),
+		},
+		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
 			Metadata: map[string]string{
 				"tenant_id": fmt.Sprintf("%d", tenantID),
 			},
-			SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
-				Metadata: map[string]string{
-					"tenant_id": fmt.Sprintf("%d", tenantID),
-				},
-			},
-		}
+		},
+	}
 
-		s, err := checkoutsession.New(params)
-		if err != nil {
-			return c.Failure(err)
-		}
+	s, err := checkoutsession.New(params)
+	if err != nil {
+		return c.Failure(err)
+	}
 
-		return c.Ok(web.Map{
-			"url": s.URL,
-		})
+	return c.Ok(web.Map{
+		"url": s.URL,
+	})
+}
+
+// CreateStripeCheckoutSession creates a Stripe checkout session for new subscriptions
+func CreateStripeCheckoutSession() web.HandlerFunc {
+	return func(c *web.Context) error {
+		return createCheckoutSession(c, env.Config.Stripe.PriceID)
+	}
+}
+
+// CreateStripeAnnualCheckoutSession creates a Stripe checkout session for annual subscriptions
+func CreateStripeAnnualCheckoutSession() web.HandlerFunc {
+	return func(c *web.Context) error {
+		return createCheckoutSession(c, env.Config.Stripe.AnnualPriceID)
 	}
 }

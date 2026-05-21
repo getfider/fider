@@ -15,8 +15,8 @@ import (
 // SignInByEmail happens when user request to sign in by email
 type SignInByEmail struct {
 	Email            string `json:"email" format:"lower"`
-	VerificationCode string
-	LinkKey          string
+	VerificationCode string `json:"-"`
+	LinkKey          string `json:"-"`
 }
 
 func NewSignInByEmail() *SignInByEmail {
@@ -119,8 +119,8 @@ func (action *VerifySignInCode) Validate(ctx context.Context, user *entity.User)
 type SignInByEmailWithName struct {
 	Email            string `json:"email" format:"lower"`
 	Name             string `json:"name"`
-	VerificationCode string
-	LinkKey          string
+	VerificationCode string `json:"-"`
+	LinkKey          string `json:"-"`
 }
 
 func NewSignInByEmailWithName() *SignInByEmailWithName {

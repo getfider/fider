@@ -1,0 +1,1 @@
+ALTER TABLE email_verifications ADD COLUMN attempts SMALLINT NOT NULL DEFAULT 0;

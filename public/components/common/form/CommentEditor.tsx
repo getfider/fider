@@ -237,14 +237,19 @@ interface CommentEditorProps {
   onGetImageSrc?: (bkey: string) => string
   maxAttachments?: number
   maxImageSizeKB?: number
+  maxLength?: number
 }
 
+const DEFAULT_MAX_LENGTH = 4000
+
 const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
+  const maxLength = props.maxLength ?? DEFAULT_MAX_LENGTH
   const [isRawMarkdownMode, setIsRawMarkdownMode] = useState(false)
   const [imageUploads, setImageUploads] = useState<ImageUpload[]>([])
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
   const [selectedText, setSelectedText] = useState("")
   const [markdownText, setMarkdownText] = useState(props.initialValue ?? "")
+  const [contentLength, setContentLength] = useState((props.initialValue ?? "").length)
   const allowedProtocols = useAllowedProtocols()
 
   // Use a ref instead of state for tracking document images
@@ -325,6 +330,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     // Get the current markdown content
     const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
+
+    setContentLength(markdown.length)
 
     // Pass markdown to parent (plain text will be generated in ShareFeedback if needed)
     props.onChange && props.onChange(markdown)
@@ -604,6 +611,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value
     setMarkdownText(newValue)
+    setContentLength(newValue.length)
 
     // Notify parent component
     if (props.onChange) {
@@ -639,6 +647,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
                 onChange={handleTextareaChange}
                 onFocus={props.onFocus}
                 disabled={props.disabled}
+                maxLength={maxLength}
                 placeholder={props.placeholder ?? "Write your comment here..."}
                 data-testid="markdown-textarea"
               />
@@ -646,6 +655,17 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
               <EditorContent editor={editor} data-testid="tiptap-editor" />
             )}
           </div>
+          {contentLength >= maxLength * 0.8 && (
+            <div
+              className={classSet({
+                "c-comment-editor-counter": true,
+                "c-comment-editor-counter--over": contentLength > maxLength,
+              })}
+              data-testid="comment-editor-counter"
+            >
+              {contentLength} / {maxLength}
+            </div>
+          )}
           <DisplayError fields={[props.field]} error={ctx.error} />
           <LinkInsertModal isOpen={isLinkModalOpen} onClose={() => setIsLinkModalOpen(false)} onInsertLink={handleInsertLink} selectedText={selectedText} />
         </div>
