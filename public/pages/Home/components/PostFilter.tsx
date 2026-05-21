@@ -114,7 +114,7 @@ export const PostFilter = (props: PostFilterProps) => {
   // Add Pending status for collaborators and admins
   if (fider.session.isAuthenticated && fider.session.user.isCollaborator) {
     options.push({
-      label: "Pending",
+      label: i18n._({ id: "home.postfilter.option.pending", message: "Pending" }),
       value: "pending",
       type: "status",
     })
