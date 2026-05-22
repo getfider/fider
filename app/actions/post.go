@@ -348,8 +348,8 @@ func (action *EditComment) Validate(ctx context.Context, user *entity.User) *val
 
 	if action.Content == "" {
 		result.AddFieldFailure("content", propertyIsRequired(ctx, "comment"))
-	} else if len(action.Content) > 2000 {
-		result.AddFieldFailure("content", propertyMaxStringLen(ctx, "comment", 2000))
+	} else if len(action.Content) > 4000 {
+		result.AddFieldFailure("content", propertyMaxStringLen(ctx, "comment", 4000))
 	}
 
 	if len(action.Attachments) > 0 {
