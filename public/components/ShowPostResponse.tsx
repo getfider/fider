@@ -100,10 +100,23 @@ const getStatusTranslation = (status: PostStatus): JSX.Element => {
   }
 }
 
+// Extracts the first non-empty line of the response markdown — that's where
+// the Plane webhook writes the substage label (e.g. "In Beta Testing").
+const extractSubstage = (text?: string): string | null => {
+  if (!text) return null
+  const firstLine = text.split("\n").map((l) => l.trim()).find((l) => l.length > 0)
+  if (!firstLine) return null
+  // Strip simple markdown bold/italic markers so the bubble reads cleanly.
+  const cleaned = firstLine.replace(/[*_`]/g, "").trim()
+  return cleaned.length > 60 ? cleaned.slice(0, 57) + "..." : cleaned
+}
+
 export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null => {
   const status = PostStatus.Get(props.status)
   const { icon, bg, color, border } = getLozengeProps(status)
   const translatedStatus = getStatusTranslation(status)
+  const substage =
+    props.size === "small" || props.size === "xsmall" || !props.size ? extractSubstage(props.response?.text || undefined) : null
 
   if (props.size == "micro") {
     return <span className={`${color} text-sm`}>{translatedStatus}</span>
@@ -114,7 +127,10 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
       <div>
         <HStack align="center" className={`${color} ${bg} rounded-full p-0 px-3`}>
           <Icon sprite={icon} className={`h-4 c-status-col--${status.value}`} />
-          <span className={`c-status-col--${status.value} text-xs uppercase`}>{translatedStatus}</span>
+          <span className={`c-status-col--${status.value} text-xs uppercase`}>
+            {translatedStatus}
+            {substage && <span className="c-status-substage"> · {substage}</span>}
+          </span>
         </HStack>
       </div>
     )
@@ -124,7 +140,10 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
     <div>
       <HStack align="start" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
         {!props.size && <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />}
-        <span className={`c-status-col--${status.value} ${props.size === "small" ? "text-sm" : "text-semibold"}`}>{translatedStatus}</span>
+        <span className={`c-status-col--${status.value} ${props.size === "small" ? "text-sm" : "text-semibold"}`}>
+          {translatedStatus}
+          {substage && <span className="c-status-substage"> · {substage}</span>}
+        </span>
       </HStack>
     </div>
   )
