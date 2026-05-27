@@ -117,11 +117,12 @@ type config struct {
 			Region string `env:"EMAIL_MAILGUN_REGION,default=US"` // possible values: US or EU
 		}
 		SMTP struct {
-			Host           string `env:"EMAIL_SMTP_HOST"`
-			Port           string `env:"EMAIL_SMTP_PORT"`
-			Username       string `env:"EMAIL_SMTP_USERNAME"`
-			Password       string `env:"EMAIL_SMTP_PASSWORD"`
-			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			Host              string `env:"EMAIL_SMTP_HOST"`
+			Port              string `env:"EMAIL_SMTP_PORT"`
+			Username          string `env:"EMAIL_SMTP_USERNAME"`
+			Password          string `env:"EMAIL_SMTP_PASSWORD"`
+			EnableStartTLS    bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			EnableImplicitTLS bool   `env:"EMAIL_SMTP_ENABLE_IMPLICIT_TLS,default=false"`
 		}
 	}
 	BlobStorage struct {
