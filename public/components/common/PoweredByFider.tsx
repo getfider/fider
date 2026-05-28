@@ -13,7 +13,9 @@ export const PoweredByFider = (props: PoweredByFiderProps) => {
   const source = encodeURIComponent(window?.location?.host || "")
   const medium = "powered-by"
   const campaign = props.slot
-  const version = fider.settings?.version?.split("-")[0]
+  // Strip only the trailing commit-hash segment (8+ hex chars) so pre-release
+  // markers like "-hcm.N" stay visible in the footer.
+  const version = fider.settings?.version?.replace(/-[0-9a-f]{7,}$/, "")
   const versionString = fider.isSingleHostMode() && version && version !== "dev" ? `${version}` : ""
 
   const className = classSet({
