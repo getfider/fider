@@ -53,6 +53,38 @@ func TestCreatePostHandler(t *testing.T) {
 	Expect(newPost.Description).Equals("")
 }
 
+func TestCreatePostHandler_AppendsUnreferencedAttachments(t *testing.T) {
+	RegisterT(t)
+
+	var newPost *cmd.AddNewPost
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
+		newPost = c
+		c.Result = &entity.Post{ID: 1, Title: c.Title, Description: c.Description}
+		return nil
+	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(apiv1.CreatePost(), `{
+			"title": "Post with attachments",
+			"description": "Already referenced: ![](fider-image:attachments/referenced.png)",
+			"attachments": [
+				{ "bkey": "attachments/referenced.png" },
+				{ "bkey": "attachments/standalone.png" }
+			]
+		}`)
+
+	Expect(code).Equals(http.StatusOK)
+	// The already-referenced attachment is left as-is (not duplicated), and the
+	// unreferenced one is appended at the end as a fider-image markdown reference.
+	Expect(newPost.Description).Equals("Already referenced: ![](fider-image:attachments/referenced.png)\n\n![](fider-image:attachments/standalone.png)")
+}
+
 func TestCreatePostHandler_WithoutTitle(t *testing.T) {
 	RegisterT(t)
 
