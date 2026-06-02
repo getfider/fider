@@ -130,8 +130,8 @@ func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) er
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := "SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
-		err := trx.Get(&verification, query, q.Key, q.Kind)
+		query := "SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts FROM email_verifications WHERE key = $1 AND kind = $2 AND tenant_id = $3 LIMIT 1"
+		err := trx.Get(&verification, query, q.Key, q.Kind, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get email verification by its key")
 		}
