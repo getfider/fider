@@ -87,6 +87,15 @@ func deleteComment(ctx context.Context, c *cmd.DeleteComment) error {
 		); err != nil {
 			return errors.Wrap(err, "failed delete comment")
 		}
+
+		// Delete attachments associated with this comment
+		if _, err := trx.Execute(
+			"DELETE FROM attachments WHERE comment_id = $1 AND tenant_id = $2",
+			c.CommentID, tenant.ID,
+		); err != nil {
+			return errors.Wrap(err, "failed to delete comment attachments")
+		}
+
 		return nil
 	})
 }

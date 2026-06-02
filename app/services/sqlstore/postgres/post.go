@@ -157,6 +157,36 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 			return errors.Wrap(err, "failed to update post's response")
 		}
 
+		// When a post is deleted, purge associated data
+		if c.Status == enum.PostDeleted {
+			// Soft-delete all comments on this post
+			_, err = trx.Execute(`
+				UPDATE comments SET deleted_at = $1, deleted_by_id = $2
+				WHERE post_id = $3 AND tenant_id = $4 AND deleted_at IS NULL
+			`, respondedAt, user.ID, c.Post.ID, tenant.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed to soft-delete comments for deleted post")
+			}
+
+			// Delete all attachments related to this post (both post-level and comment-level)
+			_, err = trx.Execute(`
+				DELETE FROM attachments
+				WHERE post_id = $1 AND tenant_id = $2
+			`, c.Post.ID, tenant.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed to delete attachments for deleted post")
+			}
+
+			// Delete all votes for this post
+			_, err = trx.Execute(`
+				DELETE FROM post_votes
+				WHERE post_id = $1 AND tenant_id = $2
+			`, c.Post.ID, tenant.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed to delete votes for deleted post")
+			}
+		}
+
 		c.Post.Status = c.Status
 		c.Post.Response = &entity.PostResponse{
 			Text:        c.Text,
