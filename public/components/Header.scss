@@ -7,17 +7,32 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
+
+    // Once everything fits on a single row, stop wrapping so the action
+    // icons can never spill onto a second line.
+    @include media("xl") {
+      flex-wrap: nowrap;
+    }
   }
 
   .c-header__brand {
     flex-basis: 100%;
+    min-width: 0; // allow a long tenant name to truncate instead of pushing items off the row
 
     @include media("md") {
       flex-basis: auto;
     }
+
+    h1 {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .c-header__nav {
+    flex-shrink: 0;
+
     @include media("md") {
       margin-left: 0.5rem;
     }
@@ -25,6 +40,7 @@
 
   .c-header__actions {
     margin-left: auto;
+    flex-shrink: 0;
   }
 
   .c-header__moderation {
@@ -35,12 +51,19 @@
       order: 0;
       flex: 0 1 auto;
       flex-basis: auto;
+      // auto margins on both sides centre moderation in the free space between
+      // the nav and the actions group (the actions group drops its own auto
+      // margin at this breakpoint so only these two split the space evenly).
       margin-left: auto;
+      margin-right: auto;
     }
   }
 
+  // Below xl the actions group is pushed right on the shared row; at xl
+  // moderation's auto margins handle the alignment instead, so reset this to
+  // keep the icons hard against the right edge with moderation centred.
   @include media("xl") {
-    .c-header__actions {
+    .c-header__moderation + .c-header__actions {
       margin-left: 0;
     }
   }

@@ -61,6 +61,12 @@ const RoadmapBoard = (props: RoadmapPageProps) => {
     onPostClosed: () => reloadPosts(),
   })
 
+  const hasNoActivePosts = plannedPosts.length === 0 && startedPosts.length === 0
+
+  if (hasNoActivePosts && selectedPostId === null) {
+    return <RoadmapBlankState />
+  }
+
   return (
     <div id="p-roadmap" className="page container">
       <div style={selectedPostId !== null ? { display: "none" } : undefined}>
@@ -110,6 +116,16 @@ const SkeletonColumn = ({ status }: { status: string }) => (
   </div>
 )
 
+const RoadmapSkeletonBackdrop = () => (
+  <div className="c-roadmap-upsell__skeleton" aria-hidden="true">
+    <div className="c-roadmap-board">
+      <SkeletonColumn status="planned" />
+      <SkeletonColumn status="started" />
+      <SkeletonColumn status="completed" />
+    </div>
+  </div>
+)
+
 const RoadmapUpsell = () => {
   const fider = useFider()
   const isAdmin = fider.session.isAuthenticated && fider.session.user.isAdministrator
@@ -117,13 +133,7 @@ const RoadmapUpsell = () => {
 
   return (
     <div id="p-roadmap-upsell" className="page container">
-      <div className="c-roadmap-upsell__skeleton" aria-hidden="true">
-        <div className="c-roadmap-board">
-          <SkeletonColumn status="planned" />
-          <SkeletonColumn status="started" />
-          <SkeletonColumn status="completed" />
-        </div>
-      </div>
+      <RoadmapSkeletonBackdrop />
       <VStack spacing={4} className="c-roadmap-upsell flex-items-center text-center">
         <h1 className="c-roadmap-upsell__title text-display">
           <Trans id="roadmap.upsell.title">See what&apos;s happening in the Roadmap view</Trans>
@@ -142,6 +152,20 @@ const RoadmapUpsell = () => {
     </div>
   )
 }
+
+const RoadmapBlankState = () => (
+  <div id="p-roadmap-blank" className="page container">
+    <RoadmapSkeletonBackdrop />
+    <VStack spacing={4} className="c-roadmap-upsell flex-items-center text-center">
+      <h1 className="c-roadmap-upsell__title text-display">
+        <Trans id="roadmap.blank.title">Your roadmap is waiting for its first update</Trans>
+      </h1>
+      <p className="c-roadmap-upsell__subtitle text-muted">
+        <Trans id="roadmap.blank.description">Mark posts as planned or in progress and they&apos;ll show up here on the roadmap.</Trans>
+      </p>
+    </VStack>
+  </div>
+)
 
 const RoadmapPage = (props: RoadmapPageProps) => {
   const fider = useFider()
