@@ -14,6 +14,7 @@ type Tenant struct {
 	Invitation            string `db:"invitation"`
 	WelcomeMessage        string `db:"welcome_message"`
 	WelcomeHeader         string `db:"welcome_header"`
+	DescriptionTemplate   string `db:"description_template"`
 	Status                int    `db:"status"`
 	Locale                string `db:"locale"`
 	IsPrivate             bool   `db:"is_private"`
@@ -48,6 +49,7 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		Invitation:          t.Invitation,
 		WelcomeMessage:      t.WelcomeMessage,
 		WelcomeHeader:       t.WelcomeHeader,
+		DescriptionTemplate: t.DescriptionTemplate,
 		Status:              enum.TenantStatus(t.Status),
 		Locale:              t.Locale,
 		IsPrivate:           t.IsPrivate,

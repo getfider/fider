@@ -12,6 +12,7 @@ const GeneralSettingsPage = () => {
   const [title, setTitle] = useState<string>(fider.session.tenant.name)
   const [welcomeMessage, setWelcomeMessage] = useState<string>(fider.session.tenant.welcomeMessage)
   const [welcomeHeader, setWelcomeHeader] = useState<string>(fider.session.tenant.welcomeHeader)
+  const [descriptionTemplate, setDescriptionTemplate] = useState<string>(fider.session.tenant.descriptionTemplate)
   const [invitation, setInvitation] = useState<string>(fider.session.tenant.invitation)
   const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
   const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
@@ -19,7 +20,7 @@ const GeneralSettingsPage = () => {
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, invitation, logo, locale })
+    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, descriptionTemplate, invitation, logo, locale })
     if (result.ok) {
       e.preventEnable()
       location.href = `/`
@@ -73,6 +74,19 @@ const GeneralSettingsPage = () => {
           <p className="text-muted">
             The message is shown on this site&apos;s home page. Use it to help visitors understand what this space is about and the importance of their
             feedback.
+          </p>
+        </TextArea>
+
+        <TextArea
+          field="descriptionTemplate"
+          label="Idea Template"
+          value={descriptionTemplate}
+          disabled={!fider.session.user.isAdministrator}
+          onChange={setDescriptionTemplate}
+        >
+          <p className="text-muted">
+            Prefilled into the description box when someone shares a new idea, so visitors fill in a structured template instead of a blank field. Markdown is
+            supported. Leave empty to use the default template.
           </p>
         </TextArea>
 

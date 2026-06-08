@@ -12,6 +12,7 @@ type Tenant struct {
 	Invitation          string            `json:"invitation"`
 	WelcomeMessage      string            `json:"welcomeMessage"`
 	WelcomeHeader       string            `json:"welcomeHeader"`
+	DescriptionTemplate string            `json:"descriptionTemplate"`
 	CNAME               string            `json:"cname"`
 	Status              enum.TenantStatus `json:"status"`
 	Locale              string            `json:"locale"`
