@@ -79,12 +79,33 @@ func getTenantByCancelKey(ctx context.Context, q *query.GetTenantByCancelKey) er
 
 func getTenantOwner(ctx context.Context, q *query.GetTenantOwner) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
-		owner, err := queryUser(ctx, trx, "tenant_id = $1 AND role = $2 AND status = $3 ORDER BY id ASC LIMIT 1",
-			q.TenantID, enum.RoleAdministrator, enum.UserActive)
+		// Scan directly into a minimal row rather than going through queryUser/ToModel — the
+		// latter builds an avatar URL via web.AssetsURL, which panics in background-job context
+		// because there is no HTTP request to derive the host/scheme from.
+		row := struct {
+			ID     int    `db:"id"`
+			Name   string `db:"name"`
+			Email  string `db:"email"`
+			Role   int    `db:"role"`
+			Status int    `db:"status"`
+		}{}
+		err := trx.Get(&row, `
+			SELECT id, name, email, role, status
+			FROM users
+			WHERE tenant_id = $1 AND role = $2 AND status = $3
+			ORDER BY id ASC
+			LIMIT 1
+		`, q.TenantID, enum.RoleAdministrator, enum.UserActive)
 		if err != nil {
 			return errors.Wrap(err, "failed to get owner of tenant '%d'", q.TenantID)
 		}
-		q.Result = owner
+		q.Result = &entity.User{
+			ID:     row.ID,
+			Name:   row.Name,
+			Email:  row.Email,
+			Role:   enum.Role(row.Role),
+			Status: enum.UserStatus(row.Status),
+		}
 		return nil
 	})
 }
