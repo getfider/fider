@@ -99,8 +99,8 @@ export default class DangerZonePage extends AdminBasePage<DangerZonePageProps, D
             </p>
             <h4 className="text-title mb-2">How it works</h4>
             <p>
-              We'll put the delete request in a queue and send an email to confirm what's happening. After an hour, the delete will be processed and everything
-              will be deleted. No going back. No restore from backup. It's all gone.
+              We&apos;ll put the delete request in a queue and send an email to confirm what&apos;s happening. After an hour, the delete will be processed and
+              everything will be deleted. No going back. No restore from backup. It&apos;s all gone.
             </p>
             <p className="mt-2">
               To confirm, type the subdomain of this site (<strong>{subdomain}</strong>) below:
