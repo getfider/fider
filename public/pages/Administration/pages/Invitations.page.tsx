@@ -102,7 +102,7 @@ export default class InvitationsPage extends AdminBasePage<any, InvitationsPageS
           </div>
         </TextArea>
 
-        {canCustomizeCopy() ? (
+        {canCustomizeCopy() && (
           <>
             <Input field="subject" label="Subject" value={this.state.subject} maxLength={70} onChange={this.setSubject}>
               <p className="text-muted">This is the subject that will be used on the invitation email. Keep it short and sweet.</p>
@@ -120,12 +120,6 @@ export default class InvitationsPage extends AdminBasePage<any, InvitationsPageS
               </div>
             </TextArea>
           </>
-        ) : (
-          <Field label="Invite copy">
-            <p className="text-muted">
-              Recipients will receive the default invite subject and message. <a href="/admin/billing">Upgrade to Pro</a> to customize the subject and message.
-            </p>
-          </Field>
         )}
 
         <Field label="Sample Invite">
