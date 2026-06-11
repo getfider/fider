@@ -13,6 +13,22 @@ interface InvitationsPageState {
   error?: Failure
 }
 
+const defaultSubject = () => `[${Fider.session.tenant.name}] We would like to hear from you!`
+
+const defaultMessage = () => `Hi,
+
+We are inviting you to join the ${Fider.session.tenant.name} feedback site, a place where you can vote, discuss and share your ideas and thoughts on how to improve our services!
+
+Click the link below to join!
+
+%invite%
+
+Regards,
+${Fider.session.user.name} (${Fider.session.tenant.name})`
+
+// On hosted Fider, only pro tenants may customize the invite copy.
+const canCustomizeCopy = () => !Fider.settings.isBillingEnabled || Fider.session.tenant.isPro
+
 export default class InvitationsPage extends AdminBasePage<any, InvitationsPageState> {
   public id = "p-admin-invitations"
   public name = "invitations"
@@ -23,17 +39,8 @@ export default class InvitationsPage extends AdminBasePage<any, InvitationsPageS
     super(props)
 
     this.state = {
-      subject: `[${Fider.session.tenant.name}] We would like to hear from you!`,
-      message: `Hi,
-
-We are inviting you to join the ${Fider.session.tenant.name} feedback site, a place where you can vote, discuss and share your ideas and thoughts on how to improve our services!
-
-Click the link below to join!
-
-%invite%
-
-Regards,
-${Fider.session.user.name} (${Fider.session.tenant.name})`,
+      subject: defaultSubject(),
+      message: defaultMessage(),
       recipients: [],
       numOfRecipients: 0,
       rawRecipients: "",
@@ -95,21 +102,31 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
           </div>
         </TextArea>
 
-        <Input field="subject" label="Subject" value={this.state.subject} maxLength={70} onChange={this.setSubject}>
-          <p className="text-muted">This is the subject that will be used on the invitation email. Keep it short and sweet.</p>
-        </Input>
+        {canCustomizeCopy() ? (
+          <>
+            <Input field="subject" label="Subject" value={this.state.subject} maxLength={70} onChange={this.setSubject}>
+              <p className="text-muted">This is the subject that will be used on the invitation email. Keep it short and sweet.</p>
+            </Input>
 
-        <TextArea field="message" label="Message" minRows={8} value={this.state.message} onChange={this.setMessage}>
-          <div className="text-muted">
-            <p>
-              This is the content of the invite. Be polite and explain what this invite is for, otherwise there&apos;s a high change people will ignore your
-              message.
+            <TextArea field="message" label="Message" minRows={8} value={this.state.message} onChange={this.setMessage}>
+              <div className="text-muted">
+                <p>
+                  This is the content of the invite. Be polite and explain what this invite is for, otherwise there&apos;s a high change people will ignore your
+                  message.
+                </p>
+                <p>
+                  You&apos;re allowed to write whatever you want as long as you include the invitation link placeholder named <strong>%invite%</strong>.
+                </p>
+              </div>
+            </TextArea>
+          </>
+        ) : (
+          <Field label="Invite copy">
+            <p className="text-muted">
+              Recipients will receive the default invite subject and message. <a href="/admin/billing">Upgrade to Pro</a> to customize the subject and message.
             </p>
-            <p>
-              You&apos;re allowed to write whatever you want as long as you include the invitation link placeholder named <strong>%invite%</strong>.
-            </p>
-          </div>
-        </TextArea>
+          </Field>
+        )}
 
         <Field label="Sample Invite">
           {Fider.session.user.email ? (
