@@ -8,6 +8,7 @@ import { Post, Tag, PostStatus } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider } from "@fider/hooks"
+import { basePath } from "@fider/services"
 import { HStack, VStack } from "@fider/components/layout"
 import { ShareFeedback } from "./components/ShareFeedback"
 import { i18n } from "@lingui/core"
@@ -73,13 +74,13 @@ const HomePage = (props: HomePageProps) => {
     setSelectedPostId(postNumber)
     setLastOpenedPostId(postNumber) // Track which post was opened
     setIsPostDirty(false) // Reset dirty flag when opening overlay
-    window.history.pushState({ selectedPostId: postNumber }, "", `/posts/${postNumber}/${slug}`)
+    window.history.pushState({ selectedPostId: postNumber }, "", `${basePath()}/posts/${postNumber}/${slug}`)
   }
 
   // Handle closing the overlay
   const handleCloseOverlay = () => {
     setSelectedPostId(null)
-    window.history.pushState({}, "", `/${savedSearch}`)
+    window.history.pushState({}, "", `${basePath()}/${savedSearch}`)
   }
 
   // Track which post was opened so we can update just that one

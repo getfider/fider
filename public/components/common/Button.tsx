@@ -1,7 +1,7 @@
 import "./Button.scss"
 
 import React, { useEffect, useRef, useState } from "react"
-import { classSet } from "@fider/services"
+import { classSet, resolveHref } from "@fider/services"
 
 interface ButtonProps {
   children?: React.ReactNode
@@ -52,7 +52,7 @@ export const Button: React.FC<ButtonProps> = ({ size = "default", variant = "sec
 
   if (props.href) {
     buttonContent = (
-      <a href={props.href} rel={props.rel} target={props.target} className={className} style={props.style}>
+      <a href={resolveHref(props.href)} rel={props.rel} target={props.target} className={className} style={props.style}>
         {props.children}
       </a>
     )

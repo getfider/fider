@@ -1,6 +1,7 @@
 import React from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
 import { ShowTag, Markdown, Icon, ResponseLozenge } from "@fider/components"
+import { Link } from "@fider/components/common"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { HStack, VStack } from "@fider/components/layout"
@@ -28,7 +29,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
   }
 
   return (
-    <a href={`/posts/${props.post.number}/${props.post.slug}`} className="c-posts-container__post-link" onClick={handleClick}>
+    <Link href={`/posts/${props.post.number}/${props.post.slug}`} className="c-posts-container__post-link" onClick={handleClick}>
       <VStack className="c-posts-container__post w-full" spacing={4}>
         <HStack justify="between" align="start">
           <HStack spacing={2} align="start" className="w-full">
@@ -68,7 +69,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
           {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />}
         </HStack>
       </VStack>
-    </a>
+    </Link>
   )
 }
 
@@ -88,9 +89,9 @@ const MinimalListPostItem = (props: { post: Post; tags: Tag[]; onPostClick?: (po
     <HStack spacing={4} align="start" className="c-posts-container__post-minimal">
       <HStack className="w-full" justify="between" align="start">
         <HStack spacing={2} align="start" justify="between" className="w-full">
-          <a className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`} onClick={handleClick}>
+          <Link className="text-link" href={`/posts/${props.post.number}/${props.post.slug}`} onClick={handleClick}>
             {props.post.title}
-          </a>
+          </Link>
           {isPending && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>}
         </HStack>
         {props.post.status !== "open" ? (

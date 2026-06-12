@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"
 import { Button, Avatar, Loader, Icon, Markdown } from "@fider/components/common"
 import { Header } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
-import { actions, chopString, http, notify } from "@fider/services"
+import { actions, chopString, http, navigator, notify } from "@fider/services"
 import { User, UserStatus } from "@fider/models"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
@@ -169,7 +169,7 @@ const ContentModerationPage = () => {
   }
 
   const handlePostClick = (link: string) => {
-    window.location.href = link
+    navigator.goTo(link)
   }
 
   const renderModerationItem = (item: ModerationItem) => {
