@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/getfider/fider/app/models/enum"
 )
 
@@ -24,6 +26,10 @@ type Tenant struct {
 	PreventIndexing     bool              `json:"preventIndexing"`
 	IsModerationEnabled bool              `json:"isModerationEnabled"`
 	IsPro               bool              `json:"isPro"`
+	// ScheduledDeletionAt is set when the account owner has requested deletion of the whole
+	// site. The tenant stays active during the grace window; a background job performs the
+	// hard delete once this time passes. Not exposed to clients.
+	ScheduledDeletionAt *time.Time `json:"-"`
 }
 
 func (t *Tenant) IsDisabled() bool {

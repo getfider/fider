@@ -259,7 +259,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbEntities.Tenant{}
 
 	err := trx.Get(&tenant, `
-		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro,
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro, t.scheduled_deletion_at,
 			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
 		FROM tenants t
 		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
@@ -279,7 +279,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbEntities.Tenant{}
 
 	err := trx.Get(&tenant, `
-		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro,
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro, t.scheduled_deletion_at,
 			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
 		FROM tenants t
 		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
