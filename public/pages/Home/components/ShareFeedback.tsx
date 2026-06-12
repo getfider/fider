@@ -105,7 +105,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   useEffect(() => {
-    if (!titleManuallyEdited && !isInitialMount) {
+    if (!titleManuallyEdited && !isInitialMount && !description.startsWith("![](fider-image:attachments")) {
       // Find newline in the original markdown content for truncation
       let newlineIndex = Math.min(description.indexOf("\n"), 80)
       if (newlineIndex == -1) {
@@ -158,12 +158,6 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const handleDescriptionChange = (value: string) => {
     setCachedDescription(value)
-
-    // If the description starts with an image attachment, we don't want to set it as the title
-    if (value.startsWith("![](fider-image:attachments")) {
-      return
-    }
-
     setDescription(value)
   }
 
