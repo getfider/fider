@@ -76,3 +76,23 @@ type InvalidateVerificationsByEmail struct {
 
 type InvalidatePreviousSignUpKeys struct {
 }
+
+// ScheduleTenantDeletion records the account owner's request to delete the whole site.
+// The tenant stays active during the grace window; a background job performs the hard
+// delete once ScheduledAt passes. CancelKey authorises the email cancel link.
+type ScheduleTenantDeletion struct {
+	TenantID          int
+	RequestedByUserID int
+	CancelKey         string
+	ScheduledAt       time.Time
+}
+
+// CancelTenantDeletion clears a pending deletion schedule, leaving the tenant untouched.
+type CancelTenantDeletion struct {
+	TenantID int
+}
+
+// DeleteTenant permanently removes a tenant and all of its data. Irreversible.
+type DeleteTenant struct {
+	TenantID int
+}
