@@ -11,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -24,6 +25,19 @@ type InviteUsers struct {
 	Invitations    []*UserInvitation `json:"-"`
 }
 
+// DefaultInviteSubject returns the default invite subject for the given tenant.
+// Mirrors the placeholder shown in the admin UI so non-pro tenants get a sensible default.
+func DefaultInviteSubject(tenant *entity.Tenant) string {
+	return fmt.Sprintf("[%s] We would like to hear from you!", tenant.Name)
+}
+
+// DefaultInviteMessage returns the default invite message for the given tenant and inviter.
+// Mirrors the placeholder shown in the admin UI so non-pro tenants get a sensible default.
+func DefaultInviteMessage(tenant *entity.Tenant, inviter *entity.User) string {
+	return fmt.Sprintf("Hi,\n\nWe are inviting you to join the %s feedback site, a place where you can vote, discuss and share your ideas and thoughts on how to improve our services!\n\nClick the link below to join!\n\n%s\n\nRegards,\n%s (%s)",
+		tenant.Name, app.InvitePlaceholder, inviter.Name, tenant.Name)
+}
+
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *InviteUsers) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	return user != nil && user.IsCollaborator()
@@ -32,6 +46,16 @@ func (action *InviteUsers) IsAuthorized(ctx context.Context, user *entity.User) 
 // Validate if current model is valid
 func (action *InviteUsers) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
+
+	// On hosted Fider, only pro tenants may customize the invite copy. Free tenants
+	// are forced onto safe defaults to prevent abuse via phishing-style copy.
+	// Self-hosted (billing disabled) is unaffected.
+	if env.IsBillingEnabled() {
+		if tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant); ok && tenant != nil && !tenant.IsPro {
+			action.Subject = DefaultInviteSubject(tenant)
+			action.Message = DefaultInviteMessage(tenant, user)
+		}
+	}
 
 	if action.Subject == "" {
 		result.AddFieldFailure("subject", "Subject is required.")
