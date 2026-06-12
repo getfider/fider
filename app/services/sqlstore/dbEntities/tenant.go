@@ -3,6 +3,7 @@ package dbEntities
 import (
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 )
 
@@ -24,8 +25,9 @@ type Tenant struct {
 	IsFeedEnabled         bool   `db:"is_feed_enabled"`
 	PreventIndexing       bool   `db:"prevent_indexing"`
 	IsModerationEnabled   bool   `db:"is_moderation_enabled"`
-	IsPro                 bool   `db:"is_pro"`
-	HasPaddleSubscription bool   `db:"has_paddle_subscription"`
+	IsPro                 bool         `db:"is_pro"`
+	HasPaddleSubscription bool         `db:"has_paddle_subscription"`
+	ScheduledDeletionAt   dbx.NullTime `db:"scheduled_deletion_at"`
 }
 
 func (t *Tenant) ToModel() *entity.Tenant {
@@ -59,6 +61,10 @@ func (t *Tenant) ToModel() *entity.Tenant {
 		PreventIndexing:     t.PreventIndexing,
 		IsModerationEnabled: isPro && t.IsModerationEnabled,
 		IsPro:               isPro,
+	}
+
+	if t.ScheduledDeletionAt.Valid {
+		tenant.ScheduledDeletionAt = &t.ScheduledDeletionAt.Time
 	}
 
 	return tenant
