@@ -79,15 +79,12 @@ const GeneralSettingsPage = () => {
 
         <TextArea
           field="descriptionTemplate"
-          label="Idea Template"
+          label="Default for New Ideas"
           value={descriptionTemplate}
           disabled={!fider.session.user.isAdministrator}
           onChange={setDescriptionTemplate}
         >
-          <p className="text-muted">
-            Prefilled into the description box when someone shares a new idea, so visitors fill in a structured template instead of a blank field. Markdown is
-            supported. Leave empty to use the default template.
-          </p>
+          <p className="text-muted">If set, all new ideas submitted by users will use this text as the default description.</p>
         </TextArea>
 
         <Input
