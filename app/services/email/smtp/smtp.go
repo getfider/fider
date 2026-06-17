@@ -117,7 +117,8 @@ var Send = func(localName, serverAddress string, enableStartTLS, enableImplicitT
 	if enableImplicitTLS {
 		// Implicit TLS (SMTPS): wrap connection in TLS before any SMTP command.
 		// Typically used on port 465.
-		conn, err := tls.Dial("tcp", serverAddress, &tls.Config{ServerName: host})
+		var conn *tls.Conn
+		conn, err = tls.Dial("tcp", serverAddress, &tls.Config{ServerName: host})
 		if err != nil {
 			return err
 		}
