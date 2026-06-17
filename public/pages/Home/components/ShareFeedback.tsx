@@ -55,8 +55,13 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   const canEditTags = fider.settings.postWithTags && props.tags.length > 0
+
+  const descriptionTemplate = fider.session.tenant.descriptionTemplate || ""
+  const hasCachedDraft = getCachedDescription() !== ""
+  const prefillTemplate = !hasCachedDraft && descriptionTemplate !== ""
+
   const [title, setTitle] = useState(getCachedTitle())
-  const [description, setDescription] = useState(getCachedDescription())
+  const [description, setDescription] = useState(prefillTemplate ? descriptionTemplate : getCachedDescription())
   const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
     cacheKey: CACHE_KEYS.ATTACHMENT,
     useLocalStorage: true,
@@ -66,7 +71,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
   const editorRef = useRef<HTMLDivElement>(null)
-  const [titleManuallyEdited, setTitleManuallyEdited] = useState(getTitleManuallyEditedValue())
+  const [titleManuallyEdited, setTitleManuallyEdited] = useState(prefillTemplate ? true : getTitleManuallyEditedValue())
   const [isInitialMount, setIsInitialMount] = useState(true)
 
   useEffect(() => {
