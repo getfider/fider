@@ -57,10 +57,11 @@ type config struct {
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
 	Stripe                      struct {
-		SecretKey     string `env:"STRIPE_SECRET_KEY"`
-		WebhookSecret string `env:"STRIPE_WEBHOOK_SECRET"`
-		PriceID       string `env:"STRIPE_PRICE_ID"`
-		AnnualPriceID string `env:"STRIPE_ANNUAL_PRICE_ID"`
+		SecretKey      string `env:"STRIPE_SECRET_KEY"`
+		WebhookSecret  string `env:"STRIPE_WEBHOOK_SECRET"`
+		PriceID        string `env:"STRIPE_PRICE_ID"`
+		AnnualPriceID  string `env:"STRIPE_ANNUAL_PRICE_ID"`
+		UKVATTaxRateID string `env:"STRIPE_UK_VAT_TAX_RATE_ID"`
 	}
 	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
