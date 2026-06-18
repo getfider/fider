@@ -60,7 +60,7 @@ const RoadmapPost = (props: { post: Post; tags: Tag[]; status: string; onPostCli
           )}
         </HStack>
         {props.tags.length >= 1 && (
-          <HStack spacing={0} className="gap-2 flex-wrap">
+          <HStack spacing={0} className="gap-x-4 flex-wrap">
             {props.tags.map((tag) => (
               <ShowTag key={tag.id} tag={tag} />
             ))}
