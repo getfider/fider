@@ -333,6 +333,48 @@ func TestUpdatePostHandler_TenantStaff(t *testing.T) {
 	Expect(updatePost.Description).Equals("new description")
 }
 
+func TestUpdatePostHandler_AppendsUnreferencedAttachments(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{ID: 5, Number: 5, Title: "My First Post", Description: "With a description"}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
+	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+
+	var updatePost *cmd.UpdatePost
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdatePost) error {
+		updatePost = c
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecutePost(apiv1.UpdatePost(), `{
+			"title": "the new title",
+			"description": "Already referenced: ![](fider-image:attachments/referenced.png)",
+			"attachments": [
+				{ "bkey": "attachments/referenced.png" },
+				{ "bkey": "attachments/standalone.png" }
+			]
+		}`)
+
+	Expect(code).Equals(http.StatusOK)
+	// The already-referenced attachment is left as-is (not duplicated), and the
+	// unreferenced one is appended at the end as a fider-image markdown reference.
+	Expect(updatePost.Description).Equals("Already referenced: ![](fider-image:attachments/referenced.png)\n\n![](fider-image:attachments/standalone.png)")
+}
+
 func TestUpdatePostHandler_NonAuthorized(t *testing.T) {
 	RegisterT(t)
 
