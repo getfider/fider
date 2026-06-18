@@ -20,9 +20,12 @@ func RoadmapPage() web.HandlerFunc {
 		}
 
 		if env.IsSingleHostMode() || c.Tenant().IsPro {
-			plannedPosts := &query.SearchPosts{View: "planned"}
-			startedPosts := &query.SearchPosts{View: "started"}
-			completedPosts := &query.SearchPosts{View: "completed"}
+			// Keep in sync with ROADMAP_DEFAULT_LIMIT on the client; the "Show more"
+			// link uses posts.length >= limit as its heuristic and needs both ends
+			// to agree on the initial cap.
+			plannedPosts := &query.SearchPosts{View: "planned", Limit: "10"}
+			startedPosts := &query.SearchPosts{View: "started", Limit: "10"}
+			completedPosts := &query.SearchPosts{View: "completed", Limit: "10"}
 			getAllTags := &query.GetAllTags{}
 
 			if err := bus.Dispatch(c, plannedPosts, startedPosts, completedPosts, getAllTags); err != nil {

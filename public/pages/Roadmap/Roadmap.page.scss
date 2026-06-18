@@ -29,6 +29,49 @@
   }
 }
 
+.c-roadmap-post-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.c-roadmap-post {
+  background-color: var(--colors-white);
+  @include dark-mode {
+    background-color: var(--colors-gray-200);
+  }
+  border-radius: get("border.radius.xlarge");
+  padding: spacing(5) spacing(6);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  transition: box-shadow 0.2s ease-in-out;
+
+  .c-roadmap-post-link:hover & {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+
+  &__title {
+    font-size: get("font.size.base");
+    font-weight: get("font.weight.bold");
+    color: var(--colors-gray-900);
+    line-height: 1.4;
+    transition: color 0.2s ease-in-out;
+
+    .c-roadmap-post-link:hover & {
+      color: var(--colors-primary-base);
+    }
+  }
+
+  &__votes {
+    font-size: get("font.size.sm");
+    color: var(--colors-gray-700);
+  }
+
+  &__completed {
+    font-size: get("font.size.sm");
+    color: var(--colors-gray-700);
+  }
+}
+
 #p-roadmap-upsell,
 #p-roadmap-blank {
   padding-top: spacing(8);
