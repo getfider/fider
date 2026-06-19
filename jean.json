@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "setup": "npm install && cp ~/dev/fider/.env . && cp ~/dev/fider/etc/localhost* ./etc",
+    "teardown": null,
+    "run": null
+  }
+}
