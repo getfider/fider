@@ -227,11 +227,12 @@ export const ShowComment = (props: ShowCommentProps) => {
                   placeholder={comment.content}
                   maxAttachments={2}
                   maxImageSizeKB={5 * 1024}
+                  maxLength={4000}
                   onGetImageSrc={getImageSrc}
                   onImageUploaded={handleImageUploaded}
                 />
                 <div className="mt-2">
-                  <Button size="small" onClick={saveEdit} variant="primary">
+                  <Button size="small" onClick={saveEdit} variant="primary" disabled={newContent.length > 4000}>
                     <Trans id="action.save">Save</Trans>
                   </Button>
                   <Button variant="tertiary" size="small" onClick={cancelEdit}>

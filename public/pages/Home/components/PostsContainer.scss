@@ -6,6 +6,19 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
     row-gap: spacing(4);
     margin-bottom: spacing(6);
+
+    &--searching {
+      @include media("md") {
+        grid-template-columns: auto 1fr;
+
+        .c-posts-container__filter-col {
+          grid-column: 1;
+        }
+        .c-posts-container__search-col {
+          grid-column: 2;
+        }
+      }
+    }
   }
 
   &__filter-col {

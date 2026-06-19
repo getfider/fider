@@ -183,7 +183,7 @@ var (
 	LocaleChineseTW = Locale{
 		Code:              "zh-TW",
 		Name:              "Chinese (Traditional)",
-		MessageFormatCode: "zh-tw",
+		MessageFormatCode: "zh",
 		PostgresConfig:    "simple",
 		LinguaLanguage:    lingua.Chinese,
 		IsRTL:             false,
