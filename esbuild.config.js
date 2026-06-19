@@ -74,7 +74,6 @@ esbuild
     outfile: "ssr.js",
     alias: {
       "@fider": "./public",
-      "@commercial": "./commercial",
       "@locale": "./locale",
     },
     plugins: [emptyCSS, emptySVG, babelPlugin()],

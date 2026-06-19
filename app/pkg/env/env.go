@@ -57,9 +57,11 @@ type config struct {
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
 	Stripe                      struct {
-		SecretKey     string `env:"STRIPE_SECRET_KEY"`
-		WebhookSecret string `env:"STRIPE_WEBHOOK_SECRET"`
-		PriceID       string `env:"STRIPE_PRICE_ID"`
+		SecretKey      string `env:"STRIPE_SECRET_KEY"`
+		WebhookSecret  string `env:"STRIPE_WEBHOOK_SECRET"`
+		PriceID        string `env:"STRIPE_PRICE_ID"`
+		AnnualPriceID  string `env:"STRIPE_ANNUAL_PRICE_ID"`
+		UKVATTaxRateID string `env:"STRIPE_UK_VAT_TAX_RATE_ID"`
 	}
 	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
@@ -116,11 +118,12 @@ type config struct {
 			Region string `env:"EMAIL_MAILGUN_REGION,default=US"` // possible values: US or EU
 		}
 		SMTP struct {
-			Host           string `env:"EMAIL_SMTP_HOST"`
-			Port           string `env:"EMAIL_SMTP_PORT"`
-			Username       string `env:"EMAIL_SMTP_USERNAME"`
-			Password       string `env:"EMAIL_SMTP_PASSWORD"`
-			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			Host              string `env:"EMAIL_SMTP_HOST"`
+			Port              string `env:"EMAIL_SMTP_PORT"`
+			Username          string `env:"EMAIL_SMTP_USERNAME"`
+			Password          string `env:"EMAIL_SMTP_PASSWORD"`
+			EnableStartTLS    bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			EnableImplicitTLS bool   `env:"EMAIL_SMTP_ENABLE_IMPLICIT_TLS,default=false"`
 		}
 	}
 	BlobStorage struct {
@@ -146,11 +149,6 @@ type config struct {
 	}
 	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
 	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
-	License          struct {
-		PrivateKey string `env:"LICENSE_PRIVATE_KEY"` // Ed25519 private key for hosted instances (base64 encoded)
-		PublicKey  string `env:"LICENSE_PUBLIC_KEY"`  // Ed25519 public key for license validation (base64 encoded)
-		Key        string `env:"COMMERCIAL_KEY"`      // Self-hosted instance's license key
-	}
 }
 
 // Config is a strongly typed reference to all configuration parsed from Environment Variables

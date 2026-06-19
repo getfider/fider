@@ -56,22 +56,21 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
   public content() {
     return (
       <Form>
-        <Field label="Private Site">
+        <Field label="Private Board">
           <Toggle disabled={!Fider.session.user.isAdministrator} active={this.state.isPrivate} onToggle={this.privacyToggle} />
           <p className="text-muted mt-1">
-            A private site prevents unauthenticated users from viewing or interacting with its content. <br /> When enabled, only already registered users,
-            invited users and users from trusted OAuth providers will have access to this site. Disables the feed feature.
+            A private board prevents unauthenticated users from viewing or interacting with its content. <br /> When enabled, only already registered users,
+            invited users and users from trusted OAuth providers will have access to this board. Disables the feed feature.
           </p>
         </Field>
         <Field label="ATOM Feed">
           <Toggle disabled={!Fider.session.user.isAdministrator || this.state.isPrivate} active={this.state.isFeedEnabled} onToggle={this.atomFeedToggle} />
           <p className="text-muted mt-1">
-            This feature lets users access this site via a feed reader. <br /> When enabled, the site makes its posts and comments available using the ATOM
-            format. Links to feeds and autodiscovery metadata are shown on the site.
+            This feature lets users access this board via a feed reader. <br /> When enabled, the board makes its posts and comments available using the ATOM
+            format. Links to feeds and autodiscovery metadata are shown on the board.
           </p>
         </Field>
-        {/* Moderation requires commercial plan */}
-        {Fider.session.tenant.hasCommercialFeatures && (
+        {Fider.session.tenant.isPro && (
           <Field label="Content Moderation">
             <Toggle disabled={!Fider.session.user.isAdministrator} active={this.state.isModerationEnabled} onToggle={this.moderationToggle} />
             <p className="text-muted mt-1">

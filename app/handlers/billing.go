@@ -27,9 +27,8 @@ func ManageBilling() web.HandlerFunc {
 			Data: web.Map{
 				"stripeCustomerID":     billingState.Result.CustomerID,
 				"stripeSubscriptionID": billingState.Result.SubscriptionID,
-				"licenseKey":              billingState.Result.LicenseKey,
-				"paddleSubscriptionID":    billingState.Result.PaddleSubscriptionID,
-				"hasCommercialFeatures":   c.Tenant().HasCommercialFeatures,
+				"paddleSubscriptionID": billingState.Result.PaddleSubscriptionID,
+				"isPro":                c.Tenant().IsPro,
 			},
 		})
 	}
@@ -67,41 +66,59 @@ func CreateStripePortalSession() web.HandlerFunc {
 	}
 }
 
+// createCheckoutSession creates a Stripe checkout session for the given price ID.
+// Uses setup mode so we can collect a billing address before the first invoice is
+// generated — the subscription itself is created in the webhook handler, where we
+// can attach the UK VAT tax rate if the customer's address country is GB.
+func createCheckoutSession(c *web.Context, priceID string) error {
+	stripe.Key = env.Config.Stripe.SecretKey
+
+	returnURL := c.BaseURL() + "/admin/billing"
+	tenantIDStr := fmt.Sprintf("%d", c.Tenant().ID)
+
+	metadata := map[string]string{
+		"tenant_id": tenantIDStr,
+		"price_id":  priceID,
+	}
+
+	params := &stripe.CheckoutSessionParams{
+		Mode:                     stripe.String(string(stripe.CheckoutSessionModeSetup)),
+		PaymentMethodTypes:       stripe.StringSlice([]string{"card"}),
+		BillingAddressCollection: stripe.String(string(stripe.CheckoutSessionBillingAddressCollectionRequired)),
+		CustomerCreation:         stripe.String(string(stripe.CheckoutSessionCustomerCreationAlways)),
+		SuccessURL:               stripe.String(returnURL + "?checkout=success"),
+		CancelURL:                stripe.String(returnURL + "?checkout=cancelled"),
+		Metadata:                 metadata,
+		SetupIntentData: &stripe.CheckoutSessionSetupIntentDataParams{
+			Metadata: metadata,
+		},
+		CustomText: &stripe.CheckoutSessionCustomTextParams{
+			Submit: &stripe.CheckoutSessionCustomTextSubmitParams{
+				Message: stripe.String("By submitting, you'll be subscribed to Pro at the price shown on the previous page. Your subscription starts immediately."),
+			},
+		},
+	}
+
+	s, err := checkoutsession.New(params)
+	if err != nil {
+		return c.Failure(err)
+	}
+
+	return c.Ok(web.Map{
+		"url": s.URL,
+	})
+}
+
 // CreateStripeCheckoutSession creates a Stripe checkout session for new subscriptions
 func CreateStripeCheckoutSession() web.HandlerFunc {
 	return func(c *web.Context) error {
-		stripe.Key = env.Config.Stripe.SecretKey
+		return createCheckoutSession(c, env.Config.Stripe.PriceID)
+	}
+}
 
-		returnURL := c.BaseURL() + "/admin/billing"
-		tenantID := c.Tenant().ID
-
-		params := &stripe.CheckoutSessionParams{
-			Mode: stripe.String(string(stripe.CheckoutSessionModeSubscription)),
-			LineItems: []*stripe.CheckoutSessionLineItemParams{
-				{
-					Price:    stripe.String(env.Config.Stripe.PriceID),
-					Quantity: stripe.Int64(1),
-				},
-			},
-			SuccessURL: stripe.String(returnURL + "?checkout=success"),
-			CancelURL:  stripe.String(returnURL + "?checkout=cancelled"),
-			Metadata: map[string]string{
-				"tenant_id": fmt.Sprintf("%d", tenantID),
-			},
-			SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
-				Metadata: map[string]string{
-					"tenant_id": fmt.Sprintf("%d", tenantID),
-				},
-			},
-		}
-
-		s, err := checkoutsession.New(params)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Ok(web.Map{
-			"url": s.URL,
-		})
+// CreateStripeAnnualCheckoutSession creates a Stripe checkout session for annual subscriptions
+func CreateStripeAnnualCheckoutSession() web.HandlerFunc {
+	return func(c *web.Context) error {
+		return createCheckoutSession(c, env.Config.Stripe.AnnualPriceID)
 	}
 }

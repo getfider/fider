@@ -316,6 +316,34 @@ func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
 	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
 }
 
+func TestTenantStorage_VerificationKey_IsTenantScoped(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	//Save new Key on the demo tenant
+	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
+		Key:      "s3cr3tk3y",
+		Duration: 15 * time.Minute,
+		Request: &actions.CreateTenant{
+			Email: "jon.snow@got.com",
+			Name:  "Jon Snow",
+		},
+	})
+	Expect(err).IsNil()
+
+	//Same key must NOT be retrievable from a different tenant
+	getKeyFromOtherTenant := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignUp, Key: "s3cr3tk3y"}
+	err = bus.Dispatch(avengersTenantCtx, getKeyFromOtherTenant)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getKeyFromOtherTenant.Result).IsNil()
+
+	//But it is retrievable from the tenant it belongs to
+	getKey := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignUp, Key: "s3cr3tk3y"}
+	err = bus.Dispatch(demoTenantCtx, getKey)
+	Expect(err).IsNil()
+	Expect(getKey.Result.Email).Equals("jon.snow@got.com")
+}
+
 func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
@@ -356,7 +384,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 
 	err = bus.Dispatch(demoTenantCtx, getConfig)
 	Expect(err).IsNil()
-	Expect(getConfig.Result.ID).Equals(1)
+	Expect(getConfig.Result.ID).NotEquals(0)
 	Expect(getConfig.Result.LogoBlobKey).Equals("uploads/my-logo-key.png")
 	Expect(getConfig.Result.Provider).Equals("_TEST")
 	Expect(getConfig.Result.DisplayName).Equals("My Provider")
@@ -395,7 +423,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(err).IsNil()
 
 	Expect(customConfigs.Result).HasLen(1)
-	Expect(customConfigs.Result[0].ID).Equals(1)
+	Expect(customConfigs.Result[0].ID).Equals(getConfig.Result.ID)
 	Expect(customConfigs.Result[0].LogoBlobKey).Equals("")
 	Expect(customConfigs.Result[0].Provider).Equals("_TEST")
 	Expect(customConfigs.Result[0].DisplayName).Equals("New My Provider")

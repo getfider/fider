@@ -19,6 +19,7 @@ type User struct {
 	AvatarURL     string          `json:"avatarURL,omitempty"`
 	Status        enum.UserStatus `json:"status"`
 	IsTrusted     bool            `json:"isTrusted"`
+	SecurityStamp string          `json:"-"`
 }
 
 // HasProvider returns true if current user has registered with given provider

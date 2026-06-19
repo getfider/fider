@@ -29,6 +29,7 @@ export interface UpdateTenantSettingsRequest {
   invitation: string
   welcomeMessage: string
   welcomeHeader: string
+  descriptionTemplate: string
   cname: string
   locale: string
 }
@@ -118,6 +119,8 @@ export interface CreateEditOAuthConfigRequest {
   jsonUserIDPath: string
   jsonUserNamePath: string
   jsonUserEmailPath: string
+  jsonUserRolesPath: string
+  allowedRoles: string
   logo?: ImageUpload
   isTrusted: boolean
 }
@@ -132,4 +135,16 @@ export const setSystemProviderStatus = async (provider: string, isEnabled: boole
 
 export const resendSignUpEmail = async (): Promise<Result> => {
   return await http.post("/_api/signup/resend", {})
+}
+
+export interface RequestTenantDeletionResponse {
+  scheduledDeletionAt: string
+}
+
+export const requestTenantDeletion = async (subdomain: string): Promise<Result<RequestTenantDeletionResponse>> => {
+  return await http.delete<RequestTenantDeletionResponse>("/_api/admin/tenant", { subdomain })
+}
+
+export const cancelTenantDeletion = async (): Promise<Result> => {
+  return await http.post("/_api/admin/tenant/cancel-deletion")
 }

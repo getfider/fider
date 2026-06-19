@@ -1,28 +1,41 @@
 package dbEntities
 
 import (
+	"database/sql"
+
 	"github.com/getfider/fider/app/models/entity"
 )
 
 type OAuthConfig struct {
-	ID                int    `db:"id"`
-	Provider          string `db:"provider"`
-	DisplayName       string `db:"display_name"`
-	LogoBlobKey       string `db:"logo_bkey"`
-	Status            int    `db:"status"`
-	IsTrusted         bool   `db:"is_trusted"`
-	ClientID          string `db:"client_id"`
-	ClientSecret      string `db:"client_secret"`
-	AuthorizeURL      string `db:"authorize_url"`
-	TokenURL          string `db:"token_url"`
-	Scope             string `db:"scope"`
-	ProfileURL        string `db:"profile_url"`
-	JSONUserIDPath    string `db:"json_user_id_path"`
-	JSONUserNamePath  string `db:"json_user_name_path"`
-	JSONUserEmailPath string `db:"json_user_email_path"`
+	ID                int            `db:"id"`
+	Provider          string         `db:"provider"`
+	DisplayName       string         `db:"display_name"`
+	LogoBlobKey       string         `db:"logo_bkey"`
+	Status            int            `db:"status"`
+	IsTrusted         bool           `db:"is_trusted"`
+	ClientID          string         `db:"client_id"`
+	ClientSecret      string         `db:"client_secret"`
+	AuthorizeURL      string         `db:"authorize_url"`
+	TokenURL          string         `db:"token_url"`
+	Scope             string         `db:"scope"`
+	ProfileURL        string         `db:"profile_url"`
+	JSONUserIDPath    string         `db:"json_user_id_path"`
+	JSONUserNamePath  string         `db:"json_user_name_path"`
+	JSONUserEmailPath string         `db:"json_user_email_path"`
+	JSONUserRolesPath sql.NullString `db:"json_user_roles_path"`
+	AllowedRoles      sql.NullString `db:"allowed_roles"`
 }
 
 func (m *OAuthConfig) ToModel() *entity.OAuthConfig {
+	rolesPath := ""
+	if m.JSONUserRolesPath.Valid {
+		rolesPath = m.JSONUserRolesPath.String
+	}
+	allowedRoles := ""
+	if m.AllowedRoles.Valid {
+		allowedRoles = m.AllowedRoles.String
+	}
+
 	return &entity.OAuthConfig{
 		ID:                m.ID,
 		Provider:          m.Provider,
@@ -39,5 +52,7 @@ func (m *OAuthConfig) ToModel() *entity.OAuthConfig {
 		JSONUserIDPath:    m.JSONUserIDPath,
 		JSONUserNamePath:  m.JSONUserNamePath,
 		JSONUserEmailPath: m.JSONUserEmailPath,
+		JSONUserRolesPath: rolesPath,
+		AllowedRoles:      allowedRoles,
 	}
 }

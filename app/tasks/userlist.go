@@ -20,7 +20,7 @@ func UserListCreateCompany(tenant entity.Tenant, user entity.User) worker.Task {
 		})
 
 		plan := enum.PlanFree
-		if tenant.HasCommercialFeatures {
+		if tenant.IsPro {
 			plan = enum.PlanPro
 		}
 

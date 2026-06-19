@@ -207,6 +207,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 		"mode":                env.Config.HostMode,
 		"locale":              locale,
 		"localeDirection":     localeDirection,
+		"version":             env.Version(),
 		"environment":         env.Config.Environment,
 		"googleAnalytics":     env.Config.GoogleAnalytics,
 		"domain":              env.MultiTenantDomain(),

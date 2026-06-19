@@ -17,6 +17,7 @@ const messages: { [key: string]: any } = {
   it: require(`../locale/it/client`),
   "es-ES": require(`../locale/es-ES/client`),
   "zh-CN": require(`../locale/zh-CN/client`),
+  "zh-TW": require(`../locale/zh-TW/client`),
   el: require(`../locale/el/client`),
   nl: require(`../locale/nl/client`),
   de: require(`../locale/de/client`),
@@ -47,6 +48,7 @@ const pages: { [key: string]: any } = {
   "Error/Error410.page": require(`./pages/Error/Error410.page`),
   "Error/Error500.page": require(`./pages/Error/Error500.page`),
   "Error/NotInvited.page": require(`./pages/Error/NotInvited.page`),
+  "Error/AccessDenied.page": require(`./pages/Error/AccessDenied.page`),
 }
 
 function ssrRender(url: string, args: any) {

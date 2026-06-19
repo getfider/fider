@@ -54,6 +54,9 @@ const locales: { [key: string]: Locale } = {
   "zh-CN": {
     text: "Chinese (Simplified)",
   },
+  "zh-TW": {
+    text: "Chinese (Traditional)",
+  },
   fa: {
     text: "Persian (پارسی)",
   },

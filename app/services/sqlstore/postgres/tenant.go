@@ -80,8 +80,8 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 			c.Logo.BlobKey = ""
 		}
 
-		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, welcome_header = $4, cname = $5, logo_bkey = $6, locale = $7 WHERE id = $8"
-		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.WelcomeHeader, c.CNAME, c.Logo.BlobKey, c.Locale, tenant.ID)
+		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, welcome_header = $4, description_template = $5, cname = $6, logo_bkey = $7, locale = $8 WHERE id = $9"
+		_, err := trx.Execute(query, c.Title, c.Invitation, c.WelcomeMessage, c.WelcomeHeader, c.DescriptionTemplate, c.CNAME, c.Logo.BlobKey, c.Locale, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant settings")
 		}
@@ -91,6 +91,7 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 		tenant.CNAME = c.CNAME
 		tenant.WelcomeMessage = c.WelcomeMessage
 		tenant.WelcomeHeader = c.WelcomeHeader
+		tenant.DescriptionTemplate = c.DescriptionTemplate
 
 		return nil
 	})
@@ -130,8 +131,8 @@ func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) er
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
-		err := trx.Get(&verification, query, q.Key, q.Kind)
+		query := "SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts FROM email_verifications WHERE key = $1 AND kind = $2 AND tenant_id = $3 LIMIT 1"
+		err := trx.Get(&verification, query, q.Key, q.Kind, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get email verification by its key")
 		}
@@ -145,7 +146,7 @@ func getVerificationByEmailAndCode(ctx context.Context, q *query.GetVerification
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND code = $3 AND kind = $4 LIMIT 1"
+		query := "SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND code = $3 AND kind = $4 LIMIT 1"
 		err := trx.Get(&verification, query, tenant.ID, q.Email, q.Code, q.Kind)
 		if err != nil {
 			return errors.Wrap(err, "failed to get email verification by email and code")
@@ -188,6 +189,52 @@ func setKeyAsVerified(ctx context.Context, c *cmd.SetKeyAsVerified) error {
 	})
 }
 
+func getActiveVerificationByEmail(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		verification := dbEntities.EmailVerification{}
+
+		query := `SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts
+		          FROM email_verifications
+		          WHERE tenant_id = $1 AND email = $2 AND kind = $3
+		            AND verified_at IS NULL AND expires_at > $4
+		          ORDER BY created_at DESC
+		          LIMIT 1`
+		err := trx.Get(&verification, query, tenant.ID, q.Email, q.Kind, time.Now())
+		if err != nil {
+			return errors.Wrap(err, "failed to get active email verification by email")
+		}
+
+		q.Result = verification.ToModel()
+		return nil
+	})
+}
+
+func incrementVerificationAttempts(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		_, err := trx.Execute(
+			"UPDATE email_verifications SET attempts = attempts + 1 WHERE tenant_id = $1 AND key = $2",
+			tenant.ID, c.Key,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to increment verification attempts")
+		}
+		return nil
+	})
+}
+
+func invalidateVerificationsByEmail(ctx context.Context, c *cmd.InvalidateVerificationsByEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		_, err := trx.Execute(
+			"UPDATE email_verifications SET verified_at = $1 WHERE tenant_id = $2 AND email = $3 AND kind = $4 AND verified_at IS NULL",
+			time.Now(), tenant.ID, c.Email, c.Kind,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to invalidate verifications for email '%s'", c.Email)
+		}
+		return nil
+	})
+}
+
 func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		now := time.Now()
@@ -213,7 +260,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbEntities.Tenant{}
 
 	err := trx.Get(&tenant, `
-		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro,
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.description_template, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro, t.scheduled_deletion_at,
 			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
 		FROM tenants t
 		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
@@ -233,7 +280,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbEntities.Tenant{}
 
 	err := trx.Get(&tenant, `
-		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro,
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.description_template, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro, t.scheduled_deletion_at,
 			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
 		FROM tenants t
 		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
@@ -253,10 +300,10 @@ func getPendingSignUpVerification(ctx context.Context, q *query.GetPendingSignUp
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		verification := dbEntities.EmailVerification{}
 
-		query := `SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id 
-		          FROM email_verifications 
+		query := `SELECT id, email, name, key, code, created_at, verified_at, expires_at, kind, user_id, attempts
+		          FROM email_verifications
 		          WHERE tenant_id = $1 AND kind = $2 AND verified_at IS NULL
-		          ORDER BY created_at DESC 
+		          ORDER BY created_at DESC
 		          LIMIT 1`
 		err := trx.Get(&verification, query, tenant.ID, enum.EmailVerificationKindSignUp)
 		if err != nil {

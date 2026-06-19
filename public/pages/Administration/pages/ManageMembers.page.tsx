@@ -215,7 +215,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
   )
 
   return (
-    <AdminPageContainer id="p-admin-members" name="members" title="Members" subtitle="Manage your site administrators and collaborators">
+    <AdminPageContainer id="p-admin-members" name="users" title="Members" subtitle="Manage your site administrators and collaborators">
       <div className="flex gap-4 flex-items-center mb-4">
         <div className="flex-grow">
           <Input

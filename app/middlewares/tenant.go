@@ -136,6 +136,18 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 	}
 }
 
+// RequirePro blocks requests from non-pro tenants (free hosted customers)
+func RequirePro() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c *web.Context) error {
+			if !c.Tenant().IsPro {
+				return c.Forbidden()
+			}
+			return next(c)
+		}
+	}
+}
+
 // BlockLockedTenants blocks requests on locked tenants as they are in read-only mode
 func BlockLockedTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {

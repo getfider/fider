@@ -12,14 +12,14 @@ import "./ManageBilling.page.scss"
 interface ManageBillingPageProps {
   stripeCustomerID: string
   stripeSubscriptionID: string
-  licenseKey: string
   paddleSubscriptionID: string
-  hasCommercialFeatures: boolean
+  isPro: boolean
 }
 
 interface PlanFeature {
   text: string
   isNegative?: boolean
+  onClick?: () => void
 }
 
 interface PlanCardProps {
@@ -79,10 +79,17 @@ const PlanCard = (props: PlanCardProps) => {
           {props.features.map((feature, index) => {
             const featureText = typeof feature === "string" ? feature : feature.text
             const isNegative = typeof feature === "object" && feature.isNegative
+            const onClick = typeof feature === "object" ? feature.onClick : undefined
             return (
-              <HStack key={index} spacing={2} align="start">
+              <HStack key={index} spacing={2} align="center">
                 <Icon sprite={isNegative ? IconX : IconCheck} className={isNegative ? "text-red-500" : "text-green-500"} height="16" />
-                <span className="text-sm">{featureText}</span>
+                {onClick ? (
+                  <a className="text-sm clickable text-blue-200 clickable" onClick={onClick}>
+                    {featureText}
+                  </a>
+                ) : (
+                  <span className="text-sm">{featureText}</span>
+                )}
               </HStack>
             )
           })}
@@ -115,8 +122,8 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
   // Detect Paddle customers who need to migrate
   const isPaddleCustomer = Boolean(props.paddleSubscriptionID && !props.stripeSubscriptionID)
 
-  // Display as commercial only if they're truly a Stripe customer
-  const displayAsCommercial = props.hasCommercialFeatures && !isPaddleCustomer
+  // Display as Pro only if they're truly a Stripe customer
+  const displayAsPro = props.isPro && !isPaddleCustomer
 
   const openPortal = async () => {
     setIsLoading(true)
@@ -140,7 +147,26 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
 
   const freeFeatures = ["250 suggestions", "Unlimited voters", "Your own subdomain or custom domain", "All core functionality"]
 
-  const proFeatures = ["Everything in free", "Unlimited suggestions", "Content moderation", "Search engine indexing", "Billing month to month"]
+  const startAnnualCheckout = async () => {
+    setIsLoading(true)
+    const result = await http.post<{ url: string }>("/_api/admin/billing/checkout/annual")
+    if (result.ok) {
+      window.location.href = result.data.url
+    } else {
+      setIsLoading(false)
+    }
+  }
+
+  const proFeatures: (string | PlanFeature)[] = [
+    "Everything in free",
+    "Unlimited suggestions",
+    "Content moderation",
+    "Search engine indexing",
+    {
+      text: "Option to pay annually",
+      onClick: startAnnualCheckout,
+    },
+  ]
 
   const legacyProFeatures: PlanFeature[] = [
     { text: "Same features as Pro" },
@@ -154,18 +180,6 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
 
       {isPaddleCustomer && <PaddleMigrationBanner />}
 
-      {displayAsCommercial && props.licenseKey && (
-        <div className="bg-blue-50 p-4 rounded mb-4 border border-blue-200">
-          <p className="text-sm text-gray-700">
-            If you want to run Fider self-hosted with commercial features,{" "}
-            <a href="/admin/advanced" className="text-blue-600 hover:text-blue-800 underline">
-              see advanced
-            </a>
-            .
-          </p>
-        </div>
-      )}
-
       <div className="c-billing-plans">
         <PlanCard
           name="Free"
@@ -173,11 +187,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="Perfect for getting started with feedback collection."
           features={freeFeatures}
-          isCurrent={!displayAsCommercial && !isPaddleCustomer}
+          isCurrent={!displayAsPro && !isPaddleCustomer}
           buttonText="Downgrade"
           buttonVariant="secondary"
-          onButtonClick={displayAsCommercial ? openPortal : undefined}
-          isLoading={isLoading && displayAsCommercial}
+          onButtonClick={displayAsPro ? openPortal : undefined}
+          isLoading={isLoading && displayAsPro}
         />
 
         {isPaddleCustomer && (
@@ -198,11 +212,11 @@ const ManageBillingPage = (props: ManageBillingPageProps) => {
           period="month"
           description="For teams that need advanced features and support."
           features={proFeatures}
-          isCurrent={displayAsCommercial}
+          isCurrent={displayAsPro}
           isHighlighted={true}
-          buttonText={displayAsCommercial ? "Manage Billing" : isPaddleCustomer ? "Switch to new Pro Plan" : "Upgrade to Pro"}
+          buttonText={displayAsPro ? "Manage Billing" : isPaddleCustomer ? "Switch to new Pro Plan" : "Upgrade to Pro"}
           buttonVariant="primary"
-          onButtonClick={displayAsCommercial ? openPortal : startCheckout}
+          onButtonClick={displayAsPro ? openPortal : startCheckout}
           isLoading={isLoading}
         />
       </div>

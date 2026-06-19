@@ -27,10 +27,11 @@ const (
 
 // FiderClaims represents what goes into JWT tokens
 type FiderClaims struct {
-	UserID    int    `json:"user/id"`
-	UserName  string `json:"user/name"`
-	UserEmail string `json:"user/email"`
-	Origin    string `json:"origin"`
+	UserID        int    `json:"user/id"`
+	UserName      string `json:"user/name"`
+	UserEmail     string `json:"user/email"`
+	Origin        string `json:"origin"`
+	SecurityStamp string `json:"user/security_stamp,omitempty"`
 	Metadata
 }
 

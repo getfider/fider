@@ -7,6 +7,5 @@ import (
 type StripeBillingState struct {
 	StripeCustomerID     dbx.NullString `db:"stripe_customer_id"`
 	StripeSubscriptionID dbx.NullString `db:"stripe_subscription_id"`
-	LicenseKey           dbx.NullString `db:"license_key"`
 	PaddleSubscriptionID dbx.NullString `db:"paddle_subscription_id"`
 }
