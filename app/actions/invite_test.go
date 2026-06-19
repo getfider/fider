@@ -11,7 +11,24 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 )
+
+func withBillingEnabled(t *testing.T) {
+	t.Helper()
+	originalKey := env.Config.Stripe.SecretKey
+	originalMode := env.Config.HostMode
+	env.Config.Stripe.SecretKey = "sk_test"
+	env.Config.HostMode = "multi"
+	t.Cleanup(func() {
+		env.Config.Stripe.SecretKey = originalKey
+		env.Config.HostMode = originalMode
+	})
+}
+
+func ctxWithTenant(tenant *entity.Tenant) context.Context {
+	return context.WithValue(context.Background(), app.TenantCtxKey, tenant)
+}
 
 func TestInviteUsers_Empty(t *testing.T) {
 	RegisterT(t)
@@ -171,4 +188,90 @@ func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {
 	}
 
 	ExpectSuccess(action.Validate(context.Background(), nil))
+}
+
+func TestInviteUsers_NonProTenant_OverridesCopy(t *testing.T) {
+	RegisterT(t)
+	withBillingEnabled(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	tenant := &entity.Tenant{Name: "Acme", IsPro: false}
+	inviter := &entity.User{Name: "Jon Snow"}
+	action := &actions.InviteUsers{
+		Subject:    "Free Vinted vouchers!! Click here",
+		Message:    "Tap %invite% to claim your prize",
+		Recipients: []string{"victim@example.com"},
+	}
+
+	ExpectSuccess(action.Validate(ctxWithTenant(tenant), inviter))
+
+	Expect(action.Subject).Equals(actions.DefaultInviteSubject(tenant))
+	Expect(action.Message).Equals(actions.DefaultInviteMessage(tenant, inviter))
+}
+
+func TestInviteUsers_ProTenant_KeepsCustomCopy(t *testing.T) {
+	RegisterT(t)
+	withBillingEnabled(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	tenant := &entity.Tenant{Name: "Acme", IsPro: true}
+	inviter := &entity.User{Name: "Jon Snow"}
+	customSubject := "Share your feedback."
+	customMessage := "Use this link to join our community: %invite%"
+	action := &actions.InviteUsers{
+		Subject:    customSubject,
+		Message:    customMessage,
+		Recipients: []string{"customer@example.com"},
+	}
+
+	ExpectSuccess(action.Validate(ctxWithTenant(tenant), inviter))
+
+	Expect(action.Subject).Equals(customSubject)
+	Expect(action.Message).Equals(customMessage)
+}
+
+func TestInviteUsers_BillingDisabled_KeepsCustomCopy(t *testing.T) {
+	RegisterT(t)
+	// Billing disabled: self-hosted Fider, no Stripe key configured.
+	originalKey := env.Config.Stripe.SecretKey
+	env.Config.Stripe.SecretKey = ""
+	t.Cleanup(func() { env.Config.Stripe.SecretKey = originalKey })
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	tenant := &entity.Tenant{Name: "Acme", IsPro: false}
+	inviter := &entity.User{Name: "Jon Snow"}
+	customSubject := "Share your feedback."
+	customMessage := "Use this link to join our community: %invite%"
+	action := &actions.InviteUsers{
+		Subject:    customSubject,
+		Message:    customMessage,
+		Recipients: []string{"customer@example.com"},
+	}
+
+	ExpectSuccess(action.Validate(ctxWithTenant(tenant), inviter))
+
+	Expect(action.Subject).Equals(customSubject)
+	Expect(action.Message).Equals(customMessage)
+}
+
+func TestInviteUsers_DefaultCopyPassesValidation(t *testing.T) {
+	RegisterT(t)
+
+	tenant := &entity.Tenant{Name: "Acme"}
+	inviter := &entity.User{Name: "Jon Snow"}
+
+	subject := actions.DefaultInviteSubject(tenant)
+	message := actions.DefaultInviteMessage(tenant, inviter)
+
+	Expect(len(subject) <= 70).IsTrue()
+	Expect(message).ContainsSubstring(app.InvitePlaceholder)
 }

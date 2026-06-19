@@ -52,6 +52,9 @@ export const SideMenu = (props: SiteMenuProps) => {
             {fider.settings.isBillingEnabled && <SideMenuItem name="billing" title="Billing" href="/admin/billing" isActive={activeItem === "billing"} />}
             <SideMenuItem name="webhooks" title="Webhooks" href="/admin/webhooks" isActive={activeItem === "webhooks"} />
             <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
+            {!fider.isSingleHostMode() && (
+              <SideMenuItem name="danger-zone" title="Danger Zone" href="/admin/danger-zone" isActive={activeItem === "danger-zone"} />
+            )}
           </>
         )}
       </VStack>
