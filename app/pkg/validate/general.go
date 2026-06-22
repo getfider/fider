@@ -56,7 +56,11 @@ func URL(ctx context.Context, rawurl string) []string {
 	return []string{}
 }
 
-// WebhookURL validates that a URL is well-formed and does not target private/internal networks
+// WebhookURL validates that a URL is well-formed and, by default, does not target
+// private/internal networks. Self-hosted instances that need to reach internal
+// services (e.g. an integration server on a LAN) can opt out of the network
+// check by setting WEBHOOK_ALLOW_PRIVATE_IPS=true; format validation (valid URL,
+// scheme http/https) still applies in that mode.
 func WebhookURL(rawurl string) []string {
 	u, err := url.Parse(rawurl)
 	if err != nil || u.Host == "" {
@@ -66,6 +70,10 @@ func WebhookURL(rawurl string) []string {
 	scheme := strings.ToLower(u.Scheme)
 	if scheme != "http" && scheme != "https" {
 		return []string{"Only http and https URLs are allowed."}
+	}
+
+	if env.Config.WebhookAllowPrivateIPs {
+		return []string{}
 	}
 
 	hostname := u.Hostname()
