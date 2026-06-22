@@ -46,6 +46,7 @@ func getViewData(query query.SearchPosts, tagsPlaceholder int) (string, []enum.P
 		// Use a sensible default list of status filters
 		statusFilters = []enum.PostStatus{
 			enum.PostOpen,
+			enum.PostReview,
 			enum.PostStarted,
 			enum.PostPlanned,
 		}
@@ -86,6 +87,7 @@ func getViewData(query query.SearchPosts, tagsPlaceholder int) (string, []enum.P
 		sort = "id"
 		statusFilters = []enum.PostStatus{
 			enum.PostOpen,
+			enum.PostReview,
 			enum.PostStarted,
 			enum.PostPlanned,
 			enum.PostCompleted,

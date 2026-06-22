@@ -31,6 +31,7 @@
   "validation.custom.maximagesize": "The image size must be smaller than {kilobytes}KB.",
   "validation.custom.invalidemoji": "Invalid reaction emoji.",
   "enum.poststatus.open": "Open",
+  "enum.poststatus.review": "Review",
   "enum.poststatus.started": "Started",
   "enum.poststatus.completed": "Completed",
   "enum.poststatus.declined": "Declined",

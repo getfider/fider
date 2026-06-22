@@ -29,6 +29,7 @@
   "enum.poststatus.duplicate": "Duplicate",
   "enum.poststatus.open": "Open",
   "enum.poststatus.planned": "Planned",
+  "enum.poststatus.review": "Review",
   "enum.poststatus.started": "Started",
   "error.accessdenied.contact": "If you believe this is an error, please contact your administrator.",
   "error.accessdenied.text": "You do not have the required permissions to access this site.",

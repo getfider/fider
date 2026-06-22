@@ -257,7 +257,9 @@ func (action *SetResponse) IsAuthorized(ctx context.Context, user *entity.User) 
 func (action *SetResponse) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Status < enum.PostOpen || action.Status > enum.PostDuplicate {
+	// Only known statuses are settable via this action. PostDeleted is reserved
+	// for the deletion flow, never set through SetResponse.
+	if action.Status == enum.PostDeleted || action.Status.Name() == "unknown" {
 		result.AddFieldFailure("status", propertyIsInvalid(ctx, "status"))
 	}
 

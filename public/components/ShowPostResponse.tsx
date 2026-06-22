@@ -7,6 +7,7 @@ import HeroIconSparkles from "@fider/assets/images/heroicons-sparkles-outline.sv
 import HeroIconLightBulb from "@fider/assets/images/heroicons-lightbulb.svg"
 import HeroIconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import HeroIconThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
+import HeroIconEye from "@fider/assets/images/heroicons-eye.svg"
 import { HStack, VStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
 import { useFider } from "@fider/hooks"
@@ -72,6 +73,8 @@ const getLozengeProps = (status: PostStatus): { icon: SpriteSymbol; bg: string; 
       return { icon: HeroIconThumbsUp, bg: "bg-blue-100", color: "text-blue-700", border: "border-blue-400" }
     case PostStatus.Started:
       return { icon: HeroIconSparkles, bg: "bg-blue-100", color: "text-blue-700", border: "border-blue-400" }
+    case PostStatus.Review:
+      return { icon: HeroIconEye, bg: "bg-blue-100", color: "text-blue-700", border: "border-blue-400" }
     case PostStatus.Open:
       return { icon: HeroIconLightBulb, bg: "bg-blue-100", color: "text-blue-700", border: "border-blue-400" }
     default:
@@ -83,6 +86,8 @@ const getStatusTranslation = (status: PostStatus): JSX.Element => {
   switch (status) {
     case PostStatus.Open:
       return <Trans id="enum.poststatus.open">Open</Trans>
+    case PostStatus.Review:
+      return <Trans id="enum.poststatus.review">Review</Trans>
     case PostStatus.Planned:
       return <Trans id="enum.poststatus.planned">Planned</Trans>
     case PostStatus.Started:
