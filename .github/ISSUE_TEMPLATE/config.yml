@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💡 Request or vote on a feature
+    url: https://feedback.fider.io
+    about: Feature ideas start here. Post or vote on a suggestion so the community can discuss it. New features need an accepted suggestion before we'll review a PR.
+  - name: 📋 Feature policy & roadmap discussion
+    url: https://github.com/getfider/fider/discussions/1529
+    about: How we decide which features get built, and why unsolicited feature PRs may be closed. Please read before proposing a new feature.
+  - name: 💬 Questions & help
+    url: https://github.com/getfider/fider/discussions
+    about: Have a question or need help? Ask in GitHub Discussions.
