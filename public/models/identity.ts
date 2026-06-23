@@ -1,3 +1,5 @@
+import { Status } from "./post"
+
 export interface Tenant {
   id: number
   name: string
@@ -7,7 +9,6 @@ export interface Tenant {
   invitation: string
   welcomeMessage: string
   welcomeHeader: string
-  descriptionTemplate: string
   status: TenantStatus
   isPrivate: boolean
   logoBlobKey: string
@@ -16,6 +17,10 @@ export interface Tenant {
   isFeedEnabled: boolean
   isModerationEnabled: boolean
   isPro: boolean
+  // Custom status catalogue for this tenant; populated by the server on every
+  // request. Undefined for old Fider builds / unmigrated tenants — runtime
+  // code must fall back to the hardcoded PostStatus enum in that case.
+  statuses?: Status[]
 }
 
 export enum TenantStatus {

@@ -176,7 +176,7 @@ func GlobalFeed() web.HandlerFunc {
 				lastUpdate = post.Response.RespondedAt
 			}
 
-			categories := []*Category{{Term: i18n.T(c, "enum.poststatus."+post.Status.Name())}}
+			categories := []*Category{{Term: i18n.T(c, "enum.poststatus."+post.StatusSlug)}}
 			categories, err := appendTags(c, categories, post)
 			if err != nil {
 				return c.Failure(err)
@@ -266,7 +266,7 @@ func CommentFeed() web.HandlerFunc {
 			Entries: []*Entry{},
 		}
 
-		categories := []*Category{{Term: i18n.T(c, "enum.poststatus."+post.Status.Name())}}
+		categories := []*Category{{Term: i18n.T(c, "enum.poststatus."+post.StatusSlug)}}
 		categories, err = appendTags(c, categories, post)
 		if err != nil {
 			return c.Failure(err)
@@ -299,7 +299,7 @@ func CommentFeed() web.HandlerFunc {
 					{Href: fmt.Sprintf("%s/posts/%d", web.BaseURL(c), post.Number), Type: "text/html", Rel: "alternate"},
 				},
 				Content:    &Content{Type: "html", Body: string(markdown.Full(post.Response.Text, true))},
-				Categories: []*Category{{Term: i18n.T(c, "enum.poststatus."+post.Status.Name())}},
+				Categories: []*Category{{Term: i18n.T(c, "enum.poststatus."+post.StatusSlug)}},
 			})
 		}
 

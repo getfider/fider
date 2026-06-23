@@ -2,7 +2,7 @@ import "./PostDetails.scss"
 
 import React, { useState, useEffect, useCallback } from "react"
 
-import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
+import { Comment, Post, Tag, Vote, CurrentUser, PostStatus, postStatusValue } from "@fider/models"
 import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import { i18n } from "@lingui/core"
@@ -61,7 +61,7 @@ const PostMetaInfo = ({ post, locale }: { post: Post; locale: string }) => (
     <span className="text-sm text-gray-400">•</span>
     <Moment className="text-sm text-gray-600" locale={locale} date={post.createdAt} />
     <span className="text-sm text-gray-400">•</span>
-    <ResponseLozenge status={post.status} response={post.response} size="xsmall" />
+    <ResponseLozenge status={postStatusValue(post)} response={post.response} size="xsmall" />
   </HStack>
 )
 
@@ -193,24 +193,6 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     }
   }, [])
 
-  const refreshPost = async () => {
-    const [postResult, commentsResult] = await Promise.all([actions.getPost(props.postNumber), actions.getComments(props.postNumber)])
-    if (postResult.ok) {
-      setPost(postResult.data)
-      setNewTitle(postResult.data.title)
-      setNewDescription(postResult.data.description)
-    }
-    if (commentsResult.ok) {
-      setComments(commentsResult.data)
-    }
-  }
-
-  const handleResponded = async () => {
-    setShowResponseModal(false)
-    await refreshPost()
-    props.onDataChanged?.()
-  }
-
   const saveChanges = async () => {
     if (!post) return
     const result = await actions.updatePost(post.number, newTitle, newDescription, attachments)
@@ -231,7 +213,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
   const canDeletePost = () => {
     if (!post) return false
-    const status = PostStatus.Get(post.status)
+    const status = PostStatus.Get(postStatusValue(post))
     if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
       return false
     }
@@ -485,7 +467,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
           <CommentInput post={post} />
 
           {/* Response Details - First discussion item */}
-          {post.response && <ResponseDetails status={post.status} response={post.response} />}
+          {post.response && <ResponseDetails status={postStatusValue(post)} response={post.response} />}
 
           {/* Comments List */}
           {comments.length > 0 && (
@@ -507,7 +489,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
       <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${post.number}.atom`} />
       <DeletePostModal onModalClose={() => setShowDeleteModal(false)} showModal={showDeleteModal} post={post} />
       {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
-        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} onResponded={handleResponded} />
+        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} />
       )}
     </div>
   )

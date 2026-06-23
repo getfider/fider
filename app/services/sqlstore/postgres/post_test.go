@@ -7,7 +7,6 @@ import (
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
@@ -24,10 +23,10 @@ func TestPostStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1, true, 'english')", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 'started', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 'completed', true, 'english')", now)
 	Expect(err).IsNil()
 
 	allPosts := &query.GetAllPosts{}
@@ -41,7 +40,7 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(allPosts.Result[0].Description).Equals("no description")
 	Expect(allPosts.Result[0].User.Name).Equals("Arya Stark")
 	Expect(allPosts.Result[0].VotesCount).Equals(0)
-	Expect(allPosts.Result[0].Status).Equals(enum.PostCompleted)
+	Expect(allPosts.Result[0].StatusSlug).Equals("completed")
 
 	Expect(allPosts.Result[1].Title).Equals("add twitter integration")
 	Expect(allPosts.Result[1].Slug).Equals("add-twitter-integration")
@@ -49,7 +48,7 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(allPosts.Result[1].Description).Equals("Would be great to see it integrated with twitter")
 	Expect(allPosts.Result[1].User.Name).Equals("Jon Snow")
 	Expect(allPosts.Result[1].VotesCount).Equals(0)
-	Expect(allPosts.Result[1].Status).Equals(enum.PostStarted)
+	Expect(allPosts.Result[1].StatusSlug).Equals("started")
 
 	search10 := &query.SearchPosts{Query: "twitter", Limit: "10"}
 	search0 := &query.SearchPosts{Query: "twitter", Limit: "0"}
@@ -66,25 +65,25 @@ func TestPostStorage_SearchGermanPosts(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Wann kommt der \"Wächter\" für das neue Stunden- und Vertretungsplanmodul?', 'wann-kommt-der-wachter-fur-das-neue-stunden-und-vertretungsplanmodul', 1, 'Description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Wann kommt der \"Wächter\" für das neue Stunden- und Vertretungsplanmodul?', 'wann-kommt-der-wachter-fur-das-neue-stunden-und-vertretungsplanmodul', 1, 'Description', $1, $2, $3, 'open', true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Neuer Stunden/ Vertretungsplanwächter', 'neuer-stunden-vertretungsplanwachter', 2, 'no description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Neuer Stunden/ Vertretungsplanwächter', 'neuer-stunden-vertretungsplanwachter', 2, 'no description', $1, $2, $3, 'open', true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Ungeklärte Vertretung wird zu Entfall', 'ungeklarte-vertretung-wird-zu-entfall', 3, 'some description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Ungeklärte Vertretung wird zu Entfall', 'ungeklarte-vertretung-wird-zu-entfall', 3, 'some description', $1, $2, $3, 'open', true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Vertretungsplan drucken', 'vertretungsplan-drucken', 4, 'another description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Vertretungsplan drucken', 'vertretungsplan-drucken', 4, 'another description', $1, $2, $3, 'open', true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Vertretungsplanung Wochenansicht', 'vertretungsplanung-wochenansicht', 5, 'description here', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Vertretungsplanung Wochenansicht', 'vertretungsplanung-wochenansicht', 5, 'description here', $1, $2, $3, 'open', true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('VertretungsBoard', 'vertretungsboard', 6, 'board description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('VertretungsBoard', 'vertretungsboard', 6, 'board description', $1, $2, $3, 'open', true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Abwesenheiten Vertretungsplan', 'abwesenheiten-vertretungsplan', 7, 'final description', $1, $2, $3, 0, true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Abwesenheiten Vertretungsplan', 'abwesenheiten-vertretungsplan', 7, 'final description', $1, $2, $3, 'open', true, 'german')", now, germanTenant.ID, germanJonSnow.ID)
 	Expect(err).IsNil()
 
 	// Search for "Vertretung" - with German stemming, should match all posts containing Vertretung* variants
@@ -104,16 +103,16 @@ func TestPostStorage_SearchEnglishPosts_SingleWord(t *testing.T) {
 	now := time.Now()
 
 	// Create posts with various forms of "integration"
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Add Twitter Integration', 'add-twitter-integration', 1, 'Would be great to integrate with Twitter', $1, 1, 1, 0, true, 'english')", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Add Twitter Integration', 'add-twitter-integration', 1, 'Would be great to integrate with Twitter', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('GitHub Integration Needed', 'github-integration-needed', 2, 'Please add GitHub integration', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('GitHub Integration Needed', 'github-integration-needed', 2, 'Please add GitHub integration', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Integrate with Slack', 'integrate-with-slack', 3, 'Slack integration would be useful', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Integrate with Slack', 'integrate-with-slack', 3, 'Slack integration would be useful', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Email Notifications', 'email-notifications', 4, 'Add email notification support', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Email Notifications', 'email-notifications', 4, 'Add email notification support', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
 	// Search for "integration" - should match posts 1, 2, and 3 (with stemming, "integrate" = "integration")
@@ -138,16 +137,16 @@ func TestPostStorage_SearchEnglishPosts_MultiWord(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Dark Mode Support', 'dark-mode-support', 1, 'Add dark mode to the application', $1, 1, 1, 0, true, 'english')", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Dark Mode Support', 'dark-mode-support', 1, 'Add dark mode to the application', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Light Theme Customization', 'light-theme-customization', 2, 'Customize the light theme colors', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Light Theme Customization', 'light-theme-customization', 2, 'Customize the light theme colors', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Dark Theme Colors', 'dark-theme-colors', 3, 'Change dark theme color scheme', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Dark Theme Colors', 'dark-theme-colors', 3, 'Change dark theme color scheme', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('User Profile', 'user-profile', 4, 'Improve user profile page', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('User Profile', 'user-profile', 4, 'Improve user profile page', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
 	searchDarkTheme := &query.SearchPosts{Query: "dark theme"}
@@ -163,13 +162,13 @@ func TestPostStorage_SearchEnglishPosts_PartialMatch(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Authentication System', 'authentication-system', 1, 'Improve authentication', $1, 1, 1, 0, true, 'english')", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Authentication System', 'authentication-system', 1, 'Improve authentication', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Authorization Rules', 'authorization-rules', 2, 'Add better authorization', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Authorization Rules', 'authorization-rules', 2, 'Add better authorization', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('OAuth Support', 'oauth-support', 3, 'Support OAuth providers', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('OAuth Support', 'oauth-support', 3, 'Support OAuth providers', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
 	// Search for "auth" - should match posts 1 and 2 (prefix matching)
@@ -192,10 +191,10 @@ func TestPostStorage_SearchEnglishPosts_CaseInsensitive(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('API Documentation', 'api-documentation', 1, 'Improve API docs', $1, 1, 1, 0, true, 'english')", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('API Documentation', 'api-documentation', 1, 'Improve API docs', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Rest API Endpoints', 'rest-api-endpoints', 2, 'Add more REST API endpoints', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Rest API Endpoints', 'rest-api-endpoints', 2, 'Add more REST API endpoints', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
 	// Search with different cases - all should return same results
@@ -217,13 +216,13 @@ func TestPostStorage_SearchEnglishPosts_DescriptionMatch(t *testing.T) {
 
 	now := time.Now()
 
-	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Feature Request', 'feature-request-1', 1, 'Add support for exporting data to CSV format', $1, 1, 1, 0, true, 'english')", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Feature Request', 'feature-request-1', 1, 'Add support for exporting data to CSV format', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Another Feature', 'feature-request-2', 2, 'Improve the dashboard layout', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Another Feature', 'feature-request-2', 2, 'Improve the dashboard layout', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
-	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('Export Functionality', 'export-functionality', 3, 'Export reports in PDF format', $1, 1, 1, 0, true, 'english')", now)
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status_slug, is_approved, language) VALUES ('Export Functionality', 'export-functionality', 3, 'Export reports in PDF format', $1, 1, 1, 'open', true, 'english')", now)
 	Expect(err).IsNil()
 
 	// Search for "export" - should match posts 1 and 3 (one in description, one in title)
@@ -257,7 +256,7 @@ func TestPostStorage_AddAndGet(t *testing.T) {
 	Expect(postByID.Result.Number).Equals(1)
 	Expect(postByID.Result.HasVoted).IsFalse()
 	Expect(postByID.Result.VotesCount).Equals(0)
-	Expect(postByID.Result.Status).Equals(enum.PostOpen)
+	Expect(postByID.Result.StatusSlug).Equals("open")
 	Expect(postByID.Result.Title).Equals("My new post")
 	Expect(postByID.Result.Description).Equals("with this description")
 	Expect(postByID.Result.User.ID).Equals(1)
@@ -268,7 +267,7 @@ func TestPostStorage_AddAndGet(t *testing.T) {
 	Expect(postBySlug.Result.Number).Equals(1)
 	Expect(postBySlug.Result.HasVoted).IsFalse()
 	Expect(postBySlug.Result.VotesCount).Equals(0)
-	Expect(postBySlug.Result.Status).Equals(enum.PostOpen)
+	Expect(postBySlug.Result.StatusSlug).Equals("open")
 	Expect(postBySlug.Result.Title).Equals("My new post")
 	Expect(postBySlug.Result.Description).Equals("with this description")
 	Expect(postBySlug.Result.User.ID).Equals(1)
@@ -518,14 +517,14 @@ func TestPostStorage_SetResponse(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostStarted})
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", StatusSlug: "started"})
 	Expect(err).IsNil()
 
 	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
 	err = bus.Dispatch(jonSnowCtx, getPost)
 	Expect(err).IsNil()
 	Expect(getPost.Result.Response.Text).Equals("We liked this post")
-	Expect(getPost.Result.Status).Equals(enum.PostStarted)
+	Expect(getPost.Result.StatusSlug).Equals("started")
 	Expect(getPost.Result.Response.User.ID).Equals(1)
 }
 
@@ -537,7 +536,7 @@ func TestPostStorage_SetResponse_KeepOpen(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostOpen})
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", StatusSlug: "open"})
 	Expect(err).IsNil()
 }
 
@@ -551,15 +550,15 @@ func TestPostStorage_SetResponse_ChangeText(t *testing.T) {
 
 	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
 
-	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostStarted})
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", StatusSlug: "started"})
 	bus.MustDispatch(jonSnowCtx, getPost)
 	firstResponseAt := getPost.Result.Response.RespondedAt
 
-	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post and we'll work on it", Status: enum.PostStarted})
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post and we'll work on it", StatusSlug: "started"})
 	bus.MustDispatch(jonSnowCtx, getPost)
 	Expect(getPost.Result.Response.RespondedAt).Equals(firstResponseAt)
 
-	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We finished it", Status: enum.PostCompleted})
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We finished it", StatusSlug: "completed"})
 	bus.MustDispatch(jonSnowCtx, getPost)
 	Expect(getPost.Result.Response.RespondedAt).TemporarilySimilar(firstResponseAt, time.Second)
 }
@@ -590,17 +589,17 @@ func TestPostStorage_SetResponse_AsDuplicate(t *testing.T) {
 	Expect(err).IsNil()
 
 	Expect(getPost1.Result.VotesCount).Equals(2)
-	Expect(getPost1.Result.Status).Equals(enum.PostOpen)
+	Expect(getPost1.Result.StatusSlug).Equals("open")
 	Expect(getPost1.Result.Response).IsNil()
 
 	Expect(getPost2.Result.Response.Text).Equals("")
 	Expect(getPost2.Result.VotesCount).Equals(1)
-	Expect(getPost2.Result.Status).Equals(enum.PostDuplicate)
+	Expect(getPost2.Result.StatusSlug).Equals("duplicate")
 	Expect(getPost2.Result.Response.User.ID).Equals(1)
 	Expect(getPost2.Result.Response.Original.Number).Equals(newPost1.Result.Number)
 	Expect(getPost2.Result.Response.Original.Title).Equals(newPost1.Result.Title)
 	Expect(getPost2.Result.Response.Original.Slug).Equals(newPost1.Result.Slug)
-	Expect(getPost2.Result.Response.Original.Status).Equals(newPost1.Result.Status)
+	Expect(getPost2.Result.Response.Original.StatusSlug).Equals(newPost1.Result.StatusSlug)
 }
 
 func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
@@ -611,7 +610,7 @@ func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", Status: enum.PostDeleted})
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", StatusSlug: "deleted"})
 
 	postByID := &query.GetPostByID{PostID: newPost.Result.ID}
 	err = bus.Dispatch(aryaStarkCtx, postByID)
@@ -633,7 +632,7 @@ func TestPostStorage_AddVote_ClosedPost(t *testing.T) {
 	Expect(err).IsNil()
 
 	err = bus.Dispatch(jonSnowCtx,
-		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostCompleted},
+		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", StatusSlug: "completed"},
 		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
 	)
 	Expect(err).IsNil()
@@ -655,7 +654,7 @@ func TestPostStorage_RemoveVote_ClosedPost(t *testing.T) {
 	bus.MustDispatch(
 		jonSnowCtx,
 		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
-		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostCompleted},
+		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", StatusSlug: "completed"},
 		&cmd.RemoveVote{Post: newPost.Result, User: jonSnow},
 	)
 
@@ -714,11 +713,11 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: completedPost.Result})
 	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: completedPost.Result})
 
-	completedPostResponse := &cmd.SetPostResponse{Post: completedPost.Result, Text: "We're doing this", Status: enum.PostCompleted}
-	startedPostResponse := &cmd.SetPostResponse{Post: startedPost.Result, Text: "We're doing this", Status: enum.PostStarted}
-	declinedPostResponse := &cmd.SetPostResponse{Post: declinedPost.Result, Text: "We're not doing this", Status: enum.PostDeclined}
-	plannedPostResponse := &cmd.SetPostResponse{Post: plannedPost.Result, Text: "This is planned", Status: enum.PostPlanned}
-	duplicatePostResponse := &cmd.SetPostResponse{Post: duplicatePost.Result, Text: "This is a dupe", Status: enum.PostDeclined}
+	completedPostResponse := &cmd.SetPostResponse{Post: completedPost.Result, Text: "We're doing this", StatusSlug: "completed"}
+	startedPostResponse := &cmd.SetPostResponse{Post: startedPost.Result, Text: "We're doing this", StatusSlug: "started"}
+	declinedPostResponse := &cmd.SetPostResponse{Post: declinedPost.Result, Text: "We're not doing this", StatusSlug: "declined"}
+	plannedPostResponse := &cmd.SetPostResponse{Post: plannedPost.Result, Text: "This is planned", StatusSlug: "planned"}
+	duplicatePostResponse := &cmd.SetPostResponse{Post: duplicatePost.Result, Text: "This is a dupe", StatusSlug: "declined"}
 
 	err = bus.Dispatch(aryaStarkCtx, startedPostResponse, completedPostResponse, duplicatePostResponse, declinedPostResponse, plannedPostResponse)
 	Expect(err).IsNil()
@@ -738,7 +737,7 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 		{
 			name: "Started and Completed",
 			searchParams: &query.SearchPosts{
-				Statuses: []enum.PostStatus{enum.PostStarted, enum.PostCompleted},
+				Statuses: []string{"started", "completed"},
 			},
 			expectedCount: 2,
 			expectedIDs:   []int{startedPost.Result.ID, completedPost.Result.ID},
@@ -746,7 +745,7 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 		{
 			name: "Only Started",
 			searchParams: &query.SearchPosts{
-				Statuses: []enum.PostStatus{enum.PostStarted},
+				Statuses: []string{"started"},
 			},
 			expectedCount: 1,
 			expectedIDs:   []int{startedPost.Result.ID},
@@ -770,13 +769,13 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 		{
 			name: "All statuses",
 			searchParams: &query.SearchPosts{
-				Statuses: []enum.PostStatus{
-					enum.PostStarted,
-					enum.PostCompleted,
-					enum.PostDeclined,
-					enum.PostDuplicate,
-					enum.PostPlanned,
-					enum.PostOpen,
+				Statuses: []string{
+					"started",
+					"completed",
+					"declined",
+					"duplicate",
+					"planned",
+					"open",
 				},
 			},
 			expectedCount: 6,
@@ -785,7 +784,7 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 		{
 			name: "Completed, with bug tag",
 			searchParams: &query.SearchPosts{
-				Statuses: []enum.PostStatus{enum.PostCompleted},
+				Statuses: []string{"completed"},
 				Tags:     []string{addBug.Result.Slug},
 			},
 			expectedCount: 1,
@@ -794,7 +793,7 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 		{
 			name: "Open and Completed, with bug tag",
 			searchParams: &query.SearchPosts{
-				Statuses: []enum.PostStatus{enum.PostCompleted, enum.PostOpen},
+				Statuses: []string{"completed", "open"},
 				Tags:     []string{addBug.Result.Slug},
 			},
 			expectedCount: 2,
@@ -832,8 +831,8 @@ func TestSearchPosts_RespectsFilters(t *testing.T) {
 	Expect(err).IsNil()
 
 	bus.MustDispatch(aryaStarkCtx,
-		&cmd.SetPostResponse{Post: startedPost.Result, Text: "Working on it", Status: enum.PostStarted},
-		&cmd.SetPostResponse{Post: completedPost.Result, Text: "Done", Status: enum.PostCompleted},
+		&cmd.SetPostResponse{Post: startedPost.Result, Text: "Working on it", StatusSlug: "started"},
+		&cmd.SetPostResponse{Post: completedPost.Result, Text: "Done", StatusSlug: "completed"},
 	)
 
 	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
@@ -858,7 +857,7 @@ func TestSearchPosts_RespectsFilters(t *testing.T) {
 			name: "Search with explicit Completed status",
 			searchParams: &query.SearchPosts{
 				Query:    "kanban",
-				Statuses: []enum.PostStatus{enum.PostCompleted},
+				Statuses: []string{"completed"},
 			},
 			expectedCount: 1,
 			expectedIDs:   []int{completedPost.Result.ID},
@@ -867,7 +866,7 @@ func TestSearchPosts_RespectsFilters(t *testing.T) {
 			name: "Search with explicit Open status",
 			searchParams: &query.SearchPosts{
 				Query:    "kanban",
-				Statuses: []enum.PostStatus{enum.PostOpen},
+				Statuses: []string{"open"},
 			},
 			expectedCount: 2,
 			expectedIDs:   []int{openPost.Result.ID, openByJon.Result.ID},

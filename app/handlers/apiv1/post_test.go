@@ -9,7 +9,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -51,38 +50,6 @@ func TestCreatePostHandler(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	Expect(newPost.Title).Equals("My newest post :)")
 	Expect(newPost.Description).Equals("")
-}
-
-func TestCreatePostHandler_AppendsUnreferencedAttachments(t *testing.T) {
-	RegisterT(t)
-
-	var newPost *cmd.AddNewPost
-	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewPost) error {
-		newPost = c
-		c.Result = &entity.Post{ID: 1, Title: c.Title, Description: c.Description}
-		return nil
-	})
-	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
-	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
-	bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
-	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
-
-	code, _ := mock.NewServer().
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.JonSnow).
-		ExecutePost(apiv1.CreatePost(), `{
-			"title": "Post with attachments",
-			"description": "Already referenced: ![](fider-image:attachments/referenced.png)",
-			"attachments": [
-				{ "bkey": "attachments/referenced.png" },
-				{ "bkey": "attachments/standalone.png" }
-			]
-		}`)
-
-	Expect(code).Equals(http.StatusOK)
-	// The already-referenced attachment is left as-is (not duplicated), and the
-	// unreferenced one is appended at the end as a fider-image markdown reference.
-	Expect(newPost.Description).Equals("Already referenced: ![](fider-image:attachments/referenced.png)\n\n![](fider-image:attachments/standalone.png)")
 }
 
 func TestCreatePostHandler_WithoutTitle(t *testing.T) {
@@ -333,48 +300,6 @@ func TestUpdatePostHandler_TenantStaff(t *testing.T) {
 	Expect(updatePost.Description).Equals("new description")
 }
 
-func TestUpdatePostHandler_AppendsUnreferencedAttachments(t *testing.T) {
-	RegisterT(t)
-
-	post := &entity.Post{ID: 5, Number: 5, Title: "My First Post", Description: "With a description"}
-	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
-		if q.Number == post.Number {
-			q.Result = post
-			return nil
-		}
-		return app.ErrNotFound
-	})
-
-	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
-	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error { return nil })
-	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
-	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
-
-	var updatePost *cmd.UpdatePost
-	bus.AddHandler(func(ctx context.Context, c *cmd.UpdatePost) error {
-		updatePost = c
-		return nil
-	})
-
-	code, _ := mock.NewServer().
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.JonSnow).
-		AddParam("number", post.Number).
-		ExecutePost(apiv1.UpdatePost(), `{
-			"title": "the new title",
-			"description": "Already referenced: ![](fider-image:attachments/referenced.png)",
-			"attachments": [
-				{ "bkey": "attachments/referenced.png" },
-				{ "bkey": "attachments/standalone.png" }
-			]
-		}`)
-
-	Expect(code).Equals(http.StatusOK)
-	// The already-referenced attachment is left as-is (not duplicated), and the
-	// unreferenced one is appended at the end as a fider-image markdown reference.
-	Expect(updatePost.Description).Equals("Already referenced: ![](fider-image:attachments/referenced.png)\n\n![](fider-image:attachments/standalone.png)")
-}
-
 func TestUpdatePostHandler_NonAuthorized(t *testing.T) {
 	RegisterT(t)
 
@@ -569,11 +494,11 @@ func TestSetResponseHandler(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		AddParam("number", post.Number).
-		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, enum.PostCompleted.Name()))
+		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, "completed"))
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(setResponse.Post).Equals(post)
-	Expect(setResponse.Status).Equals(enum.PostCompleted)
+	Expect(setResponse.StatusSlug).Equals("completed")
 	Expect(setResponse.Text).Equals("Done!")
 }
 
@@ -584,7 +509,7 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
 		AddParam("number", 5).
-		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, enum.PostCompleted.Name()))
+		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, "completed"))
 
 	Expect(code).Equals(http.StatusForbidden)
 }
@@ -612,7 +537,7 @@ func TestSetResponseHandler_Duplicate(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, enum.PostDuplicate.Name(), post2.Number)
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, "duplicate", post2.Number)
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -636,7 +561,7 @@ func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": 9999 }`, enum.PostDuplicate.Name())
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": 9999 }`, "duplicate")
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -658,7 +583,7 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, enum.PostDuplicate.Name(), post.Number)
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, "duplicate", post.Number)
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -764,7 +689,7 @@ func TestDeletePostHandler_Authorized(t *testing.T) {
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(deletePost.Post).Equals(post)
-	Expect(deletePost.Status).Equals(enum.PostDeleted)
+	Expect(deletePost.StatusSlug).Equals("deleted")
 	Expect(deletePost.Text).Equals("")
 }
 

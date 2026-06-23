@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 )
 
 // Props is a map of key:value
@@ -53,7 +52,8 @@ func (p Props) SetPost(post *entity.Post, keyPrefix, baseURL string, includeAllF
 			postResponse := post.Response
 			p[keyPrefix+"_votes"] = post.VotesCount
 			p[keyPrefix+"_comments"] = post.CommentsCount
-			p[keyPrefix+"_status"] = post.Status.Name()
+			p[keyPrefix+"_status_slug"] = post.StatusSlug
+			p[keyPrefix+"_status_kind"] = post.StatusKind
 			p[keyPrefix+"_tags"] = post.Tags
 			p[keyPrefix+"_response"] = postResponse != nil
 
@@ -64,12 +64,12 @@ func (p Props) SetPost(post *entity.Post, keyPrefix, baseURL string, includeAllF
 				p.SetUser(postResponse.User, keyPrefix+"_author")
 
 				originalPost := postResponse.Original
-				if post.Status == enum.PostDuplicate && originalPost != nil {
+				if post.StatusSlug == "duplicate" && originalPost != nil {
 					keyPrefix := keyPrefix + "_original"
 					p[keyPrefix+"_number"] = originalPost.Number
 					p[keyPrefix+"_title"] = originalPost.Title
 					p[keyPrefix+"_slug"] = originalPost.Slug
-					p[keyPrefix+"_status"] = originalPost.Status.Name()
+					p[keyPrefix+"_status_slug"] = originalPost.StatusSlug
 					p[keyPrefix+"_url"] = originalPost.Url(baseURL)
 				}
 			}

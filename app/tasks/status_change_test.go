@@ -38,6 +38,14 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveStatusesForTenant) error {
+		q.Result = []*entity.Status{
+			{Slug: "open", Label: "Open", Kind: "open"},
+			{Slug: "planned", Label: "Planned", Kind: "active"},
+		}
+		return nil
+	})
+
 	var triggerWebhooks *cmd.TriggerWebhooks
 	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
 		triggerWebhooks = c
@@ -52,7 +60,8 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.AryaStark,
-		Status:      enum.PostPlanned,
+		StatusSlug:  "planned",
+		StatusKind:  "active",
 		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Planned for next release.",
@@ -60,7 +69,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		},
 	}
 
-	task := tasks.NotifyAboutStatusChange(post, enum.PostOpen)
+	task := tasks.NotifyAboutStatusChange(post, "open")
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -97,19 +106,22 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(addNewNotification).IsNotNil()
 	Expect(addNewNotification.PostID).Equals(post.ID)
 	Expect(addNewNotification.Link).Equals("/posts/1/add-support-for-typescript")
-	Expect(addNewNotification.Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **planned**")
+	Expect(addNewNotification.Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **Planned**")
 	Expect(addNewNotification.User).Equals(mock.AryaStark)
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
 	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
-		"post_old_status":            enum.PostOpen.Name(),
+		"post_old_status_slug":       "open",
+		"post_old_status_label":      "Open",
+		"post_status_label":          "Planned",
 		"post_id":                    post.ID,
 		"post_number":                post.Number,
 		"post_title":                 post.Title,
 		"post_slug":                  post.Slug,
 		"post_description":           post.Description,
-		"post_status":                post.Status.Name(),
+		"post_status_slug":           post.StatusSlug,
+		"post_status_kind":           post.StatusKind,
 		"post_url":                   "http://domain.com/posts/1/add-support-for-typescript",
 		"post_author_id":             mock.AryaStark.ID,
 		"post_author_name":           mock.AryaStark.Name,
@@ -151,6 +163,14 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveStatusesForTenant) error {
+		q.Result = []*entity.Status{
+			{Slug: "open", Label: "Open", Kind: "open"},
+			{Slug: "duplicate", Label: "Duplicate", Kind: "duplicate"},
+		}
+		return nil
+	})
+
 	var triggerWebhooks *cmd.TriggerWebhooks
 	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
 		triggerWebhooks = c
@@ -159,25 +179,26 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 
 	worker := mock.NewWorker()
 	post := &entity.Post{
-		ID:     2,
-		Number: 2,
-		Title:  "I need TypeScript",
-		Slug:   "i-need-typescript",
-		User:   mock.AryaStark,
-		Status: enum.PostDuplicate,
+		ID:         2,
+		Number:     2,
+		Title:      "I need TypeScript",
+		Slug:       "i-need-typescript",
+		User:       mock.AryaStark,
+		StatusSlug: "duplicate",
+		StatusKind: "duplicate",
 		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			User:        mock.JonSnow,
 			Original: &entity.OriginalPost{
-				Number: 1,
-				Title:  "Add support for TypeScript",
-				Slug:   "add-support-for-typescript",
-				Status: enum.PostOpen,
+				Number:     1,
+				Title:      "Add support for TypeScript",
+				Slug:       "add-support-for-typescript",
+				StatusSlug: "open",
 			},
 		},
 	}
 
-	task := tasks.NotifyAboutStatusChange(post, enum.PostOpen)
+	task := tasks.NotifyAboutStatusChange(post, "open")
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -214,19 +235,22 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(addNewNotification).IsNotNil()
 	Expect(addNewNotification.PostID).Equals(post.ID)
 	Expect(addNewNotification.Link).Equals("/posts/2/i-need-typescript")
-	Expect(addNewNotification.Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **duplicate**")
+	Expect(addNewNotification.Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **Duplicate**")
 	Expect(addNewNotification.User).Equals(mock.AryaStark)
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
 	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
-		"post_old_status":               enum.PostOpen.Name(),
+		"post_old_status_slug":          "open",
+		"post_old_status_label":         "Open",
+		"post_status_label":             "Duplicate",
 		"post_id":                       post.ID,
 		"post_number":                   post.Number,
 		"post_title":                    post.Title,
 		"post_slug":                     post.Slug,
 		"post_description":              post.Description,
-		"post_status":                   post.Status.Name(),
+		"post_status_slug":              post.StatusSlug,
+		"post_status_kind":              post.StatusKind,
 		"post_url":                      "http://domain.com/posts/2/i-need-typescript",
 		"post_author_id":                mock.AryaStark.ID,
 		"post_author_name":              mock.AryaStark.Name,
@@ -242,7 +266,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		"post_response_original_number": post.Response.Original.Number,
 		"post_response_original_title":  post.Response.Original.Title,
 		"post_response_original_slug":   post.Response.Original.Slug,
-		"post_response_original_status": post.Response.Original.Status.Name(),
+		"post_response_original_status_slug": post.Response.Original.StatusSlug,
 		"post_response_original_url":    "http://domain.com/posts/1/add-support-for-typescript",
 		"author_id":                     mock.JonSnow.ID,
 		"author_name":                   mock.JonSnow.Name,
@@ -253,5 +277,62 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		"tenant_subdomain":              mock.DemoTenant.Subdomain,
 		"tenant_status":                 mock.DemoTenant.Status.String(),
 		"tenant_url":                    "http://domain.com",
+	})
+}
+
+// TestNotifyAboutStatusChange_CustomSlugBothEnumZero covers the regression
+// where two tenant-defined statuses both backed by legacy enum 0 (the default)
+// would have falsely short-circuited the webhook. Now that the guard compares
+// slugs directly, the change fires.
+func TestNotifyAboutStatusChange_CustomSlugBothEnumZero(t *testing.T) {
+	RegisterT(t)
+	bus.Init(emailmock.Service{})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
+		q.Result = []*entity.User{}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveStatusesForTenant) error {
+		q.Result = []*entity.Status{
+			{Slug: "triage", Label: "Triage", Kind: "open"},
+			{Slug: "parked", Label: "Parked", Kind: "closed-declined"},
+		}
+		return nil
+	})
+
+	var triggerWebhooks *cmd.TriggerWebhooks
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		triggerWebhooks = c
+		return nil
+	})
+
+	worker := mock.NewWorker()
+	post := &entity.Post{
+		ID:         9,
+		Number:     9,
+		Title:      "Custom slug shift",
+		Slug:       "custom-slug-shift",
+		User:       mock.AryaStark,
+		StatusSlug: "parked",
+		StatusKind: "closed-declined",
+	}
+
+	task := tasks.NotifyAboutStatusChange(post, "triage")
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(triggerWebhooks).IsNotNil()
+	Expect(triggerWebhooks.Type).Equals(enum.WebhookChangeStatus)
+	Expect(triggerWebhooks.Props).ContainsProps(webhook.Props{
+		"post_old_status_slug":  "triage",
+		"post_old_status_label": "Triage",
+		"post_status_label":     "Parked",
+		"post_status_slug":      "parked",
+		"post_status_kind":      "closed-declined",
 	})
 }

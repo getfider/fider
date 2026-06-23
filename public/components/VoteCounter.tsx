@@ -1,7 +1,7 @@
 import "./VoteCounter.scss"
 
 import React, { useState } from "react"
-import { Post, PostStatus } from "@fider/models"
+import { Post, PostStatus, postStatusValue } from "@fider/models"
 import { actions, classSet } from "@fider/services"
 import { Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
@@ -36,7 +36,7 @@ export const VoteCounter = (props: VoteCounterProps) => {
 
   const hideModal = () => setIsSignInModalOpen(false)
 
-  const status = PostStatus.Get(props.post.status)
+  const status = PostStatus.Get(postStatusValue(props.post))
   const isDisabled = status.closed || fider.isReadOnly
 
   const className = classSet({
@@ -47,17 +47,21 @@ export const VoteCounter = (props: VoteCounterProps) => {
   })
 
   const vote = (
-    <button className={className} onClick={voteOrUndo}>
-      {!hasVoted && <Icon sprite={ChevronUp} className="c-vote-counter__icon" />}
+    <>
+      <button className={className} onClick={voteOrUndo}>
+        <Icon sprite={ChevronUp} className="c-vote-counter__icon" />
+      </button>
       <span className="c-vote-counter__count">{votesCount}</span>
-    </button>
+    </>
   )
 
   const disabled = (
-    <button className={className}>
-      {!hasVoted && <Icon sprite={ChevronUp} className="c-vote-counter__icon" />}
+    <>
+      <button className={className}>
+        <Icon sprite={ChevronUp} className="c-vote-counter__icon" />
+      </button>
       <span className="c-vote-counter__count">{votesCount}</span>
-    </button>
+    </>
   )
 
   return (
