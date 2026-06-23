@@ -1,3 +1,5 @@
+import type { Status } from "./post"
+
 export interface Tenant {
   id: number
   name: string
@@ -16,6 +18,10 @@ export interface Tenant {
   isFeedEnabled: boolean
   isModerationEnabled: boolean
   isPro: boolean
+  // Tenant status catalogue (feedback.fider.io/posts/111). Populated on the
+  // server-data bootstrap so PostStatus dropdowns, lozenge color/icon, and
+  // filter chips can read the admin-curated palette without an extra round-trip.
+  statuses?: Status[]
 }
 
 export enum TenantStatus {

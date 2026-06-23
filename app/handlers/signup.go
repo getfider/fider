@@ -74,6 +74,12 @@ func CreateTenant() web.HandlerFunc {
 		metrics.TotalTenants.Inc()
 		c.SetTenant(createTenant.Result)
 
+		// Seed the built-in status catalogue for this tenant so admins have
+		// the standard set available immediately and any new posts resolve.
+		if err := bus.Dispatch(c, &cmd.SeedTenantStatuses{TenantID: createTenant.Result.ID}); err != nil {
+			return c.Failure(err)
+		}
+
 		user := &entity.User{
 			Tenant: createTenant.Result,
 			Role:   enum.RoleAdministrator,

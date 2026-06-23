@@ -31,6 +31,10 @@ type Tenant struct {
 	// site. The tenant stays active during the grace window; a background job performs the
 	// hard delete once this time passes. Not exposed to clients.
 	ScheduledDeletionAt *time.Time `json:"-"`
+	// Statuses is the tenant's runtime status catalogue (feedback.fider.io/posts/111).
+	// Populated by middlewares.SetTenant on each request so frontend bootstrap
+	// has the admin-curated palette available without an extra round-trip.
+	Statuses []*Status `json:"statuses,omitempty"`
 }
 
 func (t *Tenant) IsDisabled() bool {

@@ -1,50 +1,16 @@
 package apiv1
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/metrics"
 	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
-
-// appendUnreferencedAttachments appends a fider-image markdown reference to the end of the
-// description for every attachment being added that isn't already referenced in it. This
-// keeps API-created posts consistent with the editor, which embeds images inline as
-// "![](fider-image:<bkey>)". Must be called after UploadImages so blob keys are finalized.
-func appendUnreferencedAttachments(description string, attachments []*dto.ImageUpload) string {
-	seen := map[string]bool{}
-	refs := make([]string, 0, len(attachments))
-	for _, a := range attachments {
-		if a == nil || a.Remove || a.BlobKey == "" || seen[a.BlobKey] {
-			continue
-		}
-		seen[a.BlobKey] = true
-		if strings.Contains(description, "fider-image:"+a.BlobKey) {
-			continue
-		}
-		refs = append(refs, fmt.Sprintf("![](fider-image:%s)", a.BlobKey))
-	}
-
-	if len(refs) == 0 {
-		return description
-	}
-
-	appended := strings.Join(refs, "\n\n")
-	if strings.TrimSpace(description) == "" {
-		return appended
-	}
-	return description + "\n\n" + appended
-}
 
 // SearchPosts return existing posts based on search criteria
 func SearchPosts() web.HandlerFunc {
@@ -106,7 +72,7 @@ func CreatePost() web.HandlerFunc {
 
 		newPost := &cmd.AddNewPost{
 			Title:       action.Title,
-			Description: appendUnreferencedAttachments(action.Description, action.Attachments),
+			Description: action.Description,
 		}
 		err := bus.Dispatch(c, newPost)
 		if err != nil {
@@ -166,18 +132,17 @@ func UpdatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		// Upload first so blob keys are finalized before building the description.
-		if err := bus.Dispatch(c, &cmd.UploadImages{Images: action.Attachments, Folder: "attachments"}); err != nil {
-			return c.Failure(err)
-		}
-
 		updatePost := &cmd.UpdatePost{
 			Post:        action.Post,
 			Title:       action.Title,
-			Description: appendUnreferencedAttachments(action.Description, action.Attachments),
+			Description: action.Description,
 		}
 
 		err := bus.Dispatch(c,
+			&cmd.UploadImages{
+				Images: action.Attachments,
+				Folder: "attachments",
+			},
 			updatePost,
 			&cmd.SetAttachments{
 				Post:        action.Post,
@@ -209,16 +174,16 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		prevStatus := getPost.Result.Status
+		prevStatusSlug := getPost.Result.StatusSlug
 
 		var command bus.Msg
-		if action.Status == enum.PostDuplicate {
+		if action.StatusSlug == "duplicate" {
 			command = &cmd.MarkPostAsDuplicate{Post: getPost.Result, Original: action.Original}
 		} else {
 			command = &cmd.SetPostResponse{
-				Post:   getPost.Result,
-				Text:   action.Text,
-				Status: action.Status,
+				Post:       getPost.Result,
+				Text:       action.Text,
+				StatusSlug: action.StatusSlug,
 			}
 		}
 
@@ -226,7 +191,7 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutStatusChange(getPost.Result, prevStatus))
+		c.Enqueue(tasks.NotifyAboutStatusChange(getPost.Result, prevStatusSlug))
 
 		return c.Ok(web.Map{})
 	}
@@ -241,9 +206,9 @@ func DeletePost() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c, &cmd.SetPostResponse{
-			Post:   action.Post,
-			Text:   action.Text,
-			Status: enum.PostDeleted,
+			Post:       action.Post,
+			Text:       action.Text,
+			StatusSlug: "deleted",
 		})
 		if err != nil {
 			return c.Failure(err)

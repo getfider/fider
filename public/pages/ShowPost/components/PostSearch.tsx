@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import { Input, ShowPostStatus } from "@fider/components"
 import { actions } from "@fider/services"
-import { Post, PostStatus } from "@fider/models"
+import { Post, PostStatus, postStatusValue } from "@fider/models"
 import { HStack, VStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
@@ -55,7 +55,7 @@ export const PostSearch = (props: PostSearchProps) => {
         {posts.map((p) => (
           <VStack onClick={selectPost(p)} className={`bg-gray-50 p-4 clickable border-2 rounded ${selectedPost === p ? "border-primary-base" : ""}`} key={p.id}>
             <HStack className="text-2xs">
-              <span>#{p.number}</span> <span>&middot;</span> <ShowPostStatus status={PostStatus.Get(p.status)} /> <span>&middot;</span>{" "}
+              <span>#{p.number}</span> <span>&middot;</span> <ShowPostStatus status={PostStatus.Get(postStatusValue(p))} /> <span>&middot;</span>{" "}
               <span>
                 <Trans id="showpost.postsearch.numofvotes">{p.votesCount} votes</Trans>
               </span>

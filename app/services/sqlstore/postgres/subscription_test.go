@@ -286,7 +286,7 @@ func TestSubscription_DeletedPost(t *testing.T) {
 	err := bus.Dispatch(aryaStarkCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(aryaStarkCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Invalid Post!", Status: enum.PostDeleted})
+	err = bus.Dispatch(aryaStarkCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Invalid Post!", StatusSlug: "deleted"})
 	Expect(err).IsNil()
 
 	q := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventChangeStatus}

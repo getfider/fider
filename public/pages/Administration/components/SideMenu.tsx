@@ -44,6 +44,7 @@ export const SideMenu = (props: SiteMenuProps) => {
         <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
         <SideMenuItem name="users" title="Users" href="/admin/users" isActive={activeItem === "users"} />
         <SideMenuItem name="tags" title="Tags" href="/admin/tags" isActive={activeItem === "tags"} />
+        <SideMenuItem name="statuses" title="Statuses" href="/admin/statuses" isActive={activeItem === "statuses"} />
         <SideMenuItem name="invitations" title="Invitations" href="/admin/invitations" isActive={activeItem === "invitations"} />
         <SideMenuItem name="authentication" title="Authentication" href="/admin/authentication" isActive={activeItem === "authentication"} />
         <SideMenuItem name="advanced" title="Advanced" href="/admin/advanced" isActive={activeItem === "advanced"} />
@@ -52,9 +53,6 @@ export const SideMenu = (props: SiteMenuProps) => {
             {fider.settings.isBillingEnabled && <SideMenuItem name="billing" title="Billing" href="/admin/billing" isActive={activeItem === "billing"} />}
             <SideMenuItem name="webhooks" title="Webhooks" href="/admin/webhooks" isActive={activeItem === "webhooks"} />
             <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
-            {!fider.isSingleHostMode() && (
-              <SideMenuItem name="danger-zone" title="Danger Zone" href="/admin/danger-zone" isActive={activeItem === "danger-zone"} />
-            )}
           </>
         )}
       </VStack>

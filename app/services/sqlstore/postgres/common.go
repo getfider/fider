@@ -36,78 +36,96 @@ func MapLocaleToTSConfig(locale string) string {
 	return enum.MapLocaleToTSConfig(locale)
 }
 
-func getViewData(query query.SearchPosts, tagsPlaceholder int) (string, []enum.PostStatus, string) {
-	var (
-		condition string
-		sort      string
-	)
-	statusFilters := query.Statuses
-	if len(statusFilters) == 0 {
-		// Use a sensible default list of status filters
-		statusFilters = []enum.PostStatus{
-			enum.PostOpen,
-			enum.PostStarted,
-			enum.PostPlanned,
-		}
+// ViewSelector lets the caller decide whether the SearchPosts SQL filters by
+// concrete status slugs (when the user explicitly chose them) or by semantic
+// kinds (the default/all home views, which automatically pick up custom
+// statuses an admin added with kind=active or kind=closed-*).
+type ViewSelector struct {
+	Condition string
+	SlugSet   []string // non-empty when filtering by exact slugs
+	KindSet   []string // non-empty when filtering by kind via JOINed statuses
+	Sort      string
+}
+
+func getViewData(query query.SearchPosts, tagsPlaceholder int) ViewSelector {
+	v := ViewSelector{}
+
+	// Explicit slug list from the user — slug match wins, kind ignored.
+	if len(query.Statuses) > 0 {
+		v.SlugSet = query.Statuses
 	}
 
 	if query.MyVotesOnly {
-		condition = "AND has_voted = true"
+		v.Condition = "AND has_voted = true"
 	}
 
 	switch query.View {
 	case "recent":
-		sort = "id"
+		v.Sort = "id"
 	case "most-wanted":
-		sort = "votes_count"
+		v.Sort = "votes_count"
 	case "most-discussed":
-		sort = "comments_count"
+		v.Sort = "comments_count"
 	case "my-votes":
 		// Deprecated: You can instead filter on my votes only for more flexibility than using this view.
-		condition = "AND has_voted = true"
-		sort = "id"
+		v.Condition = "AND has_voted = true"
+		v.Sort = "id"
 	case "planned":
 		// Deprecated: Use status filters instead
-		sort = "response_date"
-		statusFilters = []enum.PostStatus{enum.PostPlanned}
+		v.Sort = "response_date"
+		v.SlugSet = []string{"planned"}
 	case "started":
 		// Deprecated: Use status filters instead
-		sort = "response_date"
-		statusFilters = []enum.PostStatus{enum.PostStarted}
+		v.Sort = "response_date"
+		v.SlugSet = []string{"started"}
 	case "completed":
 		// Deprecated: Use status filters instead
-		sort = "response_date"
-		statusFilters = []enum.PostStatus{enum.PostCompleted}
+		v.Sort = "response_date"
+		v.SlugSet = []string{"completed"}
 	case "declined":
 		// Deprecated: Use status filters instead
-		sort = "response_date"
-		statusFilters = []enum.PostStatus{enum.PostDeclined}
+		v.Sort = "response_date"
+		v.SlugSet = []string{"declined"}
 	case "all":
-		sort = "id"
-		statusFilters = []enum.PostStatus{
-			enum.PostOpen,
-			enum.PostStarted,
-			enum.PostPlanned,
-			enum.PostCompleted,
-			enum.PostDeclined,
+		v.Sort = "id"
+		if len(v.SlugSet) == 0 {
+			// All non-deleted statuses regardless of admin-added kinds.
+			v.KindSet = []string{"open", "active", "closed-completed", "closed-declined", "duplicate"}
 		}
 	case "trending":
 		fallthrough
 	default:
-		sort = "((COALESCE(recent_votes_count, 0)*5 + COALESCE(recent_comments_count, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_at)/3600) + 2, 1.4)"
+		v.Sort = "((COALESCE(recent_votes_count, 0)*5 + COALESCE(recent_comments_count, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_at)/3600) + 2, 1.4)"
+	}
+
+	// Default home view picks up Open + any tenant-defined "active" kind, so
+	// admin-added custom in-progress statuses surface without a code change.
+	if len(v.SlugSet) == 0 && len(v.KindSet) == 0 {
+		v.KindSet = []string{"open", "active"}
 	}
 
 	if query.NoTagsOnly {
 		// NoTagsOnly takes precedence: combining "untagged" with specific tag
 		// filters produces contradictory SQL that always returns zero rows.
 		query.Tags = nil
-		condition += " AND tags = '{}'"
+		v.Condition += " AND tags = '{}'"
 	}
 
 	if len(query.Tags) > 0 {
-		condition += fmt.Sprintf(" AND tags && $%d", tagsPlaceholder)
+		v.Condition += fmt.Sprintf(" AND tags && $%d", tagsPlaceholder)
 	}
-	return condition, statusFilters, sort
+	return v
+}
+
+// buildStatusFilter converts a ViewSelector into the SQL fragment that goes
+// into buildPostQuery's caller-supplied WHERE clause, plus the matching
+// $2-array parameter. Slug match uses posts.status_slug directly; kind match
+// uses the JOINed statuses table (alias ps in buildPostQuery).
+func buildStatusFilter(v ViewSelector) (string, []string) {
+	if len(v.SlugSet) > 0 {
+		return "p.status_slug = ANY($2)", v.SlugSet
+	}
+	return "ps.kind = ANY($2)", v.KindSet
 }
 
 func buildAvatarURL(ctx context.Context, avatarType enum.AvatarType, id int, name, avatarBlobKey string) string {

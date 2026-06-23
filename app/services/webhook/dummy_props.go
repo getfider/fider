@@ -32,7 +32,8 @@ You can use ` + "`" + `{{ markdown .post_description }}` + "`" + ` to parse __Ma
 	HasVoted:      true,
 	VotesCount:    7,
 	CommentsCount: 3,
-	Status:        enum.PostStarted,
+	StatusSlug:    "started",
+	StatusKind:    "active",
 	Response: &entity.PostResponse{
 		Text:        "This is a response, still in *Markdown*.",
 		RespondedAt: time.Date(2021, time.July, 9, 15, 29, 57, 0, time.UTC),
@@ -59,10 +60,12 @@ func dummyTriggerProps(c context.Context, webhookType enum.WebhookType) webhook.
 		props["comment_id"] = 12
 	case enum.WebhookChangeStatus:
 		props.SetPost(dummyPost, "post", baseURL, true, true)
-		props["post_old_status"] = enum.PostOpen.Name()
+		props["post_old_status_slug"] = "open"
+		props["post_old_status_label"] = "Open"
+		props["post_status_label"] = "Started"
 	case enum.WebhookDeletePost:
 		props.SetPost(dummyPost, "post", baseURL, true, true)
-		props["post_status"] = enum.PostDeleted.Name()
+		props["post_status_slug"] = "deleted"
 		props["post_response_text"] = "The reason _why_ this post was deleted."
 	}
 	return props

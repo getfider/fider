@@ -1,9 +1,9 @@
 import React from "react"
 
 import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components"
-import { Post, PostStatus } from "@fider/models"
+import { Post, PostStatus, postStatusValue, statusListFor, statusLabel } from "@fider/models"
 
-import { actions, Failure } from "@fider/services"
+import { actions, Failure, Fider } from "@fider/services"
 import { PostSearch } from "./PostSearch"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
@@ -12,7 +12,6 @@ interface ResponseModalProps {
   post: Post
   showModal: boolean
   onCloseModal: () => void
-  onResponded?: () => void
 }
 
 interface ResponseModalState {
@@ -27,7 +26,7 @@ export class ResponseModal extends React.Component<ResponseModalProps, ResponseM
     super(props)
 
     this.state = {
-      status: this.props.post.status,
+      status: postStatusValue(this.props.post),
       originalNumber: 0,
       text: this.props.post.response ? this.props.post.response.text : "",
     }
@@ -36,11 +35,7 @@ export class ResponseModal extends React.Component<ResponseModalProps, ResponseM
   private submit = async () => {
     const result = await actions.respond(this.props.post.number, this.state)
     if (result.ok) {
-      if (this.props.onResponded) {
-        this.props.onResponded()
-      } else {
-        location.reload()
-      }
+      location.reload()
     } else {
       this.setState({
         error: result.error,
@@ -63,13 +58,13 @@ export class ResponseModal extends React.Component<ResponseModalProps, ResponseM
   }
 
   public render() {
-    const options = PostStatus.All.map((s) => {
-      const id = `enum.poststatus.${s.value.toString()}`
-      return {
-        value: s.value.toString(),
-        label: i18n._(id, { message: s.title }),
-      }
-    })
+    // Prefer the tenant's configured status catalogue (feedback.fider.io/111).
+    // Built-in slugs go through i18n; custom slugs use the tenant-defined label
+    // verbatim because the locale catalog has no entry for them.
+    const options = statusListFor(Fider.session.tenant).map((s) => ({
+      value: s.value,
+      label: statusLabel(s, (id, fallback) => i18n._(id, { message: fallback })),
+    }))
 
     const modal = (
       <Modal.Window isOpen={this.props.showModal} onClose={this.props.onCloseModal} center={false} size="large">
