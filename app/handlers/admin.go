@@ -96,6 +96,26 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 	}
 }
 
+// UpdateSiteBanner toggles and edits the site-wide banner shown above the header.
+func UpdateSiteBanner() web.HandlerFunc {
+	return func(c *web.Context) error {
+		action := new(actions.UpdateTenantSiteBanner)
+		if result := c.BindTo(action); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		if err := bus.Dispatch(c, &cmd.UpdateTenantSiteBanner{
+			Enabled: action.Enabled,
+			Message: action.Message,
+			Variant: action.Variant,
+		}); err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
 // UpdatePrivacySettings update current tenant's privacy settings
 func UpdatePrivacySettings() web.HandlerFunc {
 	return func(c *web.Context) error {

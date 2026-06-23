@@ -116,6 +116,21 @@ func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvanc
 	})
 }
 
+func updateTenantSiteBanner(ctx context.Context, c *cmd.UpdateTenantSiteBanner) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		query := "UPDATE tenants SET site_banner_enabled = $1, site_banner_message = $2, site_banner_variant = $3 WHERE id = $4"
+		_, err := trx.Execute(query, c.Enabled, c.Message, c.Variant, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant site banner")
+		}
+
+		tenant.SiteBannerEnabled = c.Enabled
+		tenant.SiteBannerMessage = c.Message
+		tenant.SiteBannerVariant = c.Variant
+		return nil
+	})
+}
+
 func activateTenant(ctx context.Context, c *cmd.ActivateTenant) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		query := "UPDATE tenants SET status = $1 WHERE id = $2"
@@ -261,6 +276,7 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 
 	err := trx.Get(&tenant, `
 		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.description_template, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro, t.scheduled_deletion_at,
+			t.site_banner_enabled, t.site_banner_message, t.site_banner_variant,
 			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
 		FROM tenants t
 		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
@@ -281,6 +297,7 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 
 	err := trx.Get(&tenant, `
 		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.description_template, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro, t.scheduled_deletion_at,
+			t.site_banner_enabled, t.site_banner_message, t.site_banner_variant,
 			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
 		FROM tenants t
 		LEFT JOIN tenants_billing b ON b.tenant_id = t.id

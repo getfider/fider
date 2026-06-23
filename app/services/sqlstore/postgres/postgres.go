@@ -115,6 +115,7 @@ func (s Service) Init() {
 	bus.AddHandler(updateTenantPrivacySettings)
 	bus.AddHandler(updateTenantEmailAuthAllowedSettings)
 	bus.AddHandler(updateTenantAdvancedSettings)
+	bus.AddHandler(updateTenantSiteBanner)
 	bus.AddHandler(scheduleTenantDeletion)
 	bus.AddHandler(cancelTenantDeletion)
 	bus.AddHandler(deleteTenant)

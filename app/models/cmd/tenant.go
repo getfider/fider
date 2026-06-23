@@ -96,3 +96,12 @@ type CancelTenantDeletion struct {
 type DeleteTenant struct {
 	TenantID int
 }
+
+// UpdateTenantSiteBanner toggles and configures the site-wide banner shown
+// above the page header. Used by /_api/admin/settings/site-banner.
+type UpdateTenantSiteBanner struct {
+	TenantID int
+	Enabled  bool
+	Message  string
+	Variant  string
+}
