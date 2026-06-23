@@ -35,4 +35,7 @@
   .gap-#{$i} {
     gap: spacing($i);
   }
+  .gap-x-#{$i} {
+    column-gap: spacing($i);
+  }
 }
