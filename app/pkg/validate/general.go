@@ -57,9 +57,10 @@ func URL(ctx context.Context, rawurl string) []string {
 }
 
 // WebhookURL validates that a URL is well-formed and, by default, does not target
-// private/internal networks. Self-hosted instances that need to reach internal
-// services (e.g. an integration server on a LAN) can opt out of the network
-// check by setting WEBHOOK_ALLOW_PRIVATE_IPS=true; format validation (valid URL,
+// private/internal networks. This is a shared SSRF guard: besides webhooks it also
+// validates OAuth token/profile URLs. Self-hosted instances that need to reach
+// internal services (e.g. an integration server on a LAN) can relax the network
+// check by setting ALLOW_PRIVATE_NETWORK_TARGETS=true; format validation (valid URL,
 // scheme http/https) still applies in that mode.
 func WebhookURL(rawurl string) []string {
 	u, err := url.Parse(rawurl)
@@ -72,7 +73,7 @@ func WebhookURL(rawurl string) []string {
 		return []string{"Only http and https URLs are allowed."}
 	}
 
-	if env.Config.WebhookAllowPrivateIPs {
+	if env.Config.AllowPrivateNetworkTargets {
 		return []string{}
 	}
 

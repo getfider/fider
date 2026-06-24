@@ -118,9 +118,9 @@ func TestWebhookURL_AllowedAddresses(t *testing.T) {
 func TestWebhookURL_PrivateIPsAllowedWhenOptedIn(t *testing.T) {
 	RegisterT(t)
 
-	original := env.Config.WebhookAllowPrivateIPs
-	env.Config.WebhookAllowPrivateIPs = true
-	t.Cleanup(func() { env.Config.WebhookAllowPrivateIPs = original })
+	original := env.Config.AllowPrivateNetworkTargets
+	env.Config.AllowPrivateNetworkTargets = true
+	t.Cleanup(func() { env.Config.AllowPrivateNetworkTargets = original })
 
 	for _, rawurl := range []string{
 		"http://localhost/hook",
@@ -139,9 +139,9 @@ func TestWebhookURL_PrivateIPsAllowedWhenOptedIn(t *testing.T) {
 func TestWebhookURL_OptInDoesNotBypassFormatValidation(t *testing.T) {
 	RegisterT(t)
 
-	original := env.Config.WebhookAllowPrivateIPs
-	env.Config.WebhookAllowPrivateIPs = true
-	t.Cleanup(func() { env.Config.WebhookAllowPrivateIPs = original })
+	original := env.Config.AllowPrivateNetworkTargets
+	env.Config.AllowPrivateNetworkTargets = true
+	t.Cleanup(func() { env.Config.AllowPrivateNetworkTargets = original })
 
 	for _, rawurl := range []string{
 		"ftp://example.com/hook",
