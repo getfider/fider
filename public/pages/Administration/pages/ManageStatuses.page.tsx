@@ -1,5 +1,5 @@
 import React from "react"
-import { Button, ButtonClickEvent, Form, Input, Select, SelectOption, Toggle } from "@fider/components"
+import { Button, Form, Input, Select, SelectOption, Toggle } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
 import { Status, StatusKind } from "@fider/models"
 import { actions, Failure } from "@fider/services"
@@ -125,7 +125,7 @@ export default class ManageStatusesPage extends AdminBasePage<ManageStatusesPage
   // The Button auto-re-enables when onClick resolves unless we call
   // event.preventEnable() — we want a clickable button after save so the
   // event stays untouched.
-  private save = async (_e: ButtonClickEvent) => {
+  private save = async () => {
     this.setState({ busy: true, error: undefined })
 
     if (this.state.editingId !== null) {
@@ -236,9 +236,7 @@ export default class ManageStatusesPage extends AdminBasePage<ManageStatusesPage
     })
     if (!result.ok) return
     this.setState({
-      statuses: this.state.statuses
-        .map((s) => (s.id === status.id ? updated : s))
-        .sort((x, y) => x.sortOrder - y.sortOrder || x.id - y.id),
+      statuses: this.state.statuses.map((s) => (s.id === status.id ? updated : s)).sort((x, y) => x.sortOrder - y.sortOrder || x.id - y.id),
     })
   }
 
@@ -254,10 +252,7 @@ export default class ManageStatusesPage extends AdminBasePage<ManageStatusesPage
     if (result.ok) {
       this.setState({ statuses: this.state.statuses.filter((s) => s.id !== status.id) })
     } else {
-      window.alert(
-        result.error?.errors?.[0]?.message ??
-          i18n._({ id: "admin.statuses.delete.failed", message: "Could not delete this status." })
-      )
+      window.alert(result.error?.errors?.[0]?.message ?? i18n._({ id: "admin.statuses.delete.failed", message: "Could not delete this status." }))
     }
   }
 
@@ -266,22 +261,38 @@ export default class ManageStatusesPage extends AdminBasePage<ManageStatusesPage
       <VStack spacing={4}>
         <p className="text-sm text-muted">
           <Trans id="admin.statuses.help">
-            The 6 built-in statuses are seeded for every site and can be renamed, recolored, or deactivated but not deleted.
-            Add custom statuses for your own workflow — e.g. <em>Under Review</em> between Open and Planned.
+            The 6 built-in statuses are seeded for every site and can be renamed, recolored, or deactivated but not deleted. Add custom statuses for your own
+            workflow — e.g. <em>Under Review</em> between Open and Planned.
           </Trans>
         </p>
 
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-muted">
-              <th className="py-2"><Trans id="admin.statuses.table.label">Label</Trans></th>
-              <th><Trans id="admin.statuses.table.slug">Slug</Trans></th>
-              <th><Trans id="admin.statuses.table.kind">Kind</Trans></th>
-              <th><Trans id="admin.statuses.table.color">Color</Trans></th>
-              <th><Trans id="admin.statuses.table.home">Home</Trans></th>
-              <th><Trans id="admin.statuses.table.roadmap">Roadmap</Trans></th>
-              <th><Trans id="admin.statuses.table.filter">Filter</Trans></th>
-              <th><Trans id="admin.statuses.table.active">Active</Trans></th>
+              <th className="py-2">
+                <Trans id="admin.statuses.table.label">Label</Trans>
+              </th>
+              <th>
+                <Trans id="admin.statuses.table.slug">Slug</Trans>
+              </th>
+              <th>
+                <Trans id="admin.statuses.table.kind">Kind</Trans>
+              </th>
+              <th>
+                <Trans id="admin.statuses.table.color">Color</Trans>
+              </th>
+              <th>
+                <Trans id="admin.statuses.table.home">Home</Trans>
+              </th>
+              <th>
+                <Trans id="admin.statuses.table.roadmap">Roadmap</Trans>
+              </th>
+              <th>
+                <Trans id="admin.statuses.table.filter">Filter</Trans>
+              </th>
+              <th>
+                <Trans id="admin.statuses.table.active">Active</Trans>
+              </th>
               <th />
             </tr>
           </thead>
@@ -296,7 +307,9 @@ export default class ManageStatusesPage extends AdminBasePage<ManageStatusesPage
                     </span>
                   )}
                 </td>
-                <td><code>{s.slug}</code></td>
+                <td>
+                  <code>{s.slug}</code>
+                </td>
                 <td>{s.kind}</td>
                 <td>{s.color}</td>
                 <td>{s.showOnHome ? i18n._({ id: "admin.statuses.table.yes", message: "yes" }) : "—"}</td>

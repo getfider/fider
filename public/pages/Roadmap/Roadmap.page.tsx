@@ -132,9 +132,7 @@ interface ColumnState {
 }
 
 const RoadmapBoard = (props: RoadmapPageProps) => {
-  const [columns, setColumns] = useState<ColumnState[]>(
-    (props.columns || []).map((c) => ({ status: c.status, posts: c.posts, limit: ROADMAP_DEFAULT_LIMIT }))
-  )
+  const [columns, setColumns] = useState<ColumnState[]>((props.columns || []).map((c) => ({ status: c.status, posts: c.posts, limit: ROADMAP_DEFAULT_LIMIT })))
   const tags = props.tags || []
 
   const reloadPosts = useCallback(async () => {

@@ -61,7 +61,7 @@ func TestSetResponse_InvalidStatus(t *testing.T) {
 	RegisterT(t)
 
 	action := &actions.SetResponse{
-		Status: enum.PostDeleted,
+		Status: "deleted",
 		Text:   "Spam!",
 	}
 	result := action.Validate(context.Background(), nil)

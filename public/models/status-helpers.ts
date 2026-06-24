@@ -16,8 +16,7 @@ export const resolveStatus = (tenant: Tenant | null | undefined, slug: string): 
 
 // isClosedKind reports whether a kind is one of the closed semantic kinds.
 // Useful for filter UIs that group active vs. closed statuses.
-export const isClosedKind = (kind: StatusKind): boolean =>
-  kind === "closed-completed" || kind === "closed-declined" || kind === "duplicate"
+export const isClosedKind = (kind: StatusKind): boolean => kind === "closed-completed" || kind === "closed-declined" || kind === "duplicate"
 
 // statusListFor returns the runtime status list to render. Prefers the
 // tenant catalogue; falls back to PostStatus.All for tenants without one.
