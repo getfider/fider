@@ -57,6 +57,7 @@ type config struct {
 	OauthRedirectUriUseBaseURL  bool   `env:"OAUTH_REDIRECT_URI_USE_BASE_URL,default=false"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
+	AllowPrivateNetworkTargets  bool   `env:"ALLOW_PRIVATE_NETWORK_TARGETS,default=false"`
 	Stripe                      struct {
 		SecretKey      string `env:"STRIPE_SECRET_KEY"`
 		WebhookSecret  string `env:"STRIPE_WEBHOOK_SECRET"`
@@ -119,11 +120,12 @@ type config struct {
 			Region string `env:"EMAIL_MAILGUN_REGION,default=US"` // possible values: US or EU
 		}
 		SMTP struct {
-			Host           string `env:"EMAIL_SMTP_HOST"`
-			Port           string `env:"EMAIL_SMTP_PORT"`
-			Username       string `env:"EMAIL_SMTP_USERNAME"`
-			Password       string `env:"EMAIL_SMTP_PASSWORD"`
-			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			Host              string `env:"EMAIL_SMTP_HOST"`
+			Port              string `env:"EMAIL_SMTP_PORT"`
+			Username          string `env:"EMAIL_SMTP_USERNAME"`
+			Password          string `env:"EMAIL_SMTP_PASSWORD"`
+			EnableStartTLS    bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			EnableImplicitTLS bool   `env:"EMAIL_SMTP_ENABLE_IMPLICIT_TLS,default=false"`
 		}
 	}
 	BlobStorage struct {

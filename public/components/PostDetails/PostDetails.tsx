@@ -193,6 +193,24 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     }
   }, [])
 
+  const refreshPost = async () => {
+    const [postResult, commentsResult] = await Promise.all([actions.getPost(props.postNumber), actions.getComments(props.postNumber)])
+    if (postResult.ok) {
+      setPost(postResult.data)
+      setNewTitle(postResult.data.title)
+      setNewDescription(postResult.data.description)
+    }
+    if (commentsResult.ok) {
+      setComments(commentsResult.data)
+    }
+  }
+
+  const handleResponded = async () => {
+    setShowResponseModal(false)
+    await refreshPost()
+    props.onDataChanged?.()
+  }
+
   const saveChanges = async () => {
     if (!post) return
     const result = await actions.updatePost(post.number, newTitle, newDescription, attachments)
@@ -489,7 +507,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
       <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${post.number}.atom`} />
       <DeletePostModal onModalClose={() => setShowDeleteModal(false)} showModal={showDeleteModal} post={post} />
       {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
-        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} />
+        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} onResponded={handleResponded} />
       )}
     </div>
   )
