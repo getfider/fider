@@ -161,7 +161,13 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 			return errors.Wrap(err, "failed to update post's response")
 		}
 
+		var newKind string
+		if err := trx.Scalar(&newKind, `SELECT kind FROM statuses WHERE tenant_id = $1 AND slug = $2`, tenant.ID, c.StatusSlug); err != nil {
+			return errors.Wrap(err, "failed to look up status kind")
+		}
+
 		c.Post.StatusSlug = c.StatusSlug
+		c.Post.StatusKind = newKind
 		c.Post.Response = &entity.PostResponse{
 			Text:        c.Text,
 			RespondedAt: respondedAt,
