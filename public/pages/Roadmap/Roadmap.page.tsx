@@ -159,10 +159,10 @@ const RoadmapBoard = (props: RoadmapPageProps) => {
     onPostClosed: () => reloadPosts(),
   })
 
-  // Hide the empty-state if any active (non-closed-completed) column has posts —
-  // matches the prior behavior of "show the board as long as planned/started
-  // had anything." Closed-completed alone keeps showing the blank-state CTA.
-  const hasAnyOpenWork = columns.some((c) => c.status.kind !== "closed-completed" && c.posts.length > 0)
+  // Any column the admin opted into the roadmap (via show_on_roadmap) counts —
+  // if Completed is enabled and has posts, the board is not "waiting for its
+  // first update."
+  const hasAnyOpenWork = columns.some((c) => c.posts.length > 0)
 
   if (!hasAnyOpenWork && selectedPostId === null) {
     return <RoadmapBlankState />
