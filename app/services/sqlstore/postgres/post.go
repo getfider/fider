@@ -18,6 +18,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -163,7 +164,13 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 
 		var newKind string
 		if err := trx.Scalar(&newKind, `SELECT kind FROM statuses WHERE tenant_id = $1 AND slug = $2`, tenant.ID, c.StatusSlug); err != nil {
-			return errors.Wrap(err, "failed to look up status kind")
+			// 'deleted' is an internal tombstone with no row in statuses; any
+			// other unknown slug also degrades to empty kind rather than
+			// failing the response write.
+			if errors.Cause(err) != app.ErrNotFound {
+				return errors.Wrap(err, "failed to look up status kind")
+			}
+			newKind = ""
 		}
 
 		c.Post.StatusSlug = c.StatusSlug
