@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { Post, Tag, CurrentUser } from "@fider/models"
 import { ShowTag, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
@@ -12,10 +12,18 @@ interface ListPostsProps {
   tags: Tag[]
   emptyText: string
   minimalView?: boolean
+  showStatus?: boolean
+  maxVisible?: number
   onPostClick?: (postNumber: number, slug: string) => void
 }
 
-const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPostClick?: (postNumber: number, slug: string) => void }) => {
+const ListPostItem = (props: {
+  post: Post
+  user?: CurrentUser
+  tags: Tag[]
+  showStatus?: boolean
+  onPostClick?: (postNumber: number, slug: string) => void
+}) => {
   const fider = useFider()
   const isModerationEnabled = fider.session.tenant.isModerationEnabled
   const isPending = isModerationEnabled && !props.post.isApproved
@@ -48,7 +56,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
         </HStack>
         <Markdown className="c-posts-container__postdescription" maxLength={300} text={props.post.description} style="plainText" />
         {props.tags.length >= 1 && (
-          <HStack spacing={0} className="gap-2 flex-wrap">
+          <HStack spacing={0} className="gap-x-4 flex-wrap">
             {props.tags.map((tag) => (
               <ShowTag key={tag.id} tag={tag} />
             ))}
@@ -65,7 +73,9 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
               </span>
             )}
           </div>
-          {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />}
+          {props.showStatus !== false && props.post.status !== "open" && (
+            <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />
+          )}
         </HStack>
       </VStack>
     </a>
@@ -107,6 +117,7 @@ const MinimalListPostItem = (props: { post: Post; tags: Tag[]; onPostClick?: (po
 
 export const ListPosts = (props: ListPostsProps) => {
   const { minimalView = false } = props
+  const [expanded, setExpanded] = useState(false)
 
   if (!props.posts) {
     return null
@@ -116,11 +127,16 @@ export const ListPosts = (props: ListPostsProps) => {
     return <p className="text-center">{props.emptyText}</p>
   }
 
+  const allPosts = props.posts
+  const hasMore = props.maxVisible !== undefined && !expanded && allPosts.length > props.maxVisible
+  const visiblePosts = hasMore ? allPosts.slice(0, props.maxVisible) : allPosts
+  const remainingCount = allPosts.length - visiblePosts.length
+
   return (
     <>
       {minimalView ? (
         <VStack spacing={2}>
-          {props.posts.map((post) => (
+          {visiblePosts.map((post) => (
             <MinimalListPostItem
               key={post.id}
               post={post}
@@ -131,10 +147,30 @@ export const ListPosts = (props: ListPostsProps) => {
         </VStack>
       ) : (
         <>
-          {props.posts.map((post) => (
-            <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} onPostClick={props.onPostClick} />
+          {visiblePosts.map((post) => (
+            <ListPostItem
+              key={post.id}
+              post={post}
+              tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)}
+              showStatus={props.showStatus}
+              onPostClick={props.onPostClick}
+            />
           ))}
         </>
+      )}
+      {hasMore && (
+        <div className="my-4 text-center">
+          <a
+            href="#"
+            className="text-primary-base text-medium hover:underline"
+            onClick={(e) => {
+              e.preventDefault()
+              setExpanded(true)
+            }}
+          >
+            <Trans id="listposts.label.showmore">Show {remainingCount} more</Trans>
+          </a>
+        </div>
       )}
     </>
   )

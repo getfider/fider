@@ -9,6 +9,15 @@ There are many ways you can contribute to Fider.
 - **Spread the word** by starring us on GitHub. Tweet about the project and show it to your friends. The more people know about Fider, the bigger the community will be and more contributions will be made;
 - **Support us financially** by donating any amount to our [OpenCollective](https://opencollective.com/fider) and help us continue our activities;
 
+## Before you build a new feature
+
+We love contributions, but please help us keep them reviewable and maintainable. Before writing code for a **new feature**:
+
+- Features start as a suggestion on https://feedback.fider.io, where the community can discuss and vote on them. This helps us gauge whether a change is valuable to other users.
+- Once a suggestion has enough discussion and support, open a [GitHub Issue](https://github.com/getfider/fider/issues) referencing it and **wait for a maintainer to confirm it's accepted onto the roadmap** before you start building.
+- **Bug fixes and small technical improvements** don't need a feedback suggestion — an issue is still appreciated so we know what you're working on.
+- Pull Requests for features that weren't discussed and accepted may be closed. This isn't anti-AI — it's about reviewer burden and the long-term maintainability of Fider. See [discussion #1529](https://github.com/getfider/fider/discussions/1529) for the full reasoning.
+
 ## Getting started with Fider codebase
 
 Before start working on something that you intend to send a Pull Request, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that or create one yourself. If it's a new feature you're working on, please share your high level thoughts on the ticket so we can agree on a solution that aligns with the overall architecture and future of Fider.
