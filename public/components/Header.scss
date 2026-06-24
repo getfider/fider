@@ -1,19 +1,87 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
 #c-header {
-  .c-header__container {
-    @media (min-width: 1024px) {
-      position: relative;
+  .c-header__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+
+    // Once everything fits on a single row, stop wrapping so the action
+    // icons can never spill onto a second line.
+    @include media("xl") {
+      flex-wrap: nowrap;
     }
   }
 
-  .c-header__moderation {
-    width: 100%;
+  .c-header__brand {
+    flex-basis: 100%;
+    min-width: 0; // allow a long tenant name to truncate instead of pushing items off the row
 
-    @media (min-width: 1024px) {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: auto;
+    @include media("md") {
+      flex-basis: auto;
+    }
+
+    h1 {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .c-header__nav {
+    flex-shrink: 0;
+
+    @include media("md") {
+      margin-left: 0.5rem;
+    }
+  }
+
+  .c-header__actions {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .c-header__moderation {
+    order: 99;
+    flex-basis: 100%;
+
+    @include media("xl") {
+      order: 0;
+      flex: 0 1 auto;
+      flex-basis: auto;
+      // auto margins on both sides centre moderation in the free space between
+      // the nav and the actions group (the actions group drops its own auto
+      // margin at this breakpoint so only these two split the space evenly).
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  // Below xl the actions group is pushed right on the shared row; at xl
+  // moderation's auto margins handle the alignment instead, so reset this to
+  // keep the icons hard against the right edge with moderation centred.
+  @include media("xl") {
+    .c-header__moderation + .c-header__actions {
+      margin-left: 0;
+    }
+  }
+
+  .c-header__nav-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--colors-gray-500);
+    text-decoration: none;
+    transition: color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      color: var(--colors-gray-900);
+    }
+
+    &--active {
+      color: var(--colors-gray-900);
+      box-shadow: 0 2px 0 0 var(--colors-primary-base);
     }
   }
 }
