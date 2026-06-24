@@ -558,6 +558,11 @@ func TestSetResponseHandler(t *testing.T) {
 		return app.ErrNotFound
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetStatusBySlug) error {
+		q.Result = &entity.Status{Slug: q.Slug, Kind: "closed-completed", IsActive: true}
+		return nil
+	})
+
 	var setResponse *cmd.SetPostResponse
 	bus.AddHandler(func(ctx context.Context, c *cmd.SetPostResponse) error {
 		setResponse = c
@@ -611,6 +616,11 @@ func TestSetResponseHandler_Duplicate(t *testing.T) {
 		return app.ErrNotFound
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetStatusBySlug) error {
+		q.Result = &entity.Status{Slug: q.Slug, Kind: "duplicate", IsActive: true}
+		return nil
+	})
+
 	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, "duplicate", post2.Number)
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
@@ -635,6 +645,11 @@ func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
 		return app.ErrNotFound
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetStatusBySlug) error {
+		q.Result = &entity.Status{Slug: q.Slug, Kind: "duplicate", IsActive: true}
+		return nil
+	})
+
 	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": 9999 }`, "duplicate")
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
@@ -655,6 +670,11 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 			return nil
 		}
 		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetStatusBySlug) error {
+		q.Result = &entity.Status{Slug: q.Slug, Kind: "duplicate", IsActive: true}
+		return nil
 	})
 
 	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, "duplicate", post.Number)

@@ -79,8 +79,10 @@ func MultiTenant() web.MiddlewareFunc {
 // attachTenantStatuses loads the tenant's active status catalogue and stores
 // it on tenant.Statuses so the React client receives it on bootstrap. Errors
 // are non-fatal — a tenant with no statuses still loads the page, the frontend
-// just falls back to the built-in enum.
+// just falls back to the built-in enum. The recover() handles bus panics when
+// no handler is registered (e.g. middleware unit tests with a mocked bus).
 func attachTenantStatuses(c *web.Context, tenant *entity.Tenant) {
+	defer func() { _ = recover() }()
 	q := &query.ListActiveStatusesForTenant{}
 	if err := bus.Dispatch(c, q); err == nil {
 		tenant.Statuses = q.Result
