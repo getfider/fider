@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { PostStatus, Tag } from "@fider/models"
+import { Tag, statusListFor, statusLabel } from "@fider/models"
 import { Checkbox, Dropdown, Icon } from "@fider/components"
 import { HStack } from "@fider/components/layout"
 import HeroIconFilter from "@fider/assets/images/heroicons-filter.svg"
@@ -101,15 +101,24 @@ export const PostFilter = (props: PostFilterProps) => {
     options.push({ value: true, label: i18n._({ id: "home.postfilter.option.myposts", message: "My Posts" }), type: "myPosts" })
   }
 
-  PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
-    const id = `enum.poststatus.${s.value.toString()}`
-    options.push({
-      label: i18n._(id, { message: s.title }),
-      value: s.value,
-      count: props.countPerStatus[s.value],
-      type: "status",
+  // Prefer the tenant's configured status catalogue (feedback.fider.io/111).
+  // statusListFor falls back to PostStatus.All when tenant.statuses is empty.
+  // statusLabel routes built-in slugs through i18n and uses the tenant-defined
+  // label verbatim for custom slugs (no locale entry to translate from).
+  // Show every filterable status — admin-added custom slugs included — even
+  // when no post is currently in that status. The count rendered next to the
+  // label is zero in that case; the filter still works when an admin assigns
+  // the slug to a future post.
+  statusListFor(fider.session.tenant)
+    .filter((s) => s.filterable)
+    .forEach((s) => {
+      options.push({
+        label: statusLabel(s, (id, fallback) => i18n._(id, { message: fallback })),
+        value: s.value,
+        count: props.countPerStatus[s.value] || 0,
+        type: "status",
+      })
     })
-  })
 
   // Add Pending status for collaborators and admins
   if (fider.session.isAuthenticated && fider.session.user.isCollaborator) {
@@ -157,7 +166,7 @@ export const PostFilter = (props: PostFilterProps) => {
               <Checkbox field={fieldKey} checked={isChecked}>
                 <HStack spacing={2}>
                   <span className={isChecked ? "text-semibold" : ""}>{o.label}</span>
-                  {o.count && o.count > 0 && <span className="bg-gray-200 inline-block rounded-full px-1 w-min-4 text-2xs text-center">{o.count}</span>}
+                  {(o.count ?? 0) > 0 && <span className="bg-gray-200 inline-block rounded-full px-1 w-min-4 text-2xs text-center">{o.count}</span>}
                 </HStack>
               </Checkbox>
             </Dropdown.ListItem>

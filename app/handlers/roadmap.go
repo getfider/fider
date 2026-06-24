@@ -3,15 +3,28 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-// RoadmapPage renders the roadmap board. Pro tenants and self-hosted
-// installations get the full data; other tenants render the page with no data
-// so the client shows the upgrade call-to-action.
+// roadmapColumn is one lane on the board: a tenant status plus the posts
+// currently sitting in that status. Marshalled to JSON for the React client.
+type roadmapColumn struct {
+	Status *entity.Status `json:"status"`
+	Posts  []*entity.Post `json:"posts"`
+}
+
+// RoadmapPage renders the roadmap board. Self-hosted installations and Pro
+// tenants get the full data; everyone else renders the page empty so the
+// client shows the upgrade call-to-action.
+//
+// Lanes are derived from tenant.statuses (feedback.fider.io/posts/111) —
+// every active, show-on-roadmap status becomes its own column, ordered by
+// sort_order. Admins flip the per-status "Show on roadmap" toggle in the
+// Manage Statuses page to publish any status (built-in or custom) here.
 func RoadmapPage() web.HandlerFunc {
 	return func(c *web.Context) error {
 		props := web.Props{
@@ -20,23 +33,33 @@ func RoadmapPage() web.HandlerFunc {
 		}
 
 		if env.IsSingleHostMode() || c.Tenant().IsPro {
-			// Keep in sync with ROADMAP_DEFAULT_LIMIT on the client; the "Show more"
-			// link uses posts.length >= limit as its heuristic and needs both ends
-			// to agree on the initial cap.
-			plannedPosts := &query.SearchPosts{View: "planned", Limit: "10"}
-			startedPosts := &query.SearchPosts{View: "started", Limit: "10"}
-			completedPosts := &query.SearchPosts{View: "completed", Limit: "10"}
-			getAllTags := &query.GetAllTags{}
+			tenantStatuses := c.Tenant().Statuses
+			columns := make([]roadmapColumn, 0, len(tenantStatuses))
 
-			if err := bus.Dispatch(c, plannedPosts, startedPosts, completedPosts, getAllTags); err != nil {
+			for _, s := range tenantStatuses {
+				if !s.IsActive || !s.ShowOnRoadmap {
+					continue
+				}
+
+				// Keep in sync with ROADMAP_DEFAULT_LIMIT on the client; the
+				// "Show more" link uses posts.length >= limit as its
+				// heuristic and needs both ends to agree on the initial cap.
+				posts := &query.SearchPosts{Statuses: []string{s.Slug}, Limit: "10"}
+				if err := bus.Dispatch(c, posts); err != nil {
+					return c.Failure(err)
+				}
+
+				columns = append(columns, roadmapColumn{Status: s, Posts: posts.Result})
+			}
+
+			getAllTags := &query.GetAllTags{}
+			if err := bus.Dispatch(c, getAllTags); err != nil {
 				return c.Failure(err)
 			}
 
 			props.Data = web.Map{
-				"plannedPosts":   plannedPosts.Result,
-				"startedPosts":   startedPosts.Result,
-				"completedPosts": completedPosts.Result,
-				"tags":           getAllTags.Result,
+				"columns": columns,
+				"tags":    getAllTags.Result,
 			}
 		}
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { PostStatus, Post } from "@fider/models"
+import { PostStatus, Post, postStatusValue } from "@fider/models"
 import { actions, navigator, Failure } from "@fider/services"
 import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
@@ -27,7 +27,7 @@ export const DeletePostModal = (props: DeletePostModalProps) => {
     }
   }
 
-  const status = PostStatus.Get(props.post.status)
+  const status = PostStatus.Get(postStatusValue(props.post))
   if (!fider.session.isAuthenticated || !fider.session.user.isAdministrator || status.closed) {
     return null
   }

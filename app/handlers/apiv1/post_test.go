@@ -9,7 +9,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -569,11 +568,11 @@ func TestSetResponseHandler(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		AddParam("number", post.Number).
-		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, enum.PostCompleted.Name()))
+		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, "completed"))
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(setResponse.Post).Equals(post)
-	Expect(setResponse.Status).Equals(enum.PostCompleted)
+	Expect(setResponse.StatusSlug).Equals("completed")
 	Expect(setResponse.Text).Equals("Done!")
 }
 
@@ -584,7 +583,7 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
 		AddParam("number", 5).
-		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, enum.PostCompleted.Name()))
+		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, "completed"))
 
 	Expect(code).Equals(http.StatusForbidden)
 }
@@ -612,7 +611,7 @@ func TestSetResponseHandler_Duplicate(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, enum.PostDuplicate.Name(), post2.Number)
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, "duplicate", post2.Number)
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -636,7 +635,7 @@ func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": 9999 }`, enum.PostDuplicate.Name())
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": 9999 }`, "duplicate")
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -658,7 +657,7 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, enum.PostDuplicate.Name(), post.Number)
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, "duplicate", post.Number)
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -764,7 +763,7 @@ func TestDeletePostHandler_Authorized(t *testing.T) {
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(deletePost.Post).Equals(post)
-	Expect(deletePost.Status).Equals(enum.PostDeleted)
+	Expect(deletePost.StatusSlug).Equals("deleted")
 	Expect(deletePost.Text).Equals("")
 }
 

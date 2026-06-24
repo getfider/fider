@@ -6,13 +6,27 @@
   padding-bottom: spacing(12);
 }
 
+// Horizontal scrolling lane strip. Tenants can publish N status lanes via
+// /admin/statuses; each lane gets a fixed-width column and the board scrolls
+// horizontally instead of wrapping to a second row.
 .c-roadmap-board {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: spacing(6);
 
   @include media("lg") {
-    grid-template-columns: repeat(3, 1fr);
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: visible;
+    align-items: flex-start;
+    // Hide the default scrollbar while keeping the surface scrollable.
+    scrollbar-width: thin;
+
+    > .c-roadmap-column {
+      flex: 0 0 320px;
+      min-width: 320px;
+    }
   }
 }
 

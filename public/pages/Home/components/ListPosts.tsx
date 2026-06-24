@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Post, Tag, CurrentUser } from "@fider/models"
+import { Post, Tag, CurrentUser, postStatusValue } from "@fider/models"
 import { ShowTag, Markdown, Icon, ResponseLozenge } from "@fider/components"
 import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
@@ -73,8 +73,8 @@ const ListPostItem = (props: {
               </span>
             )}
           </div>
-          {props.showStatus !== false && props.post.status !== "open" && (
-            <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />
+          {props.showStatus !== false && postStatusValue(props.post) !== "open" && (
+            <ResponseLozenge status={postStatusValue(props.post)} response={props.post.response} size={"small"} />
           )}
         </HStack>
       </VStack>
@@ -103,9 +103,9 @@ const MinimalListPostItem = (props: { post: Post; tags: Tag[]; onPostClick?: (po
           </a>
           {isPending && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">pending</span>}
         </HStack>
-        {props.post.status !== "open" ? (
+        {postStatusValue(props.post) !== "open" ? (
           <div>
-            <ResponseLozenge status={props.post.status} response={props.post.response} size={"micro"} />
+            <ResponseLozenge status={postStatusValue(props.post)} response={props.post.response} size={"micro"} />
           </div>
         ) : (
           <span className="text-gray-700 text-sm">+{props.post.votesCount}</span>

@@ -1,5 +1,25 @@
 import { User } from "./identity"
 
+// Status mirrors entity.Status from the Go server. Provided per-tenant on
+// session bootstrap as fider.session.tenant.statuses. The admin UI lets
+// tenants extend this catalogue beyond the built-in 6 (feedback.fider.io/111).
+export type StatusKind = "open" | "active" | "closed-completed" | "closed-declined" | "duplicate"
+
+export interface Status {
+  id: number
+  slug: string
+  label: string
+  kind: StatusKind
+  color: string
+  icon: string
+  showOnHome: boolean
+  showOnRoadmap: boolean
+  filterable: boolean
+  sortOrder: number
+  isSystem: boolean
+  isActive: boolean
+}
+
 export interface Post {
   id: number
   number: number
@@ -7,7 +27,12 @@ export interface Post {
   title: string
   description: string
   createdAt: string
+  // Tenant-defined slug. Built-in or admin-added; matches a row in
+  // tenant.statuses for color/label resolution.
   status: string
+  // Semantic kind joined from the statuses table. Empty for the special
+  // "deleted" sentinel which has no row in the catalogue.
+  statusKind?: string
   user: User
   hasVoted: boolean
   response: PostResponse | null
@@ -16,6 +41,10 @@ export interface Post {
   tags: string[]
   isApproved: boolean
 }
+
+// Returns the effective status slug for a post. Kept as a small helper so
+// callers stay forward-compatible if the shape evolves again.
+export const postStatusValue = (p: Pick<Post, "status">): string => p.status
 
 export class PostStatus {
   constructor(public title: string, public value: string, public show: boolean, public closed: boolean, public filterable: boolean) {}
@@ -34,7 +63,13 @@ export class PostStatus {
         return status
       }
     }
-    throw new Error(`PostStatus not found for value ${value}.`)
+    // Tenant-defined custom statuses (feedback.fider.io/111) won't have a
+    // matching constant. Return a synthetic so the post page can still render;
+    // callers that need richer info (color/icon/label) should look up the
+    // status in fider.session.tenant.statuses via the helpers in
+    // status-helpers.ts.
+    const synthesizedTitle = value.charAt(0).toUpperCase() + value.slice(1).replace(/-/g, " ")
+    return new PostStatus(synthesizedTitle, value, true, false, true)
   }
 
   public static All = [PostStatus.Open, PostStatus.Planned, PostStatus.Started, PostStatus.Completed, PostStatus.Duplicate, PostStatus.Declined]

@@ -74,7 +74,8 @@ var (
 																COALESCE(agg_c.all, 0) as comments_count,
 																COALESCE(agg_s.recent, 0) AS recent_votes_count,
 																COALESCE(agg_c.recent, 0) AS recent_comments_count,
-																p.status,
+																p.status_slug,
+																ps.kind AS status_kind,
 																u.id AS user_id,
 																u.name AS user_name,
 																u.email AS user_email,
@@ -94,7 +95,7 @@ var (
 																d.number AS original_number,
 																d.title AS original_title,
 																d.slug AS original_slug,
-																d.status AS original_status,
+																d.status_slug AS original_status_slug,
 																COALESCE(agg_t.tags, ARRAY[]::text[]) AS tags,
 																COALESCE(%s, false) AS has_voted,
 																p.is_approved
@@ -108,13 +109,16 @@ var (
 													LEFT JOIN posts d
 													ON d.id = p.original_id
 													AND d.tenant_id = $1
+													LEFT JOIN statuses ps
+													ON ps.tenant_id = p.tenant_id
+													AND ps.slug = p.status_slug
 													LEFT JOIN agg_comments agg_c
 													ON agg_c.post_id = p.id
 													LEFT JOIN agg_votes agg_s
 													ON agg_s.post_id = p.id
 													LEFT JOIN agg_tags agg_t
 													ON agg_t.post_id = p.id
-													WHERE p.status != ` + strconv.Itoa(int(enum.PostDeleted)) + ` AND %s`
+													WHERE p.status_slug != 'deleted' AND %s`
 )
 
 func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
@@ -139,25 +143,25 @@ func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
 
 func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		if c.Status == enum.PostDuplicate {
-			return errors.New("Use MarkAsDuplicate to change an post status to Duplicate")
+		if c.StatusSlug == "duplicate" {
+			return errors.New("Use MarkAsDuplicate to change a post status to Duplicate")
 		}
 
 		respondedAt := time.Now()
-		if c.Post.Status == c.Status && c.Post.Response != nil {
+		if c.Post.StatusSlug == c.StatusSlug && c.Post.Response != nil {
 			respondedAt = c.Post.Response.RespondedAt
 		}
 
 		_, err := trx.Execute(`
 		UPDATE posts
-		SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6
+		SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status_slug = $6
 		WHERE id = $1 and tenant_id = $2
-		`, c.Post.ID, tenant.ID, c.Text, respondedAt, user.ID, c.Status)
+		`, c.Post.ID, tenant.ID, c.Text, respondedAt, user.ID, c.StatusSlug)
 		if err != nil {
 			return errors.Wrap(err, "failed to update post's response")
 		}
 
-		c.Post.Status = c.Status
+		c.Post.StatusSlug = c.StatusSlug
 		c.Post.Response = &entity.PostResponse{
 			Text:        c.Text,
 			RespondedAt: respondedAt,
@@ -170,7 +174,7 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		respondedAt := time.Now()
-		if c.Post.Status == enum.PostDuplicate && c.Post.Response != nil {
+		if c.Post.StatusSlug == "duplicate" && c.Post.Response != nil {
 			respondedAt = c.Post.Response.RespondedAt
 		}
 
@@ -189,22 +193,23 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 
 		_, err = trx.Execute(`
 		UPDATE posts
-		SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6
+		SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status_slug = 'duplicate'
 		WHERE id = $1 and tenant_id = $2
-		`, c.Post.ID, tenant.ID, c.Original.ID, respondedAt, user.ID, enum.PostDuplicate)
+		`, c.Post.ID, tenant.ID, c.Original.ID, respondedAt, user.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to update post's response")
 		}
 
-		c.Post.Status = enum.PostDuplicate
+		c.Post.StatusSlug = "duplicate"
+		c.Post.StatusKind = "duplicate"
 		c.Post.Response = &entity.PostResponse{
 			RespondedAt: respondedAt,
 			User:        user,
 			Original: &entity.OriginalPost{
-				Number: c.Original.Number,
-				Title:  c.Original.Title,
-				Slug:   c.Original.Slug,
-				Status: c.Original.Status,
+				Number:     c.Original.Number,
+				Title:      c.Original.Title,
+				Slug:       c.Original.Slug,
+				StatusSlug: c.Original.StatusSlug,
 			},
 		}
 		return nil
@@ -215,19 +220,19 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 
 		type dbStatusCount struct {
-			Status enum.PostStatus `db:"status"`
-			Count  int             `db:"count"`
+			Slug  string `db:"status_slug"`
+			Count int    `db:"count"`
 		}
 
-		q.Result = make(map[enum.PostStatus]int)
+		q.Result = make(map[string]int)
 		stats := []*dbStatusCount{}
-		err := trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM posts WHERE tenant_id = $1 GROUP BY status", tenant.ID)
+		err := trx.Select(&stats, "SELECT status_slug, COUNT(*) AS count FROM posts WHERE tenant_id = $1 GROUP BY status_slug", tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to count posts per status")
 		}
 
 		for _, v := range stats {
-			q.Result[v.Status] = v.Count
+			q.Result[v.Slug] = v.Count
 		}
 		return nil
 	})
@@ -241,8 +246,8 @@ func addNewPost(ctx context.Context, c *cmd.AddNewPost) error {
 		lang := detectPostLanguage(c.Title, c.Description)
 
 		err := trx.Get(&id,
-			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status, is_approved, language)
-			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0, $7, $8)
+			`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status_slug, is_approved, language)
+			 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 'open', $7, $8)
 			 RETURNING id`, c.Title, slug.Make(c.Title), c.Description, tenant.ID, user.ID, time.Now(), isApproved, lang)
 		if err != nil {
 			return errors.Wrap(err, "failed add new post")
@@ -362,7 +367,7 @@ func preprocessSearchQuery(query string) string {
 
 func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)", "")
+		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status_slug = ANY($2)", "")
 
 		filteredQuery := preprocessSearchQuery(q.Query)
 
@@ -394,12 +399,12 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 				ORDER BY %s DESC
 				LIMIT 5
 			`, innerQuery, whereParts, score)
-			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
-				enum.PostOpen,
-				enum.PostStarted,
-				enum.PostPlanned,
-				enum.PostCompleted,
-				enum.PostDeclined,
+			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]string{
+				"open",
+				"started",
+				"planned",
+				"completed",
+				"declined",
 			}), ToTSQuery(SanitizeString(q.Query)))
 		}
 		if err != nil {
@@ -416,14 +421,12 @@ func findSimilarPosts(ctx context.Context, q *query.FindSimilarPosts) error {
 
 func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND p.status = ANY($2)", q.ModerationFilter)
-
 		if q.Tags == nil {
 			q.Tags = []string{}
 		}
 
 		if q.Statuses == nil {
-			q.Statuses = []enum.PostStatus{}
+			q.Statuses = []string{}
 		}
 
 		if q.Limit != "all" {
@@ -452,8 +455,11 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 			searchPredicate := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
 
-			condition, statuses, _ := getViewData(*q, 4)
+			view := getViewData(*q, 4)
+			innerCondition, statusArray := buildStatusFilter(view)
+			innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND "+innerCondition, q.ModerationFilter)
 
+			condition := view.Condition
 			if q.MyPostsOnly && user != nil {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
 			}
@@ -465,14 +471,17 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				LIMIT %s
 			`, innerQuery, searchPredicate, condition, score, q.Limit)
 
-			params := []interface{}{tenant.ID, pq.Array(statuses), tsQuery}
+			params := []interface{}{tenant.ID, pq.Array(statusArray), tsQuery}
 			if len(q.Tags) > 0 && !q.NoTagsOnly {
 				params = append(params, pq.Array(q.Tags))
 			}
 			err = trx.Select(&posts, sql, params...)
 		} else {
-			condition, statuses, sort := getViewData(*q, 3)
+			view := getViewData(*q, 3)
+			innerCondition, statusArray := buildStatusFilter(view)
+			innerQuery := buildPostQuery(user, "p.tenant_id = $1 AND "+innerCondition, q.ModerationFilter)
 
+			condition := view.Condition
 			if q.MyPostsOnly && user != nil {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
 			}
@@ -482,8 +491,8 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				WHERE 1 = 1 %s
 				ORDER BY %s DESC
 				LIMIT %s
-			`, innerQuery, condition, sort, q.Limit)
-			params := []interface{}{tenant.ID, pq.Array(statuses)}
+			`, innerQuery, condition, view.Sort, q.Limit)
+			params := []interface{}{tenant.ID, pq.Array(statusArray)}
 			if len(q.Tags) > 0 && !q.NoTagsOnly {
 				params = append(params, pq.Array(q.Tags))
 			}

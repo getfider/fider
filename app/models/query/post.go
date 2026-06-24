@@ -2,7 +2,6 @@ package query
 
 import (
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 )
 
 type PostIsReferenced struct {
@@ -11,8 +10,9 @@ type PostIsReferenced struct {
 	Result bool
 }
 
+// CountPostPerStatus keyed by tenant status slug.
 type CountPostPerStatus struct {
-	Result map[enum.PostStatus]int
+	Result map[string]int
 }
 
 type GetPostByID struct {
@@ -37,7 +37,7 @@ type SearchPosts struct {
 	Query            string
 	View             string
 	Limit            string
-	Statuses         []enum.PostStatus
+	Statuses         []string
 	Tags             []string
 	MyVotesOnly      bool
 	NoTagsOnly       bool
@@ -57,11 +57,14 @@ type GetAllPosts struct {
 	Result []*entity.Post
 }
 
+// SetStatusesFromStrings accepts the raw query-param strings the SearchPosts
+// handler receives. Slugs are stored verbatim — tenant-defined custom slugs
+// flow through alongside the built-ins.
 func (q *SearchPosts) SetStatusesFromStrings(statuses []string) {
 	for _, v := range statuses {
-		var postStatus enum.PostStatus
-		if err := postStatus.UnmarshalText([]byte(v)); err == nil {
-			q.Statuses = append(q.Statuses, postStatus)
+		if v == "" {
+			continue
 		}
+		q.Statuses = append(q.Statuses, v)
 	}
 }

@@ -52,7 +52,7 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.AryaStark,
-		Status:      enum.PostDeleted,
+		StatusSlug:      "deleted",
 		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Invalid post!",
@@ -159,7 +159,7 @@ func TestNotifyAboutDeletePostTask_NoComment(t *testing.T) {
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.AryaStark,
-		Status:      enum.PostDeleted,
+		StatusSlug:      "deleted",
 		Response: &entity.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Invalid post!",
