@@ -39,6 +39,16 @@ var (
 		IsRTL:             false,
 	}
 
+	// LocalePortuguesePT represents Portuguese (Portugal)
+	LocalePortuguesePT = Locale{
+		Code:              "pt-PT",
+		Name:              "Portuguese (Portugal)",
+		MessageFormatCode: "pt",
+		PostgresConfig:    "portuguese",
+		LinguaLanguage:    lingua.Portuguese,
+		IsRTL:             false,
+	}
+
 	// LocaleSpanishES represents Spanish
 	LocaleSpanishES = Locale{
 		Code:              "es-ES",
@@ -203,6 +213,7 @@ var (
 	AllLocales = []Locale{
 		LocaleEnglish,
 		LocalePortugueseBR,
+		LocalePortuguesePT,
 		LocaleSpanishES,
 		LocaleGerman,
 		LocaleFrench,

@@ -16,5 +16,5 @@ export default {
   },
   sourceLocale: "en",
   format: formatter({ style: "minimal", explicitIdAsDefault: true, sort: true }),
-  locales: ["pt-BR", "es-ES", "nl", "sv-SE", "fr", "de", "en", "pl", "ru", "ja", "sk", "tr", "el", "it", "zh-CN", "zh-TW", "ar", "fa"],
+  locales: ["pt-BR", "pt-PT", "es-ES", "nl", "sv-SE", "fr", "de", "en", "pl", "ru", "ja", "sk", "tr", "el", "it", "zh-CN", "zh-TW", "ar", "fa"],
 }
