@@ -1140,3 +1140,88 @@ func TestViewReactions_AnonymousUser(t *testing.T) {
 	Expect(commentByID.Result[0].ReactionCounts[0].Count).Equals(1)
 	Expect(commentByID.Result[0].ReactionCounts[0].IncludesMe).IsFalse()
 }
+
+func TestPostStorage_SearchInResponse_AdminFindsByResponseText(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "Add dark mode", Description: "Please support a dark theme"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{
+		Post:   newPost.Result,
+		Text:   "Shipped in v9.9.9",
+		Status: enum.PostCompleted,
+	})
+	Expect(err).IsNil()
+
+	// jonSnow is an Administrator → IsCollaborator() == true
+	searchVersion := &query.SearchPosts{Query: "v9.9.9", Statuses: []enum.PostStatus{enum.PostCompleted}}
+	err = bus.Dispatch(jonSnowCtx, searchVersion)
+	Expect(err).IsNil()
+	Expect(searchVersion.Result).HasLen(1)
+	Expect(searchVersion.Result[0].Slug).Equals("add-dark-mode")
+}
+
+func TestPostStorage_SearchInResponse_VisitorDoesNotFindByResponseText(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "Add dark mode", Description: "Please support a dark theme"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{
+		Post:   newPost.Result,
+		Text:   "Shipped in v9.9.9",
+		Status: enum.PostCompleted,
+	})
+	Expect(err).IsNil()
+
+	// aryaStark is a Visitor → IsCollaborator() == false
+	searchVersion := &query.SearchPosts{Query: "v9.9.9", Statuses: []enum.PostStatus{enum.PostCompleted}}
+	err = bus.Dispatch(aryaStarkCtx, searchVersion)
+	Expect(err).IsNil()
+	Expect(searchVersion.Result).HasLen(0)
+}
+
+func TestPostStorage_SearchInResponse_TitleStillFindableForVisitor(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "Kanban board feature", Description: "We need a kanban view"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{
+		Post:   newPost.Result,
+		Text:   "Shipped in v1.0.0",
+		Status: enum.PostCompleted,
+	})
+	Expect(err).IsNil()
+
+	// Visitor searching for term in title must still find the post (regression guard).
+	searchTitle := &query.SearchPosts{Query: "kanban", Statuses: []enum.PostStatus{enum.PostCompleted}}
+	err = bus.Dispatch(aryaStarkCtx, searchTitle)
+	Expect(err).IsNil()
+	Expect(searchTitle.Result).HasLen(1)
+	Expect(searchTitle.Result[0].Slug).Equals("kanban-board-feature")
+}
+
+func TestPostStorage_SearchInResponse_PostWithoutResponseDoesNotBreakAdminSearch(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "Improve onboarding", Description: "Make signup smoother"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	// No SetPostResponse — search_response column is NULL for this row.
+	// Admin search must still work and return the post by title match.
+	searchOnboarding := &query.SearchPosts{Query: "onboarding"}
+	err = bus.Dispatch(jonSnowCtx, searchOnboarding)
+	Expect(err).IsNil()
+	Expect(searchOnboarding.Result).HasLen(1)
+	Expect(searchOnboarding.Result[0].Slug).Equals("improve-onboarding")
+}

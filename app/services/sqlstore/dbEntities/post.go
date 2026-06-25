@@ -18,6 +18,7 @@ type Post struct {
 	Description    string         `db:"description"`
 	CreatedAt      time.Time      `db:"created_at"`
 	Search         []byte         `db:"search"`
+	SearchResponse []byte         `db:"search_response"`
 	User           *User          `db:"user"`
 	HasVoted       bool           `db:"has_voted"`
 	VotesCount     int            `db:"votes_count"`
