@@ -49,7 +49,7 @@
     "@types/react-textarea-autosize": "8.0.0",
     "@typescript-eslint/eslint-plugin": "5.22.0",
     "@typescript-eslint/parser": "5.22.0",
-    "autoprefixer": "10.5.0",
+    "autoprefixer": "10.5.2",
     "babel-jest": "28.1.0",
     "babel-loader": "8.2.5",
     "babel-plugin-macros": "3.1.0",
