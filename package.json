@@ -22,7 +22,7 @@
     "react-dom": "^18.3.1",
     "react-textarea-autosize": "^8.5.9",
     "react-toastify": "^9.0.1",
-    "tiptap-markdown": "^0.8.10"
+    "tiptap-markdown": "^0.9.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.3",
@@ -35,8 +35,8 @@
     "@lingui/babel-plugin-lingui-macro": "^5.1.2",
     "@lingui/cli": "^5.1.2",
     "@lingui/loader": "^5.1.2",
-    "@lingui/macro": "^5.1.2",
-    "@playwright/test": "1.48",
+    "@lingui/macro": "^5.9.5",
+    "@playwright/test": "1.61",
     "@testing-library/jest-dom": "5.16.4",
     "@testing-library/react": "^16.3.1",
     "@types/debug": "4.1.13",
@@ -74,7 +74,7 @@
     "svgo-loader": "3.0.0",
     "ts-node": "^10.9.2",
     "typescript": "4.6.4",
-    "webpack": "5.107.2",
+    "webpack": "5.108.3",
     "webpack-bundle-analyzer": "4.5.0",
     "webpack-cli": "4.9.2"
   },
