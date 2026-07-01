@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -111,6 +112,45 @@ func TestWebhookURL_AllowedAddresses(t *testing.T) {
 	} {
 		messages := validate.WebhookURL(rawurl)
 		Expect(messages).HasLen(0)
+	}
+}
+
+func TestWebhookURL_PrivateIPsAllowedWhenOptedIn(t *testing.T) {
+	RegisterT(t)
+
+	original := env.Config.AllowPrivateNetworkTargets
+	env.Config.AllowPrivateNetworkTargets = true
+	t.Cleanup(func() { env.Config.AllowPrivateNetworkTargets = original })
+
+	for _, rawurl := range []string{
+		"http://localhost/hook",
+		"http://127.0.0.1/hook",
+		"http://10.0.0.1/hook",
+		"http://172.16.0.1/hook",
+		"http://192.168.1.1:8080/hook",
+		"http://[::1]/hook",
+		"http://internal.lan/hook",
+	} {
+		messages := validate.WebhookURL(rawurl)
+		Expect(messages).HasLen(0)
+	}
+}
+
+func TestWebhookURL_OptInDoesNotBypassFormatValidation(t *testing.T) {
+	RegisterT(t)
+
+	original := env.Config.AllowPrivateNetworkTargets
+	env.Config.AllowPrivateNetworkTargets = true
+	t.Cleanup(func() { env.Config.AllowPrivateNetworkTargets = original })
+
+	for _, rawurl := range []string{
+		"ftp://example.com/hook",
+		"file:///etc/passwd",
+		"not a url at all",
+		"",
+	} {
+		messages := validate.WebhookURL(rawurl)
+		Expect(len(messages) > 0).IsTrue()
 	}
 }
 

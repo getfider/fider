@@ -54,6 +54,9 @@ export const SideMenu = (props: SiteMenuProps) => {
             )}
             <SideMenuItem name="webhooks" title="Webhooks" href={`${basePath()}/admin/webhooks`} isActive={activeItem === "webhooks"} />
             <SideMenuItem name="export" title="Export" href={`${basePath()}/admin/export`} isActive={activeItem === "export"} />
+            {!fider.isSingleHostMode() && (
+              <SideMenuItem name="danger-zone" title="Danger Zone" href={`${basePath()}/admin/danger-zone`} isActive={activeItem === "danger-zone"} />
+            )}
           </>
         )}
       </VStack>

@@ -4,7 +4,6 @@ import React, { MouseEvent } from "react"
 import { Tag } from "@fider/models"
 import { classSet } from "@fider/services"
 import EyeSlash from "@fider/assets/images/heroicons-eyeslash.svg"
-import TagSolid from "@fider/assets/images/heroicons-tagsolid.svg"
 import { Icon, Link } from "./common"
 
 interface TagProps {
@@ -39,7 +38,7 @@ export const ShowTag = (props: TagProps) => {
       className={className}
       onClick={clickHandler}
     >
-      <Icon style={{ color: `#${props.tag.color}` }} className="pr-1" height="18" width="18" sprite={TagSolid}></Icon>
+      <span style={{ backgroundColor: `#${props.tag.color}` }} />
       {!props.tag.isPublic && !props.circular && <Icon height="14" width="14" sprite={EyeSlash} className="mr-1" />}
       {props.circular ? "" : props.tag.name || "Tag"}
     </Link>

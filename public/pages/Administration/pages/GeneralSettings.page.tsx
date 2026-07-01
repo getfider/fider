@@ -12,6 +12,7 @@ const GeneralSettingsPage = () => {
   const [title, setTitle] = useState<string>(fider.session.tenant.name)
   const [welcomeMessage, setWelcomeMessage] = useState<string>(fider.session.tenant.welcomeMessage)
   const [welcomeHeader, setWelcomeHeader] = useState<string>(fider.session.tenant.welcomeHeader)
+  const [descriptionTemplate, setDescriptionTemplate] = useState<string>(fider.session.tenant.descriptionTemplate)
   const [invitation, setInvitation] = useState<string>(fider.session.tenant.invitation)
   const [logo, setLogo] = useState<ImageUpload | undefined>(undefined)
   const [cname, setCNAME] = useState<string>(fider.session.tenant.cname)
@@ -19,7 +20,7 @@ const GeneralSettingsPage = () => {
   const [error, setError] = useState<Failure | undefined>(undefined)
 
   const handleSave = async (e: ButtonClickEvent) => {
-    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, invitation, logo, locale })
+    const result = await actions.updateTenantSettings({ title, cname, welcomeMessage, welcomeHeader, descriptionTemplate, invitation, logo, locale })
     if (result.ok) {
       e.preventEnable()
       location.href = Fider.settings.baseURL
@@ -74,6 +75,16 @@ const GeneralSettingsPage = () => {
             The message is shown on this site&apos;s home page. Use it to help visitors understand what this space is about and the importance of their
             feedback.
           </p>
+        </TextArea>
+
+        <TextArea
+          field="descriptionTemplate"
+          label="Default for New Ideas"
+          value={descriptionTemplate}
+          disabled={!fider.session.user.isAdministrator}
+          onChange={setDescriptionTemplate}
+        >
+          <p className="text-muted">If set, all new ideas submitted by users will use this text as the default description.</p>
         </TextArea>
 
         <Input

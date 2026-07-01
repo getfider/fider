@@ -55,8 +55,13 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   const canEditTags = fider.settings.postWithTags && props.tags.length > 0
+
+  const descriptionTemplate = fider.session.tenant.descriptionTemplate || ""
+  const hasCachedDraft = getCachedDescription() !== ""
+  const prefillTemplate = !hasCachedDraft && descriptionTemplate !== ""
+
   const [title, setTitle] = useState(getCachedTitle())
-  const [description, setDescription] = useState(getCachedDescription())
+  const [description, setDescription] = useState(prefillTemplate ? descriptionTemplate : getCachedDescription())
   const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
     cacheKey: CACHE_KEYS.ATTACHMENT,
     useLocalStorage: true,
@@ -66,7 +71,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
   const editorRef = useRef<HTMLDivElement>(null)
-  const [titleManuallyEdited, setTitleManuallyEdited] = useState(getTitleManuallyEditedValue())
+  const [titleManuallyEdited, setTitleManuallyEdited] = useState(prefillTemplate ? true : getTitleManuallyEditedValue())
   const [isInitialMount, setIsInitialMount] = useState(true)
 
   useEffect(() => {
@@ -105,7 +110,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   useEffect(() => {
-    if (!titleManuallyEdited && !isInitialMount) {
+    if (!titleManuallyEdited && !isInitialMount && !description.startsWith("![](fider-image:attachments")) {
       // Find newline in the original markdown content for truncation
       let newlineIndex = Math.min(description.indexOf("\n"), 80)
       if (newlineIndex == -1) {
@@ -158,12 +163,6 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
   const handleDescriptionChange = (value: string) => {
     setCachedDescription(value)
-
-    // If the description starts with an image attachment, we don't want to set it as the title
-    if (value.startsWith("![](fider-image:attachments")) {
-      return
-    }
-
     setDescription(value)
   }
 
