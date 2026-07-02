@@ -70,5 +70,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# رأی} other {# رأی}}, {comments, plural, one {# دیدگاه} other {# دیدگاه}} - مشاهده [در وب]({web_link}) یا [به‌صورت فید]({feed_link})",
   "email.signin_email.your_code": "کد ورود شما عبارت است از:",
   "email.signin_email.code_expires": "این کد تا ۱۵ دقیقه دیگر اعتبار دارد.",
-  "email.signin_email.alternative": "یا می‌توانید برای ورود مستقیم روی لینک زیر کلیک کنید:"
+  "email.signin_email.alternative": "یا می‌توانید برای ورود مستقیم روی لینک زیر کلیک کنید:",
+  "email.delete_account_requested.subject": "سایت فیدر شما {tenantName} قرار است حذف شود.",
+  "email.delete_account_requested.text": "ما درخواستی برای حذف دائمی سایت Fider شما <strong>{tenantName}</strong> و هر آنچه در آن است - همه کاربران، پست‌ها، نظرات و آرا - دریافت کردیم.",
+  "email.delete_account_requested.scheduled": "عملیات حذف برای <strong>{scheduledAt}</strong> برنامه‌ریزی شده است. پس از اجرا، دیگر قابل بازگشت نیست.",
+  "email.delete_account_requested.cancel": "آیا این را درخواست نکرده‌اید یا نظرتان عوض شده است؟ قبل از آن، از لینک زیر برای لغو حذف استفاده کنید:",
+  "email.delete_account_completed.subject": "سایت فیدر شما {tenantName} حذف شده است",
+  "email.delete_account_completed.text": "سایت Fider شما <strong>{tenantName}</strong> ({subdomain}) و تمام داده‌های آن اکنون به طور دائم حذف شده‌اند. این حذف قابل بازگشت نیست."
 }
