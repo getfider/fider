@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - просмотр [в сети]({web_link}) или [как лента]({feed_link})",
   "email.signin_email.your_code": "Ваш код входа:",
   "email.signin_email.code_expires": "Срок действия этого кода истекает через 15 минут.",
-  "email.signin_email.alternative": "Или вы можете нажать на ссылку ниже, чтобы войти напрямую:"
+  "email.signin_email.alternative": "Или вы можете нажать на ссылку ниже, чтобы войти напрямую:",
+  "email.delete_account_requested.subject": "Ваш сайт Fider {tenantName} запланирован к удалению.",
+  "email.delete_account_requested.text": "Мы получили запрос на безвозвратное удаление вашего сайта Fider <strong>{tenantName}</strong> и всего, что на нем находится — всех пользователей, сообщений, комментариев и голосов.",
+  "email.delete_account_requested.scheduled": "Удаление запланировано на <strong>{scheduledAt}</strong>. После его выполнения отменить его будет невозможно.",
+  "email.delete_account_requested.cancel": "Вы не запрашивали это или передумали? Воспользуйтесь ссылкой ниже, чтобы отменить удаление до указанного срока:",
+  "email.delete_account_completed.subject": "Ваш сайт Fider {tenantName} был удален",
+  "email.delete_account_completed.text": "Ваш сайт Fider <strong>{tenantName}</strong> ({subdomain}) и все его данные были безвозвратно удалены. Это невозможно отменить."
 }
