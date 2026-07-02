@@ -377,6 +377,9 @@ func (c *Context) RemoveCookie(name string) {
 
 // BaseURL returns base URL
 func (c *Context) BaseURL() string {
+	if env.IsSingleHostMode() {
+		return env.Config.BaseURL
+	}
 	return c.Request.BaseURL()
 }
 

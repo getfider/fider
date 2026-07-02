@@ -75,6 +75,23 @@ func TestBaseURL_HTTPS_Proxy(t *testing.T) {
 	Expect(ctx.BaseURL()).Equals("https://demo.test.fider.io:3000")
 }
 
+func TestBaseURL_SingleHostMode_WithPath(t *testing.T) {
+	RegisterT(t)
+
+	prevHostMode := env.Config.HostMode
+	prevBaseURL := env.Config.BaseURL
+	defer func() {
+		env.Config.HostMode = prevHostMode
+		env.Config.BaseURL = prevBaseURL
+	}()
+
+	env.Config.HostMode = "single"
+	env.Config.BaseURL = "https://example.com/feedback"
+	ctx := newGetContext("http://example.com:3000", nil)
+
+	Expect(ctx.BaseURL()).Equals("https://example.com/feedback")
+}
+
 func TestCurrentURL(t *testing.T) {
 	RegisterT(t)
 
