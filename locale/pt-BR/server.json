@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visualizar [na web]({web_link}) ou [como um feed]({feed_link})",
   "email.signin_email.your_code": "Seu código de acesso é:",
   "email.signin_email.code_expires": "Este código expira em 15 minutos.",
-  "email.signin_email.alternative": "Alternativamente, você pode clicar no link abaixo para fazer login diretamente:"
+  "email.signin_email.alternative": "Alternativamente, você pode clicar no link abaixo para fazer login diretamente:",
+  "email.delete_account_requested.subject": "Seu site Fider {tenantName} está programado para exclusão.",
+  "email.delete_account_requested.text": "Recebemos uma solicitação para excluir permanentemente seu site Fider <strong>{tenantName}</strong> e tudo o que está nele — todos os usuários, postagens, comentários e votos.",
+  "email.delete_account_requested.scheduled": "A exclusão está agendada para <strong>{scheduledAt}</strong>. Uma vez executada, não poderá ser desfeita.",
+  "email.delete_account_requested.cancel": "Não solicitou isto ou mudou de ideia? Utilize o link abaixo para cancelar a eliminação antes disso:",
+  "email.delete_account_completed.subject": "Seu site Fider {tenantName} foi excluído",
+  "email.delete_account_completed.text": "Seu site Fider <strong>{tenantName}</strong> ({subdomain}) e todos os seus dados foram excluídos permanentemente. Esta ação não pode ser desfeita."
 }

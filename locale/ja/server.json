@@ -69,5 +69,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}、{comments, plural, one {# comment} other {# comments}} - [ウェブで]({web_link}) または [フィードとして]({feed_link}) 表示",
   "email.signin_email.your_code": "サインインコードは次のとおりです:",
   "email.signin_email.code_expires": "このコードは15分で期限切れになります。",
-  "email.signin_email.alternative": "または、以下のリンクをクリックして直接サインインすることもできます。"
+  "email.signin_email.alternative": "または、以下のリンクをクリックして直接サインインすることもできます。",
+  "email.delete_account_requested.subject": "あなたのFiderサイト{tenantName}は削除予定です",
+  "email.delete_account_requested.text": "お客様の Fider サイト <strong>{tenantName}</strong> およびその中のすべてのもの (すべてのユーザー、投稿、コメント、投票) を完全に削除するようリクエストを受け取りました。",
+  "email.delete_account_requested.scheduled": "削除処理は<strong>{scheduledAt}</strong>に予定されています。一度実行されると、元に戻すことはできません。",
+  "email.delete_account_requested.cancel": "削除を依頼していない、または気が変わった場合は、以下のリンクを使用して削除をキャンセルしてください。",
+  "email.delete_account_completed.subject": "あなたのFiderサイト{tenantName}は削除されました",
+  "email.delete_account_completed.text": "あなたのFiderサイト<strong>{tenantName}</strong>（{subdomain}）とそのすべてのデータは完全に削除されました。この操作は元に戻せません。"
 }

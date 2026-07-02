@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [웹에서]({web_link}) 또는 [피드로]({feed_link}) 보기",
   "email.signin_email.your_code": "로그인 코드는 다음과 같습니다.",
   "email.signin_email.code_expires": "이 코드는 15분 후에 만료됩니다.",
-  "email.signin_email.alternative": "또는 아래 링크를 클릭하여 바로 로그인할 수 있습니다."
+  "email.signin_email.alternative": "또는 아래 링크를 클릭하여 바로 로그인할 수 있습니다.",
+  "email.delete_account_requested.subject": "귀하의 Fider 사이트 {tenantName}는 삭제될 예정입니다.",
+  "email.delete_account_requested.text": "귀하의 Fider 사이트 <strong>{tenantName}</strong> 및 사이트 내 모든 콘텐츠(사용자, 게시물, 댓글, 투표 등)를 영구 삭제해 달라는 요청을 받았습니다.",
+  "email.delete_account_requested.scheduled": "삭제 작업은 <strong>{scheduledAt}</strong>에 예약되어 있습니다. 일단 실행되면 되돌릴 수 없습니다.",
+  "email.delete_account_requested.cancel": "삭제를 요청하지 않았거나 마음이 바뀌셨나요? 아래 링크를 사용하여 삭제를 취소하세요.",
+  "email.delete_account_completed.subject": "귀하의 Fider 사이트 {tenantName}이 삭제되었습니다.",
+  "email.delete_account_completed.text": "귀하의 Fider 사이트 <strong>{tenantName}</strong> ({subdomain}) 및 모든 데이터가 영구적으로 삭제되었습니다. 이 작업은 복구할 수 없습니다."
 }

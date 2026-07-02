@@ -69,5 +69,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}، {comments, plural, one {# comment} other {# comments}} - عرض [على الويب]({web_link}) أو [كموجز]({feed_link})",
   "email.signin_email.your_code": "رمز تسجيل الدخول الخاص بك هو:",
   "email.signin_email.code_expires": "سينتهي هذا الكود خلال 15 دقيقة.",
-  "email.signin_email.alternative": "وبدلاً من ذلك، يمكنك النقر على الرابط أدناه لتسجيل الدخول مباشرةً:"
+  "email.signin_email.alternative": "وبدلاً من ذلك، يمكنك النقر على الرابط أدناه لتسجيل الدخول مباشرةً:",
+  "email.delete_account_requested.subject": "موقع Fider الخاص بك {tenantName} مُقرر حذفه",
+  "email.delete_account_requested.text": "لقد تلقينا طلبًا لحذف موقع Fider الخاص بك بشكل دائم <strong>{tenantName}</strong> وكل ما يحتويه - جميع المستخدمين والمنشورات والتعليقات والأصوات.",
+  "email.delete_account_requested.scheduled": "تمت جدولة عملية الحذف لـ <strong>{scheduledAt}</strong>. بمجرد تنفيذها، لا يمكن التراجع عنها.",
+  "email.delete_account_requested.cancel": "لم تطلب هذا، أو غيرت رأيك؟ استخدم الرابط أدناه لإلغاء الحذف قبل ذلك:",
+  "email.delete_account_completed.subject": "تم حذف موقع Fider الخاص بك {tenantName}",
+  "email.delete_account_completed.text": "تم حذف موقع Fider الخاص بك <strong>{tenantName}</strong> ({subdomain}) وجميع بياناته نهائيًا. لا يمكن التراجع عن هذا الإجراء."
 }

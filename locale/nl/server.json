@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - bekijken [op het web]({web_link}) of [als feed]({feed_link})",
   "email.signin_email.your_code": "Uw aanmeldcode is:",
   "email.signin_email.code_expires": "Deze code verloopt over 15 minuten.",
-  "email.signin_email.alternative": "U kunt ook op de onderstaande link klikken om u direct aan te melden:"
+  "email.signin_email.alternative": "U kunt ook op de onderstaande link klikken om u direct aan te melden:",
+  "email.delete_account_requested.subject": "Uw Fider-site {tenantName} staat gepland voor verwijdering.",
+  "email.delete_account_requested.text": "We hebben een verzoek ontvangen om uw Fider-site <strong>{tenantName}</strong> en alles wat erop staat – alle gebruikers, berichten, reacties en stemmen – permanent te verwijderen.",
+  "email.delete_account_requested.scheduled": "De verwijdering is gepland voor <strong>{scheduledAt}</strong>. Zodra deze is uitgevoerd, kan deze niet meer ongedaan worden gemaakt.",
+  "email.delete_account_requested.cancel": "Heb je dit niet aangevraagd, of ben je van gedachten veranderd? Gebruik de onderstaande link om de verwijdering te annuleren voordat die datum verstrijkt:",
+  "email.delete_account_completed.subject": "Uw Fider-site {tenantName} is verwijderd",
+  "email.delete_account_completed.text": "Uw Fider-site <strong>{tenantName}</strong> ({subdomain}) en alle bijbehorende gegevens zijn nu permanent verwijderd. Dit kan niet ongedaan worden gemaakt."
 }
