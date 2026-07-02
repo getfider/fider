@@ -27,6 +27,9 @@ type Tenant struct {
 	PreventIndexing     bool              `json:"preventIndexing"`
 	IsModerationEnabled bool              `json:"isModerationEnabled"`
 	IsPro               bool              `json:"isPro"`
+	SiteBannerEnabled   bool              `json:"siteBannerEnabled"`
+	SiteBannerMessage   string            `json:"siteBannerMessage"`
+	SiteBannerVariant   string            `json:"siteBannerVariant"`
 	// ScheduledDeletionAt is set when the account owner has requested deletion of the whole
 	// site. The tenant stays active during the grace window; a background job performs the
 	// hard delete once this time passes. Not exposed to clients.

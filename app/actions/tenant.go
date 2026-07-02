@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models/query"
@@ -278,6 +279,48 @@ func (action *UpdateTenantAdvancedSettings) IsAuthorized(ctx context.Context, us
 // Validate if current model is valid
 func (action *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	return validate.Success()
+}
+
+// UpdateTenantSiteBanner is the input model used to toggle and edit the
+// site-wide banner shown above the page header.
+type UpdateTenantSiteBanner struct {
+	Enabled bool   `json:"enabled"`
+	Message string `json:"message"`
+	Variant string `json:"variant"`
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (action *UpdateTenantSiteBanner) IsAuthorized(ctx context.Context, user *entity.User) bool {
+	return user != nil && user.Role == enum.RoleAdministrator
+}
+
+// Validate if current model is valid
+func (action *UpdateTenantSiteBanner) Validate(ctx context.Context, user *entity.User) *validate.Result {
+	result := validate.Success()
+
+	allowedVariants := map[string]bool{
+		"info":    true,
+		"success": true,
+		"warning": true,
+		"danger":  true,
+		"brand":   true,
+	}
+	if action.Variant == "" {
+		action.Variant = "info"
+	}
+	if !allowedVariants[action.Variant] {
+		result.AddFieldFailure("variant", "Variant must be one of info, success, warning, danger, brand.")
+	}
+
+	if len(action.Message) > 500 {
+		result.AddFieldFailure("message", "Banner message must be 500 characters or fewer.")
+	}
+
+	if action.Enabled && strings.TrimSpace(action.Message) == "" {
+		result.AddFieldFailure("message", "Banner message is required when the banner is enabled.")
+	}
+
+	return result
 }
 
 // UpdateTenantPrivacySettings is the input model used to update tenant privacy settings

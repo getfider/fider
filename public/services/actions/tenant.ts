@@ -42,6 +42,16 @@ export const updateTenantAdvancedSettings = async (customCSS: string, allowedSch
   return await http.post("/_api/admin/settings/advanced", { customCSS, allowedSchemes })
 }
 
+export interface UpdateTenantSiteBannerRequest {
+  enabled: boolean
+  message: string
+  variant: string
+}
+
+export const updateTenantSiteBanner = async (request: UpdateTenantSiteBannerRequest): Promise<Result> => {
+  return await http.post("/_api/admin/settings/site-banner", request)
+}
+
 export const updateTenantPrivacy = async (request: PrivacySettingsPageState): Promise<Result> => {
   return await http.post("/_api/admin/settings/privacy", request)
 }

@@ -26,6 +26,10 @@
 <body>
   {{block "noscript" .}}{{end}}
 
+{{- if and .public.tenant .public.tenant.SiteBannerEnabled .public.tenant.SiteBannerMessage -}}
+<div id="site-banner" class="site-banner site-banner--{{ .public.tenant.SiteBannerVariant }}" role="status">{{ .public.tenant.SiteBannerMessage }}</div>
+{{- end }}
+
   {{template "content" .}}
 
   <script id="server-data" type="application/json">
