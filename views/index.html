@@ -1,8 +1,8 @@
 {{define "head"}}
   {{if (and .public.tenant .public.tenant.IsFeedEnabled)}}
-    <link rel=alternate title="{{ $.public.tenant.Name }}: All Posts" type=application/atom+xml href="/feed/global.atom">
+    <link rel=alternate title="{{ $.public.tenant.Name }}: All Posts" type=application/atom+xml href="{{ $.public.settings.baseURL }}/feed/global.atom">
       {{if (eq .public.page "ShowPost/ShowPost.page")}}
-      <link rel=alternate title="{{ $.public.props.post.Title }}: Comments" type=application/atom+xml href="/feed/posts/{{ $.public.props.post.ID }}.atom">
+      <link rel=alternate title="{{ $.public.props.post.Title }}: Comments" type=application/atom+xml href="{{ $.public.settings.baseURL }}/feed/posts/{{ $.public.props.post.ID }}.atom">
       {{end}}
   {{end}}
   {{range $asset := .private.preloadAssets}}

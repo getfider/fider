@@ -1,6 +1,6 @@
 import React from "react"
 import { PostResponse, PostStatus } from "@fider/models"
-import { Icon, Markdown, UserName, Moment, Avatar } from "@fider/components"
+import { Icon, Link, Markdown, UserName, Moment, Avatar } from "@fider/components"
 import HeroIconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import HeroIconCheck from "@fider/assets/images/heroicons-check-circle.svg"
 import HeroIconSparkles from "@fider/assets/images/heroicons-sparkles-outline.svg"
@@ -48,9 +48,9 @@ export const ResponseDetails = (props: PostResponseProps): JSX.Element | null =>
 
             {status === PostStatus.Duplicate && props.response.original && (
               <div className="c-response-details__content">
-                <a className="text-link" href={`/posts/${props.response.original.number}/${props.response.original.slug}`}>
+                <Link className="text-link" href={`/posts/${props.response.original.number}/${props.response.original.slug}`}>
                   {props.response.original.title}
-                </a>
+                </Link>
               </div>
             )}
           </VStack>

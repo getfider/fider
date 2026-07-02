@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { SignInModal, RSSModal, TenantLogo, NotificationIndicator, UserMenu, ThemeSwitcher, Icon, Button, ModerationIndicator } from "@fider/components"
 import { useFider } from "@fider/hooks"
+import { Link } from "./common"
 import { HStack } from "./layout"
 import { Trans } from "@lingui/react/macro"
 import { i18n } from "@lingui/core"
@@ -40,17 +41,17 @@ export const Header = (props: HeaderProps) => {
       <HStack className="c-menu p-4 w-full">
         <div className="container c-header__container">
           <div className="c-header__row">
-            <a href="/" className="c-header__brand flex flex-x flex-items-center flex--spacing-2 h-8">
+            <Link href="/" className="c-header__brand flex flex-x flex-items-center flex--spacing-2 h-8">
               <TenantLogo size={100} />
               <h1 className="text-header">{fider.session.tenant.name}</h1>
-            </a>
+            </Link>
             <HStack spacing={4} className="c-header__nav flex-items-center">
-              <a href="/" className={`c-header__nav-link ${isFeedbackActive ? "c-header__nav-link--active" : ""}`}>
+              <Link href="/" className={`c-header__nav-link ${isFeedbackActive ? "c-header__nav-link--active" : ""}`}>
                 <Trans id="header.nav.feedback">All Feedback</Trans>
-              </a>
-              <a href="/roadmap" className={`c-header__nav-link ${isRoadmapActive ? "c-header__nav-link--active" : ""}`}>
+              </Link>
+              <Link href="/roadmap" className={`c-header__nav-link ${isRoadmapActive ? "c-header__nav-link--active" : ""}`}>
                 <Trans id="header.nav.roadmap">Roadmap</Trans>
-              </a>
+              </Link>
             </HStack>
             {fider.session.isAuthenticated && (
               <div className="c-header__moderation">

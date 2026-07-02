@@ -1,4 +1,4 @@
-import { analytics, notify, truncate, Fider } from "@fider/services"
+import { analytics, notify, truncate, Fider, resolveHref } from "@fider/services"
 
 export interface ErrorItem {
   field?: string
@@ -33,7 +33,7 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
     // Redirect to /signin so they re-authenticate and the role check runs again.
     if (Fider.session.isAuthenticated) {
       const redirect = encodeURIComponent(window.location.pathname + window.location.search)
-      window.location.href = `/signin?redirect=${redirect}`
+      window.location.href = resolveHref(`/signin?redirect=${redirect}`)
       // Return a never-resolving promise so no further code runs while navigating.
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       return new Promise<Result<T>>(() => {})
@@ -57,7 +57,7 @@ async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE"
     ["Content-Type", "application/json"],
   ]
   try {
-    const response = await fetch(url, {
+    const response = await fetch(resolveHref(url), {
       method,
       headers,
       body: JSON.stringify(body),

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react"
+import { resolveHref } from "@fider/services"
 
 interface UsePostOverlayOptions {
   basePath: string
@@ -21,12 +22,12 @@ export function usePostOverlay({ basePath, onPostClosed }: UsePostOverlayOptions
     setSelectedPostId(postNumber)
     setLastOpenedPostId(postNumber)
     setIsPostDirty(false)
-    window.history.pushState({ selectedPostId: postNumber }, "", `/posts/${postNumber}/${slug}`)
+    window.history.pushState({ selectedPostId: postNumber }, "", resolveHref(`/posts/${postNumber}/${slug}`))
   }, [])
 
   const handleCloseOverlay = useCallback(() => {
     setSelectedPostId(null)
-    window.history.pushState({}, "", `${basePath}${savedSearch}`)
+    window.history.pushState({}, "", resolveHref(`${basePath}${savedSearch}`))
   }, [basePath, savedSearch])
 
   useEffect(() => {
@@ -46,9 +47,10 @@ export function usePostOverlay({ basePath, onPostClosed }: UsePostOverlayOptions
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname
-      if (path === basePath || path === basePath.replace(/\/$/, "")) {
+      const resolvedBase = resolveHref(basePath)
+      if (path === resolvedBase || path === resolvedBase.replace(/\/$/, "")) {
         setSelectedPostId(null)
-      } else if (path.startsWith("/posts/")) {
+      } else if (path.includes("/posts/")) {
         setSavedScrollPosition(window.scrollY)
         setSavedSearch(window.location.search)
         const match = path.match(/\/posts\/(\d+)/)
