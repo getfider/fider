@@ -9,7 +9,13 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Skip fork PRs: checkout refuses fork code in a trusted workflow_run context (pwn-request
+    # guard), and this job holds Docker Hub secrets. Fork PR images can be published on demand via
+    # publish-pr-multiarch.yml after review.
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          (github.event.workflow_run.event != 'pull_request' ||
+           github.event.workflow_run.head_repository.full_name == github.repository) }}
     steps:
       - name: Dump GitHub context
         run: echo "$GITHUB_CONTEXT"
