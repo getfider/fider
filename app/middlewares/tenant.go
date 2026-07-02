@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
@@ -37,6 +38,7 @@ func SingleTenant() web.MiddlewareFunc {
 
 			if firstTenant.Result != nil && !firstTenant.Result.IsDisabled() {
 				c.SetTenant(firstTenant.Result)
+				attachTenantStatuses(c, firstTenant.Result)
 			}
 
 			return next(c)
@@ -58,6 +60,7 @@ func MultiTenant() web.MiddlewareFunc {
 
 			if byDomain.Result != nil && !byDomain.Result.IsDisabled() {
 				c.SetTenant(byDomain.Result)
+				attachTenantStatuses(c, byDomain.Result)
 
 				if byDomain.Result.CNAME != "" && !c.IsAjax() {
 					baseURL := web.TenantBaseURL(c, byDomain.Result)
@@ -70,6 +73,19 @@ func MultiTenant() web.MiddlewareFunc {
 
 			return next(c)
 		}
+	}
+}
+
+// attachTenantStatuses loads the tenant's active status catalogue and stores
+// it on tenant.Statuses so the React client receives it on bootstrap. Errors
+// are non-fatal — a tenant with no statuses still loads the page, the frontend
+// just falls back to the built-in enum. The recover() handles bus panics when
+// no handler is registered (e.g. middleware unit tests with a mocked bus).
+func attachTenantStatuses(c *web.Context, tenant *entity.Tenant) {
+	defer func() { _ = recover() }()
+	q := &query.ListActiveStatusesForTenant{}
+	if err := bus.Dispatch(c, q); err == nil {
+		tenant.Statuses = q.Result
 	}
 }
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Post, PostStatus } from "@fider/models"
+import { Post, PostStatus, postStatusValue } from "@fider/models"
 import { actions } from "@fider/services"
 import { Button, Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
@@ -37,7 +37,7 @@ export const VoteSection = (props: VoteSectionProps) => {
 
   const hideModal = () => setIsSignInModalOpen(false)
 
-  const status = PostStatus.Get(props.post.status)
+  const status = PostStatus.Get(postStatusValue(props.post))
   const isDisabled = status.closed || fider.isReadOnly
 
   const buttonText = hasVoted ? <Trans id="action.voted">Voted!</Trans> : <Trans id="action.vote">Vote for this idea</Trans>

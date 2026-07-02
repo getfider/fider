@@ -3,7 +3,7 @@ import IconArrowLeft from "@fider/assets/images/heroicons-arrowleft.svg"
 import IconCheckCircle from "@fider/assets/images/heroicons-check-circle.svg"
 
 import React, { useState, useCallback } from "react"
-import { Post, Tag } from "@fider/models"
+import { Post, Status, Tag } from "@fider/models"
 import { Header, Button, Icon, ResponseLozenge, ShowTag, Moment } from "@fider/components"
 import { VStack, HStack } from "@fider/components/layout"
 import { useFider, usePostOverlay } from "@fider/hooks"
@@ -11,15 +11,19 @@ import { actions } from "@fider/services"
 import { PostDetails } from "@fider/components/PostDetails"
 import { Trans } from "@lingui/react/macro"
 
+interface RoadmapColumnData {
+  status: Status
+  posts: Post[]
+}
+
 interface RoadmapPageProps {
-  plannedPosts?: Post[]
-  startedPosts?: Post[]
-  completedPosts?: Post[]
+  columns?: RoadmapColumnData[]
   tags?: Tag[]
 }
 
 interface RoadmapColumnProps {
   status: string
+  kind?: string
   posts: Post[]
   tags: Tag[]
   currentLimit: number
@@ -33,13 +37,12 @@ interface RoadmapColumnProps {
 const ROADMAP_DEFAULT_LIMIT = 10
 const ROADMAP_LIMIT_STEP = 10
 
-type RoadmapView = "planned" | "started" | "completed"
-
-const RoadmapPost = (props: { post: Post; tags: Tag[]; status: string; onPostClick?: (postNumber: number, slug: string) => void }) => {
+const RoadmapPost = (props: { post: Post; tags: Tag[]; status: string; kind?: string; onPostClick?: (postNumber: number, slug: string) => void }) => {
   const fider = useFider()
   const isModerationEnabled = fider.session.tenant.isModerationEnabled
   const isPending = isModerationEnabled && !props.post.isApproved
-  const isCompleted = props.status === "completed"
+  // Anything in a closed-completed kind hides the upvote affordance.
+  const isCompleted = props.kind === "closed-completed" || props.status === "completed"
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (props.onPostClick) {
@@ -99,6 +102,7 @@ const RoadmapColumn = (props: RoadmapColumnProps) => {
             post={post}
             tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)}
             status={props.status}
+            kind={props.kind}
             onPostClick={props.onPostClick}
           />
         ))}
@@ -121,41 +125,33 @@ const RoadmapColumn = (props: RoadmapColumnProps) => {
   )
 }
 
+interface ColumnState {
+  status: Status
+  posts: Post[]
+  limit: number
+}
+
 const RoadmapBoard = (props: RoadmapPageProps) => {
-  const [plannedPosts, setPlannedPosts] = useState<Post[]>(props.plannedPosts || [])
-  const [startedPosts, setStartedPosts] = useState<Post[]>(props.startedPosts || [])
-  const [completedPosts, setCompletedPosts] = useState<Post[]>(props.completedPosts || [])
-  const [plannedLimit, setPlannedLimit] = useState(ROADMAP_DEFAULT_LIMIT)
-  const [startedLimit, setStartedLimit] = useState(ROADMAP_DEFAULT_LIMIT)
-  const [completedLimit, setCompletedLimit] = useState(ROADMAP_DEFAULT_LIMIT)
+  const [columns, setColumns] = useState<ColumnState[]>((props.columns || []).map((c) => ({ status: c.status, posts: c.posts, limit: ROADMAP_DEFAULT_LIMIT })))
   const tags = props.tags || []
 
   const reloadPosts = useCallback(async () => {
-    const [planned, started, completed] = await Promise.all([
-      actions.searchPosts({ view: "planned", limit: plannedLimit }),
-      actions.searchPosts({ view: "started", limit: startedLimit }),
-      actions.searchPosts({ view: "completed", limit: completedLimit }),
-    ])
-    if (planned.ok) setPlannedPosts(planned.data)
-    if (started.ok) setStartedPosts(started.data)
-    if (completed.ok) setCompletedPosts(completed.data)
-  }, [plannedLimit, startedLimit, completedLimit])
+    const next = await Promise.all(
+      columns.map(async (col) => {
+        const result = await actions.searchPosts({ statuses: [col.status.slug], limit: col.limit })
+        return result.ok ? { ...col, posts: result.data as Post[] } : col
+      })
+    )
+    setColumns(next)
+  }, [columns])
 
-  const showMore = async (view: RoadmapView) => {
-    const currentLimit = view === "planned" ? plannedLimit : view === "started" ? startedLimit : completedLimit
-    const nextLimit = currentLimit + ROADMAP_LIMIT_STEP
-    const result = await actions.searchPosts({ view, limit: nextLimit })
+  const showMore = async (slug: string) => {
+    const target = columns.find((c) => c.status.slug === slug)
+    if (!target) return
+    const nextLimit = target.limit + ROADMAP_LIMIT_STEP
+    const result = await actions.searchPosts({ statuses: [slug], limit: nextLimit })
     if (!result.ok) return
-    if (view === "planned") {
-      setPlannedLimit(nextLimit)
-      setPlannedPosts(result.data)
-    } else if (view === "started") {
-      setStartedLimit(nextLimit)
-      setStartedPosts(result.data)
-    } else {
-      setCompletedLimit(nextLimit)
-      setCompletedPosts(result.data)
-    }
+    setColumns(columns.map((c) => (c.status.slug === slug ? { ...c, posts: result.data as Post[], limit: nextLimit } : c)))
   }
 
   const { selectedPostId, handlePostClick, handleCloseOverlay, setIsPostDirty } = usePostOverlay({
@@ -163,9 +159,12 @@ const RoadmapBoard = (props: RoadmapPageProps) => {
     onPostClosed: () => reloadPosts(),
   })
 
-  const hasNoActivePosts = plannedPosts.length === 0 && startedPosts.length === 0
+  // Any column the admin opted into the roadmap (via show_on_roadmap) counts —
+  // if Completed is enabled and has posts, the board is not "waiting for its
+  // first update."
+  const hasAnyOpenWork = columns.some((c) => c.posts.length > 0)
 
-  if (hasNoActivePosts && selectedPostId === null) {
+  if (!hasAnyOpenWork && selectedPostId === null) {
     return <RoadmapBlankState />
   }
 
@@ -174,30 +173,18 @@ const RoadmapBoard = (props: RoadmapPageProps) => {
       <div style={selectedPostId !== null ? { display: "none" } : undefined}>
         <VStack spacing={4}>
           <div className="c-roadmap-board">
-            <RoadmapColumn
-              status="planned"
-              posts={plannedPosts}
-              tags={tags}
-              currentLimit={plannedLimit}
-              onShowMore={() => showMore("planned")}
-              onPostClick={handlePostClick}
-            />
-            <RoadmapColumn
-              status="started"
-              posts={startedPosts}
-              tags={tags}
-              currentLimit={startedLimit}
-              onShowMore={() => showMore("started")}
-              onPostClick={handlePostClick}
-            />
-            <RoadmapColumn
-              status="completed"
-              posts={completedPosts}
-              tags={tags}
-              currentLimit={completedLimit}
-              onShowMore={() => showMore("completed")}
-              onPostClick={handlePostClick}
-            />
+            {columns.map((col) => (
+              <RoadmapColumn
+                key={col.status.slug}
+                status={col.status.slug}
+                kind={col.status.kind}
+                posts={col.posts}
+                tags={tags}
+                currentLimit={col.limit}
+                onShowMore={() => showMore(col.status.slug)}
+                onPostClick={handlePostClick}
+              />
+            ))}
           </div>
         </VStack>
       </div>

@@ -44,6 +44,7 @@ export const SideMenu = (props: SiteMenuProps) => {
         <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
         <SideMenuItem name="users" title="Users" href="/admin/users" isActive={activeItem === "users"} />
         <SideMenuItem name="tags" title="Tags" href="/admin/tags" isActive={activeItem === "tags"} />
+        <SideMenuItem name="statuses" title="Statuses" href="/admin/statuses" isActive={activeItem === "statuses"} />
         <SideMenuItem name="invitations" title="Invitations" href="/admin/invitations" isActive={activeItem === "invitations"} />
         <SideMenuItem name="authentication" title="Authentication" href="/admin/authentication" isActive={activeItem === "authentication"} />
         <SideMenuItem name="advanced" title="Advanced" href="/admin/advanced" isActive={activeItem === "advanced"} />

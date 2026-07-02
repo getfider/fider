@@ -62,7 +62,7 @@ func FromPosts(posts []*entity.Post) ([]byte, error) {
 			post.User.Name,
 			strconv.Itoa(post.VotesCount),
 			strconv.Itoa(post.CommentsCount),
-			post.Status.Name(),
+			post.StatusSlug,
 			respondedBy,
 			respondedAt,
 			response,

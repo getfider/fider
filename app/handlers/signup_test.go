@@ -142,6 +142,10 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.SeedTenantStatuses) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
 		q.Result = true
 		return nil
@@ -205,6 +209,10 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.SeedTenantStatuses) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
 		q.Result = true
 		return nil
@@ -259,6 +267,10 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
 		newTenant = c
 		c.Result = &entity.Tenant{ID: 1, Name: c.Name, Subdomain: c.Subdomain, Status: c.Status}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.SeedTenantStatuses) error {
 		return nil
 	})
 

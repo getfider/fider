@@ -38,6 +38,7 @@ func TestGlobalFeedHandler(t *testing.T) {
 		CreatedAt:   time.Date(2023, 1, 1, 10, 0, 0, 0, time.UTC),
 		User:        &entity.User{ID: 1, Name: "Jon Snow"},
 		VotesCount:  5,
+		StatusSlug:  "open",
 	}
 
 	post2 := &entity.Post{
@@ -49,6 +50,7 @@ func TestGlobalFeedHandler(t *testing.T) {
 		CreatedAt:   time.Date(2023, 1, 3, 10, 0, 0, 0, time.UTC),
 		User:        &entity.User{ID: 2, Name: "Arya Stark"},
 		VotesCount:  2,
+		StatusSlug:  "open",
 	}
 
 	bus.AddHandler(func(ctx context.Context, q *query.SearchPosts) error {
@@ -85,7 +87,7 @@ func TestCommentFeedHandler(t *testing.T) {
 		Description: "Description of the post",
 		CreatedAt:   time.Date(2023, 1, 1, 10, 0, 0, 0, time.UTC),
 		User:        &entity.User{ID: 1, Name: "Jon Snow"},
-		Status:      enum.PostOpen,
+		StatusSlug:      "open",
 	}
 
 	comment1 := &entity.Comment{
@@ -195,7 +197,7 @@ func TestCommentFeedHandler_HTMLEscaped(t *testing.T) {
 		Description: "Description of the post",
 		CreatedAt:   time.Date(2023, 1, 1, 10, 0, 0, 0, time.UTC),
 		User:        &entity.User{ID: 1, Name: "Jon Snow"},
-		Status:      enum.PostOpen,
+		StatusSlug:      "open",
 	}
 
 	xssComment := &entity.Comment{

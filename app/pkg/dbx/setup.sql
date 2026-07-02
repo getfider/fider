@@ -45,3 +45,16 @@ INSERT INTO users (name, email, tenant_id, created_at, role, status, avatar_type
 VALUES ('Jon Snow', 'jon.snow@german.com', 4, now(), 3, 1, 2, '');
 INSERT INTO user_providers (user_id, tenant_id, provider, provider_uid, created_at)
 VALUES (7, 4, 'facebook', 'FB4444', now());
+
+INSERT INTO statuses (tenant_id, slug, label, kind, color, icon, show_on_home, filterable, sort_order, is_system)
+SELECT id, 'open',      'Open',      'open',             'blue',   'lightbulb',        FALSE, TRUE, 10, TRUE FROM tenants
+UNION ALL
+SELECT id, 'planned',   'Planned',   'active',           'blue',   'thumbsup',         TRUE,  TRUE, 20, TRUE FROM tenants
+UNION ALL
+SELECT id, 'started',   'Started',   'active',           'blue',   'sparkles-outline', TRUE,  TRUE, 30, TRUE FROM tenants
+UNION ALL
+SELECT id, 'completed', 'Completed', 'closed-completed', 'green',  'check-circle',     TRUE,  TRUE, 40, TRUE FROM tenants
+UNION ALL
+SELECT id, 'declined',  'Declined',  'closed-declined',  'red',    'thumbsdown',       TRUE,  TRUE, 50, TRUE FROM tenants
+UNION ALL
+SELECT id, 'duplicate', 'Duplicate', 'duplicate',        'yellow', 'duplicate',        TRUE,  TRUE, 60, TRUE FROM tenants;

@@ -174,6 +174,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", "", "Administration/pages/Invitations.page"))
 		ui.Get("/admin/users", handlers.ManageMembers())
 		ui.Get("/admin/tags", handlers.ManageTags())
+		ui.Get("/admin/statuses", handlers.ManageStatuses())
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
 		ui.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 
@@ -211,6 +212,10 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacySettings())
 		ui.Post("/_api/admin/settings/emailauth", handlers.UpdateEmailAuthAllowed())
+		ui.Get("/_api/admin/statuses", handlers.ListStatuses())
+		ui.Post("/_api/admin/statuses", handlers.CreateStatus())
+		ui.Put("/_api/admin/statuses/:id", handlers.UpdateStatus())
+		ui.Delete("/_api/admin/statuses/:id", handlers.DeleteStatus())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
 		ui.Post("/_api/admin/oauth/:provider/status", handlers.SetSystemProviderStatus())
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())

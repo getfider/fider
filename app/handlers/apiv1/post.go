@@ -9,7 +9,6 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -209,16 +208,16 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		prevStatus := getPost.Result.Status
+		prevStatusSlug := getPost.Result.StatusSlug
 
 		var command bus.Msg
-		if action.Status == enum.PostDuplicate {
+		if action.StatusSlug == "duplicate" {
 			command = &cmd.MarkPostAsDuplicate{Post: getPost.Result, Original: action.Original}
 		} else {
 			command = &cmd.SetPostResponse{
-				Post:   getPost.Result,
-				Text:   action.Text,
-				Status: action.Status,
+				Post:       getPost.Result,
+				Text:       action.Text,
+				StatusSlug: action.StatusSlug,
 			}
 		}
 
@@ -226,7 +225,7 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutStatusChange(getPost.Result, prevStatus))
+		c.Enqueue(tasks.NotifyAboutStatusChange(getPost.Result, prevStatusSlug))
 
 		return c.Ok(web.Map{})
 	}
@@ -241,9 +240,9 @@ func DeletePost() web.HandlerFunc {
 		}
 
 		err := bus.Dispatch(c, &cmd.SetPostResponse{
-			Post:   action.Post,
-			Text:   action.Text,
-			Status: enum.PostDeleted,
+			Post:       action.Post,
+			Text:       action.Text,
+			StatusSlug: "deleted",
 		})
 		if err != nil {
 			return c.Failure(err)

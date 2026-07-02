@@ -8,7 +8,6 @@ import (
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
-	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -240,12 +239,14 @@ func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *v
 
 // SetResponse represents the action to update an post response
 type SetResponse struct {
-	Number         int             `route:"number"`
-	Status         enum.PostStatus `json:"status"`
-	Text           string          `json:"text"`
-	OriginalNumber int             `json:"originalNumber"`
+	Number         int    `route:"number"`
+	Status         string `json:"status"` // slug from tenant.statuses
+	Text           string `json:"text"`
+	OriginalNumber int    `json:"originalNumber"`
 
-	Original *entity.Post
+	// Resolved during Validate
+	Original   *entity.Post
+	StatusSlug string // normalized slug
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -257,11 +258,25 @@ func (action *SetResponse) IsAuthorized(ctx context.Context, user *entity.User) 
 func (action *SetResponse) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
-	if action.Status < enum.PostOpen || action.Status > enum.PostDuplicate {
+	action.Status = strings.TrimSpace(strings.ToLower(action.Status))
+	if action.Status == "" || action.Status == "deleted" {
 		result.AddFieldFailure("status", propertyIsInvalid(ctx, "status"))
+		return result
 	}
 
-	if action.Status == enum.PostDuplicate {
+	// Look up the slug in the tenant's status catalogue. Any active row is
+	// acceptable; the catalogue is admin-curated and may include custom
+	// statuses beyond the built-in enum.
+	getStatus := &query.GetStatusBySlug{Slug: action.Status}
+	err := bus.Dispatch(ctx, getStatus)
+	if err != nil || getStatus.Result == nil || !getStatus.Result.IsActive {
+		result.AddFieldFailure("status", propertyIsInvalid(ctx, "status"))
+		return result
+	}
+
+	action.StatusSlug = getStatus.Result.Slug
+
+	if action.StatusSlug == "duplicate" {
 		if action.OriginalNumber == action.Number {
 			result.AddFieldFailure("originalNumber", i18n.T(ctx, "validation.custom.selfduplicate"))
 		}
