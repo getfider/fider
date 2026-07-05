@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - voir [sur le Web]({web_link}) ou [sous forme de flux]({feed_link})",
   "email.signin_email.your_code": "Votre code de connexion est :",
   "email.signin_email.code_expires": "Ce code expirera dans 15 minutes.",
-  "email.signin_email.alternative": "Vous pouvez également cliquer sur le lien ci-dessous pour vous connecter directement :"
+  "email.signin_email.alternative": "Vous pouvez également cliquer sur le lien ci-dessous pour vous connecter directement :",
+  "email.delete_account_requested.subject": "Votre site Fider {tenantName} est programmé pour être supprimé.",
+  "email.delete_account_requested.text": "Nous avons reçu une demande de suppression définitive de votre site Fider <strong>{tenantName}</strong> et de tout ce qu'il contient — tous les utilisateurs, messages, commentaires et votes.",
+  "email.delete_account_requested.scheduled": "La suppression est programmée pour le <strong>{scheduledAt}</strong>. Une fois exécutée, elle ne peut être annulée.",
+  "email.delete_account_requested.cancel": "Vous n'avez pas demandé cela ou vous avez changé d'avis ? Utilisez le lien ci-dessous pour annuler la suppression avant cette date :",
+  "email.delete_account_completed.subject": "Votre site Fider {tenantName} a été supprimé",
+  "email.delete_account_completed.text": "Votre site Fider <strong>{tenantName}</strong> ({subdomain}) et toutes ses données ont été définitivement supprimés. Cette action est irréversible."
 }

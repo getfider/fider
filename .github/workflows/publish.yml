@@ -9,7 +9,13 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Skip fork PRs: checkout refuses fork code in a trusted workflow_run context (pwn-request
+    # guard), and this job holds Docker Hub secrets. Fork PR images can be published on demand via
+    # publish-pr-multiarch.yml after review.
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          (github.event.workflow_run.event != 'pull_request' ||
+           github.event.workflow_run.head_repository.full_name == github.repository) }}
     steps:
       - name: Dump GitHub context
         run: echo "$GITHUB_CONTEXT"
@@ -17,25 +23,25 @@ jobs:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
       - name: build and push docker image (pull_request)
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: true
           context: .
@@ -43,11 +49,13 @@ jobs:
           platforms: linux/amd64
           tags: getfider/fider:PR_${{ github.event.workflow_run.pull_requests[0].number }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # PR-triggered workflow_run gets a read-only cache token, so cache writes are
+          # denied; ignore-error keeps that from failing the build (reads still work).
+          cache-to: type=gha,mode=max,ignore-error=true
 
       - name: build and push docker image (push branch)
         if: ${{ github.event.workflow_run.event == 'push' }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: true
           context: .
@@ -61,7 +69,7 @@ jobs:
 
       - name: build and push docker image (push tag)
         if: ${{ github.event.workflow_run.event == 'release' }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: true
           context: .
