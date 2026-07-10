@@ -39,6 +39,12 @@ Install Fider on your own servers, in your own infrastructure. It's totally free
 
 If you do self-host and enjoy Fider, please [let us know where you're using it](https://github.com/getfider/fider/issues/899) - we really appreciate it 🙏
 
+## ⚡ **One-Click Managed (third-party)**
+
+Want a managed Fider without running a server yourself? Zenith Hosting deploys Fider for you with storage, backups, email and a free subdomain included, and shares a cut of every subscription back with Fider.
+
+[![Deploy with Zenith](https://cdn.zenith.hosting/buttons/deploy-with-zenith.svg)](https://zenith.hosting/host/fider)
+
 # 💰 Donations and Sponsors
 
 Support the development of Fider to help us make it the best feedback tool! You can set up donations as small or large as you want to help us keep Fider going. [Donate](https://opencollective.com/fider)
