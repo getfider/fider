@@ -1,6 +1,7 @@
 import React from "react"
 
 import { Button, Icon } from "@fider/components"
+import { basePath } from "@fider/services"
 import { AdminBasePage } from "../components/AdminBasePage"
 import IconDownload from "@fider/assets/images/heroicons-download.svg"
 
@@ -18,7 +19,7 @@ export default class ExportPage extends AdminBasePage<any, any> {
           Use this button to download a CSV file with all posts in this site. This can be useful to analyse the data with an external tool or simply to back it
           up.
         </p>
-        <Button variant="secondary" href="/admin/export/posts.csv">
+        <Button variant="secondary" href={`${basePath()}/admin/export/posts.csv`}>
           <Icon sprite={IconDownload} />
           <span>posts.csv</span>
         </Button>
@@ -28,7 +29,7 @@ export default class ExportPage extends AdminBasePage<any, any> {
           <p className="text-muted">
             Use this button to download a ZIP file with your data in JSON format. This is a full backup and contains all of your data.
           </p>
-          <Button variant="secondary" href="/admin/export/backup.zip">
+          <Button variant="secondary" href={`${basePath()}/admin/export/backup.zip`}>
             <Icon sprite={IconDownload} />
             <span>backup.zip</span>
           </Button>

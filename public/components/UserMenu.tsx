@@ -1,5 +1,6 @@
 import React from "react"
 import { useFider } from "@fider/hooks"
+import { basePath } from "@fider/services"
 import { Avatar, Dropdown } from "./common"
 import { Trans } from "@lingui/react/macro"
 import IconCog from "@fider/assets/images/heroicons-cog.svg"
@@ -13,7 +14,7 @@ export const UserMenu = () => {
     <div className="c-menu-user">
       <Dropdown position="left" renderHandle={<Avatar user={fider.session.user} />}>
         <div className="p-2 text-medium uppercase">{fider.session.user.name}</div>
-        <Dropdown.ListItem href="/settings" icon={IconCog}>
+        <Dropdown.ListItem href={`${basePath()}/settings`} icon={IconCog}>
           <Trans id="menu.mysettings">My Settings</Trans>
         </Dropdown.ListItem>
         <Dropdown.Divider />
@@ -23,13 +24,13 @@ export const UserMenu = () => {
             <div className="p-2 text-medium uppercase">
               <Trans id="menu.administration">Administration</Trans>
             </div>
-            <Dropdown.ListItem href="/admin" icon={IconWrench}>
+            <Dropdown.ListItem href={`${basePath()}/admin`} icon={IconWrench}>
               <Trans id="menu.sitesettings">Site Settings</Trans>
             </Dropdown.ListItem>
             <Dropdown.Divider />
           </>
         )}
-        <Dropdown.ListItem href="/signout" icon={IconLeft}>
+        <Dropdown.ListItem href={`${basePath()}/signout`} icon={IconLeft}>
           <Trans id="menu.signout">Sign out</Trans>
         </Dropdown.ListItem>
       </Dropdown>

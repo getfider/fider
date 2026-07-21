@@ -1,4 +1,5 @@
 export * from "./Button"
+export * from "./Link"
 export * from "./form/Form"
 export * from "./form/Input"
 export * from "./form/ImageUploader"

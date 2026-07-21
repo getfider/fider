@@ -1,7 +1,7 @@
 import "./Dropdown.scss"
 
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
-import { classSet } from "@fider/services"
+import { classSet, resolveHref } from "@fider/services"
 import { Icon } from "@fider/components/common/Icon"
 
 interface DropdownListItemProps {
@@ -25,7 +25,7 @@ const ListItem = (props: DropdownListItemProps) => {
 
   if (props.href) {
     return (
-      <a href={props.href} className={`c-dropdown__listitem ${props.className}`} type={props.type || "button"}>
+      <a href={resolveHref(props.href)} className={`c-dropdown__listitem ${props.className}`} type={props.type || "button"}>
         {props.icon && <Icon sprite={props.icon} className="mr-2" width="16" height="16" />}
         {props.children}
       </a>

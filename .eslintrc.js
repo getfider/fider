@@ -27,5 +27,7 @@ module.exports = {
     "react/jsx-no-target-blank": ["error", { allowReferrer: true }],
     "@typescript-eslint/no-explicit-any": "off", // TODO: turn this on in future
     "@typescript-eslint/explicit-module-boundary-types": "off", // TODO: turn this on in future
+    // Local rule loaded via `--rulesdir eslint-rules` on the lint-ui make target.
+    "no-bare-root-href": "error",
   },
 }

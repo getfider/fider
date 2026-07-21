@@ -125,7 +125,7 @@ lint-server: ## Lint server code
 	golangci-lint run --timeout 3m
 
 lint-ui: ## Lint ui code
-	npx eslint .
+	npx eslint --rulesdir eslint-rules .
 
 
 
