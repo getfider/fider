@@ -7,6 +7,8 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"golang.org/x/crypto/acme"
 	"golang.org/x/net/idna"
@@ -42,6 +44,60 @@ func getDefaultTLSConfig(autoSSL bool) *tls.Config {
 }
 
 var errInvalidHostName = errors.New("autotls: invalid hostname")
+
+// certFailureCooldown is how long a host is skipped after a failed certificate acquisition.
+// Let's Encrypt allows roughly 5 failed validations per hostname per hour, so this keeps us
+// to at most 4, leaving headroom for the rest of the account.
+const certFailureCooldown = 15 * time.Minute
+
+// hostFailureCache records hosts whose certificate acquisition recently failed, so that we
+// stop asking Let's Encrypt for them until the cooldown elapses. Without it a single broken
+// custom domain retries on every TLS handshake, which rate limits the whole ACME account.
+type hostFailureCache struct {
+	mu       sync.Mutex
+	failures map[string]time.Time
+}
+
+func newHostFailureCache() *hostFailureCache {
+	return &hostFailureCache{failures: make(map[string]time.Time)}
+}
+
+// normalizeHost matches how autocert canonicalizes the name it hands to the HostPolicy, so
+// that failures recorded from a raw ServerName are found again on the next handshake.
+func normalizeHost(host string) string {
+	return strings.TrimSuffix(strings.ToLower(host), ".")
+}
+
+func (c *hostFailureCache) onCooldown(host string) bool {
+	key := normalizeHost(host)
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	failedAt, ok := c.failures[key]
+	if !ok {
+		return false
+	}
+
+	if time.Since(failedAt) >= certFailureCooldown {
+		delete(c.failures, key)
+		return false
+	}
+
+	return true
+}
+
+func (c *hostFailureCache) recordFailure(host string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.failures[normalizeHost(host)] = time.Now()
+}
+
+func (c *hostFailureCache) clear(host string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.failures, normalizeHost(host))
+}
 
 func isValidHostName(ctx context.Context, host string) error {
 	// In this context, host can only be custom domains, not a subdomain of fider.io
@@ -88,23 +144,25 @@ func isValidHostName(ctx context.Context, host string) error {
 
 // CertificateManager is used to manage SSL certificates
 type CertificateManager struct {
-	ctx     context.Context
-	cert    tls.Certificate
-	leaf    *x509.Certificate
-	autotls autocert.Manager
+	ctx      context.Context
+	cert     tls.Certificate
+	leaf     *x509.Certificate
+	autotls  autocert.Manager
+	failures *hostFailureCache
 }
 
 // NewCertificateManager creates a new CertificateManager
 func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*CertificateManager, error) {
 	manager := &CertificateManager{
-		ctx: ctx,
+		ctx:      ctx,
+		failures: newHostFailureCache(),
 		autotls: autocert.Manager{
-			Prompt:     autocert.AcceptTOS,
-			Cache:      NewAutoCertCache(),
-			Client:     acmeClient(),
-			HostPolicy: isValidHostName,
+			Prompt: autocert.AcceptTOS,
+			Cache:  NewAutoCertCache(),
+			Client: acmeClient(),
 		},
 	}
+	manager.autotls.HostPolicy = manager.hostPolicy
 
 	if certFile != "" && keyFile != "" {
 		var err error
@@ -120,6 +178,16 @@ func NewCertificateManager(ctx context.Context, certFile, keyFile string) (*Cert
 	}
 
 	return manager, nil
+}
+
+// hostPolicy is the autocert HostPolicy. autocert calls it before looking up or issuing a
+// certificate, but after serving TLS-ALPN challenge tokens, so refusing a host here stops us
+// from contacting Let's Encrypt without interfering with an in-flight challenge validation.
+func (m *CertificateManager) hostPolicy(ctx context.Context, host string) error {
+	if m.failures.onCooldown(host) {
+		return errors.Wrap(errInvalidHostName, "host %s is on cooldown after a recent certificate failure", host)
+	}
+	return isValidHostName(ctx, host)
 }
 
 // GetCertificate decides which certificate to use
@@ -167,8 +235,21 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 				log.Debug(m.ctx, err.Error())
 			}
 		} else {
-			log.Error(m.ctx, errors.Wrap(err, "failed to get certificate for %s", hello.ServerName))
+			// Put the host on cooldown so a domain that can't be issued doesn't retry on every
+			// handshake and get the ACME account rate limited.
+			m.failures.recordFailure(hello.ServerName)
+
+			failure := errors.Wrap(err, "failed to get certificate for %s", hello.ServerName)
+			// Same rationale as above: in multi-tenant mode a custom domain that fails ACME is
+			// the customer's problem to fix, not a Fider bug, so keep it out of error alarms.
+			if env.IsSingleHostMode() {
+				log.Error(m.ctx, failure)
+			} else {
+				log.Warn(m.ctx, failure.Error())
+			}
 		}
+	} else {
+		m.failures.clear(hello.ServerName)
 	}
 
 	return cert, err

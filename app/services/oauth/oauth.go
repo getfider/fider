@@ -315,6 +315,11 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 		return err
 	}
 
+	// Guard against SSRF: TokenURL triggers a server-side request during the token exchange.
+	if msgs := validate.WebhookURL(config.TokenURL); len(msgs) > 0 {
+		return errors.New("Token URL is not allowed: %s", strings.Join(msgs, "; "))
+	}
+
 	oauthBaseURL := web.OAuthBaseURL(ctx)
 	exchange := (&oauth2.Config{
 		ClientID:     config.ClientID,
@@ -340,6 +345,11 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 		body, _ := base64.RawURLEncoding.DecodeString(parts[1])
 		q.Result = string(body)
 		return nil
+	}
+
+	// Guard against SSRF: ProfileURL is user-configurable and fetched server-side.
+	if msgs := validate.WebhookURL(config.ProfileURL); len(msgs) > 0 {
+		return errors.New("Profile URL is not allowed: %s", strings.Join(msgs, "; "))
 	}
 
 	req := &cmd.HTTPRequest{

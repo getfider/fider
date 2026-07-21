@@ -1,0 +1,13 @@
+{{define "subject"}}{{ translate "email.delete_account_requested.subject" (dict "tenantName" .tenantName) }}{{end}}
+
+{{define "body"}}
+<tr>
+  <td style="padding:20px 30px 30px 30px;">
+    <h2 style="color:#1c262d;margin:0 0 15px 0;padding:0;">{{ "email.greetings" | translate }}</h2>
+    <p style="color:#1c262d;margin:0 0 10px 0;">{{ translate "email.delete_account_requested.text" (dict "tenantName" (.tenantName | stripHtml)) | html }}</p>
+    <p style="color:#1c262d;margin:0 0 20px 0;">{{ translate "email.delete_account_requested.scheduled" (dict "scheduledAt" .scheduledAt) | html }}</p>
+    <p style="color:#1c262d;margin:0 0 10px 0;">{{ "email.delete_account_requested.cancel" | translate }}</p>
+    <p style="color:#1c262d;margin:0 0 20px 0;">{{ .cancelLink | html }}</p>
+  </td>
+</tr>
+{{end}}

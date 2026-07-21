@@ -2,6 +2,7 @@ package actions_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app"
@@ -132,4 +133,36 @@ func TestDeleteComment(t *testing.T) {
 
 	authorized = action.IsAuthorized(context.Background(), administrator)
 	Expect(authorized).IsTrue()
+}
+
+func TestAddNewComment_TooLongContent(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.AddNewComment{Content: strings.Repeat("a", 4001)}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "content")
+}
+
+func TestAddNewComment_AtMaxLength(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.AddNewComment{Content: strings.Repeat("a", 4000)}
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+}
+
+func TestEditComment_TooLongContent(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.EditComment{Content: strings.Repeat("a", 4001)}
+	result := action.Validate(context.Background(), nil)
+	ExpectFailed(result, "content")
+}
+
+func TestEditComment_AtMaxLength(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.EditComment{Content: strings.Repeat("a", 4000)}
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
 }

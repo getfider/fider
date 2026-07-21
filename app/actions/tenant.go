@@ -190,13 +190,14 @@ func (action *ResendSignUpEmail) GetKind() enum.EmailVerificationKind {
 
 // UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
-	Logo           *dto.ImageUpload `json:"logo"`
-	Title          string           `json:"title"`
-	Invitation     string           `json:"invitation"`
-	WelcomeMessage string           `json:"welcomeMessage"`
-	WelcomeHeader  string           `json:"welcomeHeader"`
-	Locale         string           `json:"locale"`
-	CNAME          string           `json:"cname" format:"lower"`
+	Logo                *dto.ImageUpload `json:"logo"`
+	Title               string           `json:"title"`
+	Invitation          string           `json:"invitation"`
+	WelcomeMessage      string           `json:"welcomeMessage"`
+	WelcomeHeader       string           `json:"welcomeHeader"`
+	DescriptionTemplate string           `json:"descriptionTemplate"`
+	Locale              string           `json:"locale"`
+	CNAME               string           `json:"cname" format:"lower"`
 }
 
 func NewUpdateTenantSettings() *UpdateTenantSettings {
@@ -245,6 +246,10 @@ func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.U
 
 	if len(action.WelcomeHeader) > 100 {
 		result.AddFieldFailure("welcomeHeader", "Welcome Header must have less than 100 characters.")
+	}
+
+	if len(action.DescriptionTemplate) > 2000 {
+		result.AddFieldFailure("descriptionTemplate", "Idea Template must have less than 2000 characters.")
 	}
 
 	if !i18n.IsValidLocale(action.Locale) {

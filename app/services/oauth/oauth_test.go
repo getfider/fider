@@ -668,3 +668,31 @@ func TestParseOAuthRawProfile_InvalidInputs(t *testing.T) {
 		})
 	}
 }
+
+func TestGetOAuthRawProfile_BlocksInternalTokenURL(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	// Custom provider whose TokenURL targets an internal/link-local address.
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		q.Result = &entity.OAuthConfig{
+			Provider:       q.Provider,
+			Status:         enum.OAuthConfigEnabled,
+			ClientID:       "client",
+			ClientSecret:   "secret",
+			AuthorizeURL:   "https://example.org/authorize",
+			TokenURL:       "http://169.254.169.254/latest/api/token",
+			ProfileURL:     "https://example.org/profile",
+			JSONUserIDPath: "id",
+		}
+		return nil
+	})
+
+	ctx := newGetContext("http://login.test.fider.io:3000")
+	rawProfile := &query.GetOAuthRawProfile{Provider: "_test1", Code: "any-code"}
+
+	// The SSRF guard must reject before any server-side request (no token exchange happens).
+	err := bus.Dispatch(ctx, rawProfile)
+	Expect(err).IsNotNil()
+	Expect(rawProfile.Result).Equals("")
+}

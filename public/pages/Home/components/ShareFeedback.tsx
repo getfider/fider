@@ -15,6 +15,7 @@ import CommentEditor from "@fider/components/common/form/CommentEditor"
 import {
   CACHE_KEYS,
   clearCache,
+  clearCachedDescription,
   getCachedDescription,
   getCachedTags,
   getCachedTitle,
@@ -55,8 +56,13 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   const canEditTags = fider.settings.postWithTags && props.tags.length > 0
+
+  const descriptionTemplate = fider.session.tenant.descriptionTemplate || ""
+  const hasCachedDraft = getCachedDescription().trim() !== ""
+  const prefillTemplate = !hasCachedDraft && descriptionTemplate !== ""
+
   const [title, setTitle] = useState(getCachedTitle())
-  const [description, setDescription] = useState(getCachedDescription())
+  const [description, setDescription] = useState(prefillTemplate ? descriptionTemplate : getCachedDescription())
   const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
     cacheKey: CACHE_KEYS.ATTACHMENT,
     useLocalStorage: true,
@@ -66,7 +72,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const [error, setError] = useState<Failure | undefined>(undefined)
   const titleRef = useRef<HTMLInputElement>()
   const editorRef = useRef<HTMLDivElement>(null)
-  const [titleManuallyEdited, setTitleManuallyEdited] = useState(getTitleManuallyEditedValue())
+  const [titleManuallyEdited, setTitleManuallyEdited] = useState(prefillTemplate ? true : getTitleManuallyEditedValue())
   const [isInitialMount, setIsInitialMount] = useState(true)
 
   useEffect(() => {
@@ -105,7 +111,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   useEffect(() => {
-    if (!titleManuallyEdited && !isInitialMount) {
+    if (!titleManuallyEdited && !isInitialMount && !description.startsWith("![](fider-image:attachments")) {
       // Find newline in the original markdown content for truncation
       let newlineIndex = Math.min(description.indexOf("\n"), 80)
       if (newlineIndex == -1) {
@@ -138,10 +144,12 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     setTitle(value)
     setCachedTitle(value)
     // If this is a manual edit (not auto-generated from description),
-    // mark the title as manually edited so we stop auto-populating
-    // If the user clears the title, we still want to allow auto-population
+    // mark the title as manually edited so we stop auto-populating.
+    // Once the user has touched the title we keep it manually edited even
+    // if they clear it, otherwise clearing would re-trigger auto-population
+    // from the description.
     if (isManualEdit) {
-      setTitleManuallyEdited(value !== "")
+      setTitleManuallyEdited(true)
     }
   }
 
@@ -157,13 +165,14 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   const handleDescriptionChange = (value: string) => {
-    setCachedDescription(value)
-
-    // If the description starts with an image attachment, we don't want to set it as the title
-    if (value.startsWith("![](fider-image:attachments")) {
-      return
+    // If the description is emptied (e.g. the prefilled template is deleted),
+    // remove it from the cache so reopening the modal prefills the template again
+    // instead of restoring an empty draft.
+    if (value.trim() === "") {
+      clearCachedDescription()
+    } else {
+      setCachedDescription(value)
     }
-
     setDescription(value)
   }
 

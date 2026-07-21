@@ -13,6 +13,10 @@
   min-height: 40px;
   width: 100%;
   padding: 0 spacing(1);
+
+  button {
+    font-size: 13px;
+  }
 }
 
 .c-tags-select__selected-container {
@@ -35,6 +39,7 @@
   background-color: var(--colors-gray-200);
   border-radius: get("border.radius.small");
   color: var(--colors-gray-900);
+  padding-left: spacing(2);
 }
 
 .c-tags-select__remove-button {

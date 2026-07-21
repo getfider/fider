@@ -122,7 +122,7 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
 
   return (
     <div>
-      <HStack align="start" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
+      <HStack align="center" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
         {!props.size && <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />}
         <span className={`c-status-col--${status.value} ${props.size === "small" ? "text-sm" : "text-semibold"}`}>{translatedStatus}</span>
       </HStack>

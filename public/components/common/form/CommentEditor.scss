@@ -24,6 +24,18 @@
   width: 100%;
 }
 
+.c-comment-editor-counter {
+  font-size: 0.75rem;
+  color: var(--colors-gray-500);
+  text-align: right;
+  margin-top: spacing(1);
+
+  &--over {
+    color: var(--colors-red-600);
+    font-weight: 600;
+  }
+}
+
 .c-editor-button-group {
   display: flex;
   flex-wrap: wrap;

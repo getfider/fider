@@ -66,29 +66,35 @@ func CreateStripePortalSession() web.HandlerFunc {
 	}
 }
 
-// createCheckoutSession creates a Stripe checkout session for the given price ID
+// createCheckoutSession creates a Stripe checkout session for the given price ID.
+// Uses setup mode so we can collect a billing address before the first invoice is
+// generated — the subscription itself is created in the webhook handler, where we
+// can attach the UK VAT tax rate if the customer's address country is GB.
 func createCheckoutSession(c *web.Context, priceID string) error {
 	stripe.Key = env.Config.Stripe.SecretKey
 
 	returnURL := c.BaseURL() + "/admin/billing"
-	tenantID := c.Tenant().ID
+	tenantIDStr := fmt.Sprintf("%d", c.Tenant().ID)
+
+	metadata := map[string]string{
+		"tenant_id": tenantIDStr,
+		"price_id":  priceID,
+	}
 
 	params := &stripe.CheckoutSessionParams{
-		Mode: stripe.String(string(stripe.CheckoutSessionModeSubscription)),
-		LineItems: []*stripe.CheckoutSessionLineItemParams{
-			{
-				Price:    stripe.String(priceID),
-				Quantity: stripe.Int64(1),
-			},
+		Mode:                     stripe.String(string(stripe.CheckoutSessionModeSetup)),
+		PaymentMethodTypes:       stripe.StringSlice([]string{"card"}),
+		BillingAddressCollection: stripe.String(string(stripe.CheckoutSessionBillingAddressCollectionRequired)),
+		CustomerCreation:         stripe.String(string(stripe.CheckoutSessionCustomerCreationAlways)),
+		SuccessURL:               stripe.String(returnURL + "?checkout=success"),
+		CancelURL:                stripe.String(returnURL + "?checkout=cancelled"),
+		Metadata:                 metadata,
+		SetupIntentData: &stripe.CheckoutSessionSetupIntentDataParams{
+			Metadata: metadata,
 		},
-		SuccessURL: stripe.String(returnURL + "?checkout=success"),
-		CancelURL:  stripe.String(returnURL + "?checkout=cancelled"),
-		Metadata: map[string]string{
-			"tenant_id": fmt.Sprintf("%d", tenantID),
-		},
-		SubscriptionData: &stripe.CheckoutSessionSubscriptionDataParams{
-			Metadata: map[string]string{
-				"tenant_id": fmt.Sprintf("%d", tenantID),
+		CustomText: &stripe.CheckoutSessionCustomTextParams{
+			Submit: &stripe.CheckoutSessionCustomTextSubmitParams{
+				Message: stripe.String("By submitting, you'll be subscribed to Pro at the price shown on the previous page. Your subscription starts immediately."),
 			},
 		},
 	}

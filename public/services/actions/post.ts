@@ -1,5 +1,5 @@
 import { http, Result, querystring } from "@fider/services"
-import { Post, Vote, ImageUpload, UserNames } from "@fider/models"
+import { Post, Vote, ImageUpload, UserNames, Comment } from "@fider/models"
 
 export const getAllPosts = async (): Promise<Result<Post[]>> => {
   return await http.get<Post[]>("/api/v1/posts")
@@ -7,6 +7,10 @@ export const getAllPosts = async (): Promise<Result<Post[]>> => {
 
 export const getPost = async (postNumber: number): Promise<Result<Post>> => {
   return await http.get<Post>(`/api/v1/posts/${postNumber}`)
+}
+
+export const getComments = async (postNumber: number): Promise<Result<Comment[]>> => {
+  return await http.get<Comment[]>(`/api/v1/posts/${postNumber}/comments`)
 }
 
 export interface SearchPostsParams {

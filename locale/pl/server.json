@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - wyświetl [w sieci]({web_link}) lub [jako kanał]({feed_link})",
   "email.signin_email.your_code": "Twój kod logowania to:",
   "email.signin_email.code_expires": "Kod straci ważność za 15 minut.",
-  "email.signin_email.alternative": "Możesz również kliknąć poniższy link, aby zalogować się bezpośrednio:"
+  "email.signin_email.alternative": "Możesz również kliknąć poniższy link, aby zalogować się bezpośrednio:",
+  "email.delete_account_requested.subject": "Twoja witryna Fider {tenantName} jest przeznaczona do usunięcia",
+  "email.delete_account_requested.text": "Otrzymaliśmy prośbę o trwałe usunięcie Twojej witryny Fider <strong>{tenantName}</strong> i wszystkiego, co się w niej znajduje — wszystkich użytkowników, postów, komentarzy i głosów.",
+  "email.delete_account_requested.scheduled": "Operacja usunięcia jest zaplanowana na <strong>{scheduledAt}</strong>. Po jej wykonaniu nie będzie można jej cofnąć.",
+  "email.delete_account_requested.cancel": "Nie prosiłeś o to lub zmieniłeś zdanie? Skorzystaj z poniższego linku, aby anulować usunięcie przed upływem tego terminu:",
+  "email.delete_account_completed.subject": "Twoja witryna Fider {tenantName} została usunięta",
+  "email.delete_account_completed.text": "Twoja witryna Fider <strong>{tenantName}</strong> ({subdomain}) i wszystkie jej dane zostały trwale usunięte. Tej operacji nie można cofnąć."
 }

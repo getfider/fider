@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visualizza [sul web]({web_link}) o [come feed]({feed_link})",
   "email.signin_email.your_code": "Il tuo codice di accesso è:",
   "email.signin_email.code_expires": "Questo codice scadrà tra 15 minuti.",
-  "email.signin_email.alternative": "In alternativa, puoi cliccare sul link sottostante per accedere direttamente:"
+  "email.signin_email.alternative": "In alternativa, puoi cliccare sul link sottostante per accedere direttamente:",
+  "email.delete_account_requested.subject": "Il tuo sito Fider {tenantName} è programmato per la cancellazione",
+  "email.delete_account_requested.text": "Abbiamo ricevuto una richiesta di eliminazione definitiva del tuo sito Fider <strong>{tenantName}</strong> e di tutto il suo contenuto: tutti gli utenti, i post, i commenti e i voti.",
+  "email.delete_account_requested.scheduled": "L'eliminazione è programmata per <strong>{scheduledAt}</strong>. Una volta eseguita, non può essere annullata.",
+  "email.delete_account_requested.cancel": "Non avevi richiesto questa cancellazione o hai cambiato idea? Utilizza il link qui sotto per annullare l'eliminazione prima di tale data:",
+  "email.delete_account_completed.subject": "Il tuo sito Fider {tenantName} è stato eliminato",
+  "email.delete_account_completed.text": "Il tuo sito Fider <strong>{tenantName}</strong> ({subdomain}) e tutti i suoi dati sono stati eliminati definitivamente. Questa operazione non può essere annullata."
 }

@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} – [im Web]({web_link}) oder [als Feed]({feed_link}) anzeigen",
   "email.signin_email.your_code": "Ihr Anmeldecode lautet:",
   "email.signin_email.code_expires": "Dieser Code ist 15 Minuten gültig.",
-  "email.signin_email.alternative": "Alternativ können Sie sich über den unten stehenden Link direkt anmelden:"
+  "email.signin_email.alternative": "Alternativ können Sie sich über den unten stehenden Link direkt anmelden:",
+  "email.delete_account_requested.subject": "Ihre Fider-Site {tenantName} ist zur Löschung vorgesehen.",
+  "email.delete_account_requested.text": "Wir haben eine Anfrage erhalten, Ihre Fider-Seite <strong>{tenantName}</strong> und alles, was sich darauf befindet – alle Benutzer, Beiträge, Kommentare und Bewertungen – dauerhaft zu löschen.",
+  "email.delete_account_requested.scheduled": "Die Löschung ist für <strong>{scheduledAt}</strong> geplant. Sobald sie ausgeführt wurde, kann sie nicht mehr rückgängig gemacht werden.",
+  "email.delete_account_requested.cancel": "Sie haben dies nicht beantragt oder Ihre Meinung geändert? Nutzen Sie den unten stehenden Link, um die Löschung vorher zu stornieren:",
+  "email.delete_account_completed.subject": "Ihre Fider-Site {tenantName} wurde gelöscht",
+  "email.delete_account_completed.text": "Ihre Fider-Site <strong>{tenantName}</strong> ({subdomain}) und alle zugehörigen Daten wurden nun endgültig gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden."
 }

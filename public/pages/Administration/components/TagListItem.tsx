@@ -7,10 +7,12 @@ import { useFider } from "@fider/hooks"
 
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconPencilAlt from "@fider/assets/images/heroicons-pencil-alt.svg"
-import { HStack, VStack } from "@fider/components/layout"
+import { VStack } from "@fider/components/layout"
 
 interface TagListItemProps {
   tag: Tag
+  gridTemplateColumns: string
+  isLast?: boolean
   onTagEdited: (tag: Tag) => void
   onTagDeleted: (tag: Tag) => void
 }
@@ -47,50 +49,65 @@ export const TagListItem = (props: TagListItemProps) => {
     }
   }
 
-  const renderDeleteMode = () => {
+  const rowClass = `border-b border-gray-200 py-4 px-4 bg-white ${props.isLast ? "rounded-md-b" : ""}`
+
+  if (state === "delete") {
     return (
-      <VStack spacing={2}>
-        <div>
-          <b>Are you sure?</b>{" "}
-          <span>
-            The tag <ShowTag tag={tag} /> will be removed from all posts.
-          </span>
-        </div>
-        <div>
-          <Button variant="danger" onClick={deleteTag}>
-            Delete tag
-          </Button>
-          <Button onClick={resetState} variant="tertiary">
-            Cancel
-          </Button>
-        </div>
-      </VStack>
+      <div className={rowClass}>
+        <VStack spacing={2}>
+          <div>
+            <b>Are you sure?</b>{" "}
+            <span>
+              The tag <ShowTag tag={tag} /> will be removed from all posts.
+            </span>
+          </div>
+          <div>
+            <Button variant="danger" onClick={deleteTag}>
+              Delete tag
+            </Button>
+            <Button onClick={resetState} variant="tertiary">
+              Cancel
+            </Button>
+          </div>
+        </VStack>
+      </div>
     )
   }
 
-  const renderViewMode = () => {
-    const buttons = fider.session.user.isAdministrator && [
-      <Button size="small" key={0} onClick={startEdit}>
-        <Icon sprite={IconPencilAlt} />
-        <span>Edit</span>
-      </Button>,
-      <Button size="small" key={1} onClick={startDelete}>
-        <Icon sprite={IconX} />
-        <span>Delete</span>
-      </Button>,
-    ]
-
+  if (state === "edit") {
     return (
-      <HStack justify="between">
+      <div className={rowClass}>
+        <TagForm name={props.tag.name} color={props.tag.color} isPublic={props.tag.isPublic} onSave={updateTag} onCancel={resetState} />
+      </div>
+    )
+  }
+
+  return (
+    <div className={`${rowClass} grid gap-4 flex-items-center hover`} style={{ gridTemplateColumns: props.gridTemplateColumns }}>
+      <div>
         <ShowTag tag={tag} link />
-        <HStack>{buttons}</HStack>
-      </HStack>
-    )
-  }
-
-  const renderEditMode = () => {
-    return <TagForm name={props.tag.name} color={props.tag.color} isPublic={props.tag.isPublic} onSave={updateTag} onCancel={resetState} />
-  }
-
-  return state === "delete" ? renderDeleteMode() : state === "edit" ? renderEditMode() : renderViewMode()
+      </div>
+      <div>
+        {tag.isPublic ? (
+          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">public</span>
+        ) : (
+          <span className="text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded">private</span>
+        )}
+      </div>
+      <div className="flex justify-end gap-2">
+        {fider.session.user.isAdministrator && (
+          <>
+            <Button size="small" onClick={startEdit}>
+              <Icon sprite={IconPencilAlt} />
+              <span>Edit</span>
+            </Button>
+            <Button size="small" onClick={startDelete}>
+              <Icon sprite={IconX} />
+              <span>Delete</span>
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  )
 }

@@ -5,7 +5,7 @@ import { Button, Icon, SignInModal } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import IconThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
-import { Trans } from "@lingui/react/macro"
+import { Trans, Plural } from "@lingui/react/macro"
 import { HStack, VStack } from "@fider/components/layout"
 
 interface VoteSectionProps {
@@ -58,7 +58,9 @@ export const VoteSection = (props: VoteSectionProps) => {
           <span className="text-semibold text-2xl" style={{ fontSize: "32px", minHeight: "48px" }}>
             {votes}
           </span>
-          <span className="text-semibold text-lg">{votes === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+          <span className="text-semibold text-lg">
+            <Plural id="label.votecount" value={votes} one="Vote" other="Votes" />
+          </span>
         </HStack>
       </VStack>
     </>

@@ -129,10 +129,17 @@ func routes(r *web.Engine) *web.Engine {
 	r.Post("/_api/signin/verify", handlers.VerifySignInCode())
 	r.Post("/_api/signin/resend", handlers.ResendSignInCode())
 
+	// Cancel a scheduled site deletion. Authorised by the unguessable key in the emailed link
+	// alone, so it must stay reachable without authentication (it only restores access).
+	if !env.IsSingleHostMode() {
+		r.Get("/admin/danger-zone/cancel", handlers.CancelTenantDeletion())
+	}
+
 	// Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 
 	r.Get("/", handlers.Index())
+	r.Get("/roadmap", handlers.RoadmapPage())
 	r.Get("/posts/:number", handlers.PostDetails())
 	r.Get("/posts/:number/:slug", handlers.PostDetails())
 
@@ -179,6 +186,14 @@ func routes(r *web.Engine) *web.Engine {
 
 		// From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
+
+		// Danger Zone — delete the entire site. Hosted multi-tenant only; owner-only is
+		// enforced inside the handlers.
+		if !env.IsSingleHostMode() {
+			ui.Get("/admin/danger-zone", handlers.DangerZonePage())
+			ui.Delete("/_api/admin/tenant", handlers.RequestTenantDeletion())
+			ui.Post("/_api/admin/tenant/cancel-deletion", handlers.CancelTenantDeletionByOwner())
+		}
 
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Administration/pages/Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())

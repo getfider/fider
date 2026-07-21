@@ -27,10 +27,13 @@ export const CommentInput = (props: CommentInputProps) => {
     return cache.session.get(getCacheKey(CACHE_TITLE_KEY))
   }
 
+  const COMMENT_MAX_LENGTH = 4000
+
   const fider = useFider()
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [error, setError] = useState<Failure | undefined>(undefined)
   const [isClient, setIsClient] = useState(false)
+  const [contentLength, setContentLength] = useState((cache.session.get(`${CACHE_TITLE_KEY}${props.post.id}`) ?? "").length)
 
   // Use the attachments hook
   const { attachments, handleImageUploaded, getImageSrc, clearAttachments } = useAttachments({
@@ -74,7 +77,10 @@ export const CommentInput = (props: CommentInputProps) => {
 
   const commentChanged = useCallback((value: string): void => {
     cache.session.set(getCacheKey(CACHE_TITLE_KEY), value)
+    setContentLength(value.length)
   }, [])
+
+  const isOverLimit = contentLength > COMMENT_MAX_LENGTH
 
   return (
     <>
@@ -94,13 +100,14 @@ export const CommentInput = (props: CommentInputProps) => {
                   placeholder={i18n._({ id: "showpost.commentinput.placeholder", message: "Leave a comment" })}
                   maxAttachments={2}
                   maxImageSizeKB={5 * 1024}
+                  maxLength={COMMENT_MAX_LENGTH}
                   onGetImageSrc={getImageSrc}
                   onImageUploaded={handleImageUploaded}
                 />
 
                 {hasContent && (
                   <>
-                    <Button disabled={!fider.session.isAuthenticated} variant="primary" onClick={submit} className="mt-4">
+                    <Button disabled={!fider.session.isAuthenticated || isOverLimit} variant="primary" onClick={submit} className="mt-4">
                       <Trans id="action.postcomment">Post</Trans>
                     </Button>
                   </>
