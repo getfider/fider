@@ -256,13 +256,18 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   // This avoids the async state update issue and prevents unnecessary re-renders
   const documentImagesRef = useRef<Map<string, boolean>>(new Map())
 
-  const [editorContent, setEditorContent] = useState(props.initialValue ?? "")
+  // Content the editor is created with. Captured once — the editor instance is created a
+  // single time (useEditor deps below are empty) and lives for the component's lifetime, so
+  // switching editor modes must update content via commands rather than by recreating it.
+  const initialContentRef = useRef(props.initialValue ?? "")
 
   const toggleMarkdownMode = () => {
     if (isRawMarkdownMode) {
       // Switching FROM markdown TO rich text
-      // Set the editor content to the markdown text
-      setEditorContent(markdownText)
+      // Load the edited markdown back into the existing editor instance
+      if (editor) {
+        editor.commands.setContent(markdownText)
+      }
     } else {
       // Switching FROM rich text TO markdown
       // Get the markdown from the editor and store it
@@ -401,30 +406,48 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         remove: false,
       }
 
-      // Insert the image into the editor with the server-provided bkey
-      if (editor) {
-        editor
-          .chain()
-          .focus()
-          .setImage({
-            src: `data:${file.type};base64,${base64}`,
-            alt: file.name,
-            ...({ bkey } as any),
-          })
-          .run()
-
-        // Add the bkey to the upload object for the parent component
-        newUpload.bkey = bkey
-
-        // Manually pass the upload to the parent component
-        // since the updated() handler might not fire immediately
-        if (props.onImageUploaded) {
-          props.onImageUploaded(newUpload)
-        }
-
-        // Update the document images ref
-        documentImagesRef.current.set(bkey, true)
+      // Insert the image into the editor with the server-provided bkey.
+      // Guard against a missing/destroyed editor: inserting into a destroyed ProseMirror
+      // view silently no-ops (the transaction never applies and onUpdate never fires),
+      // which would leave the markdown reference and the uploaded blob out of sync. Never
+      // register the blob unless the node actually made it into the document.
+      if (!editor || editor.isDestroyed) {
+        console.error("Cannot insert pasted image: editor is not available")
+        return
       }
+
+      // ProseMirror documents are immutable, so an applied transaction always yields a new
+      // doc object. If the doc reference is unchanged after the insert, the transaction was
+      // dropped (e.g. dispatched into a destroyed view) and the node did not land.
+      const docBefore = editor.state.doc
+      editor
+        .chain()
+        .focus()
+        .setImage({
+          src: `data:${file.type};base64,${base64}`,
+          alt: file.name,
+          ...({ bkey } as any),
+        })
+        .run()
+
+      // Confirm the node was actually inserted before treating the upload as committed.
+      if (editor.state.doc === docBefore) {
+        console.error("Cannot insert pasted image: editor did not apply the change")
+        return
+      }
+
+      // Add the bkey to the upload object for the parent component
+      newUpload.bkey = bkey
+
+      // Pass the upload to the parent component. The onUpdate handler that fired from the
+      // insert above already committed the markdown reference, so registering the blob here
+      // keeps the reference and the attachment in sync.
+      if (props.onImageUploaded) {
+        props.onImageUploaded(newUpload)
+      }
+
+      // Update the document images ref
+      documentImagesRef.current.set(bkey, true)
     } catch (error) {
       console.error("Error uploading image:", error)
     }
@@ -518,7 +541,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const editor = useEditor(
     {
       extensions,
-      content: editorContent,
+      content: initialContentRef.current,
       onUpdate: updated,
       onFocus: () => {
         if (props.onFocus) {
@@ -585,7 +608,12 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         },
       },
     },
-    [editorContent]
+    // Empty deps: create the editor once and keep it for the component's lifetime. tiptap
+    // re-syncs editorProps/handlers (handlePaste, onUpdate, …) onto the live instance on
+    // every render via setOptions, which preserves the current document. A non-empty deps
+    // array here caused tiptap to destroy & recreate the instance on mount churn while
+    // leaving the paste handler bound to the destroyed one, silently dropping pasted images.
+    []
   )
 
   // Initialize document images when editor is ready

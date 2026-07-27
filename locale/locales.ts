@@ -30,6 +30,9 @@ const locales: { [key: string]: Locale } = {
   ja: {
     text: "Japanese",
   },
+  ko: {
+    text: "Korean",
+  },
   nl: {
     text: "Dutch",
   },

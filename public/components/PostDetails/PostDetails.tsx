@@ -184,14 +184,32 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
     if (showModeration) {
       cache.session.remove("POST_CREATED_MODERATION")
-      notify.success(t({ id: "showpost.moderation.postsuccess", message: "Your idea has been submitted and is awaiting moderation 📝" }))
+      notify.success(t({ id: "showpost.moderation.postsuccess", message: "Your idea is awaiting moderation 📝" }))
     }
 
     if (showCommentModeration) {
       cache.session.remove("COMMENT_CREATED_MODERATION")
-      notify.success(t({ id: "showpost.moderation.commentsuccess", message: "Your comment has been submitted and is awaiting moderation 📝" }))
+      notify.success(t({ id: "showpost.moderation.commentsuccess", message: "Your comment is awaiting moderation 📝" }))
     }
   }, [])
+
+  const refreshPost = async () => {
+    const [postResult, commentsResult] = await Promise.all([actions.getPost(props.postNumber), actions.getComments(props.postNumber)])
+    if (postResult.ok) {
+      setPost(postResult.data)
+      setNewTitle(postResult.data.title)
+      setNewDescription(postResult.data.description)
+    }
+    if (commentsResult.ok) {
+      setComments(commentsResult.data)
+    }
+  }
+
+  const handleResponded = async () => {
+    setShowResponseModal(false)
+    await refreshPost()
+    props.onDataChanged?.()
+  }
 
   const saveChanges = async () => {
     if (!post) return
@@ -422,7 +440,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
                 {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
                   <ActionButton icon={IconChat} onClick={onActionSelected("status")}>
-                    <Trans id="action.respond">Respond</Trans>
+                    <Trans id="action.respond">Update Status</Trans>
                   </ActionButton>
                 )}
 
@@ -489,7 +507,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
       <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${post.number}.atom`} />
       <DeletePostModal onModalClose={() => setShowDeleteModal(false)} showModal={showDeleteModal} post={post} />
       {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
-        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} />
+        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} onResponded={handleResponded} />
       )}
     </div>
   )

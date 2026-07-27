@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - προβολή [στον ιστό]({web_link}) ή [ως ροή]({feed_link})",
   "email.signin_email.your_code": "Ο κωδικός σύνδεσής σας είναι:",
   "email.signin_email.code_expires": "Αυτός ο κωδικός θα λήξει σε 15 λεπτά.",
-  "email.signin_email.alternative": "Εναλλακτικά, μπορείτε να κάνετε κλικ στον παρακάτω σύνδεσμο για να συνδεθείτε απευθείας:"
+  "email.signin_email.alternative": "Εναλλακτικά, μπορείτε να κάνετε κλικ στον παρακάτω σύνδεσμο για να συνδεθείτε απευθείας:",
+  "email.delete_account_requested.subject": "Ο ιστότοπός σας στο Fider {tenantName} έχει προγραμματιστεί για διαγραφή",
+  "email.delete_account_requested.text": "Λάβαμε ένα αίτημα για οριστική διαγραφή του ιστότοπού σας Fider <strong>{tenantName}</strong> και όλων των στοιχείων που περιέχει — όλων των χρηστών, των αναρτήσεων, των σχολίων και των ψήφων.",
+  "email.delete_account_requested.scheduled": "Η διαγραφή έχει προγραμματιστεί για <strong>{scheduledAt}</strong>. Μόλις εκτελεστεί, δεν μπορεί να αναιρεθεί.",
+  "email.delete_account_requested.cancel": "Δεν το ζητήσατε αυτό ή αλλάξατε γνώμη; Χρησιμοποιήστε τον παρακάτω σύνδεσμο για να ακυρώσετε τη διαγραφή πριν από τότε:",
+  "email.delete_account_completed.subject": "Ο ιστότοπός σας στο Fider {tenantName} έχει διαγραφεί",
+  "email.delete_account_completed.text": "Ο ιστότοπός σας Fider <strong>{tenantName}</strong> ({subdomain}) και όλα τα δεδομένα του έχουν πλέον διαγραφεί οριστικά. Δεν είναι δυνατή η αναίρεση αυτής της ενέργειας."
 }

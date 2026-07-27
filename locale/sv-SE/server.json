@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - visa [på webben]({web_link}) eller [som ett flöde]({feed_link})",
   "email.signin_email.your_code": "Din inloggningskod är:",
   "email.signin_email.code_expires": "Den här koden upphör att gälla om 15 minuter.",
-  "email.signin_email.alternative": "Alternativt kan du klicka på länken nedan för att logga in direkt:"
+  "email.signin_email.alternative": "Alternativt kan du klicka på länken nedan för att logga in direkt:",
+  "email.delete_account_requested.subject": "Din Fider-webbplats {tenantName} är schemalagd för radering",
+  "email.delete_account_requested.text": "Vi har mottagit en begäran om att permanent radera din Fider-webbplats <strong>{tenantName}</strong> och allt på den – alla användare, inlägg, kommentarer och röster.",
+  "email.delete_account_requested.scheduled": "Raderingen är schemalagd till <strong>{scheduledAt}</strong>. När den väl har körts kan den inte ångras.",
+  "email.delete_account_requested.cancel": "Har du inte begärt detta, eller har du ändrat dig? Använd länken nedan för att avbryta raderingen innan dess:",
+  "email.delete_account_completed.subject": "Din Fider-webbplats {tenantName} har raderats",
+  "email.delete_account_completed.text": "Din Fider-webbplats <strong>{tenantName}</strong> ({subdomain}) och all dess data har nu raderats permanent. Detta kan inte ångras."
 }

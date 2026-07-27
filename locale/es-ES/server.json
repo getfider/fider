@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - ver [en la web]({web_link}) o [como feed]({feed_link})",
   "email.signin_email.your_code": "Tu código de inicio de sesión es:",
   "email.signin_email.code_expires": "Este código caducará en 15 minutos.",
-  "email.signin_email.alternative": "Como alternativa, puede hacer clic en el siguiente enlace para iniciar sesión directamente:"
+  "email.signin_email.alternative": "Como alternativa, puede hacer clic en el siguiente enlace para iniciar sesión directamente:",
+  "email.delete_account_requested.subject": "Tu sitio Fider {tenantName} está programado para ser eliminado.",
+  "email.delete_account_requested.text": "Hemos recibido una solicitud para eliminar permanentemente su sitio Fider <strong>{tenantName}</strong> y todo lo que contiene: todos los usuarios, publicaciones, comentarios y votos.",
+  "email.delete_account_requested.scheduled": "La eliminación está programada para <strong>{scheduledAt}</strong>. Una vez ejecutada, no se puede deshacer.",
+  "email.delete_account_requested.cancel": "¿No solicitaste esto o cambiaste de opinión? Usa el siguiente enlace para cancelar la eliminación antes de que eso suceda:",
+  "email.delete_account_completed.subject": "Tu sitio Fider {tenantName} ha sido eliminado",
+  "email.delete_account_completed.text": "Tu sitio Fider <strong>{tenantName}</strong> ({subdomain}) y todos sus datos han sido eliminados permanentemente. Esta acción es irreversible."
 }
