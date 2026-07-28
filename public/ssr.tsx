@@ -13,6 +13,7 @@ import { I18nProvider } from "@lingui/react"
 const messages: { [key: string]: any } = {
   en: require(`../locale/en/client`),
   "pt-BR": require(`../locale/pt-BR/client`),
+  "pt-PT": require(`../locale/pt-PT/client`),
   "sv-SE": require(`../locale/sv-SE/client`),
   it: require(`../locale/it/client`),
   "es-ES": require(`../locale/es-ES/client`),
