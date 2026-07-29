@@ -201,6 +201,14 @@ func TestGetOAuthBaseURL(t *testing.T) {
 
 	env.Config.HostMode = "single"
 	Expect(web.OAuthBaseURL(ctx)).Equals("https://test.fider.io:3000")
+
+	env.Config.HostMode = "multi"
+	env.Config.OauthRedirectUriUseBaseURL = false
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://login.test.fider.io")
+
+	env.Config.HostMode = "multi"
+	env.Config.OauthRedirectUriUseBaseURL = true
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://test.fider.io")
 }
 
 func TestGetOAuthBaseURL_WithPort(t *testing.T) {
@@ -208,9 +216,16 @@ func TestGetOAuthBaseURL_WithPort(t *testing.T) {
 
 	ctx := newGetContext("http://demo.test.fider.io:3000/hello-world", nil)
 
-	env.Config.HostMode = "multi"
-	Expect(web.OAuthBaseURL(ctx)).Equals("http://login.test.fider.io:3000")
 
 	env.Config.HostMode = "single"
 	Expect(web.OAuthBaseURL(ctx)).Equals("https://test.fider.io:3000")
+
+	env.Config.HostMode = "multi"
+	env.Config.OauthRedirectUriUseBaseURL = false
+	Expect(web.OAuthBaseURL(ctx)).Equals("http://login.test.fider.io:3000")
+
+	env.Config.HostMode = "multi"
+	env.Config.OauthRedirectUriUseBaseURL = true
+	Expect(web.OAuthBaseURL(ctx)).Equals("http://test.fider.io:3000")
+
 }
