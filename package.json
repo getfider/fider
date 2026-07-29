@@ -6,14 +6,14 @@
   "dependencies": {
     "@lingui/format-json": "^5.1.2",
     "@lingui/react": "^5.1.2",
-    "@tiptap/extension-image": "^2.22.3",
-    "@tiptap/extension-link": "^2.11.5",
-    "@tiptap/extension-mention": "^2.11.5",
-    "@tiptap/extension-placeholder": "^2.11.5",
-    "@tiptap/pm": "^2.11.5",
-    "@tiptap/react": "^2.11.5",
-    "@tiptap/starter-kit": "^2.11.5",
-    "@tiptap/suggestion": "^2.11.5",
+    "@tiptap/extension-image": "3.29.2",
+    "@tiptap/extension-link": "3.29.2",
+    "@tiptap/extension-mention": "3.29.2",
+    "@tiptap/extensions": "3.29.2",
+    "@tiptap/pm": "3.29.2",
+    "@tiptap/react": "3.29.2",
+    "@tiptap/starter-kit": "3.29.2",
+    "@tiptap/suggestion": "3.29.2",
     "dompurify": "^3.4.12",
     "inter-ui": "^4.1.1",
     "marked": "^17.0.6",
@@ -22,7 +22,7 @@
     "react-dom": "^18.3.1",
     "react-textarea-autosize": "^8.5.9",
     "react-toastify": "^9.0.1",
-    "tiptap-markdown": "^0.8.10"
+    "tiptap-markdown": "^0.9.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.3",
@@ -101,7 +101,7 @@
       "@locale/(.*)": "<rootDir>/locale/$1"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!(marked)/)"
+      "/node_modules/(?!(marked|@tiptap|tiptap-markdown|prosemirror-.*)/)"
     ]
   },
   "engines": {

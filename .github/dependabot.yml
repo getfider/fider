@@ -23,9 +23,6 @@ updates:
       #   Cucumber e2e-ui steps. Held on the 1.48 line.
       - dependency-name: "@playwright/test"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
-      # tiptap-markdown: 0.9+ requires @tiptap/core v3; project is on the tiptap v2 line.
-      - dependency-name: "tiptap-markdown"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
       # @lingui/*: 5.9 breaks the build — <Trans> return type is ReactNode, not a
       #   valid JSX element under the current @types/react. Needs a @types/react
       #   upgrade first. Held on the 5.1 line.
