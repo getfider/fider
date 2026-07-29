@@ -47,12 +47,10 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "babel-loader"
         update-types: ["version-update:semver-major"]
-      # marked: 5+ is ESM-only and rewrote the Renderer API. 4 -> 18 needs a rewrite of
-      #   public/services/markdown.ts (custom marked.Renderer() + synchronous marked()).
-      #   Held on the 4.x line until that migration is done.
+      # marked: now on 17 (renderer rewritten to the token-based API in markdown.ts).
+      #   Held on 17.x because @tiptap/markdown peers marked ^17; unblock 18 once the
+      #   editor's @tiptap/markdown supports it.
       - dependency-name: "marked"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@types/marked"
         update-types: ["version-update:semver-major"]
 
   # Go modules - monthly, all grouped together
