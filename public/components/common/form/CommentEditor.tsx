@@ -3,7 +3,7 @@ import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import React, { useState, useRef, useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
-import { Markdown, MarkdownStorage } from "tiptap-markdown"
+import { Markdown } from "@tiptap/markdown"
 import { Placeholder } from "@tiptap/extensions"
 import { i18n } from "@lingui/core"
 import { useAllowedProtocols } from "@fider/hooks"
@@ -34,10 +34,6 @@ import { CustomMention } from "./CustomMention"
 import LinkInsertModal from "./LinkInsertModal"
 import { Trans } from "@lingui/react/macro"
 import { classSet } from "@fider/services"
-
-// tiptap-markdown 0.9 exposes getMarkdown() on editor.storage.markdown but (unlike v2) no
-// longer augments tiptap's Storage type, so reach it through the exported MarkdownStorage.
-const getMarkdownStorage = (editor: Editor): MarkdownStorage => (editor.storage as unknown as { markdown: MarkdownStorage }).markdown
 
 const MenuBar = ({
   editor,
@@ -271,13 +267,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
       // Load the edited markdown back into the existing editor instance.
       // tiptap v3 emits an update on setContent by default; keep v2 semantics (no onChange).
       if (editor) {
-        editor.commands.setContent(markdownText, { emitUpdate: false })
+        editor.commands.setContent(markdownText, { emitUpdate: false, contentType: "markdown" })
       }
     } else {
       // Switching FROM rich text TO markdown
       // Get the markdown from the editor and store it
       if (editor) {
-        const markdown = getMarkdownStorage(editor).getMarkdown()
+        const markdown = editor.getMarkdown().trim()
         setMarkdownText(markdown)
       }
     }
@@ -339,7 +335,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     // Get the current markdown content
-    const markdown = isRawMarkdownMode ? editor.getText() : getMarkdownStorage(editor).getMarkdown()
+    const markdown = isRawMarkdownMode ? editor.getText() : editor.getMarkdown().trim()
 
     setContentLength(markdown.length)
 
@@ -506,10 +502,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         rel: "noopener nofollow",
       },
     }),
-    Markdown.configure({
-      html: false,
-      breaks: true,
-    }),
+    Markdown.configure({ markedOptions: { breaks: true, gfm: true } }),
     CustomMention.configure({
       HTMLAttributes: {
         class: "mention",
@@ -549,6 +542,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     {
       extensions,
       content: initialContentRef.current,
+      contentType: "markdown",
       onUpdate: updated,
       onFocus: () => {
         if (props.onFocus) {
