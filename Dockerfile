@@ -27,7 +27,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 #################
 ### UI Build Step
 #################
-FROM --platform=${TARGETPLATFORM:-linux/amd64} node:22-bookworm AS ui-builder 
+FROM --platform=${TARGETPLATFORM:-linux/amd64} node:25-bookworm AS ui-builder 
 
 WORKDIR /ui
 
