@@ -66,3 +66,26 @@ func TestSubdomain(t *testing.T) {
 	Expect(env.Subdomain("test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
 }
+
+func TestIsPortalDirectoryEnabled(t *testing.T) {
+	RegisterT(t)
+
+	originalHostMode := env.Config.HostMode
+	originalEnabled := env.Config.PortalDirectoryEnabled
+	defer func() {
+		env.Config.HostMode = originalHostMode
+		env.Config.PortalDirectoryEnabled = originalEnabled
+	}()
+
+	env.Config.HostMode = "multi"
+	env.Config.PortalDirectoryEnabled = true
+	Expect(env.IsPortalDirectoryEnabled()).IsTrue()
+
+	env.Config.PortalDirectoryEnabled = false
+	Expect(env.IsPortalDirectoryEnabled()).IsFalse()
+
+	// A single-host instance has exactly one portal, so the directory never applies to it.
+	env.Config.HostMode = "single"
+	env.Config.PortalDirectoryEnabled = true
+	Expect(env.IsPortalDirectoryEnabled()).IsFalse()
+}

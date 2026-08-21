@@ -145,7 +145,9 @@ point where the root-domain 404 originates today:
 func RootDomainFallback(handler web.HandlerFunc) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if c.Tenant() == nil && c.Request.URL.Path == "/" {
+			isRootDomain := c.Request.URL.Hostname() == env.Config.HostDomain
+
+			if c.Tenant() == nil && isRootDomain && c.Request.URL.Path == "/" {
 				return handler(c)
 			}
 			return next(c)
@@ -153,6 +155,19 @@ func RootDomainFallback(handler web.HandlerFunc) web.MiddlewareFunc {
 	}
 }
 ```
+
+**The host check is load-bearing.** "No tenant resolved" is not the same as "this is the root
+domain": it is equally true of an unknown subdomain, a *disabled* tenant's subdomain (the
+`MultiTenant` middleware deliberately leaves the tenant unset for those,
+`middlewares/tenant.go:63`), and a custom domain pointed here that matches no tenant. Guarding
+only on `tenant == nil && path == "/"` turns every one of those 404s into a 200 serving the
+directory — confirmed by running the app, where `disabled.localhost/` and `nosuch.localhost/`
+both rendered `PortalDirectory/PortalDirectory.page`.
+
+Comparing against `env.Config.HostDomain` is the exact test. `env.Subdomain(host) == ""` is
+*not* a valid substitute: it also returns `""` for any host that does not end in the
+multi-tenant domain, so unmatched custom domains would still slip through
+(`env.go:306-324`).
 
 In `routes.go`, immediately above `r.Use(middlewares.RequireTenant())`:
 
@@ -292,7 +307,19 @@ Structure:
 - Two distinct empty states: no portals at all, and no portals matching the filter.
 - Utility classes from `public/assets/styles/utility/` first, per CLAUDE.md; page-specific
   BEM (`#p-portal-directory`, `.c-portal-card__*`) only for the card grid.
-- User-facing copy wrapped in `<Trans>`.
+- User-facing copy wrapped in `<Trans>`, with ids added to `locale/en/client.json` (the
+  committed source of truth; `locale/**/*.js` is generated and gitignored). The search
+  placeholder uses `i18n._({id, message})`, the pattern already used in
+  `CompleteSignInProfile.page.tsx`.
+
+**SSR registration.** `public/ssr.tsx` maps page names to modules in a *static* table —
+esbuild cannot do dynamic imports — and `ssrRender` throws `Page not found` for anything
+missing from it. Server-side rendering only runs for crawlers
+(`renderer.go:242`, gated on `Request.IsCrawler()`), and a throw there is logged and degraded
+to the client-rendered shell rather than failing the response. A public directory page that
+crawlers cannot read defeats the point, so `PortalDirectory/PortalDirectory.page` must be
+added to that table. This is what makes the page's `export default` mandatory: `ssrRender`
+reads `pages[...]?.default`.
 
 ## Data flow
 
@@ -348,12 +375,22 @@ Any other path on the root domain, and every path on a tenant host, falls throug
 - tenant nil and path `/posts/1` → falls through to `next`
 - tenant present and path `/` → falls through to `next`
 
-**Jest — `public/pages/PortalDirectory/PortalDirectory.spec.tsx`:**
+**Jest — `public/pages/PortalDirectory/PortalDirectory.page.spec.tsx`:**
 
 - renders one card per portal
-- filtering narrows the list case-insensitively and shows the no-matches state
-- an empty `portals` prop shows the no-portals state
+- filtering narrows the list case-insensitively, by name and by host
+- an empty `portals` prop shows the no-portals state, and hides the filter box
 - a logo-less portal renders the initial placeholder rather than a broken `<img>`
+
+The two empty states are asserted by element (`.c-portal-directory__empty`,
+`.c-portal-directory__nomatch`) rather than by their copy. The lingui macro hoists `<Trans>`
+children into a `message` prop, and `public/jest.setup.tsx` mocks `@lingui/react`'s `Trans` to
+render `children` — so translated text is absent from the rendered output under test.
+
+**Go — SSR path, in `portals_test.go`:** a request carrying a crawler User-Agent must come
+back containing `c-portal-card` markup. That substring can only appear if the page rendered
+server-side, so this fails if the page is ever dropped from the `public/ssr.tsx` table. It
+needs a current `ssr.js`, which `make test-server` guarantees by depending on `build-ssr`.
 
 Verification: `make lint` and `make test`.
 
@@ -363,10 +400,15 @@ New:
 
 - `app/handlers/portals.go`, `app/handlers/portals_test.go`
 - `app/models/dto/portal.go`
-- `public/pages/PortalDirectory/{PortalDirectory.page.tsx,PortalDirectory.scss,index.ts,PortalDirectory.spec.tsx}`
+- `public/pages/PortalDirectory/{PortalDirectory.page.tsx,PortalDirectory.page.scss,index.ts,PortalDirectory.page.spec.tsx}`
 - `docs/superpowers/specs/2026-08-21-portal-directory-design.md` (this file)
 
 Modified:
+
+- `public/ssr.tsx` — register the page in the static SSR table
+- `locale/en/client.json` — the five new message ids
+- `app/pkg/web/context_test.go` — `TenantLogoURL` tests
+- `app/pkg/env/env_test.go` — flag test
 
 - `app/pkg/env/env.go` — flag + `IsPortalDirectoryEnabled`
 - `.example.env` — document `PORTAL_DIRECTORY_ENABLED`
