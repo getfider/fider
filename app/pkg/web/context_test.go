@@ -155,6 +155,68 @@ func TestAssetsURL_MultiHostMode(t *testing.T) {
 	Expect(web.AssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.fidercdn.com/assets/main.css")
 }
 
+func TestTenantLogoURL_PointsAtTenantOwnHost(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.HostMode = "multi"
+	env.Config.CDN.Host = ""
+	ctx := newGetContext("http://login.test.fider.io:3000", nil)
+	tenant := &entity.Tenant{
+		ID:          1,
+		Subdomain:   "theavengers",
+		LogoBlobKey: "logos/avengers.png",
+	}
+
+	Expect(web.TenantLogoURL(ctx, tenant)).Equals("http://theavengers.test.fider.io:3000/static/images/logos/avengers.png?size=200")
+}
+
+func TestTenantLogoURL_WithCNAME(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.HostMode = "multi"
+	env.Config.CDN.Host = ""
+	ctx := newGetContext("http://login.test.fider.io:3000", nil)
+	tenant := &entity.Tenant{
+		ID:          1,
+		Subdomain:   "theavengers",
+		CNAME:       "feedback.theavengers.com",
+		LogoBlobKey: "logos/avengers.png",
+	}
+
+	Expect(web.TenantLogoURL(ctx, tenant)).Equals("http://feedback.theavengers.com:3000/static/images/logos/avengers.png?size=200")
+}
+
+func TestTenantLogoURL_WithCDN(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.HostMode = "multi"
+	env.Config.CDN.Host = "fidercdn.com"
+	defer func() { env.Config.CDN.Host = "" }()
+
+	ctx := newGetContext("http://login.test.fider.io:3000", nil)
+	tenant := &entity.Tenant{
+		ID:          1,
+		Subdomain:   "theavengers",
+		LogoBlobKey: "logos/avengers.png",
+	}
+
+	Expect(web.TenantLogoURL(ctx, tenant)).Equals("http://theavengers.fidercdn.com/static/images/logos/avengers.png?size=200")
+}
+
+func TestTenantLogoURL_NoLogo(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.HostMode = "multi"
+	env.Config.CDN.Host = ""
+	ctx := newGetContext("http://login.test.fider.io:3000", nil)
+	tenant := &entity.Tenant{
+		ID:        1,
+		Subdomain: "theavengers",
+	}
+
+	Expect(web.TenantLogoURL(ctx, tenant)).Equals("")
+}
+
 func TestCanonicalURL_SameDomain(t *testing.T) {
 	RegisterT(t)
 
