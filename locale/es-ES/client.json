@@ -118,7 +118,7 @@
   "modal.notifications.unread": "Notificaciones no leídas",
   "modal.rss.description": "Para suscribirse a este feed ATOM, copie y pegue esta URL en su lector RSS/ATOM.",
   "modal.rss.title": "Suscríbete al feed de ATOM",
-  "modal.showvotes.message.zeromatches": "No se encontraron usuarios que coincidan con <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "No se encontraron usuarios que coincidan con <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Buscar usuarios por nombre...",
   "modal.signin.header": "Envíe sus comentarios",
   "moderation.comment.delete.block.error": "No se pudo eliminar el comentario ni bloquear al usuario.",
