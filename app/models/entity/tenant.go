@@ -31,6 +31,10 @@ type Tenant struct {
 	// site. The tenant stays active during the grace window; a background job performs the
 	// hard delete once this time passes. Not exposed to clients.
 	ScheduledDeletionAt *time.Time `json:"-"`
+	// DeletionCancelKey authorises the emailed cancel link, so it is only ever set when the
+	// deletion was requested by the account owner. An administrative deletion leaves it empty,
+	// which is how the deletion job tells the two apart. Not exposed to clients.
+	DeletionCancelKey string `json:"-"`
 }
 
 func (t *Tenant) IsDisabled() bool {
