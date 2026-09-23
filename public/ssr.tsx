@@ -40,6 +40,7 @@ const pages: { [key: string]: any } = {
   "SignUp/SignUp.page": require(`./pages/SignUp/SignUp.page`),
   "SignUp/PendingActivation.page": require(`./pages/SignUp/PendingActivation.page`),
   "Legal/Legal.page": require(`./pages/Legal/Legal.page`),
+  "PortalDirectory/PortalDirectory.page": require(`./pages/PortalDirectory/PortalDirectory.page`),
   "DesignSystem/DesignSystem.page": require(`./pages/DesignSystem/DesignSystem.page`),
   "Error/Maintenance.page": require(`./pages/Error/Maintenance.page`),
   "Error/Error401.page": require(`./pages/Error/Error401.page`),

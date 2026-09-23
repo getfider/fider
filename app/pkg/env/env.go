@@ -55,6 +55,7 @@ type config struct {
 	Locale                      string `env:"LOCALE,default=en"`
 	JWTSecret                   string `env:"JWT_SECRET,required"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
+	PortalDirectoryEnabled      bool   `env:"PORTAL_DIRECTORY_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
 	AllowPrivateNetworkTargets  bool   `env:"ALLOW_PRIVATE_NETWORK_TARGETS,default=false"`
 	Stripe                      struct {
@@ -254,6 +255,12 @@ func IsBillingEnabled() bool {
 // IsMultiHostMode returns true if host mode is set to multi tenant
 func IsMultiHostMode() bool {
 	return Config.HostMode == "multi"
+}
+
+// IsPortalDirectoryEnabled returns true when the public portal directory should be served on
+// the root domain. A single-host instance has exactly one portal, so it never applies there.
+func IsPortalDirectoryEnabled() bool {
+	return IsMultiHostMode() && Config.PortalDirectoryEnabled
 }
 
 // IsProduction returns true on Fider production environment

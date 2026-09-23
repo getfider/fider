@@ -275,6 +275,33 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 	})
 }
 
+func getPublicTenants(ctx context.Context, q *query.GetPublicTenants) error {
+	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
+		tenants := []*dbEntities.Tenant{}
+
+		err := trx.Select(&tenants, `
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.locale, t.welcome_message, t.welcome_header, t.description_template, t.status, t.is_private, t.logo_bkey, t.custom_css, t.allowed_schemes, t.is_email_auth_allowed, t.is_feed_enabled, t.is_moderation_enabled, t.prevent_indexing, t.is_pro, t.scheduled_deletion_at,
+			(b.paddle_subscription_id IS NOT NULL AND b.stripe_subscription_id IS NULL) AS has_paddle_subscription
+		FROM tenants t
+		LEFT JOIN tenants_billing b ON b.tenant_id = t.id
+		WHERE t.status = $1
+		  AND t.is_private = false
+		  AND t.scheduled_deletion_at IS NULL
+		ORDER BY t.name
+	`, enum.TenantActive)
+		if err != nil {
+			return errors.Wrap(err, "failed to get public tenants")
+		}
+
+		q.Result = make([]*entity.Tenant, 0, len(tenants))
+		for _, tenant := range tenants {
+			q.Result = append(q.Result, tenant.ToModel())
+		}
+
+		return nil
+	})
+}
+
 func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		tenant := dbEntities.Tenant{}

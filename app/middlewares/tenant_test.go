@@ -436,3 +436,128 @@ func TestBlockLockedTenants_LockedTenant(t *testing.T) {
 
 	Expect(status).Equals(http.StatusPaymentRequired)
 }
+
+func TestRootDomainFallback_NoTenantOnRootPath(t *testing.T) {
+	RegisterT(t)
+
+	fallbackServed := false
+	nextServed := false
+
+	server := mock.NewServer()
+	server.Use(middlewares.RootDomainFallback(func(c *web.Context) error {
+		fallbackServed = true
+		return c.Ok(web.Map{})
+	}))
+
+	status, _ := server.
+		WithURL("http://test.fider.io/").
+		Execute(func(c *web.Context) error {
+			nextServed = true
+			return c.Ok(web.Map{})
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(fallbackServed).IsTrue()
+	Expect(nextServed).IsFalse()
+}
+
+func TestRootDomainFallback_NoTenantOnOtherPath(t *testing.T) {
+	RegisterT(t)
+
+	fallbackServed := false
+	nextServed := false
+
+	server := mock.NewServer()
+	server.Use(middlewares.RootDomainFallback(func(c *web.Context) error {
+		fallbackServed = true
+		return c.Ok(web.Map{})
+	}))
+
+	status, _ := server.
+		WithURL("http://test.fider.io/posts/1").
+		Execute(func(c *web.Context) error {
+			nextServed = true
+			return c.Ok(web.Map{})
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(fallbackServed).IsFalse()
+	Expect(nextServed).IsTrue()
+}
+
+func TestRootDomainFallback_TenantOnRootPath(t *testing.T) {
+	RegisterT(t)
+
+	fallbackServed := false
+	nextServed := false
+
+	server := mock.NewServer()
+	server.Use(middlewares.RootDomainFallback(func(c *web.Context) error {
+		fallbackServed = true
+		return c.Ok(web.Map{})
+	}))
+
+	status, _ := server.
+		WithURL("http://demo.test.fider.io/").
+		OnTenant(mock.DemoTenant).
+		Execute(func(c *web.Context) error {
+			nextServed = true
+			return c.Ok(web.Map{})
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(fallbackServed).IsFalse()
+	Expect(nextServed).IsTrue()
+}
+
+func TestRootDomainFallback_UnknownSubdomain(t *testing.T) {
+	RegisterT(t)
+
+	fallbackServed := false
+	nextServed := false
+
+	server := mock.NewServer()
+	server.Use(middlewares.RootDomainFallback(func(c *web.Context) error {
+		fallbackServed = true
+		return c.Ok(web.Map{})
+	}))
+
+	// A subdomain that resolves to no tenant must keep 404ing rather than being handed the
+	// portal directory: it is not the root domain.
+	status, _ := server.
+		WithURL("http://nosuchtenant.test.fider.io/").
+		Execute(func(c *web.Context) error {
+			nextServed = true
+			return c.Ok(web.Map{})
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(fallbackServed).IsFalse()
+	Expect(nextServed).IsTrue()
+}
+
+func TestRootDomainFallback_UnknownCustomDomain(t *testing.T) {
+	RegisterT(t)
+
+	fallbackServed := false
+	nextServed := false
+
+	server := mock.NewServer()
+	server.Use(middlewares.RootDomainFallback(func(c *web.Context) error {
+		fallbackServed = true
+		return c.Ok(web.Map{})
+	}))
+
+	// A custom domain pointed at this instance but matching no tenant is also not the root
+	// domain, so it must fall through.
+	status, _ := server.
+		WithURL("http://feedback.someoneelse.com/").
+		Execute(func(c *web.Context) error {
+			nextServed = true
+			return c.Ok(web.Map{})
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(fallbackServed).IsFalse()
+	Expect(nextServed).IsTrue()
+}

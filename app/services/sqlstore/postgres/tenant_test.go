@@ -438,3 +438,57 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(customConfigs.Result[0].JSONUserNamePath).Equals("New user.name")
 	Expect(customConfigs.Result[0].JSONUserEmailPath).Equals("New user.email")
 }
+
+func TestTenantStorage_GetPublicTenants(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	publicTenants := &query.GetPublicTenants{}
+	err := bus.Dispatch(ctx, publicTenants)
+	Expect(err).IsNil()
+
+	names := make([]string, 0)
+	for _, tenant := range publicTenants.Result {
+		names = append(names, tenant.Name)
+	}
+
+	Expect(names).Equals([]string{"Avengers", "Demonstration", "Demonstration German", "Orange Inc"})
+}
+
+func TestTenantStorage_GetPublicTenants_ExcludesPrivateAndInactive(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	_, err := trx.Execute("UPDATE tenants SET is_private = true WHERE subdomain = 'orange'")
+	Expect(err).IsNil()
+	_, err = trx.Execute("UPDATE tenants SET status = $1 WHERE subdomain = 'german'", enum.TenantDisabled)
+	Expect(err).IsNil()
+	_, err = trx.Execute("UPDATE tenants SET status = $1 WHERE subdomain = 'avengers'", enum.TenantPending)
+	Expect(err).IsNil()
+	_, err = trx.Execute("UPDATE tenants SET status = $1 WHERE subdomain = 'demo'", enum.TenantLocked)
+	Expect(err).IsNil()
+
+	publicTenants := &query.GetPublicTenants{}
+	err = bus.Dispatch(ctx, publicTenants)
+	Expect(err).IsNil()
+	Expect(publicTenants.Result).HasLen(0)
+}
+
+func TestTenantStorage_GetPublicTenants_ExcludesTenantsPendingDeletion(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	_, err := trx.Execute("UPDATE tenants SET scheduled_deletion_at = $1 WHERE subdomain = 'demo'", time.Now().Add(72*time.Hour))
+	Expect(err).IsNil()
+
+	publicTenants := &query.GetPublicTenants{}
+	err = bus.Dispatch(ctx, publicTenants)
+	Expect(err).IsNil()
+
+	names := make([]string, 0)
+	for _, tenant := range publicTenants.Result {
+		names = append(names, tenant.Name)
+	}
+
+	Expect(names).Equals([]string{"Avengers", "Demonstration German", "Orange Inc"})
+}

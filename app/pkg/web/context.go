@@ -604,6 +604,25 @@ func LogoURL(ctx context.Context) string {
 	return "https://login.fider.io/static/assets/logo.png"
 }
 
+// TenantLogoURL returns an absolute URL to the given tenant's logo, or an empty string when
+// it has none. Unlike LogoURL it takes the tenant explicitly, so it also works on the root
+// domain of a multi-tenant instance, where no tenant is in context. The URL always points at
+// the tenant's own host, because /static/images is only served where a tenant resolves.
+func TenantLogoURL(ctx context.Context, tenant *entity.Tenant) string {
+	if tenant.LogoBlobKey == "" {
+		return ""
+	}
+
+	path := "/static/images/" + tenant.LogoBlobKey + "?size=200"
+
+	if env.Config.CDN.Host != "" {
+		request := ctx.Value(app.RequestCtxKey).(Request)
+		return request.URL.Scheme + "://" + tenant.Subdomain + "." + env.Config.CDN.Host + path
+	}
+
+	return TenantBaseURL(ctx, tenant) + path
+}
+
 // BaseURL return the base URL from given context
 func BaseURL(ctx context.Context) string {
 	if env.IsSingleHostMode() {

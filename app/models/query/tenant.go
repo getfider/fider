@@ -57,6 +57,14 @@ type GetTenantByDomain struct {
 	Result *entity.Tenant
 }
 
+// GetPublicTenants returns the tenants eligible for the public portal directory: active,
+// non-private, and not inside a deletion grace window. Ordered by name.
+type GetPublicTenants struct {
+
+	// Output
+	Result []*entity.Tenant
+}
+
 type GetPendingSignUpVerification struct {
 	// Output
 	Result *entity.EmailVerification
