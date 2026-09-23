@@ -54,6 +54,7 @@ type config struct {
 	BaseURL                     string `env:"BASE_URL"`
 	Locale                      string `env:"LOCALE,default=en"`
 	JWTSecret                   string `env:"JWT_SECRET,required"`
+	OauthRedirectUriUseBaseURL  bool   `env:"OAUTH_REDIRECT_URI_USE_BASE_URL,default=false"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
 	AllowPrivateNetworkTargets  bool   `env:"ALLOW_PRIVATE_NETWORK_TARGETS,default=false"`
