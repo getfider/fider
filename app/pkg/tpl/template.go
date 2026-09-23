@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/i18n"
+	"github.com/getfider/fider/app/pkg/markdown"
 )
 
 var cache = make(map[string]*template.Template)
@@ -34,6 +35,9 @@ func Render(ctx context.Context, tmpl *template.Template, w io.Writer, data any)
 	if err := template.Must(tmpl.Clone()).Funcs(template.FuncMap{
 		"translate": func(key string, params ...i18n.Params) string {
 			return i18n.T(ctx, key, params...)
+		},
+		"markdown": func(input string) template.HTML {
+			return markdown.Full(ctx, input, true)
 		},
 	}).Execute(w, data); err != nil {
 		return err

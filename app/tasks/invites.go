@@ -32,7 +32,7 @@ func SendInvites(subject, message string, invitations []*actions.UserInvitation)
 			url := fmt.Sprintf("%s/invite/verify?k=%s", web.BaseURL(c), invite.VerificationKey)
 			toMessage := strings.ReplaceAll(message, app.InvitePlaceholder, url)
 			to[i] = dto.NewRecipient("", invite.Email, dto.Props{
-				"message": markdown.Full(toMessage, true),
+				"message": markdown.Full(c, toMessage, true),
 			})
 		}
 
