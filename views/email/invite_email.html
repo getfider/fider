@@ -2,6 +2,7 @@
 
 {{define "body"}}
 <tr>
+  {{/* Sanitized HTML from markdown.Full. Do not render any other HTML here raw. */}}
   <td style="padding:20px 30px 30px 30px;">{{ .message }}</td>
 </tr>
 {{end}}

@@ -265,3 +265,59 @@ func TestPrivacyEnabled(t *testing.T) {
 
 	Expect(code).Equals(http.StatusNotFound)
 }
+
+func TestCommentFeedHandler_UnsafeSchemesFiltered(t *testing.T) {
+	RegisterT(t)
+
+	post := &entity.Post{
+		ID:          1,
+		Number:      1,
+		Title:       "The Post",
+		Slug:        "the-post",
+		Description: "[desc](javascript:alert(1))",
+		CreatedAt:   time.Date(2023, 1, 1, 10, 0, 0, 0, time.UTC),
+		User:        &entity.User{ID: 1, Name: "Jon Snow"},
+		Status:      enum.PostOpen,
+	}
+
+	// Atom content is declared type="html", so whatever the renderer produces is handed
+	// to the reader's HTML renderer. Unsafe destinations must not survive that far.
+	unsafeComment := &entity.Comment{
+		ID:        1,
+		Content:   "[click](javascript:alert(1)) ![x](javascript:alert(1)) ```a\"><img\fsrc=x\fonerror=alert(1)>\ncode\n```",
+		CreatedAt: time.Date(2023, 1, 2, 10, 0, 0, 0, time.UTC),
+		User:      &entity.User{ID: 2, Name: "Arya Stark"},
+	}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentsByPost) error {
+		q.Result = []*entity.Comment{unsafeComment}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAssignedTags) error {
+		q.Result = []*entity.Tag{}
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("path", "1.atom").
+		Execute(handlers.CommentFeed())
+
+	Expect(code).Equals(http.StatusOK)
+
+	body := response.Body.String()
+	Expect(strings.Contains(body, "javascript:")).IsFalse()
+	Expect(strings.Contains(body, "onerror")).IsFalse()
+	// The link and comment text itself is still delivered.
+	Expect(strings.Contains(body, "click")).IsTrue()
+}
