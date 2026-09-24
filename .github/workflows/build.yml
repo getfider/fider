@@ -24,7 +24,7 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - run: npm ci
       - run: make lint-ui
@@ -61,7 +61,7 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - run: npm ci # required for esbuild
       - name: install golangci-lint
@@ -134,7 +134,7 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - uses: actions/download-artifact@v8
         with:
@@ -189,7 +189,7 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - uses: actions/download-artifact@v8
         with:
