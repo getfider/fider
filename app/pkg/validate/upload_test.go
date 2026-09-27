@@ -482,10 +482,12 @@ func TestCheckDecodeBudget(t *testing.T) {
 
 	// 16MP * 12 bytes = 192MB
 	Expect(check(mock.UniformPNG(4000, 4000), 1)).IsNil()
-	// ... but not with 3 operations (Favicon with background): 16MP * 20 bytes = 320MB
-	Expect(check(mock.UniformPNG(4000, 4000), 3)).Equals(validate.ErrImageTooLarge)
+	// ... but not with 3 operations (Favicon with background): 20.25MP * 20 bytes = 405MB
+	Expect(check(mock.UniformPNG(4500, 4500), 3)).Equals(validate.ErrImageTooLarge)
 	// 25MP * 12 bytes = 300MB
-	Expect(check(mock.UniformPNG(5000, 5000), 1)).Equals(validate.ErrImageTooLarge)
+	Expect(check(mock.UniformPNG(5000, 5000), 1)).IsNil()
+	// 36MP * 12 bytes = 432MB
+	Expect(check(mock.UniformPNG(6000, 6000), 1)).Equals(validate.ErrImageTooLarge)
 	Expect(check(mock.UniformPNG(12000, 12000), 1)).Equals(validate.ErrImageTooLarge)
 	Expect(check(mock.UniformPNG(100000, 1), 1)).Equals(validate.ErrImageTooLarge)
 	Expect(check(mock.GIFHeader(40000, 40000), 1)).Equals(validate.ErrImageTooLarge)
@@ -502,7 +504,9 @@ func TestCheckDecodeBudget(t *testing.T) {
 	// 9MP progressive: 3008x3008 * 23 bytes = 208MB
 	Expect(check(jpegHeaderWithDimensions(t, 3000, 3000, true), 1)).IsNil()
 	// 12MP progressive phone photo: 4032x3040 * 23 bytes = 282MB
-	Expect(check(jpegHeaderWithDimensions(t, 4032, 3024, true), 1)).Equals(validate.ErrImageTooLarge)
+	Expect(check(jpegHeaderWithDimensions(t, 4032, 3024, true), 1)).IsNil()
+	// 16MP progressive: 4608x3456 * 23 bytes = 366MB
+	Expect(check(jpegHeaderWithDimensions(t, 4608, 3456, true), 1)).Equals(validate.ErrImageTooLarge)
 	// 40MP baseline: 8000x5024 * 11 bytes = 442MB
 	Expect(check(jpegHeaderWithDimensions(t, 8000, 5000, false), 1)).Equals(validate.ErrImageTooLarge)
 

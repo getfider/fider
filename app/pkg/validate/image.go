@@ -23,14 +23,16 @@ import (
 //
 // A decode allocates memory proportional to width*height, regardless of how small the
 // compressed file is, so a tiny file can be a "decompression bomb". See
-// ImageHeader.EstimateBytes for the per-format estimates. With 256MB and a single
+// ImageHeader.EstimateBytes for the per-format estimates. With 320MB and a single
 // operation (e.g. a resize) the largest images that can be decoded are roughly:
-//   - JPEG (colour, baseline): ~24 megapixels
-//   - JPEG (colour, progressive): ~11.7 megapixels
-//   - PNG (8-bit RGB/RGBA/gray): ~22 megapixels
-//   - PNG (paletted): ~44 megapixels
-//   - GIF: ~53 megapixels
-const MaxDecodeBytes int64 = 256 << 20
+//   - JPEG (colour, baseline): ~30 megapixels
+//   - JPEG (colour, progressive): ~14.6 megapixels (so 12MP phone photos pass)
+//   - PNG (8-bit RGB/RGBA/gray): ~28 megapixels
+//   - PNG (paletted): ~56 megapixels
+//   - GIF: ~67 megapixels
+//
+// Together with maxConcurrentDecodes this bounds the worst case at ~640MB.
+const MaxDecodeBytes int64 = 320 << 20
 
 // MaxImageSide is the maximum width or height of an image that we'll decode.
 // Some allocations (padding, resize weights) grow with the longest side, so extreme
