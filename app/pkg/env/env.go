@@ -57,6 +57,7 @@ type config struct {
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
 	AllowPrivateNetworkTargets  bool   `env:"ALLOW_PRIVATE_NETWORK_TARGETS,default=false"`
+	SSRFGuardUseProxy           bool   `env:"SSRF_GUARD_USE_PROXY,default=false"`
 	Stripe                      struct {
 		SecretKey      string `env:"STRIPE_SECRET_KEY"`
 		WebhookSecret  string `env:"STRIPE_WEBHOOK_SECRET"`

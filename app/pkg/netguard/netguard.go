@@ -5,18 +5,23 @@
 // There are two layers:
 //   - validate.WebhookURL performs a friendly preflight check (it resolves the
 //     hostname and rejects private targets with a readable message).
-//   - The client returned by NewClient enforces the same IsBlockedIP check at
-//     dial time, on the exact IP address being connected to. This is the real
-//     enforcement: it cannot be bypassed by DNS rebinding (a hostname that
-//     resolves to a public IP during validation and to a private IP when the
-//     request is made).
+//   - The client returned by Client/ClientFor enforces the same IsBlockedIP
+//     check at dial time, on the exact IP address being connected to. This is
+//     the real enforcement: it cannot be bypassed by DNS rebinding (a hostname
+//     that resolves to a public IP during validation and to a private IP when
+//     the request is made). The exception is requests sent through an HTTP(S)
+//     proxy when SSRF_GUARD_USE_PROXY=true; see NewClient.
 package netguard
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
+	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -146,47 +151,134 @@ func dialControl(network, address string, _ syscall.RawConn) error {
 	return nil
 }
 
+// ProxyFunc selects the proxy for a request, like http.Transport.Proxy.
+// A nil ProxyFunc means requests are always sent directly.
+type ProxyFunc func(*http.Request) (*url.URL, error)
+
+// proxyAddrKey is the context key under which guardedTransport stores the
+// "host:port" of the proxy chosen for a request.
+type proxyAddrKey struct{}
+
+// guardedTransport wraps the real transport to tell the dialer which address,
+// if any, is the proxy for this particular request.
+//
+// With a proxy, net/http dials the proxy rather than the target, so a
+// dial-time check can only ever see the proxy's address. The proxy itself is
+// operator-configured and may well live on a private network, so that one
+// connection must be allowed. Everything else, in particular requests for
+// which the proxy func returns nil (NO_PROXY match, loopback targets, or no
+// proxy configured), must still be checked. To do that without guessing, the
+// wrapper evaluates the proxy func itself and stores the resulting proxy
+// address in the request context; the dialer skips the IP check only when the
+// address it is asked to dial equals that value exactly. If the two ever
+// disagree (e.g. the proxy environment changed between calls), the dial is
+// checked as normal, i.e. the guard fails closed.
+type guardedTransport struct {
+	proxy ProxyFunc
+	base  *http.Transport
+}
+
+func (t *guardedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if t.proxy != nil {
+		proxyURL, err := t.proxy(req)
+		if err != nil {
+			return nil, err
+		}
+		if proxyURL != nil {
+			ctx := context.WithValue(req.Context(), proxyAddrKey{}, proxyDialAddr(proxyURL))
+			req = req.WithContext(ctx)
+		}
+	}
+	return t.base.RoundTrip(req)
+}
+
+// proxyDialAddr returns the address net/http dials for proxyURL (mirrors
+// net/http's canonicalAddr: default port by scheme).
+func proxyDialAddr(proxyURL *url.URL) string {
+	port := proxyURL.Port()
+	if port == "" {
+		switch strings.ToLower(proxyURL.Scheme) {
+		case "https":
+			port = "443"
+		case "socks5", "socks5h":
+			port = "1080"
+		default:
+			port = "80"
+		}
+	}
+	return net.JoinHostPort(proxyURL.Hostname(), port)
+}
+
 // NewClient returns an http.Client that refuses to connect to any address for
 // which IsBlockedIP returns true. It mirrors Fider's default client settings:
 // 30s timeout and redirects are not followed.
 //
-// Proxies are intentionally disabled (Proxy: nil, i.e. HTTP(S)_PROXY is
-// ignored). With a proxy, the dial would go to the proxy rather than to the
-// target, so the dial-time check would inspect the proxy's address and either
-// block every request (proxy on a private network) or protect nothing (the
-// proxy resolves and connects to the target itself). Guarded requests are
-// therefore always sent directly.
-func NewClient() *http.Client {
-	dialer := &net.Dialer{
+// If proxy is nil, requests are always sent directly and every connection is
+// checked. If proxy is set, requests it routes through a proxy are NOT covered
+// by the dial-time check (the proxy resolves and connects to the target), so
+// for those only the validate.WebhookURL preflight applies; this is weaker
+// against DNS rebinding. Requests the proxy func sends directly are still
+// fully checked. See guardedTransport.
+func NewClient(proxy ProxyFunc) *http.Client {
+	guarded := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
 		Control:   dialControl,
 	}
+	toProxy := &net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
 
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	transport.Proxy = nil
-	transport.DialContext = dialer.DialContext
+	base := http.DefaultTransport.(*http.Transport).Clone()
+	base.Proxy = proxy
+	base.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		if proxyAddr, _ := ctx.Value(proxyAddrKey{}).(string); proxyAddr != "" && addr == proxyAddr {
+			return toProxy.DialContext(ctx, network, addr)
+		}
+		return guarded.DialContext(ctx, network, addr)
+	}
 
 	return &http.Client{
 		Timeout:   30 * time.Second,
-		Transport: transport,
+		Transport: &guardedTransport{proxy: proxy, base: base},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
 	}
 }
 
-// Client is a shared guarded client, safe for concurrent use.
-var Client = NewClient()
+var (
+	directOnce    sync.Once
+	directClient  *http.Client
+	proxiedOnce   sync.Once
+	proxiedClient *http.Client
+)
+
+// Client returns the shared guarded client (safe for concurrent use).
+// It is chosen when called, not at package init, so it reflects the loaded
+// env config:
+//   - SSRF_GUARD_USE_PROXY=false (default): HTTP(S)_PROXY is ignored and every
+//     connection is checked at dial time.
+//   - SSRF_GUARD_USE_PROXY=true: http.ProxyFromEnvironment is used; proxied
+//     requests rely on the preflight only, direct ones are checked at dial time.
+func Client() *http.Client {
+	if env.Config.SSRFGuardUseProxy {
+		proxiedOnce.Do(func() { proxiedClient = NewClient(http.ProxyFromEnvironment) })
+		return proxiedClient
+	}
+	directOnce.Do(func() { directClient = NewClient(nil) })
+	return directClient
+}
 
 // ClientFor returns the HTTP client to use for an outbound request. When
-// blockPrivateNetworkTargets is true it returns the guarded Client, unless the
-// instance opted out via ALLOW_PRIVATE_NETWORK_TARGETS=true, in which case (and
-// when blockPrivateNetworkTargets is false) it returns http.DefaultClient.
+// blockPrivateNetworkTargets is true it returns the guarded Client(), unless
+// the instance opted out via ALLOW_PRIVATE_NETWORK_TARGETS=true, in which case
+// (and when blockPrivateNetworkTargets is false) it returns http.DefaultClient.
 // This is the single place where the escape hatch is applied.
 func ClientFor(blockPrivateNetworkTargets bool) *http.Client {
 	if blockPrivateNetworkTargets && !env.Config.AllowPrivateNetworkTargets {
-		return Client
+		return Client()
 	}
 	return http.DefaultClient
 }
