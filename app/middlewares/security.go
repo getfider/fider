@@ -40,7 +40,8 @@ func Secure() web.MiddlewareFunc {
 // without first passing a CORS preflight (which Fider never grants):
 //
 //   - a Content-Type whose media type is exactly "application/json"; or
-//   - an "Authorization: Bearer ..." header (API key clients).
+//   - an "Authorization: Bearer ..." header on an /api/ path, i.e. exactly the
+//     requests that the User middleware authenticates with an API key.
 //
 // The Accept header is deliberately NOT considered: it is CORS-safelisted, so a
 // cross-origin page can send "Accept: application/json" in a no-cors request.
@@ -56,9 +57,7 @@ func CSRF() web.MiddlewareFunc {
 				if strings.EqualFold(c.Request.GetHeader("Sec-Fetch-Site"), "cross-site") {
 					return c.Forbidden()
 				}
-				// Only exempt exactly what the API key authentication path (User middleware) accepts
-				_, hasBearerToken := web.ParseBearerToken(c.Request.GetHeader("Authorization"))
-				if !web.IsJSONContentType(c.Request.GetHeader("Content-Type")) && !hasBearerToken {
+				if !web.IsJSONContentType(c.Request.GetHeader("Content-Type")) && !isAPIKeyRequest(c) {
 					return c.Forbidden()
 				}
 			}
@@ -74,4 +73,15 @@ func isWriteMethod(method string) bool {
 	default:
 		return true
 	}
+}
+
+// isAPIKeyRequest returns true if the request would be authenticated with an API key
+// by the User middleware: an /api/ path with a Bearer token. It is scoped this way so
+// the CSRF exemption matches exactly what the API key authentication path accepts.
+func isAPIKeyRequest(c *web.Context) bool {
+	if !c.Request.IsAPI() {
+		return false
+	}
+	_, ok := web.ParseBearerToken(c.Request.GetHeader("Authorization"))
+	return ok
 }

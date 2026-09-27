@@ -79,8 +79,8 @@ func TestSecureWithCDN_SingleHost(t *testing.T) {
 	Expect(response.Header().Get("Referrer-Policy")).Equals("no-referrer-when-downgrade")
 }
 
-func executeCSRF(method string, headers map[string]string) int {
-	server := mock.NewServer()
+func executeCSRF(method, url string, headers map[string]string) int {
+	server := mock.NewServer().WithURL(url)
 	server.Use(func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			c.Request.Method = method
@@ -125,14 +125,18 @@ func TestCSRF(t *testing.T) {
 		{"POST with form content type", "POST", map[string]string{"Content-Type": "application/x-www-form-urlencoded"}, http.StatusForbidden},
 		{"POST with multipart content type", "POST", map[string]string{"Content-Type": "multipart/form-data; boundary=x"}, http.StatusForbidden},
 		{"POST with json-like content type", "POST", map[string]string{"Content-Type": "application/jsonx"}, http.StatusForbidden},
-		{"POST with invalid content type", "POST", map[string]string{"Content-Type": "application/json;;;="}, http.StatusForbidden},
+		{"POST with JSON content type and malformed parameters", "POST", map[string]string{"Content-Type": "application/json;;;="}, http.StatusOK},
+		{"POST with text/plain and malformed parameters", "POST", map[string]string{"Content-Type": "text/plain; charset"}, http.StatusForbidden},
 		{"POST with Bearer Authorization", "POST", map[string]string{"Authorization": "Bearer some-api-key"}, http.StatusOK},
 		{"DELETE with Bearer Authorization", "DELETE", map[string]string{"Authorization": "Bearer some-api-key"}, http.StatusOK},
 		{"POST with Basic Authorization", "POST", map[string]string{"Authorization": "Basic dXNlcjpwYXNz"}, http.StatusForbidden},
 		{"POST with empty Bearer Authorization", "POST", map[string]string{"Authorization": "Bearer "}, http.StatusForbidden},
 		{"POST with lower-case bearer Authorization", "POST", map[string]string{"Authorization": "bearer some-api-key"}, http.StatusOK},
 		{"POST with Basic Bearer Authorization", "POST", map[string]string{"Authorization": "Basic Bearer some-api-key"}, http.StatusForbidden},
-		{"POST with Bearer without space", "POST", map[string]string{"Authorization": "Bearersome-api-key"}, http.StatusForbidden},
+		{"POST with Bearer without space", "POST", map[string]string{"Authorization": "Bearersome-api-key"}, http.StatusOK},
+		{"POST with Bearer tab separator", "POST", map[string]string{"Authorization": "Bearer\tsome-api-key"}, http.StatusOK},
+		{"POST with Bearer and form content type", "POST", map[string]string{"Authorization": "Bearer some-api-key", "Content-Type": "application/x-www-form-urlencoded"}, http.StatusOK},
+		{"POST with JSON content type and invalid parameter", "POST", map[string]string{"Content-Type": "application/json; charset"}, http.StatusOK},
 		{"POST cross-site with JSON content type", "POST", map[string]string{"Content-Type": "application/json", "Sec-Fetch-Site": "cross-site"}, http.StatusForbidden},
 		{"POST cross-site with Bearer Authorization", "POST", map[string]string{"Authorization": "Bearer some-api-key", "Sec-Fetch-Site": "cross-site"}, http.StatusForbidden},
 		{"POST same-site with JSON content type", "POST", map[string]string{"Content-Type": "application/json", "Sec-Fetch-Site": "same-site"}, http.StatusOK},
@@ -144,7 +148,34 @@ func TestCSRF(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			RegisterT(t)
 
-			status := executeCSRF(tc.method, tc.headers)
+			status := executeCSRF(tc.method, "http://demo.test.fider.io/api/v1/posts/1/votes", tc.headers)
+			Expect(status).Equals(tc.expected)
+		})
+	}
+}
+
+// The Bearer exemption only applies to /api/ paths, where the User middleware
+// authenticates with an API key. Elsewhere (e.g. /_api/) the cookie is used, so a
+// Bearer header must not bypass the CSRF check.
+func TestCSRF_BearerExemptionOnlyForAPIPaths(t *testing.T) {
+	testCases := []struct {
+		name     string
+		url      string
+		headers  map[string]string
+		expected int
+	}{
+		{"/_api with only Bearer", "http://demo.test.fider.io/_api/user/settings", map[string]string{"Authorization": "Bearer x"}, http.StatusForbidden},
+		{"/_api with Bearer and text/plain", "http://demo.test.fider.io/_api/user/settings", map[string]string{"Authorization": "Bearer x", "Content-Type": "text/plain"}, http.StatusForbidden},
+		{"/_api with JSON content type", "http://demo.test.fider.io/_api/user/settings", map[string]string{"Content-Type": "application/json"}, http.StatusOK},
+		{"root path with only Bearer", "http://demo.test.fider.io/posts/1", map[string]string{"Authorization": "Bearer x"}, http.StatusForbidden},
+		{"/api with only Bearer", "http://demo.test.fider.io/api/v1/posts", map[string]string{"Authorization": "Bearer x"}, http.StatusOK},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			RegisterT(t)
+
+			status := executeCSRF("POST", tc.url, tc.headers)
 			Expect(status).Equals(tc.expected)
 		})
 	}

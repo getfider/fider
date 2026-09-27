@@ -350,6 +350,59 @@ func TestUser_ValidAPIKey(t *testing.T) {
 	Expect(response.Body.String()).Equals("Jon Snow")
 }
 
+func TestUser_ValidAPIKey_LenientBearerParsing(t *testing.T) {
+	for _, header := range []string{"bearer 1234567890", "BEARER 1234567890", "Bearer\t1234567890", "Bearer1234567890", "Bearer 1234567890 \r\n"} {
+		t.Run(header, func(t *testing.T) {
+			RegisterT(t)
+
+			bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+				if q.APIKey == "1234567890" {
+					q.Result = mock.JonSnow
+					return nil
+				}
+				return app.ErrNotFound
+			})
+
+			server := mock.NewServer()
+
+			server.Use(middlewares.User())
+			status, response := server.
+				OnTenant(mock.DemoTenant).
+				WithURL("http://example.com/api/v1").
+				AddHeader("Authorization", header).
+				Execute(func(c *web.Context) error {
+					return c.String(http.StatusOK, c.User().Name)
+				})
+
+			Expect(status).Equals(http.StatusOK)
+			Expect(response.Body.String()).Equals("Jon Snow")
+		})
+	}
+}
+
+func TestUser_OtherAuthorizationSchemes_AreIgnored(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	server := mock.NewServer()
+
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://example.com/api/v1").
+		AddHeader("Authorization", "Basic Bearer 1234567890").
+		Execute(func(c *web.Context) error {
+			Expect(c.User()).IsNil()
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+}
+
 func TestUser_InvalidAPIKey(t *testing.T) {
 	RegisterT(t)
 
