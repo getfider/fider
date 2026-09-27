@@ -20,6 +20,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/netguard"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 	"golang.org/x/oauth2"
@@ -335,7 +336,17 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 		RedirectURL: fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, q.Provider),
 	}).Exchange
 
-	oauthToken, err := exchange(ctx, q.Code)
+	// Custom providers have admin-configurable Token/Profile URLs, so enforce the
+	// SSRF guard at dial time as well (the WebhookURL preflight above can be
+	// bypassed via DNS rebinding). Built-in providers use fixed public URLs and
+	// keep the default client (which honours HTTP(S)_PROXY).
+	guard := isCustomProvider(config) && !env.Config.AllowPrivateNetworkTargets
+	exchangeCtx := ctx
+	if guard {
+		exchangeCtx = context.WithValue(ctx, oauth2.HTTPClient, netguard.Client)
+	}
+
+	oauthToken, err := exchange(exchangeCtx, q.Code)
 	if err != nil {
 		return err
 	}
@@ -362,6 +373,7 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 		Headers: map[string]string{
 			"Authorization": "Bearer " + oauthToken.AccessToken,
 		},
+		BlockPrivateNetworkTargets: isCustomProvider(config),
 	}
 
 	if err := bus.Dispatch(ctx, req); err != nil {
@@ -431,6 +443,17 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 
 	q.Result = list
 	return nil
+}
+
+// isCustomProvider reports whether config is a tenant-defined (custom) OAuth
+// provider rather than one of the built-in system providers.
+func isCustomProvider(config *entity.OAuthConfig) bool {
+	for _, p := range systemProviders {
+		if p == config {
+			return false
+		}
+	}
+	return true
 }
 
 func getConfig(ctx context.Context, provider string) (*entity.OAuthConfig, error) {
