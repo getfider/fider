@@ -30,7 +30,7 @@ type ImageUploadOpts struct {
 	MaxKilobytes int
 }
 
-//MultiImageUpload validates multiple image uploads
+// MultiImageUpload validates multiple image uploads
 func MultiImageUpload(ctx context.Context, currentAttachments []string, uploads []*dto.ImageUpload, opts MultiImageUploadOpts) ([]string, error) {
 	if currentAttachments == nil {
 		currentAttachments = []string{}
@@ -71,7 +71,7 @@ func MultiImageUpload(ctx context.Context, currentAttachments []string, uploads 
 	return []string{}, nil
 }
 
-//ImageUpload validates given image upload
+// ImageUpload validates given image upload
 func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadOpts) ([]string, error) {
 	messages := []string{}
 
@@ -92,6 +92,14 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 				return nil, err
 			}
 		} else {
+			// imagic.Parse only reads the image header, so width/height are known without
+			// decoding. Reject decompression bombs before anything decodes the pixel data.
+			if !IsWithinPixelBudget(logo.Width, logo.Height) {
+				messages = append(messages, i18n.T(ctx, "validation.custom.maximagepixels",
+					i18n.Params{"megapixels": int(MaxImagePixels / 1_000_000)},
+				))
+				return messages, nil
+			}
 
 			if logo.Width < opts.MinWidth || logo.Height < opts.MinHeight {
 				messages = append(messages, i18n.T(ctx, "validation.custom.minimagedimensions",
@@ -109,7 +117,14 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 				))
 			}
 
-			if logo.Height > MaxDimensionSize && logo.Width > MaxDimensionSize {
+			// The upload is rejected anyway, so don't spend time/memory decoding it.
+			if len(messages) > 0 {
+				return messages, nil
+			}
+
+			// Resize if either dimension is too large. imagic.Resize keeps the aspect ratio
+			// (scales the longest side down to MaxDimensionSize) and never upscales.
+			if logo.Height > MaxDimensionSize || logo.Width > MaxDimensionSize {
 				newImageBytes, err := imagic.Apply(upload.Upload.Content, imagic.Resize(MaxDimensionSize))
 				if err != nil {
 					return nil, err
