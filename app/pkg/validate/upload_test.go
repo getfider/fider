@@ -206,7 +206,8 @@ func imageDimensions(t *testing.T, content []byte) (int, int) {
 
 // jpegHeaderWithDimensions returns a JPEG whose header (SOF) claims the given dimensions.
 // Only the header is valid, which is all image.DecodeConfig reads.
-func jpegHeaderWithDimensions(t *testing.T, width, height int) []byte {
+// Go always encodes baseline JPEGs (SOF0); progressive ones are made by patching it to SOF2.
+func jpegHeaderWithDimensions(t *testing.T, width, height int, progressive bool) []byte {
 	var buf bytes.Buffer
 	err := jpeg.Encode(&buf, image.NewYCbCr(image.Rect(0, 0, 16, 16), image.YCbCrSubsampleRatio444), nil)
 	Expect(err).IsNil()
@@ -216,6 +217,9 @@ func jpegHeaderWithDimensions(t *testing.T, width, height int) []byte {
 	// FF C0, length (2), precision (1), height (2), width (2)
 	binary.BigEndian.PutUint16(content[sof+5:], uint16(height))
 	binary.BigEndian.PutUint16(content[sof+7:], uint16(width))
+	if progressive {
+		content[sof+1] = 0xC2
+	}
 	return content
 }
 
@@ -232,8 +236,10 @@ func TestValidateImageUpload_DecompressionBomb(t *testing.T) {
 		{"gif 40000x40000", mock.GIFHeader(40000, 40000)},
 		// Small pixel count, but extreme aspect ratio
 		{"png 100000x1", mock.UniformPNG(100000, 1)},
-		// 4000x4000 colour JPEG is over the budget, as it might be progressive
-		{"jpeg 4000x4000", jpegHeaderWithDimensions(t, 4000, 4000)},
+		// 4000x4000 progressive colour JPEG
+		{"jpeg 4000x4000", jpegHeaderWithDimensions(t, 4000, 4000, true)},
+		// 8000x8000 baseline colour JPEG
+		{"jpeg 8000x8000", jpegHeaderWithDimensions(t, 8000, 8000, false)},
 	}
 
 	for _, testCase := range testCases {
@@ -329,29 +335,39 @@ func TestEstimateDecodeBytes(t *testing.T) {
 	RegisterT(t)
 
 	// Invalid or over the per-side cap
-	Expect(validate.EstimateDecodeBytes(0, 100, "png", color.GrayModel)).Equals(int64(-1))
-	Expect(validate.EstimateDecodeBytes(100, 0, "png", color.GrayModel)).Equals(int64(-1))
-	Expect(validate.EstimateDecodeBytes(-100, -100, "png", color.GrayModel)).Equals(int64(-1))
-	Expect(validate.EstimateDecodeBytes(validate.MaxImageSide+1, 1, "png", color.GrayModel)).Equals(int64(-1))
-	Expect(validate.EstimateDecodeBytes(1, validate.MaxImageSide+1, "png", color.GrayModel)).Equals(int64(-1))
-	Expect(validate.EstimateDecodeBytes(40_000_000, 1, "gif", color.Palette{})).Equals(int64(-1))
-	Expect(validate.EstimateDecodeBytes(math.MaxInt, math.MaxInt, "png", color.GrayModel)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(0, 100, "png", color.GrayModel, false)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(100, 0, "png", color.GrayModel, false)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(-100, -100, "png", color.GrayModel, false)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(validate.MaxImageSide+1, 1, "png", color.GrayModel, false)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(1, validate.MaxImageSide+1, "png", color.GrayModel, false)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(40_000_000, 1, "gif", color.Palette{}, false)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(math.MaxInt, math.MaxInt, "png", color.GrayModel, false)).Equals(int64(-1))
 
 	// Bytes per pixel include 4 bytes for a full-size RGBA intermediate
 	const mp = 1000 * 1000
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "gif", color.Palette{})).Equals(int64(5 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.Palette{})).Equals(int64(6 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.GrayModel)).Equals(int64(6 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.Gray16Model)).Equals(int64(8 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.NRGBAModel)).Equals(int64(12 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.NRGBA64Model)).Equals(int64(20 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.GrayModel)).Equals(int64(9 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.YCbCrModel)).Equals(int64(19 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.RGBAModel)).Equals(int64(23 * mp))
-	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.CMYKModel)).Equals(int64(24 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "gif", color.Palette{}, false)).Equals(int64(5 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.Palette{}, false)).Equals(int64(6 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.GrayModel, false)).Equals(int64(6 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.Gray16Model, false)).Equals(int64(8 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.NRGBAModel, false)).Equals(int64(12 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.NRGBA64Model, false)).Equals(int64(20 * mp))
+	// JPEG images are allocated in whole MCUs (up to 32x32), so 1000 is rounded up to 1024
+	const jpegPixels = 1024 * 1024
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.GrayModel, false)).Equals(int64(5 * jpegPixels))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.YCbCrModel, false)).Equals(int64(7 * jpegPixels))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.RGBAModel, false)).Equals(int64(11 * jpegPixels))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.CMYKModel, false)).Equals(int64(12 * jpegPixels))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.GrayModel, true)).Equals(int64(9 * jpegPixels))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.YCbCrModel, true)).Equals(int64(19 * jpegPixels))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.RGBAModel, true)).Equals(int64(23 * jpegPixels))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.CMYKModel, true)).Equals(int64(28 * jpegPixels))
+	Expect(validate.EstimateDecodeBytes(1024, 1024, "jpeg", color.YCbCrModel, false)).Equals(int64(7 * jpegPixels))
+
+	// progressive is ignored for other formats
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.NRGBAModel, true)).Equals(int64(12 * mp))
 
 	// Worst case at the per-side cap doesn't overflow
-	Expect(validate.EstimateDecodeBytes(validate.MaxImageSide, validate.MaxImageSide, "jpeg", color.CMYKModel) > 0).IsTrue()
+	Expect(validate.EstimateDecodeBytes(validate.MaxImageSide, validate.MaxImageSide, "jpeg", color.CMYKModel, true) > 0).IsTrue()
 }
 
 func TestCheckDecodeBudget(t *testing.T) {
@@ -366,10 +382,14 @@ func TestCheckDecodeBudget(t *testing.T) {
 	Expect(validate.CheckDecodeBudget(mock.UniformPNG(100000, 1))).Equals(validate.ErrImageTooLarge)
 	Expect(validate.CheckDecodeBudget(mock.GIFHeader(40000, 40000))).Equals(validate.ErrImageTooLarge)
 
-	// 12MP phone photo: 12.2MP * 19 bytes = 232MB
-	Expect(validate.CheckDecodeBudget(jpegHeaderWithDimensions(t, 4032, 3024))).IsNil()
-	// 16MP: 304MB
-	Expect(validate.CheckDecodeBudget(jpegHeaderWithDimensions(t, 4000, 4000))).Equals(validate.ErrImageTooLarge)
+	// 24MP baseline colour JPEG: 24MP * 7 bytes = 168MB
+	Expect(validate.CheckDecodeBudget(jpegHeaderWithDimensions(t, 6000, 4000, false))).IsNil()
+	// Same dimensions, but progressive: 24MP * 19 bytes = 457MB
+	Expect(validate.CheckDecodeBudget(jpegHeaderWithDimensions(t, 6000, 4000, true))).Equals(validate.ErrImageTooLarge)
+	// 12MP progressive phone photo: 12.2MP * 19 bytes = 233MB
+	Expect(validate.CheckDecodeBudget(jpegHeaderWithDimensions(t, 4032, 3024, true))).IsNil()
+	// 40MP baseline: 280MB
+	Expect(validate.CheckDecodeBudget(jpegHeaderWithDimensions(t, 8000, 5000, false))).Equals(validate.ErrImageTooLarge)
 
 	img, _ := os.ReadFile(env.Path("/app/pkg/web/testdata/logo2.jpg"))
 	Expect(validate.CheckDecodeBudget(img)).IsNil()
