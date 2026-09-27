@@ -24,7 +24,7 @@ func TestTokenExchangeContext(t *testing.T) {
 		expected     *http.Client
 	}{
 		// Custom providers use the guarded client...
-		{"_custom", false, netguard.Client()},
+		{"_custom", false, netguard.Client},
 		// ...unless the instance allows private network targets.
 		{"_custom", true, http.DefaultClient},
 		// Built-in providers leave the context untouched (oauth2 then uses its default).

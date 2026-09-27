@@ -3,17 +3,14 @@ package netguard_test
 import (
 	"context"
 	"errors"
-	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/netguard"
-	"golang.org/x/net/http/httpproxy"
 )
 
 func TestIsBlockedIP(t *testing.T) {
@@ -134,7 +131,7 @@ func TestClient_RejectsBlockedTargetsAtDialTime(t *testing.T) {
 		"http://localhost:" + port + "/", // hostname resolving to loopback
 	} {
 		req, _ := http.NewRequestWithContext(context.Background(), "GET", rawurl, nil)
-		res, err := netguard.Client().Do(req)
+		res, err := netguard.Client.Do(req)
 		if res != nil {
 			_ = res.Body.Close()
 		}
@@ -151,109 +148,10 @@ func TestClientFor(t *testing.T) {
 	t.Cleanup(func() { env.Config.AllowPrivateNetworkTargets = original })
 
 	env.Config.AllowPrivateNetworkTargets = false
-	Expect(netguard.ClientFor(true) == netguard.Client()).IsTrue()
+	Expect(netguard.ClientFor(true) == netguard.Client).IsTrue()
 	Expect(netguard.ClientFor(false) == http.DefaultClient).IsTrue()
 
 	env.Config.AllowPrivateNetworkTargets = true
 	Expect(netguard.ClientFor(true) == http.DefaultClient).IsTrue()
 	Expect(netguard.ClientFor(false) == http.DefaultClient).IsTrue()
-}
-
-// newTestProxy starts a local forward-proxy stand-in on 127.0.0.1 that answers
-// every request itself and records the absolute request URLs it received.
-func newTestProxy(t *testing.T) (*httptest.Server, *[]string) {
-	seen := make([]string, 0)
-	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		seen = append(seen, r.URL.String())
-		_, _ = w.Write([]byte("via proxy"))
-	}))
-	t.Cleanup(proxy.Close)
-	return proxy, &seen
-}
-
-// proxyFuncFor builds a deterministic proxy func (http.ProxyFromEnvironment
-// caches the environment on first use, so it can't be driven from tests).
-func proxyFuncFor(cfg *httpproxy.Config) netguard.ProxyFunc {
-	fn := cfg.ProxyFunc()
-	return func(req *http.Request) (*url.URL, error) {
-		return fn(req.URL)
-	}
-}
-
-func get(client *http.Client, rawurl string) (*http.Response, []byte, error) {
-	req, _ := http.NewRequestWithContext(context.Background(), "GET", rawurl, nil)
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer func() { _ = res.Body.Close() }()
-	body, err := io.ReadAll(res.Body)
-	return res, body, err
-}
-
-func TestNewClient_WithProxy(t *testing.T) {
-	RegisterT(t)
-
-	proxy, seen := newTestProxy(t)
-	target := newLocalServer(t)
-	client := netguard.NewClient(proxyFuncFor(&httpproxy.Config{
-		HTTPProxy: proxy.URL,
-		NoProxy:   "10.0.0.0/8",
-	}))
-
-	// Proxied request: the dial goes to the proxy on 127.0.0.1, which must not
-	// be blocked. The target itself is only covered by the preflight check.
-	res, body, err := get(client, "http://203.0.113.10/hook")
-	Expect(err).IsNil()
-	Expect(res.StatusCode).Equals(http.StatusOK)
-	Expect(string(body)).Equals("via proxy")
-	Expect(*seen).Equals([]string{"http://203.0.113.10/hook"})
-
-	// NO_PROXY match: sent directly, so the dial-time guard still applies.
-	_, _, err = get(client, "http://10.1.2.3/hook")
-	Expect(errors.Is(err, netguard.ErrBlockedAddress)).IsTrue()
-
-	// Loopback targets are never proxied by httpproxy / ProxyFromEnvironment:
-	// also direct, also blocked, even though the proxy address is loopback too.
-	_, _, err = get(client, target.URL)
-	Expect(errors.Is(err, netguard.ErrBlockedAddress)).IsTrue()
-
-	Expect(*seen).HasLen(1)
-}
-
-func TestNewClient_WithoutProxyIgnoresProxyEnv(t *testing.T) {
-	RegisterT(t)
-
-	proxy, seen := newTestProxy(t)
-	t.Setenv("HTTP_PROXY", proxy.URL)
-	t.Setenv("http_proxy", proxy.URL)
-
-	// 10.1.2.3 is rejected by the dial guard before any packet is sent. Had a
-	// proxy been used, the local proxy would have answered with 200.
-	_, _, err := get(netguard.NewClient(nil), "http://10.1.2.3/hook")
-	Expect(errors.Is(err, netguard.ErrBlockedAddress)).IsTrue()
-	Expect(*seen).HasLen(0)
-}
-
-func TestClient_ReflectsSSRFGuardUseProxy(t *testing.T) {
-	RegisterT(t)
-
-	original := env.Config.SSRFGuardUseProxy
-	t.Cleanup(func() { env.Config.SSRFGuardUseProxy = original })
-
-	env.Config.SSRFGuardUseProxy = false
-	direct := netguard.Client()
-	Expect(netguard.Client() == direct).IsTrue()
-
-	env.Config.SSRFGuardUseProxy = true
-	proxied := netguard.Client()
-	Expect(proxied == direct).IsFalse()
-	Expect(netguard.Client() == proxied).IsTrue()
-	Expect(netguard.ClientFor(true) == proxied).IsTrue()
-
-	// Whether or not a proxy is configured in this environment, loopback
-	// targets are never proxied, so they are still blocked at dial time.
-	target := newLocalServer(t)
-	_, _, err := get(proxied, target.URL)
-	Expect(errors.Is(err, netguard.ErrBlockedAddress)).IsTrue()
 }
