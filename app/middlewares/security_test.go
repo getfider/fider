@@ -130,6 +130,9 @@ func TestCSRF(t *testing.T) {
 		{"DELETE with Bearer Authorization", "DELETE", map[string]string{"Authorization": "Bearer some-api-key"}, http.StatusOK},
 		{"POST with Basic Authorization", "POST", map[string]string{"Authorization": "Basic dXNlcjpwYXNz"}, http.StatusForbidden},
 		{"POST with empty Bearer Authorization", "POST", map[string]string{"Authorization": "Bearer "}, http.StatusForbidden},
+		{"POST with lower-case bearer Authorization", "POST", map[string]string{"Authorization": "bearer some-api-key"}, http.StatusOK},
+		{"POST with Basic Bearer Authorization", "POST", map[string]string{"Authorization": "Basic Bearer some-api-key"}, http.StatusForbidden},
+		{"POST with Bearer without space", "POST", map[string]string{"Authorization": "Bearersome-api-key"}, http.StatusForbidden},
 		{"POST cross-site with JSON content type", "POST", map[string]string{"Content-Type": "application/json", "Sec-Fetch-Site": "cross-site"}, http.StatusForbidden},
 		{"POST cross-site with Bearer Authorization", "POST", map[string]string{"Authorization": "Bearer some-api-key", "Sec-Fetch-Site": "cross-site"}, http.StatusForbidden},
 		{"POST same-site with JSON content type", "POST", map[string]string{"Content-Type": "application/json", "Sec-Fetch-Site": "same-site"}, http.StatusOK},
@@ -138,10 +141,12 @@ func TestCSRF(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		status := executeCSRF(tc.method, tc.headers)
-		if status != tc.expected {
-			t.Errorf("%s: expected status %d, got %d", tc.name, tc.expected, status)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			RegisterT(t)
+
+			status := executeCSRF(tc.method, tc.headers)
+			Expect(status).Equals(tc.expected)
+		})
 	}
 }
 

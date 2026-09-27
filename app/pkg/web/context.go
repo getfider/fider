@@ -205,7 +205,11 @@ func (c *Context) IsAuthenticated() bool {
 	return c.Value(app.UserCtxKey) != nil
 }
 
-// IsAjax returns true if request is AJAX
+// IsAjax returns true if request is AJAX, i.e. the client asked for (Accept) or
+// sent (Content-Type) JSON. It is only meant to pick the response format (JSON vs
+// HTML page) and MUST NOT be used as a security or CSRF check: it matches on a
+// substring of CORS-safelisted headers that any cross-origin page can send.
+// See middlewares.CSRF() and GHSA-xjr8-w967-4xjq.
 func (c *Context) IsAjax() bool {
 	accept := c.Request.GetHeader("Accept")
 	contentType := c.Request.GetHeader("Content-Type")

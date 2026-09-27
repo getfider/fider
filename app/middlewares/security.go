@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"fmt"
-	"mime"
 	"net/http"
 	"strings"
 
@@ -57,7 +56,9 @@ func CSRF() web.MiddlewareFunc {
 				if strings.EqualFold(c.Request.GetHeader("Sec-Fetch-Site"), "cross-site") {
 					return c.Forbidden()
 				}
-				if !hasJSONContentType(c) && !hasBearerAuthorization(c) {
+				// Only exempt exactly what the API key authentication path (User middleware) accepts
+				_, hasBearerToken := web.ParseBearerToken(c.Request.GetHeader("Authorization"))
+				if !web.IsJSONContentType(c.Request.GetHeader("Content-Type")) && !hasBearerToken {
 					return c.Forbidden()
 				}
 			}
@@ -73,28 +74,4 @@ func isWriteMethod(method string) bool {
 	default:
 		return true
 	}
-}
-
-// hasJSONContentType returns true only if the Content-Type media type is exactly
-// application/json. Substring matching is unsafe, as "text/plain; x=application/json"
-// is a CORS-safelisted Content-Type.
-func hasJSONContentType(c *web.Context) bool {
-	contentType := c.Request.GetHeader("Content-Type")
-	if contentType == "" {
-		return false
-	}
-	mediaType, _, err := mime.ParseMediaType(contentType)
-	if err != nil {
-		return false
-	}
-	return mediaType == web.JSONContentType
-}
-
-// hasBearerAuthorization returns true if the request has an Authorization header
-// using the Bearer scheme. Browsers never attach Bearer credentials automatically
-// (unlike cached Basic credentials), and cross-origin pages cannot set this header
-// without a CORS preflight.
-func hasBearerAuthorization(c *web.Context) bool {
-	auth := strings.TrimSpace(c.Request.GetHeader("Authorization"))
-	return len(auth) > len("Bearer ") && strings.EqualFold(auth[:len("Bearer ")], "Bearer ")
 }
