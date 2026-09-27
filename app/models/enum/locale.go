@@ -210,6 +210,16 @@ var (
 	}
 
 	// AllLocales contains all supported locales
+	// LocaleCatalan represents Catalan
+	LocaleCatalan = Locale{
+		Code:              "ca",
+		Name:              "Catalan (català)",
+		MessageFormatCode: "ca",
+		PostgresConfig:    "simple",
+		LinguaLanguage:    lingua.Catalan,
+		IsRTL:             false,
+	}
+
 	AllLocales = []Locale{
 		LocaleEnglish,
 		LocalePortugueseBR,
@@ -230,6 +240,7 @@ var (
 		LocaleChineseCN,
 		LocaleChineseTW,
 		LocalePersian,
+		LocaleCatalan,
 	}
 )
 
