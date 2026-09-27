@@ -40,17 +40,6 @@ func (s Service) Init() {
 	bus.AddHandler(requestHandler)
 }
 
-// clientFor returns the HTTP client to use for the given request. Requests that
-// opt in to BlockPrivateNetworkTargets use the netguard client, which rejects
-// private/internal addresses at dial time, unless the instance explicitly
-// allows private network targets.
-func clientFor(c *cmd.HTTPRequest) *http.Client {
-	if c.BlockPrivateNetworkTargets && !env.Config.AllowPrivateNetworkTargets {
-		return netguard.Client
-	}
-	return http.DefaultClient
-}
-
 func requestHandler(ctx context.Context, c *cmd.HTTPRequest) error {
 	req, err := http.NewRequest(c.Method, c.URL, c.Body)
 	if err != nil {
@@ -65,7 +54,7 @@ func requestHandler(ctx context.Context, c *cmd.HTTPRequest) error {
 		req.SetBasicAuth(c.BasicAuth.User, c.BasicAuth.Password)
 	}
 
-	res, err := clientFor(c).Do(req)
+	res, err := netguard.ClientFor(c.BlockPrivateNetworkTargets).Do(req)
 	if err != nil {
 		return err
 	}

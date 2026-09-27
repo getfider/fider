@@ -13,13 +13,14 @@
 package netguard
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"syscall"
 	"time"
+
+	"github.com/getfider/fider/app/pkg/env"
 )
 
 // ErrBlockedAddress is returned when a connection to a private/internal
@@ -45,6 +46,7 @@ var blockedIPv4 = mustParseCIDRs(
 	"127.0.0.0/8",    // loopback
 	"169.254.0.0/16", // link-local (incl. cloud metadata 169.254.169.254)
 	"172.16.0.0/12",  // private
+	"192.0.0.0/24",   // IETF protocol assignments (incl. Oracle Cloud metadata 192.0.0.192)
 	"192.168.0.0/16", // private
 	"198.18.0.0/15",  // benchmarking
 	"224.0.0.0/4",    // multicast
@@ -56,6 +58,7 @@ var blockedIPv6 = mustParseCIDRs(
 	"::1/128",        // loopback
 	"fc00::/7",       // unique local
 	"fe80::/10",      // link-local
+	"fec0::/10",      // site-local (deprecated)
 	"ff00::/8",       // multicast
 	"64:ff9b:1::/48", // NAT64 local-use
 )
@@ -64,12 +67,13 @@ var (
 	nat64Prefix     = mustParseCIDRs("64:ff9b::/96")[0]
 	sixToFourPrefix = mustParseCIDRs("2002::/16")[0]
 	teredoPrefix    = mustParseCIDRs("2001::/32")[0]
-	ipv4Compatible  = mustParseCIDRs("::/96")[0] // deprecated IPv4-compatible IPv6 (::a.b.c.d)
+	ipv4Compatible  = mustParseCIDRs("::/96")[0]           // deprecated IPv4-compatible IPv6 (::a.b.c.d)
+	ipv4Translated  = mustParseCIDRs("::ffff:0:0:0/96")[0] // IPv4-translated / SIIT (::ffff:0:a.b.c.d)
 )
 
 // IsBlockedIP reports whether ip belongs to a private, internal, or otherwise
 // non-public range that outbound requests to user-configured URLs must not reach.
-// IPv6 transition addresses (NAT64, 6to4, Teredo, IPv4-compatible) are
+// IPv6 transition addresses (NAT64, 6to4, Teredo, IPv4-compatible, SIIT) are
 // unwrapped and the embedded IPv4 address is checked as well.
 // A nil/invalid IP is treated as blocked.
 func IsBlockedIP(ip net.IP) bool {
@@ -121,6 +125,9 @@ func embeddedIPv4(ip net.IP) net.IP {
 	case ipv4Compatible.Contains(ip):
 		// ::a.b.c.d (:: and ::1 are already handled by blockedIPv6)
 		return net.IPv4(ip[12], ip[13], ip[14], ip[15])
+	case ipv4Translated.Contains(ip):
+		// ::ffff:0:a.b.c.d
+		return net.IPv4(ip[12], ip[13], ip[14], ip[15])
 	}
 	return nil
 }
@@ -156,22 +163,9 @@ func NewClient() *http.Client {
 		Control:   dialControl,
 	}
 
-	var transport *http.Transport
-	if t, ok := http.DefaultTransport.(*http.Transport); ok {
-		transport = t.Clone()
-	} else {
-		transport = &http.Transport{
-			ForceAttemptHTTP2:     true,
-			MaxIdleConns:          100,
-			IdleConnTimeout:       90 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
-		}
-	}
+	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.Proxy = nil
-	transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-		return dialer.DialContext(ctx, network, addr)
-	}
+	transport.DialContext = dialer.DialContext
 
 	return &http.Client{
 		Timeout:   30 * time.Second,
@@ -184,3 +178,15 @@ func NewClient() *http.Client {
 
 // Client is a shared guarded client, safe for concurrent use.
 var Client = NewClient()
+
+// ClientFor returns the HTTP client to use for an outbound request. When
+// blockPrivateNetworkTargets is true it returns the guarded Client, unless the
+// instance opted out via ALLOW_PRIVATE_NETWORK_TARGETS=true, in which case (and
+// when blockPrivateNetworkTargets is false) it returns http.DefaultClient.
+// This is the single place where the escape hatch is applied.
+func ClientFor(blockPrivateNetworkTargets bool) *http.Client {
+	if blockPrivateNetworkTargets && !env.Config.AllowPrivateNetworkTargets {
+		return Client
+	}
+	return http.DefaultClient
+}

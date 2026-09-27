@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/netguard"
 )
 
@@ -31,6 +32,9 @@ func TestIsBlockedIP(t *testing.T) {
 		{"172.16.0.1", true},
 		{"172.31.255.255", true},
 		{"192.168.1.1", true},
+		{"192.0.0.1", true},
+		{"192.0.0.192", true}, // Oracle Cloud metadata
+		{"192.0.0.255", true},
 		{"198.18.0.1", true},
 		{"198.19.255.255", true},
 		{"224.0.0.1", true},
@@ -49,6 +53,8 @@ func TestIsBlockedIP(t *testing.T) {
 		{"fc00::1", true},
 		{"fd12:3456::1", true},
 		{"fe80::1", true},
+		{"fec0::1", true},
+		{"feff:ffff::1", true},
 		{"ff02::1", true},
 		{"ff0e::1", true},
 		{"64:ff9b:1::1", true},
@@ -74,6 +80,12 @@ func TestIsBlockedIP(t *testing.T) {
 		{"::7f00:1", true},
 		{"::a9fe:a9fe", true},
 
+		// IPv4-translated / SIIT ::ffff:0:0:0/96
+		{"::ffff:0:a9fe:a9fe", true}, // 169.254.169.254
+		{"::ffff:0:7f00:1", true},    // 127.0.0.1
+		{"::ffff:0:c000:c0", true},   // 192.0.0.192
+		{"::ffff:0:808:808", false},  // 8.8.8.8
+
 		// Public
 		{"8.8.8.8", false},
 		{"1.1.1.1", false},
@@ -81,9 +93,11 @@ func TestIsBlockedIP(t *testing.T) {
 		{"100.63.255.255", false},
 		{"100.128.0.0", false},
 		{"198.20.0.1", false},
+		{"192.0.1.1", false},
+		{"192.0.2.1", false},
+		{"191.255.255.255", false},
 		{"2001:4860:4860::8888", false},
-		{"2606:4700:4700::1111", false},
-	}
+		{"2606:4700:4700::1111", false}}
 
 	for _, tc := range testCases {
 		ip := net.ParseIP(tc.ip)
@@ -125,4 +139,19 @@ func TestClient_RejectsBlockedTargetsAtDialTime(t *testing.T) {
 			t.Errorf("%s: expected ErrBlockedAddress, got %v", rawurl, err)
 		}
 	}
+}
+
+func TestClientFor(t *testing.T) {
+	RegisterT(t)
+
+	original := env.Config.AllowPrivateNetworkTargets
+	t.Cleanup(func() { env.Config.AllowPrivateNetworkTargets = original })
+
+	env.Config.AllowPrivateNetworkTargets = false
+	Expect(netguard.ClientFor(true) == netguard.Client).IsTrue()
+	Expect(netguard.ClientFor(false) == http.DefaultClient).IsTrue()
+
+	env.Config.AllowPrivateNetworkTargets = true
+	Expect(netguard.ClientFor(true) == http.DefaultClient).IsTrue()
+	Expect(netguard.ClientFor(false) == http.DefaultClient).IsTrue()
 }

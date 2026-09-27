@@ -336,17 +336,7 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 		RedirectURL: fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, q.Provider),
 	}).Exchange
 
-	// Custom providers have admin-configurable Token/Profile URLs, so enforce the
-	// SSRF guard at dial time as well (the WebhookURL preflight above can be
-	// bypassed via DNS rebinding). Built-in providers use fixed public URLs and
-	// keep the default client (which honours HTTP(S)_PROXY).
-	guard := isCustomProvider(config) && !env.Config.AllowPrivateNetworkTargets
-	exchangeCtx := ctx
-	if guard {
-		exchangeCtx = context.WithValue(ctx, oauth2.HTTPClient, netguard.Client)
-	}
-
-	oauthToken, err := exchange(exchangeCtx, q.Code)
+	oauthToken, err := exchange(tokenExchangeContext(ctx, q.Provider), q.Code)
 	if err != nil {
 		return err
 	}
@@ -367,14 +357,7 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 		return errors.New("Profile URL is not allowed: %s", strings.Join(msgs, "; "))
 	}
 
-	req := &cmd.HTTPRequest{
-		URL:    config.ProfileURL,
-		Method: "GET",
-		Headers: map[string]string{
-			"Authorization": "Bearer " + oauthToken.AccessToken,
-		},
-		BlockPrivateNetworkTargets: isCustomProvider(config),
-	}
+	req := newProfileRequest(q.Provider, config.ProfileURL, oauthToken.AccessToken)
 
 	if err := bus.Dispatch(ctx, req); err != nil {
 		return err
@@ -445,15 +428,37 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 	return nil
 }
 
-// isCustomProvider reports whether config is a tenant-defined (custom) OAuth
-// provider rather than one of the built-in system providers.
-func isCustomProvider(config *entity.OAuthConfig) bool {
-	for _, p := range systemProviders {
-		if p == config {
-			return false
-		}
+// isCustomOAuthProvider reports whether provider is a tenant-defined (custom)
+// OAuth provider. Custom provider keys are prefixed with "_".
+func isCustomOAuthProvider(provider string) bool {
+	return strings.HasPrefix(provider, "_")
+}
+
+// Custom providers have admin-configurable Token/Profile URLs, so the SSRF guard
+// is enforced at dial time for them (the validate.WebhookURL preflight can be
+// bypassed via DNS rebinding). Built-in providers use fixed public URLs and keep
+// the default client (which honours HTTP(S)_PROXY).
+
+// tokenExchangeContext returns the context to pass to oauth2's Exchange. For
+// custom providers it carries the guarded HTTP client (see netguard.ClientFor).
+func tokenExchangeContext(ctx context.Context, provider string) context.Context {
+	if !isCustomOAuthProvider(provider) {
+		return ctx
 	}
-	return true
+	return context.WithValue(ctx, oauth2.HTTPClient, netguard.ClientFor(true))
+}
+
+// newProfileRequest builds the request that fetches the user profile after the
+// token exchange. Requests for custom providers block private network targets.
+func newProfileRequest(provider, profileURL, accessToken string) *cmd.HTTPRequest {
+	return &cmd.HTTPRequest{
+		URL:    profileURL,
+		Method: "GET",
+		Headers: map[string]string{
+			"Authorization": "Bearer " + accessToken,
+		},
+		BlockPrivateNetworkTargets: isCustomOAuthProvider(provider),
+	}
 }
 
 func getConfig(ctx context.Context, provider string) (*entity.OAuthConfig, error) {
