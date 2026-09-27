@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"image/color"
 	"image/png"
@@ -155,15 +157,12 @@ func Favicon() web.HandlerFunc {
 
 		if bkey == "" {
 			// Bundled favicon is a trusted asset, no need to check the decode budget
-			bytes, err = validate.ApplyTrusted(c, bytes, opts...)
-		} else {
-			bytes, err = applyOrServeOriginal(c, bytes, opts...)
-		}
-		if err != nil {
-			return c.Failure(err)
+			result, err := validate.ApplyTrusted(c, bytes, opts...)
+			return serveProcessedImage(c, contentType, bytes, result, err)
 		}
 
-		return c.Image(contentType, bytes)
+		result, err := validate.SafeApply(c, bytes, opts...)
+		return serveProcessedImage(c, contentType, bytes, result, err)
 	}
 }
 
@@ -185,26 +184,38 @@ func ViewUploadedImage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		bytes := q.Result.Content
-		if size > 0 {
-			bytes, err = applyOrServeOriginal(c, bytes, imagic.Resize(size))
-			if err != nil {
-				return c.Failure(err)
-			}
+		if size == 0 {
+			return c.Image(q.Result.ContentType, q.Result.Content)
 		}
 
-		return c.Image(q.Result.ContentType, bytes)
+		// Returns the original content without decoding it if it's already within size
+		result, err := validate.SafeResize(c, q.Result.Content, size)
+		return serveProcessedImage(c, q.Result.ContentType, q.Result.Content, result, err)
 	}
 }
 
-// applyOrServeOriginal applies the operations to a stored (user uploaded) image.
-// Images that are too large to be safely decoded (e.g. decompression bombs stored before
-// uploads were validated) or in a format we don't process are returned unchanged
-// instead of being decoded.
-func applyOrServeOriginal(c *web.Context, content []byte, operations ...imagic.ImageOperation) ([]byte, error) {
-	result, err := validate.SafeApply(c, content, operations...)
-	if err == validate.ErrImageTooLarge || err == imagic.ErrNotSupported {
-		return content, nil
+// serveProcessedImage responds with the result of processing (resizing etc) an image.
+//   - If the request was cancelled, nothing is logged or written.
+//   - If too many images are being processed, responds with a (non cached) 503, rather
+//     than the original image, which would be cached by clients/CDNs as the resized one.
+//   - Otherwise, if the image couldn't be processed (too large to be safely decoded, a
+//     format we don't process, or corrupt pixel data after a valid header), the original
+//     image is served unchanged. These are properties of the image itself, so caching is fine.
+func serveProcessedImage(c *web.Context, contentType string, original, result []byte, err error) error {
+	if err == nil {
+		return c.Image(contentType, result)
 	}
-	return result, err
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return nil
+	}
+	if errors.Is(err, validate.ErrDecodeBusy) {
+		c.Response.Header().Set("Retry-After", "5")
+		return c.Blob(http.StatusServiceUnavailable, "text/plain; charset=utf-8", []byte(http.StatusText(http.StatusServiceUnavailable)))
+	}
+	if !errors.Is(err, validate.ErrImageTooLarge) && !errors.Is(err, imagic.ErrNotSupported) {
+		log.Debugf(c, "Failed to process image, serving original: @{Error}", dto.Props{
+			"Error": err.Error(),
+		})
+	}
+	return c.Image(contentType, original)
 }

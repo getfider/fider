@@ -16,19 +16,28 @@ var uniformPNGCache sync.Map
 // "decompression bomb" images in tests (e.g. 12000x12000 is only a few KB).
 // Results are cached, callers must not modify the returned slice.
 func UniformPNG(width, height int) []byte {
-	key := [2]int{width, height}
+	return UniformGrayPNG(width, height, 1, false)
+}
+
+// UniformGrayPNG is like UniformPNG, with the given bit depth (1, 2, 4, 8 or 16), and a
+// tRNS chunk (making one gray level transparent) when transparent is true.
+func UniformGrayPNG(width, height, bitDepth int, transparent bool) []byte {
+	key := [4]int{width, height, bitDepth, 0}
+	if transparent {
+		key[3] = 1
+	}
 	if cached, ok := uniformPNGCache.Load(key); ok {
 		return cached.([]byte)
 	}
-	content := uniformPNG(width, height)
+	content := uniformGrayPNG(width, height, bitDepth, transparent)
 	uniformPNGCache.Store(key, content)
 	return content
 }
 
-func uniformPNG(width, height int) []byte {
+func uniformGrayPNG(width, height, bitDepth int, transparent bool) []byte {
 	var idat bytes.Buffer
 	zw, _ := zlib.NewWriterLevel(&idat, zlib.BestCompression)
-	row := make([]byte, 1+(width+7)/8) // filter byte (0 = none) + packed 1-bit pixels
+	row := make([]byte, 1+(width*bitDepth+7)/8) // filter byte (0 = none) + packed pixels
 	for i := 0; i < height; i++ {
 		_, _ = zw.Write(row)
 	}
@@ -37,12 +46,15 @@ func uniformPNG(width, height int) []byte {
 	ihdr := make([]byte, 13)
 	binary.BigEndian.PutUint32(ihdr[0:4], uint32(width))
 	binary.BigEndian.PutUint32(ihdr[4:8], uint32(height))
-	ihdr[8] = 1 // bit depth
+	ihdr[8] = byte(bitDepth)
 	ihdr[9] = 0 // color type: grayscale
 
 	var out bytes.Buffer
 	out.Write([]byte{0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'})
 	writePNGChunk(&out, "IHDR", ihdr)
+	if transparent {
+		writePNGChunk(&out, "tRNS", []byte{0, 0}) // gray level 0 is transparent
+	}
 	writePNGChunk(&out, "IDAT", idat.Bytes())
 	writePNGChunk(&out, "IEND", nil)
 	return out.Bytes()

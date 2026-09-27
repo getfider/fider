@@ -84,39 +84,27 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 	}
 
 	if upload != nil && upload.Upload != nil && len(upload.Upload.Content) > 0 {
-		logo, err := imagic.Parse(upload.Upload.Content)
-		if err != nil {
-			if err == imagic.ErrNotSupported {
-				messages = append(messages, i18n.T(ctx, "validation.custom.unsupportedfileformat"))
-			} else {
-				return nil, err
-			}
-		} else {
-			// imagic.Parse only reads the image header, so width/height are known without
-			// decoding. Reject decompression bombs before anything decodes the pixel data.
-			if err := CheckDecodeBudget(upload.Upload.Content); err != nil {
-				if err == ErrImageTooLarge {
-					messages = append(messages, imageTooLargeMessage(ctx))
-					return messages, nil
-				}
-				if err == imagic.ErrNotSupported {
-					messages = append(messages, i18n.T(ctx, "validation.custom.unsupportedfileformat"))
-					return messages, nil
-				}
-				return nil, err
-			}
-
-			if logo.Width < opts.MinWidth || logo.Height < opts.MinHeight {
+		// Only reads the image header, so decompression bombs are rejected before anything
+		// decodes the pixel data. Budgeted for one operation: the resize below.
+		header, err := CheckDecodeBudget(upload.Upload.Content, 1)
+		switch err {
+		case imagic.ErrNotSupported:
+			messages = append(messages, i18n.T(ctx, "validation.custom.unsupportedfileformat"))
+		case ErrImageTooLarge:
+			messages = append(messages, i18n.T(ctx, "validation.custom.maximagepixels"))
+			return messages, nil
+		case nil:
+			if header.Width < opts.MinWidth || header.Height < opts.MinHeight {
 				messages = append(messages, i18n.T(ctx, "validation.custom.minimagedimensions",
 					i18n.Params{"width": opts.MinWidth, "height": opts.MinHeight},
 				))
 			}
 
-			if opts.ExactRatio && logo.Width != logo.Height {
+			if opts.ExactRatio && header.Width != header.Height {
 				messages = append(messages, i18n.T(ctx, "validation.custom.imagesquareratio"))
 			}
 
-			if logo.Size > (opts.MaxKilobytes * 1024) {
+			if len(upload.Upload.Content) > (opts.MaxKilobytes * 1024) {
 				messages = append(messages, i18n.T(ctx, "validation.custom.maximagesize",
 					i18n.Params{"kilobytes": opts.MaxKilobytes},
 				))
@@ -127,10 +115,11 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 				return messages, nil
 			}
 
-			if logo.Height > MaxDimensionSize && logo.Width > MaxDimensionSize {
-				newImageBytes, err := SafeApply(ctx, upload.Upload.Content, imagic.Resize(MaxDimensionSize))
-				if err == ErrImageTooLarge {
-					messages = append(messages, imageTooLargeMessage(ctx))
+			if header.Height > MaxDimensionSize && header.Width > MaxDimensionSize {
+				// The decode budget was already checked above
+				newImageBytes, err := decodeWithinBudget(ctx, upload.Upload.Content, imagic.Resize(MaxDimensionSize))
+				if err == ErrDecodeBusy {
+					messages = append(messages, i18n.T(ctx, "validation.custom.imageprocessingbusy"))
 					return messages, nil
 				}
 				if err != nil {
@@ -138,12 +127,10 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 				}
 				upload.Upload.Content = newImageBytes
 			}
+		default:
+			return nil, err
 		}
 	}
 
 	return messages, nil
-}
-
-func imageTooLargeMessage(ctx context.Context) string {
-	return i18n.T(ctx, "validation.custom.maximagepixels")
 }

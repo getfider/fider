@@ -189,6 +189,43 @@ func TestViewUploadedImage_UnsupportedFormat_ServedAsIs(t *testing.T) {
 	Expect(response.Body.Bytes()).Equals(content)
 }
 
+func TestViewUploadedImage_CorruptPixelData_ServedAsIs(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	// Valid header, but no image data
+	content := mock.GIFHeader(100, 100)
+	mockBlob(content, "image/gif")
+
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=50").
+		OnTenant(mock.DemoTenant).
+		AddParam("bkey", "attachments/image.gif").
+		Execute(handlers.ViewUploadedImage())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.Bytes()).Equals(content)
+}
+
+func TestViewUploadedImage_AlreadyWithinSize_ServedAsIs(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	content := mock.UniformPNG(800, 600)
+	mockBlob(content, "image/png")
+
+	for _, size := range []string{"800", "1000", "2000"} {
+		server := mock.NewServer()
+		code, response := server.
+			WithURL("https://demo.test.fider.io/?size="+size).
+			OnTenant(mock.DemoTenant).
+			AddParam("bkey", "attachments/image.png").
+			Execute(handlers.ViewUploadedImage())
+
+		Expect(code).Equals(http.StatusOK)
+		Expect(response.Body.Bytes()).Equals(content)
+	}
+}
+
 func TestFavicon_Bundled(t *testing.T) {
 	RegisterT(t)
 	bus.Init()
