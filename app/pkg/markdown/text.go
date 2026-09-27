@@ -38,7 +38,11 @@ var strictPolicy = bluemonday.StrictPolicy()
 // The regular expression finds duplicate newlines.
 var regexNewlines = regexp.MustCompile(`\n+`)
 
-// PlainText parses given markdown input and return only the text
+// PlainText parses given markdown input and return only the text.
+//
+// Unlike Full, this needs no destination gating or scheme allow list: strictPolicy strips
+// every tag and attribute, so neither an unsafe link destination nor markup forged by the
+// renderer survives.
 func PlainText(input string) string {
 	// Apparently a parser cannot be reused.
 	// https://github.com/gomarkdown/markdown/issues/229

@@ -119,7 +119,7 @@ func generatePostContent(c *web.Context, post *entity.Post, options *generatorOp
 		})
 	}
 
-	return string(markdown.Full(title+post.Description+footer, true))
+	return string(markdown.Full(c, title+post.Description+footer, true))
 }
 
 func appendTags(c *web.Context, categories []*Category, post *entity.Post) ([]*Category, error) {
@@ -158,7 +158,7 @@ func GlobalFeed() web.HandlerFunc {
 
 		feed := &AtomFeed{
 			Title:    c.Tenant().Name,
-			Subtitle: Content{Body: string(markdown.Full(c.Tenant().WelcomeMessage, true)), Type: "html"},
+			Subtitle: Content{Body: string(markdown.Full(c, c.Tenant().WelcomeMessage, true)), Type: "html"},
 			Id:       web.BaseURL(c),
 			Link: []Link{
 				{Href: fmt.Sprintf("%s/feed/global.atom", web.BaseURL(c)), Type: "application/atom+xml", Rel: "self"},
@@ -256,7 +256,7 @@ func CommentFeed() web.HandlerFunc {
 
 		feed := &AtomFeed{
 			Title:    post.Title,
-			Subtitle: Content{Body: string(markdown.Full(post.Description, true)), Type: "html"},
+			Subtitle: Content{Body: string(markdown.Full(c, post.Description, true)), Type: "html"},
 			Author:   &Author{Name: authorName},
 			Id:       fmt.Sprintf("%s/posts/%d/#comments", web.BaseURL(c), post.Number),
 			Link: []Link{
@@ -298,7 +298,7 @@ func CommentFeed() web.HandlerFunc {
 				Link: []Link{
 					{Href: fmt.Sprintf("%s/posts/%d", web.BaseURL(c), post.Number), Type: "text/html", Rel: "alternate"},
 				},
-				Content:    &Content{Type: "html", Body: string(markdown.Full(post.Response.Text, true))},
+				Content:    &Content{Type: "html", Body: string(markdown.Full(c, post.Response.Text, true))},
 				Categories: []*Category{{Term: i18n.T(c, "enum.poststatus."+post.Status.Name())}},
 			})
 		}
@@ -324,7 +324,7 @@ func CommentFeed() web.HandlerFunc {
 					}
 					return formatTime(*comment.EditedAt)
 				}(),
-				Content: &Content{Type: "html", Body: string(markdown.Full(comment.Content, true))},
+				Content: &Content{Type: "html", Body: string(markdown.Full(c, comment.Content, true))},
 				Id:      fmt.Sprintf("%s/posts/%d/#comment-%d", web.BaseURL(c), post.Number, comment.ID),
 				Link:    []Link{{Href: fmt.Sprintf("%s/posts/%d/#comment-%d", web.BaseURL(c), post.Number, comment.ID), Type: "text/html", Rel: "alternate"}},
 			})

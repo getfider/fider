@@ -1,6 +1,8 @@
 package dbEntities
 
 import (
+	"database/sql"
+
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -28,7 +30,8 @@ type Tenant struct {
 	IsModerationEnabled   bool   `db:"is_moderation_enabled"`
 	IsPro                 bool         `db:"is_pro"`
 	HasPaddleSubscription bool         `db:"has_paddle_subscription"`
-	ScheduledDeletionAt   dbx.NullTime `db:"scheduled_deletion_at"`
+	ScheduledDeletionAt   dbx.NullTime   `db:"scheduled_deletion_at"`
+	DeletionCancelKey     sql.NullString `db:"deletion_cancel_key"`
 }
 
 func (t *Tenant) ToModel() *entity.Tenant {
@@ -67,6 +70,10 @@ func (t *Tenant) ToModel() *entity.Tenant {
 
 	if t.ScheduledDeletionAt.Valid {
 		tenant.ScheduledDeletionAt = &t.ScheduledDeletionAt.Time
+	}
+
+	if t.DeletionCancelKey.Valid {
+		tenant.DeletionCancelKey = t.DeletionCancelKey.String
 	}
 
 	return tenant
