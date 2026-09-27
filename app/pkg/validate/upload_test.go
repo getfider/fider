@@ -3,7 +3,10 @@ package validate_test
 import (
 	"bytes"
 	"context"
+	"encoding/binary"
 	"image"
+	"image/color"
+	"image/jpeg"
 	"math"
 	"os"
 	"runtime"
@@ -14,6 +17,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/goenning/imagic"
 )
 
 func TestValidateImageUpload(t *testing.T) {
@@ -200,6 +204,21 @@ func imageDimensions(t *testing.T, content []byte) (int, int) {
 	return cfg.Width, cfg.Height
 }
 
+// jpegHeaderWithDimensions returns a JPEG whose header (SOF) claims the given dimensions.
+// Only the header is valid, which is all image.DecodeConfig reads.
+func jpegHeaderWithDimensions(t *testing.T, width, height int) []byte {
+	var buf bytes.Buffer
+	err := jpeg.Encode(&buf, image.NewYCbCr(image.Rect(0, 0, 16, 16), image.YCbCrSubsampleRatio444), nil)
+	Expect(err).IsNil()
+	content := buf.Bytes()
+	sof := bytes.Index(content, []byte{0xFF, 0xC0})
+	Expect(sof > 0).IsTrue()
+	// FF C0, length (2), precision (1), height (2), width (2)
+	binary.BigEndian.PutUint16(content[sof+5:], uint16(height))
+	binary.BigEndian.PutUint16(content[sof+7:], uint16(width))
+	return content
+}
+
 func TestValidateImageUpload_DecompressionBomb(t *testing.T) {
 	RegisterT(t)
 
@@ -207,12 +226,14 @@ func TestValidateImageUpload_DecompressionBomb(t *testing.T) {
 		name    string
 		content []byte
 	}{
-		// ~12000x12000 = 144MP, decodes to ~576MB of NRGBA but is only a few KB compressed
+		// 12000x12000 = 144MP, decodes to hundreds of MB but is only a few KB compressed
 		{"png 12000x12000", mock.UniformPNG(12000, 12000)},
 		// 40000x40000 = 1.6 gigapixels
 		{"gif 40000x40000", mock.GIFHeader(40000, 40000)},
-		// Only one dimension is huge, but the pixel count is still way over the budget
-		{"png 60000x1000", mock.UniformPNG(60000, 1000)},
+		// Small pixel count, but extreme aspect ratio
+		{"png 100000x1", mock.UniformPNG(100000, 1)},
+		// 4000x4000 colour JPEG is over the budget, as it might be progressive
+		{"jpeg 4000x4000", jpegHeaderWithDimensions(t, 4000, 4000)},
 	}
 
 	for _, testCase := range testCases {
@@ -235,7 +256,7 @@ func TestValidateImageUpload_DecompressionBomb(t *testing.T) {
 
 		Expect(err).IsNil()
 		Expect(messages).HasLen(1)
-		Expect(messages[0]).Equals("The image dimensions are too large. The maximum is 40 megapixels.")
+		Expect(messages[0]).Equals("The image dimensions are too large. Please upload an image with a lower resolution.")
 		Expect(upload.Upload.Content).Equals(original)
 
 		// Must not have decoded the image (which would allocate hundreds of MB)
@@ -247,7 +268,7 @@ func TestValidateImageUpload_DecompressionBomb(t *testing.T) {
 func TestValidateImageUpload_TooManyBytes_DoesNotResize(t *testing.T) {
 	RegisterT(t)
 
-	content := mock.UniformPNG(2000, 1000)
+	content := mock.UniformPNG(3000, 2000)
 	upload := &dto.ImageUpload{
 		Upload: &dto.ImageUploadData{
 			Content: content,
@@ -261,8 +282,8 @@ func TestValidateImageUpload_TooManyBytes_DoesNotResize(t *testing.T) {
 	Expect(messages).HasLen(1)
 
 	width, height := imageDimensions(t, upload.Upload.Content)
-	Expect(width).Equals(2000)
-	Expect(height).Equals(1000)
+	Expect(width).Equals(3000)
+	Expect(height).Equals(2000)
 }
 
 func TestValidateImageUpload_Resize(t *testing.T) {
@@ -274,12 +295,13 @@ func TestValidateImageUpload_Resize(t *testing.T) {
 		expectedWidth  int
 		expectedHeight int
 	}{
-		{2000, 1000, 1500, 750},
-		{1000, 2000, 750, 1500},
-		// Only one dimension is over the limit
-		{3000, 500, 1500, 250},
-		{500, 3000, 250, 1500},
-		// Within limits, not resized (and never upscaled)
+		// Both dimensions over the limit: resized, keeping the aspect ratio
+		{3000, 2000, 1500, 1000},
+		{2000, 3000, 1000, 1500},
+		// Only one dimension over the limit: not resized (keeps GIF animations / JPEG EXIF)
+		{2000, 1000, 2000, 1000},
+		{3000, 500, 3000, 500},
+		// Within limits, not resized
 		{1500, 1500, 1500, 1500},
 		{800, 600, 800, 600},
 	}
@@ -303,41 +325,78 @@ func TestValidateImageUpload_Resize(t *testing.T) {
 	}
 }
 
-func TestIsWithinPixelBudget(t *testing.T) {
+func TestEstimateDecodeBytes(t *testing.T) {
 	RegisterT(t)
 
-	Expect(validate.IsWithinPixelBudget(1, 1)).IsTrue()
-	Expect(validate.IsWithinPixelBudget(8000, 5000)).IsTrue()
-	Expect(validate.IsWithinPixelBudget(40_000_000, 1)).IsTrue()
-	Expect(validate.IsWithinPixelBudget(8000, 5001)).IsFalse()
-	Expect(validate.IsWithinPixelBudget(12000, 12000)).IsFalse()
-	Expect(validate.IsWithinPixelBudget(0, 100)).IsFalse()
-	Expect(validate.IsWithinPixelBudget(100, 0)).IsFalse()
-	Expect(validate.IsWithinPixelBudget(-100, -100)).IsFalse()
-	Expect(validate.IsWithinPixelBudget(math.MaxInt32, math.MaxInt32)).IsFalse()
-	Expect(validate.IsWithinPixelBudget(math.MaxInt, math.MaxInt)).IsFalse()
+	// Invalid or over the per-side cap
+	Expect(validate.EstimateDecodeBytes(0, 100, "png", color.GrayModel)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(100, 0, "png", color.GrayModel)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(-100, -100, "png", color.GrayModel)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(validate.MaxImageSide+1, 1, "png", color.GrayModel)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(1, validate.MaxImageSide+1, "png", color.GrayModel)).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(40_000_000, 1, "gif", color.Palette{})).Equals(int64(-1))
+	Expect(validate.EstimateDecodeBytes(math.MaxInt, math.MaxInt, "png", color.GrayModel)).Equals(int64(-1))
+
+	// Bytes per pixel include 4 bytes for a full-size RGBA intermediate
+	const mp = 1000 * 1000
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "gif", color.Palette{})).Equals(int64(5 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.Palette{})).Equals(int64(6 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.GrayModel)).Equals(int64(6 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.Gray16Model)).Equals(int64(8 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.NRGBAModel)).Equals(int64(12 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "png", color.NRGBA64Model)).Equals(int64(20 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.GrayModel)).Equals(int64(9 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.YCbCrModel)).Equals(int64(19 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.RGBAModel)).Equals(int64(23 * mp))
+	Expect(validate.EstimateDecodeBytes(1000, 1000, "jpeg", color.CMYKModel)).Equals(int64(24 * mp))
+
+	// Worst case at the per-side cap doesn't overflow
+	Expect(validate.EstimateDecodeBytes(validate.MaxImageSide, validate.MaxImageSide, "jpeg", color.CMYKModel) > 0).IsTrue()
 }
 
-func TestImageWithinPixelBudget(t *testing.T) {
+func TestCheckDecodeBudget(t *testing.T) {
 	RegisterT(t)
 
-	ok, err := validate.ImageWithinPixelBudget(mock.UniformPNG(2000, 1000))
-	Expect(err).IsNil()
-	Expect(ok).IsTrue()
+	Expect(validate.CheckDecodeBudget(mock.UniformPNG(2000, 1000))).IsNil()
+	// 36MP * 6 bytes = 216MB
+	Expect(validate.CheckDecodeBudget(mock.UniformPNG(6000, 6000))).IsNil()
+	// 49MP * 6 bytes = 294MB
+	Expect(validate.CheckDecodeBudget(mock.UniformPNG(7000, 7000))).Equals(validate.ErrImageTooLarge)
+	Expect(validate.CheckDecodeBudget(mock.UniformPNG(12000, 12000))).Equals(validate.ErrImageTooLarge)
+	Expect(validate.CheckDecodeBudget(mock.UniformPNG(100000, 1))).Equals(validate.ErrImageTooLarge)
+	Expect(validate.CheckDecodeBudget(mock.GIFHeader(40000, 40000))).Equals(validate.ErrImageTooLarge)
 
-	ok, err = validate.ImageWithinPixelBudget(mock.UniformPNG(12000, 12000))
-	Expect(err).IsNil()
-	Expect(ok).IsFalse()
-
-	ok, err = validate.ImageWithinPixelBudget(mock.GIFHeader(40000, 40000))
-	Expect(err).IsNil()
-	Expect(ok).IsFalse()
+	// 12MP phone photo: 12.2MP * 19 bytes = 232MB
+	Expect(validate.CheckDecodeBudget(jpegHeaderWithDimensions(t, 4032, 3024))).IsNil()
+	// 16MP: 304MB
+	Expect(validate.CheckDecodeBudget(jpegHeaderWithDimensions(t, 4000, 4000))).Equals(validate.ErrImageTooLarge)
 
 	img, _ := os.ReadFile(env.Path("/app/pkg/web/testdata/logo2.jpg"))
-	ok, err = validate.ImageWithinPixelBudget(img)
-	Expect(err).IsNil()
-	Expect(ok).IsTrue()
+	Expect(validate.CheckDecodeBudget(img)).IsNil()
 
-	_, err = validate.ImageWithinPixelBudget([]byte("not an image"))
-	Expect(err).IsNotNil()
+	Expect(validate.CheckDecodeBudget([]byte("not an image"))).Equals(imagic.ErrNotSupported)
+	favicon, _ := os.ReadFile(env.Path("/app/pkg/web/testdata/favicon.ico"))
+	Expect(validate.CheckDecodeBudget(favicon)).Equals(imagic.ErrNotSupported)
+}
+
+func TestSafeApply(t *testing.T) {
+	RegisterT(t)
+
+	resized, err := validate.SafeApply(context.Background(), mock.UniformPNG(2000, 1000), imagic.Resize(500))
+	Expect(err).IsNil()
+	width, height := imageDimensions(t, resized)
+	Expect(width).Equals(500)
+	Expect(height).Equals(250)
+
+	var before, after runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&before)
+	result, err := validate.SafeApply(context.Background(), mock.UniformPNG(12000, 12000), imagic.Resize(500))
+	runtime.ReadMemStats(&after)
+	Expect(err).Equals(validate.ErrImageTooLarge)
+	Expect(result).IsNil()
+	Expect(after.TotalAlloc-before.TotalAlloc < 10*1024*1024).IsTrue()
+
+	_, err = validate.SafeApply(context.Background(), []byte("not an image"), imagic.Resize(500))
+	Expect(err).Equals(imagic.ErrNotSupported)
 }

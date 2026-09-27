@@ -94,11 +94,16 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 		} else {
 			// imagic.Parse only reads the image header, so width/height are known without
 			// decoding. Reject decompression bombs before anything decodes the pixel data.
-			if !IsWithinPixelBudget(logo.Width, logo.Height) {
-				messages = append(messages, i18n.T(ctx, "validation.custom.maximagepixels",
-					i18n.Params{"megapixels": int(MaxImagePixels / 1_000_000)},
-				))
-				return messages, nil
+			if err := CheckDecodeBudget(upload.Upload.Content); err != nil {
+				if err == ErrImageTooLarge {
+					messages = append(messages, imageTooLargeMessage(ctx))
+					return messages, nil
+				}
+				if err == imagic.ErrNotSupported {
+					messages = append(messages, i18n.T(ctx, "validation.custom.unsupportedfileformat"))
+					return messages, nil
+				}
+				return nil, err
 			}
 
 			if logo.Width < opts.MinWidth || logo.Height < opts.MinHeight {
@@ -122,10 +127,12 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 				return messages, nil
 			}
 
-			// Resize if either dimension is too large. imagic.Resize keeps the aspect ratio
-			// (scales the longest side down to MaxDimensionSize) and never upscales.
-			if logo.Height > MaxDimensionSize || logo.Width > MaxDimensionSize {
-				newImageBytes, err := imagic.Apply(upload.Upload.Content, imagic.Resize(MaxDimensionSize))
+			if logo.Height > MaxDimensionSize && logo.Width > MaxDimensionSize {
+				newImageBytes, err := SafeApply(ctx, upload.Upload.Content, imagic.Resize(MaxDimensionSize))
+				if err == ErrImageTooLarge {
+					messages = append(messages, imageTooLargeMessage(ctx))
+					return messages, nil
+				}
 				if err != nil {
 					return nil, err
 				}
@@ -135,4 +142,8 @@ func ImageUpload(ctx context.Context, upload *dto.ImageUpload, opts ImageUploadO
 	}
 
 	return messages, nil
+}
+
+func imageTooLargeMessage(ctx context.Context) string {
+	return i18n.T(ctx, "validation.custom.maximagepixels")
 }

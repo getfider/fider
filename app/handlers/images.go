@@ -153,15 +153,12 @@ func Favicon() web.HandlerFunc {
 			opts = append(opts, imagic.ChangeBackground(color.White))
 		}
 
-		safe, err := isSafeToDecode(c, bkey, bytes)
-		if err != nil {
-			return c.Failure(err)
+		if bkey == "" {
+			// Bundled favicon is a trusted asset, no need to check the decode budget
+			bytes, err = validate.ApplyTrusted(c, bytes, opts...)
+		} else {
+			bytes, err = applyOrServeOriginal(c, bytes, opts...)
 		}
-		if !safe {
-			return c.Image(contentType, bytes)
-		}
-
-		bytes, err = imagic.Apply(bytes, opts...)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -190,15 +187,9 @@ func ViewUploadedImage() web.HandlerFunc {
 
 		bytes := q.Result.Content
 		if size > 0 {
-			safe, err := isSafeToDecode(c, bkey, bytes)
+			bytes, err = applyOrServeOriginal(c, bytes, imagic.Resize(size))
 			if err != nil {
 				return c.Failure(err)
-			}
-			if safe {
-				bytes, err = imagic.Apply(bytes, imagic.Resize(size))
-				if err != nil {
-					return c.Failure(err)
-				}
 			}
 		}
 
@@ -206,19 +197,14 @@ func ViewUploadedImage() web.HandlerFunc {
 	}
 }
 
-// isSafeToDecode checks the image header (without decoding pixel data) to make sure
-// the image is within the pixel budget before it is fully decoded for resizing.
-// Images over the budget (e.g. decompression bombs stored before uploads were validated)
-// are served as-is rather than decoded, which would otherwise exhaust server memory.
-func isSafeToDecode(c *web.Context, bkey string, content []byte) (bool, error) {
-	ok, err := validate.ImageWithinPixelBudget(content)
-	if err != nil {
-		return false, err
+// applyOrServeOriginal applies the operations to a stored (user uploaded) image.
+// Images that are too large to be safely decoded (e.g. decompression bombs stored before
+// uploads were validated) or in a format we don't process are returned unchanged
+// instead of being decoded.
+func applyOrServeOriginal(c *web.Context, content []byte, operations ...imagic.ImageOperation) ([]byte, error) {
+	result, err := validate.SafeApply(c, content, operations...)
+	if err == validate.ErrImageTooLarge || err == imagic.ErrNotSupported {
+		return content, nil
 	}
-	if !ok {
-		log.Warnf(c, "Image @{BlobKey} exceeds the pixel budget, serving without resizing", dto.Props{
-			"BlobKey": bkey,
-		})
-	}
-	return ok, nil
+	return result, err
 }

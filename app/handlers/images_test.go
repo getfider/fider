@@ -171,6 +171,40 @@ func TestFavicon_DecompressionBomb_ServedWithoutDecoding(t *testing.T) {
 	Expect(after.TotalAlloc-before.TotalAlloc < 10*1024*1024).IsTrue()
 }
 
+func TestViewUploadedImage_UnsupportedFormat_ServedAsIs(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	// e.g. a WebP image, which imagic doesn't support
+	content := []byte("RIFF\x00\x00\x00\x00WEBPVP8 ")
+	mockBlob(content, "image/webp")
+
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=500").
+		OnTenant(mock.DemoTenant).
+		AddParam("bkey", "attachments/image.webp").
+		Execute(handlers.ViewUploadedImage())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.Bytes()).Equals(content)
+}
+
+func TestFavicon_Bundled(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=64").
+		OnTenant(mock.DemoTenant).
+		Execute(handlers.Favicon())
+
+	Expect(code).Equals(http.StatusOK)
+	width, height := responseDimensions(response.Body.Bytes())
+	Expect(width).Equals(64)
+	Expect(height).Equals(64)
+}
+
 func TestFavicon_Resize(t *testing.T) {
 	RegisterT(t)
 	bus.Init()
