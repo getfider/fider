@@ -358,6 +358,7 @@ func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie 
 		Path:     "/",
 		Expires:  expires,
 		Secure:   c.Request.IsSecure,
+		SameSite: http.SameSiteLaxMode,
 	}
 	http.SetCookie(&c.Response, cookie)
 	return cookie
@@ -372,6 +373,7 @@ func (c *Context) RemoveCookie(name string) {
 		MaxAge:   -1,
 		Expires:  time.Now().Add(-100 * time.Hour),
 		Secure:   c.Request.IsSecure,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 
