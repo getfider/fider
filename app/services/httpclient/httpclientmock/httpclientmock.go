@@ -38,9 +38,16 @@ func (s Service) Enabled() bool {
 	return env.IsTest()
 }
 
-func (s Service) Init() {
+// Reset clears the recorded request history. It runs on every Init (i.e. each
+// bus.Init that includes this service); tests that assert on the history also
+// call it directly so nothing can leak in from earlier tests.
+func Reset() {
 	RequestsHistory = make([]*http.Request, 0)
 	CommandsHistory = make([]*cmd.HTTPRequest, 0)
+}
+
+func (s Service) Init() {
+	Reset()
 	bus.AddHandler(requestHandler)
 }
 

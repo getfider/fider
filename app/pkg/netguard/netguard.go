@@ -40,22 +40,36 @@ func mustParseCIDRs(cidrs ...string) []*net.IPNet {
 }
 
 var blockedIPv4 = mustParseCIDRs(
-	"0.0.0.0/8",      // "this" network
-	"10.0.0.0/8",     // private
-	"100.64.0.0/10",  // carrier-grade NAT
-	"127.0.0.0/8",    // loopback
-	"169.254.0.0/16", // link-local (incl. cloud metadata 169.254.169.254)
-	"172.16.0.0/12",  // private
-	"192.0.0.0/24",   // IETF protocol assignments (incl. Oracle Cloud metadata 192.0.0.192)
-	"192.168.0.0/16", // private
-	"198.18.0.0/15",  // benchmarking
-	"224.0.0.0/4",    // multicast
-	"240.0.0.0/4",    // reserved, incl. broadcast 255.255.255.255
+	"0.0.0.0/8",        // "this" network
+	"10.0.0.0/8",       // private
+	"100.64.0.0/10",    // carrier-grade NAT
+	"127.0.0.0/8",      // loopback
+	"169.254.0.0/16",   // link-local (incl. cloud metadata 169.254.169.254)
+	"168.63.129.16/32", // Azure WireServer / host agent
+	"172.16.0.0/12",    // private
+	"192.0.0.0/24",     // IETF protocol assignments (incl. Oracle Cloud metadata 192.0.0.192); see globallyReachableIPv4
+	"192.168.0.0/16",   // private
+	"198.18.0.0/15",    // benchmarking
+	"224.0.0.0/4",      // multicast
+	"240.0.0.0/4",      // reserved, incl. broadcast 255.255.255.255
+)
+
+// globallyReachableIPv4 are exceptions inside blockedIPv4. Per the IANA IPv4
+// special-purpose address registry, 192.0.0.0/24 is not globally reachable,
+// except 192.0.0.9 (PCP anycast, RFC 7723) and 192.0.0.10 (TURN anycast,
+// RFC 8155). The non-reachable entries (192.0.0.0/29 service continuity,
+// 192.0.0.8 dummy, 192.0.0.170-171 NAT64/DNS64 discovery) and the unassigned
+// remainder, including Oracle Cloud metadata 192.0.0.192, stay blocked.
+var globallyReachableIPv4 = mustParseCIDRs(
+	"192.0.0.9/32",
+	"192.0.0.10/32",
 )
 
 var blockedIPv6 = mustParseCIDRs(
 	"::/128",         // unspecified
 	"::1/128",        // loopback
+	"100::/64",       // discard-only
+	"2001:db8::/32",  // documentation
 	"fc00::/7",       // unique local
 	"fe80::/10",      // link-local
 	"fec0::/10",      // site-local (deprecated)
@@ -83,6 +97,11 @@ func IsBlockedIP(ip net.IP) bool {
 
 	// Covers plain IPv4 and IPv4-mapped IPv6 (::ffff:a.b.c.d).
 	if v4 := ip.To4(); v4 != nil {
+		for _, n := range globallyReachableIPv4 {
+			if n.Contains(v4) {
+				return false
+			}
+		}
 		for _, n := range blockedIPv4 {
 			if n.Contains(v4) {
 				return true

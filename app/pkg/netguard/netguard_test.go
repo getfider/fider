@@ -32,9 +32,17 @@ func TestIsBlockedIP(t *testing.T) {
 		{"172.16.0.1", true},
 		{"172.31.255.255", true},
 		{"192.168.1.1", true},
+		{"168.63.129.16", true}, // Azure WireServer
+		{"192.0.0.0", true},
 		{"192.0.0.1", true},
+		{"192.0.0.7", true},
+		{"192.0.0.8", true},   // IPv4 dummy address
+		{"192.0.0.11", true},  // IETF protocol assignment, not globally reachable
+		{"192.0.0.170", true}, // NAT64/DNS64 discovery
+		{"192.0.0.171", true}, // NAT64/DNS64 discovery
 		{"192.0.0.192", true}, // Oracle Cloud metadata
 		{"192.0.0.255", true},
+		{"::ffff:192.0.0.192", true},
 		{"198.18.0.1", true},
 		{"198.19.255.255", true},
 		{"224.0.0.1", true},
@@ -58,6 +66,10 @@ func TestIsBlockedIP(t *testing.T) {
 		{"ff02::1", true},
 		{"ff0e::1", true},
 		{"64:ff9b:1::1", true},
+		{"100::1", true},                   // discard-only
+		{"100::ffff:ffff:ffff:ffff", true}, // discard-only
+		{"2001:db8::1", true},              // documentation
+		{"2001:db8:ffff::1", true},         // documentation
 
 		// NAT64 64:ff9b::/96
 		{"64:ff9b::a9fe:a9fe", true},
@@ -93,6 +105,13 @@ func TestIsBlockedIP(t *testing.T) {
 		{"100.63.255.255", false},
 		{"100.128.0.0", false},
 		{"198.20.0.1", false},
+		{"192.0.0.9", false},  // PCP anycast (globally reachable)
+		{"192.0.0.10", false}, // TURN anycast (globally reachable)
+		{"::ffff:192.0.0.9", false},
+		{"168.63.129.15", false},
+		{"168.63.129.17", false},
+		{"100:0:0:1::1", false}, // just outside 100::/64
+		{"2001:db9::1", false},  // just outside 2001:db8::/32
 		{"192.0.1.1", false},
 		{"192.0.2.1", false},
 		{"191.255.255.255", false},

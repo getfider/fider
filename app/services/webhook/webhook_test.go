@@ -20,6 +20,7 @@ import (
 // DNS rebinding).
 func TestTriggerWebhooks_BlocksPrivateNetworkTargets(t *testing.T) {
 	RegisterT(t)
+	httpclientmock.Reset()
 	bus.Init(webhook.Service{}, httpclientmock.Service{})
 
 	bus.AddHandler(func(ctx context.Context, q *query.ListActiveWebhooksByType) error {
