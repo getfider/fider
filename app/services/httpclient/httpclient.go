@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/netguard"
 )
 
 func init() {
@@ -53,7 +54,7 @@ func requestHandler(ctx context.Context, c *cmd.HTTPRequest) error {
 		req.SetBasicAuth(c.BasicAuth.User, c.BasicAuth.Password)
 	}
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := netguard.ClientFor(c.BlockPrivateNetworkTargets).Do(req)
 	if err != nil {
 		return err
 	}

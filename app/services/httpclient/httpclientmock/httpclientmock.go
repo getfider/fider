@@ -30,12 +30,24 @@ func (s Service) Category() string {
 
 var RequestsHistory = make([]*http.Request, 0)
 
+// CommandsHistory records every dispatched cmd.HTTPRequest, so tests can assert
+// on fields that are not part of the http.Request (e.g. BlockPrivateNetworkTargets).
+var CommandsHistory = make([]*cmd.HTTPRequest, 0)
+
 func (s Service) Enabled() bool {
 	return env.IsTest()
 }
 
-func (s Service) Init() {
+// Reset clears the recorded request history. It runs on every Init (i.e. each
+// bus.Init that includes this service); tests that assert on the history also
+// call it directly so nothing can leak in from earlier tests.
+func Reset() {
 	RequestsHistory = make([]*http.Request, 0)
+	CommandsHistory = make([]*cmd.HTTPRequest, 0)
+}
+
+func (s Service) Init() {
+	Reset()
 	bus.AddHandler(requestHandler)
 }
 
@@ -53,6 +65,7 @@ func requestHandler(ctx context.Context, c *cmd.HTTPRequest) error {
 	}
 
 	RequestsHistory = append(RequestsHistory, req)
+	CommandsHistory = append(CommandsHistory, c)
 
 	c.ResponseStatusCode = http.StatusOK
 	c.ResponseBody = []byte("")
