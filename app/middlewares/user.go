@@ -87,10 +87,7 @@ func User() web.MiddlewareFunc {
 					return c.Redirect("/signin")
 				}
 			} else if c.Request.IsAPI() {
-				authHeader := c.Request.GetHeader("Authorization")
-				parts := strings.Split(authHeader, "Bearer")
-				if len(parts) == 2 {
-					apiKey := strings.TrimSpace(parts[1])
+				if apiKey, ok := web.ParseBearerToken(c.Request.GetHeader("Authorization")); ok {
 					getUserByAPIKey := &query.GetUserByAPIKey{APIKey: apiKey}
 					err = bus.Dispatch(c, getUserByAPIKey)
 					if err != nil {

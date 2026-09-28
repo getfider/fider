@@ -98,6 +98,9 @@ func triggerWebhook(ctx context.Context, webhook *entity.Webhook, props webhook.
 		Method:    webhook.HttpMethod,
 		Headers:   webhook.HttpHeaders,
 		BasicAuth: nil,
+		// Enforce the SSRF guard at dial time too; the WebhookURL preflight
+		// above can be bypassed by DNS rebinding.
+		BlockPrivateNetworkTargets: true,
 	}
 	err = bus.Dispatch(ctx, httpRequest)
 	if err != nil {
