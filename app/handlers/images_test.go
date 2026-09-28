@@ -1,12 +1,16 @@
 package handlers_test
 
 import (
+	"bytes"
 	"context"
+	"image"
 	"io"
 	"net/http"
+	"runtime"
 	"testing"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -83,6 +87,177 @@ func TestGravatarNotFound_LetterAvatarHandler(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	bytes, _ := io.ReadAll(response.Body)
 	Expect(bytes).Equals(expectedAvatar)
+}
+
+func mockBlob(content []byte, contentType string) {
+	bus.AddHandler(func(ctx context.Context, q *query.GetBlobByKey) error {
+		q.Result = &dto.Blob{
+			Content:     content,
+			ContentType: contentType,
+			Size:        int64(len(content)),
+		}
+		return nil
+	})
+}
+
+func responseDimensions(body []byte) (int, int) {
+	cfg, _, err := image.DecodeConfig(bytes.NewReader(body))
+	Expect(err).IsNil()
+	return cfg.Width, cfg.Height
+}
+
+func TestViewUploadedImage_Resize(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	mockBlob(mock.UniformPNG(2000, 1000), "image/png")
+
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=500").
+		OnTenant(mock.DemoTenant).
+		AddParam("bkey", "attachments/image.png").
+		Execute(handlers.ViewUploadedImage())
+
+	Expect(code).Equals(http.StatusOK)
+	width, height := responseDimensions(response.Body.Bytes())
+	Expect(width).Equals(500)
+	Expect(height).Equals(250)
+}
+
+func TestViewUploadedImage_DecompressionBomb_ServedWithoutDecoding(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	bomb := mock.UniformPNG(12000, 12000)
+	mockBlob(bomb, "image/png")
+
+	server := mock.NewServer()
+
+	var before, after runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&before)
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=500").
+		OnTenant(mock.DemoTenant).
+		AddParam("bkey", "attachments/bomb.png").
+		Execute(handlers.ViewUploadedImage())
+	runtime.ReadMemStats(&after)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.Bytes()).Equals(bomb)
+	// Decoding would allocate hundreds of MB
+	Expect(after.TotalAlloc-before.TotalAlloc < 10*1024*1024).IsTrue()
+}
+
+func TestFavicon_DecompressionBomb_ServedWithoutDecoding(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	bomb := mock.UniformPNG(12000, 12000)
+	mockBlob(bomb, "image/png")
+
+	server := mock.NewServer()
+
+	var before, after runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&before)
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=100&bg=white").
+		OnTenant(mock.DemoTenant).
+		AddParam("bkey", "logos/bomb.png").
+		Execute(handlers.Favicon())
+	runtime.ReadMemStats(&after)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.Bytes()).Equals(bomb)
+	Expect(after.TotalAlloc-before.TotalAlloc < 10*1024*1024).IsTrue()
+}
+
+func TestViewUploadedImage_UnsupportedFormat_ServedAsIs(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	// e.g. a WebP image, which imagic doesn't support
+	content := []byte("RIFF\x00\x00\x00\x00WEBPVP8 ")
+	mockBlob(content, "image/webp")
+
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=500").
+		OnTenant(mock.DemoTenant).
+		AddParam("bkey", "attachments/image.webp").
+		Execute(handlers.ViewUploadedImage())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.Bytes()).Equals(content)
+}
+
+func TestViewUploadedImage_CorruptPixelData_ServedAsIs(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	// Valid header, but no image data
+	content := mock.GIFHeader(100, 100)
+	mockBlob(content, "image/gif")
+
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=50").
+		OnTenant(mock.DemoTenant).
+		AddParam("bkey", "attachments/image.gif").
+		Execute(handlers.ViewUploadedImage())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.Bytes()).Equals(content)
+}
+
+func TestViewUploadedImage_AlreadyWithinSize_ServedAsIs(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	content := mock.UniformPNG(800, 600)
+	mockBlob(content, "image/png")
+
+	for _, size := range []string{"800", "1000", "2000"} {
+		server := mock.NewServer()
+		code, response := server.
+			WithURL("https://demo.test.fider.io/?size="+size).
+			OnTenant(mock.DemoTenant).
+			AddParam("bkey", "attachments/image.png").
+			Execute(handlers.ViewUploadedImage())
+
+		Expect(code).Equals(http.StatusOK)
+		Expect(response.Body.Bytes()).Equals(content)
+	}
+}
+
+func TestFavicon_Bundled(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=64").
+		OnTenant(mock.DemoTenant).
+		Execute(handlers.Favicon())
+
+	Expect(code).Equals(http.StatusOK)
+	width, height := responseDimensions(response.Body.Bytes())
+	Expect(width).Equals(64)
+	Expect(height).Equals(64)
+}
+
+func TestFavicon_Resize(t *testing.T) {
+	RegisterT(t)
+	bus.Init()
+	mockBlob(mock.UniformPNG(400, 400), "image/png")
+
+	server := mock.NewServer()
+	code, response := server.
+		WithURL("https://demo.test.fider.io/?size=100").
+		OnTenant(mock.DemoTenant).
+		AddParam("bkey", "logos/logo.png").
+		Execute(handlers.Favicon())
+
+	Expect(code).Equals(http.StatusOK)
+	width, height := responseDimensions(response.Body.Bytes())
+	Expect(width).Equals(100)
+	Expect(height).Equals(100)
 }
 
 func TestUnknownUser_LetterAvatarHandler(t *testing.T) {
