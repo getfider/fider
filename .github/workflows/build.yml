@@ -53,10 +53,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-      - name: Use Go 1.25
+      - name: Use Go 1.27
         uses: actions/setup-go@v7
         with:
-          go-version: '1.25'
+          go-version: '1.27'
           cache: true
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
@@ -64,8 +64,9 @@ jobs:
           node-version: 22.x
           cache: 'npm'
       - run: npm ci # required for esbuild
+      # Version comes from go.mod, so Dependabot bumps apply and go.sum verifies the download
       - name: install golangci-lint
-        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.7.2
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint
       - name: install godotenv
         run: go install github.com/joho/godotenv/cmd/godotenv
       - run: make lint-server

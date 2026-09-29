@@ -351,7 +351,7 @@ if err := bus.Dispatch(ctx, c); err != nil {
 **Build failures:**
 
 - Clear build cache: `make clean && make build`
-- Check Go version: `go version` (need 1.22+)
+- Check Go version: `go version` (need 1.26+; CI and the Dockerfile use 1.27)
 - Check Node version: `node --version` (need 21/22)
 
 **Tests failing:**
