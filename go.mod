@@ -11,7 +11,7 @@ require (
 	github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/golangci/golangci-lint/v2 v2.12.2
-	github.com/gomarkdown/markdown v0.0.0-20250207164621-7a1f277a159e
+	github.com/gomarkdown/markdown v0.0.0-20260923180740-94fc73f6b1a3
 	github.com/gosimple/slug v1.15.0
 	github.com/gotnospirit/messageformat v0.0.0-20190719172517-c1d0bdacdea2
 	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
@@ -25,8 +25,8 @@ require (
 	github.com/prometheus/client_model v0.6.2
 	github.com/robfig/cron v1.2.0
 	github.com/stripe/stripe-go/v83 v83.2.1
-	golang.org/x/crypto v0.54.0
-	golang.org/x/net v0.57.0
+	golang.org/x/crypto v0.55.0
+	golang.org/x/net v0.58.0
 	golang.org/x/oauth2 v0.36.0
 	rogchap.com/v8go v0.9.0
 )
@@ -240,11 +240,11 @@ require (
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
 	golang.org/x/exp/typeparams v0.0.0-20260209203927-2842357ff358 // indirect
 	golang.org/x/image v0.41.0 // indirect
-	golang.org/x/mod v0.37.0 // indirect
+	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.40.0 // indirect
-	golang.org/x/tools v0.47.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/tools v0.48.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
