@@ -1,4 +1,4 @@
-// +heroku goVersion go1.25
+// +heroku goVersion go1.27
 
 module github.com/getfider/fider
 
@@ -252,3 +252,5 @@ require (
 	mvdan.cc/gofumpt v0.12.0 // indirect
 	mvdan.cc/unparam v0.0.0-20260823230713-2fa3d841b0c8 // indirect
 )
+
+ignore ./node_modules
