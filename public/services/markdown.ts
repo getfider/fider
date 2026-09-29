@@ -94,7 +94,12 @@ export const full = (input: string): string => {
   return sanitize(marked(encodeHTML(input), { renderer: fullRenderer }).trim())
 }
 
+// HTML with the formatting stripped, safe to insert as HTML (<Markdown style="plainText" />)
 export const plainText = (input: string): string => {
-  const text = sanitize(marked(input, { renderer: plainTextRenderer }).trim())
-  return decodeHtmlEntities(text).trim()
+  return sanitize(marked(encodeHTML(input), { renderer: plainTextRenderer }).trim())
+}
+
+// Plain text with entities decoded (e.g. auto-generated titles). Never insert the result as HTML
+export const toText = (input: string): string => {
+  return decodeHtmlEntities(plainText(input)).trim()
 }
