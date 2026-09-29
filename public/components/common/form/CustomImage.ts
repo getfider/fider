@@ -1,7 +1,6 @@
 import { ImageUpload } from "@fider/models"
 import Image from "@tiptap/extension-image"
-import * as MarkdownIt from "markdown-it"
-import { defaultMarkdownSerializer } from "prosemirror-markdown"
+import { JSONContent } from "@tiptap/core"
 
 export interface CustomImageOptions {
   HTMLAttributes?: Record<string, any>
@@ -11,8 +10,17 @@ export interface CustomImageOptions {
   onGetImageSrc?: (bkey: string) => string
 }
 
+// marked image token shape (the parts we read)
+type ImageToken = { href?: string; text?: string; title?: string | null }
+
 export const CustomImage = Image.extend<CustomImageOptions>({
   name: "customImage",
+
+  // marked tokenizes images as INLINE tokens, so the node must be inline to sit inside
+  // paragraph content (a block image would be dropped during markdown parse). This also
+  // matches Fider's `fider-inline-image` rendering.
+  inline: true,
+  group: "inline",
 
   addOptions() {
     return {
@@ -55,56 +63,36 @@ export const CustomImage = Image.extend<CustomImageOptions>({
     }
   },
 
-  addStorage() {
-    return {
-      images: {},
-      markdown: {
-        serialize: (state: any, node: any) => {
-          if (!node.attrs.bkey && !node.attrs.id) {
-            // Call the default image serializer
-            return defaultMarkdownSerializer.nodes.image(state, node, node.parent, node.index)
-          }
+  // --- @tiptap/markdown integration (marked engine) ---
+  // Handle the standard marked "image" token, detecting Fider's ![](fider-image:<bkey>) syntax.
+  markdownTokenName: "image",
 
-          // When serializing to markdown, we use a special syntax: ![](fider-image:bkey)
-          // Use bkey if available, otherwise fall back to id
-          const imageId = node.attrs.bkey || node.attrs.id || ""
-          state.write(`![](fider-image:${imageId})`)
-        },
-        parse: {
-          setup: (markdownit: MarkdownIt) => {
-            // Custom rule to parse our special image syntax
-            markdownit.inline.ruler.before("image", "fider-image", (state: MarkdownIt.StateInline, silent: boolean) => {
-              const match = state.src.slice(state.pos).match(/^!\[\]\(fider-image:([a-zA-Z0-9_/.-]+)\)/)
-              if (!match) return false
-
-              if (!silent) {
-                const imageId = match[1]
-                const token = state.push("image", "img", 0)
-
-                // Initialize attrs as an empty array first
-                token.attrs = []
-
-                let imageSrc = this.options.onGetImageSrc ? this.options.onGetImageSrc(imageId) : ""
-                if (imageSrc.length === 0) {
-                  imageSrc = `/static/images/${imageId}`
-                }
-
-                token.attrSet("src", imageSrc)
-                token.attrSet("alt", "")
-                token.attrSet("data-id", imageId)
-                token.attrSet("data-bkey", imageId)
-
-                token.children = []
-                token.content = ""
-              }
-
-              state.pos += match[0].length
-              return true
-            })
-          },
-        },
-      },
+  parseMarkdown(token: ImageToken): JSONContent {
+    // Note: `this` inside parseMarkdown is NOT the extension (no this.name / this.options),
+    // so use a literal node type. Parsed content is already-stored images, which resolve
+    // via the static path (the same fallback the editor used before); live base64 uploads
+    // arrive through the setImage command, not markdown parsing.
+    const href = token.href || ""
+    if (href.startsWith("fider-image:")) {
+      const imageId = href.substring("fider-image:".length)
+      return {
+        type: "customImage",
+        attrs: { src: `/static/images/${imageId}`, alt: "", id: imageId, bkey: imageId },
+      }
     }
+    return {
+      type: "customImage",
+      attrs: { src: href, alt: token.text || "", id: null, bkey: null },
+    }
+  },
+
+  renderMarkdown(node: JSONContent): string {
+    const attrs = node.attrs || {}
+    if (attrs.bkey || attrs.id) {
+      // Fider inline-image syntax; use bkey if available, otherwise id.
+      return `![](fider-image:${attrs.bkey || attrs.id})`
+    }
+    return `![${attrs.alt || ""}](${attrs.src || ""})`
   },
 
   // Override the addImage command to include our custom attributes and handle uploads
