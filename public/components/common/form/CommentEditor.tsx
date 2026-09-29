@@ -1,5 +1,4 @@
 import { Editor } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import React, { useState, useRef, useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
@@ -27,6 +26,7 @@ import { fileToBase64 } from "@fider/services"
 import { generateBkey } from "@fider/services/bkey"
 import { ImageUpload } from "@fider/models"
 import { CustomImage } from "./CustomImage"
+import { fiderStarterKit } from "./FiderStarterKit"
 import { fiderMarkdown } from "./FiderMarkdown"
 import { RawMarkdown } from "./RawMarkdown"
 
@@ -496,9 +496,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   // Only use extensions for rich text mode
   const extensions = [
-    // tiptap v3 StarterKit bundles Link (custom Link.configure below owns the mark) and
-    // Underline (no markdown representation with the marked renderer); disable both.
-    StarterKit.configure({ link: false, underline: false }),
+    // StarterKit without its Link (configured below) or Underline (no markdown form)
+    ...fiderStarterKit(),
     Link.configure({
       openOnClick: true,
       autolink: true,

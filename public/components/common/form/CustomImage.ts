@@ -1,4 +1,5 @@
 import Image from "@tiptap/extension-image"
+import Paragraph from "@tiptap/extension-paragraph"
 import { JSONContent, mergeAttributes } from "@tiptap/core"
 import { fiderImageBkey, fiderImageMarkdown } from "@fider/services/markdownSyntax"
 
@@ -12,6 +13,22 @@ export interface CustomImageOptions {
 
 // marked image token shape (the parts we read)
 type ImageToken = { href?: string; text?: string; title?: string | null }
+
+// tiptap's Paragraph unwraps a paragraph holding only an image, expecting a block image node.
+// Fider's image is inline, so an unwrapped image would sit directly in the document: invalid
+// content that makes every later edit fail. Posts often end with such paragraphs (the server
+// appends unreferenced attachments as "![](fider-image:<bkey>)"), so keep them as paragraphs.
+// Use in place of StarterKit's paragraph.
+const parseParagraph = Paragraph.config.parseMarkdown
+export const ImageParagraph = Paragraph.extend({
+  parseMarkdown: (token, helpers) => {
+    const tokens = token.tokens || []
+    if (tokens.length === 1 && tokens[0].type === "image") {
+      return helpers.createNode("paragraph", undefined, helpers.parseInline(tokens))
+    }
+    return parseParagraph ? parseParagraph(token, helpers) : helpers.createNode("paragraph", undefined, helpers.parseInline(tokens))
+  },
+})
 
 export const CustomImage = Image.extend<CustomImageOptions>({
   name: "customImage",

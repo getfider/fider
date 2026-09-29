@@ -1,10 +1,10 @@
 import { Editor, JSONContent } from "@tiptap/core"
-import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import { CustomImage } from "./CustomImage"
 import { CustomMention } from "./CustomMention"
 import { fiderMarkdown } from "./FiderMarkdown"
 import { RawMarkdown } from "./RawMarkdown"
+import { fiderStarterKit } from "./FiderStarterKit"
 import * as markdown from "@fider/services/markdown"
 import { fiderAllowedSchemes } from "@fider/hooks"
 
@@ -17,7 +17,7 @@ fiderAllowedSchemes.get = () => ""
 const makeEditor = (imageOptions: Parameters<typeof CustomImage.configure>[0] = {}) =>
   new Editor({
     extensions: [
-      StarterKit.configure({ link: false, underline: false }),
+      ...fiderStarterKit(),
       Link.configure({ openOnClick: true, autolink: true, defaultProtocol: "https" }),
       fiderMarkdown(),
       RawMarkdown,
@@ -198,5 +198,36 @@ describe("CommentEditor and renderer agree on mentions", () => {
 
       expect(editorLabels).toEqual(rendererLabels)
     })
+  })
+})
+
+describe("block toggles over the whole document", () => {
+  // tiptap v3's trailing empty paragraph used to be swept into Select All toggles, leaving empty
+  // list items, quotes and code blocks behind.
+  const commands = ["toggleBulletList", "toggleOrderedList", "toggleBlockquote", "toggleCodeBlock"] as const
+
+  commands.forEach((command) => {
+    test(`Select All + ${command} twice leaves no empty blocks`, () => {
+      const editor = load("sample text")
+      for (let i = 0; i < 2; i++) {
+        editor.commands.selectAll()
+        editor.commands[command]()
+      }
+
+      const emptyTextblocks: string[] = []
+      editor.state.doc.descendants((node) => {
+        if (node.isTextblock && node.content.size === 0) emptyTextblocks.push(node.type.name)
+      })
+      expect(emptyTextblocks).toEqual([])
+      expect(editor.state.doc.textContent).toEqual("sample text")
+      editor.destroy()
+    })
+  })
+
+  test("a raw-markdown block at the end still gets a paragraph after it to type into", () => {
+    const editor = load("| a | b |\n| --- | --- |\n| 1 | 2 |")
+    expect(editor.state.doc.lastChild?.type.name).toEqual("paragraph")
+    expect(editor.getMarkdown().trim()).toEqual("| a | b |\n| --- | --- |\n| 1 | 2 |")
+    editor.destroy()
   })
 })

@@ -49,3 +49,27 @@ describe("<CommentEditor /> unsaved images", () => {
     expect(editorImages(container)[0].getAttribute("src")).toEqual(dataUrl)
   })
 })
+
+describe("<CommentEditor /> loading images on their own line", () => {
+  // tiptap's Paragraph unwraps a paragraph that only holds an image; Fider's image is inline, so it
+  // must stay inside the paragraph or the document is invalid and every later edit fails.
+  const cases = {
+    "attachment appended after text": "Some text\n\n![](fider-image:attachments/a.png)",
+    "only an attachment": "![](fider-image:attachments/a.png)",
+    "two appended attachments": "Text\n\n![](fider-image:attachments/a.png)\n\n![](fider-image:attachments/b.png)",
+    "URL image on its own line": "Some text\n\n![](https://example.com/pic.png)",
+  }
+
+  Object.entries(cases).forEach(([name, markdown]) => {
+    test(`keeps the image inside a paragraph: ${name}`, async () => {
+      const { container } = renderEditor({ initialValue: markdown })
+      await waitFor(() => expect(editorImages(container).length).toBeGreaterThan(0))
+
+      const pm = container.querySelector(".ProseMirror") as HTMLElement
+      expect(Array.from(pm.children).map((child) => child.tagName.toLowerCase())).not.toContain("img")
+
+      fireEvent.click(screen.getByTitle("Markdown Mode"))
+      expect(screen.getByTestId<HTMLTextAreaElement>("markdown-textarea").value).toEqual(markdown)
+    })
+  })
+})
