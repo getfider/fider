@@ -81,14 +81,23 @@ testCases.forEach((x) => {
 })
 
 testCases.forEach((x) => {
-  test(`Can parse markdown ${x.input} to ${x.expectedPlainText} (plain text)`, () => {
-    const result = markdown.plainText(x.input)
+  test(`Can convert markdown ${x.input} to ${x.expectedPlainText} (text)`, () => {
+    const result = markdown.toText(x.input)
     expect(result).toEqual(x.expectedPlainText)
   })
 })
 
 describe("XSS prevention", () => {
-  const xssInputs = ["<script>alert(1)</script>", "<img src=x onerror=alert(1)>", "<svg onload=alert(1)>", '<a href="javascript:alert(1)">click</a>']
+  const xssInputs = [
+    "<script>alert(1)</script>",
+    "<img src=x onerror=alert(1)>",
+    "<svg onload=alert(1)>",
+    '<a href="javascript:alert(1)">click</a>',
+    // Entity-encoded markup must stay text, not be decoded back into HTML
+    "&lt;img src=x onerror=alert(1)&gt;",
+    "&lt;script&gt;alert(1)&lt;/script&gt;",
+    "`&lt;img src=x onerror=alert(1)&gt;`",
+  ]
 
   xssInputs.forEach((input) => {
     test(`full mode neutralizes: ${input}`, () => {
