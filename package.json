@@ -46,7 +46,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/react-textarea-autosize": "8.0.0",
-    "@typescript-eslint/eslint-plugin": "5.22.0",
+    "@typescript-eslint/eslint-plugin": "8.70.1",
     "@typescript-eslint/parser": "5.22.0",
     "autoprefixer": "10.6.1",
     "babel-jest": "28.1.3",
