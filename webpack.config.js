@@ -36,7 +36,7 @@ const plugins = [
 if (isProduction) {
   plugins.push(
     new PurgeCSSPlugin({
-      paths: [...glob.sync(`./public/**/*.{html,tsx}`, { nodir: true })],
+      paths: [...glob.sync(`./public/**/*.{html,ts,tsx}`, { nodir: true })],
       defaultExtractor: (content) => content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [],
       safelist: [/--/, /__/, /data-/, /tiptap/],
     })
