@@ -3,7 +3,6 @@ import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import React, { useState, useRef, useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
-import { Markdown } from "@tiptap/markdown"
 import { Placeholder } from "@tiptap/extensions"
 import { i18n } from "@lingui/core"
 import { useAllowedProtocols } from "@fider/hooks"
@@ -28,6 +27,8 @@ import { fileToBase64 } from "@fider/services"
 import { generateBkey } from "@fider/services/bkey"
 import { ImageUpload } from "@fider/models"
 import { CustomImage } from "./CustomImage"
+import { fiderMarkdown } from "./FiderMarkdown"
+import { RawMarkdown } from "./RawMarkdown"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
@@ -256,6 +257,11 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   // This avoids the async state update issue and prevents unnecessary re-renders
   const documentImagesRef = useRef<Map<string, boolean>>(new Map())
 
+  // data: URLs of images attached in this editor session that aren't saved yet, by bkey. The
+  // markdown only holds ![](fider-image:<bkey>), so when it's loaded again (switching back from
+  // markdown mode) these are needed to show the image; the server doesn't have it yet.
+  const pendingImageSrcRef = useRef<Map<string, string>>(new Map())
+
   // Content the editor is created with. Captured once — the editor instance is created a
   // single time (useEditor deps below are empty) and lives for the component's lifetime, so
   // switching editor modes must update content via commands rather than by recreating it.
@@ -421,11 +427,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
       // doc object. If the doc reference is unchanged after the insert, the transaction was
       // dropped (e.g. dispatched into a destroyed view) and the node did not land.
       const docBefore = editor.state.doc
+      const dataUrl = `data:${file.type};base64,${base64}`
+      pendingImageSrcRef.current.set(bkey, dataUrl)
       editor
         .chain()
         .focus()
         .setImage({
-          src: `data:${file.type};base64,${base64}`,
+          src: dataUrl,
           alt: file.name,
           ...({ bkey } as any),
         })
@@ -502,7 +510,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         rel: "noopener nofollow",
       },
     }),
-    Markdown.configure({ markedOptions: { breaks: true, gfm: true } }),
+    fiderMarkdown(),
+    RawMarkdown,
     CustomMention.configure({
       HTMLAttributes: {
         class: "mention",
@@ -512,17 +521,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     CustomImage.configure({
       HTMLAttributes: {},
       allowBase64: true,
-      onImageUpload: (upload) => {
-        if (props.onImageUploaded) {
-          // Initialize other required properties
-          props.onImageUploaded(upload)
-        }
-      },
-      onImageRemove: (id) => {
-        // This is called when an image is removed from the editor
-        handleImageRemove(id)
-      },
       onGetImageSrc: (bkey) => {
+        // Attached in this session...
+        const pendingSrc = pendingImageSrcRef.current.get(bkey)
+        if (pendingSrc) {
+          return pendingSrc
+        }
+        // ...or in a restored draft (the parent's cached attachments)
         if (props.onGetImageSrc) {
           const imageSrc = props.onGetImageSrc(bkey)
           if (imageSrc) {

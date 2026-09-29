@@ -1,12 +1,12 @@
-import { ImageUpload } from "@fider/models"
 import Image from "@tiptap/extension-image"
-import { JSONContent } from "@tiptap/core"
+import { JSONContent, mergeAttributes } from "@tiptap/core"
+import { fiderImageBkey, fiderImageMarkdown } from "@fider/services/markdownSyntax"
 
 export interface CustomImageOptions {
   HTMLAttributes?: Record<string, any>
   allowBase64?: boolean
-  onImageUpload?: (upload: ImageUpload) => void
-  onImageRemove?: (bkey: string) => void
+  // Returns the src (e.g. a data: URL) of an image that was attached but isn't saved yet, or ""
+  // when the bkey refers to a stored image (served from /static/images/<bkey>).
   onGetImageSrc?: (bkey: string) => string
 }
 
@@ -27,8 +27,6 @@ export const CustomImage = Image.extend<CustomImageOptions>({
       ...this.parent?.(),
       HTMLAttributes: {},
       allowBase64: true,
-      onImageUpload: undefined,
-      onImageRemove: undefined,
       onGetImageSrc: undefined,
     }
   },
@@ -63,26 +61,42 @@ export const CustomImage = Image.extend<CustomImageOptions>({
     }
   },
 
+  // Unsaved uploads are referenced by bkey in the markdown but don't exist on the server yet,
+  // so resolve their src when rendering. (parseMarkdown can't do this: `this` there is not the
+  // extension, so options aren't available.) Also show safe fider-image references that aren't
+  // editor images (e.g. ![caption](fider-image:...), see parseMarkdown) the way the renderer does.
+  renderHTML({ node, HTMLAttributes }) {
+    const bkey: string | undefined = node.attrs.bkey || fiderImageBkey(node.attrs.src)
+    const pendingSrc = bkey && this.options.onGetImageSrc ? this.options.onGetImageSrc(bkey) : ""
+    let src = HTMLAttributes.src
+    if (pendingSrc) {
+      src = pendingSrc
+    } else if (bkey && !node.attrs.bkey) {
+      src = `/static/images/${bkey}`
+    }
+    return ["img", mergeAttributes(this.options.HTMLAttributes || {}, HTMLAttributes, { src })]
+  },
+
   // --- @tiptap/markdown integration (marked engine) ---
   // Handle the standard marked "image" token, detecting Fider's ![](fider-image:<bkey>) syntax.
   markdownTokenName: "image",
 
   parseMarkdown(token: ImageToken): JSONContent {
     // Note: `this` inside parseMarkdown is NOT the extension (no this.name / this.options),
-    // so use a literal node type. Parsed content is already-stored images, which resolve
-    // via the static path (the same fallback the editor used before); live base64 uploads
-    // arrive through the setImage command, not markdown parsing.
-    const href = token.href || ""
-    if (href.startsWith("fider-image:")) {
-      const imageId = href.substring("fider-image:".length)
+    // so use a literal node type.
+    // Only the exact form the editor writes, ![](fider-image:<safe bkey>), becomes an editor
+    // image (tracked as an attachment and written back without alt text). Anything else stays
+    // a plain image with its original src/alt so it round-trips unchanged.
+    const bkey = token.text ? undefined : fiderImageBkey(token.href)
+    if (bkey) {
       return {
         type: "customImage",
-        attrs: { src: `/static/images/${imageId}`, alt: "", id: imageId, bkey: imageId },
+        attrs: { src: `/static/images/${bkey}`, alt: "", id: bkey, bkey },
       }
     }
     return {
       type: "customImage",
-      attrs: { src: href, alt: token.text || "", id: null, bkey: null },
+      attrs: { src: token.href || "", alt: token.text || "", title: token.title || null, id: null, bkey: null },
     }
   },
 
@@ -90,9 +104,10 @@ export const CustomImage = Image.extend<CustomImageOptions>({
     const attrs = node.attrs || {}
     if (attrs.bkey || attrs.id) {
       // Fider inline-image syntax; use bkey if available, otherwise id.
-      return `![](fider-image:${attrs.bkey || attrs.id})`
+      return fiderImageMarkdown(attrs.bkey || attrs.id)
     }
-    return `![${attrs.alt || ""}](${attrs.src || ""})`
+    const title = attrs.title ? ` "${String(attrs.title).replace(/"/g, '\\"')}"` : ""
+    return `![${attrs.alt || ""}](${attrs.src || ""}${title})`
   },
 
   // Override the addImage command to include our custom attributes and handle uploads
