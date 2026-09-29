@@ -1,7 +1,7 @@
 import { Editor } from "@tiptap/react"
 import Link from "@tiptap/extension-link"
 import React, { useState, useRef, useEffect } from "react"
-import { EditorContent, useEditor } from "@tiptap/react"
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react"
 import { Placeholder } from "@tiptap/extensions"
 import { i18n } from "@lingui/core"
 import { useAllowedProtocols } from "@fider/hooks"
@@ -53,7 +53,25 @@ const MenuBar = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  if (!editor) {
+  // tiptap v3 doesn't re-render on every transaction, so subscribe to the button states. Toggling a
+  // mark with just a cursor (or moving the cursor) doesn't change the document, so nothing else
+  // would re-render the toolbar until the next keystroke.
+  const active = useEditorState({
+    editor,
+    selector: ({ editor: e }) => ({
+      h2: !!e?.isActive("heading", { level: 2 }),
+      h3: !!e?.isActive("heading", { level: 3 }),
+      bold: !!e?.isActive("bold"),
+      italic: !!e?.isActive("italic"),
+      strike: !!e?.isActive("strike"),
+      bulletList: !!e?.isActive("bulletList"),
+      orderedList: !!e?.isActive("orderedList"),
+      codeBlock: !!e?.isActive("codeBlock"),
+      blockquote: !!e?.isActive("blockquote"),
+    }),
+  })
+
+  if (!editor || !active) {
     return null
   }
 
@@ -86,7 +104,7 @@ const MenuBar = ({
               type="button"
               title="Heading 2"
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`c-editor-button ${editor.isActive("heading", { level: 2 }) ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.h2 ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconH2} width="18" height="18" />
             </button>
@@ -95,7 +113,7 @@ const MenuBar = ({
               type="button"
               title="Heading 3"
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-              className={`c-editor-button ${editor.isActive("heading", { level: 3 }) ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.h3 ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconH3} />
             </button>
@@ -104,7 +122,7 @@ const MenuBar = ({
               type="button"
               title="Bold"
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`c-editor-button ${editor.isActive("bold") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.bold ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconBold} />
             </button>
@@ -113,7 +131,7 @@ const MenuBar = ({
               type="button"
               title="Italic"
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`c-editor-button ${editor.isActive("italic") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.italic ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconItalic} />
             </button>
@@ -122,7 +140,7 @@ const MenuBar = ({
               type="button"
               title="Strikethrough"
               onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`c-editor-button ${editor.isActive("strike") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.strike ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconStrike} />
             </button>
@@ -131,7 +149,7 @@ const MenuBar = ({
               type="button"
               title="BulletList"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`c-editor-button ${editor.isActive("bulletList") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.bulletList ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconBulletList} />
             </button>
@@ -140,7 +158,7 @@ const MenuBar = ({
               type="button"
               title="OrderedList"
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`c-editor-button ${editor.isActive("orderedList") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.orderedList ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconOrderedList} />
             </button>
@@ -149,7 +167,7 @@ const MenuBar = ({
               type="button"
               title="Code"
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={`c-editor-button ${editor.isActive("codeBlock") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.codeBlock ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconCode} />
             </button>
@@ -158,7 +176,7 @@ const MenuBar = ({
               type="button"
               title="Quote"
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`c-editor-button ${editor.isActive("blockquote") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.blockquote ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconBlockquote} />
             </button>

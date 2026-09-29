@@ -73,3 +73,19 @@ describe("<CommentEditor /> loading images on their own line", () => {
     })
   })
 })
+
+describe("<CommentEditor /> toolbar state", () => {
+  // tiptap v3 doesn't re-render on every transaction, and toggling a mark with just a cursor only
+  // sets a stored mark (the document doesn't change), so the button must still update right away.
+  test.each(["Bold", "Italic", "Strikethrough"])("%s shows as active as soon as it's toggled, before typing", async (title) => {
+    const { container } = renderEditor()
+    await waitFor(() => expect(container.querySelector(".ProseMirror")).not.toBeNull())
+    expect(screen.getByTitle(title).className).not.toContain("is-active")
+
+    fireEvent.click(screen.getByTitle(title))
+    await waitFor(() => expect(screen.getByTitle(title).className).toContain("is-active"))
+
+    fireEvent.click(screen.getByTitle(title))
+    await waitFor(() => expect(screen.getByTitle(title).className).not.toContain("is-active"))
+  })
+})
