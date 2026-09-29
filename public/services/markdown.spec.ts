@@ -32,7 +32,8 @@ const testCases = [
   },
   {
     input: `[Uh oh...]("onerror="alert('XSS'))`,
-    expectedFull: '<p><a class="text-link" href="" rel="noopener nofollow" target="_blank">Uh oh...</a></p>',
+    // The quotes stay inside the (harmless, relative) href instead of breaking out of it
+    expectedFull: `<p><a class="text-link" href="&quot;onerror=&quot;alert('XSS')" rel="noopener nofollow" target="_blank">Uh oh...</a></p>`,
     expectedPlainText: "Uh oh...",
   },
   {
@@ -87,6 +88,13 @@ testCases.forEach((x) => {
   })
 })
 
+// Parse rendered HTML the way the browser would and list the live elements it creates.
+const liveElements = (html: string): Element[] => {
+  const container = document.createElement("div")
+  container.innerHTML = html
+  return Array.from(container.querySelectorAll("*"))
+}
+
 describe("XSS prevention", () => {
   const xssInputs = [
     "<script>alert(1)</script>",
@@ -97,6 +105,9 @@ describe("XSS prevention", () => {
     "&lt;img src=x onerror=alert(1)&gt;",
     "&lt;script&gt;alert(1)&lt;/script&gt;",
     "`&lt;img src=x onerror=alert(1)&gt;`",
+    // Code spans/blocks are not escaped by marked 17's lexer; the renderers must escape them
+    "`<img src=x onerror=alert(1)>`",
+    "```\n<img src=x onerror=alert(1)>\n```",
   ]
 
   xssInputs.forEach((input) => {
@@ -116,5 +127,86 @@ describe("XSS prevention", () => {
       expect(result).not.toMatch(/<img[^>]*onerror/i)
       expect(result).not.toMatch(/<a[^>]*javascript:/i)
     })
+  })
+})
+
+describe("code is rendered as text", () => {
+  const inputs = ["`<b>`", "`&lt;b&gt;`", "`<img src=x onerror=alert(1)>`", "`&lt;img src=x onerror=alert(1)&gt;`", "```\n<b>bold</b>\n```"]
+
+  inputs.forEach((input) => {
+    test(`full mode creates no markup from code: ${input}`, () => {
+      const tags = liveElements(markdown.full(input)).map((e) => e.tagName.toLowerCase())
+      expect(tags.filter((t) => t !== "p" && t !== "code" && t !== "pre")).toEqual([])
+    })
+
+    test(`plainText mode creates no markup from code: ${input}`, () => {
+      expect(liveElements(markdown.plainText(input))).toEqual([])
+    })
+  })
+})
+
+describe("plainText returns HTML-safe text", () => {
+  test("does not decode entities back into markup", () => {
+    expect(liveElements(markdown.plainText("Hello <b>Beautiful</b> World"))).toEqual([])
+    expect(liveElements(markdown.plainText("&lt;b&gt;x&lt;/b&gt;"))).toEqual([])
+  })
+
+  test("displays special characters as typed", () => {
+    const container = document.createElement("p")
+    container.innerHTML = markdown.plainText("Jane's & Jim's > [Matt](https://example.com) <b>hi</b>")
+    expect(container.textContent).toEqual("Jane's & Jim's > Matt <b>hi</b>")
+  })
+})
+
+describe("attribute values are escaped", () => {
+  test("fider-image alt text cannot inject attributes", () => {
+    const [p, img] = liveElements(markdown.full('![x" class="evil" data-x="1](fider-image:attachments/abc.png)'))
+    expect(p.tagName).toEqual("P")
+    expect(img.tagName).toEqual("IMG")
+    expect(img.getAttribute("class")).toEqual("fider-inline-image")
+    expect(img.getAttribute("alt")).toEqual('x" class="evil" data-x="1')
+    expect(img.hasAttribute("data-x")).toBe(false)
+  })
+
+  test("link title is quoted", () => {
+    const [, a] = liveElements(markdown.full('[a](http://x.com "hello world")'))
+    expect(a.getAttribute("title")).toEqual("hello world")
+    expect(a.hasAttribute("world")).toBe(false)
+  })
+
+  test("link title quotes cannot inject attributes", () => {
+    const [, a] = liveElements(markdown.full(`[a](http://x.com 'say "hi" style="color:red"')`))
+    expect(a.getAttribute("title")).toEqual('say "hi" style="color:red"')
+    expect(a.hasAttribute("style")).toBe(false)
+  })
+
+  test("link href quotes cannot inject attributes", () => {
+    const [, a] = liveElements(markdown.full('[a](http://x.com/"style="color:red)'))
+    expect(a.tagName).toEqual("A")
+    expect(a.hasAttribute("style")).toBe(false)
+  })
+})
+
+describe("fider-image references", () => {
+  const unsafe = [
+    "![](fider-image:../../api/v1/admin/x)",
+    "![caption](fider-image:../../api/v1/admin/x?y)",
+    "![](fider-image:attachments/../../x.png)",
+    "![](fider-image:attachments/a%2F..%2Fb.png)",
+  ]
+
+  unsafe.forEach((input) => {
+    test(`is not rendered as an inline image: ${input}`, () => {
+      const html = markdown.full(input)
+      expect(html).not.toContain("/static/images/")
+      expect(html).not.toContain("data-bkey")
+    })
+  })
+})
+
+describe("mentions", () => {
+  test("renders non-empty @[name] as a mention and leaves @[] as text", () => {
+    const spans = liveElements(markdown.full("@[] and @[Jane Doe]")).filter((e) => e.classList.contains("mention"))
+    expect(spans.map((e) => e.textContent)).toEqual(["@Jane Doe"])
   })
 })

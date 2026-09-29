@@ -1,6 +1,7 @@
 import { Marked, RendererObject } from "marked"
 import DOMPurify from "dompurify"
 import { fiderAllowedSchemes } from "@fider/hooks"
+import { fiderImageBkey, MENTION_GLOBAL } from "./markdownSyntax"
 
 if (DOMPurify.isSupported) {
   DOMPurify.setConfig({
@@ -26,8 +27,12 @@ if (DOMPurify.isSupported) {
   })
 }
 
-// marked 5+ escapes text (including ' -> &#39;). We keep apostrophes literal to match the
-// historical output, while preserving existing entities and escaping & < > ".
+// marked 5+ no longer escapes token text in the lexer; escaping is the renderer's job, so every
+// override that writes token text/attributes into HTML must escape it itself.
+
+// Text and attribute values. marked 5+ escapes text (including ' -> &#39;); we keep apostrophes
+// literal to match the historical output, while preserving existing entities (input has already
+// been through encodeHTML, so "<" arrives as "&lt;") and escaping & < > ".
 const escapeText = (s: string): string =>
   s
     .replace(/&(?![#\w]+;)/g, "&amp;")
@@ -35,8 +40,12 @@ const escapeText = (s: string): string =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
 
+// Code (spans and blocks): escape everything, exactly like marked's default code renderers,
+// so plainText and full show code the same way.
+const escapeCode = (s: string): string => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;")
+
 // Expand Fider's proprietary mention syntax @[name] into a styled span.
-const renderMentions = (html: string): string => html.replace(/@\[(.*?)\]/g, (_match, name) => `<span class="mention">@${name}</span>`)
+const renderMentions = (html: string): string => html.replace(MENTION_GLOBAL, (_match, name) => `<span class="mention">@${name}</span>`)
 
 // marked 5+ replaced the positional Renderer API with token objects and requires renderer
 // overrides to be registered via .use(). Typing as RendererObject binds `this` to the
@@ -44,17 +53,18 @@ const renderMentions = (html: string): string => html.replace(/@\[(.*?)\]/g, (_m
 // keep marked's defaults.
 const fullRenderer: RendererObject = {
   image({ href, text }) {
-    // Fider's proprietary inline-image syntax: ![](fider-image:<bkey>)
-    if (href && href.startsWith("fider-image:")) {
-      const bkey = href.substring("fider-image:".length)
-      return `<img src="/static/images/${bkey}" alt="${text || ""}" class="fider-inline-image" data-bkey="${bkey}" />`
+    // Fider's proprietary inline-image syntax: ![](fider-image:<bkey>). The bkey is validated
+    // (safe characters, no "..") so it can go into the attributes as-is.
+    const bkey = fiderImageBkey(href)
+    if (bkey) {
+      return `<img src="/static/images/${bkey}" alt="${escapeText(text || "")}" class="fider-inline-image" data-bkey="${bkey}" />`
     }
     return false // fall back to marked's default image renderer
   },
   link({ href, title, tokens }) {
     const text = this.parser.parseInline(tokens)
-    const titleAttr = title ? ` title=${title}` : ""
-    return `<a class="text-link" href="${href}"${titleAttr} rel="noopener nofollow" target="_blank">${text}</a>`
+    const titleAttr = title ? ` title="${escapeText(title)}"` : ""
+    return `<a class="text-link" href="${escapeText(href)}"${titleAttr} rel="noopener nofollow" target="_blank">${text}</a>`
   },
   text(token) {
     const rendered = "tokens" in token && token.tokens ? this.parser.parseInline(token.tokens) : escapeText(token.text)
@@ -88,13 +98,13 @@ const plainTextRenderer: RendererObject = {
     return ` ${this.parser.parseInline(tokens)} `
   },
   code({ text }) {
-    return text
+    return escapeCode(text)
   },
   codespan({ text }) {
-    return text
+    return escapeCode(text)
   },
   html({ text }) {
-    return text
+    return escapeText(text)
   },
   blockquote({ tokens }) {
     return this.parser.parse(tokens)
