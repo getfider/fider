@@ -1,0 +1,7 @@
+version: "2"
+
+linters:
+  exclusions:
+    paths:
+      # Some npm packages ship Go source (e.g. flatted), which ./... picks up
+      - node_modules
