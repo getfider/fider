@@ -23,7 +23,7 @@
   "validation.custom.unknownsettings": "Configuración desconocida llamada '{name}'",
   "validation.custom.invalidemail": "'{email}' no es una dirección de correo electrónico válida.",
   "validation.custom.invalidurl": "'{url}' no es una URL válida.",
-  "validation.custom.invalidcustomdomain": "'{domain}' no es un Dominio Personalizado válido.",
+  "validation.custom.invalidcustomdomain": "'{domain}' no es un dominio personalizado válido.",
   "validation.custom.customdomaintaken": "Este dominio personalizado ya se encuentra en uso por otra persona.",
   "validation.custom.unsupportedfileformat": "Este formato de archivo no es compatible.",
   "validation.custom.minimagedimensions": "La imagen debe tener dimensiones mínimas de {width}x{height} píxeles.",
@@ -75,6 +75,6 @@
   "feed.comment.op": "Publicación original de {author}",
   "feed.comment.response": "Respuesta de {author}",
   "feed.post.title": "# {title}\n{votes, plural, one {# voto} other {# votos}}, {comments, plural, one {# comentario} other {# comentarios}}\n\n---\n",
-  "feed.post.footer.response": "Respuesta de {responder} el {date}:\n\n>{response}",
+  "feed.post.footer.response": "Respuesta de {responder} el {date}:\n\n>{response}\n",
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# voto} other {# votos}}, {comments, plural, one {# comentario} other {# comentarios}} - ver [en la web]({web_link}) o [como feed]({feed_link})"
 }
