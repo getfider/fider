@@ -29,6 +29,8 @@
   "validation.custom.minimagedimensions": "La imatge ha de tenir unes dimensions mínimes de {width}x{height} píxels.",
   "validation.custom.imagesquareratio": "La imatge ha de tenir una relació d'aspecte d'1:1.",
   "validation.custom.maximagesize": "La mida de la imatge ha de ser més petita que {kilobytes}KB.",
+  "validation.custom.maximagepixels": "Les dimensions de la imatge són massa grans. Carregueu una imatge amb una resolució inferior.",
+  "validation.custom.imageprocessingbusy": "El servidor està ocupat amb altres imatges. Torneu-ho a provar d'aquí a un moment.",
   "validation.custom.invalidemoji": "L'emoji de reacció no és vàlid.",
   "enum.poststatus.open": "Obert",
   "enum.poststatus.started": "Començat",
