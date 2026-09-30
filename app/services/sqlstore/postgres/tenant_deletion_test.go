@@ -138,9 +138,39 @@ func TestTenantDeletion_PendingDeletionAndOwner(t *testing.T) {
 	Expect(bus.Dispatch(ctx, pending)).IsNil()
 
 	ids := map[int]bool{}
+	cancelKeys := map[int]string{}
 	for _, tn := range pending.Result {
 		ids[tn.ID] = true
+		cancelKeys[tn.ID] = tn.DeletionCancelKey
 	}
 	Expect(ids[demoTenant.ID]).IsTrue()
 	Expect(ids[avengersTenant.ID]).IsFalse()
+
+	// The cancel key must survive the round-trip: the deletion job uses its presence to tell an
+	// owner-requested deletion from an administrative one, and only emails the owner for the
+	// former. If this came back empty, every completion email would silently stop being sent.
+	Expect(cancelKeys[demoTenant.ID]).Equals("past-key")
+}
+
+// An administrative deletion (e.g. spam removal via Fider Manage) writes no cancel key, which is
+// how the deletion job knows to skip the "your account was deleted" email.
+func TestTenantDeletion_AdminScheduledHasNoCancelKey(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	Expect(bus.Dispatch(ctx, &cmd.ScheduleTenantDeletion{
+		TenantID: demoTenant.ID, ScheduledAt: time.Now().Add(-time.Minute),
+	})).IsNil()
+
+	pending := &query.GetTenantsPendingDeletion{}
+	Expect(bus.Dispatch(ctx, pending)).IsNil()
+
+	var found *entity.Tenant
+	for _, tn := range pending.Result {
+		if tn.ID == demoTenant.ID {
+			found = tn
+		}
+	}
+	Expect(found).IsNotNil()
+	Expect(found.DeletionCancelKey).Equals("")
 }

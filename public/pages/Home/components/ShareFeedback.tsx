@@ -6,7 +6,7 @@ import { Modal, CloseIcon, Form, Button, Input, LegalFooter } from "@fider/compo
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
 import { actions, Failure, querystring, classSet, cache } from "@fider/services"
-import { plainText } from "@fider/services/markdown"
+import { toText } from "@fider/services/markdown"
 import { i18n } from "@lingui/core"
 import { Tag } from "@fider/models"
 import { SimilarPosts } from "../components/SimilarPosts"
@@ -120,7 +120,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
 
       // Get the truncated markdown content and convert to plain text
       const truncatedMarkdown = description.substring(0, newlineIndex)
-      const autoTitle = plainText(truncatedMarkdown)
+      const autoTitle = toText(truncatedMarkdown)
 
       handleTitleChange(autoTitle, false)
     }

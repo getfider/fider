@@ -153,6 +153,14 @@
       cursor: pointer;
     }
 
+    // Markdown the editor has no rich-text node for (tables, task lists), kept as raw text
+    .c-editor-raw-markdown {
+      font-family: $font-code;
+      font-size: 0.875em;
+      white-space: pre-wrap;
+      margin: 0.5em 0;
+    }
+
     .fider-inline-image {
       max-width: 100%;
       height: auto;

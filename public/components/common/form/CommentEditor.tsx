@@ -1,10 +1,8 @@
 import { Editor } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import React, { useState, useRef, useEffect } from "react"
-import { EditorContent, useEditor } from "@tiptap/react"
-import { Markdown } from "tiptap-markdown"
-import Placeholder from "@tiptap/extension-placeholder"
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react"
+import { Placeholder } from "@tiptap/extensions"
 import { i18n } from "@lingui/core"
 import { useAllowedProtocols } from "@fider/hooks"
 
@@ -28,6 +26,9 @@ import { fileToBase64 } from "@fider/services"
 import { generateBkey } from "@fider/services/bkey"
 import { ImageUpload } from "@fider/models"
 import { CustomImage } from "./CustomImage"
+import { fiderStarterKit } from "./FiderStarterKit"
+import { fiderMarkdown } from "./FiderMarkdown"
+import { RawMarkdown } from "./RawMarkdown"
 
 import suggestion from "./suggestion"
 import { CustomMention } from "./CustomMention"
@@ -52,7 +53,25 @@ const MenuBar = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  if (!editor) {
+  // tiptap v3 doesn't re-render on every transaction, so subscribe to the button states. Toggling a
+  // mark with just a cursor (or moving the cursor) doesn't change the document, so nothing else
+  // would re-render the toolbar until the next keystroke.
+  const active = useEditorState({
+    editor,
+    selector: ({ editor: e }) => ({
+      h2: !!e?.isActive("heading", { level: 2 }),
+      h3: !!e?.isActive("heading", { level: 3 }),
+      bold: !!e?.isActive("bold"),
+      italic: !!e?.isActive("italic"),
+      strike: !!e?.isActive("strike"),
+      bulletList: !!e?.isActive("bulletList"),
+      orderedList: !!e?.isActive("orderedList"),
+      codeBlock: !!e?.isActive("codeBlock"),
+      blockquote: !!e?.isActive("blockquote"),
+    }),
+  })
+
+  if (!editor || !active) {
     return null
   }
 
@@ -85,7 +104,7 @@ const MenuBar = ({
               type="button"
               title="Heading 2"
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-              className={`c-editor-button ${editor.isActive("heading", { level: 2 }) ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.h2 ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconH2} width="18" height="18" />
             </button>
@@ -94,7 +113,7 @@ const MenuBar = ({
               type="button"
               title="Heading 3"
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-              className={`c-editor-button ${editor.isActive("heading", { level: 3 }) ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.h3 ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconH3} />
             </button>
@@ -103,7 +122,7 @@ const MenuBar = ({
               type="button"
               title="Bold"
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`c-editor-button ${editor.isActive("bold") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.bold ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconBold} />
             </button>
@@ -112,7 +131,7 @@ const MenuBar = ({
               type="button"
               title="Italic"
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`c-editor-button ${editor.isActive("italic") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.italic ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconItalic} />
             </button>
@@ -121,7 +140,7 @@ const MenuBar = ({
               type="button"
               title="Strikethrough"
               onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`c-editor-button ${editor.isActive("strike") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.strike ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconStrike} />
             </button>
@@ -130,7 +149,7 @@ const MenuBar = ({
               type="button"
               title="BulletList"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`c-editor-button ${editor.isActive("bulletList") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.bulletList ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconBulletList} />
             </button>
@@ -139,7 +158,7 @@ const MenuBar = ({
               type="button"
               title="OrderedList"
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`c-editor-button ${editor.isActive("orderedList") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.orderedList ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconOrderedList} />
             </button>
@@ -148,7 +167,7 @@ const MenuBar = ({
               type="button"
               title="Code"
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={`c-editor-button ${editor.isActive("codeBlock") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.codeBlock ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconCode} />
             </button>
@@ -157,7 +176,7 @@ const MenuBar = ({
               type="button"
               title="Quote"
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`c-editor-button ${editor.isActive("blockquote") ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
+              className={`c-editor-button ${active.blockquote ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
               <Icon sprite={IconBlockquote} />
             </button>
@@ -256,6 +275,11 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   // This avoids the async state update issue and prevents unnecessary re-renders
   const documentImagesRef = useRef<Map<string, boolean>>(new Map())
 
+  // data: URLs of images attached in this editor session that aren't saved yet, by bkey. The
+  // markdown only holds ![](fider-image:<bkey>), so when it's loaded again (switching back from
+  // markdown mode) these are needed to show the image; the server doesn't have it yet.
+  const pendingImageSrcRef = useRef<Map<string, string>>(new Map())
+
   // Content the editor is created with. Captured once — the editor instance is created a
   // single time (useEditor deps below are empty) and lives for the component's lifetime, so
   // switching editor modes must update content via commands rather than by recreating it.
@@ -264,15 +288,16 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
   const toggleMarkdownMode = () => {
     if (isRawMarkdownMode) {
       // Switching FROM markdown TO rich text
-      // Load the edited markdown back into the existing editor instance
+      // Load the edited markdown back into the existing editor instance.
+      // tiptap v3 emits an update on setContent by default; keep v2 semantics (no onChange).
       if (editor) {
-        editor.commands.setContent(markdownText)
+        editor.commands.setContent(markdownText, { emitUpdate: false, contentType: "markdown" })
       }
     } else {
       // Switching FROM rich text TO markdown
       // Get the markdown from the editor and store it
       if (editor) {
-        const markdown = editor.storage.markdown.getMarkdown()
+        const markdown = editor.getMarkdown().trim()
         setMarkdownText(markdown)
       }
     }
@@ -334,7 +359,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   const updated = ({ editor }: { editor: Editor; transaction: any }): void => {
     // Get the current markdown content
-    const markdown = isRawMarkdownMode ? editor.getText() : editor.storage.markdown.getMarkdown()
+    const markdown = isRawMarkdownMode ? editor.getText() : editor.getMarkdown().trim()
 
     setContentLength(markdown.length)
 
@@ -420,11 +445,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
       // doc object. If the doc reference is unchanged after the insert, the transaction was
       // dropped (e.g. dispatched into a destroyed view) and the node did not land.
       const docBefore = editor.state.doc
+      const dataUrl = `data:${file.type};base64,${base64}`
+      pendingImageSrcRef.current.set(bkey, dataUrl)
       editor
         .chain()
         .focus()
         .setImage({
-          src: `data:${file.type};base64,${base64}`,
+          src: dataUrl,
           alt: file.name,
           ...({ bkey } as any),
         })
@@ -487,7 +514,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
 
   // Only use extensions for rich text mode
   const extensions = [
-    StarterKit,
+    // StarterKit without its Link (configured below) or Underline (no markdown form)
+    ...fiderStarterKit(),
     Link.configure({
       openOnClick: true,
       autolink: true,
@@ -499,10 +527,8 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
         rel: "noopener nofollow",
       },
     }),
-    Markdown.configure({
-      html: false,
-      breaks: true,
-    }),
+    fiderMarkdown(),
+    RawMarkdown,
     CustomMention.configure({
       HTMLAttributes: {
         class: "mention",
@@ -512,17 +538,13 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     CustomImage.configure({
       HTMLAttributes: {},
       allowBase64: true,
-      onImageUpload: (upload) => {
-        if (props.onImageUploaded) {
-          // Initialize other required properties
-          props.onImageUploaded(upload)
-        }
-      },
-      onImageRemove: (id) => {
-        // This is called when an image is removed from the editor
-        handleImageRemove(id)
-      },
       onGetImageSrc: (bkey) => {
+        // Attached in this session...
+        const pendingSrc = pendingImageSrcRef.current.get(bkey)
+        if (pendingSrc) {
+          return pendingSrc
+        }
+        // ...or in a restored draft (the parent's cached attachments)
         if (props.onGetImageSrc) {
           const imageSrc = props.onGetImageSrc(bkey)
           if (imageSrc) {
@@ -542,6 +564,7 @@ const Tiptap: React.FunctionComponent<CommentEditorProps> = (props) => {
     {
       extensions,
       content: initialContentRef.current,
+      contentType: "markdown",
       onUpdate: updated,
       onFocus: () => {
         if (props.onFocus) {

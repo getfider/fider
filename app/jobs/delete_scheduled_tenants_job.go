@@ -72,7 +72,11 @@ func (j DeleteScheduledTenantsJobHandler) Run(ctx Context) error {
 		return errors.Wrap(err, "failed to delete tenant '%d'", tenant.ID)
 	}
 
-	sendCompletionEmail(ctx, tenant, owner.Result)
+	// Only the owner-initiated flow sets a cancel key, so its absence marks an administrative
+	// deletion (e.g. spam removal from Fider Manage) — those owners get no completion email.
+	if tenant.DeletionCancelKey != "" {
+		sendCompletionEmail(ctx, tenant, owner.Result)
+	}
 	return nil
 }
 

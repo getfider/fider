@@ -5,9 +5,13 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "monday"
     open-pull-requests-limit: 3
     groups:
+      # Security updates ignore the schedule and PR limit above, so without this
+      # every vulnerable transitive dep arrives as its own PR. Batch them.
+      security-updates:
+        applies-to: security-updates
+        patterns: ["*"]
       patch-updates:
         update-types: ["patch"]
       minor-updates:
@@ -22,9 +26,6 @@ updates:
       # @playwright/test: 1.49+ ships a newer Chromium that times out the
       #   Cucumber e2e-ui steps. Held on the 1.48 line.
       - dependency-name: "@playwright/test"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
-      # tiptap-markdown: 0.9+ requires @tiptap/core v3; project is on the tiptap v2 line.
-      - dependency-name: "tiptap-markdown"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
       # @lingui/*: 5.9 breaks the build — <Trans> return type is ReactNode, not a
       #   valid JSX element under the current @types/react. Needs a @types/react
@@ -47,12 +48,15 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "babel-loader"
         update-types: ["version-update:semver-major"]
-      # marked: 5+ is ESM-only and rewrote the Renderer API. 4 -> 18 needs a rewrite of
-      #   public/services/markdown.ts (custom marked.Renderer() + synchronous marked()).
-      #   Held on the 4.x line until that migration is done.
-      - dependency-name: "marked"
+      # @typescript-eslint/*: 5 -> 8 is another coordinated upgrade. The plugin requires a matching
+      #   @typescript-eslint/parser and ESLint >= 8.57 (project is on 8.15), so a lone plugin bump
+      #   fails. Held on the 5.x line until done as a dedicated task; minor/patch still flow.
+      - dependency-name: "@typescript-eslint/*"
         update-types: ["version-update:semver-major"]
-      - dependency-name: "@types/marked"
+      # marked: now on 17 (renderer rewritten to the token-based API in markdown.ts).
+      #   Held on 17.x because @tiptap/markdown depends on marked ^17; unblock 18 once the
+      #   editor's @tiptap/markdown supports it.
+      - dependency-name: "marked"
         update-types: ["version-update:semver-major"]
 
   # Go modules - monthly, all grouped together
@@ -60,9 +64,11 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "monday"
     open-pull-requests-limit: 2
     groups:
+      security-updates:
+        applies-to: security-updates
+        patterns: ["*"]
       all-updates:
         patterns: ["*"]
     ignore:
@@ -77,9 +83,11 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "monday"
     open-pull-requests-limit: 1
     groups:
+      security-updates:
+        applies-to: security-updates
+        patterns: ["*"]
       all-actions:
         patterns: ["*"]
     
@@ -88,5 +96,4 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "monday"
     open-pull-requests-limit: 1

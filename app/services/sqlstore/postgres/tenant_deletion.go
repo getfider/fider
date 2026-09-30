@@ -46,7 +46,7 @@ func getTenantsPendingDeletion(ctx context.Context, q *query.GetTenantsPendingDe
 		q.Result = []*entity.Tenant{}
 		var tenants []*dbEntities.Tenant
 		err := trx.Select(&tenants, `
-			SELECT id, name, subdomain, scheduled_deletion_at
+			SELECT id, name, subdomain, scheduled_deletion_at, deletion_cancel_key
 			FROM tenants
 			WHERE scheduled_deletion_at IS NOT NULL AND scheduled_deletion_at <= now()
 			ORDER BY scheduled_deletion_at ASC
@@ -65,7 +65,7 @@ func getTenantByCancelKey(ctx context.Context, q *query.GetTenantByCancelKey) er
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
 		tenant := dbEntities.Tenant{}
 		err := trx.Get(&tenant, `
-			SELECT id, name, subdomain, scheduled_deletion_at
+			SELECT id, name, subdomain, scheduled_deletion_at, deletion_cancel_key
 			FROM tenants
 			WHERE deletion_cancel_key = $1
 		`, q.Key)
