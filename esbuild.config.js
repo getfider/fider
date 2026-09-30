@@ -76,6 +76,8 @@ esbuild
       "@fider": "./public",
       "@locale": "./locale",
     },
-    plugins: [emptyCSS, emptySVG, babelPlugin()],
+    // Only our own TypeScript needs babel (lingui macros), same as babel-loader in webpack.
+    // babel.config.json also applies to node_modules, and dependencies must not be re-transpiled.
+    plugins: [emptyCSS, emptySVG, babelPlugin({ filter: /\.tsx?$/ })],
   })
   .catch(() => process.exit(1))
