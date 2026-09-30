@@ -209,7 +209,6 @@ var (
 		IsRTL:             false,
 	}
 
-	// AllLocales contains all supported locales
 	// LocaleCatalan represents Catalan
 	LocaleCatalan = Locale{
 		Code:              "ca",
@@ -220,6 +219,7 @@ var (
 		IsRTL:             false,
 	}
 
+	// AllLocales contains all supported locales
 	AllLocales = []Locale{
 		LocaleEnglish,
 		LocalePortugueseBR,
