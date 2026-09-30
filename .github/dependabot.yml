@@ -53,6 +53,21 @@ updates:
       #   fails. Held on the 5.x line until done as a dedicated task; minor/patch still flow.
       - dependency-name: "@typescript-eslint/*"
         update-types: ["version-update:semver-major"]
+      # typescript: majors move with the @typescript-eslint upgrade above (typescript-eslint 5
+      #   can't load under TypeScript 7). Held on 4.9 until that's done.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # React 19: react, react-dom, @types/react and @types/react-dom must move together (a lone
+      #   react-dom 19 can't install next to react 18). Also the prerequisite for lifting the
+      #   @lingui hold above. Held on 18 until done as a dedicated task.
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
       # marked: now on 17 (renderer rewritten to the token-based API in markdown.ts).
       #   Held on 17.x because @tiptap/markdown depends on marked ^17; unblock 18 once the
       #   editor's @tiptap/markdown supports it.
@@ -97,3 +112,8 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 1
+    ignore:
+      # node: the UI build image must match the Node version CI tests on (build.yml), package.json
+      #   `engines` and .nvmrc, so Node majors move together as one change (to an LTS release).
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
