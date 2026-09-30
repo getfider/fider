@@ -20,7 +20,7 @@
     "inter-ui": "^4.1.1",
     "marked": "^17.0.6",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react-dom": "^19.3.0",
     "react-textarea-autosize": "^8.5.9",
     "react-toastify": "^9.0.1"
   },
@@ -44,7 +44,7 @@
     "@types/jsdom": "16.2.14",
     "@types/node": "17.0.31",
     "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react-dom": "^19.3.0",
     "@types/react-textarea-autosize": "8.0.0",
     "@typescript-eslint/eslint-plugin": "5.22.0",
     "@typescript-eslint/parser": "5.22.0",
