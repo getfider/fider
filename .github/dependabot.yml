@@ -48,6 +48,11 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "babel-loader"
         update-types: ["version-update:semver-major"]
+      # @typescript-eslint/*: 5 -> 8 is another coordinated upgrade. The plugin requires a matching
+      #   @typescript-eslint/parser and ESLint >= 8.57 (project is on 8.15), so a lone plugin bump
+      #   fails. Held on the 5.x line until done as a dedicated task; minor/patch still flow.
+      - dependency-name: "@typescript-eslint/*"
+        update-types: ["version-update:semver-major"]
       # marked: now on 17 (renderer rewritten to the token-based API in markdown.ts).
       #   Held on 17.x because @tiptap/markdown depends on marked ^17; unblock 18 once the
       #   editor's @tiptap/markdown supports it.
