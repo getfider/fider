@@ -69,19 +69,9 @@ const fullRenderer: RendererObject = {
     const rendered = "tokens" in token && token.tokens ? this.parser.parseInline(token.tokens) : escapeText(token.text)
     return renderMentions(rendered)
   },
-  html({ text }) {
-    // Not reached (raw HTML isn't tokenized, see noRawHTML), but never emit it unescaped.
-    return escapeText(text)
-  },
 }
-
-// Raw HTML is never rendered: with its tokenizers off, "<b>" is just text and is escaped once
-// by the text/code renderers. (Escaping "<" before parsing instead made code escape it twice,
-// showing `List<String>` as `List&lt;String>`, and broke <https://...> autolinks.)
-const noRawHTML = { tokenizer: { html: () => undefined, tag: () => undefined } }
-
 const markedFull = new Marked({ gfm: true, breaks: true })
-markedFull.use(noRawHTML, { renderer: fullRenderer })
+markedFull.use({ renderer: fullRenderer })
 
 // Plain-text renderer: strip all formatting down to readable text.
 const plainTextRenderer: RendererObject = {
@@ -123,7 +113,17 @@ const plainTextRenderer: RendererObject = {
   },
 }
 const markedPlainText = new Marked({ gfm: true, breaks: true })
-markedPlainText.use(noRawHTML, { renderer: plainTextRenderer })
+markedPlainText.use({ renderer: plainTextRenderer })
+
+// Raw HTML is never rendered: "<" is swapped for a placeholder before parsing, so marked never
+// sees tags, HTML blocks or <...> autolinks (and they can't change where paragraphs and list items
+// end), then the placeholder becomes "&lt;" after rendering. Swapping in "&lt;" itself made code
+// escape it a second time, showing `List<String>` as `List&lt;String>`. (A placeholder character
+// already in the input is replaced with U+FFFD so it can't be mistaken for an escaped "<".)
+const LT_PLACEHOLDER = "\uE000"
+const hideLessThan = (s: string) => s.replace(/\uE000/g, "\uFFFD").replace(/</g, LT_PLACEHOLDER)
+const restoreLessThan = (html: string) => html.replace(/\uE000/g, "&lt;")
+const render = (marked: Marked, input: string) => restoreLessThan(marked.parse(hideLessThan(input)) as string).trim()
 
 const stripTags = (input: string) => input.replace(/<[^>]*>/g, "")
 const sanitize = (input: string) => (DOMPurify.isSupported ? DOMPurify.sanitize(input) : stripTags(input))
@@ -143,12 +143,12 @@ const decodeHtmlEntities = (text: string): string => {
 }
 
 export const full = (input: string): string => {
-  return sanitize((markedFull.parse(input) as string).trim())
+  return sanitize(render(markedFull, input))
 }
 
 // HTML with the formatting stripped, safe to insert as HTML (<Markdown style="plainText" />)
 export const plainText = (input: string): string => {
-  return sanitize((markedPlainText.parse(input) as string).trim())
+  return sanitize(render(markedPlainText, input))
 }
 
 // Plain text with entities decoded (e.g. auto-generated titles). Never insert the result as HTML

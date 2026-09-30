@@ -238,10 +238,28 @@ describe("text is shown exactly as typed", () => {
     expect(shown(markdown.plainText("`List<String>` and `a && b`"))).toEqual("List<String> and a && b")
     expect(markdown.toText("`List<String>` and `a && b`")).toEqual("List<String> and a && b")
   })
+})
 
-  test("angle-bracket autolinks become links, as in the editor", () => {
-    expect(markdown.full("<https://example.com>")).toEqual(
-      '<p><a class="text-link" href="https://example.com" rel="noopener nofollow" target="_blank">https://example.com</a></p>'
+describe("text that starts with < keeps its block structure", () => {
+  // "<" must not reach marked's HTML-block rules, which would end paragraphs and list items early
+  const cases: [string, string][] = [
+    ["- Use a map\n<String, Int> as the key", "<ul>\n<li>Use a map<br>&lt;String, Int&gt; as the key</li>\n</ul>"],
+    ["a\n<div>b</div>", "<p>a<br>&lt;div&gt;b&lt;/div&gt;</p>"],
+    ["Steps:\n<p>para</p>", "<p>Steps:<br>&lt;p&gt;para&lt;/p&gt;</p>"],
+    ["- item\n<!-- c -->", "<ul>\n<li>item<br>&lt;!-- c --&gt;</li>\n</ul>"],
+  ]
+
+  cases.forEach(([input, expected]) => {
+    test(`full: ${JSON.stringify(input)}`, () => {
+      expect(markdown.full(input)).toEqual(expected)
+    })
+  })
+
+  test("angle brackets stay visible text, not <...> autolinks", () => {
+    // (the bare email is still linked by GFM's email autolinking, as before)
+    expect(markdown.full("<scheme:foo> and <user@example.com>")).toEqual(
+      '<p>&lt;scheme:foo&gt; and &lt;<a class="text-link" href="mailto:user@example.com" rel="noopener nofollow" target="_blank">user@example.com</a>&gt;</p>'
     )
+    expect(markdown.toText("Contact <user@example.com> about X")).toEqual("Contact <user@example.com> about X")
   })
 })
