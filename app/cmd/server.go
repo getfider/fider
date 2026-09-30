@@ -46,7 +46,7 @@ func RunServer() int {
 		})
 	}
 
-	if strings.HasPrefix(env.Config.GoogleAnalytics, "UA-") {
+	if strings.HasPrefix(strings.ToUpper(env.Config.GoogleAnalytics), "UA-") {
 		log.Warn(ctx, "GOOGLE_ANALYTICS is set to a Universal Analytics ID, which Google no longer supports. Replace it with a Google Analytics 4 Measurement ID (G-XXXXXXXXXX).")
 	}
 

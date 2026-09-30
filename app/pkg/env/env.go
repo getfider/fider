@@ -167,6 +167,8 @@ func Reload() {
 		panic(errors.Wrap(err, "failed to parse environment variables"))
 	}
 
+	Config.GoogleAnalytics = strings.TrimSpace(Config.GoogleAnalytics)
+
 	if IsSingleHostMode() {
 		if Config.HostDomain != "" {
 			panic("HOST_DOMAIN environment variable has been replaced by BASE_URL. Set it to your site base url, e.g: https://feedback.mysite.com")

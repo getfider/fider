@@ -22,7 +22,11 @@ func Secure() web.MiddlewareFunc {
 				}
 				cdnHost = " " + cdnHost
 			}
-			csp := fmt.Sprintf(web.CspPolicyTemplate, c.ContextID(), cdnHost)
+			analyticsScript, analyticsConnect := "", ""
+			if env.Config.GoogleAnalytics != "" {
+				analyticsScript, analyticsConnect = web.CspGoogleAnalyticsScript, web.CspGoogleAnalyticsConnect
+			}
+			csp := fmt.Sprintf(web.CspPolicyTemplate, c.ContextID(), cdnHost, analyticsScript, analyticsConnect)
 
 			c.Response.Header().Set("Content-Security-Policy", strings.TrimSpace(csp))
 			c.Response.Header().Set("X-XSS-Protection", "1; mode=block")

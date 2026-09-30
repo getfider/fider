@@ -24,7 +24,7 @@ func TestSecureWithoutCDN(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" + ctxID + "' https://www.googletagmanager.com; img-src 'self' https: data:; font-src 'self' data:; object-src 'none'; media-src 'none'; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src 'self'"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" + ctxID + "'; img-src 'self' https: data:; font-src 'self' data:; object-src 'none'; media-src 'none'; connect-src 'self'; frame-src 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
@@ -47,7 +47,7 @@ func TestSecureWithCDN(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline' *.test.fider.io; script-src 'self' 'nonce-" + ctxID + "' https://www.googletagmanager.com *.test.fider.io; img-src 'self' https: data: *.test.fider.io; font-src 'self' data: *.test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com *.test.fider.io; frame-src 'self'"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline' *.test.fider.io; script-src 'self' 'nonce-" + ctxID + "' *.test.fider.io; img-src 'self' https: data: *.test.fider.io; font-src 'self' data: *.test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' *.test.fider.io; frame-src 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
@@ -70,13 +70,33 @@ func TestSecureWithCDN_SingleHost(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline' test.fider.io; script-src 'self' 'nonce-" + ctxID + "' https://www.googletagmanager.com test.fider.io; img-src 'self' https: data: test.fider.io; font-src 'self' data: test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com test.fider.io; frame-src 'self'"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline' test.fider.io; script-src 'self' 'nonce-" + ctxID + "' test.fider.io; img-src 'self' https: data: test.fider.io; font-src 'self' data: test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' test.fider.io; frame-src 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
 	Expect(response.Header().Get("X-XSS-Protection")).Equals("1; mode=block")
 	Expect(response.Header().Get("X-Content-Type-Options")).Equals("nosniff")
 	Expect(response.Header().Get("Referrer-Policy")).Equals("no-referrer-when-downgrade")
+}
+
+func TestSecureWithGoogleAnalytics(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.GoogleAnalytics = "G-TEST123"
+
+	server := mock.NewServer()
+	server.Use(middlewares.Secure())
+
+	var ctxID string
+	status, response := server.Execute(func(c *web.Context) error {
+		ctxID = c.ContextID()
+		return c.NoContent(http.StatusOK)
+	})
+
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" + ctxID + "' https://www.googletagmanager.com; img-src 'self' https: data:; font-src 'self' data:; object-src 'none'; media-src 'none'; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://*.g.doubleclick.net https://pagead2.googlesyndication.com; frame-src 'self'"
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
 }
 
 func executeCSRF(method, url string, headers map[string]string) int {
