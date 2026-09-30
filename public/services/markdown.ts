@@ -31,8 +31,7 @@ if (DOMPurify.isSupported) {
 // override that writes token text/attributes into HTML must escape it itself.
 
 // Text and attribute values. marked 5+ escapes text (including ' -> &#39;); we keep apostrophes
-// literal to match the historical output, while preserving existing entities (input has already
-// been through encodeHTML, so "<" arrives as "&lt;") and escaping & < > ".
+// literal to match the historical output, while preserving existing entities and escaping & < > ".
 const escapeText = (s: string): string =>
   s
     .replace(/&(?![#\w]+;)/g, "&amp;")
@@ -70,9 +69,19 @@ const fullRenderer: RendererObject = {
     const rendered = "tokens" in token && token.tokens ? this.parser.parseInline(token.tokens) : escapeText(token.text)
     return renderMentions(rendered)
   },
+  html({ text }) {
+    // Not reached (raw HTML isn't tokenized, see noRawHTML), but never emit it unescaped.
+    return escapeText(text)
+  },
 }
+
+// Raw HTML is never rendered: with its tokenizers off, "<b>" is just text and is escaped once
+// by the text/code renderers. (Escaping "<" before parsing instead made code escape it twice,
+// showing `List<String>` as `List&lt;String>`, and broke <https://...> autolinks.)
+const noRawHTML = { tokenizer: { html: () => undefined, tag: () => undefined } }
+
 const markedFull = new Marked({ gfm: true, breaks: true })
-markedFull.use({ renderer: fullRenderer })
+markedFull.use(noRawHTML, { renderer: fullRenderer })
 
 // Plain-text renderer: strip all formatting down to readable text.
 const plainTextRenderer: RendererObject = {
@@ -114,9 +123,8 @@ const plainTextRenderer: RendererObject = {
   },
 }
 const markedPlainText = new Marked({ gfm: true, breaks: true })
-markedPlainText.use({ renderer: plainTextRenderer })
+markedPlainText.use(noRawHTML, { renderer: plainTextRenderer })
 
-const encodeHTML = (s: string) => s.replace(/</g, "&lt;")
 const stripTags = (input: string) => input.replace(/<[^>]*>/g, "")
 const sanitize = (input: string) => (DOMPurify.isSupported ? DOMPurify.sanitize(input) : stripTags(input))
 // Helper function to decode HTML entities back to readable characters
@@ -135,12 +143,12 @@ const decodeHtmlEntities = (text: string): string => {
 }
 
 export const full = (input: string): string => {
-  return sanitize((markedFull.parse(encodeHTML(input)) as string).trim())
+  return sanitize((markedFull.parse(input) as string).trim())
 }
 
 // HTML with the formatting stripped, safe to insert as HTML (<Markdown style="plainText" />)
 export const plainText = (input: string): string => {
-  return sanitize((markedPlainText.parse(encodeHTML(input)) as string).trim())
+  return sanitize((markedPlainText.parse(input) as string).trim())
 }
 
 // Plain text with entities decoded (e.g. auto-generated titles). Never insert the result as HTML

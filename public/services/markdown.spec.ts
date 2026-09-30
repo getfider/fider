@@ -210,3 +210,38 @@ describe("mentions", () => {
     expect(spans.map((e) => e.textContent)).toEqual(["@Jane Doe"])
   })
 })
+
+describe("text is shown exactly as typed", () => {
+  // Raw HTML used to be escaped before parsing, so code then escaped it a second time and
+  // `List<String>` displayed as `List&lt;String>`.
+  const shown = (html: string) => {
+    const container = document.createElement("div")
+    container.innerHTML = html
+    return container.textContent
+  }
+
+  const cases: [string, string][] = [
+    ["```\n<b>x</b> List<String> a && b\n```", "<b>x</b> List<String> a && b\n"],
+    ["`List<String>` and `a && b`", "List<String> and a && b"],
+    ["`&lt;b&gt;` shows the entity itself", "&lt;b&gt; shows the entity itself"],
+    ["Hello <b>Beautiful</b> World & more", "Hello <b>Beautiful</b> World & more"],
+    ["x < y > z", "x < y > z"],
+  ]
+
+  cases.forEach(([input, expected]) => {
+    test(`full: ${input}`, () => {
+      expect(shown(markdown.full(input))).toEqual(expected)
+    })
+  })
+
+  test("plainText and toText keep code as typed", () => {
+    expect(shown(markdown.plainText("`List<String>` and `a && b`"))).toEqual("List<String> and a && b")
+    expect(markdown.toText("`List<String>` and `a && b`")).toEqual("List<String> and a && b")
+  })
+
+  test("angle-bracket autolinks become links, as in the editor", () => {
+    expect(markdown.full("<https://example.com>")).toEqual(
+      '<p><a class="text-link" href="https://example.com" rel="noopener nofollow" target="_blank">https://example.com</a></p>'
+    )
+  })
+})
