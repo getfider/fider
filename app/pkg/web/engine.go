@@ -28,15 +28,20 @@ var (
 	cspBase    = "base-uri 'self'"
 	cspDefault = "default-src 'self'"
 	cspStyle   = "style-src 'self' 'unsafe-inline'%[2]s"
-	cspScript  = "script-src 'self' 'nonce-%[1]s' https://www.google-analytics.com%[2]s"
+	cspScript  = "script-src 'self' 'nonce-%[1]s'%[3]s%[2]s"
 	cspFont    = "font-src 'self' data:%[2]s"
 	cspImage   = "img-src 'self' https: data:%[2]s"
 	cspObject  = "object-src 'none'"
 	cspFrame   = "frame-src 'self'"
 	cspMedia   = "media-src 'none'"
-	cspConnect = "connect-src 'self' https://www.google-analytics.com%[2]s"
+	cspConnect = "connect-src 'self'%[4]s%[2]s"
+
+	// Google Analytics hosts are only allowed when GOOGLE_ANALYTICS is set (https://developers.google.com/tag-platform/security/guides/csp)
+	CspGoogleAnalyticsScript  = " https://www.googletagmanager.com"
+	CspGoogleAnalyticsConnect = " https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://*.g.doubleclick.net https://pagead2.googlesyndication.com"
 
 	//CspPolicyTemplate is the template used to generate the policy
+	//Args: 1 = nonce, 2 = CDN host, 3 = analytics script hosts, 4 = analytics connect hosts
 	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspFrame)
 )
 

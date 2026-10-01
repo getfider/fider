@@ -19,7 +19,7 @@ interface PaddleSdk {
   }
 }
 declare interface Window {
-  ga?: (cmd: string, evt: string, args?: any) => void
+  gtag?: (cmd: string, name: string, params?: Record<string, unknown>) => void
   set: (key: string, value: any) => void
   Paddle: PaddleSdk
 }
