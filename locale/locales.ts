@@ -12,6 +12,9 @@ const locales: { [key: string]: Locale } = {
   "pt-BR": {
     text: "Portuguese (Brazilian)",
   },
+  "pt-PT": {
+    text: "Portuguese (Portugal)",
+  },
   "es-ES": {
     text: "Spanish",
   },
