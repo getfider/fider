@@ -37,13 +37,16 @@ var (
 	cspMedia   = "media-src 'none'"
 	cspConnect = "connect-src 'self'%[4]s%[2]s"
 
+	// Fider has no embeddable pages, so other sites must not frame it (clickjacking)
+	cspFrameAncestors = "frame-ancestors 'self'"
+
 	// Google Analytics hosts are only allowed when GOOGLE_ANALYTICS is set (https://developers.google.com/tag-platform/security/guides/csp)
 	CspGoogleAnalyticsScript  = " https://www.googletagmanager.com"
 	CspGoogleAnalyticsConnect = " https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://*.g.doubleclick.net https://pagead2.googlesyndication.com"
 
 	//CspPolicyTemplate is the template used to generate the policy
 	//Args: 1 = nonce, 2 = CDN host, 3 = analytics script hosts, 4 = analytics connect hosts
-	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspFrame)
+	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspFrame, cspFrameAncestors)
 )
 
 type notFoundHandler struct {

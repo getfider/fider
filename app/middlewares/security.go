@@ -9,6 +9,9 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
+// permissionsPolicy disables browser features that Fider never uses
+const permissionsPolicy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+
 // Secure middleware is responsible for
 // 1. Setting the HTTP Security Headers
 // 2. Protecting from Host attacks
@@ -32,6 +35,12 @@ func Secure() web.MiddlewareFunc {
 			c.Response.Header().Set("X-XSS-Protection", "1; mode=block")
 			c.Response.Header().Set("X-Content-Type-Options", "nosniff")
 			c.Response.Header().Set("Referrer-Policy", "no-referrer-when-downgrade")
+			c.Response.Header().Set("Permissions-Policy", permissionsPolicy)
+
+			// Only when Fider terminates TLS itself. Behind a reverse proxy, HSTS is the operator's decision.
+			if env.Config.TLS.Automatic || env.Config.TLS.Certificate != "" {
+				c.Response.Header().Set("Strict-Transport-Security", "max-age=15552000")
+			}
 			return next(c)
 		}
 	}
