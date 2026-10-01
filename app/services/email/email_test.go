@@ -25,6 +25,15 @@ func TestRenderMessage_SubjectUnescapesHTMLEntities(t *testing.T) {
 	Expect(message.Subject).Equals(`Message to: Encontrar+se "quoted" & <tagged>`)
 }
 
+func TestRenderMessage_SubjectKeepsLeadingCharacters(t *testing.T) {
+	RegisterT(t)
+
+	message := email.RenderMessage(context.Background(), "invite_email", email.NoReply, dto.Props{
+		"subject": "subscribe to our feedback site",
+	})
+	Expect(message.Subject).Equals("subscribe to our feedback site")
+}
+
 func TestRenderMessage_EscapesPlainTextParams(t *testing.T) {
 	RegisterT(t)
 
