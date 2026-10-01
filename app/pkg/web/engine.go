@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	stdLog "log"
@@ -51,6 +52,9 @@ type notFoundHandler struct {
 }
 
 func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	if rejectOversizedBody(res, req) {
+		return
+	}
 	ctx := NewContext(h.engine, req, res, nil)
 	_ = h.handler(ctx)
 }
@@ -265,6 +269,9 @@ func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httpr
 		next = middlewares[i](next)
 	}
 	var h = func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		if rejectOversizedBody(res, req) {
+			return
+		}
 		params := make(StringMap)
 		for _, p := range ps {
 			params[p.Key] = p.Value
@@ -273,6 +280,27 @@ func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httpr
 		_ = next(ctx)
 	}
 	return h
+}
+
+// rejectOversizedBody responds with 413 Request Entity Too Large and returns true when the
+// request body is bigger than HTTP_MAX_BODY_SIZE. It must run before NewContext, because
+// WrapRequest reads the whole body into memory.
+func rejectOversizedBody(res http.ResponseWriter, req *http.Request) bool {
+	maxBytes := env.Config.HTTP.MaxBodySize
+	if req.ContentLength > maxBytes {
+		res.Header().Set("Content-Type", UTF8JSONContentType)
+		res.Header().Set("Connection", "close")
+		res.WriteHeader(http.StatusRequestEntityTooLarge)
+		_ = json.NewEncoder(res).Encode(Map{
+			"errors": []Map{{"message": "The request is too large."}},
+		})
+		return true
+	}
+
+	// Bodies of unknown length (chunked) are not read by WrapRequest, but cap them anyway in
+	// case anything reads the raw body later on.
+	req.Body = http.MaxBytesReader(res, req.Body, maxBytes)
+	return false
 }
 
 // Group is our router group wrapper
