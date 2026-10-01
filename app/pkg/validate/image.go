@@ -72,6 +72,11 @@ type ImageHeader struct {
 	Progressive bool
 }
 
+// ContentType returns the MIME type of the image format
+func (h *ImageHeader) ContentType() string {
+	return "image/" + h.Format
+}
+
 // ReadImageHeader reads the image header without decoding the pixel data.
 // Returns imagic.ErrNotSupported for anything imagic can't process.
 func ReadImageHeader(content []byte) (*ImageHeader, error) {

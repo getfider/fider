@@ -41,6 +41,25 @@ func TestListUsersHandler(t *testing.T) {
 	Expect(query.Contains("users")).IsTrue()
 }
 
+func TestListUsersHandler_ClampsLimit(t *testing.T) {
+	RegisterT(t)
+
+	var searchUsers *query.SearchUsers
+	bus.AddHandler(func(ctx context.Context, q *query.SearchUsers) error {
+		searchUsers = q
+		return nil
+	})
+
+	status, response := mock.NewServer().
+		AsUser(mock.JonSnow).
+		WithURL("http://demo.test.fider.io/api/v1/users?limit=2000000000").
+		ExecuteAsJSON(apiv1.ListUsers())
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(searchUsers.Limit).Equals(100)
+	Expect(response.Int32("limit")).Equals(100)
+}
+
 func TestCreateUser_ExistingEmail(t *testing.T) {
 	RegisterT(t)
 
