@@ -59,7 +59,8 @@ func SearchPosts() web.HandlerFunc {
 			Tags:             c.QueryParamAsArray("tags"),
 			ModerationFilter: c.QueryParam("moderation"),
 		}
-		searchPosts.SetLimitFromString(c.QueryParam("limit"))
+		// API keys (staff only) may fetch every post, as there is no offset to page through them
+		searchPosts.SetLimitFromString(c.QueryParam("limit"), c.IsAuthenticatedByAPIKey())
 
 		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
 			searchPosts.MyVotesOnly = myVotesOnly

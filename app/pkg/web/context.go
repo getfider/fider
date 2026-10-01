@@ -353,6 +353,17 @@ func (c *Context) SetUser(user *entity.User) {
 	c.Set(app.UserCtxKey, user)
 }
 
+// SetAuthenticatedByAPIKey marks the current user as authenticated with an API key
+func (c *Context) SetAuthenticatedByAPIKey() {
+	c.Set(app.APIKeyCtxKey, true)
+}
+
+// IsAuthenticatedByAPIKey returns true if the current user was authenticated with an API key
+func (c *Context) IsAuthenticatedByAPIKey() bool {
+	byAPIKey, _ := c.Value(app.APIKeyCtxKey).(bool)
+	return byAPIKey && c.IsAuthenticated()
+}
+
 // AddCookie adds a cookie
 func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
 	cookie := &http.Cookie{

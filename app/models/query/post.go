@@ -65,11 +65,16 @@ type GetAllPosts struct {
 const MaxSearchPostsLimit = 1000
 
 // SetLimitFromString sets Limit from an untrusted value such as a query string parameter.
-// Invalid or non-positive values fall back to the default limit, larger values are clamped
-// to MaxSearchPostsLimit, and "all" means MaxSearchPostsLimit rather than no limit at all.
-func (q *SearchPosts) SetLimitFromString(limit string) {
+// Invalid or non-positive values fall back to the default limit. Unless unlimited is true,
+// larger values are clamped to MaxSearchPostsLimit and "all" means MaxSearchPostsLimit
+// rather than no limit at all.
+func (q *SearchPosts) SetLimitFromString(limit string, unlimited bool) {
 	if limit == "all" {
-		q.Limit = strconv.Itoa(MaxSearchPostsLimit)
+		if unlimited {
+			q.Limit = "all"
+		} else {
+			q.Limit = strconv.Itoa(MaxSearchPostsLimit)
+		}
 		return
 	}
 
@@ -77,7 +82,7 @@ func (q *SearchPosts) SetLimitFromString(limit string) {
 	switch {
 	case err != nil || n <= 0:
 		q.Limit = ""
-	case n > MaxSearchPostsLimit:
+	case n > MaxSearchPostsLimit && !unlimited:
 		q.Limit = strconv.Itoa(MaxSearchPostsLimit)
 	default:
 		q.Limit = strconv.Itoa(n)

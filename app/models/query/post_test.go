@@ -12,25 +12,32 @@ func TestSearchPosts_SetLimitFromString(t *testing.T) {
 	RegisterT(t)
 
 	testCases := []struct {
-		input    string
-		expected string
+		input     string
+		unlimited bool
+		expected  string
 	}{
-		{"", ""},
-		{"abc", ""},
-		{"0", ""},
-		{"-5", ""},
-		{"1", "1"},
-		{"30", "30"},
-		{"1000", "1000"},
-		{"1001", "1000"},
-		{"2000000000", "1000"},
-		{"99999999999999999999", ""},
-		{"all", "1000"},
+		{"", false, ""},
+		{"abc", false, ""},
+		{"0", false, ""},
+		{"-5", false, ""},
+		{"1", false, "1"},
+		{"30", false, "30"},
+		{"1000", false, "1000"},
+		{"1001", false, "1000"},
+		{"2000000000", false, "1000"},
+		{"99999999999999999999", false, ""},
+		{"all", false, "1000"},
+		{"", true, ""},
+		{"abc", true, ""},
+		{"-5", true, ""},
+		{"30", true, "30"},
+		{"5000", true, "5000"},
+		{"all", true, "all"},
 	}
 
 	for _, testCase := range testCases {
 		q := &query.SearchPosts{}
-		q.SetLimitFromString(testCase.input)
+		q.SetLimitFromString(testCase.input, testCase.unlimited)
 		Expect(q.Limit).Equals(testCase.expected)
 	}
 }
