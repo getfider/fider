@@ -2,6 +2,7 @@ package email_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app/models/dto"
@@ -22,6 +23,39 @@ func TestRenderMessage_SubjectUnescapesHTMLEntities(t *testing.T) {
 		"name": `Encontrar+se "quoted" & <tagged>`,
 	})
 	Expect(message.Subject).Equals(`Message to: Encontrar+se "quoted" & <tagged>`)
+}
+
+func TestRenderMessage_EscapesPlainTextParams(t *testing.T) {
+	RegisterT(t)
+
+	// User and tenant controlled values are interpolated into translated
+	// strings that are rendered as raw HTML, so they must be HTML-escaped
+	// (not stripped) before interpolation.
+	raw := "<b>x</b> & <3"
+	escaped := "&lt;b&gt;x&lt;/b&gt; &amp; &lt;3"
+
+	testCases := []struct {
+		template string
+		params   dto.Props
+		expected int
+	}{
+		{"new_post", dto.Props{"userName": raw, "title": raw}, 2},
+		{"new_comment", dto.Props{"messageLocaleString": "email.new_comment.text", "userName": raw, "title": raw}, 2},
+		{"new_comment", dto.Props{"messageLocaleString": "email.new_mention.text", "userName": raw, "title": raw}, 2},
+		{"change_status", dto.Props{"title": raw, "status": raw}, 2},
+		{"change_status", dto.Props{"title": raw, "duplicate": "<a href='#'>original</a>"}, 1},
+		{"delete_post", dto.Props{"title": raw}, 1},
+		{"signin_email", dto.Props{"siteName": raw, "link": ""}, 1},
+		{"delete_account_requested", dto.Props{"tenantName": raw, "scheduledAt": raw, "cancelLink": ""}, 2},
+		{"delete_account_completed", dto.Props{"tenantName": raw, "subdomain": raw}, 2},
+		{"change_emailaddress_email", dto.Props{"name": raw, "oldEmail": raw, "newEmail": raw, "link": ""}, 3},
+	}
+
+	for _, testCase := range testCases {
+		message := email.RenderMessage(context.Background(), testCase.template, email.NoReply, testCase.params)
+		Expect(strings.Count(message.Body, escaped)).Equals(testCase.expected)
+		Expect(strings.Contains(message.Body, "<b>")).IsFalse()
+	}
 }
 
 func TestRenderMessage(t *testing.T) {
