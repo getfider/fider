@@ -369,6 +369,20 @@ func (action *EditComment) Validate(ctx context.Context, user *entity.User) *val
 			result.AddFieldFailure("content", i18n.T(ctx, "validation.custom.maxattachments", i18n.Params{"number": 2}))
 		}
 
+		getAttachments := &query.GetAttachments{Post: action.Post, Comment: action.Comment}
+		if err := bus.Dispatch(ctx, getAttachments); err != nil {
+			return validate.Error(err)
+		}
+
+		messages, err := validate.MultiImageUpload(ctx, getAttachments.Result, action.Attachments, validate.MultiImageUploadOpts{
+			MaxUploads:   2,
+			MaxKilobytes: 5120,
+			ExactRatio:   false,
+		})
+		if err != nil {
+			return validate.Error(err)
+		}
+		result.AddFieldFailure("attachments", messages...)
 	}
 
 	return result
