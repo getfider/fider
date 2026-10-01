@@ -20,9 +20,10 @@ func Index() web.HandlerFunc {
 		searchPosts := &query.SearchPosts{
 			Query: c.QueryParam("query"),
 			View:  c.QueryParam("view"),
-			Limit: c.QueryParam("limit"),
 			Tags:  c.QueryParamAsArray("tags"),
 		}
+
+		searchPosts.SetLimitFromString(c.QueryParam("limit"))
 
 		if myVotesOnly, err := c.QueryParamAsBool("myvotes"); err == nil {
 			searchPosts.MyVotesOnly = myVotesOnly

@@ -85,6 +85,26 @@ func TestCreatePostHandler_AppendsUnreferencedAttachments(t *testing.T) {
 	Expect(newPost.Description).Equals("Already referenced: ![](fider-image:attachments/referenced.png)\n\n![](fider-image:attachments/standalone.png)")
 }
 
+func TestSearchPostsHandler_ClampsLimit(t *testing.T) {
+	RegisterT(t)
+
+	for _, limit := range []string{"all", "2000000000"} {
+		var searchPosts *query.SearchPosts
+		bus.AddHandler(func(ctx context.Context, q *query.SearchPosts) error {
+			searchPosts = q
+			return nil
+		})
+
+		status, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			WithURL("http://demo.test.fider.io/api/v1/posts?limit=" + limit).
+			Execute(apiv1.SearchPosts())
+
+		Expect(status).Equals(http.StatusOK)
+		Expect(searchPosts.Limit).Equals("1000")
+	}
+}
+
 func TestCreatePostHandler_WithoutTitle(t *testing.T) {
 	RegisterT(t)
 

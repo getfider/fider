@@ -12,6 +12,9 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
+// maxListUsersLimit is the largest page size accepted by ListUsers
+const maxListUsersLimit = 100
+
 // ListUsers returns paginated registered users
 func ListUsers() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -23,6 +26,8 @@ func ListUsers() web.HandlerFunc {
 		limit, _ := c.QueryParamAsInt("limit")
 		if limit <= 0 {
 			limit = 10
+		} else if limit > maxListUsersLimit {
+			limit = maxListUsersLimit
 		}
 
 		searchUsers := &query.SearchUsers{
