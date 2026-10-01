@@ -28,6 +28,7 @@ func User() web.MiddlewareFunc {
 				token            string
 				user             *entity.User
 				fromSignUpCookie bool
+				fromAPIKey       bool
 			)
 
 			cookie, err := c.Request.Cookie(web.CookieAuthName)
@@ -97,6 +98,7 @@ func User() web.MiddlewareFunc {
 						return err
 					}
 					user = getUserByAPIKey.Result
+					fromAPIKey = true
 
 					if !user.IsCollaborator() {
 						return c.HandleValidation(validate.Failed("API Key is invalid"))
@@ -139,6 +141,9 @@ func User() web.MiddlewareFunc {
 				}
 
 				c.SetUser(user)
+				if fromAPIKey {
+					c.SetAuthenticatedByAPIKey()
+				}
 			}
 
 			return next(c)

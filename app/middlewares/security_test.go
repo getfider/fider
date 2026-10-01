@@ -24,13 +24,46 @@ func TestSecureWithoutCDN(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" + ctxID + "'; img-src 'self' https: data:; font-src 'self' data:; object-src 'none'; media-src 'none'; connect-src 'self'; frame-src 'self'"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" + ctxID + "'; img-src 'self' https: data:; font-src 'self' data:; object-src 'none'; media-src 'none'; connect-src 'self'; frame-src 'self'; frame-ancestors 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
 	Expect(response.Header().Get("X-XSS-Protection")).Equals("1; mode=block")
 	Expect(response.Header().Get("X-Content-Type-Options")).Equals("nosniff")
 	Expect(response.Header().Get("Referrer-Policy")).Equals("no-referrer-when-downgrade")
+	Expect(response.Header().Get("Permissions-Policy")).Equals("camera=(), microphone=(), geolocation=(), payment=(), usb=()")
+	Expect(response.Header().Get("Strict-Transport-Security")).Equals("")
+}
+
+func TestSecure_HSTS(t *testing.T) {
+	RegisterT(t)
+
+	testCases := []struct {
+		name        string
+		automatic   bool
+		certificate string
+		expected    string
+	}{
+		{"plain HTTP (e.g. behind a reverse proxy)", false, "", ""},
+		{"automatic TLS", true, "", "max-age=15552000"},
+		{"configured certificate", false, "cert.pem", "max-age=15552000"},
+	}
+
+	for _, tc := range testCases {
+		env.Config.TLS.Automatic = tc.automatic
+		env.Config.TLS.Certificate = tc.certificate
+
+		server := mock.NewServer()
+		server.Use(middlewares.Secure())
+
+		_, response := server.
+			AddHeader("X-Forwarded-Proto", "https").
+			Execute(func(c *web.Context) error {
+				return c.NoContent(http.StatusOK)
+			})
+
+		Expect(response.Header().Get("Strict-Transport-Security")).Equals(tc.expected)
+	}
 }
 
 func TestSecureWithCDN(t *testing.T) {
@@ -47,7 +80,7 @@ func TestSecureWithCDN(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline' *.test.fider.io; script-src 'self' 'nonce-" + ctxID + "' *.test.fider.io; img-src 'self' https: data: *.test.fider.io; font-src 'self' data: *.test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' *.test.fider.io; frame-src 'self'"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline' *.test.fider.io; script-src 'self' 'nonce-" + ctxID + "' *.test.fider.io; img-src 'self' https: data: *.test.fider.io; font-src 'self' data: *.test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' *.test.fider.io; frame-src 'self'; frame-ancestors 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
@@ -70,7 +103,7 @@ func TestSecureWithCDN_SingleHost(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline' test.fider.io; script-src 'self' 'nonce-" + ctxID + "' test.fider.io; img-src 'self' https: data: test.fider.io; font-src 'self' data: test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' test.fider.io; frame-src 'self'"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline' test.fider.io; script-src 'self' 'nonce-" + ctxID + "' test.fider.io; img-src 'self' https: data: test.fider.io; font-src 'self' data: test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' test.fider.io; frame-src 'self'; frame-ancestors 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
@@ -93,7 +126,7 @@ func TestSecureWithGoogleAnalytics(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" + ctxID + "' https://www.googletagmanager.com; img-src 'self' https: data:; font-src 'self' data:; object-src 'none'; media-src 'none'; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://*.g.doubleclick.net https://pagead2.googlesyndication.com; frame-src 'self'"
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" + ctxID + "' https://www.googletagmanager.com; img-src 'self' https: data:; font-src 'self' data:; object-src 'none'; media-src 'none'; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://*.g.doubleclick.net https://pagead2.googlesyndication.com; frame-src 'self'; frame-ancestors 'self'"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)

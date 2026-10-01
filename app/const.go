@@ -32,5 +32,6 @@ var (
 	TenantCtxKey      = createKey("TENANT")
 	LocaleCtxKey      = createKey("LOCALE")
 	UserCtxKey        = createKey("USER")
+	APIKeyCtxKey      = createKey("API_KEY")
 	LogPropsCtxKey    = createKey("LOG_PROPS")
 )

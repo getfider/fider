@@ -46,6 +46,9 @@ type config struct {
 		ReadTimeout  time.Duration `env:"HTTP_READ_TIMEOUT,default=5s,strict"`
 		WriteTimeout time.Duration `env:"HTTP_WRITE_TIMEOUT,default=10s,strict"`
 		IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=120s,strict"`
+		// Largest accepted request body in bytes. The biggest legitimate request is a post edit
+		// carrying 3 attachments of 5 MiB each, which is ~20 MiB once base64-encoded in JSON.
+		MaxBodySize int64 `env:"HTTP_MAX_BODY_SIZE,default=26214400,strict"`
 	}
 	Port                        string `env:"PORT,default=3000"`
 	Host                        string `env:"HOST,default="`
