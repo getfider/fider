@@ -2,6 +2,7 @@ package actions_test
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -165,4 +166,45 @@ func TestEditComment_AtMaxLength(t *testing.T) {
 	action := &actions.EditComment{Content: strings.Repeat("a", 4000)}
 	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
+}
+
+func TestCreateNewPost_NullAttachments(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+		return app.ErrNotFound
+	})
+
+	action := &actions.CreateNewPost{}
+	err := json.Unmarshal([]byte(`{"title": "this is my new post", "attachments": [null, null]}`), action)
+	Expect(err).IsNil()
+
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+	Expect(action.Attachments).HasLen(0)
+}
+
+func TestAddNewComment_NullAttachments(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.AddNewComment{}
+	err := json.Unmarshal([]byte(`{"content": "Nice idea", "attachments": [null]}`), action)
+	Expect(err).IsNil()
+
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+	Expect(action.Attachments).HasLen(0)
+}
+
+func TestEditComment_NullAttachments(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.EditComment{}
+	err := json.Unmarshal([]byte(`{"content": "Nice idea", "attachments": [null, {"bkey": "attachments/a.png", "remove": true}]}`), action)
+	Expect(err).IsNil()
+
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+	Expect(action.Attachments).HasLen(1)
+	Expect(action.Attachments[0].BlobKey).Equals("attachments/a.png")
 }
