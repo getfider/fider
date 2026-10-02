@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useLayoutEffect, useState, useRef, useCallback } from "react"
 
 interface UsePostOverlayOptions {
   basePath: string
@@ -7,62 +7,69 @@ interface UsePostOverlayOptions {
 
 export function usePostOverlay({ basePath, onPostClosed }: UsePostOverlayOptions) {
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
-  const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0)
-  const [isPostDirty, setIsPostDirty] = useState(false)
-  const [savedSearch, setSavedSearch] = useState("")
-  const [lastOpenedPostId, setLastOpenedPostId] = useState<number | null>(null)
+
+  // Where the list was when a post was opened, so it can be restored on close
+  const listScrollY = useRef(0)
+  const listSearch = useRef("")
+  const isPostDirty = useRef(false)
+  const shownPostId = useRef<number | null>(null)
 
   const onPostClosedRef = useRef(onPostClosed)
   onPostClosedRef.current = onPostClosed
 
   const handlePostClick = useCallback((postNumber: number, slug: string) => {
-    setSavedScrollPosition(window.scrollY)
-    setSavedSearch(window.location.search)
-    setSelectedPostId(postNumber)
-    setLastOpenedPostId(postNumber)
-    setIsPostDirty(false)
+    listScrollY.current = window.scrollY
+    listSearch.current = window.location.search
+    // Keep the scroll position on the list's history entry too, for the browser back button
+    window.history.replaceState({ ...window.history.state, scrollY: window.scrollY }, "")
     window.history.pushState({ selectedPostId: postNumber }, "", `/posts/${postNumber}/${slug}`)
+    setSelectedPostId(postNumber)
   }, [])
 
   const handleCloseOverlay = useCallback(() => {
+    window.history.pushState({ scrollY: listScrollY.current }, "", `${basePath}${listSearch.current}`)
     setSelectedPostId(null)
-    window.history.pushState({}, "", `${basePath}${savedSearch}`)
-  }, [basePath, savedSearch])
+  }, [basePath])
 
-  useEffect(() => {
-    if (selectedPostId === null && lastOpenedPostId !== null) {
-      if (isPostDirty && onPostClosedRef.current) {
-        onPostClosedRef.current(lastOpenedPostId)
-        setIsPostDirty(false)
-      }
-      setLastOpenedPostId(null)
+  const setIsPostDirty = useCallback((dirty: boolean) => {
+    isPostDirty.current = dirty
+  }, [])
 
-      setTimeout(() => {
-        window.scrollTo(0, savedScrollPosition)
-      }, 0)
+  // Runs before the browser paints, so the page never shows at the wrong scroll position
+  useLayoutEffect(() => {
+    const previousPostId = shownPostId.current
+    shownPostId.current = selectedPostId
+    if (selectedPostId === previousPostId) {
+      return
     }
-  }, [selectedPostId, lastOpenedPostId, isPostDirty, savedScrollPosition])
+
+    window.scrollTo(0, selectedPostId === null ? listScrollY.current : 0)
+
+    if (previousPostId !== null && isPostDirty.current) {
+      onPostClosedRef.current?.(previousPostId)
+    }
+    isPostDirty.current = false
+  }, [selectedPostId])
 
   useEffect(() => {
-    const handlePopState = () => {
+    const handlePopState = (e: PopStateEvent) => {
       const path = window.location.pathname
       if (path === basePath || path === basePath.replace(/\/$/, "")) {
+        if (typeof e.state?.scrollY === "number") {
+          listScrollY.current = e.state.scrollY
+        }
         setSelectedPostId(null)
-      } else if (path.startsWith("/posts/")) {
-        setSavedScrollPosition(window.scrollY)
-        setSavedSearch(window.location.search)
-        const match = path.match(/\/posts\/(\d+)/)
+      } else {
+        const match = path.match(/^\/posts\/(\d+)/)
         if (match) {
-          const postNumber = parseInt(match[1], 10)
-          setSelectedPostId(postNumber)
-          setLastOpenedPostId(postNumber)
+          setSelectedPostId(parseInt(match[1], 10))
         }
       }
     }
 
     window.addEventListener("popstate", handlePopState)
     return () => window.removeEventListener("popstate", handlePopState)
-  }, [basePath, savedScrollPosition])
+  }, [basePath])
 
   return {
     selectedPostId,
