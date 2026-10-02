@@ -59,7 +59,7 @@ func RenderMessage(ctx context.Context, templateName string, fromAddress string,
 	// '"', '&', '<', '>' to numeric entities (e.g. "&#43;"). SMTP headers
 	// are plain text and clients do not decode HTML entities in them, so
 	// undo the escaping for the subject only.
-	subject := html.UnescapeString(strings.TrimLeft(lines[0], "subject: "))
+	subject := html.UnescapeString(strings.TrimPrefix(lines[0], "subject: "))
 
 	return &Message{
 		Subject: subject,

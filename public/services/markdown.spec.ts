@@ -210,3 +210,56 @@ describe("mentions", () => {
     expect(spans.map((e) => e.textContent)).toEqual(["@Jane Doe"])
   })
 })
+
+describe("text is shown exactly as typed", () => {
+  // Raw HTML used to be escaped before parsing, so code then escaped it a second time and
+  // `List<String>` displayed as `List&lt;String>`.
+  const shown = (html: string) => {
+    const container = document.createElement("div")
+    container.innerHTML = html
+    return container.textContent
+  }
+
+  const cases: [string, string][] = [
+    ["```\n<b>x</b> List<String> a && b\n```", "<b>x</b> List<String> a && b\n"],
+    ["`List<String>` and `a && b`", "List<String> and a && b"],
+    ["`&lt;b&gt;` shows the entity itself", "&lt;b&gt; shows the entity itself"],
+    ["Hello <b>Beautiful</b> World & more", "Hello <b>Beautiful</b> World & more"],
+    ["x < y > z", "x < y > z"],
+  ]
+
+  cases.forEach(([input, expected]) => {
+    test(`full: ${input}`, () => {
+      expect(shown(markdown.full(input))).toEqual(expected)
+    })
+  })
+
+  test("plainText and toText keep code as typed", () => {
+    expect(shown(markdown.plainText("`List<String>` and `a && b`"))).toEqual("List<String> and a && b")
+    expect(markdown.toText("`List<String>` and `a && b`")).toEqual("List<String> and a && b")
+  })
+})
+
+describe("text that starts with < keeps its block structure", () => {
+  // "<" must not reach marked's HTML-block rules, which would end paragraphs and list items early
+  const cases: [string, string][] = [
+    ["- Use a map\n<String, Int> as the key", "<ul>\n<li>Use a map<br>&lt;String, Int&gt; as the key</li>\n</ul>"],
+    ["a\n<div>b</div>", "<p>a<br>&lt;div&gt;b&lt;/div&gt;</p>"],
+    ["Steps:\n<p>para</p>", "<p>Steps:<br>&lt;p&gt;para&lt;/p&gt;</p>"],
+    ["- item\n<!-- c -->", "<ul>\n<li>item<br>&lt;!-- c --&gt;</li>\n</ul>"],
+  ]
+
+  cases.forEach(([input, expected]) => {
+    test(`full: ${JSON.stringify(input)}`, () => {
+      expect(markdown.full(input)).toEqual(expected)
+    })
+  })
+
+  test("angle brackets stay visible text, not <...> autolinks", () => {
+    // (the bare email is still linked by GFM's email autolinking, as before)
+    expect(markdown.full("<scheme:foo> and <user@example.com>")).toEqual(
+      '<p>&lt;scheme:foo&gt; and &lt;<a class="text-link" href="mailto:user@example.com" rel="noopener nofollow" target="_blank">user@example.com</a>&gt;</p>'
+    )
+    expect(markdown.toText("Contact <user@example.com> about X")).toEqual("Contact <user@example.com> about X")
+  })
+})
