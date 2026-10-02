@@ -90,6 +90,28 @@ func RequireTenant() web.MiddlewareFunc {
 	}
 }
 
+// RootDomainFallback serves the given handler on the root path of a multi-tenant instance's
+// root domain, where no tenant resolves from the hostname and RequireTenant would otherwise
+// return 404. Every other path, and every request that did resolve a tenant, is passed
+// through untouched.
+//
+// The hostname must be exactly the configured root domain. A tenant-shaped host that
+// resolved nothing — an unknown or disabled subdomain, or a custom domain matching no
+// tenant — must keep its 404 instead of being handed the directory.
+func RootDomainFallback(handler web.HandlerFunc) web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c *web.Context) error {
+			isRootDomain := c.Request.URL.Hostname() == env.Config.HostDomain
+
+			if c.Tenant() == nil && isRootDomain && c.Request.URL.Path == "/" {
+				return handler(c)
+			}
+
+			return next(c)
+		}
+	}
+}
+
 // BlockPendingTenants blocks requests for pending tenants
 func BlockPendingTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {

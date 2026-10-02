@@ -1,0 +1,81 @@
+@use "~@fider/assets/styles/variables.scss" as *;
+
+#p-portal-directory {
+  padding-top: spacing(8);
+  padding-bottom: spacing(12);
+
+  .c-portal-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: spacing(3);
+
+    @include media("md") {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @include media("lg") {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+
+  .c-portal-card {
+    display: flex;
+    align-items: center;
+    gap: spacing(3);
+    padding: spacing(3);
+    border: 1px solid var(--colors-gray-200);
+    border-radius: 4px;
+    background-color: var(--colors-white);
+    color: inherit;
+
+    &:hover {
+      border-color: var(--colors-gray-300);
+      text-decoration: none;
+    }
+
+    &__logo {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+
+      img {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        border-radius: 4px;
+      }
+    }
+
+    &__initial {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      background-color: var(--colors-gray-200);
+      color: var(--colors-gray-700);
+      font-weight: 600;
+    }
+
+    &__text {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    &__name,
+    &__host {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  @include dark-mode {
+    .c-portal-card {
+      border-color: var(--colors-gray-300);
+      background-color: var(--colors-gray-100);
+    }
+  }
+}

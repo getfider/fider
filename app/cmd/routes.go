@@ -87,6 +87,10 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/oauth/:provider", handlers.SignInByOAuth())
 	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 
+	// The root domain of a multi-tenant instance resolves no tenant, so RequireTenant below
+	// would 404 it. Serve the public portal directory there instead, when it's enabled.
+	r.Use(middlewares.RootDomainFallback(handlers.PortalDirectory()))
+
 	// Starting from this step, a Tenant is required
 	r.Use(middlewares.RequireTenant())
 
