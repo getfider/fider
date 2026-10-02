@@ -16,59 +16,25 @@ updates:
         update-types: ["patch"]
       minor-updates:
         update-types: ["minor"]
-      # Major versions stay separate (likely breaking changes)
     ignore:
-      # Held back deliberately — bumping these breaks the build/e2e. One bad bump
-      # in a group poisons the whole grouped PR, so these are pinned until the
-      # blocking prerequisite is resolved. Patch updates within the held line are
-      # still allowed.
-      #
+      # No npm major-version PRs. Almost every major here has turned out to need a
+      # coordinated, hand-done migration rather than a bump, and one PR per package
+      # was mostly noise. Majors are done deliberately instead; patch/minor groups
+      # and security updates still flow. Known majors and what blocks them:
+      #   - jest 30 / @babel/core 8: jest, jest-environment-jsdom, babel-jest, @babel/*
+      #     and babel-loader must move together.
+      #   - @typescript-eslint 8 + typescript: needs ESLint >= 8.57 (on 8.15), and
+      #     typescript-eslint 5 can't load under newer TypeScript.
+      #   - React 19: react, react-dom, @types/react, @types/react-dom together.
+      #     Prerequisite for lifting the @lingui hold below.
+      #   - marked 18: @tiptap/markdown depends on marked ^17.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
       # @lingui/*: 5.9 breaks the build — <Trans> return type is ReactNode, not a
-      #   valid JSX element under the current @types/react. Needs a @types/react
-      #   upgrade first. Held on the 5.1 line.
+      #   valid JSX element under the current @types/react. Needs the React 19 /
+      #   @types/react upgrade first. Held on the 5.1 line (patches still allowed).
       - dependency-name: "@lingui/*"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
-      # Test/build toolchain majors — jest 30 and @babel/core 8 each require a
-      #   COORDINATED migration of the whole entangled stack (jest + jest-environment-jsdom
-      #   + babel-jest + @babel/* presets + jsdom), not a single bump. Bumping one alone
-      #   fails: jest 30 -> `clearMocksOnScope is not a function`; @babel/core 8 -> ERESOLVE
-      #   vs @babel/cli@7 / babel-jest@28. Held on the current majors until done as a
-      #   dedicated task; minor/patch within them still flow.
-      - dependency-name: "jest"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "jest-environment-jsdom"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "babel-jest"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@babel/*"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "babel-loader"
-        update-types: ["version-update:semver-major"]
-      # @typescript-eslint/*: 5 -> 8 is another coordinated upgrade. The plugin requires a matching
-      #   @typescript-eslint/parser and ESLint >= 8.57 (project is on 8.15), so a lone plugin bump
-      #   fails. Held on the 5.x line until done as a dedicated task; minor/patch still flow.
-      - dependency-name: "@typescript-eslint/*"
-        update-types: ["version-update:semver-major"]
-      # typescript: majors move with the @typescript-eslint upgrade above (typescript-eslint 5
-      #   can't load under TypeScript 7). Held on 4.9 until that's done.
-      - dependency-name: "typescript"
-        update-types: ["version-update:semver-major"]
-      # React 19: react, react-dom, @types/react and @types/react-dom must move together (a lone
-      #   react-dom 19 can't install next to react 18). Also the prerequisite for lifting the
-      #   @lingui hold above. Held on 18 until done as a dedicated task.
-      - dependency-name: "react"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "react-dom"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@types/react"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@types/react-dom"
-        update-types: ["version-update:semver-major"]
-      # marked: now on 17 (renderer rewritten to the token-based API in markdown.ts).
-      #   Held on 17.x because @tiptap/markdown depends on marked ^17; unblock 18 once the
-      #   editor's @tiptap/markdown supports it.
-      - dependency-name: "marked"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-minor"]
 
   # Go modules - monthly, all grouped together
   - package-ecosystem: "gomod"
