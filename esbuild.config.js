@@ -18,6 +18,7 @@ const babelPlugin = (options = {}) => ({
         caller: {
           name: "esbuild-plugin-babel",
           supportsStaticESM: true,
+          supportsDynamicImport: true,
         },
       })
       if (!babelOptions) return { contents }
