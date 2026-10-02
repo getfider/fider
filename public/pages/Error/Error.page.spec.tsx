@@ -5,7 +5,7 @@ import { FiderContext } from "@fider/services"
 import { fiderMock } from "@fider/services/testing"
 
 describe("<ErrorPage />", () => {
-  const createFakeErrorInfo = () => ({ componentStack: "" } as React.ErrorInfo)
+  const createFakeErrorInfo = () => ({ componentStack: "" }) as React.ErrorInfo
 
   test("it should show the error when showError returns true", () => {
     const error = new Error("Hello")
