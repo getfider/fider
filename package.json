@@ -69,7 +69,7 @@
     "prettier": "2.6.2",
     "purgecss-webpack-plugin": "8.0.0",
     "sass": "1.105.0",
-    "sass-loader": "12.6.0",
+    "sass-loader": "17.0.1",
     "svg-sprite-loader": "6.0.11",
     "svgo-loader": "3.0.0",
     "ts-node": "^10.9.2",

@@ -1,7 +1,9 @@
+@use "sass:meta";
+
 @mixin theme($theme-colors, $bodySelector) {
   body#{$bodySelector} {
     @each $name, $shades in $theme-colors {
-      @if type-of($shades) == "map" {
+      @if meta.type-of($shades) == "map" {
         @each $shade, $color in $shades {
           .text-#{$name}-#{$shade} {
             color: #{$color};
@@ -33,13 +35,5 @@
         --colors-#{$name}: #{$shades};
       }
     }
-  }
-}
-
-@mixin set-theme($theme) {
-  @if $theme == "light" {
-    $colors: $light-colors !global;
-  } @else if $theme == "dark" {
-    $colors: $dark-colors !global;
   }
 }
