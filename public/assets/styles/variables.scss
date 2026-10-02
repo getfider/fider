@@ -1,26 +1,19 @@
-@use "~inter-ui/default" with (
-  $inter-font-display: swap,
-  $inter-font-path: "~inter-ui/web"
-);
+// Used by every stylesheet, so this module must not emit any CSS itself
+// (otherwise it is duplicated into every CSS chunk). Global CSS belongs in index.scss.
+@forward "variables/functions";
+@forward "variables/colors";
+@forward "variables/dark-colors";
+@forward "variables/spacing";
+@forward "variables/sizing";
+@forward "variables/text";
+@forward "utility/theme";
 
-@use "~inter-ui/variable" with (
-  $inter-font-display: swap,
-  $inter-font-path: "~inter-ui/variable"
-);
-
-@import "variables/_functions";
-@import "variables/_colors";
-@import "variables/_dark-colors";
-@import "variables/_spacing";
-@import "variables/_sizing";
-@import "variables/_text";
-@import "utility/_theme.scss";
+@use "variables/functions" as *;
+@use "variables/dark-colors" as *;
+@use "variables/text" as *;
 
 /* @include get-theme("dark"); */
 $colors: $dark-colors;
-
-@include default.all;
-@include variable.all;
 
 $all: (
   colors: $colors,
@@ -35,6 +28,17 @@ $all: (
     ),
   ),
 );
+
+// get
+@function get($key, $map: $all) {
+  $keys: str-explode($key, ".");
+
+  @if not deep-map-check($map, $keys...) {
+    @error 'The argument $map: `#{$map}` doesn\'t has some of the $keys: `#{$keys}`!';
+  }
+
+  @return deep-map-get($map, $keys...);
+}
 
 // Queries
 $medias: "sm", "md", "lg", "xl", "xl2";
