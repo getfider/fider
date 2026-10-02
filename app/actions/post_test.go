@@ -2,10 +2,12 @@ package actions_test
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
@@ -13,6 +15,8 @@ import (
 	"github.com/getfider/fider/app/actions"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/pkg/validate"
 )
 
 func TestCreateNewPost_InvalidPostTitles(t *testing.T) {
@@ -164,5 +168,107 @@ func TestEditComment_AtMaxLength(t *testing.T) {
 
 	action := &actions.EditComment{Content: strings.Repeat("a", 4000)}
 	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+}
+
+func TestCreateNewPost_NullAttachments(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error {
+		return app.ErrNotFound
+	})
+
+	action := &actions.CreateNewPost{}
+	err := json.Unmarshal([]byte(`{"title": "this is my new post", "attachments": [null, null]}`), action)
+	Expect(err).IsNil()
+
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+	Expect(action.Attachments).HasLen(0)
+}
+
+func TestAddNewComment_NullAttachments(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.AddNewComment{}
+	err := json.Unmarshal([]byte(`{"content": "Nice idea", "attachments": [null]}`), action)
+	Expect(err).IsNil()
+
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+	Expect(action.Attachments).HasLen(0)
+}
+
+func TestEditComment_NullAttachments(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error {
+		q.Result = []string{"attachments/a.png"}
+		return nil
+	})
+
+	action := &actions.EditComment{}
+	err := json.Unmarshal([]byte(`{"content": "Nice idea", "attachments": [null, {"bkey": "attachments/a.png", "remove": true}]}`), action)
+	Expect(err).IsNil()
+
+	result := action.Validate(context.Background(), nil)
+	ExpectSuccess(result)
+	Expect(action.Attachments).HasLen(1)
+	Expect(action.Attachments[0].BlobKey).Equals("attachments/a.png")
+}
+
+func executeEditComment(existing []string, attachments ...*dto.ImageUpload) *validate.Result {
+	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error {
+		q.Result = existing
+		return nil
+	})
+
+	action := &actions.EditComment{
+		Content:     "Nice idea",
+		Attachments: attachments,
+		Post:        &entity.Post{ID: 1},
+		Comment:     &entity.Comment{ID: 1},
+	}
+	return action.Validate(context.Background(), nil)
+}
+
+func newUpload(content []byte) *dto.ImageUpload {
+	return &dto.ImageUpload{Upload: &dto.ImageUploadData{FileName: "image.png", ContentType: "image/png", Content: content}}
+}
+
+func TestEditComment_ValidAttachment(t *testing.T) {
+	RegisterT(t)
+
+	result := executeEditComment([]string{}, newUpload(mock.UniformPNG(100, 100)))
+	ExpectSuccess(result)
+}
+
+func TestEditComment_UnsupportedAttachment(t *testing.T) {
+	RegisterT(t)
+
+	result := executeEditComment([]string{}, newUpload([]byte("<html><script>alert(1)</script></html>")))
+	ExpectFailed(result, "attachments")
+}
+
+func TestEditComment_DecompressionBombAttachment(t *testing.T) {
+	RegisterT(t)
+
+	result := executeEditComment([]string{}, newUpload(mock.UniformPNG(12000, 12000)))
+	ExpectFailed(result, "attachments")
+}
+
+func TestEditComment_TooManyAttachments(t *testing.T) {
+	RegisterT(t)
+
+	// The comment already has 2 attachments, so a new one exceeds the limit...
+	existing := []string{"attachments/a.png", "attachments/b.png"}
+	result := executeEditComment(existing, newUpload(mock.UniformPNG(100, 100)))
+	ExpectFailed(result, "attachments")
+
+	// ...unless one of the existing ones is removed
+	result = executeEditComment(existing,
+		&dto.ImageUpload{BlobKey: "attachments/a.png", Remove: true},
+		newUpload(mock.UniformPNG(100, 100)),
+	)
 	ExpectSuccess(result)
 }

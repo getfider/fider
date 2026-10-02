@@ -21,12 +21,6 @@ const LinkInsertModal = ({ isOpen, onClose, onInsertLink, selectedText = "" }: L
   const textInputRef = useRef<HTMLInputElement>(null)
   const allowedSchemes = useAllowedSchemesRegex()
 
-  // Create an error item with the given field, message ID, and message
-  const createError = (field: string, messageId: string, message: string) => ({
-    field,
-    message: i18n._({ id: messageId, message }),
-  })
-
   const handleSubmit = () => {
     // Clear previous errors
     setError(undefined)
@@ -35,12 +29,15 @@ const LinkInsertModal = ({ isOpen, onClose, onInsertLink, selectedText = "" }: L
     const errorItems: { field?: string; message: string }[] = []
 
     if (!text.trim()) {
-      errorItems.push(createError("text", "linkmodal.text.required", "Text is required"))
+      errorItems.push({ field: "text", message: i18n._({ id: "linkmodal.text.required", message: "Text is required" }) })
     }
 
     // Validate URL against allowed schemes
     if (!isValidUrl(url, allowedSchemes)) {
-      errorItems.push(createError("url", "linkmodal.url.invalid", "Please enter a valid URL or crypto address"))
+      errorItems.push({
+        field: "url",
+        message: i18n._({ id: "linkmodal.url.invalid", message: "Please enter a valid URL or crypto address" }),
+      })
     }
 
     if (errorItems.length > 0) {

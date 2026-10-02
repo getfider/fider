@@ -85,6 +85,11 @@ func (action *SetSystemProviderStatus) Validate(ctx context.Context, user *entit
 func (action *CreateEditOAuthConfig) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
+	// An explicit "logo": null overrides the value set by NewCreateEditOAuthConfig
+	if action.Logo == nil {
+		action.Logo = &dto.ImageUpload{}
+	}
+
 	if action.Status == enum.OAuthConfigDisabled {
 		tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 		activeProviders := &query.ListActiveOAuthProviders{}

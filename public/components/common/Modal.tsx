@@ -69,9 +69,9 @@ const ModalWindow: React.FunctionComponent<ModalWindowProps> = ({ size = "small"
   })
 
   return ReactDOM.createPortal(
-    <div aria-disabled={true} className="c-modal-dimmer" onClick={close}>
+    <div className="c-modal-dimmer" onClick={close}>
       <div className="c-modal-scroller">
-        <div className={className} data-testid="modal" onClick={swallow}>
+        <div className={className} role="dialog" aria-modal="true" data-testid="modal" onClick={swallow}>
           {props.children}
         </div>
       </div>
