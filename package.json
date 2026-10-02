@@ -36,7 +36,7 @@
     "@lingui/cli": "^5.1.2",
     "@lingui/loader": "^5.1.2",
     "@lingui/macro": "^5.1.2",
-    "@playwright/test": "1.48",
+    "@playwright/test": "1.63",
     "@testing-library/jest-dom": "5.16.4",
     "@testing-library/react": "^16.3.3",
     "@types/debug": "4.1.13",
