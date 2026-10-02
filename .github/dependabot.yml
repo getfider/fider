@@ -23,10 +23,6 @@ updates:
       # blocking prerequisite is resolved. Patch updates within the held line are
       # still allowed.
       #
-      # @playwright/test: 1.49+ ships a newer Chromium that times out the
-      #   Cucumber e2e-ui steps. Held on the 1.48 line.
-      - dependency-name: "@playwright/test"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
       # @lingui/*: 5.9 breaks the build — <Trans> return type is ReactNode, not a
       #   valid JSX element under the current @types/react. Needs a @types/react
       #   upgrade first. Held on the 5.1 line.
