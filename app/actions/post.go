@@ -335,8 +335,12 @@ type EditComment struct {
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *EditComment) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	postByNumber := &query.GetPostByNumber{Number: action.PostNumber}
-	commentByID := &query.GetCommentByID{CommentID: action.ID}
-	if err := bus.Dispatch(ctx, postByNumber, commentByID); err != nil {
+	if err := bus.Dispatch(ctx, postByNumber); err != nil {
+		return false
+	}
+
+	commentByID := &query.GetCommentByID{CommentID: action.ID, PostID: postByNumber.Result.ID}
+	if err := bus.Dispatch(ctx, commentByID); err != nil {
 		return false
 	}
 
@@ -396,7 +400,12 @@ type DeleteComment struct {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *DeleteComment) IsAuthorized(ctx context.Context, user *entity.User) bool {
-	commentByID := &query.GetCommentByID{CommentID: action.CommentID}
+	postByNumber := &query.GetPostByNumber{Number: action.PostNumber}
+	if err := bus.Dispatch(ctx, postByNumber); err != nil {
+		return false
+	}
+
+	commentByID := &query.GetCommentByID{CommentID: action.CommentID, PostID: postByNumber.Result.ID}
 	if err := bus.Dispatch(ctx, commentByID); err != nil {
 		return false
 	}

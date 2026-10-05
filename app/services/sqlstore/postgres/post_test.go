@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"context"
 	"os"
 	"testing"
 	"time"
@@ -366,6 +367,66 @@ func TestPostStorage_AddDeleteComment(t *testing.T) {
 	err = bus.Dispatch(jonSnowCtx, commentByID)
 	Expect(err).Equals(app.ErrNotFound)
 	Expect(commentByID.Result).IsNil()
+}
+
+func TestPostStorage_GetCommentByID_WithPostID(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	post1 := &cmd.AddNewPost{Title: "My first post", Description: "with this description"}
+	post2 := &cmd.AddNewPost{Title: "My second post", Description: "with this description"}
+	bus.MustDispatch(jonSnowCtx, post1, post2)
+
+	addNewComment := &cmd.AddNewComment{Post: post1.Result, Content: "Comment #1"}
+	bus.MustDispatch(aryaStarkCtx, addNewComment)
+
+	commentByID := &query.GetCommentByID{CommentID: addNewComment.Result.ID, PostID: post1.Result.ID}
+	err := bus.Dispatch(demoTenantCtx, commentByID)
+	Expect(err).IsNil()
+	Expect(commentByID.Result.ID).Equals(addNewComment.Result.ID)
+
+	commentByID = &query.GetCommentByID{CommentID: addNewComment.Result.ID, PostID: post2.Result.ID}
+	err = bus.Dispatch(demoTenantCtx, commentByID)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(commentByID.Result).IsNil()
+
+	commentByID = &query.GetCommentByID{CommentID: addNewComment.Result.ID}
+	err = bus.Dispatch(demoTenantCtx, commentByID)
+	Expect(err).IsNil()
+	Expect(commentByID.Result.ID).Equals(addNewComment.Result.ID)
+}
+
+// Fetching a single comment relies on GetPostByNumber hiding posts that the caller can't see
+func TestPostStorage_GetPostByNumber_HiddenPostsForCommentLookup(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	bus.MustDispatch(sansaStarkCtx, newPost)
+	bus.MustDispatch(sansaStarkCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #1"})
+
+	_, err := trx.Execute("UPDATE posts SET is_approved = false WHERE id = $1", newPost.Result.ID)
+	Expect(err).IsNil()
+
+	for _, ctx := range []context.Context{demoTenantCtx, aryaStarkCtx} {
+		postByNumber := &query.GetPostByNumber{Number: newPost.Result.Number}
+		err = bus.Dispatch(ctx, postByNumber)
+		Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	}
+
+	for _, ctx := range []context.Context{sansaStarkCtx, jonSnowCtx} {
+		postByNumber := &query.GetPostByNumber{Number: newPost.Result.Number}
+		err = bus.Dispatch(ctx, postByNumber)
+		Expect(err).IsNil()
+	}
+
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Declined", Status: enum.PostDeleted})
+
+	for _, ctx := range []context.Context{demoTenantCtx, aryaStarkCtx, sansaStarkCtx, jonSnowCtx} {
+		postByNumber := &query.GetPostByNumber{Number: newPost.Result.Number}
+		err = bus.Dispatch(ctx, postByNumber)
+		Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	}
 }
 
 func TestPostStorage_AddAndGet_DifferentTenants(t *testing.T) {

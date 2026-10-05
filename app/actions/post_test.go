@@ -117,8 +117,18 @@ func TestDeleteComment(t *testing.T) {
 		Content: "Comment #1",
 	}
 
+	post := &entity.Post{ID: 1, Number: 1}
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		if q.Number == post.Number {
+			q.Result = post
+			return nil
+		}
+		q.Result = &entity.Post{ID: 2, Number: q.Number}
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
-		if q.CommentID == comment.ID {
+		if q.CommentID == comment.ID && q.PostID == post.ID {
 			q.Result = comment
 			return nil
 		}
@@ -126,7 +136,8 @@ func TestDeleteComment(t *testing.T) {
 	})
 
 	action := &actions.DeleteComment{
-		CommentID: comment.ID,
+		PostNumber: post.Number,
+		CommentID:  comment.ID,
 	}
 
 	authorized := action.IsAuthorized(context.Background(), notAuthor)
@@ -137,6 +148,11 @@ func TestDeleteComment(t *testing.T) {
 
 	authorized = action.IsAuthorized(context.Background(), administrator)
 	Expect(authorized).IsTrue()
+
+	// Comment requested through a different post
+	action.PostNumber = 2
+	Expect(action.IsAuthorized(context.Background(), author)).IsFalse()
+	Expect(action.IsAuthorized(context.Background(), administrator)).IsFalse()
 }
 
 func TestAddNewComment_TooLongContent(t *testing.T) {
