@@ -1027,6 +1027,11 @@ func TestListCommentHandler(t *testing.T) {
 func TestCommentReactionToggleHandler(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = &entity.Post{ID: 1, Number: 1}
+		return nil
+	})
+
 	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
@@ -1070,6 +1075,11 @@ func TestCommentReactionToggleHandler(t *testing.T) {
 func TestCommentReactionToggleHandler_InvalidEmoji(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = &entity.Post{ID: 1, Number: 1}
+		return nil
+	})
+
 	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment
@@ -1094,6 +1104,11 @@ func TestCommentReactionToggleHandler_InvalidEmoji(t *testing.T) {
 func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = &entity.Post{ID: 1, Number: 1}
+		return nil
+	})
+
 	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment
@@ -1117,6 +1132,11 @@ func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
 func TestCommentReactionToggleHandler_MismatchingTenantAndComment(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = &entity.Post{ID: 1, Number: 1}
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		return app.ErrNotFound
 	})
@@ -1134,4 +1154,167 @@ func TestCommentReactionToggleHandler_MismatchingTenantAndComment(t *testing.T) 
 		ExecutePost(apiv1.ToggleReaction(), ``)
 
 	Expect(code).Equals(http.StatusNotFound)
+}
+
+// mockCommentOnPost registers a visible post #1 holding comment #5. Any other post number is
+// treated as not visible to the caller, as GetPostByNumber does for deleted or unapproved posts.
+func mockCommentOnPost() (*entity.Post, *entity.Comment) {
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1"}
+	other := &entity.Post{ID: 2, Number: 2, Title: "The Post #2"}
+	comment := &entity.Comment{ID: 5, Content: "A comment", User: mock.AryaStark}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		switch q.Number {
+		case post.Number:
+			q.Result = post
+		case other.Number:
+			q.Result = other
+		default:
+			return app.ErrNotFound
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		if q.CommentID != comment.ID || (q.PostID != 0 && q.PostID != post.ID) {
+			return app.ErrNotFound
+		}
+		q.Result = comment
+		return nil
+	})
+
+	return post, comment
+}
+
+func TestGetCommentHandler(t *testing.T) {
+	RegisterT(t)
+	post, comment := mockCommentOnPost()
+
+	code, query := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AddParam("number", post.Number).
+		AddParam("id", comment.ID).
+		ExecuteAsJSON(apiv1.GetComment())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(query.Int32("id")).Equals(comment.ID)
+	Expect(query.String("content")).Equals(comment.Content)
+}
+
+func TestGetCommentHandler_HiddenPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	// Post #3 stands in for a deleted, declined or unapproved post
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AddParam("number", 3).
+		AddParam("id", comment.ID).
+		ExecuteAsJSON(apiv1.GetComment())
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestGetCommentHandler_WrongPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AddParam("number", 2).
+		AddParam("id", comment.ID).
+		ExecuteAsJSON(apiv1.GetComment())
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestCommentReactionToggleHandler_HiddenOrWrongPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	toggled := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		toggled = true
+		return nil
+	})
+
+	for _, number := range []int{2, 3} {
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.JonSnow).
+			AddParam("number", number).
+			AddParam("id", comment.ID).
+			AddParam("reaction", "👍").
+			ExecutePost(apiv1.ToggleReaction(), ``)
+
+		Expect(code).Equals(http.StatusNotFound)
+	}
+	Expect(toggled).IsFalse()
+}
+
+func TestUpdateCommentHandler_HiddenOrWrongPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	updated := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateComment) error {
+		updated = true
+		return nil
+	})
+
+	for _, number := range []int{2, 3} {
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.AryaStark).
+			AddParam("number", number).
+			AddParam("id", comment.ID).
+			ExecutePost(apiv1.UpdateComment(), `{ "content": "Edited" }`)
+
+		Expect(code).Equals(http.StatusForbidden)
+	}
+	Expect(updated).IsFalse()
+}
+
+func TestDeleteCommentHandler_HiddenOrWrongPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	deleted := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.DeleteComment) error {
+		deleted = true
+		return nil
+	})
+
+	for _, number := range []int{2, 3} {
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.AryaStark).
+			AddParam("number", number).
+			AddParam("id", comment.ID).
+			Execute(apiv1.DeleteComment())
+
+		Expect(code).Equals(http.StatusForbidden)
+	}
+	Expect(deleted).IsFalse()
+}
+
+func TestDeleteCommentHandler_Authorized(t *testing.T) {
+	RegisterT(t)
+	post, comment := mockCommentOnPost()
+
+	var deleteComment *cmd.DeleteComment
+	bus.AddHandler(func(ctx context.Context, c *cmd.DeleteComment) error {
+		deleteComment = c
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", post.Number).
+		AddParam("id", comment.ID).
+		Execute(apiv1.DeleteComment())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(deleteComment.CommentID).Equals(comment.ID)
 }

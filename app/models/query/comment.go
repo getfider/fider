@@ -6,6 +6,8 @@ import (
 
 type GetCommentByID struct {
 	CommentID int
+	// PostID, when set, restricts the lookup to comments on that post
+	PostID int
 
 	Result *entity.Comment
 }

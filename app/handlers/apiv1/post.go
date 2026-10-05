@@ -287,12 +287,23 @@ func ListComments() web.HandlerFunc {
 // GetComment returns a single comment by its ID
 func GetComment() web.HandlerFunc {
 	return func(c *web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
 		id, err := c.ParamAsInt("id")
 		if err != nil {
 			return c.NotFound()
 		}
 
-		commentByID := &query.GetCommentByID{CommentID: id}
+		// The parent post must be visible to the caller, and the comment must belong to it
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		commentByID := &query.GetCommentByID{CommentID: id, PostID: getPost.Result.ID}
 		if err := bus.Dispatch(c, commentByID); err != nil {
 			return c.Failure(err)
 		}
@@ -312,7 +323,12 @@ func ToggleReaction() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		getComment := &query.GetCommentByID{CommentID: action.Comment}
+		getPost := &query.GetPostByNumber{Number: action.Number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		getComment := &query.GetCommentByID{CommentID: action.Comment, PostID: getPost.Result.ID}
 		if err := bus.Dispatch(c, getComment); err != nil {
 			return c.Failure(err)
 		}
