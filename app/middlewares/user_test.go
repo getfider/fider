@@ -67,6 +67,36 @@ func TestUser_WithCookie(t *testing.T) {
 	Expect(response.Header()["Set-Cookie"]).HasLen(0)
 }
 
+func TestUser_WithCookie_IsNotAuthenticatedByAPIKey(t *testing.T) {
+	RegisterT(t)
+
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	// The cookie takes precedence, so the Bearer header is ignored
+	server := mock.NewServer()
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://example.com/api/v1").
+		AddCookie(web.CookieAuthName, token).
+		AddHeader("Authorization", "Bearer 1234567890").
+		Execute(func(c *web.Context) error {
+			Expect(c.IsAuthenticated()).IsTrue()
+			Expect(c.IsAuthenticatedByAPIKey()).IsFalse()
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+}
+
 func TestUser_Blocked(t *testing.T) {
 	RegisterT(t)
 
@@ -343,6 +373,7 @@ func TestUser_ValidAPIKey(t *testing.T) {
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", "Bearer 1234567890").
 		Execute(func(c *web.Context) error {
+			Expect(c.IsAuthenticatedByAPIKey()).IsTrue()
 			return c.String(http.StatusOK, c.User().Name)
 		})
 

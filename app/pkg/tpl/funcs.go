@@ -19,6 +19,11 @@ var templateFunctions = map[string]any{
 	"stripHtml": func(input string) string {
 		return strictHtmlPolicy.Sanitize(input)
 	},
+	// escapeHtml escapes plain text so it can be safely interpolated into a
+	// string that is later marked as HTML (e.g. a translation piped to "html").
+	"escapeHtml": func(input string) string {
+		return template.HTMLEscapeString(input)
+	},
 	"html": func(input string) template.HTML {
 		return template.HTML(input)
 	},

@@ -2,6 +2,7 @@ package actions_test
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/getfider/fider/app"
@@ -179,5 +180,24 @@ func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
 	action.Locale = "en"
 	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
+	Expect(action.Logo.BlobKey).Equals("hello-world.png")
+}
+
+func TestUpdateTenantSettings_NullLogo(t *testing.T) {
+	RegisterT(t)
+
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
+		ID:          1,
+		LogoBlobKey: "hello-world.png",
+	})
+
+	action := actions.NewUpdateTenantSettings()
+	err := json.Unmarshal([]byte(`{"title": "OK", "locale": "en", "logo": null}`), action)
+	Expect(err).IsNil()
+	Expect(action.Logo).IsNil()
+
+	result := action.Validate(ctx, nil)
+	ExpectSuccess(result)
+	Expect(action.Logo).IsNotNil()
 	Expect(action.Logo.BlobKey).Equals("hello-world.png")
 }

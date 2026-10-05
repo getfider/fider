@@ -33,7 +33,7 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 		}
 
 		author := c.User()
-		title := fmt.Sprintf("New post: **%s**", post.Title)
+		title := fmt.Sprintf("New post: **%s**", markdown.Escape(post.Title))
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != author.ID {
@@ -51,7 +51,7 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 
 		// Web notification - mentions
 		if len(mentions) > 0 {
-			title = fmt.Sprintf("**%s** mentioned you in **%s**", author.Name, post.Title)
+			title = fmt.Sprintf("**%s** mentioned you in **%s**", markdown.Escape(author.Name), markdown.Escape(post.Title))
 
 			users, err = getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention)
 			if err != nil {
@@ -195,7 +195,7 @@ func NotifyAboutUpdatedPost(post *entity.Post) worker.Task {
 		})
 
 		author := c.User()
-		title := fmt.Sprintf("**%s** mentioned you in **%s**", author.Name, post.Title)
+		title := fmt.Sprintf("**%s** mentioned you in **%s**", markdown.Escape(author.Name), markdown.Escape(post.Title))
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		mentionNotificationSent := false
 		if len(mentions) > 0 {

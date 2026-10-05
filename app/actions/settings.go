@@ -33,6 +33,11 @@ func (action *UpdateUserSettings) IsAuthorized(ctx context.Context, user *entity
 func (action *UpdateUserSettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
+	// An explicit "avatar": null overrides the value set by NewUpdateUserSettings
+	if action.Avatar == nil {
+		action.Avatar = &dto.ImageUpload{}
+	}
+
 	if action.Name == "" {
 		result.AddFieldFailure("name", propertyIsRequired(ctx, "name"))
 	}

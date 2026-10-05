@@ -15,10 +15,13 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 
 	"github.com/getfider/fider/app/handlers/apiv1"
+	"github.com/getfider/fider/app/middlewares"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 func TestCreatePostHandler(t *testing.T) {
@@ -83,6 +86,83 @@ func TestCreatePostHandler_AppendsUnreferencedAttachments(t *testing.T) {
 	// The already-referenced attachment is left as-is (not duplicated), and the
 	// unreferenced one is appended at the end as a fider-image markdown reference.
 	Expect(newPost.Description).Equals("Already referenced: ![](fider-image:attachments/referenced.png)\n\n![](fider-image:attachments/standalone.png)")
+}
+
+func executeSearchPosts(limit string, configure func(server *mock.Server) *mock.Server) (int, *query.SearchPosts, bool) {
+	var searchPosts *query.SearchPosts
+	bus.AddHandler(func(ctx context.Context, q *query.SearchPosts) error {
+		searchPosts = q
+		return nil
+	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		if q.APIKey == "1234567890" {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	isAuthenticated := false
+	server := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/api/v1/posts?limit=" + limit).
+		Use(middlewares.User()).
+		Use(func(next web.HandlerFunc) web.HandlerFunc {
+			return func(c *web.Context) error {
+				isAuthenticated = c.IsAuthenticated()
+				return next(c)
+			}
+		})
+	status, _ := configure(server).Execute(apiv1.SearchPosts())
+	return status, searchPosts, isAuthenticated
+}
+
+func TestSearchPostsHandler_ClampsLimit(t *testing.T) {
+	RegisterT(t)
+
+	sessionToken, _ := jwt.Encode(jwt.FiderClaims{UserID: mock.JonSnow.ID, UserName: mock.JonSnow.Name})
+
+	anonymous := func(server *mock.Server) *mock.Server { return server }
+	withSession := func(server *mock.Server) *mock.Server {
+		return server.AddCookie(web.CookieAuthName, sessionToken)
+	}
+
+	for _, limit := range []string{"all", "2000000000"} {
+		status, searchPosts, isAuthenticated := executeSearchPosts(limit, anonymous)
+		Expect(status).Equals(http.StatusOK)
+		Expect(isAuthenticated).IsFalse()
+		Expect(searchPosts.Limit).Equals("1000")
+
+		status, searchPosts, isAuthenticated = executeSearchPosts(limit, withSession)
+		Expect(status).Equals(http.StatusOK)
+		Expect(isAuthenticated).IsTrue()
+		Expect(searchPosts.Limit).Equals("1000")
+	}
+}
+
+func TestSearchPostsHandler_APIKeyIsNotClamped(t *testing.T) {
+	RegisterT(t)
+
+	withAPIKey := func(server *mock.Server) *mock.Server {
+		return server.AddHeader("Authorization", "Bearer 1234567890")
+	}
+
+	status, searchPosts, isAuthenticated := executeSearchPosts("all", withAPIKey)
+	Expect(status).Equals(http.StatusOK)
+	Expect(isAuthenticated).IsTrue()
+	Expect(searchPosts.Limit).Equals("all")
+
+	status, searchPosts, _ = executeSearchPosts("5000", withAPIKey)
+	Expect(status).Equals(http.StatusOK)
+	Expect(searchPosts.Limit).Equals("5000")
+
+	status, searchPosts, _ = executeSearchPosts("-5", withAPIKey)
+	Expect(status).Equals(http.StatusOK)
+	Expect(searchPosts.Limit).Equals("")
 }
 
 func TestCreatePostHandler_WithoutTitle(t *testing.T) {
@@ -947,6 +1027,11 @@ func TestListCommentHandler(t *testing.T) {
 func TestCommentReactionToggleHandler(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = &entity.Post{ID: 1, Number: 1}
+		return nil
+	})
+
 	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
@@ -990,6 +1075,11 @@ func TestCommentReactionToggleHandler(t *testing.T) {
 func TestCommentReactionToggleHandler_InvalidEmoji(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = &entity.Post{ID: 1, Number: 1}
+		return nil
+	})
+
 	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment
@@ -1014,6 +1104,11 @@ func TestCommentReactionToggleHandler_InvalidEmoji(t *testing.T) {
 func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = &entity.Post{ID: 1, Number: 1}
+		return nil
+	})
+
 	comment := &entity.Comment{ID: 5, Content: "Old comment text", User: mock.AryaStark}
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = comment
@@ -1037,6 +1132,11 @@ func TestCommentReactionToggleHandler_UnAuthorised(t *testing.T) {
 func TestCommentReactionToggleHandler_MismatchingTenantAndComment(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = &entity.Post{ID: 1, Number: 1}
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
 		return app.ErrNotFound
 	})
@@ -1054,4 +1154,167 @@ func TestCommentReactionToggleHandler_MismatchingTenantAndComment(t *testing.T) 
 		ExecutePost(apiv1.ToggleReaction(), ``)
 
 	Expect(code).Equals(http.StatusNotFound)
+}
+
+// mockCommentOnPost registers a visible post #1 holding comment #5. Any other post number is
+// treated as not visible to the caller, as GetPostByNumber does for deleted or unapproved posts.
+func mockCommentOnPost() (*entity.Post, *entity.Comment) {
+	post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1"}
+	other := &entity.Post{ID: 2, Number: 2, Title: "The Post #2"}
+	comment := &entity.Comment{ID: 5, Content: "A comment", User: mock.AryaStark}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		switch q.Number {
+		case post.Number:
+			q.Result = post
+		case other.Number:
+			q.Result = other
+		default:
+			return app.ErrNotFound
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+		if q.CommentID != comment.ID || (q.PostID != 0 && q.PostID != post.ID) {
+			return app.ErrNotFound
+		}
+		q.Result = comment
+		return nil
+	})
+
+	return post, comment
+}
+
+func TestGetCommentHandler(t *testing.T) {
+	RegisterT(t)
+	post, comment := mockCommentOnPost()
+
+	code, query := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AddParam("number", post.Number).
+		AddParam("id", comment.ID).
+		ExecuteAsJSON(apiv1.GetComment())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(query.Int32("id")).Equals(comment.ID)
+	Expect(query.String("content")).Equals(comment.Content)
+}
+
+func TestGetCommentHandler_HiddenPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	// Post #3 stands in for a deleted, declined or unapproved post
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AddParam("number", 3).
+		AddParam("id", comment.ID).
+		ExecuteAsJSON(apiv1.GetComment())
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestGetCommentHandler_WrongPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AddParam("number", 2).
+		AddParam("id", comment.ID).
+		ExecuteAsJSON(apiv1.GetComment())
+
+	Expect(code).Equals(http.StatusNotFound)
+}
+
+func TestCommentReactionToggleHandler_HiddenOrWrongPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	toggled := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.ToggleCommentReaction) error {
+		toggled = true
+		return nil
+	})
+
+	for _, number := range []int{2, 3} {
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.JonSnow).
+			AddParam("number", number).
+			AddParam("id", comment.ID).
+			AddParam("reaction", "👍").
+			ExecutePost(apiv1.ToggleReaction(), ``)
+
+		Expect(code).Equals(http.StatusNotFound)
+	}
+	Expect(toggled).IsFalse()
+}
+
+func TestUpdateCommentHandler_HiddenOrWrongPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	updated := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateComment) error {
+		updated = true
+		return nil
+	})
+
+	for _, number := range []int{2, 3} {
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.AryaStark).
+			AddParam("number", number).
+			AddParam("id", comment.ID).
+			ExecutePost(apiv1.UpdateComment(), `{ "content": "Edited" }`)
+
+		Expect(code).Equals(http.StatusForbidden)
+	}
+	Expect(updated).IsFalse()
+}
+
+func TestDeleteCommentHandler_HiddenOrWrongPost(t *testing.T) {
+	RegisterT(t)
+	_, comment := mockCommentOnPost()
+
+	deleted := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.DeleteComment) error {
+		deleted = true
+		return nil
+	})
+
+	for _, number := range []int{2, 3} {
+		code, _ := mock.NewServer().
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.AryaStark).
+			AddParam("number", number).
+			AddParam("id", comment.ID).
+			Execute(apiv1.DeleteComment())
+
+		Expect(code).Equals(http.StatusForbidden)
+	}
+	Expect(deleted).IsFalse()
+}
+
+func TestDeleteCommentHandler_Authorized(t *testing.T) {
+	RegisterT(t)
+	post, comment := mockCommentOnPost()
+
+	var deleteComment *cmd.DeleteComment
+	bus.AddHandler(func(ctx context.Context, c *cmd.DeleteComment) error {
+		deleteComment = c
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", post.Number).
+		AddParam("id", comment.ID).
+		Execute(apiv1.DeleteComment())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(deleteComment.CommentID).Equals(comment.ID)
 }

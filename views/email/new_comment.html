@@ -4,7 +4,7 @@
 <tr>
   <td style="padding:20px 30px 30px 30px;">
     <p style="padding-bottom:10px;border-bottom:1px solid #efefef;color:#1c262d;margin:0 0 15px 0;">
-      {{ translate .messageLocaleString (dict "userName" .userName "title" (.title | stripHtml) "postLink" .postLink) | html }}
+      {{ translate .messageLocaleString (dict "userName" (.userName | escapeHtml) "title" (.title | escapeHtml) "postLink" .postLink) | html }}
     </p>
     <div style="margin:0;">
       {{/* Sanitized HTML from markdown.Full. Do not render any other HTML here raw. */}}

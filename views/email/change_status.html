@@ -5,9 +5,9 @@
   <td style="padding:20px 30px 30px 30px;">
     <p style="padding-bottom:10px;border-bottom:1px solid #efefef;color:#1c262d;margin:0 0 15px 0;">
       {{ if .duplicate }}
-        {{ translate "email.change_status.duplicate" (dict "title" (.title | stripHtml) "postLink" .postLink "duplicate" .duplicate) | html }}
+        {{ translate "email.change_status.duplicate" (dict "title" (.title | escapeHtml) "postLink" .postLink "duplicate" .duplicate) | html }}
       {{ else }}
-        {{ translate "email.change_status.others" (dict "title" (.title | stripHtml) "postLink" .postLink "status" (.status | lower)) | html }}
+        {{ translate "email.change_status.others" (dict "title" (.title | escapeHtml) "postLink" .postLink "status" (.status | lower | escapeHtml)) | html }}
       {{ end }}
     </p>
     <div style="margin:0;">

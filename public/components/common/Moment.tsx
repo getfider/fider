@@ -22,10 +22,10 @@ export const Moment = (props: MomentText) => {
     diff >= 365 && format === "relative"
       ? formatDate(props.locale, props.date, "short")
       : format === "relative"
-      ? timeSince(props.locale, now, date)
-      : format === "date"
-      ? formatDate(props.locale, props.date, "date")
-      : formatDate(props.locale, props.date, format)
+        ? timeSince(props.locale, now, date)
+        : format === "date"
+          ? formatDate(props.locale, props.date, "date")
+          : formatDate(props.locale, props.date, format)
 
   const tooltip = props.format === "short" ? formatDate(props.locale, props.date, "full") : undefined
 
