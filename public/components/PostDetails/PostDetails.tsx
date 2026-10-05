@@ -53,11 +53,13 @@ const canEditPost = (user: CurrentUser, post: Post) => {
 }
 
 const PostMetaInfo = ({ post, locale }: { post: Post; locale: string }) => (
-  <HStack spacing={2} align="center">
-    <Avatar user={post.user} size="small" />
-    <span className="text-sm text-gray-600">
-      <Trans id="showpost.postedby">Posted by</Trans> <UserName user={post.user} />
-    </span>
+  <HStack spacing={0} align="center" className="flex-wrap gap-2">
+    <HStack spacing={2} align="center">
+      <Avatar user={post.user} size="small" />
+      <span className="text-sm text-gray-600">
+        <Trans id="showpost.postedby">Posted by</Trans> <UserName user={post.user} />
+      </span>
+    </HStack>
     <span className="text-sm text-gray-400">•</span>
     <Moment className="text-sm text-gray-600" locale={locale} date={post.createdAt} />
     <span className="text-sm text-gray-400">•</span>
