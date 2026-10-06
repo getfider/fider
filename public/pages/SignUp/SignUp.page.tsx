@@ -115,9 +115,9 @@ const SignUpPage = () => {
           <p>We need to identify you to setup your new Fider account.</p>
           <SignInControl useEmail={false} />
           <Divider />
-          <Form error={error}>
-            <Input field="name" maxLength={100} onChange={setUserName} placeholder="Name" />
-            <Input field="email" maxLength={200} onChange={setUserEmail} placeholder="Email" />
+          <Form error={error} autoComplete="on">
+            <Input field="name" autoComplete="name" maxLength={100} onChange={setUserName} placeholder="Name" />
+            <Input field="email" type="email" autoComplete="email" maxLength={200} onChange={setUserEmail} placeholder="Email" />
           </Form>
         </>
       )}
