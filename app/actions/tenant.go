@@ -215,6 +215,11 @@ func (action *UpdateTenantSettings) IsAuthorized(ctx context.Context, user *enti
 func (action *UpdateTenantSettings) Validate(ctx context.Context, user *entity.User) *validate.Result {
 	result := validate.Success()
 
+	// An explicit "logo": null overrides the value set by NewUpdateTenantSettings
+	if action.Logo == nil {
+		action.Logo = &dto.ImageUpload{}
+	}
+
 	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if hasTenant {
 		action.Logo.BlobKey = tenant.LogoBlobKey

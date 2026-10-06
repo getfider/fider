@@ -3,6 +3,7 @@ package tasks_test
 import (
 	"context"
 	"html/template"
+	"strings"
 	"testing"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/services/email"
 	"github.com/getfider/fider/app/services/email/emailmock"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -405,4 +407,61 @@ func TestNotifyAboutUpdatedComment_UserAlreadyMentioned(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(0)
 
 	Expect(addNewNotification).IsNil()
+}
+
+func TestNotifyAboutNewCommentTask_EscapesAuthorNameAndTitleInEmail(t *testing.T) {
+	RegisterT(t)
+	bus.Init(emailmock.Service{})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetMentionNotifications) error {
+		q.Result = []*entity.MentionNotification{}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
+		if q.Event.UserSettingsKeyName == "event_notification_new_comment" {
+			q.Result = []*entity.User{
+				mock.JonSnow,
+			}
+		} else {
+			q.Result = []*entity.User{}
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		return nil
+	})
+
+	author := *mock.AryaStark
+	author.Name = "<a href=//example.com><h1>View new Update</a>"
+
+	worker := mock.NewWorker()
+	post := &entity.Post{
+		ID:     1,
+		Number: 1,
+		Title:  "Tom & Jerry <3 <b>bold</b>",
+		Slug:   "tom-jerry-3-bold",
+		User:   mock.JonSnow,
+	}
+	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree"}, post)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(&author).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailmock.MessageHistory).HasLen(1)
+
+	message := email.RenderMessage(context.Background(), emailmock.MessageHistory[0].TemplateName, email.NoReply, emailmock.MessageHistory[0].Props)
+	Expect(message.Subject).Equals("[Demonstration] Tom & Jerry <3 <b>bold</b>")
+	Expect(message.Body).ContainsSubstring("<strong>&lt;a href=//example.com&gt;&lt;h1&gt;View new Update&lt;/a&gt;</strong> left a comment on <strong>Tom &amp; Jerry &lt;3 &lt;b&gt;bold&lt;/b&gt; (<a href='http://domain.com/posts/1/tom-jerry-3-bold'>#1</a>)</strong>.")
+	Expect(strings.Contains(message.Body, "<h1>")).IsFalse()
+	Expect(strings.Contains(message.Body, "<b>")).IsFalse()
 }

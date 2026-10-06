@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"strings"
 	"syscall"
 
 	"github.com/getfider/fider/app/jobs"
@@ -43,6 +44,10 @@ func RunServer() int {
 			"ServiceCategory": s.Category(),
 			"ServiceName":     s.Name(),
 		})
+	}
+
+	if strings.HasPrefix(strings.ToUpper(env.Config.GoogleAnalytics), "UA-") {
+		log.Warn(ctx, "GOOGLE_ANALYTICS is set to a Universal Analytics ID, which Google no longer supports. Replace it with a Google Analytics 4 Measurement ID (G-XXXXXXXXXX).")
 	}
 
 	copyEtcFiles(ctx)

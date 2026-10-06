@@ -16,48 +16,25 @@ updates:
         update-types: ["patch"]
       minor-updates:
         update-types: ["minor"]
-      # Major versions stay separate (likely breaking changes)
     ignore:
-      # Held back deliberately — bumping these breaks the build/e2e. One bad bump
-      # in a group poisons the whole grouped PR, so these are pinned until the
-      # blocking prerequisite is resolved. Patch updates within the held line are
-      # still allowed.
-      #
-      # @playwright/test: 1.49+ ships a newer Chromium that times out the
-      #   Cucumber e2e-ui steps. Held on the 1.48 line.
-      - dependency-name: "@playwright/test"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
-      # tiptap-markdown: 0.9+ requires @tiptap/core v3; project is on the tiptap v2 line.
-      - dependency-name: "tiptap-markdown"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      # No npm major-version PRs. Almost every major here has turned out to need a
+      # coordinated, hand-done migration rather than a bump, and one PR per package
+      # was mostly noise. Majors are done deliberately instead; patch/minor groups
+      # and security updates still flow. Known majors and what blocks them:
+      #   - jest 30 / @babel/core 8: jest, jest-environment-jsdom, babel-jest, @babel/*
+      #     and babel-loader must move together.
+      #   - @typescript-eslint 8 + typescript: needs ESLint >= 8.57 (on 8.15), and
+      #     typescript-eslint 5 can't load under newer TypeScript.
+      #   - React 19: react, react-dom, @types/react, @types/react-dom together.
+      #     Prerequisite for lifting the @lingui hold below.
+      #   - marked 18: @tiptap/markdown depends on marked ^17.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
       # @lingui/*: 5.9 breaks the build — <Trans> return type is ReactNode, not a
-      #   valid JSX element under the current @types/react. Needs a @types/react
-      #   upgrade first. Held on the 5.1 line.
+      #   valid JSX element under the current @types/react. Needs the React 19 /
+      #   @types/react upgrade first. Held on the 5.1 line (patches still allowed).
       - dependency-name: "@lingui/*"
-        update-types: ["version-update:semver-minor", "version-update:semver-major"]
-      # Test/build toolchain majors — jest 30 and @babel/core 8 each require a
-      #   COORDINATED migration of the whole entangled stack (jest + jest-environment-jsdom
-      #   + babel-jest + @babel/* presets + jsdom), not a single bump. Bumping one alone
-      #   fails: jest 30 -> `clearMocksOnScope is not a function`; @babel/core 8 -> ERESOLVE
-      #   vs @babel/cli@7 / babel-jest@28. Held on the current majors until done as a
-      #   dedicated task; minor/patch within them still flow.
-      - dependency-name: "jest"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "jest-environment-jsdom"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "babel-jest"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@babel/*"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "babel-loader"
-        update-types: ["version-update:semver-major"]
-      # marked: 5+ is ESM-only and rewrote the Renderer API. 4 -> 18 needs a rewrite of
-      #   public/services/markdown.ts (custom marked.Renderer() + synchronous marked()).
-      #   Held on the 4.x line until that migration is done.
-      - dependency-name: "marked"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@types/marked"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-minor"]
 
   # Go modules - monthly, all grouped together
   - package-ecosystem: "gomod"
@@ -97,3 +74,8 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 1
+    ignore:
+      # node: the UI build image must match the Node version CI tests on (build.yml), package.json
+      #   `engines` and .nvmrc, so Node majors move together as one change (to an LTS release).
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]

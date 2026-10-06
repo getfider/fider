@@ -1,4 +1,4 @@
-@use "~@fider/assets/styles/variables.scss" as *;
+@use "@fider/assets/styles/variables.scss" as *;
 
 .c-markdown,
 .tiptap {
@@ -65,6 +65,21 @@
     height: auto;
     object-fit: contain;
     display: block;
+  }
+
+  // Scroll wide tables instead of squashing them; the inherited word-break would
+  // otherwise let cells shrink to one letter per line on narrow screens
+  table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    word-break: normal;
+    padding: spacing(1) spacing(2);
   }
 
   pre {
