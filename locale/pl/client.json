@@ -236,7 +236,6 @@
   "signin.email.placeholder": "Adres e-mail",
   "signin.message.email": "Kontynuuj z e-mailem",
   "signin.message.emaildisabled": "Autoryzacja za pomocą adresu email została wyłączona przez administratora. Jeśli posiadasz konto administratora i chcesz obejść to ograniczenie <0>kliknij tutaj</0>.",
-  "signin.message.emailsent": "Przed chwilą wysłaliśmy link autoryzacyjny na <0>{email}</0>. Kliknij w niego aby się zalogować.",
   "signin.message.locked.text": "Aby reaktywować tą stronę zaloguj się na konto administratora i zmień wymagane ustawienia.",
   "signin.message.locked.title": "<0>{0}</0> jest aktualnie zablokowany.",
   "signin.message.onlyadmins": "Obecnie możliwe jest logowanie tylko na konto administratora",

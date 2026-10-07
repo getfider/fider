@@ -236,7 +236,6 @@
   "signin.email.placeholder": "電子郵件地址",
   "signin.message.email": "以電子郵件繼續",
   "signin.message.emaildisabled": "管理員已停用電子郵件驗證。如果您有管理員帳號且需要繞過此限制，請<0>點擊這裡</0>。",
-  "signin.message.emailsent": "我們剛剛傳送了一封確認信至 <0>{email}</0>。請點擊連結即可登入。",
   "signin.message.locked.text": "若要重新啟用此網站，請使用管理員帳號登入並更新所需的設定。",
   "signin.message.locked.title": "<0>{0}</0> 目前已鎖定。",
   "signin.message.onlyadmins": "目前僅允許管理員帳號登入",

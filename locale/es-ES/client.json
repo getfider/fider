@@ -236,7 +236,6 @@
   "signin.email.placeholder": "Dirección de correo electrónico",
   "signin.message.email": "Continuar con el correo electrónico",
   "signin.message.emaildisabled": "La autenticación de correo electrónico ha sido deshabilitada por un administrador. Si tiene una cuenta de administrador y necesita eludir esta restricción, por favor <0>haga clic aquí</0>.",
-  "signin.message.emailsent": "Acabamos de enviar un enlace de confirmación a <0>{email}</0>. Haz clic en el enlace para iniciar session.",
   "signin.message.locked.text": "Para reactivar este sitio, inicie sesión con una cuenta de administrador y actualice la configuración requerida.",
   "signin.message.locked.title": "<0>{0}</0> está actualmente bloqueado.",
   "signin.message.onlyadmins": "Actualmente sólo se permite iniciar sesión en una cuenta de administrador",

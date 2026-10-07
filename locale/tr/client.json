@@ -236,7 +236,6 @@
   "signin.email.placeholder": "E-posta adresi",
   "signin.message.email": "E-postayla devam et",
   "signin.message.emaildisabled": "E-posta doğrulaması bir yönetici tarafından devre dışı bırakıldı. Eğer bir yönetici hesabınız varsa ve bu kısıtı kaldırmak istiyorsanız <0>buraya tıklayın</0>.",
-  "signin.message.emailsent": "<0>{email}</0> e bir onay bağlantısı gönderdik. Bağlantıya tıkladığınızda kaydınız tamamlanacak.",
   "signin.message.locked.text": "Sayfayı tekrar aktive etmek için yönetici hesabıyla giriş yapın ve ve gerekli ayarları değiştirin.",
   "signin.message.locked.title": "<0>{0}</0> şu anda kilitli.",
   "signin.message.onlyadmins": "Şu anda yalnızca yönetici hesabıyla giriş yapılabilir",
