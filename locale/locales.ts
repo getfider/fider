@@ -63,6 +63,9 @@ const locales: { [key: string]: Locale } = {
   fa: {
     text: "Persian (پارسی)",
   },
+  ca: {
+    text: "Catalan (català)",
+  },
 }
 
 export default locales
