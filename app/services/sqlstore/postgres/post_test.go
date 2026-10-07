@@ -672,7 +672,13 @@ func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
+	bus.MustDispatch(jonSnowCtx, &cmd.AddNewNotification{User: aryaStark, Title: "New comment", Link: "/posts/1", PostID: newPost.Result.ID})
+
 	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", Status: enum.PostDeleted})
+
+	activeNotifications := &query.GetActiveNotifications{}
+	bus.MustDispatch(aryaStarkCtx, activeNotifications)
+	Expect(activeNotifications.Result).HasLen(0)
 
 	postByID := &query.GetPostByID{PostID: newPost.Result.ID}
 	err = bus.Dispatch(aryaStarkCtx, postByID)
