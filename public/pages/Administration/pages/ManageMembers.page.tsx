@@ -4,8 +4,9 @@ import { User, UserRole, UserStatus } from "@fider/models"
 import IconSearch from "@fider/assets/images/heroicons-search.svg"
 import IconX from "@fider/assets/images/heroicons-x.svg"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
+import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import HeroIconFilter from "@fider/assets/images/heroicons-filter.svg"
-import { actions, Fider } from "@fider/services"
+import { actions, Fider, Result } from "@fider/services"
 import { AdminPageContainer } from "../components/AdminBasePage"
 import { HStack, VStack } from "@fider/components/layout"
 
@@ -14,27 +15,32 @@ interface ManageMembersPageProps {
   totalPages: number
 }
 
-interface UserListItemProps {
-  user: User
-  onAction: (actionName: string, user: User) => Promise<void>
+type Level = "administrator" | "collaborator" | "trusted" | "member" | "blocked"
+
+const levels: { level: Level; label: string; plural: string; badgeClass: string }[] = [
+  { level: "administrator", label: "Administrator", plural: "Administrators", badgeClass: "bg-blue-100 text-blue-800" },
+  { level: "collaborator", label: "Collaborator", plural: "Collaborators", badgeClass: "bg-green-100 text-green-800" },
+  { level: "trusted", label: "Trusted member", plural: "Trusted members", badgeClass: "bg-green-100 text-green-800" },
+  { level: "member", label: "Member", plural: "Members", badgeClass: "text-gray-600" },
+  { level: "blocked", label: "Blocked", plural: "Blocked", badgeClass: "bg-red-100 text-red-800" },
+]
+
+const getLevel = (user: User): Level => {
+  if (user.status === UserStatus.Blocked) return "blocked"
+  if (user.role === UserRole.Administrator) return "administrator"
+  if (user.role === UserRole.Collaborator) return "collaborator"
+  return user.isTrusted ? "trusted" : "member"
 }
 
-interface UserListItemExtendedProps extends UserListItemProps {
+interface UserListItemProps {
+  user: User
+  onChangeLevel: (user: User, level: Level) => Promise<void>
   isLast?: boolean
 }
 
-const UserListItem = (props: UserListItemExtendedProps) => {
-  const admin = props.user.role === UserRole.Administrator && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">administrator</span>
-  const collaborator = props.user.role === UserRole.Collaborator && <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">collaborator</span>
-  const blocked = props.user.status === UserStatus.Blocked && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">blocked</span>
-  const trusted = props.user.status === UserStatus.Active && props.user.role === UserRole.Visitor && props.user.isTrusted && (
-    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">trusted member</span>
-  )
-  const isMember = props.user.role === UserRole.Visitor
-
-  const actionSelected = (actionName: string) => () => {
-    props.onAction(actionName, props.user)
-  }
+const UserListItem = (props: UserListItemProps) => {
+  const current = getLevel(props.user)
+  const badge = levels.find((l) => l.level === current)
 
   return (
     <div
@@ -50,24 +56,18 @@ const UserListItem = (props: UserListItemExtendedProps) => {
         {props.user.email || "No email"}
       </div>
 
-      <div>
-        {admin} {collaborator} {blocked} {trusted}
-        {isMember && !blocked && !trusted && <span className="text-xs text-gray-600">member</span>}
-      </div>
+      <div>{badge && <span className={`text-xs px-2 py-1 rounded ${badge.badgeClass}`}>{badge.label.toLowerCase()}</span>}</div>
 
       <div className="flex justify-end relative">
         {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
           <div className="relative z-10">
             <Dropdown renderHandle={<Icon sprite={IconDotsHorizontal} width="16" height="16" />}>
-              {!blocked && (!!collaborator || isMember) && (
-                <Dropdown.ListItem onClick={actionSelected("to-administrator")}>Promote to Administrator</Dropdown.ListItem>
-              )}
-              {!blocked && (!!admin || isMember) && <Dropdown.ListItem onClick={actionSelected("to-collaborator")}>Promote to Collaborator</Dropdown.ListItem>}
-              {!blocked && (!!collaborator || !!admin) && <Dropdown.ListItem onClick={actionSelected("to-visitor")}>Demote to Member</Dropdown.ListItem>}
-              {isMember && !blocked && !props.user.isTrusted && <Dropdown.ListItem onClick={actionSelected("approve")}>Trust User</Dropdown.ListItem>}
-              {isMember && !blocked && props.user.isTrusted && <Dropdown.ListItem onClick={actionSelected("unapprove")}>Untrust User</Dropdown.ListItem>}
-              {isMember && !blocked && <Dropdown.ListItem onClick={actionSelected("block")}>Block User</Dropdown.ListItem>}
-              {isMember && !!blocked && <Dropdown.ListItem onClick={actionSelected("unblock")}>Unblock User</Dropdown.ListItem>}
+              {levels.map(({ level, label }) => (
+                <Dropdown.ListItem key={level} onClick={level === current ? undefined : () => props.onChangeLevel(props.user, level)}>
+                  {level === current ? <Icon sprite={IconCheck} className="mr-2" width="16" height="16" /> : <span className="w-4 mr-2" />}
+                  {label}
+                </Dropdown.ListItem>
+              ))}
             </Dropdown>
           </div>
         )}
@@ -78,7 +78,7 @@ const UserListItem = (props: UserListItemExtendedProps) => {
 
 export default function ManageMembersPage(props: ManageMembersPageProps) {
   const [query, setQuery] = useState("")
-  const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all")
+  const [roleFilter, setRoleFilter] = useState<Level | "all">("all")
   const [users, setUsers] = useState<User[]>(props.users)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(props.totalPages)
@@ -89,7 +89,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const initialQuery = urlParams.get("query") || ""
-    const initialRoleFilter = (urlParams.get("roles") as UserRole) || "all"
+    const initialRoleFilter = (urlParams.get("roles") as Level) || "all"
     const initialPage = parseInt(urlParams.get("page") || "1")
 
     setQuery(initialQuery)
@@ -98,13 +98,13 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
   }, [])
 
   const reloadUsers = useCallback(
-    async (searchQuery: string, roleFilterValue: UserRole | "all", page = 1) => {
+    async (searchQuery: string, roleFilterValue: Level | "all", page = 1) => {
       const params = new URLSearchParams()
       if (searchQuery) {
         params.append("query", searchQuery)
       }
       if (roleFilterValue !== "all") {
-        params.append("roles", roleFilterValue.toString())
+        params.append("roles", roleFilterValue)
       }
       params.append("page", page.toString())
       params.append("limit", pageSize.toString())
@@ -139,7 +139,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
   )
 
   const handleRoleFilterChanged = useCallback(
-    (newRoleFilter: UserRole | "all") => {
+    (newRoleFilter: Level | "all") => {
       setRoleFilter(newRoleFilter)
       reloadUsers(query, newRoleFilter, 1) // Reset to page 1 when changing filter
     },
@@ -161,57 +161,30 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
     [query, roleFilter, reloadUsers]
   )
 
-  const handleAction = useCallback(
-    async (actionName: string, user: User) => {
-      const changeRole = async (role: UserRole) => {
-        const result = await actions.changeUserRole(user.id, role)
-        if (result.ok) {
-          user.role = role
-          // Update the user in current state without full reload
-          const updatedUsers = users.map((u) => (u.id === user.id ? user : u))
-          setUsers(updatedUsers)
+  const handleChangeLevel = useCallback(
+    async (user: User, level: Level) => {
+      // Blocked users are demoted to member so they drop out of staff lists
+      const role = level === "administrator" ? UserRole.Administrator : level === "collaborator" ? UserRole.Collaborator : UserRole.Visitor
+      const status = level === "blocked" ? UserStatus.Blocked : UserStatus.Active
+      const isTrusted = level === "member" ? false : level === "trusted" ? true : user.isTrusted
+
+      const steps: (() => Promise<Result>)[] = []
+      if (user.role !== role) steps.push(() => actions.changeUserRole(user.id, role))
+      if (user.status !== status) steps.push(() => (status === UserStatus.Blocked ? actions.blockUser(user.id) : actions.unblockUser(user.id)))
+      if (user.isTrusted !== isTrusted) steps.push(() => (isTrusted ? actions.trustUser(user.id) : actions.untrustUser(user.id)))
+
+      for (const step of steps) {
+        const result = await step()
+        if (!result.ok) {
+          // Earlier steps may have succeeded, so show the user's real state
+          await reloadUsers(query, roleFilter, currentPage)
+          return
         }
       }
 
-      const changeStatus = async (status: UserStatus) => {
-        const action = status === UserStatus.Blocked ? actions.blockUser : actions.unblockUser
-        const result = await action(user.id)
-        if (result.ok) {
-          user.status = status
-          // Update the user in current state without full reload
-          const updatedUsers = users.map((u) => (u.id === user.id ? user : u))
-          setUsers(updatedUsers)
-        }
-      }
-
-      const changeTrust = async (isTrusted: boolean) => {
-        const action = isTrusted ? actions.trustUser : actions.untrustUser
-        const result = await action(user.id)
-        if (result.ok) {
-          user.isTrusted = isTrusted
-          // Update the user in current state without full reload
-          const updatedUsers = users.map((u) => (u.id === user.id ? user : u))
-          setUsers(updatedUsers)
-        }
-      }
-
-      if (actionName === "to-collaborator") {
-        await changeRole(UserRole.Collaborator)
-      } else if (actionName === "to-visitor") {
-        await changeRole(UserRole.Visitor)
-      } else if (actionName === "to-administrator") {
-        await changeRole(UserRole.Administrator)
-      } else if (actionName === "block") {
-        await changeStatus(UserStatus.Blocked)
-      } else if (actionName === "unblock") {
-        await changeStatus(UserStatus.Active)
-      } else if (actionName === "approve") {
-        await changeTrust(true)
-      } else if (actionName === "unapprove") {
-        await changeTrust(false)
-      }
+      setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...user, role, status, isTrusted } : u)))
     },
-    [users]
+    [query, roleFilter, currentPage, reloadUsers]
   )
 
   return (
@@ -239,15 +212,11 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
           <Dropdown.ListItem onClick={() => handleRoleFilterChanged("all")}>
             <span className={roleFilter === "all" ? "text-semibold" : ""}>All Roles</span>
           </Dropdown.ListItem>
-          <Dropdown.ListItem onClick={() => handleRoleFilterChanged(UserRole.Administrator)}>
-            <span className={roleFilter === UserRole.Administrator ? "text-semibold" : ""}>Administrators</span>
-          </Dropdown.ListItem>
-          <Dropdown.ListItem onClick={() => handleRoleFilterChanged(UserRole.Collaborator)}>
-            <span className={roleFilter === UserRole.Collaborator ? "text-semibold" : ""}>Collaborators</span>
-          </Dropdown.ListItem>
-          <Dropdown.ListItem onClick={() => handleRoleFilterChanged(UserRole.Visitor)}>
-            <span className={roleFilter === UserRole.Visitor ? "text-semibold" : ""}>Members</span>
-          </Dropdown.ListItem>
+          {levels.map(({ level, plural }) => (
+            <Dropdown.ListItem key={level} onClick={() => handleRoleFilterChanged(level)}>
+              <span className={roleFilter === level ? "text-semibold" : ""}>{plural}</span>
+            </Dropdown.ListItem>
+          ))}
         </Dropdown>
       </div>
 
@@ -262,7 +231,7 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
         </div>
         <div>
           {users.map((user, index) => (
-            <UserListItem key={user.id} user={user} onAction={handleAction} isLast={index === users.length - 1} />
+            <UserListItem key={user.id} user={user} onChangeLevel={handleChangeLevel} isLast={index === users.length - 1} />
           ))}
         </div>
       </VStack>
@@ -277,6 +246,9 @@ export default function ManageMembersPage(props: ManageMembersPageProps) {
         </li>
         <li>
           <strong>Collaborators</strong> can edit and manage content, but not permissions and settings.
+        </li>
+        <li>
+          <strong>Trusted members</strong> won&apos;t need to have their content moderated if moderation is enabled.
         </li>
         <li>
           <strong>Blocked</strong> users are unable to sign into this site.
