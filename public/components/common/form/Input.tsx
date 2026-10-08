@@ -12,6 +12,7 @@ interface InputProps {
   field: string
   label?: string
   className?: string
+  type?: "text" | "email"
   autoComplete?: string
   autoFocus?: boolean
   noTabFocus?: boolean
@@ -79,7 +80,8 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
                 "c-input--suffixed": !!suffix,
               })}
               id={`input-${props.field}`}
-              type="text"
+              name={props.field}
+              type={props.type || "text"}
               autoComplete={props.autoComplete}
               inputMode={props.inputMode}
               tabIndex={props.noTabFocus ? -1 : undefined}
