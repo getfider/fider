@@ -108,7 +108,7 @@ export const Dropdown = (props: DropdownProps) => {
 
   return (
     <DropdownContext.Provider value={{ close }}>
-      <div ref={node} className="c-dropdown">
+      <div ref={node} className={classSet({ "c-dropdown": true, "c-dropdown--open": isOpen })}>
         <button type="button" className="c-dropdown__handle" onClick={toggleIsOpen} aria-label={props.ariaLabel}>
           {props.renderHandle}
         </button>
