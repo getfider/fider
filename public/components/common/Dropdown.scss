@@ -37,6 +37,25 @@
       max-width: sizing(180);
     }
 
+    &--primary {
+      background-color: var(--colors-primary-base);
+      border-color: var(--colors-primary-base);
+      color: var(--colors-white);
+
+      .c-dropdown__listitem {
+        padding: spacing(2) spacing(3);
+
+        &:hover {
+          background-color: var(--colors-primary-dark);
+        }
+      }
+
+      .c-dropdown__divider {
+        background-color: currentColor;
+        opacity: 0.3;
+      }
+    }
+
     &--fullscreen-small {
       @include media("sm") {
         position: fixed;
