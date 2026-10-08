@@ -79,6 +79,13 @@
     border-top: 5px solid var(--colors-blue-500);
     padding-top: spacing(4);
     margin-top: spacing(8);
+
+    // Remove flex-grow on mobile so Following button doesn't get pushed to the right
+    @include media("sm") {
+      .flex-grow {
+        display: none;
+      }
+    }
   }
 
   &__discussion-section {

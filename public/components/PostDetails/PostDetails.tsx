@@ -495,9 +495,19 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
           {/* Bottom Action Bar */}
           {!editMode && (
             <div className="p-show-post__actions">
-              <ActionButton icon={IconDuplicate} onClick={onActionSelected("copy")}>
-                <Trans id="action.copylink">Copy link</Trans>
-              </ActionButton>
+              <HStack spacing={0} align="center" className="flex-wrap gap-2">
+                <ActionButton icon={IconDuplicate} onClick={onActionSelected("copy")}>
+                  <Trans id="action.copylink">Copy link</Trans>
+                </ActionButton>
+
+                <div className="flex-grow" />
+
+                {Fider.session.isAuthenticated && (
+                  <ActionButton icon={subscribed ? IconCheck : IconPlus} onClick={toggleSubscription} disabled={Fider.isReadOnly}>
+                    {subscribed ? <Trans id="label.following">Following</Trans> : <Trans id="label.follow">Follow</Trans>}
+                  </ActionButton>
+                )}
+              </HStack>
             </div>
           )}
         </div>
