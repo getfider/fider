@@ -236,7 +236,6 @@
   "signin.email.placeholder": "E-mailadres",
   "signin.message.email": "Doorgaan met e-mail",
   "signin.message.emaildisabled": "Inloggen met e-mail is uitgeschakeld door een beheerder. Als u een beheerder account heeft en deze beperking moet omzeilen, <0>klik dan hier</0>.",
-  "signin.message.emailsent": "We hebben zojuist een bevestigingslink gestuurd naar <0>{email}</0>. Klik op de link om in te loggen.",
   "signin.message.locked.text": "Meld aan met een beheerdersaccount en werk de vereiste instellingen bij, om deze site opnieuw te activeren.",
   "signin.message.locked.title": "<0>{0}</0> is momenteel vergrendeld.",
   "signin.message.onlyadmins": "Momenteel alleen toegestaan om in te loggen met een beheerdersaccount",

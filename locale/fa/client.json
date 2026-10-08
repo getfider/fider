@@ -236,7 +236,6 @@
   "signin.email.placeholder": "آدرس ایمیل",
   "signin.message.email": "ادامه با ایمیل",
   "signin.message.emaildisabled": "ورود با ایمیل توسط مدیر غیرفعال شده است. اگر مدیر هستید و نیاز به دسترسی دارید <0>اینجا کلیک کنید</0>.",
-  "signin.message.emailsent": "یک لینک تأیید به <0>{email}</0> ارسال کردیم. با کلیک روی آن وارد شوید.",
   "signin.message.locked.text": "برای فعال‌سازی مجدد سایت، با حساب مدیر وارد شوید و تنظیمات لازم را انجام دهید.",
   "signin.message.locked.title": "<0>{0}</0> در حال حاضر قفل است.",
   "signin.message.onlyadmins": "در حال حاضر فقط مدیران می‌توانند وارد شوند",

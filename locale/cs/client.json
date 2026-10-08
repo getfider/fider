@@ -174,7 +174,6 @@
   "signin.email.placeholder": "E-mailová adresa",
   "signin.message.email": "Pokračovat s e-mailem",
   "signin.message.emaildisabled": "Ověřování e-mailu bylo zakázáno administrátorem. Pokud máte administrátorský účet a potřebujete toto omezení obejít, klikněte prosím <0>sem</0>.",
-  "signin.message.emailsent": "Právě jsme odeslali potvrzovací odkaz na adresu <0>{email}</0>. Klikněte na odkaz a budete přihlášeni.",
   "signin.message.locked.text": "Chcete-li tento web znovu aktivovat, přihlaste se pomocí účtu správce a aktualizujte požadovaná nastavení.",
   "signin.message.locked.title": "<0>{0}</0> je momentálně uzamčeno.",
   "signin.message.onlyadmins": "Aktuálně je povoleno přihlášení pouze k účtu správce",

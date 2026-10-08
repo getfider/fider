@@ -236,7 +236,6 @@
   "signin.email.placeholder": "Adresse email",
   "signin.message.email": "Continuer avec une addresse email",
   "signin.message.emaildisabled": "L'authentification par e-mail a été désactivée par un administrateur. Si vous avez un compte administrateur, <0>cliquez ici</0> pour vous connecter.",
-  "signin.message.emailsent": "Nous venons d'envoyer un lien de confirmation à <0>{email}</0>. Cliquez sur le lien et vous serez connecté.",
   "signin.message.locked.text": "Pour réactiver ce site, connectez-vous avec un compte administrateur et mettez à jour les paramètres requis.",
   "signin.message.locked.title": "<0>{0}</0> est actuellement verrouillé.",
   "signin.message.onlyadmins": "Seuls les comptes administrateurs peuvent se connecter en ce moment",

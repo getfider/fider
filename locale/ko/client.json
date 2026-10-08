@@ -174,7 +174,6 @@
   "signin.email.placeholder": "이메일 주소",
   "signin.message.email": "이메일로 계속하기",
   "signin.message.emaildisabled": "관리자가 이메일 인증을 비활성화했습니다. 관리자 계정이 있고 이 제한을 우회하려면 <0>여기를 클릭</0>하세요.",
-  "signin.message.emailsent": "방금 <0>{email}</0>에게 확인 링크를 보냈습니다. 링크를 클릭하면 로그인됩니다.",
   "signin.message.locked.text": "이 사이트를 다시 활성화하려면 관리자 계정으로 로그인하고 필요한 설정을 업데이트하세요.",
   "signin.message.locked.title": "<0>{0}</0>은 현재 잠겨 있습니다.",
   "signin.message.onlyadmins": "현재는 관리자 계정에만 로그인할 수 있습니다.",

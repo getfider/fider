@@ -12,7 +12,6 @@ interface SignInControlProps {
   useEmail: boolean
   redirectTo?: string
   onSubmit?: () => void
-  onEmailSent?: (email: string) => void
   signInButtonText?: string
   onCodeVerified?: () => void
 }
