@@ -16,7 +16,6 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
-	"github.com/lib/pq"
 )
 
 // generateSecurityStamp creates a new random security stamp for a user.
@@ -405,78 +404,48 @@ func searchUsers(ctx context.Context, q *query.SearchUsers) error {
 			q.Page = 1
 		}
 
-		baseQuery := `
-				SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted, security_stamp
-				FROM users
-				WHERE tenant_id = $1 AND status != $2
-		`
+		where := "tenant_id = $1 AND status != $2"
 		args := []interface{}{tenant.ID, enum.UserDeleted}
-		argIndex := 3
 
 		// Add search filter
 		if q.Query != "" {
-			baseQuery += fmt.Sprintf(" AND (name ILIKE $%d OR email ILIKE $%d)", argIndex, argIndex+1)
-			searchTerm := "%" + q.Query + "%"
-			args = append(args, searchTerm, searchTerm)
-			argIndex += 2
+			args = append(args, "%"+q.Query+"%")
+			where += fmt.Sprintf(" AND (name ILIKE $%d OR email ILIKE $%d)", len(args), len(args))
 		}
 
-		// Add role filter
+		// Add role filter; "visitor" matches all visitors, the other values match the levels shown in the admin UI (blocked users only match "blocked")
 		if len(q.Roles) > 0 {
-			roleValues := make([]interface{}, len(q.Roles))
+			conditions := make([]string, len(q.Roles))
 			for i, roleStr := range q.Roles {
 				switch roleStr {
 				case "administrator":
-					roleValues[i] = enum.RoleAdministrator
+					conditions[i] = fmt.Sprintf("(role = %d AND status = %d)", enum.RoleAdministrator, enum.UserActive)
 				case "collaborator":
-					roleValues[i] = enum.RoleCollaborator
-				case "visitor":
-					roleValues[i] = enum.RoleVisitor
+					conditions[i] = fmt.Sprintf("(role = %d AND status = %d)", enum.RoleCollaborator, enum.UserActive)
+				case "member":
+					conditions[i] = fmt.Sprintf("(role = %d AND status = %d AND NOT is_trusted)", enum.RoleVisitor, enum.UserActive)
+				case "trusted":
+					conditions[i] = fmt.Sprintf("(role = %d AND status = %d AND is_trusted)", enum.RoleVisitor, enum.UserActive)
+				case "blocked":
+					conditions[i] = fmt.Sprintf("status = %d", enum.UserBlocked)
 				default:
-					roleValues[i] = enum.RoleVisitor
+					conditions[i] = fmt.Sprintf("role = %d", enum.RoleVisitor)
 				}
 			}
-			baseQuery += fmt.Sprintf(" AND role = ANY($%d)", argIndex)
-			args = append(args, pq.Array(roleValues))
+			where += " AND (" + strings.Join(conditions, " OR ") + ")"
 		}
-
-		baseQuery += " ORDER BY role desc, name"
 
 		// First, get the total count for pagination
-		countQuery := `SELECT COUNT(*) FROM users WHERE tenant_id = $1 AND status != $2`
-		countArgs := []interface{}{tenant.ID, enum.UserDeleted}
-		countArgIndex := 3
-
-		// Add the same filters for counting
-		if q.Query != "" {
-			countQuery += fmt.Sprintf(" AND (name ILIKE $%d OR email ILIKE $%d)", countArgIndex, countArgIndex+1)
-			searchTerm := "%" + q.Query + "%"
-			countArgs = append(countArgs, searchTerm, searchTerm)
-			countArgIndex += 2
-		}
-
-		if len(q.Roles) > 0 {
-			roleValues := make([]interface{}, len(q.Roles))
-			for i, roleStr := range q.Roles {
-				switch roleStr {
-				case "administrator":
-					roleValues[i] = enum.RoleAdministrator
-				case "collaborator":
-					roleValues[i] = enum.RoleCollaborator
-				case "visitor":
-					roleValues[i] = enum.RoleVisitor
-				default:
-					roleValues[i] = enum.RoleVisitor
-				}
-			}
-			countQuery += fmt.Sprintf(" AND role = ANY($%d)", countArgIndex)
-			countArgs = append(countArgs, pq.Array(roleValues))
-		}
-
-		err := trx.Get(&q.TotalCount, countQuery, countArgs...)
+		err := trx.Get(&q.TotalCount, "SELECT COUNT(*) FROM users WHERE "+where, args...)
 		if err != nil {
 			return errors.Wrap(err, "failed to count users")
 		}
+
+		baseQuery := `
+				SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey, is_trusted, security_stamp
+				FROM users
+				WHERE ` + where + `
+				ORDER BY role desc, name`
 
 		// Add pagination to main query
 		offset := (q.Page - 1) * q.Limit
