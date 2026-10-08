@@ -11,9 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     # Skip fork PRs: checkout refuses fork code in a trusted workflow_run context (pwn-request
     # guard), and this job holds Docker Hub secrets. Fork PR images can be published on demand via
-    # publish-pr-multiarch.yml after review.
+    # publish-pr-multiarch.yml after review. Skip merge queue runs: nothing should be published.
     if: >-
       ${{ github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event != 'merge_group' &&
           (github.event.workflow_run.event != 'pull_request' ||
            github.event.workflow_run.head_repository.full_name == github.repository) }}
     steps:

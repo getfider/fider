@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - main
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -129,7 +130,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: ${{ github.event_name == 'pull_request' && fromJSON('["chromium"]') || fromJSON('["chromium","webkit","firefox"]') }}
+        browser: ${{ (github.event_name == 'pull_request' || github.event_name == 'merge_group') && fromJSON('["chromium"]') || fromJSON('["chromium","webkit","firefox"]') }}
     steps:
       - uses: actions/checkout@v7
       - name: Use Node.js 22.x
