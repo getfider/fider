@@ -343,11 +343,6 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
         <Trans id="action.commentsfeed">Comment Feed</Trans>
       </Dropdown.ListItem>
     ),
-    Fider.session.isAuthenticated && !Fider.isReadOnly && (
-      <Dropdown.ListItem key="follow" icon={subscribed ? IconCheck : IconPlus} onClick={toggleSubscription}>
-        {subscribed ? <Trans id="label.following">Following</Trans> : <Trans id="label.follow">Follow</Trans>}
-      </Dropdown.ListItem>
-    ),
     canDeletePost() && [
       <Dropdown.Divider key="divider" />,
       <Dropdown.ListItem key="delete" icon={IconTrash} onClick={onActionSelected("delete")}>
