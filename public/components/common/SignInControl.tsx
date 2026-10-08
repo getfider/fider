@@ -197,7 +197,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       {props.useEmail &&
         (showEmailForm ? (
           <div className="pt-3">
-            <Form error={error} autoComplete={emailSignInStep === EmailSigninStep.EnterCode ? "on" : "off"} onSubmit={handleFormSubmit}>
+            <Form error={error} autoComplete="on" onSubmit={handleFormSubmit}>
               {(emailSignInStep === EmailSigninStep.EnterEmail || emailSignInStep === EmailSigninStep.EnterName) && renderEmailField()}
 
               {emailSignInStep === EmailSigninStep.EnterName && renderNameField()}
@@ -230,6 +230,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         field="name"
         value={userName}
         autoFocus={!device.isTouch()}
+        autoComplete="name"
         onChange={setUserName}
         placeholder={i18n._({ id: "signin.name.placeholder", message: "Your name" })}
         maxLength={100}
@@ -243,6 +244,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         <Input
           className="text-left"
           field="email"
+          type="email"
           value={email}
           disabled={emailSignInStep === EmailSigninStep.EnterName}
           autoFocus={!device.isTouch()}

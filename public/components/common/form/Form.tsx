@@ -55,7 +55,7 @@ export const Form: React.FunctionComponent<FormProps> = (props) => {
   }
 
   return (
-    <form autoComplete={props.autoComplete || "off"} className={className} onSubmit={handleSubmit}>
+    <form autoComplete={props.autoComplete || "off"} noValidate className={className} onSubmit={handleSubmit}>
       <DisplayError error={formError} />
       <ValidationContext.Provider value={{ error: formError, clearError }}>{props.children}</ValidationContext.Provider>
     </form>
