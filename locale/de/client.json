@@ -237,7 +237,6 @@
   "signin.email.placeholder": "E-Mail-Adresse",
   "signin.message.email": "Mit E-Mail fortfahren",
   "signin.message.emaildisabled": "Die E-Mail-Authentifizierung wurde von einem Administrator deaktiviert. Wenn du ein Administrator-Konto hast und diese Einschränkung umgehen musst, klicke bitte <0>hier</0>.",
-  "signin.message.emailsent": "Wir haben soeben einen Bestätigungslink an <0>{email}</0> gesendet. Klicke auf den Link und du wirst angemeldet.",
   "signin.message.locked.text": "Um diese Seite wieder zu aktivieren, melde dich mit einem Administrator-Konto an und aktualisiere die erforderlichen Einstellungen.",
   "signin.message.locked.title": "<0>{0}</0> ist derzeit gesperrt.",
   "signin.message.onlyadmins": "Derzeit ist die Anmeldung nur mit einem Administratorkonto erlaubt.",

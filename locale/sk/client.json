@@ -237,7 +237,6 @@
   "signin.email.placeholder": "Emailová adresa",
   "signin.message.email": "Pokračovať pomocou e-mailu",
   "signin.message.emaildisabled": "Správca zakázal overovanie emailu. Ak máte účet správcu a potrebujete obísť toto obmedzenie, <0>kliknite sem</0>.",
-  "signin.message.emailsent": "Práve sme odoslali potvrdzovací odkaz na adresu <0>{email}</0>. Kliknite na odkaz a budete prihlásení.",
   "signin.message.locked.text": "Ak chcete túto stránku znova aktivovať, prihláste sa pomocou účtu správcu a aktualizujte požadované nastavenia.",
   "signin.message.locked.title": "<0>{0}</0> je momentálne zamknutý.",
   "signin.message.onlyadmins": "V súčasnosti je povolené iba prihlásenie do účtu správcu",

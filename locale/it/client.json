@@ -237,7 +237,6 @@
   "signin.email.placeholder": "Indirizzo email",
   "signin.message.email": "Continua con l'email",
   "signin.message.emaildisabled": "L'autenticazione email è stata disabilitata da un amministratore. Se hai un account amministratore e hai bisogno di bypassare questa restrizione, per favore <0>clicca qui</0>.",
-  "signin.message.emailsent": "Abbiamo appena inviato un link di conferma a <0>{email}</0>. Clicca sul link e ti verrà effettuato l'accesso.",
   "signin.message.locked.text": "Per riattivare questo sito, accedi con un account amministratore e aggiorna le impostazioni richieste.",
   "signin.message.locked.title": "<0>{0}</0> è attualmente bloccato.",
   "signin.message.onlyadmins": "Al momento è consentito accedere solo agli account amministratore",

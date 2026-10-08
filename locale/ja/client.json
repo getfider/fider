@@ -237,7 +237,6 @@
   "signin.email.placeholder": "電子メールアドレス",
   "signin.message.email": "メールで続行",
   "signin.message.emaildisabled": "メール認証は管理者によって無効にされています。管理者アカウントを持っていて、この制限を回避する必要がある場合は、<0>ここをクリック</0>してください。",
-  "signin.message.emailsent": "<0>{email}</0>に確認リンクを送信しました。リンクをクリックすると、サインインします。",
   "signin.message.locked.text": "このサイトを再アクティブ化するには、管理者アカウントでサインインし、必要な設定を更新してください。",
   "signin.message.locked.title": "<0>{0}</0>は現在ロックされています。",
   "signin.message.onlyadmins": "現在、管理者アカウントにのみサインインできます",

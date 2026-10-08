@@ -34,19 +34,6 @@ func SignInPage() web.HandlerFunc {
 	}
 }
 
-func LoginEmailSentPage() web.HandlerFunc {
-	return func(c *web.Context) error {
-
-		return c.Page(http.StatusOK, web.Props{
-			Page:  "SignIn/LoginEmailSent.page",
-			Title: "Login email sent",
-			Data: web.Map{
-				"email": c.QueryParam("email")},
-		})
-
-	}
-}
-
 // CompleteSignInProfilePage renders the complete profile page for code flow
 func CompleteSignInProfilePage() web.HandlerFunc {
 	return func(c *web.Context) error {

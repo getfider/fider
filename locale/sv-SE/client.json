@@ -237,7 +237,6 @@
   "signin.email.placeholder": "E-postadress",
   "signin.message.email": "Fortsätt med e-post",
   "signin.message.emaildisabled": "E-postautentisering har inaktiverats av en administratör. Om du har ett administratörskonto och behöver kringgå denna begränsning, <0>klicka här</0>.",
-  "signin.message.emailsent": "Vi har skickat en bekräftelselänk till <0>{email}</0>. Klicka på länken för att logga in.",
   "signin.message.locked.text": "För att återaktivera denna webbplats, logga in med ett administratörskonto och uppdatera nödvändiga inställningar.",
   "signin.message.locked.title": "<0>{0}</0> är för närvarande låst.",
   "signin.message.onlyadmins": "För närvarande endast tillåtet att logga in med ett administratörskonto",

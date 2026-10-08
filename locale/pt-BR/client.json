@@ -237,7 +237,6 @@
   "signin.email.placeholder": "Endereço de e-mail",
   "signin.message.email": "Entrar com email",
   "signin.message.emaildisabled": "A autenticação por e-mail foi desativada por um administrador. Se você tem uma conta de administrador e precisa ignorar esta restrição, <0>clique aqui</0>.",
-  "signin.message.emailsent": "Acabamos de enviar um link de confirmação para <0>{email}</0>. Clique no link para iniciar a sessão.",
   "signin.message.locked.text": "Para reativar este site, entre com uma conta de administrador e atualize as configurações necessárias.",
   "signin.message.locked.title": "<0>{0}</0> está bloqueado no momento.",
   "signin.message.onlyadmins": "Atualmente, só é permitido entrar em uma conta de administrador",
