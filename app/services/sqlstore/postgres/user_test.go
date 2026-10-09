@@ -332,6 +332,7 @@ func TestUserStorage_DefaultUserSettings(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(getSettings.Result).Equals(map[string]string{
 		enum.NotificationEventChangeStatus.UserSettingsKeyName: enum.NotificationEventChangeStatus.DefaultSettingValue,
+		enum.NotificationEventMention.UserSettingsKeyName:      enum.NotificationEventMention.DefaultSettingValue,
 	})
 }
 
@@ -354,6 +355,7 @@ func TestUserStorage_SaveGetUserSettings(t *testing.T) {
 	Expect(firstSettings.Result).Equals(map[string]string{
 		enum.NotificationEventNewPost.UserSettingsKeyName:      "0",
 		enum.NotificationEventChangeStatus.UserSettingsKeyName: "1",
+		enum.NotificationEventMention.UserSettingsKeyName:      enum.NotificationEventMention.DefaultSettingValue,
 	})
 
 	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{Settings: nil})
