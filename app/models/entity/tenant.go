@@ -26,6 +26,7 @@ type Tenant struct {
 	IsFeedEnabled       bool              `json:"isFeedEnabled"`
 	PreventIndexing     bool              `json:"preventIndexing"`
 	IsModerationEnabled bool              `json:"isModerationEnabled"`
+	IsSignUpDisabled    bool              `json:"isSignUpDisabled"`
 	IsPro               bool              `json:"isPro"`
 	// ScheduledDeletionAt is set when the account owner has requested deletion of the whole
 	// site. The tenant stays active during the grace window; a background job performs the
@@ -39,6 +40,13 @@ type Tenant struct {
 
 func (t *Tenant) IsDisabled() bool {
 	return t.Status == enum.TenantDisabled
+}
+
+// IsSignUpAllowed returns true if visitors can create a new account on their own,
+// e.g. by signing in with an unknown email address or an untrusted OAuth provider.
+// Invitations by administrators are always allowed.
+func (t *Tenant) IsSignUpAllowed() bool {
+	return !t.IsPrivate && !t.IsSignUpDisabled
 }
 
 // TenantContact is a reference to an administrator account

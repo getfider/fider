@@ -108,6 +108,7 @@ func UpdatePrivacySettings() web.HandlerFunc {
 			IsPrivate:           action.IsPrivate,
 			IsFeedEnabled:       action.IsFeedEnabled,
 			IsModerationEnabled: action.IsModerationEnabled,
+			IsSignUpDisabled:    action.IsSignUpDisabled,
 		}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)

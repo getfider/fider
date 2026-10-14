@@ -63,6 +63,21 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       setError(undefined)
       const data = result.data as { userExists?: boolean } | undefined
       if (data && data.userExists === false) {
+        if (fider.session.tenant.isPrivate || fider.session.tenant.isSignUpDisabled) {
+          // New users are not allowed to create an account on their own
+          setError({
+            errors: [
+              {
+                field: "email",
+                message: i18n._({
+                  id: "signin.message.signupdisabled",
+                  message: "We couldn't find an account for this email address. New sign-ups are currently disabled.",
+                }),
+              },
+            ],
+          })
+          return
+        }
         // New user - show name field
         setEmailSignInStep(EmailSigninStep.EnterName)
       } else {

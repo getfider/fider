@@ -7,6 +7,7 @@ export interface PrivacySettingsPageState {
   isPrivate: boolean
   isFeedEnabled: boolean
   isModerationEnabled: boolean
+  isSignUpDisabled: boolean
 }
 
 export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySettingsPageState> {
@@ -22,15 +23,17 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
       isPrivate: Fider.session.tenant.isPrivate,
       isFeedEnabled: Fider.session.tenant.isFeedEnabled,
       isModerationEnabled: Fider.session.tenant.isModerationEnabled,
+      isSignUpDisabled: Fider.session.tenant.isSignUpDisabled,
     }
   }
 
-  private updatePrivacySettings = async (isPrivate: boolean, isFeedEnabled: boolean, isModerationEnabled?: boolean) => {
+  private updatePrivacySettings = async (isPrivate: boolean, isFeedEnabled: boolean, isModerationEnabled?: boolean, isSignUpDisabled?: boolean) => {
     this.setState(
       {
         isPrivate,
         isFeedEnabled: isPrivate ? false : isFeedEnabled, // Disable feed if site is private
         isModerationEnabled: isModerationEnabled !== undefined ? isModerationEnabled : this.state.isModerationEnabled,
+        isSignUpDisabled: isSignUpDisabled !== undefined ? isSignUpDisabled : this.state.isSignUpDisabled,
       },
       async () => {
         const response = await actions.updateTenantPrivacy(this.state)
@@ -53,6 +56,10 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
     this.updatePrivacySettings(this.state.isPrivate, this.state.isFeedEnabled, enabled)
   }
 
+  private signUpDisabledToggle = async (disabled: boolean) => {
+    this.updatePrivacySettings(this.state.isPrivate, this.state.isFeedEnabled, undefined, disabled)
+  }
+
   public content() {
     return (
       <Form>
@@ -61,6 +68,17 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
           <p className="text-muted mt-1">
             A private board prevents unauthenticated users from viewing or interacting with its content. <br /> When enabled, only already registered users,
             invited users and users from trusted OAuth providers will have access to this board. Disables the feed feature.
+          </p>
+        </Field>
+        <Field label="Disable Sign-ups">
+          <Toggle
+            disabled={!Fider.session.user.isAdministrator || this.state.isPrivate}
+            active={this.state.isPrivate || this.state.isSignUpDisabled}
+            onToggle={this.signUpDisabledToggle}
+          />
+          <p className="text-muted mt-1">
+            Prevents visitors from creating a new account on their own. The board stays publicly visible. <br /> When enabled, only already registered users,
+            invited users and users from trusted OAuth providers can sign in. Private boards always have sign-ups disabled.
           </p>
         </Field>
         <Field label="ATOM Feed">
