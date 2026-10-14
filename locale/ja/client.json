@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "現在、管理者アカウントにのみサインインできます",
   "signin.message.private.text": "アカウントや招待状をお持ちの場合は、以下のオプションを使用してサインインできます。",
   "signin.message.private.title": "<0>{0}</0> はプライベートなスペースです。サインインして投票してください。",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "ログイン",
   "signin.name.placeholder": "あなたの名前",
   "validation.custom.maxattachments": "最大 {number} 個の添付ファイルが許可されます。",
