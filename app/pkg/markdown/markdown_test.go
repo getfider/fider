@@ -73,7 +73,7 @@ func TestPlainTextMarkdown(t *testing.T) {
 
 	for input, expected := range map[string]string{
 		"**Hello World**":                           `Hello World`,
-		"Hello <b>Beautiful</b> World":              `Hello &lt;b&gt;Beautiful&lt;/b&gt; World`,
+		"Hello <b>Beautiful</b> World":              `Hello <b>Beautiful</b> World`,
 		"[My Link](http://example.com/)":            `My Link`,
 		"![My Image](http://example.com/hello.jpg)": ``,
 		"Go to http://example.com/hello.jpg":        `Go to http://example.com/hello.jpg`,
@@ -92,8 +92,26 @@ How are you?`,
 How are you?`: `Hello World
 How are you?`,
 		"### Hello World":         `Hello World`,
-		"Check this out: `HEEEY`": "Check this out: `HEEEY`",
+		"Check this out: `HEEEY`": "Check this out: HEEEY",
 		"Bad links should be OK [link without actual link]()": "Bad links should be OK link without actual link",
+	} {
+		output := markdown.PlainText(input)
+		Expect(output).Equals(expected)
+	}
+}
+
+func TestPlainTextMarkdown_NoHTMLEntities(t *testing.T) {
+	RegisterT(t)
+
+	for input, expected := range map[string]string{
+		"Tom & Jerry integration":         "Tom & Jerry integration",
+		"Please support C++ & C#":         "Please support C++ & C#",
+		"Make it 2x faster -> better UX":  "Make it 2x faster -> better UX",
+		"Use List<String> for tags":       "Use List<String> for tags",
+		"Support `<details>` blocks":      "Support <details> blocks",
+		"Use `a && b` or `a < b`":         "Use a && b or a < b",
+		"**Tom & Jerry** [<b>link</b>]()": "Tom & Jerry <b>link</b>",
+		"Tom &amp; Jerry":                 "Tom & Jerry",
 	} {
 		output := markdown.PlainText(input)
 		Expect(output).Equals(expected)

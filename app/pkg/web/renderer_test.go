@@ -17,6 +17,7 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -106,6 +107,26 @@ func TestRenderer_Home(t *testing.T) {
 	}, ctx)
 
 	compareRendererResponse(buf, "/app/pkg/web/testdata/home.html", ctx)
+}
+
+func TestRenderer_DescriptionIsEscapedOnce(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		return nil
+	})
+
+	buf := new(bytes.Buffer)
+	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
+	renderer := web.NewRenderer()
+	renderer.Render(buf, http.StatusOK, web.Props{
+		Title:       "My Page Title",
+		Description: markdown.PlainText("**Tom & Jerry** `<details>`") + ` "><script>alert(1)</script>`,
+	}, ctx)
+
+	expected := `content="Tom &amp; Jerry &lt;details&gt; &#34;&gt;&lt;script&gt;alert(1)&lt;/script&gt;"`
+	Expect(buf.String()).ContainsSubstring(`<meta name="description" ` + expected + ` />`)
+	Expect(buf.String()).ContainsSubstring(`<meta property="og:description" ` + expected + ` />`)
 }
 
 func TestRenderer_Home_SSR(t *testing.T) {
