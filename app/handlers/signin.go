@@ -128,8 +128,8 @@ func SignInByEmailWithName() web.HandlerFunc {
 			})
 		}
 
-		// Check if tenant is private (new users not allowed)
-		if c.Tenant().IsPrivate {
+		// Check if new users are allowed to sign up (not on private sites or when sign up is disabled)
+		if !c.Tenant().IsSignUpAllowed() {
 			return c.Forbidden()
 		}
 
@@ -215,7 +215,7 @@ func VerifySignInCode() web.HandlerFunc {
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				// User doesn't exist
-				if c.Tenant().IsPrivate {
+				if !c.Tenant().IsSignUpAllowed() {
 					return c.Forbidden()
 				}
 
@@ -315,7 +315,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 		err = bus.Dispatch(c, userByEmail)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				if kind == enum.EmailVerificationKindSignIn && c.Tenant().IsPrivate {
+				if kind == enum.EmailVerificationKindSignIn && !c.Tenant().IsSignUpAllowed() {
 					return NotInvitedPage()(c)
 				}
 
@@ -385,6 +385,11 @@ func CompleteSignInProfile() web.HandlerFunc {
 		if errors.Cause(err) != app.ErrNotFound {
 			// Not possible to create user that already exists
 			return c.BadRequest(web.Map{})
+		}
+
+		// Only invited users can create an account when sign up is not allowed
+		if action.Kind == enum.EmailVerificationKindSignIn && !c.Tenant().IsSignUpAllowed() {
+			return c.Forbidden()
 		}
 
 		user := &entity.User{
