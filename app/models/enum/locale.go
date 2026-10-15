@@ -209,6 +209,16 @@ var (
 		IsRTL:             false,
 	}
 
+	// LocaleHungarian represents Hungarian
+	LocaleHungarian = Locale{
+		Code:              "hu",
+		Name:              "Hungarian",
+		MessageFormatCode: "hu",
+		PostgresConfig:    "hungarian",
+		LinguaLanguage:    lingua.Hungarian,
+		IsRTL:             false,
+	}
+
 	// AllLocales contains all supported locales
 	AllLocales = []Locale{
 		LocaleEnglish,
@@ -230,6 +240,7 @@ var (
 		LocaleChineseCN,
 		LocaleChineseTW,
 		LocalePersian,
+		LocaleHungarian,
 	}
 )
 
