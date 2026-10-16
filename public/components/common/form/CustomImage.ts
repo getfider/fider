@@ -19,14 +19,13 @@ type ImageToken = { href?: string; text?: string; title?: string | null }
 // content that makes every later edit fail. Posts often end with such paragraphs (the server
 // appends unreferenced attachments as "![](fider-image:<bkey>)"), so keep them as paragraphs.
 // Use in place of StarterKit's paragraph.
-const parseParagraph = Paragraph.config.parseMarkdown
 export const ImageParagraph = Paragraph.extend({
-  parseMarkdown: (token, helpers) => {
+  parseMarkdown(token, helpers) {
     const tokens = token.tokens || []
     if (tokens.length === 1 && tokens[0].type === "image") {
       return helpers.createNode("paragraph", undefined, helpers.parseInline(tokens))
     }
-    return parseParagraph ? parseParagraph(token, helpers) : helpers.createNode("paragraph", undefined, helpers.parseInline(tokens))
+    return this.parent ? this.parent(token, helpers) : helpers.createNode("paragraph", undefined, helpers.parseInline(tokens))
   },
 })
 
