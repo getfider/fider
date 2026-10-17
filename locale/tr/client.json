@@ -178,6 +178,7 @@
   "newpost.modal.title": "Fikrinizi paylaşın...",
   "newpost.modal.title.label": "Fikrinize bir başlık verin",
   "newpost.modal.title.placeholder": "Kısa ve öz bir şey, birkaç kelimeyle özetleyin",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "Beni <0>{0}</0> ana sayfaya götür.",
   "page.pendingactivation.didntreceive": "E-postayı almadınız mı?",
   "page.pendingactivation.resend": "Doğrulama e-postasını yeniden gönder",

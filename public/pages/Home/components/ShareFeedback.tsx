@@ -33,6 +33,10 @@ interface ShareFeedbackProps {
   tags: Tag[]
 }
 
+const MIN_TITLE_LENGTH = 10
+
+const normalizeTitle = (value: string): string => value.replace(/\s+/g, " ").trim()
+
 export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   const fider = useFider()
   const { isOpen, onClose } = props
@@ -70,6 +74,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   })
   const [tags, setTags] = useState(getTagsCachedValue())
   const [error, setError] = useState<Failure | undefined>(undefined)
+  const [justVerified, setJustVerified] = useState(false)
   const titleRef = useRef<HTMLInputElement>()
   const editorRef = useRef<HTMLDivElement>(null)
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(prefillTemplate ? true : getTitleManuallyEditedValue())
@@ -213,7 +218,8 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   const onCodeVerified = (): void => {
-    // User is authenticated - finalize the feedback submission
+    // Keep the user in the authenticated flow even if post creation fails.
+    setJustVerified(true)
     finaliseFeedback()
   }
 
@@ -222,7 +228,10 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     // We don't need to do anything special here
   }
 
-  const showSubmitButton = title.replace(/\s+/g, " ").trim().length > 9
+  const isAuthenticated = fider.session.isAuthenticated || justVerified
+  const normalizedTitleLength = normalizeTitle(title).length
+  const showSubmitButton = normalizedTitleLength >= MIN_TITLE_LENGTH
+  const titleCharactersRemaining = MIN_TITLE_LENGTH - normalizedTitleLength
 
   return (
     <Modal.Window className="c-share-feedback" isOpen={isOpen} onClose={handleClose} size="fullscreen" center={false}>
@@ -266,7 +275,17 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 onChange={handleTitleChange}
                 onKeyDown={handleKeyDown}
                 placeholder={i18n._({ id: "newpost.modal.title.placeholder", message: "Something short and snappy, sum it up in a few words" })}
-              />
+              >
+                {title && !showSubmitButton && (
+                  <p className="text-red-700 mt-1">
+                    {i18n._({
+                      id: "newpost.modal.title.tooshort",
+                      message: "Title must be at least {minimum} characters ({remaining} more needed).",
+                      values: { minimum: MIN_TITLE_LENGTH, remaining: titleCharactersRemaining },
+                    })}
+                  </p>
+                )}
+              </Input>
               {canEditTags && (
                 <div className="c-form-field">
                   <label>
@@ -281,7 +300,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
           </div>
         </div>
         {/* For unauthenticated users, always show the sign-in control */}
-        {!fider.session.isAuthenticated ? (
+        {!isAuthenticated ? (
           <div className="c-share-feedback__content">
             <div className="c-share-feedback-signin">
               <h2 className="text-title text-center mb-4">
@@ -310,7 +329,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
             </div>
           )
         )}
-        {!fider.session.isAuthenticated ? <LegalFooter /> : null}
+        {!isAuthenticated ? <LegalFooter /> : null}
       </Modal.Content>
     </Modal.Window>
   )
