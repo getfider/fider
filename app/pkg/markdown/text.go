@@ -44,6 +44,7 @@ var regexNewlines = regexp.MustCompile(`\n+`)
 //
 // The result is unescaped plain text (e.g. "Tom & Jerry", not "Tom &amp; Jerry"), so
 // callers must escape it for wherever it is written to, as html/template does.
+// It is not HTML-safe and must never be wrapped in template.HTML.
 //
 // Unlike Full, this needs no destination gating or scheme allow list: strictPolicy strips
 // every tag and attribute, so neither an unsafe link destination nor markup forged by the
