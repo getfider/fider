@@ -273,7 +273,7 @@ func OAuthToken() web.HandlerFunc {
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				isTrusted := customConfig != nil && customConfig.IsTrusted
-				if !c.Tenant().IsSignUpAllowed() && !isTrusted {
+				if !canCreateAccount(c, isTrusted) {
 					return c.Redirect("/not-invited")
 				}
 

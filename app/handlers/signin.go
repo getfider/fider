@@ -70,6 +70,13 @@ func AccessDeniedPage() web.HandlerFunc {
 	}
 }
 
+// canCreateAccount is the single rule for every self-service account creation.
+// Invited users and users from trusted OAuth providers can always create an account,
+// everyone else only if the site allows sign-ups (see entity.Tenant.IsSignUpAllowed).
+func canCreateAccount(c *web.Context, isInvitedOrTrusted bool) bool {
+	return isInvitedOrTrusted || c.Tenant().IsSignUpAllowed()
+}
+
 // SignInByEmail checks if user exists and sends code only for existing users
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -126,11 +133,6 @@ func SignInByEmailWithName() web.HandlerFunc {
 			return c.BadRequest(web.Map{
 				"email": "An account with this email already exists. Please sign in.",
 			})
-		}
-
-		// Check if new users are allowed to sign up (not on private sites or when sign up is disabled)
-		if !c.Tenant().IsSignUpAllowed() {
-			return c.Forbidden()
 		}
 
 		// Invalidate any previous active verification codes for this email
@@ -215,7 +217,7 @@ func VerifySignInCode() web.HandlerFunc {
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				// User doesn't exist
-				if !c.Tenant().IsSignUpAllowed() {
+				if !canCreateAccount(c, false) {
 					return c.Forbidden()
 				}
 
@@ -278,6 +280,16 @@ func ResendSignInCode() web.HandlerFunc {
 			return c.Forbidden()
 		}
 
+		// Unknown email addresses only get a code if they are allowed to create an account
+		if !canCreateAccount(c, false) {
+			if err := bus.Dispatch(c, &query.GetUserByEmail{Email: action.Email}); err != nil {
+				if errors.Cause(err) == app.ErrNotFound {
+					return c.Ok(web.Map{})
+				}
+				return c.Failure(err)
+			}
+		}
+
 		// Invalidate any previous active verification codes for this email
 		_ = bus.Dispatch(c, &cmd.InvalidateVerificationsByEmail{
 			Email: action.Email,
@@ -315,7 +327,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 		err = bus.Dispatch(c, userByEmail)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				if kind == enum.EmailVerificationKindSignIn && !c.Tenant().IsSignUpAllowed() {
+				if !canCreateAccount(c, kind == enum.EmailVerificationKindUserInvitation) {
 					return NotInvitedPage()(c)
 				}
 
@@ -387,8 +399,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.BadRequest(web.Map{})
 		}
 
-		// Only invited users can create an account when sign up is not allowed
-		if action.Kind == enum.EmailVerificationKindSignIn && !c.Tenant().IsSignUpAllowed() {
+		if !canCreateAccount(c, action.Kind == enum.EmailVerificationKindUserInvitation) {
 			return c.Forbidden()
 		}
 

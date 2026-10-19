@@ -63,7 +63,8 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       setError(undefined)
       const data = result.data as { userExists?: boolean } | undefined
       if (data && data.userExists === false) {
-        if (fider.session.tenant.isPrivate || fider.session.tenant.isSignUpDisabled) {
+        const tenant = fider.session.tenant
+        if (tenant && (tenant.isPrivate || tenant.isSignUpDisabled)) {
           // New users are not allowed to create an account on their own
           setError({
             errors: [

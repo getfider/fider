@@ -1289,3 +1289,112 @@ func TestCompleteSignInProfileHandler_SignUpDisabled_Invitation(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	ExpectFiderAuthCookie(response, newUser)
 }
+
+func TestSignInByEmailWithNameHandler_SignUpDisabled_ExistingUser(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	server := mock.NewServer()
+	mock.DemoTenant.IsSignUpDisabled = true
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.SignInByEmailWithName(), `{ "email": "jon.snow@got.com", "name": "Jon Snow" }`)
+
+	// Same response as for unknown emails, the user lookup must not happen
+	Expect(code).Equals(http.StatusForbidden)
+	ExpectHandler(&query.GetUserByEmail{}).CalledTimes(0)
+}
+
+func TestResendSignInCodeHandler_SignUpDisabled_UnknownEmail(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
+		return nil
+	})
+
+	server := mock.NewServer()
+	mock.DemoTenant.IsSignUpDisabled = true
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.ResendSignInCode(), `{ "email": "new.user@got.com" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	ExpectHandler(&cmd.SaveVerificationKey{}).CalledTimes(0)
+}
+
+func TestResendSignInCodeHandler_SignUpDisabled_ExistingUser(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.InvalidateVerificationsByEmail) error {
+		return nil
+	})
+
+	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
+		saveKeyCmd = c
+		return nil
+	})
+
+	server := mock.NewServer()
+	mock.DemoTenant.IsSignUpDisabled = true
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.ResendSignInCode(), `{ "email": "jon.snow@got.com" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
+}
+
+func TestCompleteSignInProfileHandler_OtherVerificationKinds(t *testing.T) {
+	for _, kind := range []enum.EmailVerificationKind{enum.EmailVerificationKindSignUp, enum.EmailVerificationKindChangeEmail} {
+		RegisterT(t)
+
+		bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+			q.Result = &entity.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: time.Now().Add(5 * time.Minute),
+				Email:     "new.address@got.com",
+			}
+			return nil
+		})
+
+		bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+			return app.ErrNotFound
+		})
+
+		bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+			return nil
+		})
+
+		server := mock.NewServer()
+		code, _ := server.
+			OnTenant(mock.DemoTenant).
+			WithURL("http://demo.test.fider.io/signin/complete").
+			ExecutePost(handlers.CompleteSignInProfile(), fmt.Sprintf(`
+			{
+				"name": "Hot Pie",
+				"kind": %d,
+				"key": "1234567890"
+			}`, kind))
+
+		Expect(code).Equals(http.StatusBadRequest)
+		ExpectHandler(&cmd.RegisterUser{}).CalledTimes(0)
+	}
+}

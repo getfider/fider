@@ -27,13 +27,12 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
     }
   }
 
-  private updatePrivacySettings = async (isPrivate: boolean, isFeedEnabled: boolean, isModerationEnabled?: boolean, isSignUpDisabled?: boolean) => {
+  private updatePrivacySettings = async (changes: Partial<PrivacySettingsPageState>) => {
+    const settings = { ...this.state, ...changes }
     this.setState(
       {
-        isPrivate,
-        isFeedEnabled: isPrivate ? false : isFeedEnabled, // Disable feed if site is private
-        isModerationEnabled: isModerationEnabled !== undefined ? isModerationEnabled : this.state.isModerationEnabled,
-        isSignUpDisabled: isSignUpDisabled !== undefined ? isSignUpDisabled : this.state.isSignUpDisabled,
+        ...settings,
+        isFeedEnabled: settings.isPrivate ? false : settings.isFeedEnabled, // Disable feed if site is private
       },
       async () => {
         const response = await actions.updateTenantPrivacy(this.state)
@@ -45,19 +44,19 @@ export default class PrivacySettingsPage extends AdminBasePage<any, PrivacySetti
   }
 
   private privacyToggle = async (active: boolean) => {
-    this.updatePrivacySettings(active, this.state.isFeedEnabled)
+    this.updatePrivacySettings({ isPrivate: active })
   }
 
   private atomFeedToggle = async (enabled: boolean) => {
-    this.updatePrivacySettings(this.state.isPrivate, enabled)
+    this.updatePrivacySettings({ isFeedEnabled: enabled })
   }
 
   private moderationToggle = async (enabled: boolean) => {
-    this.updatePrivacySettings(this.state.isPrivate, this.state.isFeedEnabled, enabled)
+    this.updatePrivacySettings({ isModerationEnabled: enabled })
   }
 
   private signUpDisabledToggle = async (disabled: boolean) => {
-    this.updatePrivacySettings(this.state.isPrivate, this.state.isFeedEnabled, undefined, disabled)
+    this.updatePrivacySettings({ isSignUpDisabled: disabled })
   }
 
   public content() {

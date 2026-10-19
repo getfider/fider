@@ -48,21 +48,14 @@ func isSubdomainAvailable(ctx context.Context, q *query.IsSubdomainAvailable) er
 
 func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacySettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute("UPDATE tenants SET is_private = $1 WHERE id = $2", c.IsPrivate, tenant.ID)
+		_, err := trx.Execute(`
+			UPDATE tenants
+			SET is_private = $1, is_feed_enabled = $2, is_moderation_enabled = $3, is_signup_disabled = $4
+			WHERE id = $5`,
+			c.IsPrivate, c.IsFeedEnabled, c.IsModerationEnabled, c.IsSignUpDisabled, tenant.ID,
+		)
 		if err != nil {
-			return errors.Wrap(err, "failed update tenant privacy setting")
-		}
-		_, err = trx.Execute("UPDATE tenants SET is_feed_enabled = $1 WHERE id = $2", c.IsFeedEnabled, tenant.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed update tenant feed setting")
-		}
-		_, err = trx.Execute("UPDATE tenants SET is_moderation_enabled = $1 WHERE id = $2", c.IsModerationEnabled, tenant.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed update tenant moderation setting")
-		}
-		_, err = trx.Execute("UPDATE tenants SET is_signup_disabled = $1 WHERE id = $2", c.IsSignUpDisabled, tenant.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed update tenant sign up setting")
+			return errors.Wrap(err, "failed update tenant privacy settings")
 		}
 		return nil
 	})
