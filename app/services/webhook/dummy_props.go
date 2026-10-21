@@ -21,7 +21,7 @@ var dummyPost = &entity.Post{
 This is an example of a post, but don't worry, nothing was created on your Fider instance:
 It was just a test of a webhook trigger.
 
-You can use ` + "`" + `{{ markdown .post_description }}` + "`" + ` to parse __Markdown__ to **HTML** in post!`,
+You can use ` + "`" + `{{ markdown .post_description }}` + "`" + ` to convert __Markdown__ to HTML-escaped plain text in post!`,
 	CreatedAt: time.Date(2021, time.May, 7, 18, 42, 27, 0, time.UTC),
 	User: &entity.User{
 		ID:    7,
