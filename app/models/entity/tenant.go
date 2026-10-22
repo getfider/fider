@@ -42,10 +42,29 @@ func (t *Tenant) IsDisabled() bool {
 	return t.Status == enum.TenantDisabled
 }
 
-// IsSignUpAllowed returns true if visitors can create a new account on their own,
-// e.g. by signing in with an unknown email address or an untrusted OAuth provider.
-// Invitations by administrators are always allowed.
-func (t *Tenant) IsSignUpAllowed() bool {
+// CanCreateAccountByEmail returns true if completing an email verification of the given kind
+// may create a new account. Invited users can always create their account, everyone else
+// only if the site allows sign-ups and email login is turned on.
+func (t *Tenant) CanCreateAccountByEmail(kind enum.EmailVerificationKind) bool {
+	if kind == enum.EmailVerificationKindUserInvitation {
+		return true
+	}
+	return t.IsEmailAuthAllowed && t.isSignUpAllowed()
+}
+
+// CanCreateAccountByOAuth returns true if signing in with the given OAuth provider may create
+// a new account. Users from trusted providers can always create their account, everyone else
+// only if the site allows sign-ups. Built-in providers have no config and are never trusted.
+func (t *Tenant) CanCreateAccountByOAuth(config *OAuthConfig) bool {
+	if config != nil && config.IsTrusted {
+		return true
+	}
+	return t.isSignUpAllowed()
+}
+
+// isSignUpAllowed returns true if visitors can create a new account on their own,
+// which is neither the case on private sites nor when sign-ups are disabled.
+func (t *Tenant) isSignUpAllowed() bool {
 	return !t.IsPrivate && !t.IsSignUpDisabled
 }
 

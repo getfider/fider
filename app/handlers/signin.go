@@ -70,13 +70,6 @@ func AccessDeniedPage() web.HandlerFunc {
 	}
 }
 
-// canCreateAccount is the single rule for every self-service account creation.
-// Invited users and users from trusted OAuth providers can always create an account,
-// everyone else only if the site allows sign-ups (see entity.Tenant.IsSignUpAllowed).
-func canCreateAccount(c *web.Context, isInvitedOrTrusted bool) bool {
-	return isInvitedOrTrusted || c.Tenant().IsSignUpAllowed()
-}
-
 // SignInByEmail checks if user exists and sends code only for existing users
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -112,7 +105,8 @@ func SignInByEmail() web.HandlerFunc {
 		}
 
 		return c.Ok(web.Map{
-			"userExists": userExists,
+			"userExists":    userExists,
+			"signUpAllowed": c.Tenant().CanCreateAccountByEmail(action.GetKind()),
 		})
 	}
 }
@@ -217,7 +211,7 @@ func VerifySignInCode() web.HandlerFunc {
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				// User doesn't exist
-				if !canCreateAccount(c, false) {
+				if !c.Tenant().CanCreateAccountByEmail(result.Kind) {
 					return c.Forbidden()
 				}
 
@@ -281,7 +275,7 @@ func ResendSignInCode() web.HandlerFunc {
 		}
 
 		// Unknown email addresses only get a code if they are allowed to create an account
-		if !canCreateAccount(c, false) {
+		if !c.Tenant().CanCreateAccountByEmail(action.GetKind()) {
 			if err := bus.Dispatch(c, &query.GetUserByEmail{Email: action.Email}); err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
 					return c.Ok(web.Map{})
@@ -327,7 +321,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 		err = bus.Dispatch(c, userByEmail)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				if !canCreateAccount(c, kind == enum.EmailVerificationKindUserInvitation) {
+				if !c.Tenant().CanCreateAccountByEmail(kind) {
 					return NotInvitedPage()(c)
 				}
 
@@ -399,7 +393,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.BadRequest(web.Map{})
 		}
 
-		if !canCreateAccount(c, action.Kind == enum.EmailVerificationKindUserInvitation) {
+		if !c.Tenant().CanCreateAccountByEmail(action.Kind) {
 			return c.Forbidden()
 		}
 

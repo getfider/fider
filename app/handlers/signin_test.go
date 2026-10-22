@@ -82,6 +82,27 @@ func TestSignInByEmailHandler_NewUser(t *testing.T) {
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(response.Body.String()).ContainsSubstring(`"userExists":false`)
+	Expect(response.Body.String()).ContainsSubstring(`"signUpAllowed":true`)
+}
+
+func TestSignInByEmailHandler_NewUser_SignUpDisabled(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	mock.DemoTenant.IsSignUpDisabled = true
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.SignInByEmail(), `{ "email": "new.user@got.com" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.String()).ContainsSubstring(`"userExists":false`)
+	Expect(response.Body.String()).ContainsSubstring(`"signUpAllowed":false`)
+	ExpectHandler(&cmd.SaveVerificationKey{}).CalledTimes(0)
 }
 
 func TestSignInByEmailWithNameHandler_NewUser(t *testing.T) {
@@ -1397,4 +1418,57 @@ func TestCompleteSignInProfileHandler_OtherVerificationKinds(t *testing.T) {
 		Expect(code).Equals(http.StatusBadRequest)
 		ExpectHandler(&cmd.RegisterUser{}).CalledTimes(0)
 	}
+}
+
+func TestSignInByEmailWithNameHandler_EmailAuthNotAllowed(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	mock.DemoTenant.IsEmailAuthAllowed = false
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.SignInByEmailWithName(), `{ "email": "new.user@got.com", "name": "New User" }`)
+
+	Expect(code).Equals(http.StatusForbidden)
+	ExpectHandler(&cmd.SaveVerificationKey{}).CalledTimes(0)
+}
+
+func TestVerifySignInCodeHandler_CorrectCode_NewUser_EmailAuthNotAllowed(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	mock.DemoTenant.IsEmailAuthAllowed = false
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveVerificationByEmail) error {
+		q.Result = &entity.EmailVerification{
+			Email:     "new.user@got.com",
+			Name:      "New User",
+			Kind:      enum.EmailVerificationKindSignIn,
+			Key:       "some-long-link-key",
+			Code:      "123456",
+			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(15 * time.Minute),
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.VerifySignInCode(), `{ "email": "new.user@got.com", "code": "123456" }`)
+
+	Expect(code).Equals(http.StatusForbidden)
+	ExpectHandler(&cmd.RegisterUser{}).CalledTimes(0)
 }

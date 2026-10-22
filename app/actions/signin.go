@@ -133,8 +133,8 @@ func NewSignInByEmailWithName() *SignInByEmailWithName {
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *SignInByEmailWithName) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
-	// Reject before any user lookup, so the response doesn't reveal which emails are registered
-	return tenant.IsSignUpAllowed()
+	// Reject new-user requests before the handler looks up the user
+	return tenant.CanCreateAccountByEmail(action.GetKind())
 }
 
 // Validate if current model is valid
