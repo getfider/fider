@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "Seuls les comptes administrateurs peuvent se connecter en ce moment",
   "signin.message.private.text": "Si vous avez un compte ou une invitation, vous pouvez utiliser les options suivantes pour vous connecter.",
   "signin.message.private.title": "<0>{0}</0> est un espace privé, vous devez vous connecter pour participer et voter.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Se connecter avec",
   "signin.name.placeholder": "Votre nom",
   "validation.custom.maxattachments": "Un maximum de {number} pièces jointes est autorisé.",

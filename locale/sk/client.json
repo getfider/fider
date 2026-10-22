@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "V súčasnosti je povolené iba prihlásenie do účtu správcu",
   "signin.message.private.text": "Ak máte účet alebo pozvánku, na prihlásenie môžete použiť nasledujúce možnosti.",
   "signin.message.private.title": "<0>{0}</0> je súkromný priestor, ak sa chcete zúčastniť diskusie a hlasovať, musíte sa prihlásiť.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Prihlásiť sa pomocou",
   "signin.name.placeholder": "Vaše meno",
   "validation.custom.maxattachments": "Maximálny počet príloh je {number}.",
