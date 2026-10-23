@@ -3,6 +3,10 @@ import React from "react"
 // defines DOM related expect methods
 import "@testing-library/jest-dom/extend-expect"
 
+// jsdom doesn't provide TextEncoder, which every browser we support has
+import { TextEncoder } from "util"
+Object.assign(global, { TextEncoder })
+
 // Mock for LinguiJS so we don't need to setup i18n on each test
 jest.mock("@lingui/react", () => ({
   Trans: function TransMock({ children }: { children: React.ReactNode }) {

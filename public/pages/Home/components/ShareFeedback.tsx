@@ -222,7 +222,8 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     // We don't need to do anything special here
   }
 
-  const showSubmitButton = title.replace(/\s+/g, " ").trim().length > 9
+  // The server checks the title length in UTF-8 bytes (Go's len), so count the same way.
+  const showSubmitButton = new TextEncoder().encode(title.replace(/\s+/g, " ").trim()).length >= 10
 
   return (
     <Modal.Window className="c-share-feedback" isOpen={isOpen} onClose={handleClose} size="fullscreen" center={false}>
