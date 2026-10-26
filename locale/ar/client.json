@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "يسمح حاليا فقط بتسجيل الدخول إلى حساب مسؤول",
   "signin.message.private.text": "إذا كان لديك حساب أو دعوت، فيمكنك استخدام الخيارات التالية لتسجيل الدخول.",
   "signin.message.private.title": "<0>{0}</0> مساحة خاصة، يجب عليك تسجيل الدخول للمشاركة والتصويت.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "تسجيل الدخول بواسطة",
   "signin.name.placeholder": "اسمك",
   "validation.custom.maxattachments": "يُسمح بحد أقصى {number} من المرفقات.",

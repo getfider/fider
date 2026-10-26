@@ -56,8 +56,13 @@ export const checkAvailability = async (subdomain: string): Promise<Result<Check
   return await http.get<CheckAvailabilityResponse>(`/_api/tenants/${subdomain}/availability`)
 }
 
-export const signIn = async (email: string): Promise<Result> => {
-  return await http.post("/_api/signin", { email })
+export interface SignInResponse {
+  userExists: boolean
+  signUpAllowed: boolean
+}
+
+export const signIn = async (email: string): Promise<Result<SignInResponse>> => {
+  return await http.post<SignInResponse>("/_api/signin", { email })
 }
 
 export const signInNewUser = async (email: string, name: string): Promise<Result> => {

@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "Αυτήν τη στιγμή επιτρέπεται μόνο να συνδεθείτε σε λογαριασμό διαχειριστή",
   "signin.message.private.text": "Αν έχετε λογαριασμό ή πρόσκληση, μπορείτε να χρησιμοποιήσετε τις παρακάτω επιλογές για να συνδεθείτε.",
   "signin.message.private.title": "<0>{0}</0> είναι ένας ιδιωτικός χώρος, πρέπει να συνδεθείτε για να συμμετάσχετε και να ψηφίσετε.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Συνδεθείτε με",
   "signin.name.placeholder": "Το όνομά σας",
   "validation.custom.maxattachments": "Επιτρέπονται έως {number} συνημμένα.",
