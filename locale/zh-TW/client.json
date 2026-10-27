@@ -243,6 +243,7 @@
   "signin.message.onlyadmins": "目前僅允許管理員帳號登入",
   "signin.message.private.text": "如果您有帳號或受邀請，可以使用以下選項登入。",
   "signin.message.private.title": "<0>{0}</0> 是私人空間，您必須登入才能參與和投票。",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "以下列方式繼續",
   "signin.name.placeholder": "您的姓名",
   "validation.custom.maxattachments": "最多允許 {number} 個附件。",

@@ -243,6 +243,7 @@
   "signin.message.onlyadmins": "Derzeit ist die Anmeldung nur mit einem Administratorkonto erlaubt.",
   "signin.message.private.text": "Wenn du ein Konto oder eine Einladung hast, kannst du folgende Optionen nutzen, um dich anzumelden.",
   "signin.message.private.title": "<0>{0}</0> ist ein privater Raum, du musst dich anmelden, um teilzunehmen und abstimmen zu können.",
+  "signin.message.signupdisabled": "Wir konnten kein Konto für diese E-Mail-Adresse finden. Neue Registrierungen sind derzeit deaktiviert.",
   "signin.message.socialbutton.intro": "Einloggen mit",
   "signin.name.placeholder": "Dein Name",
   "validation.custom.maxattachments": "Es sind maximal {number} Anhänge zulässig.",

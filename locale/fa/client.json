@@ -243,6 +243,7 @@
   "signin.message.onlyadmins": "در حال حاضر فقط مدیران می‌توانند وارد شوند",
   "signin.message.private.text": "اگر حساب یا دعوت‌نامه دارید، از گزینه‌های زیر برای ورود استفاده کنید.",
   "signin.message.private.title": "<0>{0}</0> یک فضای خصوصی است؛ برای مشارکت باید وارد شوید.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "ورود با",
   "signin.name.placeholder": "نام شما",
   "validation.custom.maxattachments": "حداکثر تعداد {number} پیوست مجاز است.",

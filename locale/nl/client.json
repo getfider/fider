@@ -243,6 +243,7 @@
   "signin.message.onlyadmins": "Momenteel alleen toegestaan om in te loggen met een beheerdersaccount",
   "signin.message.private.text": "Als je een account of een uitnodiging hebt, kun je de volgende methodes gebruiken om in te loggen.",
   "signin.message.private.title": "<0>{0}</0> is een privéruimte. U moet ingelogd zijn om deel te nemen en te stemmen.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Inloggen met",
   "signin.name.placeholder": "Jouw naam",
   "validation.custom.maxattachments": "Er zijn maximaal {number} bijlagen toegestaan.",

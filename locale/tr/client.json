@@ -243,6 +243,7 @@
   "signin.message.onlyadmins": "Şu anda yalnızca yönetici hesabıyla giriş yapılabilir",
   "signin.message.private.text": "Eğer bir hesabınız ya da davetiyeniz varsa aşağıdaki seçenekleri kullanarak giriş yapabilirsiniz.",
   "signin.message.private.title": "<0>{0}</0> özel bir alandır ve katılabilmek için davetiye almanız gerekir.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "İle giriş yapın",
   "signin.name.placeholder": "Adınız",
   "validation.custom.maxattachments": "En fazla {number} ek dosyaya izin verilir.",

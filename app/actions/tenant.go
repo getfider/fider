@@ -290,6 +290,7 @@ type UpdateTenantPrivacySettings struct {
 	IsPrivate           bool `json:"isPrivate"`
 	IsFeedEnabled       bool `json:"isFeedEnabled"`
 	IsModerationEnabled bool `json:"isModerationEnabled"`
+	IsSignUpDisabled    *bool `json:"isSignUpDisabled"`
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action

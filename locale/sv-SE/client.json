@@ -243,6 +243,7 @@
   "signin.message.onlyadmins": "För närvarande endast tillåtet att logga in med ett administratörskonto",
   "signin.message.private.text": "Om du har ett konto eller en inbjudan kan du använda följande alternativ för att logga in.",
   "signin.message.private.title": "<0>{0}</0> är ett privat utrymme, du måste logga in för att delta och rösta.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Logga in med",
   "signin.name.placeholder": "Ditt namn",
   "validation.custom.maxattachments": "Maximalt {number} bilagor är tillåtna.",

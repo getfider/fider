@@ -141,8 +141,10 @@ func sanitiseOAuthRedirect(c *web.Context, redirect string) string {
 		return "/"
 	}
 
+	// Go parses "///evil.com" as a path with no host, but browsers skip any run of leading
+	// slashes and treat what follows as the host, so a path must not start with "//".
 	path := u.EscapedPath()
-	if !strings.HasPrefix(path, "/") {
+	if !strings.HasPrefix(path, "/") || strings.HasPrefix(path, "//") {
 		return "/"
 	}
 
@@ -272,8 +274,7 @@ func OAuthToken() web.HandlerFunc {
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				isTrusted := customConfig != nil && customConfig.IsTrusted
-				if c.Tenant().IsPrivate && !isTrusted {
+				if !c.Tenant().CanCreateAccountByOAuth(customConfig) {
 					return c.Redirect("/not-invited")
 				}
 
