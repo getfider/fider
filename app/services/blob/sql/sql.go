@@ -56,15 +56,9 @@ type dbBlob struct {
 func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 	blob.EnsureAuthorizedPrefix(ctx, q.Prefix)
 
-	return using(ctx, func(tenantID sql.NullInt64) error {
-		trx, err := dbx.BeginTx(ctx)
-		if err != nil {
-			return errors.Wrap(err, "failed to open transaction")
-		}
-		defer trx.MustCommit()
-
+	return using(ctx, func(trx *dbx.Trx, tenantID sql.NullInt64) error {
 		blobs := []*dbBlob{}
-		err = trx.Select(&blobs, "SELECT key FROM blobs WHERE key LIKE $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", q.Prefix+"%", tenantID)
+		err := trx.Select(&blobs, "SELECT key FROM blobs WHERE key LIKE $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", q.Prefix+"%", tenantID)
 		if err != nil {
 			return errors.Wrap(err, "failed list blobs")
 		}
@@ -87,15 +81,9 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 
 	blob.EnsureAuthorizedPrefix(ctx, q.Key)
 
-	return using(ctx, func(tenantID sql.NullInt64) error {
-		trx, err := dbx.BeginTx(ctx)
-		if err != nil {
-			return errors.Wrap(err, "failed to open transaction")
-		}
-		defer trx.MustCommit()
-
+	return using(ctx, func(trx *dbx.Trx, tenantID sql.NullInt64) error {
 		b := dbBlob{}
-		err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", q.Key, tenantID)
+		err := trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", q.Key, tenantID)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return blob.ErrNotFound
@@ -119,15 +107,9 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 		return errors.Wrap(err, "failed to validate blob key '%s'", c.Key)
 	}
 
-	return using(ctx, func(tenantID sql.NullInt64) error {
-		trx, err := dbx.BeginTx(ctx)
-		if err != nil {
-			return errors.Wrap(err, "failed to open transaction")
-		}
-		defer trx.MustCommit()
-
+	return using(ctx, func(trx *dbx.Trx, tenantID sql.NullInt64) error {
 		now := time.Now()
-		_, err = trx.Execute(`
+		_, err := trx.Execute(`
 		INSERT INTO blobs (tenant_id, key, size, content_type, file, created_at, modified_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (tenant_id, key)
 		DO UPDATE SET size = $3, content_type = $4, file = $5, modified_at = $7
@@ -146,15 +128,9 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 
 func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 	blob.EnsureAuthorizedPrefix(ctx, c.Key)
-	
-	return using(ctx, func(tenantID sql.NullInt64) error {
-		trx, err := dbx.BeginTx(ctx)
-		if err != nil {
-			return errors.Wrap(err, "failed to open transaction")
-		}
-		defer trx.MustCommit()
 
-		_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", c.Key, tenantID)
+	return using(ctx, func(trx *dbx.Trx, tenantID sql.NullInt64) error {
+		_, err := trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", c.Key, tenantID)
 		if err != nil {
 			return errors.Wrap(err, "failed to delete blob with key '%s'", c.Key)
 		}
@@ -167,11 +143,29 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 	})
 }
 
-func using(ctx context.Context, handler func(tenantId sql.NullInt64) error) error {
+func using(ctx context.Context, handler func(trx *dbx.Trx, tenantId sql.NullInt64) error) error {
 	var tenantID sql.NullInt64
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
 	if ok {
 		_ = tenantID.Scan(tenant.ID)
 	}
-	return handler(tenantID)
+
+	// Reuse the transaction of the current request/job if there is one.
+	// Opening a new one would need a second connection while the caller already holds one,
+	// which deadlocks the pool once all connections are held by requests waiting for a second one.
+	if trx, ok := ctx.Value(app.TransactionCtxKey).(*dbx.Trx); ok && trx != nil {
+		return handler(trx, tenantID)
+	}
+
+	trx, err := dbx.BeginTx(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to open transaction")
+	}
+
+	if err := handler(trx, tenantID); err != nil {
+		trx.MustRollback()
+		return err
+	}
+
+	return trx.Commit()
 }
