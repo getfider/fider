@@ -118,10 +118,6 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 			return errors.Wrap(err, "failed to store blob with key '%s'", c.Key)
 		}
 
-		if err != nil {
-			return errors.Wrap(err, "failed to commit store of blob with key '%s'", c.Key)
-		}
-
 		return nil
 	})
 }
@@ -133,10 +129,6 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 		_, err := trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", c.Key, tenantID)
 		if err != nil {
 			return errors.Wrap(err, "failed to delete blob with key '%s'", c.Key)
-		}
-
-		if err != nil {
-			return errors.Wrap(err, "failed to commit deletion of blob with key '%s'", c.Key)
 		}
 
 		return nil
