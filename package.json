@@ -16,7 +16,7 @@
     "@tiptap/react": "3.31.4",
     "@tiptap/starter-kit": "3.31.4",
     "@tiptap/suggestion": "3.31.4",
-    "dompurify": "^3.4.16",
+    "dompurify": "^3.4.17",
     "inter-ui": "^4.1.1",
     "marked": "^17.0.6",
     "react": "^18.3.1",
