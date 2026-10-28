@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	awss3 "github.com/aws/aws-sdk-go/service/s3"
@@ -393,6 +394,63 @@ func KeyFormats(ctx context.Context) {
 			Expect(errors.Cause(err)).Equals(blob.ErrInvalidKeyFormat)
 		}
 	}
+}
+
+// Regression test for https://github.com/getfider/fider/issues/1042
+// SQL blob operations must reuse the transaction from the context instead of
+// requesting a second connection from the pool, otherwise concurrent requests deadlock
+func TestSQLBlobStorage_ReusesContextTransaction(t *testing.T) {
+	setupSQL(t)
+
+	conn := dbx.Connection()
+	conn.SetMaxOpenConns(1)
+	defer conn.SetMaxOpenConns(env.Config.Database.MaxOpenConns)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	trx, err := dbx.BeginTx(ctx)
+	Expect(err).IsNil()
+	defer trx.MustRollback()
+
+	trxCtx := context.WithValue(ctx, app.TenantCtxKey, tenant1)
+	trxCtx = context.WithValue(trxCtx, app.TransactionCtxKey, trx)
+
+	err = bus.Dispatch(trxCtx, &cmd.StoreBlob{Key: "texts/locked.txt", Content: []byte("hello"), ContentType: "text/plain; charset=utf-8"})
+	Expect(err).IsNil()
+
+	q := &query.GetBlobByKey{Key: "texts/locked.txt"}
+	err = bus.Dispatch(trxCtx, q)
+	Expect(err).IsNil()
+	Expect(q.Result.Content).Equals([]byte("hello"))
+
+	list := &query.ListBlobs{Prefix: "texts/"}
+	err = bus.Dispatch(trxCtx, list)
+	Expect(err).IsNil()
+	Expect(list.Result).Equals([]string{"texts/locked.txt"})
+
+	err = bus.Dispatch(trxCtx, &cmd.DeleteBlob{Key: "texts/locked.txt"})
+	Expect(err).IsNil()
+}
+
+// Blobs stored as part of a transaction are discarded when it is rolled back
+func TestSQLBlobStorage_RollbackDiscardsBlob(t *testing.T) {
+	setupSQL(t)
+
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, tenant1)
+
+	trx, err := dbx.BeginTx(ctx)
+	Expect(err).IsNil()
+
+	trxCtx := context.WithValue(ctx, app.TransactionCtxKey, trx)
+	err = bus.Dispatch(trxCtx, &cmd.StoreBlob{Key: "texts/rollback.txt", Content: []byte("hello"), ContentType: "text/plain; charset=utf-8"})
+	Expect(err).IsNil()
+
+	trx.MustRollback()
+
+	q := &query.GetBlobByKey{Key: "texts/rollback.txt"}
+	err = bus.Dispatch(ctx, q)
+	Expect(errors.Cause(err)).Equals(blob.ErrNotFound)
 }
 
 func TestSanitizeFileName(t *testing.T) {
