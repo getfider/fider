@@ -178,7 +178,7 @@
   "newpost.modal.title": "Teile deine Idee ...",
   "newpost.modal.title.label": "Gib deiner Idee einen Titel",
   "newpost.modal.title.placeholder": "Eine kurze und knappe Zusammenfassung in wenigen Worten",
-  "newpost.modal.title.tooshort": "",
+  "newpost.modal.title.tooshort": "Der Titel muss mindestens {minimum} Zeichen lang sein (es fehlen noch {remaining} Zeichen).",
   "page.backhome": "Zurück zur <0>{0}</0> Homepage.",
   "page.pendingactivation.didntreceive": "Hast du die E-Mail nicht erhalten?",
   "page.pendingactivation.resend": "Bestätigungs-E-Mail erneut senden",
