@@ -178,6 +178,7 @@
   "newpost.modal.title": "ایده خود را به اشتراک بگذارید...",
   "newpost.modal.title.label": "برای ایده خود عنوان تعیین کنید",
   "newpost.modal.title.placeholder": "چیزی کوتاه و مختصر، خلاصه در چند کلمه",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "بازگشت به صفحهٔ اصلی <0>{0}</0>",
   "page.pendingactivation.didntreceive": "ایمیل را دریافت نکردید؟",
   "page.pendingactivation.resend": "ارسال مجدد ایمیل تأیید",
