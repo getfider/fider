@@ -9,6 +9,15 @@ There are many ways you can contribute to Fider.
 - **Spread the word** by starring us on GitHub. Tweet about the project and show it to your friends. The more people know about Fider, the bigger the community will be and more contributions will be made;
 - **Support us financially** by donating any amount to our [OpenCollective](https://opencollective.com/fider) and help us continue our activities;
 
+## Before you build a new feature
+
+We love contributions, but please help us keep them reviewable and maintainable. Before writing code for a **new feature**:
+
+- Features start as a suggestion on https://feedback.fider.io, where the community can discuss and vote on them. This helps us gauge whether a change is valuable to other users.
+- Once a suggestion has enough discussion and support, open a [GitHub Issue](https://github.com/getfider/fider/issues) referencing it and **wait for a maintainer to confirm it's accepted onto the roadmap** before you start building.
+- **Bug fixes and small technical improvements** don't need a feedback suggestion — an issue is still appreciated so we know what you're working on.
+- Pull Requests for features that weren't discussed and accepted may be closed. This isn't anti-AI — it's about reviewer burden and the long-term maintainability of Fider. See [discussion #1529](https://github.com/getfider/fider/discussions/1529) for the full reasoning.
+
 ## Getting started with Fider codebase
 
 Before start working on something that you intend to send a Pull Request, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that or create one yourself. If it's a new feature you're working on, please share your high level thoughts on the ticket so we can agree on a solution that aligns with the overall architecture and future of Fider.
@@ -22,7 +31,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 | Software    | How to install                                                 | What is it used for                                       |
 | ----------- | -------------------------------------------------------------- | --------------------------------------------------------- |
-| Go 1.22+    | https://golang.org/                                            | To compile server side code                               |
+| Go 1.26+    | https://golang.org/                                            | To compile server side code                               |
 | Node.js 22+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
 | Docker      | https://www.docker.com/                                        | To start local PostgreSQL instances                       |
 
@@ -32,7 +41,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 2. navigate into the cloned repository.
 3. run `go install github.com/cosmtrek/air` to install air, a cli tool for live reload, when you change the code, it automatically recompiles the application.
 4. run `go install github.com/joho/godotenv/cmd/godotenv` to install godotenv, a cli tool to load environment variables from a `.env` so that you don't have to change your machine environment variables.
-5. run `go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.1` to install golangci-lint, a linter for Go apps.
+5. run `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint` to install golangci-lint, a linter for Go apps. Run it from the repository root so you get the version pinned in `go.mod`, which is the one CI uses.
 6. run `npm install` to install client side packages.
 7. run `docker compose up -d` to start a local PostgreSQL database and Local SMTP (with [MailHog](https://github.com/mailhog/MailHog)) on Docker.
 8. run `cp .example.env .env` to create a local environment configuration file.

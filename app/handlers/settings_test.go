@@ -77,6 +77,47 @@ func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 	Expect(newName).Equals("Jon Stark")
 }
 
+func TestUpdateUserSettingsHandler_NullAvatar(t *testing.T) {
+	RegisterT(t)
+
+	var updateUser *cmd.UpdateCurrentUser
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUser) error {
+		updateUser = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		Expect(c.Image).IsNotNil()
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(handlers.UpdateUserSettings(), `{ "name": "Jon Stark", "avatarType": "letter", "avatar": null }`)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(updateUser.Avatar).IsNotNil()
+	Expect(updateUser.Avatar.BlobKey).Equals(mock.JonSnow.AvatarBlobKey)
+}
+
+func TestUpdateUserSettingsHandler_NullAvatar_CustomAvatarType(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(handlers.UpdateUserSettings(), `{ "name": "Jon Stark", "avatarType": "custom", "avatar": null }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
 func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 	RegisterT(t)
 

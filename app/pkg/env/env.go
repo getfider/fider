@@ -46,6 +46,9 @@ type config struct {
 		ReadTimeout  time.Duration `env:"HTTP_READ_TIMEOUT,default=5s,strict"`
 		WriteTimeout time.Duration `env:"HTTP_WRITE_TIMEOUT,default=10s,strict"`
 		IdleTimeout  time.Duration `env:"HTTP_IDLE_TIMEOUT,default=120s,strict"`
+		// Largest accepted request body in bytes. The biggest legitimate request is a post edit
+		// carrying 3 attachments of 5 MiB each, which is ~20 MiB once base64-encoded in JSON.
+		MaxBodySize int64 `env:"HTTP_MAX_BODY_SIZE,default=26214400,strict"`
 	}
 	Port                        string `env:"PORT,default=3000"`
 	Host                        string `env:"HOST,default="`
@@ -56,10 +59,13 @@ type config struct {
 	JWTSecret                   string `env:"JWT_SECRET,required"`
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
+	AllowPrivateNetworkTargets  bool   `env:"ALLOW_PRIVATE_NETWORK_TARGETS,default=false"`
 	Stripe                      struct {
-		SecretKey     string `env:"STRIPE_SECRET_KEY"`
-		WebhookSecret string `env:"STRIPE_WEBHOOK_SECRET"`
-		PriceID       string `env:"STRIPE_PRICE_ID"`
+		SecretKey      string `env:"STRIPE_SECRET_KEY"`
+		WebhookSecret  string `env:"STRIPE_WEBHOOK_SECRET"`
+		PriceID        string `env:"STRIPE_PRICE_ID"`
+		AnnualPriceID  string `env:"STRIPE_ANNUAL_PRICE_ID"`
+		UKVATTaxRateID string `env:"STRIPE_UK_VAT_TAX_RATE_ID"`
 	}
 	Metrics struct {
 		Enabled bool   `env:"METRICS_ENABLED,default=false"`
@@ -82,7 +88,7 @@ type config struct {
 		Level      string `env:"LOG_LEVEL,default=INFO"`
 		Structured bool   `env:"LOG_STRUCTURED,default=false"`
 		Console    bool   `env:"LOG_CONSOLE,default=true"`
-		Sql        bool   `env:"LOG_SQL,default=true"`
+		Sql        bool   `env:"LOG_SQL,default=false"`
 		File       bool   `env:"LOG_FILE,default=false"`
 		OutputFile string `env:"LOG_FILE_OUTPUT,default=logs/output.log"`
 	}
@@ -116,11 +122,12 @@ type config struct {
 			Region string `env:"EMAIL_MAILGUN_REGION,default=US"` // possible values: US or EU
 		}
 		SMTP struct {
-			Host           string `env:"EMAIL_SMTP_HOST"`
-			Port           string `env:"EMAIL_SMTP_PORT"`
-			Username       string `env:"EMAIL_SMTP_USERNAME"`
-			Password       string `env:"EMAIL_SMTP_PASSWORD"`
-			EnableStartTLS bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			Host              string `env:"EMAIL_SMTP_HOST"`
+			Port              string `env:"EMAIL_SMTP_PORT"`
+			Username          string `env:"EMAIL_SMTP_USERNAME"`
+			Password          string `env:"EMAIL_SMTP_PASSWORD"`
+			EnableStartTLS    bool   `env:"EMAIL_SMTP_ENABLE_STARTTLS,default=true"`
+			EnableImplicitTLS bool   `env:"EMAIL_SMTP_ENABLE_IMPLICIT_TLS,default=false"`
 		}
 	}
 	BlobStorage struct {
@@ -162,6 +169,8 @@ func Reload() {
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse environment variables"))
 	}
+
+	Config.GoogleAnalytics = strings.TrimSpace(Config.GoogleAnalytics)
 
 	if IsSingleHostMode() {
 		if Config.HostDomain != "" {

@@ -1,4 +1,4 @@
-@use "~@fider/assets/styles/variables.scss" as *;
+@use "@fider/assets/styles/variables.scss" as *;
 
 // PostDetails component uses the same styles as ShowPost page
 // These are duplicated here so the component can be used standalone
@@ -26,6 +26,18 @@
     padding: spacing(7);
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
     transition: box-shadow 0.2s ease-in-out;
+  }
+
+  &__post-card .c-dropdown__handle {
+    padding: spacing(2);
+    border-radius: 50%;
+  }
+
+  &__post-card .c-dropdown--open .c-dropdown__handle {
+    background-color: var(--colors-gray-200);
+    @include dark-mode {
+      background-color: var(--colors-gray-400);
+    }
   }
 
   &__title {

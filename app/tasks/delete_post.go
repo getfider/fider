@@ -22,7 +22,7 @@ func NotifyAboutDeletedPost(post *entity.Post, deleteCommentAdded bool) worker.T
 		tenant := c.Tenant()
 		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
 		author := c.User()
-		title := fmt.Sprintf("**%s** deleted **%s**", author.Name, post.Title)
+		title := fmt.Sprintf("**%s** deleted **%s**", markdown.Escape(author.Name), markdown.Escape(post.Title))
 
 		// Webhook
 		webhookProps := webhook.Props{}
@@ -79,7 +79,7 @@ func NotifyAboutDeletedPost(post *entity.Post, deleteCommentAdded bool) worker.T
 		props := dto.Props{
 			"title":    post.Title,
 			"siteName": tenant.Name,
-			"content":  markdown.Full(post.Response.Text, true),
+			"content":  markdown.Full(c, post.Response.Text, true),
 			"change":   linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
 			"logo":     logoURL,
 		}

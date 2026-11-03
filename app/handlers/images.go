@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"image/color"
 	"image/png"
@@ -18,6 +20,7 @@ import (
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/imagic"
 	"github.com/goenning/letteravatar"
@@ -71,7 +74,7 @@ func Gravatar() web.HandlerFunc {
 		size = between(size, 50, 200)
 
 		if err == nil && id > 0 {
-			userByID := &query.GetUserByID{UserID: id}
+			userByID := &query.GetUserByID{UserID: id, TenantID: c.Tenant().ID}
 			err := bus.Dispatch(c, userByID)
 			if err == nil && userByID.Result.Tenant.ID == c.Tenant().ID {
 				if userByID.Result.Email != "" {
@@ -152,12 +155,14 @@ func Favicon() web.HandlerFunc {
 			opts = append(opts, imagic.ChangeBackground(color.White))
 		}
 
-		bytes, err = imagic.Apply(bytes, opts...)
-		if err != nil {
-			return c.Failure(err)
+		if bkey == "" {
+			// Bundled favicon is a trusted asset, no need to check the decode budget
+			result, err := validate.ApplyTrusted(c, bytes, opts...)
+			return serveProcessedImage(c, contentType, bytes, result, err)
 		}
 
-		return c.Image(contentType, bytes)
+		result, err := validate.SafeApply(c, bytes, opts...)
+		return serveProcessedImage(c, contentType, bytes, result, err)
 	}
 }
 
@@ -179,14 +184,38 @@ func ViewUploadedImage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		bytes := q.Result.Content
-		if size > 0 {
-			bytes, err = imagic.Apply(bytes, imagic.Resize(size))
-			if err != nil {
-				return c.Failure(err)
-			}
+		if size == 0 {
+			return c.Image(q.Result.ContentType, q.Result.Content)
 		}
 
-		return c.Image(q.Result.ContentType, bytes)
+		// Returns the original content without decoding it if it's already within size
+		result, err := validate.SafeResize(c, q.Result.Content, size)
+		return serveProcessedImage(c, q.Result.ContentType, q.Result.Content, result, err)
 	}
+}
+
+// serveProcessedImage responds with the result of processing (resizing etc) an image.
+//   - If the request was cancelled, nothing is logged or written.
+//   - If too many images are being processed, responds with a (non cached) 503, rather
+//     than the original image, which would be cached by clients/CDNs as the resized one.
+//   - Otherwise, if the image couldn't be processed (too large to be safely decoded, a
+//     format we don't process, or corrupt pixel data after a valid header), the original
+//     image is served unchanged. These are properties of the image itself, so caching is fine.
+func serveProcessedImage(c *web.Context, contentType string, original, result []byte, err error) error {
+	if err == nil {
+		return c.Image(contentType, result)
+	}
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return nil
+	}
+	if errors.Is(err, validate.ErrDecodeBusy) {
+		c.Response.Header().Set("Retry-After", "5")
+		return c.Blob(http.StatusServiceUnavailable, "text/plain; charset=utf-8", []byte(http.StatusText(http.StatusServiceUnavailable)))
+	}
+	if !errors.Is(err, validate.ErrImageTooLarge) && !errors.Is(err, imagic.ErrNotSupported) {
+		log.Debugf(c, "Failed to process image, serving original: @{Error}", dto.Props{
+			"Error": err.Error(),
+		})
+	}
+	return c.Image(contentType, original)
 }

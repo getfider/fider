@@ -76,9 +76,20 @@ export const PostFilter = (props: PostFilterProps) => {
 
   const handleChangeFilter = (item: OptionItem) => () => {
     const exists = filterItems.find((i) => i.type === item.type && i.value === item.value)
-    const newFilter = exists
-      ? filterItems.filter((i) => !(i.type === item.type && i.value === item.value))
-      : [...filterItems, { type: item.type, value: item.value }]
+    let newFilter: FilterItem[]
+    if (exists) {
+      newFilter = filterItems.filter((i) => !(i.type === item.type && i.value === item.value))
+    } else {
+      // "Untagged" and concrete tags are mutually exclusive — combining them
+      // produces an empty result set on the server.
+      let base = filterItems
+      if (item.type === "noTags") {
+        base = base.filter((i) => i.type !== "tag")
+      } else if (item.type === "tag") {
+        base = base.filter((i) => i.type !== "noTags")
+      }
+      newFilter = [...base, { type: item.type, value: item.value }]
+    }
 
     props.filtersChanged(FilterItemsToFilterState(newFilter))
     setQuery("")

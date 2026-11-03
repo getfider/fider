@@ -25,18 +25,22 @@ func User() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			var (
-				token string
-				user  *entity.User
+				token            string
+				user             *entity.User
+				fromSignUpCookie bool
+				fromAPIKey       bool
 			)
 
 			cookie, err := c.Request.Cookie(web.CookieAuthName)
 			if err == nil {
 				token = cookie.Value
 			} else {
+				// The signup-transfer cookie is domain-wide, so it reaches every tenant
+				// subdomain. We do NOT promote it to a durable host-only auth cookie here:
+				// that only happens later, and only once we have confirmed the token's user
+				// actually belongs to the tenant selected by the current host.
 				token = webutil.GetSignUpAuthCookie(c)
-				if token != "" {
-					webutil.AddAuthTokenCookie(c, token)
-				}
+				fromSignUpCookie = token != ""
 			}
 
 			if token != "" {
@@ -46,7 +50,14 @@ func User() web.MiddlewareFunc {
 					return next(c)
 				}
 
-				userByClaimsID := &query.GetUserByID{UserID: claims.UserID}
+				// Scope the lookup to the tenant selected by the request host. A globally
+				// valid user ID that belongs to a different tenant must resolve to "not
+				// found" so a token cannot be replayed across tenant boundaries.
+				tenantID := 0
+				if c.Tenant() != nil {
+					tenantID = c.Tenant().ID
+				}
+				userByClaimsID := &query.GetUserByID{UserID: claims.UserID, TenantID: tenantID}
 				err = bus.Dispatch(c, userByClaimsID)
 				user = userByClaimsID.Result
 				if err != nil {
@@ -77,10 +88,7 @@ func User() web.MiddlewareFunc {
 					return c.Redirect("/signin")
 				}
 			} else if c.Request.IsAPI() {
-				authHeader := c.Request.GetHeader("Authorization")
-				parts := strings.Split(authHeader, "Bearer")
-				if len(parts) == 2 {
-					apiKey := strings.TrimSpace(parts[1])
+				if apiKey, ok := web.ParseBearerToken(c.Request.GetHeader("Authorization")); ok {
 					getUserByAPIKey := &query.GetUserByAPIKey{APIKey: apiKey}
 					err = bus.Dispatch(c, getUserByAPIKey)
 					if err != nil {
@@ -90,6 +98,7 @@ func User() web.MiddlewareFunc {
 						return err
 					}
 					user = getUserByAPIKey.Result
+					fromAPIKey = true
 
 					if !user.IsCollaborator() {
 						return c.HandleValidation(validate.Failed("API Key is invalid"))
@@ -103,7 +112,7 @@ func User() web.MiddlewareFunc {
 						if err != nil {
 							return c.HandleValidation(validate.Failed(fmt.Sprintf("User not found for given impersonate UserID '%s'", impersonateUserIDStr)))
 						}
-						userByImpersonateID := &query.GetUserByID{UserID: impersonateUserID}
+						userByImpersonateID := &query.GetUserByID{UserID: impersonateUserID, TenantID: user.Tenant.ID}
 						err = bus.Dispatch(c, userByImpersonateID)
 						user = userByImpersonateID.Result
 						if err != nil {
@@ -123,7 +132,18 @@ func User() web.MiddlewareFunc {
 					return c.Unauthorized()
 				}
 
+				// Only now that the user is confirmed to belong to the current tenant do we
+				// promote a signup-transfer cookie into a durable host-only auth cookie.
+				// This is deliberately skipped on any other tenant, so the domain-wide
+				// signup token cannot become a normal session on an unrelated subdomain.
+				if fromSignUpCookie {
+					webutil.AddAuthTokenCookie(c, token)
+				}
+
 				c.SetUser(user)
+				if fromAPIKey {
+					c.SetAuthenticatedByAPIKey()
+				}
 			}
 
 			return next(c)

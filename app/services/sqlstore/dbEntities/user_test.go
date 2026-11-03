@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
@@ -78,6 +79,62 @@ func TestUserToModel(t *testing.T) {
 
 	if entityUser.Providers[0].UID != "123456" {
 		t.Errorf("Expected provider UID '123456', got '%s'", entityUser.Providers[0].UID)
+	}
+}
+
+// TestUserToModel_PreservesPersistedTenant verifies that a user loaded from the database
+// keeps the tenant persisted on its own row even when a *different* tenant is present in
+// the request context. Adopting the context tenant here would make the downstream
+// tenant-equality authorization check tautological (cross-tenant token replay).
+func TestUserToModel_PreservesPersistedTenant(t *testing.T) {
+	u, _ := url.Parse("http://victim.fider.io")
+	req := web.Request{URL: u}
+	ctx := context.WithValue(context.Background(), app.RequestCtxKey, req)
+	// Request is scoped to the victim tenant (id 2)...
+	ctx = context.WithValue(ctx, app.TenantCtxKey, &entity.Tenant{ID: 2, Name: "Victim"})
+
+	// ...but the user row is persisted under the attacker tenant (id 1).
+	dbUser := &dbEntities.User{
+		ID:     sql.NullInt64{Int64: 1, Valid: true},
+		Name:   sql.NullString{String: "Attacker", Valid: true},
+		Role:   sql.NullInt64{Int64: int64(enum.RoleAdministrator), Valid: true},
+		Status: sql.NullInt64{Int64: int64(enum.UserActive), Valid: true},
+		Tenant: &dbEntities.Tenant{ID: 1},
+	}
+
+	entityUser := dbUser.ToModel(ctx)
+
+	if entityUser.Tenant == nil {
+		t.Fatal("expected Tenant to be populated from the persisted association")
+	}
+	if entityUser.Tenant.ID != 1 {
+		t.Errorf("expected persisted Tenant ID 1, got %d", entityUser.Tenant.ID)
+	}
+}
+
+// TestUserToModel_SameTenantUsesRequestTenant verifies that when the request tenant matches
+// the persisted tenant, the fully-populated request tenant is used for presentation data.
+func TestUserToModel_SameTenantUsesRequestTenant(t *testing.T) {
+	u, _ := url.Parse("http://demo.fider.io")
+	req := web.Request{URL: u}
+	ctx := context.WithValue(context.Background(), app.RequestCtxKey, req)
+	ctx = context.WithValue(ctx, app.TenantCtxKey, &entity.Tenant{ID: 1, Name: "Demo"})
+
+	dbUser := &dbEntities.User{
+		ID:     sql.NullInt64{Int64: 1, Valid: true},
+		Name:   sql.NullString{String: "Jon Snow", Valid: true},
+		Role:   sql.NullInt64{Int64: int64(enum.RoleAdministrator), Valid: true},
+		Status: sql.NullInt64{Int64: int64(enum.UserActive), Valid: true},
+		Tenant: &dbEntities.Tenant{ID: 1},
+	}
+
+	entityUser := dbUser.ToModel(ctx)
+
+	if entityUser.Tenant == nil || entityUser.Tenant.ID != 1 {
+		t.Fatalf("expected Tenant ID 1, got %v", entityUser.Tenant)
+	}
+	if entityUser.Tenant.Name != "Demo" {
+		t.Errorf("expected fully-populated request tenant (Name 'Demo'), got '%s'", entityUser.Tenant.Name)
 	}
 }
 

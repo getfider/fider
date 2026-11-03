@@ -1,3 +1,5 @@
+@use "../variables" as *;
+
 .grid {
   display: grid;
 }
@@ -34,5 +36,8 @@
 @for $i from 0 through 8 {
   .gap-#{$i} {
     gap: spacing($i);
+  }
+  .gap-x-#{$i} {
+    column-gap: spacing($i);
   }
 }

@@ -1,4 +1,5 @@
-@use "~@fider/assets/styles/variables.scss" as *;
+@use "sass:meta";
+@use "@fider/assets/styles/variables.scss" as *;
 
 #p-ui-toolkit {
   .color {
@@ -9,7 +10,7 @@
     border-radius: 4px;
 
     @each $name, $shades in $colors {
-      @if type-of($shades) == "map" {
+      @if meta.type-of($shades) == "map" {
         @each $shade, $color in $shades {
           &.#{$name}-#{$shade} {
             background-color: $color;

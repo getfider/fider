@@ -1,3 +1,5 @@
+import * as plurals from "make-plural/plurals"
+
 const global = (1, eval)("this")
 global.global = global
 global.globalThis = global
@@ -41,9 +43,23 @@ class NoopFormat {
   }
 }
 
+// Lingui formats plural messages with Intl.PluralRules, so back it with the CLDR rules from make-plural
+class PluralRules {
+  constructor(locales, options) {
+    const locale = [].concat(locales || [])[0] || "en"
+    this.rule = plurals[locale.replace("-", "_")] || plurals[locale.split("-")[0]] || plurals.en
+    this.ordinal = !!options && options.type === "ordinal"
+  }
+
+  select(n) {
+    return this.rule(n, this.ordinal)
+  }
+}
+
 global.Intl = {
   NumberFormat: NoopFormat,
   DateTimeFormat: NoopFormat,
+  PluralRules,
 }
 
 class TextEncoder {

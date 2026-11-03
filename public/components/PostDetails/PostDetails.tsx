@@ -9,8 +9,25 @@ import { i18n } from "@lingui/core"
 import IconRSS from "@fider/assets/images/heroicons-rss.svg"
 import IconPencil from "@fider/assets/images/heroicons-pencil-alt.svg"
 import IconChat from "@fider/assets/images/heroicons-chat-alt-2.svg"
+import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
+import IconPlus from "@fider/assets/images/heroicons-plus.svg"
+import IconCheck from "@fider/assets/images/heroicons-check.svg"
 
-import { ResponseDetails, Button, UserName, Moment, Markdown, Input, Form, Icon, Avatar, PoweredByFider, RSSModal, ResponseLozenge } from "@fider/components"
+import {
+  ResponseDetails,
+  Button,
+  UserName,
+  Moment,
+  Markdown,
+  Input,
+  Form,
+  Icon,
+  Avatar,
+  PoweredByFider,
+  RSSModal,
+  ResponseLozenge,
+  Dropdown,
+} from "@fider/components"
 import { CommentInput } from "@fider/pages/ShowPost/components/CommentInput"
 import { ShowComment } from "@fider/pages/ShowPost/components/ShowComment"
 import { VoteSection } from "@fider/pages/ShowPost/components/VoteSection"
@@ -29,7 +46,6 @@ import { ActionButton } from "@fider/pages/ShowPost/components/ActionButton"
 import { t } from "@lingui/macro"
 import { useFider } from "@fider/hooks"
 import { useAttachments } from "@fider/hooks/useAttachments"
-import { FollowButton } from "@fider/pages/ShowPost/components/FollowButton"
 
 interface PostDetailsProps {
   postNumber: number
@@ -53,11 +69,13 @@ const canEditPost = (user: CurrentUser, post: Post) => {
 }
 
 const PostMetaInfo = ({ post, locale }: { post: Post; locale: string }) => (
-  <HStack spacing={2} align="center">
-    <Avatar user={post.user} size="small" />
-    <span className="text-sm text-gray-600">
-      <Trans id="showpost.postedby">Posted by</Trans> <UserName user={post.user} />
-    </span>
+  <HStack spacing={0} align="center" className="flex-wrap gap-2">
+    <HStack spacing={2} align="center">
+      <Avatar user={post.user} size="small" />
+      <span className="text-sm text-gray-600">
+        <Trans id="showpost.postedby">Posted by</Trans> <UserName user={post.user} />
+      </span>
+    </HStack>
     <span className="text-sm text-gray-400">•</span>
     <Moment className="text-sm text-gray-600" locale={locale} date={post.createdAt} />
     <span className="text-sm text-gray-400">•</span>
@@ -184,14 +202,32 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
     if (showModeration) {
       cache.session.remove("POST_CREATED_MODERATION")
-      notify.success(t({ id: "showpost.moderation.postsuccess", message: "Your idea has been submitted and is awaiting moderation 📝" }))
+      notify.success(t({ id: "showpost.moderation.postsuccess", message: "Your idea is awaiting moderation 📝" }))
     }
 
     if (showCommentModeration) {
       cache.session.remove("COMMENT_CREATED_MODERATION")
-      notify.success(t({ id: "showpost.moderation.commentsuccess", message: "Your comment has been submitted and is awaiting moderation 📝" }))
+      notify.success(t({ id: "showpost.moderation.commentsuccess", message: "Your comment is awaiting moderation 📝" }))
     }
   }, [])
+
+  const refreshPost = async () => {
+    const [postResult, commentsResult] = await Promise.all([actions.getPost(props.postNumber), actions.getComments(props.postNumber)])
+    if (postResult.ok) {
+      setPost(postResult.data)
+      setNewTitle(postResult.data.title)
+      setNewDescription(postResult.data.description)
+    }
+    if (commentsResult.ok) {
+      setComments(commentsResult.data)
+    }
+  }
+
+  const handleResponded = async () => {
+    setShowResponseModal(false)
+    await refreshPost()
+    props.onDataChanged?.()
+  }
 
   const saveChanges = async () => {
     if (!post) return
@@ -270,6 +306,15 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     }
   }
 
+  const toggleSubscription = async () => {
+    if (!post) return
+    const action = subscribed ? actions.unsubscribe : actions.subscribe
+    const response = await action(post.number)
+    if (response.ok) {
+      setSubscribed(!subscribed)
+    }
+  }
+
   const hideRSSModal = () => setIsRSSModalOpen(false)
 
   if (loading || !post) {
@@ -281,6 +326,30 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
       </div>
     )
   }
+
+  const menuItems = [
+    Fider.session.isAuthenticated && canEditPost(Fider.session.user, post) && (
+      <Dropdown.ListItem key="edit" icon={IconPencil} onClick={onActionSelected("edit")}>
+        <Trans id="action.edit">Edit</Trans>
+      </Dropdown.ListItem>
+    ),
+    Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
+      <Dropdown.ListItem key="status" icon={IconChat} onClick={onActionSelected("status")}>
+        <Trans id="action.respond">Update Status</Trans>
+      </Dropdown.ListItem>
+    ),
+    Fider.session.tenant.isFeedEnabled && (
+      <Dropdown.ListItem key="feed" icon={IconRSS} onClick={onActionSelected("feed")}>
+        <Trans id="action.commentsfeed">Comment Feed</Trans>
+      </Dropdown.ListItem>
+    ),
+    canDeletePost() && [
+      <Dropdown.Divider key="divider" />,
+      <Dropdown.ListItem key="delete" icon={IconTrash} onClick={onActionSelected("delete")}>
+        <Trans id="action.delete">Delete</Trans>
+      </Dropdown.ListItem>,
+    ],
+  ].filter(Boolean)
 
   return (
     <div className="p-show-post">
@@ -302,7 +371,19 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
                 <Input field="title" maxLength={100} value={newTitle} onChange={setNewTitle} />
               </Form>
             ) : (
-              <h1 className="p-show-post__title">{post.title}</h1>
+              <HStack justify="between" align="start">
+                <h1 className="p-show-post__title">{post.title}</h1>
+                {menuItems.length > 0 && (
+                  <Dropdown
+                    position="left"
+                    variant="primary"
+                    ariaLabel={i18n._({ id: "action.more", message: "More actions" })}
+                    renderHandle={<Icon sprite={IconDotsHorizontal} width="24" height="24" />}
+                  >
+                    {menuItems}
+                  </Dropdown>
+                )}
+              </HStack>
             )}
 
             {/* Posted by info with status */}
@@ -414,33 +495,13 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
                   <Trans id="action.copylink">Copy link</Trans>
                 </ActionButton>
 
-                {Fider.session.isAuthenticated && canEditPost(Fider.session.user, post) && (
-                  <ActionButton icon={IconPencil} onClick={onActionSelected("edit")}>
-                    <Trans id="action.edit">Edit</Trans>
-                  </ActionButton>
-                )}
-
-                {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
-                  <ActionButton icon={IconChat} onClick={onActionSelected("status")}>
-                    <Trans id="action.respond">Respond</Trans>
-                  </ActionButton>
-                )}
-
-                {Fider.session.tenant.isFeedEnabled && (
-                  <ActionButton icon={IconRSS} onClick={onActionSelected("feed")}>
-                    <Trans id="action.commentsfeed">Comment Feed</Trans>
-                  </ActionButton>
-                )}
-
-                {canDeletePost() && (
-                  <ActionButton icon={IconTrash} onClick={onActionSelected("delete")} variant="danger">
-                    <Trans id="action.delete">Delete</Trans>
-                  </ActionButton>
-                )}
-
                 <div className="flex-grow" />
 
-                <FollowButton post={post} subscribed={subscribed} />
+                {Fider.session.isAuthenticated && (
+                  <ActionButton icon={subscribed ? IconCheck : IconPlus} onClick={toggleSubscription} disabled={Fider.isReadOnly}>
+                    {subscribed ? <Trans id="label.following">Following</Trans> : <Trans id="label.follow">Follow</Trans>}
+                  </ActionButton>
+                )}
               </HStack>
             </div>
           )}
@@ -489,7 +550,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
       <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${post.number}.atom`} />
       <DeletePostModal onModalClose={() => setShowDeleteModal(false)} showModal={showDeleteModal} post={post} />
       {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
-        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} />
+        <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} onResponded={handleResponded} />
       )}
     </div>
   )

@@ -5,34 +5,66 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "monday"
     open-pull-requests-limit: 3
     groups:
+      # Security updates ignore the schedule and PR limit above, so without this
+      # every vulnerable transitive dep arrives as its own PR. Batch them.
+      security-updates:
+        applies-to: security-updates
+        patterns: ["*"]
       patch-updates:
         update-types: ["patch"]
       minor-updates:
         update-types: ["minor"]
-      # Major versions stay separate (likely breaking changes)
-    
+    ignore:
+      # No npm major-version PRs. Almost every major here has turned out to need a
+      # coordinated, hand-done migration rather than a bump, and one PR per package
+      # was mostly noise. Majors are done deliberately instead; patch/minor groups
+      # and security updates still flow. Known majors and what blocks them:
+      #   - jest 30 / @babel/core 8: jest, jest-environment-jsdom, babel-jest, @babel/*
+      #     and babel-loader must move together.
+      #   - @typescript-eslint 8 + typescript: needs ESLint >= 8.57 (on 8.15), and
+      #     typescript-eslint 5 can't load under newer TypeScript.
+      #   - React 19: react, react-dom, @types/react, @types/react-dom together.
+      #     Prerequisite for lifting the @lingui hold below.
+      #   - marked 18: @tiptap/markdown depends on marked ^17.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      # @lingui/*: 5.9 breaks the build — <Trans> return type is ReactNode, not a
+      #   valid JSX element under the current @types/react. Needs the React 19 /
+      #   @types/react upgrade first. Held on the 5.1 line (patches still allowed).
+      - dependency-name: "@lingui/*"
+        update-types: ["version-update:semver-minor"]
+
   # Go modules - monthly, all grouped together
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "monday"
     open-pull-requests-limit: 2
     groups:
+      security-updates:
+        applies-to: security-updates
+        patterns: ["*"]
       all-updates:
         patterns: ["*"]
-    
+    ignore:
+      # aws-sdk-go (v1) is deprecated upstream ("use aws-sdk-go-v2"). Any bump past
+      # the current pin trips staticcheck SA1019 on every import and fails lint-server.
+      # Held until the s3/ses code is migrated to aws-sdk-go-v2; don't remove this
+      # ignore before that migration lands.
+      - dependency-name: "github.com/aws/aws-sdk-go"
+
   # GitHub Actions - monthly, all grouped together
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "monday"
     open-pull-requests-limit: 1
     groups:
+      security-updates:
+        applies-to: security-updates
+        patterns: ["*"]
       all-actions:
         patterns: ["*"]
     
@@ -41,5 +73,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: "monday"
     open-pull-requests-limit: 1
+    ignore:
+      # node: the UI build image must match the Node version CI tests on (build.yml), package.json
+      #   `engines` and .nvmrc, so Node majors move together as one change (to an LTS release).
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]

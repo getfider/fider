@@ -1,4 +1,4 @@
-@use "~@fider/assets/styles/variables.scss" as *;
+@use "@fider/assets/styles/variables.scss" as *;
 
 .c-votes-modal {
   &__list {
@@ -9,6 +9,11 @@
     padding: spacing(4);
     transition: background-color 0.15s ease;
 
+    @include media("sm") {
+      padding-left: spacing(2);
+      padding-right: spacing(2);
+    }
+
     &--alternate {
       background-color: var(--colors-gray-50);
     }
@@ -17,5 +22,9 @@
   &__date {
     padding-right: spacing(4);
     flex-shrink: 0;
+
+    @include media("sm") {
+      padding-right: 0;
+    }
   }
 }

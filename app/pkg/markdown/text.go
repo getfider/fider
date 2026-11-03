@@ -1,12 +1,12 @@
 package markdown
 
 import (
-	"fmt"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	htmlrenderer "github.com/gomarkdown/markdown/html"
 	mdparser "github.com/gomarkdown/markdown/parser"
 	"github.com/microcosm-cc/bluemonday"
+	"html"
 	"io"
 	"regexp"
 	"strings"
@@ -25,7 +25,9 @@ var textRenderer = htmlrenderer.NewRenderer(htmlrenderer.RendererOptions{
 			_, _ = io.WriteString(w, "\n")
 			return ast.GoToNext, true
 		case *ast.Code:
-			_, _ = io.WriteString(w, fmt.Sprintf("`%s`", node.Literal))
+			// Escaped so that code like `<details>` is kept as text instead of being
+			// stripped as a tag by strictPolicy.
+			htmlrenderer.EscapeHTML(w, node.Literal)
 			return ast.GoToNext, true
 		}
 		return ast.GoToNext, false
@@ -38,7 +40,15 @@ var strictPolicy = bluemonday.StrictPolicy()
 // The regular expression finds duplicate newlines.
 var regexNewlines = regexp.MustCompile(`\n+`)
 
-// PlainText parses given markdown input and return only the text
+// PlainText parses given markdown input and return only the text.
+//
+// The result is unescaped plain text (e.g. "Tom & Jerry", not "Tom &amp; Jerry"), so
+// callers must escape it for wherever it is written to, as html/template does.
+// It is not HTML-safe and must never be wrapped in template.HTML.
+//
+// Unlike Full, this needs no destination gating or scheme allow list: strictPolicy strips
+// every tag and attribute, so neither an unsafe link destination nor markup forged by the
+// renderer survives.
 func PlainText(input string) string {
 	// Apparently a parser cannot be reused.
 	// https://github.com/gomarkdown/markdown/issues/229
@@ -46,5 +56,6 @@ func PlainText(input string) string {
 	output := markdown.ToHTML([]byte(input), parser, textRenderer)
 	sanitizedOutput := strictPolicy.Sanitize(string(output))
 	sanitizedOutput = regexNewlines.ReplaceAllString(sanitizedOutput, "\n")
-	return strings.TrimSpace(sanitizedOutput)
+	// strictPolicy returns HTML-escaped text; decode it once to get the text as typed.
+	return strings.TrimSpace(html.UnescapeString(sanitizedOutput))
 }

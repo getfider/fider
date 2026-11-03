@@ -2,6 +2,7 @@ package actions_test
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/getfider/fider/app/models/dto"
@@ -216,4 +217,33 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	result := action.Validate(ctx, nil)
 	Expect(result.Err).Equals(app.ErrNotFound)
 	Expect(result.Ok).IsFalse()
+}
+
+func TestCreateEditOAuthConfig_NullLogo(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.NewCreateEditOAuthConfig()
+	err := json.Unmarshal([]byte(`{
+		"displayName": "My Provider",
+		"status": 2,
+		"clientID": "823187ahjjfdha8fds7yfdashfjkdsa",
+		"clientSecret": "secret",
+		"authorizeURL": "http://provider/oauth/authorize",
+		"tokenURL": "http://provider/oauth/token",
+		"scope": "profile email",
+		"profileURL": "http://provider/profile/me",
+		"jsonUserIDPath": "user.id",
+		"jsonUserNamePath": "user.name",
+		"logo": null
+	}`), action)
+	Expect(err).IsNil()
+	Expect(action.Logo).IsNil()
+
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &entity.Tenant{
+		IsEmailAuthAllowed: true,
+	})
+
+	result := action.Validate(ctx, nil)
+	ExpectSuccess(result)
+	Expect(action.Logo).IsNotNil()
 }

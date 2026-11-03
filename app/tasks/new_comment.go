@@ -34,7 +34,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 		}
 
 		author := c.User()
-		title := fmt.Sprintf("**%s** left a comment on **%s**", author.Name, post.Title)
+		title := fmt.Sprintf("**%s** left a comment on **%s**", markdown.Escape(author.Name), markdown.Escape(post.Title))
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != author.ID {
@@ -51,7 +51,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 		}
 
 		// Web notification - mentions
-		title = fmt.Sprintf("**%s** mentioned you in **%s**", author.Name, post.Title)
+		title = fmt.Sprintf("**%s** mentioned you in **%s**", markdown.Escape(author.Name), markdown.Escape(post.Title))
 
 		if mentions != nil {
 
@@ -188,7 +188,7 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 		})
 
 		author := c.User()
-		title := fmt.Sprintf("**%s** mentioned you in **%s**", author.Name, post.Title)
+		title := fmt.Sprintf("**%s** mentioned you in **%s**", markdown.Escape(author.Name), markdown.Escape(post.Title))
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		mentionNotificationSent := false
 		if mentions != nil {
@@ -298,7 +298,7 @@ func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recip
 		"messageLocaleString": messaleLocaleString,
 		"siteName":            tenant.Name,
 		"userName":            author.Name,
-		"content":             markdown.Full(comment, false),
+		"content":             markdown.Full(c, comment, false),
 		"postLink":            linkWithText(fmt.Sprintf("#%d", post.Number), baseURL, "/posts/%d/%s", post.Number, post.Slug),
 		"view":                linkWithText(i18n.T(c, "email.subscription.view"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
 		"unsubscribe":         linkWithText(i18n.T(c, "email.subscription.unsubscribe"), baseURL, "/posts/%d/%s", post.Number, post.Slug),

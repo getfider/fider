@@ -28,11 +28,14 @@ export const DisplayError = (props: DisplayErrorProps) => {
     return null
   }
 
-  const dict = props.error.errors.reduce((result, err) => {
-    result[err.field || ""] = result[err.field || ""] || []
-    result[err.field || ""].push(err.message)
-    return result
-  }, {} as { [key: string]: string[] })
+  const dict = props.error.errors.reduce(
+    (result, err) => {
+      result[err.field || ""] = result[err.field || ""] || []
+      result[err.field || ""].push(err.message)
+      return result
+    },
+    {} as { [key: string]: string[] }
+  )
 
   let items: JSX.Element[] = []
 

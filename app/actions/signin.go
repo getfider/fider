@@ -15,8 +15,8 @@ import (
 // SignInByEmail happens when user request to sign in by email
 type SignInByEmail struct {
 	Email            string `json:"email" format:"lower"`
-	VerificationCode string
-	LinkKey          string
+	VerificationCode string `json:"-"`
+	LinkKey          string `json:"-"`
 }
 
 func NewSignInByEmail() *SignInByEmail {
@@ -119,8 +119,8 @@ func (action *VerifySignInCode) Validate(ctx context.Context, user *entity.User)
 type SignInByEmailWithName struct {
 	Email            string `json:"email" format:"lower"`
 	Name             string `json:"name"`
-	VerificationCode string
-	LinkKey          string
+	VerificationCode string `json:"-"`
+	LinkKey          string `json:"-"`
 }
 
 func NewSignInByEmailWithName() *SignInByEmailWithName {
@@ -133,8 +133,8 @@ func NewSignInByEmailWithName() *SignInByEmailWithName {
 // IsAuthorized returns true if current user is authorized to perform this action
 func (action *SignInByEmailWithName) IsAuthorized(ctx context.Context, user *entity.User) bool {
 	tenant := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
-	// New users can only sign in if tenant allows email auth or is not private
-	return tenant.IsEmailAuthAllowed || !tenant.IsPrivate
+	// Reject new-user requests before the handler looks up the user
+	return tenant.CanCreateAccountByEmail(action.GetKind())
 }
 
 // Validate if current model is valid
@@ -201,6 +201,11 @@ func (action *CompleteProfile) Validate(ctx context.Context, user *entity.User) 
 
 	if action.Key == "" {
 		result.AddFieldFailure("key", propertyIsRequired(ctx, "key"))
+	}
+
+	// Only sign in and invitation keys can be used to create a new account
+	if action.Kind != enum.EmailVerificationKindSignIn && action.Kind != enum.EmailVerificationKindUserInvitation {
+		result.AddFieldFailure("kind", "Invalid verification kind")
 	}
 
 	return result

@@ -3,6 +3,7 @@ package tasks_test
 import (
 	"context"
 	"html/template"
+	"strings"
 	"testing"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/services/email"
 	"github.com/getfider/fider/app/services/email/emailmock"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -254,4 +256,62 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		"tenant_status":                 mock.DemoTenant.Status.String(),
 		"tenant_url":                    "http://domain.com",
 	})
+}
+
+func TestNotifyAboutStatusChangeTask_Duplicate_EscapesOriginalTitleInEmail(t *testing.T) {
+	RegisterT(t)
+	bus.Init(emailmock.Service{})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
+		q.Result = []*entity.User{
+			mock.AryaStark,
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+		return nil
+	})
+
+	worker := mock.NewWorker()
+	post := &entity.Post{
+		ID:     2,
+		Number: 2,
+		Title:  "I need TypeScript",
+		Slug:   "i-need-typescript",
+		User:   mock.AryaStark,
+		Status: enum.PostDuplicate,
+		Response: &entity.PostResponse{
+			RespondedAt: time.Now(),
+			User:        mock.JonSnow,
+			Original: &entity.OriginalPost{
+				Number: 1,
+				Title:  "<a href=//example.com><h1>View new Update</a> & more",
+				Slug:   "view-new-update-more",
+				Status: enum.PostOpen,
+			},
+		},
+	}
+
+	task := tasks.NotifyAboutStatusChange(post, enum.PostOpen)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailmock.MessageHistory).HasLen(1)
+
+	escapedLink := "<a href='http://domain.com/posts/1/view-new-update-more'>&lt;a href=//example.com&gt;&lt;h1&gt;View new Update&lt;/a&gt; &amp; more</a>"
+	Expect(emailmock.MessageHistory[0].Props["duplicate"]).Equals(escapedLink)
+
+	message := email.RenderMessage(context.Background(), emailmock.MessageHistory[0].TemplateName, email.NoReply, emailmock.MessageHistory[0].Props)
+	Expect(message.Body).ContainsSubstring("has been closed as a <strong>duplicate</strong> of " + escapedLink + ".")
+	Expect(strings.Contains(message.Body, "<h1>")).IsFalse()
 }

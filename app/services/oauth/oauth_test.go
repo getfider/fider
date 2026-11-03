@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app"
@@ -36,6 +37,18 @@ func newGetContext(rawurl string) *web.Context {
 
 	return web.NewContext(e, req, res, nil)
 }
+
+// ExpectAuthURL checks an authorization URL and the claims signed into its state parameter.
+// The state can't be compared as a string because it carries a freshly generated expiry.
+func ExpectAuthURL(actual, expectedPrefix, expectedRedirect, expectedIdentifier string) {
+	Expect(strings.HasPrefix(actual, expectedPrefix)).IsTrue()
+
+	claims, err := jwt.DecodeOAuthStateClaims(strings.TrimPrefix(actual, expectedPrefix))
+	Expect(err).IsNil()
+	Expect(claims.Redirect).Equals(expectedRedirect)
+	Expect(claims.Identifier).Equals(expectedIdentifier)
+	Expect(claims.ExpiresAt).IsNotNil()
+}
 func TestGetAuthURL_Facebook(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
@@ -56,14 +69,9 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 		Identifier: "456",
 	}
 
-	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://example.org",
-		Identifier: "456",
-	})
-
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=" + expectedState)
+	ExpectAuthURL(authURL.Result, "https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=", "http://example.org", "456")
 }
 
 func TestGetAuthURL_Google(t *testing.T) {
@@ -87,14 +95,9 @@ func TestGetAuthURL_Google(t *testing.T) {
 		Identifier: "123",
 	}
 
-	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://example.org",
-		Identifier: "123",
-	})
-
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://accounts.google.com/o/oauth2/v2/auth?client_id=GO_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=profile+email&state=" + expectedState)
+	ExpectAuthURL(authURL.Result, "https://accounts.google.com/o/oauth2/v2/auth?client_id=GO_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=profile+email&state=", "http://example.org", "123")
 }
 
 func TestGetAuthURL_GitHub(t *testing.T) {
@@ -118,14 +121,9 @@ func TestGetAuthURL_GitHub(t *testing.T) {
 		Identifier: "456",
 	}
 
-	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://example.org",
-		Identifier: "456",
-	})
-
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://github.com/login/oauth/authorize?client_id=GH_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=" + expectedState)
+	ExpectAuthURL(authURL.Result, "https://github.com/login/oauth/authorize?client_id=GH_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=", "http://example.org", "456")
 }
 
 func TestGetAuthURL_Custom(t *testing.T) {
@@ -151,14 +149,9 @@ func TestGetAuthURL_Custom(t *testing.T) {
 		Identifier: "456",
 	}
 
-	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://example.org",
-		Identifier: "456",
-	})
-
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state=" + expectedState)
+	ExpectAuthURL(authURL.Result, "https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state=", "http://example.org", "456")
 }
 
 func TestGetAuthURL_Twitch(t *testing.T) {
@@ -184,14 +177,9 @@ func TestGetAuthURL_Twitch(t *testing.T) {
 		Identifier: "456",
 	}
 
-	expectedState, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://example.org",
-		Identifier: "456",
-	})
-
 	err := bus.Dispatch(ctx, authURL)
 	Expect(err).IsNil()
-	Expect(authURL.Result).Equals("https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state=" + expectedState)
+	ExpectAuthURL(authURL.Result, "https://id.twitch.tv/oauth/authorize?claims=%7B%22userinfo%22%3A%7B%22preferred_username%22%3Anull%2C%22email%22%3Anull%2C%22email_verified%22%3Anull%7D%7D&client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=openid&state=", "http://example.org", "456")
 }
 
 func TestParseProfileResponse_AllFields(t *testing.T) {
@@ -667,4 +655,32 @@ func TestParseOAuthRawProfile_InvalidInputs(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetOAuthRawProfile_BlocksInternalTokenURL(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	// Custom provider whose TokenURL targets an internal/link-local address.
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		q.Result = &entity.OAuthConfig{
+			Provider:       q.Provider,
+			Status:         enum.OAuthConfigEnabled,
+			ClientID:       "client",
+			ClientSecret:   "secret",
+			AuthorizeURL:   "https://example.org/authorize",
+			TokenURL:       "http://169.254.169.254/latest/api/token",
+			ProfileURL:     "https://example.org/profile",
+			JSONUserIDPath: "id",
+		}
+		return nil
+	})
+
+	ctx := newGetContext("http://login.test.fider.io:3000")
+	rawProfile := &query.GetOAuthRawProfile{Provider: "_test1", Code: "any-code"}
+
+	// The SSRF guard must reject before any server-side request (no token exchange happens).
+	err := bus.Dispatch(ctx, rawProfile)
+	Expect(err).IsNotNil()
+	Expect(rawProfile.Result).Equals("")
 }

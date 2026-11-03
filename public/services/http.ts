@@ -52,7 +52,7 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
   }
 }
 async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any): Promise<Result<T>> {
-  const headers = [
+  const headers: [string, string][] = [
     ["Accept", "application/json"],
     ["Content-Type", "application/json"],
   ]

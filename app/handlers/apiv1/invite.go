@@ -26,7 +26,7 @@ func SendSampleInvite() web.HandlerFunc {
 			action.Message = strings.ReplaceAll(action.Message, app.InvitePlaceholder, "*[the link to join will be here]*")
 			to := dto.NewRecipient(c.User().Name, c.User().Email, dto.Props{
 				"subject": action.Subject,
-				"message": markdown.Full(action.Message, true),
+				"message": markdown.Full(c, action.Message, true),
 			})
 
 			bus.Publish(c, &cmd.SendMail{

@@ -39,6 +39,32 @@ func TestIndexHandler(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 }
 
+func TestIndexHandler_ClampsLimit(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.CountPostPerStatus) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
+		return nil
+	})
+
+	var searchPosts *query.SearchPosts
+	bus.AddHandler(func(ctx context.Context, q *query.SearchPosts) error {
+		searchPosts = q
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/?limit=all").
+		Execute(handlers.Index())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(searchPosts.Limit).Equals("1000")
+}
+
 func TestDetailsHandler(t *testing.T) {
 	RegisterT(t)
 

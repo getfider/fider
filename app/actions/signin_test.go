@@ -2,9 +2,11 @@ package actions_test
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/enum"
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
@@ -36,10 +38,46 @@ func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
 	Expect(len(action.VerificationCode)).Equals(6)
 }
 
+func TestSignInByEmail_VerificationCodeNotOverwrittenByJSON(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.NewSignInByEmail()
+	originalCode := action.VerificationCode
+	originalKey := action.LinkKey
+
+	// Simulate attacker trying to overwrite internal fields via JSON binding
+	payload := []byte(`{"email":"attacker@evil.com","VerificationCode":"000000","LinkKey":"attacker-key"}`)
+	err := json.Unmarshal(payload, action)
+	Expect(err).IsNil()
+
+	// VerificationCode and LinkKey must NOT be overwritten
+	Expect(action.VerificationCode).Equals(originalCode)
+	Expect(action.LinkKey).Equals(originalKey)
+	// Email should still bind normally
+	Expect(action.Email).Equals("attacker@evil.com")
+}
+
+func TestSignInByEmailWithName_VerificationCodeNotOverwrittenByJSON(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.NewSignInByEmailWithName()
+	originalCode := action.VerificationCode
+	originalKey := action.LinkKey
+
+	payload := []byte(`{"email":"attacker@evil.com","name":"Attacker","VerificationCode":"000000","LinkKey":"attacker-key"}`)
+	err := json.Unmarshal(payload, action)
+	Expect(err).IsNil()
+
+	Expect(action.VerificationCode).Equals(originalCode)
+	Expect(action.LinkKey).Equals(originalKey)
+	Expect(action.Email).Equals("attacker@evil.com")
+	Expect(action.Name).Equals("Attacker")
+}
+
 func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CompleteProfile{}
+	action := actions.CompleteProfile{Kind: enum.EmailVerificationKindSignIn}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "name", "key")
 }
@@ -48,10 +86,21 @@ func TestCompleteProfile_LongName(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.CompleteProfile{
+		Kind: enum.EmailVerificationKindSignIn,
 		Name: "123456789012345678901234567890123456789012345678901", // 51 chars
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "name", "key")
+}
+
+func TestCompleteProfile_InvalidKind(t *testing.T) {
+	RegisterT(t)
+
+	for _, kind := range []enum.EmailVerificationKind{0, enum.EmailVerificationKindSignUp, enum.EmailVerificationKindChangeEmail} {
+		action := actions.CompleteProfile{Kind: kind, Key: "1234567890", Name: "Hot Pie"}
+		result := action.Validate(context.Background(), nil)
+		ExpectFailed(result, "kind")
+	}
 }
 
 func TestVerifySignInCode_EmptyEmail(t *testing.T) {

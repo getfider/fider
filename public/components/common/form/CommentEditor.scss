@@ -1,4 +1,4 @@
-@use "~@fider/assets/styles/variables.scss" as *;
+@use "@fider/assets/styles/variables.scss" as *;
 
 /* Styling for content elements */
 .fider-tiptap-editor .ProseMirror {
@@ -22,6 +22,18 @@
   padding: spacing(1);
   min-height: 40px;
   width: 100%;
+}
+
+.c-comment-editor-counter {
+  font-size: 0.75rem;
+  color: var(--colors-gray-500);
+  text-align: right;
+  margin-top: spacing(1);
+
+  &--over {
+    color: var(--colors-red-600);
+    font-weight: 600;
+  }
 }
 
 .c-editor-button-group {
@@ -139,6 +151,14 @@
       margin: 8px 0;
       display: block;
       cursor: pointer;
+    }
+
+    // Markdown the editor has no rich-text node for (tables, task lists), kept as raw text
+    .c-editor-raw-markdown {
+      font-family: $font-code;
+      font-size: 0.875em;
+      white-space: pre-wrap;
+      margin: 0.5em 0;
     }
 
     .fider-inline-image {

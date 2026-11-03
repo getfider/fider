@@ -12,7 +12,6 @@ interface SignInControlProps {
   useEmail: boolean
   redirectTo?: string
   onSubmit?: () => void
-  onEmailSent?: (email: string) => void
   signInButtonText?: string
   onCodeVerified?: () => void
 }
@@ -32,6 +31,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   const [code, setCode] = useState("")
   const [error, setError] = useState<Failure | undefined>(undefined)
   const [resendMessage, setResendMessage] = useState("")
+  const [lockedOut, setLockedOut] = useState(false)
 
   const forceShowEmailForm = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -61,8 +61,23 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     const result = await actions.signIn(email)
     if (result.ok) {
       setError(undefined)
-      const data = result.data as { userExists?: boolean } | undefined
+      const data = result.data
       if (data && data.userExists === false) {
+        if (!data.signUpAllowed) {
+          // The server decided this email address can't be used to create a new account
+          setError({
+            errors: [
+              {
+                field: "email",
+                message: i18n._({
+                  id: "signin.message.signupdisabled",
+                  message: "We couldn't find an account for this email address. New sign-ups are currently disabled.",
+                }),
+              },
+            ],
+          })
+          return
+        }
         // New user - show name field
         setEmailSignInStep(EmailSigninStep.EnterName)
       } else {
@@ -99,6 +114,12 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       // Handle validation errors - convert data object to Failure format
       const data = result.data as Record<string, string> | undefined
       if (data && typeof data === "object") {
+        // Check if locked out due to too many attempts
+        if (data.code && data.code.includes("Too many attempts")) {
+          setLockedOut(true)
+          setError(undefined)
+          return
+        }
         const errors = Object.entries(data).map(([field, message]) => ({
           field,
           message,
@@ -117,6 +138,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     if (result.ok) {
       setError(undefined)
       setCode("")
+      setLockedOut(false)
       setResendMessage(i18n._({ id: "signin.code.sent", message: "A new code has been sent to your email." }))
     } else if (result.error) {
       setError(result.error)
@@ -127,6 +149,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setResendMessage("")
     // Form submission handler that routes to the correct function based on step
     if (emailSignInStep === EmailSigninStep.EnterEmail) {
       await signIn()
@@ -153,6 +176,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       )
     }
     if (emailSignInStep === EmailSigninStep.EnterCode) {
+      if (lockedOut) return null
       return (
         <Button className="w-full justify-center" type="submit" variant="primary" disabled={code.length !== 6}>
           <Trans id="action.submit">Submit</Trans>
@@ -188,7 +212,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       {props.useEmail &&
         (showEmailForm ? (
           <div className="pt-3">
-            <Form error={error} autoComplete={emailSignInStep === EmailSigninStep.EnterCode ? "on" : "off"} onSubmit={handleFormSubmit}>
+            <Form error={error} autoComplete="on" onSubmit={handleFormSubmit}>
               {(emailSignInStep === EmailSigninStep.EnterEmail || emailSignInStep === EmailSigninStep.EnterName) && renderEmailField()}
 
               {emailSignInStep === EmailSigninStep.EnterName && renderNameField()}
@@ -221,6 +245,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         field="name"
         value={userName}
         autoFocus={!device.isTouch()}
+        autoComplete="name"
         onChange={setUserName}
         placeholder={i18n._({ id: "signin.name.placeholder", message: "Your name" })}
         maxLength={100}
@@ -234,6 +259,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         <Input
           className="text-left"
           field="email"
+          type="email"
           value={email}
           disabled={emailSignInStep === EmailSigninStep.EnterName}
           autoFocus={!device.isTouch()}
@@ -251,8 +277,25 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   }
 
   function renderCodeField(): React.ReactNode {
+    if (lockedOut) {
+      return (
+        <>
+          <p className="text-muted mb-2 text-left">
+            <Trans id="signin.code.locked">Your code has expired due to too many incorrect attempts. Please request a new one.</Trans>
+          </p>
+          {resendMessage && <p className="text-green-700 mt-2">{resendMessage}</p>}
+          <div className="pt-3">
+            <Button className="w-full justify-center" variant="primary" onClick={resendCode}>
+              <Trans id="signin.code.getnew">Get a new code</Trans>
+            </Button>
+          </div>
+        </>
+      )
+    }
+
     return (
       <>
+        {resendMessage && <p className="text-green-700 mb-2">{resendMessage}</p>}
         <p className="text-muted mb-2 text-left">
           <Trans id="signin.code.instruction">
             Please type in the code we just sent to <strong>{email}</strong>
@@ -279,7 +322,6 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
           placeholder={i18n._({ id: "signin.code.placeholder", message: "Type in the code here" })}
           maxLength={6}
         />
-        {resendMessage && <p className="text-green-700 mt-2">{resendMessage}</p>}
         <p className="text-center mt-2 text-muted text-left">
           <a
             href="#"

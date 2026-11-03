@@ -27,6 +27,9 @@ interface ManageTagsPageState {
 }
 
 const tagSorter = (t1: Tag, t2: Tag) => {
+  if (t1.isPublic !== t2.isPublic) {
+    return t1.isPublic ? -1 : 1
+  }
   if (t1.name < t2.name) {
     return -1
   } else if (t1.name > t2.name) {
@@ -87,10 +90,8 @@ export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, M
     })
   }
 
-  private getTagList(filter: (tag: Tag) => boolean) {
-    return this.state.allTags.filter(filter).map((t) => {
-      return <TagListItem key={t.id} tag={t} onTagDeleted={this.handleTagDeleted} onTagEdited={this.handleTagEdited} />
-    })
+  private sortedTags(): Tag[] {
+    return this.state.allTags.slice().sort(tagSorter)
   }
 
   private handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,39 +132,54 @@ export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, M
   }
 
   public content() {
-    const publicTaglist = this.getTagList((t) => t.isPublic)
-    const privateTagList = this.getTagList((t) => !t.isPublic)
+    const tags = this.sortedTags()
+    const gridTemplateColumns = "minmax(200px, 1fr) minmax(100px, 150px) 200px"
+    const canAdd = Fider.session.user.isAdministrator
+    const lastTagIsLast = !canAdd
 
-    const form =
-      Fider.session.user.isAdministrator &&
-      (this.state.isAdding ? (
-        <TagForm onSave={this.saveNewTag} onCancel={this.cancelAdd} />
-      ) : (
-        <Button variant="secondary" onClick={this.addNew}>
-          <Icon sprite={IconPlus} />
-          <span>Add new</span>
-        </Button>
-      ))
+    const addRow = canAdd && (
+      <div className="py-3 px-4 bg-white rounded-md-b">
+        {this.state.isAdding ? (
+          <TagForm onSave={this.saveNewTag} onCancel={this.cancelAdd} />
+        ) : (
+          <Button variant="tertiary" onClick={this.addNew}>
+            <Icon sprite={IconPlus} />
+            <span>Add new tag</span>
+          </Button>
+        )}
+      </div>
+    )
 
     const { importStatus, importResult, importError } = this.state
 
     return (
       <VStack spacing={8}>
-        <div>
-          <h2 className="text-display">Public Tags</h2>
-          <p className="text-muted">These tags are visible to all visitors.</p>
-          <VStack spacing={4} divide={true}>
-            {publicTaglist.length === 0 ? <p className="text-muted">There aren&apos;t any public tags yet.</p> : publicTaglist}
-          </VStack>
-        </div>
-        <div>
-          <h2 className="text-display">Private Tags</h2>
-          <p className="text-muted">These tags are only visible for members of this site.</p>
-          <VStack spacing={4} divide={true}>
-            {privateTagList.length === 0 ? <p className="text-muted">There aren&apos;t any private tags yet.</p> : privateTagList}
-          </VStack>
-        </div>
-        <div>{form}</div>
+        <VStack className="rounded-md border border-gray-200 relative">
+          <div className="grid rounded-md-t gap-4 py-3 px-4 bg-gray-100 text-category" style={{ gridTemplateColumns }}>
+            <div>Tag</div>
+            <div>Visibility</div>
+            <div></div>
+          </div>
+          <div>
+            {tags.length === 0 ? (
+              <div className={`py-4 px-4 bg-white text-muted ${lastTagIsLast ? "rounded-md-b" : "border-b border-gray-200"}`}>
+                There aren&apos;t any tags yet.
+              </div>
+            ) : (
+              tags.map((tag, index) => (
+                <TagListItem
+                  key={tag.id}
+                  tag={tag}
+                  gridTemplateColumns={gridTemplateColumns}
+                  isLast={lastTagIsLast && index === tags.length - 1}
+                  onTagDeleted={this.handleTagDeleted}
+                  onTagEdited={this.handleTagEdited}
+                />
+              ))
+            )}
+          </div>
+          {addRow}
+        </VStack>
 
         {Fider.session.user.isAdministrator && (
           <div className="mt-4">

@@ -41,11 +41,25 @@ func (u *User) ToModel(ctx context.Context) *entity.User {
 		return nil
 	}
 
-	tenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
-	if !ok || tenant == nil {
-		if u.Tenant != nil {
-			tenant = u.Tenant.ToModel()
+	// Bind the user to the tenant persisted on its own database row. The persisted
+	// association is loaded into u.Tenant from the tenant_id column and is the user's
+	// authorization identity — it MUST take precedence over the request-context tenant.
+	// Deriving the tenant from context would let an authentication token minted on one
+	// tenant be replayed on another subdomain and pass the downstream tenant-equality
+	// check tautologically (cross-tenant privilege escalation).
+	var tenant *entity.Tenant
+	if u.Tenant != nil {
+		tenant = u.Tenant.ToModel()
+		// When the request is scoped to this same tenant, prefer the fully-populated
+		// request tenant so presentation data (name, plan, settings) is preserved. The
+		// authorization identity is unchanged because the IDs are equal.
+		if ctxTenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant); ok && ctxTenant != nil && ctxTenant.ID == tenant.ID {
+			tenant = ctxTenant
 		}
+	} else if ctxTenant, ok := ctx.Value(app.TenantCtxKey).(*entity.Tenant); ok {
+		// No persisted association was loaded (e.g. a user struct not read through the
+		// standard queries); fall back to the request tenant.
+		tenant = ctxTenant
 	}
 
 	avatarType := enum.AvatarType(u.AvatarType.Int64)

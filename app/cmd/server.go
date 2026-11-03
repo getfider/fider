@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"strings"
 	"syscall"
 
 	"github.com/getfider/fider/app/jobs"
@@ -45,6 +46,10 @@ func RunServer() int {
 		})
 	}
 
+	if strings.HasPrefix(strings.ToUpper(env.Config.GoogleAnalytics), "UA-") {
+		log.Warn(ctx, "GOOGLE_ANALYTICS is set to a Universal Analytics ID, which Google no longer supports. Replace it with a Google Analytics 4 Measurement ID (G-XXXXXXXXXX).")
+	}
+
 	copyEtcFiles(ctx)
 	startJobs(ctx)
 
@@ -58,6 +63,7 @@ func startJobs(ctx context.Context) {
 	c := cron.New()
 	_ = c.AddJob(jobs.NewJob(ctx, "PurgeExpiredNotificationsJob", jobs.PurgeExpiredNotificationsJobHandler{}))
 	_ = c.AddJob(jobs.NewJob(ctx, "EmailSupressionJob", jobs.EmailSupressionJobHandler{}))
+	_ = c.AddJob(jobs.NewJob(ctx, "DeleteScheduledTenantsJob", jobs.DeleteScheduledTenantsJobHandler{}))
 
 	c.Start()
 }

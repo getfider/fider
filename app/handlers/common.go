@@ -68,9 +68,9 @@ func Sitemap() web.HandlerFunc {
 		text := strings.Builder{}
 		text.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
 		text.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
-		text.WriteString(fmt.Sprintf("<url> <loc>%s</loc> </url>", baseURL))
+		fmt.Fprintf(&text, "<url> <loc>%s</loc> </url>", baseURL)
 		for _, post := range allPosts.Result {
-			text.WriteString(fmt.Sprintf("<url> <loc>%s/posts/%d/%s</loc> </url>", baseURL, post.Number, post.Slug))
+			fmt.Fprintf(&text, "<url> <loc>%s/posts/%d/%s</loc> </url>", baseURL, post.Number, post.Slug)
 		}
 		text.WriteString(`</urlset>`)
 

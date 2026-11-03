@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	stdLog "log"
@@ -28,16 +29,24 @@ var (
 	cspBase    = "base-uri 'self'"
 	cspDefault = "default-src 'self'"
 	cspStyle   = "style-src 'self' 'unsafe-inline'%[2]s"
-	cspScript  = "script-src 'self' 'nonce-%[1]s' https://www.google-analytics.com%[2]s"
+	cspScript  = "script-src 'self' 'nonce-%[1]s'%[3]s%[2]s"
 	cspFont    = "font-src 'self' data:%[2]s"
 	cspImage   = "img-src 'self' https: data:%[2]s"
 	cspObject  = "object-src 'none'"
 	cspFrame   = "frame-src 'self'"
 	cspMedia   = "media-src 'none'"
-	cspConnect = "connect-src 'self' https://www.google-analytics.com%[2]s"
+	cspConnect = "connect-src 'self'%[4]s%[2]s"
+
+	// Fider has no embeddable pages, so other sites must not frame it (clickjacking)
+	cspFrameAncestors = "frame-ancestors 'self'"
+
+	// Google Analytics hosts are only allowed when GOOGLE_ANALYTICS is set (https://developers.google.com/tag-platform/security/guides/csp)
+	CspGoogleAnalyticsScript  = " https://www.googletagmanager.com"
+	CspGoogleAnalyticsConnect = " https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://*.g.doubleclick.net https://pagead2.googlesyndication.com"
 
 	//CspPolicyTemplate is the template used to generate the policy
-	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspFrame)
+	//Args: 1 = nonce, 2 = CDN host, 3 = analytics script hosts, 4 = analytics connect hosts
+	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspFrame, cspFrameAncestors)
 )
 
 type notFoundHandler struct {
@@ -46,6 +55,9 @@ type notFoundHandler struct {
 }
 
 func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	if rejectOversizedBody(res, req) {
+		return
+	}
 	ctx := NewContext(h.engine, req, res, nil)
 	_ = h.handler(ctx)
 }
@@ -260,6 +272,9 @@ func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httpr
 		next = middlewares[i](next)
 	}
 	var h = func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		if rejectOversizedBody(res, req) {
+			return
+		}
 		params := make(StringMap)
 		for _, p := range ps {
 			params[p.Key] = p.Value
@@ -268,6 +283,27 @@ func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httpr
 		_ = next(ctx)
 	}
 	return h
+}
+
+// rejectOversizedBody responds with 413 Request Entity Too Large and returns true when the
+// request body is bigger than HTTP_MAX_BODY_SIZE. It must run before NewContext, because
+// WrapRequest reads the whole body into memory.
+func rejectOversizedBody(res http.ResponseWriter, req *http.Request) bool {
+	maxBytes := env.Config.HTTP.MaxBodySize
+	if req.ContentLength > maxBytes {
+		res.Header().Set("Content-Type", UTF8JSONContentType)
+		res.Header().Set("Connection", "close")
+		res.WriteHeader(http.StatusRequestEntityTooLarge)
+		_ = json.NewEncoder(res).Encode(Map{
+			"errors": []Map{{"message": "The request is too large."}},
+		})
+		return true
+	}
+
+	// Bodies of unknown length (chunked) are not read by WrapRequest, but cap them anyway in
+	// case anything reads the raw body later on.
+	req.Body = http.MaxBytesReader(res, req.Body, maxBytes)
+	return false
 }
 
 // Group is our router group wrapper

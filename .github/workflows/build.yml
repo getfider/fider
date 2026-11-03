@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - main
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,11 +21,11 @@ jobs:
     name: test-ui
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Use Node.js 22.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - run: npm ci
       - run: make lint-ui
@@ -52,20 +53,21 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v6
-      - name: Use Go 1.25
-        uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+      - name: Use Go 1.27
+        uses: actions/setup-go@v7
         with:
-          go-version: '1.25'
+          go-version: '1.27'
           cache: true
       - name: Use Node.js 22.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - run: npm ci # required for esbuild
+      # Version comes from go.mod, so Dependabot bumps apply and go.sum verifies the download
       - name: install golangci-lint
-        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.7.2
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint
       - name: install godotenv
         run: go install github.com/joho/godotenv/cmd/godotenv
       - run: make lint-server
@@ -82,7 +84,7 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: extract variables
         run: |
@@ -101,7 +103,7 @@ jobs:
 
       - run: echo ${{ steps.vars.outputs.sha7 }} > ./out/sha7
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: fider-image
           path: out/
@@ -128,15 +130,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: ${{ github.event_name == 'pull_request' && fromJSON('["chromium"]') || fromJSON('["chromium","webkit","firefox"]') }}
+        browser: ${{ (github.event_name == 'pull_request' || github.event_name == 'merge_group') && fromJSON('["chromium"]') || fromJSON('["chromium","webkit","firefox"]') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Use Node.js 22.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: fider-image
           path: ./out
@@ -185,13 +187,13 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Use Node.js 22.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: fider-image
           path: ./out

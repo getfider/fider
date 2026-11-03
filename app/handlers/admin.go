@@ -52,13 +52,14 @@ func UpdateSettings() web.HandlerFunc {
 				Folder: "logos",
 			},
 			&cmd.UpdateTenantSettings{
-				Logo:           action.Logo,
-				Title:          action.Title,
-				Invitation:     action.Invitation,
-				WelcomeMessage: action.WelcomeMessage,
-				WelcomeHeader:  action.WelcomeHeader,
-				CNAME:          action.CNAME,
-				Locale:         action.Locale,
+				Logo:                action.Logo,
+				Title:               action.Title,
+				Invitation:          action.Invitation,
+				WelcomeMessage:      action.WelcomeMessage,
+				WelcomeHeader:       action.WelcomeHeader,
+				DescriptionTemplate: action.DescriptionTemplate,
+				CNAME:               action.CNAME,
+				Locale:              action.Locale,
 			},
 		); err != nil {
 			return c.Failure(err)
@@ -103,10 +104,17 @@ func UpdatePrivacySettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		// Keep the current value if the field is missing, e.g. from an outdated frontend
+		isSignUpDisabled := c.Tenant().IsSignUpDisabled
+		if action.IsSignUpDisabled != nil {
+			isSignUpDisabled = *action.IsSignUpDisabled
+		}
+
 		updateSettings := &cmd.UpdateTenantPrivacySettings{
 			IsPrivate:           action.IsPrivate,
 			IsFeedEnabled:       action.IsFeedEnabled,
 			IsModerationEnabled: action.IsModerationEnabled,
+			IsSignUpDisabled:    isSignUpDisabled,
 		}
 		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)

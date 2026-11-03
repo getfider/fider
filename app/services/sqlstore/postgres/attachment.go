@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/rand"
+	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/services/blob"
 )
 
@@ -96,6 +97,13 @@ func getAttachments(ctx context.Context, q *query.GetAttachments) error {
 
 func uploadImage(ctx context.Context, c *cmd.UploadImage) error {
 	if c.Image.Upload != nil && len(c.Image.Upload.Content) > 0 {
+		// Never trust the client-supplied content type, it is served back as-is
+		header, err := validate.ReadImageHeader(c.Image.Upload.Content)
+		if err != nil {
+			return errors.Wrap(err, "failed to read image header")
+		}
+		c.Image.Upload.ContentType = header.ContentType()
+
 		// Regenerate key if empty or wrong folder prefix (prevents cross-folder overwrites)
 		if c.Image.BlobKey == "" || !strings.HasPrefix(c.Image.BlobKey, c.Folder+"/") {
 			c.Image.BlobKey = fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
@@ -107,7 +115,7 @@ func uploadImage(ctx context.Context, c *cmd.UploadImage) error {
 			c.Image.BlobKey = fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
 		}
 
-		err := bus.Dispatch(ctx, &cmd.StoreBlob{
+		err = bus.Dispatch(ctx, &cmd.StoreBlob{
 			Key:         c.Image.BlobKey,
 			Content:     c.Image.Upload.Content,
 			ContentType: c.Image.Upload.ContentType,

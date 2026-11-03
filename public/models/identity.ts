@@ -7,6 +7,7 @@ export interface Tenant {
   invitation: string
   welcomeMessage: string
   welcomeHeader: string
+  descriptionTemplate: string
   status: TenantStatus
   isPrivate: boolean
   logoBlobKey: string
@@ -14,6 +15,7 @@ export interface Tenant {
   isEmailAuthAllowed: boolean
   isFeedEnabled: boolean
   isModerationEnabled: boolean
+  isSignUpDisabled: boolean
   isPro: boolean
 }
 

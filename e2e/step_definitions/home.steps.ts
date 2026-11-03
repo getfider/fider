@@ -1,6 +1,6 @@
 import { Given, Then } from "@cucumber/cucumber"
 import { FiderWorld } from "../world"
-import expect from "expect"
+import { expect } from "@playwright/test"
 import { getLatestCodeSentTo } from "./fns"
 
 Given("I go to the home page", async function (this: FiderWorld) {

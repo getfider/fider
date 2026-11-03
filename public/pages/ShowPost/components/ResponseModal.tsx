@@ -12,6 +12,7 @@ interface ResponseModalProps {
   post: Post
   showModal: boolean
   onCloseModal: () => void
+  onResponded?: () => void
 }
 
 interface ResponseModalState {
@@ -35,7 +36,11 @@ export class ResponseModal extends React.Component<ResponseModalProps, ResponseM
   private submit = async () => {
     const result = await actions.respond(this.props.post.number, this.state)
     if (result.ok) {
-      location.reload()
+      if (this.props.onResponded) {
+        this.props.onResponded()
+      } else {
+        location.reload()
+      }
     } else {
       this.setState({
         error: result.error,

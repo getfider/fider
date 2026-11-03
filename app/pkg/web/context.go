@@ -205,7 +205,11 @@ func (c *Context) IsAuthenticated() bool {
 	return c.Value(app.UserCtxKey) != nil
 }
 
-// IsAjax returns true if request is AJAX
+// IsAjax returns true if request is AJAX, i.e. the client asked for (Accept) or
+// sent (Content-Type) JSON. It is only meant to pick the response format (JSON vs
+// HTML page) and MUST NOT be used as a security or CSRF check: it matches on a
+// substring of CORS-safelisted headers that any cross-origin page can send.
+// See middlewares.CSRF() and GHSA-xjr8-w967-4xjq.
 func (c *Context) IsAjax() bool {
 	accept := c.Request.GetHeader("Accept")
 	contentType := c.Request.GetHeader("Content-Type")
@@ -349,6 +353,17 @@ func (c *Context) SetUser(user *entity.User) {
 	c.Set(app.UserCtxKey, user)
 }
 
+// SetAuthenticatedByAPIKey marks the current user as authenticated with an API key
+func (c *Context) SetAuthenticatedByAPIKey() {
+	c.Set(app.APIKeyCtxKey, true)
+}
+
+// IsAuthenticatedByAPIKey returns true if the current user was authenticated with an API key
+func (c *Context) IsAuthenticatedByAPIKey() bool {
+	byAPIKey, _ := c.Value(app.APIKeyCtxKey).(bool)
+	return byAPIKey && c.IsAuthenticated()
+}
+
 // AddCookie adds a cookie
 func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
 	cookie := &http.Cookie{
@@ -358,6 +373,7 @@ func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie 
 		Path:     "/",
 		Expires:  expires,
 		Secure:   c.Request.IsSecure,
+		SameSite: http.SameSiteLaxMode,
 	}
 	http.SetCookie(&c.Response, cookie)
 	return cookie
@@ -372,6 +388,7 @@ func (c *Context) RemoveCookie(name string) {
 		MaxAge:   -1,
 		Expires:  time.Now().Add(-100 * time.Hour),
 		Secure:   c.Request.IsSecure,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 

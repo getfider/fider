@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - zobrazit [na webu]({web_link}) nebo [jako zdroj]({feed_link})",
   "email.signin_email.your_code": "Váš přihlašovací kód je:",
   "email.signin_email.code_expires": "Platnost tohoto kódu vyprší za 15 minut.",
-  "email.signin_email.alternative": "Nebo se můžete přihlásit přímo kliknutím na níže uvedený odkaz:"
+  "email.signin_email.alternative": "Nebo se můžete přihlásit přímo kliknutím na níže uvedený odkaz:",
+  "email.delete_account_requested.subject": "Vaše stránky Fider {tenantName} jsou naplánovány ke smazání.",
+  "email.delete_account_requested.text": "Obdrželi jsme žádost o trvalé smazání vašeho webu Fider <strong>{tenantName}</strong> a všeho, co se na něm nachází – všech uživatelů, příspěvků, komentářů a hlasů.",
+  "email.delete_account_requested.scheduled": "Smazání je naplánováno na <strong>{scheduledAt}</strong>. Jakmile se spustí, nelze jej vrátit zpět.",
+  "email.delete_account_requested.cancel": "Nepožádali jste o to, nebo jste si to rozmysleli? Pomocí níže uvedeného odkazu můžete smazání do té doby zrušit:",
+  "email.delete_account_completed.subject": "Vaše stránky Fideru {tenantName} byly smazány.",
+  "email.delete_account_completed.text": "Vaše stránky Fider <strong>{tenantName}</strong> ({subdomain}) a všechna jejich data byly trvale smazány. Tuto akci nelze vrátit zpět."
 }

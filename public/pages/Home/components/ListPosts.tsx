@@ -5,20 +5,28 @@ import IconChatAlt2 from "@fider/assets/images/heroicons-chat-alt-2.svg"
 import IconCheck from "@fider/assets/images/heroicons-check.svg"
 import { HStack, VStack } from "@fider/components/layout"
 import { useFider } from "@fider/hooks"
-import { Trans } from "@lingui/react/macro"
+import { Trans, Plural } from "@lingui/react/macro"
 
 interface ListPostsProps {
   posts?: Post[]
   tags: Tag[]
   emptyText: string
   minimalView?: boolean
+  showStatus?: boolean
   onPostClick?: (postNumber: number, slug: string) => void
 }
 
-const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPostClick?: (postNumber: number, slug: string) => void }) => {
+const ListPostItem = (props: {
+  post: Post
+  user?: CurrentUser
+  tags: Tag[]
+  showStatus?: boolean
+  onPostClick?: (postNumber: number, slug: string) => void
+}) => {
   const fider = useFider()
   const isModerationEnabled = fider.session.tenant.isModerationEnabled
   const isPending = isModerationEnabled && !props.post.isApproved
+  const votes = props.post.votesCount
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (props.onPostClick) {
@@ -48,7 +56,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
         </HStack>
         <Markdown className="c-posts-container__postdescription" maxLength={300} text={props.post.description} style="plainText" />
         {props.tags.length >= 1 && (
-          <HStack spacing={0} className="gap-2 flex-wrap">
+          <HStack spacing={0} className="gap-x-4 flex-wrap">
             {props.tags.map((tag) => (
               <ShowTag key={tag.id} tag={tag} />
             ))}
@@ -56,8 +64,10 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
         )}
         <HStack justify="between" align="center">
           <div className="c-posts-container__post-votes">
-            <span className="text-semibold text-2xl">{props.post.votesCount}</span>{" "}
-            <span className="text-gray-700">{props.post.votesCount === 1 ? <Trans id="label.vote">Vote</Trans> : <Trans id="label.votes">Votes</Trans>}</span>
+            <span className="text-semibold text-2xl">{votes}</span>{" "}
+            <span className="text-gray-700">
+              <Plural id="label.votecount" value={votes} one="Vote" other="Votes" />
+            </span>
             {props.post.hasVoted && (
               <span className="text-xs text-blue-600 ml-2 inline-flex flex-items-center">
                 <Icon sprite={IconCheck} className="h-3 w-3 mr-1" />
@@ -65,7 +75,9 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[]; onPo
               </span>
             )}
           </div>
-          {props.post.status !== "open" && <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />}
+          {props.showStatus !== false && props.post.status !== "open" && (
+            <ResponseLozenge status={props.post.status} response={props.post.response} size={"small"} />
+          )}
         </HStack>
       </VStack>
     </a>
@@ -116,11 +128,13 @@ export const ListPosts = (props: ListPostsProps) => {
     return <p className="text-center">{props.emptyText}</p>
   }
 
+  const visiblePosts = props.posts
+
   return (
     <>
       {minimalView ? (
         <VStack spacing={2}>
-          {props.posts.map((post) => (
+          {visiblePosts.map((post) => (
             <MinimalListPostItem
               key={post.id}
               post={post}
@@ -131,8 +145,14 @@ export const ListPosts = (props: ListPostsProps) => {
         </VStack>
       ) : (
         <>
-          {props.posts.map((post) => (
-            <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} onPostClick={props.onPostClick} />
+          {visiblePosts.map((post) => (
+            <ListPostItem
+              key={post.id}
+              post={post}
+              tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)}
+              showStatus={props.showStatus}
+              onPostClick={props.onPostClick}
+            />
           ))}
         </>
       )}

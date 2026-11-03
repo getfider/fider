@@ -7,7 +7,7 @@ import React, { useEffect, useState, useRef } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
 import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
-import { useFider } from "@fider/hooks"
+import { useFider, usePostOverlay } from "@fider/hooks"
 import { HStack, VStack } from "@fider/components/layout"
 import { ShareFeedback } from "./components/ShareFeedback"
 import { i18n } from "@lingui/core"
@@ -51,10 +51,11 @@ const HomePage = (props: HomePageProps) => {
   const fider = useFider()
   const postsContainerRef = useRef<PostsContainer>(null)
   const [isShareFeedbackOpen, setIsShareFeedbackOpen] = useState(isPostPending())
-  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
-  const [savedScrollPosition, setSavedScrollPosition] = useState<number>(0)
-  const [isPostDirty, setIsPostDirty] = useState(false)
-  const [savedSearch, setSavedSearch] = useState("")
+
+  const { selectedPostId, handlePostClick, handleCloseOverlay, setIsPostDirty } = usePostOverlay({
+    basePath: "/",
+    onPostClosed: (postNumber) => postsContainerRef.current?.updateSinglePost(postNumber),
+  })
 
   useEffect(() => {
     // If we're showing the share feedback, make sure we clear the show pending flag (for draft posts)
@@ -64,67 +65,6 @@ const HomePage = (props: HomePageProps) => {
       }
     }
   })
-
-  // Handle post clicks from ListPosts
-  const handlePostClick = (postNumber: number, slug: string) => {
-    // Save current scroll position and search params
-    setSavedScrollPosition(window.scrollY)
-    setSavedSearch(window.location.search)
-    setSelectedPostId(postNumber)
-    setLastOpenedPostId(postNumber) // Track which post was opened
-    setIsPostDirty(false) // Reset dirty flag when opening overlay
-    window.history.pushState({ selectedPostId: postNumber }, "", `/posts/${postNumber}/${slug}`)
-  }
-
-  // Handle closing the overlay
-  const handleCloseOverlay = () => {
-    setSelectedPostId(null)
-    window.history.pushState({}, "", `/${savedSearch}`)
-  }
-
-  // Track which post was opened so we can update just that one
-  const [lastOpenedPostId, setLastOpenedPostId] = useState<number | null>(null)
-
-  // Update single post when closing overlay if data changed, and always restore scroll
-  useEffect(() => {
-    if (selectedPostId === null && lastOpenedPostId !== null) {
-      if (isPostDirty && postsContainerRef.current) {
-        postsContainerRef.current.updateSinglePost(lastOpenedPostId)
-        setIsPostDirty(false)
-      }
-      setLastOpenedPostId(null)
-
-      // Always restore scroll position when returning to home
-      setTimeout(() => {
-        window.scrollTo(0, savedScrollPosition)
-      }, 0)
-    }
-  }, [selectedPostId, lastOpenedPostId, isPostDirty, savedScrollPosition])
-
-  // Handle browser back/forward buttons
-  useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname
-      if (path === "/" || path === "") {
-        setSelectedPostId(null)
-        // Scroll restoration is handled in the useEffect above
-      } else if (path.startsWith("/posts/")) {
-        // Save scroll position and search params before opening post
-        setSavedScrollPosition(window.scrollY)
-        setSavedSearch(window.location.search)
-        // Extract post number from URL
-        const match = path.match(/\/posts\/(\d+)/)
-        if (match) {
-          const postNumber = parseInt(match[1], 10)
-          setSelectedPostId(postNumber)
-          setLastOpenedPostId(postNumber) // Track which post was opened
-        }
-      }
-    }
-
-    window.addEventListener("popstate", handlePopState)
-    return () => window.removeEventListener("popstate", handlePopState)
-  }, [savedScrollPosition])
 
   const defaultWelcomeMessage = i18n._({
     id: "home.form.defaultwelcomemessage",

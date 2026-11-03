@@ -52,6 +52,16 @@ type OAuthStateClaims struct {
 	Metadata
 }
 
+// OAuthHandoffClaims represents the short lived token that hands an OAuth sign in over
+// from the host-wide callback address to the tenant address. It binds the handoff to a
+// single provider, origin and browser session so it cannot be replayed elsewhere.
+type OAuthHandoffClaims struct {
+	Provider      string `json:"oauthhandoff/provider"`
+	Origin        string `json:"oauthhandoff/origin"`
+	SessionIDHash string `json:"oauthhandoff/session_id_hash"`
+	Metadata
+}
+
 // Encode creates new JWT token with given claims
 func Encode(claims jwtgo.Claims) (string, error) {
 	jwtToken := jwtgo.NewWithClaims(jwtgo.GetSigningMethod("HS256"), claims)
@@ -88,6 +98,16 @@ func DecodeOAuthStateClaims(token string) (*OAuthStateClaims, error) {
 	err := decode(token, claims)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode OAuthState claims")
+	}
+	return claims, nil
+}
+
+// DecodeOAuthHandoffClaims extract OAuthHandoffClaims from given JWT token
+func DecodeOAuthHandoffClaims(token string) (*OAuthHandoffClaims, error) {
+	claims := &OAuthHandoffClaims{}
+	err := decode(token, claims)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode OAuthHandoff claims")
 	}
 	return claims, nil
 }

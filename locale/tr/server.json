@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [web'de]({web_link}) veya [besleme olarak]({feed_link}) görüntüle",
   "email.signin_email.your_code": "Giriş kodunuz:",
   "email.signin_email.code_expires": "Bu kod 15 dakika içinde geçerliliğini yitirecektir.",
-  "email.signin_email.alternative": "Alternatif olarak, doğrudan giriş yapmak için aşağıdaki bağlantıya tıklayabilirsiniz:"
+  "email.signin_email.alternative": "Alternatif olarak, doğrudan giriş yapmak için aşağıdaki bağlantıya tıklayabilirsiniz:",
+  "email.delete_account_requested.subject": "Fider siteniz {tenantName} silinmek üzere planlandı.",
+  "email.delete_account_requested.text": "Fider siteniz <strong>{tenantName}</strong> ve içindeki her şeyin (tüm kullanıcılar, gönderiler, yorumlar ve oylar) kalıcı olarak silinmesi talebini aldık.",
+  "email.delete_account_requested.scheduled": "Silme işlemi <strong>{scheduledAt}</strong> için planlanmıştır. İşlem başladıktan sonra geri alınamaz.",
+  "email.delete_account_requested.cancel": "Bunu talep etmediniz mi veya fikrinizi mi değiştirdiniz? Silme işlemini iptal etmek için aşağıdaki bağlantıyı kullanın:",
+  "email.delete_account_completed.subject": "Fider siteniz {tenantName} silindi.",
+  "email.delete_account_completed.text": "Fider siteniz <strong>{tenantName}</strong> ({subdomain}) ve tüm verileri kalıcı olarak silindi. Bu işlem geri alınamaz."
 }

@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"context"
 	"os"
 	"testing"
 	"time"
@@ -368,6 +369,66 @@ func TestPostStorage_AddDeleteComment(t *testing.T) {
 	Expect(commentByID.Result).IsNil()
 }
 
+func TestPostStorage_GetCommentByID_WithPostID(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	post1 := &cmd.AddNewPost{Title: "My first post", Description: "with this description"}
+	post2 := &cmd.AddNewPost{Title: "My second post", Description: "with this description"}
+	bus.MustDispatch(jonSnowCtx, post1, post2)
+
+	addNewComment := &cmd.AddNewComment{Post: post1.Result, Content: "Comment #1"}
+	bus.MustDispatch(aryaStarkCtx, addNewComment)
+
+	commentByID := &query.GetCommentByID{CommentID: addNewComment.Result.ID, PostID: post1.Result.ID}
+	err := bus.Dispatch(demoTenantCtx, commentByID)
+	Expect(err).IsNil()
+	Expect(commentByID.Result.ID).Equals(addNewComment.Result.ID)
+
+	commentByID = &query.GetCommentByID{CommentID: addNewComment.Result.ID, PostID: post2.Result.ID}
+	err = bus.Dispatch(demoTenantCtx, commentByID)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(commentByID.Result).IsNil()
+
+	commentByID = &query.GetCommentByID{CommentID: addNewComment.Result.ID}
+	err = bus.Dispatch(demoTenantCtx, commentByID)
+	Expect(err).IsNil()
+	Expect(commentByID.Result.ID).Equals(addNewComment.Result.ID)
+}
+
+// Fetching a single comment relies on GetPostByNumber hiding posts that the caller can't see
+func TestPostStorage_GetPostByNumber_HiddenPostsForCommentLookup(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	bus.MustDispatch(sansaStarkCtx, newPost)
+	bus.MustDispatch(sansaStarkCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #1"})
+
+	_, err := trx.Execute("UPDATE posts SET is_approved = false WHERE id = $1", newPost.Result.ID)
+	Expect(err).IsNil()
+
+	for _, ctx := range []context.Context{demoTenantCtx, aryaStarkCtx} {
+		postByNumber := &query.GetPostByNumber{Number: newPost.Result.Number}
+		err = bus.Dispatch(ctx, postByNumber)
+		Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	}
+
+	for _, ctx := range []context.Context{sansaStarkCtx, jonSnowCtx} {
+		postByNumber := &query.GetPostByNumber{Number: newPost.Result.Number}
+		err = bus.Dispatch(ctx, postByNumber)
+		Expect(err).IsNil()
+	}
+
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Declined", Status: enum.PostDeleted})
+
+	for _, ctx := range []context.Context{demoTenantCtx, aryaStarkCtx, sansaStarkCtx, jonSnowCtx} {
+		postByNumber := &query.GetPostByNumber{Number: newPost.Result.Number}
+		err = bus.Dispatch(ctx, postByNumber)
+		Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	}
+}
+
 func TestPostStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
@@ -611,7 +672,13 @@ func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
+	bus.MustDispatch(jonSnowCtx, &cmd.AddNewNotification{User: aryaStark, Title: "New comment", Link: "/posts/1", PostID: newPost.Result.ID})
+
 	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", Status: enum.PostDeleted})
+
+	activeNotifications := &query.GetActiveNotifications{}
+	bus.MustDispatch(aryaStarkCtx, activeNotifications)
+	Expect(activeNotifications.Result).HasLen(0)
 
 	postByID := &query.GetPostByID{PostID: newPost.Result.ID}
 	err = bus.Dispatch(aryaStarkCtx, postByID)
@@ -816,6 +883,113 @@ func TestGetPosts_Different_Statuses(t *testing.T) {
 		})
 	}
 
+}
+
+func TestSearchPosts_RespectsFilters(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	openPost := &cmd.AddNewPost{Title: "kanban open ticket", Description: "first kanban post"}
+	startedPost := &cmd.AddNewPost{Title: "kanban started flow", Description: "second kanban post"}
+	completedPost := &cmd.AddNewPost{Title: "kanban completed item", Description: "third kanban post"}
+	openByJon := &cmd.AddNewPost{Title: "kanban open from jon", Description: "fourth kanban post"}
+	err := bus.Dispatch(aryaStarkCtx, openPost, completedPost)
+	Expect(err).IsNil()
+	err = bus.Dispatch(jonSnowCtx, startedPost, openByJon)
+	Expect(err).IsNil()
+
+	bus.MustDispatch(aryaStarkCtx,
+		&cmd.SetPostResponse{Post: startedPost.Result, Text: "Working on it", Status: enum.PostStarted},
+		&cmd.SetPostResponse{Post: completedPost.Result, Text: "Done", Status: enum.PostCompleted},
+	)
+
+	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
+	bus.MustDispatch(aryaStarkCtx, addBug)
+	bus.MustDispatch(aryaStarkCtx, &cmd.AssignTag{Tag: addBug.Result, Post: startedPost.Result})
+
+	bus.MustDispatch(aryaStarkCtx, &cmd.AddVote{Post: openPost.Result, User: aryaStark})
+
+	testCases := []struct {
+		name          string
+		searchParams  *query.SearchPosts
+		expectedCount int
+		expectedIDs   []int
+	}{
+		{
+			name:          "Default search excludes Completed and Declined",
+			searchParams:  &query.SearchPosts{Query: "kanban"},
+			expectedCount: 3,
+			expectedIDs:   []int{openPost.Result.ID, startedPost.Result.ID, openByJon.Result.ID},
+		},
+		{
+			name: "Search with explicit Completed status",
+			searchParams: &query.SearchPosts{
+				Query:    "kanban",
+				Statuses: []enum.PostStatus{enum.PostCompleted},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{completedPost.Result.ID},
+		},
+		{
+			name: "Search with explicit Open status",
+			searchParams: &query.SearchPosts{
+				Query:    "kanban",
+				Statuses: []enum.PostStatus{enum.PostOpen},
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{openPost.Result.ID, openByJon.Result.ID},
+		},
+		{
+			name: "Search with tag filter",
+			searchParams: &query.SearchPosts{
+				Query: "kanban",
+				Tags:  []string{addBug.Result.Slug},
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{startedPost.Result.ID},
+		},
+		{
+			name: "Search with MyVotesOnly",
+			searchParams: &query.SearchPosts{
+				Query:       "kanban",
+				MyVotesOnly: true,
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{openPost.Result.ID},
+		},
+		{
+			name: "Search with MyPostsOnly",
+			searchParams: &query.SearchPosts{
+				Query:       "kanban",
+				MyPostsOnly: true,
+			},
+			expectedCount: 1,
+			expectedIDs:   []int{openPost.Result.ID},
+		},
+		{
+			name: "Search with NoTagsOnly",
+			searchParams: &query.SearchPosts{
+				Query:      "kanban",
+				NoTagsOnly: true,
+			},
+			expectedCount: 2,
+			expectedIDs:   []int{openPost.Result.ID, openByJon.Result.ID},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err = bus.Dispatch(aryaStarkCtx, tc.searchParams)
+			Expect(err).IsNil()
+			Expect(tc.searchParams.Result).HasLen(tc.expectedCount)
+
+			foundIDs := make([]int, len(tc.searchParams.Result))
+			for i, post := range tc.searchParams.Result {
+				foundIDs[i] = post.ID
+			}
+			Expect(foundIDs).ContainsOnly(tc.expectedIDs)
+		})
+	}
 }
 
 func TestPostStorage_IsReferenced(t *testing.T) {

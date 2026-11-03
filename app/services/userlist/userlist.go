@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -76,9 +78,16 @@ func (s Service) Init() {
 
 func addOrRemoveUserListUser(ctx context.Context, u *cmd.UserListHandleRoleChange) error {
 	if u.Role == enum.RoleAdministrator {
-		// Get the user so we can add it to userlist.
+		// Get the user so we can add it to userlist. Scope the lookup to the tenant in
+		// context so a user ID is never resolved across tenant boundaries.
+		tenant, _ := ctx.Value(app.TenantCtxKey).(*entity.Tenant)
+		tenantID := 0
+		if tenant != nil {
+			tenantID = tenant.ID
+		}
 		user := &query.GetUserByID{
-			UserID: u.Id,
+			UserID:   u.Id,
+			TenantID: tenantID,
 		}
 		err := bus.Dispatch(ctx, user)
 		if err != nil {
@@ -113,7 +122,8 @@ func addOrRemoveUserListUser(ctx context.Context, u *cmd.UserListHandleRoleChang
 func updateUserListUser(ctx context.Context, u *cmd.UserListUpdateUser) error {
 
 	dbUser := &query.GetUserByID{
-		UserID: u.Id,
+		UserID:   u.Id,
+		TenantID: u.TenantId,
 	}
 	err := bus.Dispatch(ctx, dbUser)
 	if err != nil {

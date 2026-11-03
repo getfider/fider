@@ -200,7 +200,6 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 
 	public["page"] = props.Page
 	public["contextID"] = ctx.ContextID()
-	public["sessionID"] = ctx.SessionID()
 	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{

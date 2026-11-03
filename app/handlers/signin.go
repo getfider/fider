@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -30,19 +31,6 @@ func SignInPage() web.HandlerFunc {
 		}
 
 		return c.Redirect(c.BaseURL())
-	}
-}
-
-func LoginEmailSentPage() web.HandlerFunc {
-	return func(c *web.Context) error {
-
-		return c.Page(http.StatusOK, web.Props{
-			Page:  "SignIn/LoginEmailSent.page",
-			Title: "Login email sent",
-			Data: web.Map{
-				"email": c.QueryParam("email")},
-		})
-
 	}
 }
 
@@ -97,6 +85,12 @@ func SignInByEmail() web.HandlerFunc {
 
 		// Only send code if user exists
 		if userExists {
+			// Invalidate any previous active verification codes for this email
+			_ = bus.Dispatch(c, &cmd.InvalidateVerificationsByEmail{
+				Email: action.Email,
+				Kind:  enum.EmailVerificationKindSignIn,
+			})
+
 			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
 				Key:      action.LinkKey,
 				Code:     action.VerificationCode,
@@ -111,7 +105,8 @@ func SignInByEmail() web.HandlerFunc {
 		}
 
 		return c.Ok(web.Map{
-			"userExists": userExists,
+			"userExists":    userExists,
+			"signUpAllowed": c.Tenant().CanCreateAccountByEmail(action.GetKind()),
 		})
 	}
 }
@@ -134,10 +129,11 @@ func SignInByEmailWithName() web.HandlerFunc {
 			})
 		}
 
-		// Check if tenant is private (new users not allowed)
-		if c.Tenant().IsPrivate {
-			return c.Forbidden()
-		}
+		// Invalidate any previous active verification codes for this email
+		_ = bus.Dispatch(c, &cmd.InvalidateVerificationsByEmail{
+			Email: action.Email,
+			Kind:  enum.EmailVerificationKindSignIn,
+		})
 
 		// Save verification with name
 		err = bus.Dispatch(c, &cmd.SaveVerificationKey{
@@ -159,18 +155,19 @@ func SignInByEmailWithName() web.HandlerFunc {
 // VerifySignInCode verifies the code entered by the user and signs them in
 func VerifySignInCode() web.HandlerFunc {
 	return func(c *web.Context) error {
+		const maxAttempts = 5
+
 		action := &actions.VerifySignInCode{}
 		if result := c.BindTo(action); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		// Get verification by email and code
-		verification := &query.GetVerificationByEmailAndCode{
+		// Look up the most recent active verification by email (without code)
+		activeVerification := &query.GetActiveVerificationByEmail{
 			Email: action.Email,
-			Code:  action.Code,
 			Kind:  enum.EmailVerificationKindSignIn,
 		}
-		err := bus.Dispatch(c, verification)
+		err := bus.Dispatch(c, activeVerification)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				return c.BadRequest(web.Map{
@@ -180,21 +177,31 @@ func VerifySignInCode() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		result := verification.Result
+		result := activeVerification.Result
 
-		// Code is single-use: reject if already verified
-		if result.VerifiedAt != nil {
+		// Check if max attempts exceeded
+		if result.Attempts >= maxAttempts {
 			return c.BadRequest(web.Map{
-				"code": "Invalid or expired verification code",
+				"code": "Too many attempts. Please request a new code.",
 			})
 		}
 
-		// Check if expired
-		if time.Now().After(result.ExpiresAt) {
-			// Mark as verified to prevent reuse
-			_ = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
+		// Increment attempts before comparing (prevents timing attacks)
+		if err := bus.Dispatch(c, &cmd.IncrementVerificationAttempts{Key: result.Key}); err != nil {
+			return c.Failure(err)
+		}
+
+		// Compare the submitted code with the stored code
+		if result.Code != action.Code {
+			if result.Attempts+1 >= maxAttempts {
+				// Final attempt failed — invalidate the code
+				_ = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
+				return c.BadRequest(web.Map{
+					"code": "Too many attempts. Please request a new code.",
+				})
+			}
 			return c.BadRequest(web.Map{
-				"code": "Invalid or expired verification code",
+				"code": "Invalid or expired verification code" + fmt.Sprintf(" (attempt %d of %d)", result.Attempts+1, maxAttempts),
 			})
 		}
 
@@ -204,7 +211,7 @@ func VerifySignInCode() web.HandlerFunc {
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				// User doesn't exist
-				if c.Tenant().IsPrivate {
+				if !c.Tenant().CanCreateAccountByEmail(result.Kind) {
 					return c.Forbidden()
 				}
 
@@ -267,6 +274,22 @@ func ResendSignInCode() web.HandlerFunc {
 			return c.Forbidden()
 		}
 
+		// Unknown email addresses only get a code if they are allowed to create an account
+		if !c.Tenant().CanCreateAccountByEmail(action.GetKind()) {
+			if err := bus.Dispatch(c, &query.GetUserByEmail{Email: action.Email}); err != nil {
+				if errors.Cause(err) == app.ErrNotFound {
+					return c.Ok(web.Map{})
+				}
+				return c.Failure(err)
+			}
+		}
+
+		// Invalidate any previous active verification codes for this email
+		_ = bus.Dispatch(c, &cmd.InvalidateVerificationsByEmail{
+			Email: action.Email,
+			Kind:  enum.EmailVerificationKindSignIn,
+		})
+
 		// Save new verification code
 		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
 			Key:      action.LinkKey,
@@ -298,7 +321,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 		err = bus.Dispatch(c, userByEmail)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				if kind == enum.EmailVerificationKindSignIn && c.Tenant().IsPrivate {
+				if !c.Tenant().CanCreateAccountByEmail(kind) {
 					return NotInvitedPage()(c)
 				}
 
@@ -368,6 +391,10 @@ func CompleteSignInProfile() web.HandlerFunc {
 		if errors.Cause(err) != app.ErrNotFound {
 			// Not possible to create user that already exists
 			return c.BadRequest(web.Map{})
+		}
+
+		if !c.Tenant().CanCreateAccountByEmail(action.Kind) {
+			return c.Forbidden()
 		}
 
 		user := &entity.User{

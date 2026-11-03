@@ -51,6 +51,8 @@ interface DropdownProps {
   children: React.ReactNode
   wide?: boolean
   fullsceenSm?: boolean
+  variant?: "primary"
+  ariaLabel?: string
 }
 
 interface DropdownContextFuncs {
@@ -101,12 +103,13 @@ export const Dropdown = (props: DropdownProps) => {
     "c-dropdown__list shadow-lg": true,
     "c-dropdown__list--fullscreen-small": props.fullsceenSm,
     [`c-dropdown__list--${position}`]: position === "left",
+    "c-dropdown__list--primary": props.variant === "primary",
   })
 
   return (
     <DropdownContext.Provider value={{ close }}>
-      <div ref={node} className="c-dropdown">
-        <button type="button" className="c-dropdown__handle" onClick={toggleIsOpen}>
+      <div ref={node} className={classSet({ "c-dropdown": true, "c-dropdown--open": isOpen })}>
+        <button type="button" className="c-dropdown__handle" onClick={toggleIsOpen} aria-label={props.ariaLabel}>
           {props.renderHandle}
         </button>
         {isOpen && <div className={listClassName}>{props.children}</div>}

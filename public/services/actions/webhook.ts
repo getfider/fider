@@ -14,7 +14,7 @@ export const deleteWebhook = async (id: number): Promise<Result> => {
 }
 
 export const testWebhook = async (id: number): Promise<Result<WebhookTriggerResult>> => {
-  return await http.get(`/_api/admin/webhook/test/${id}`)
+  return await http.post(`/_api/admin/webhook/test/${id}`)
 }
 
 export const previewWebhook = async (type: WebhookType, url: string, content: string): Promise<Result<WebhookPreviewResult>> => {

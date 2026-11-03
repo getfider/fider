@@ -174,7 +174,7 @@ const DesignSystemPage = () => {
           <div className="color yellow-400" />
           <div className="color yellow-300" />
           <div className="color yellow-200" />
-          <div className="color yellow-full" />
+          <div className="color yellow-100" />
           <div className="color yellow-50" />
         </div>
         <div className="color-scale">

@@ -68,5 +68,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - zobraziť [na webe]({web_link}) alebo [ako informačný kanál]({feed_link})",
   "email.signin_email.your_code": "Váš prihlasovací kód je:",
   "email.signin_email.code_expires": "Platnosť tohto kódu vyprší o 15 minút.",
-  "email.signin_email.alternative": "Prípadne sa môžete prihlásiť priamo kliknutím na odkaz nižšie:"
+  "email.signin_email.alternative": "Prípadne sa môžete prihlásiť priamo kliknutím na odkaz nižšie:",
+  "email.delete_account_requested.subject": "Vaša stránka Fider {tenantName} je naplánovaná na odstránenie",
+  "email.delete_account_requested.text": "Dostali sme žiadosť o trvalé odstránenie vašej stránky Fider <strong>{tenantName}</strong> a všetkého na nej – všetkých používateľov, príspevkov, komentárov a hlasov.",
+  "email.delete_account_requested.scheduled": "Odstránenie je naplánované na <strong>{scheduledAt}</strong>. Po spustení sa nedá vrátiť späť.",
+  "email.delete_account_requested.cancel": "Nežiadali ste o to alebo ste si to rozmysleli? Na zrušenie odstránenia použite odkaz nižšie:",
+  "email.delete_account_completed.subject": "Vaša stránka Fider {tenantName} bola odstránená",
+  "email.delete_account_completed.text": "Vaša stránka Fider <strong>{tenantName}</strong> ({subdomain}) a všetky jej údaje boli natrvalo odstránené. Túto akciu nie je možné vrátiť späť."
 }

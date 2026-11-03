@@ -69,5 +69,11 @@
   "feed.post.footer": "\n\n---\n{response_footer}\n{votes, plural, one {# vote} other {# votes}}, {comments, plural, one {# comment} other {# comments}} - [වෙබයේ]({web_link}) හෝ [සංග්‍රහයක් ලෙස]({feed_link}) බලන්න",
   "email.signin_email.your_code": "ඔබගේ පුරනය වීමේ කේතය:",
   "email.signin_email.code_expires": "මෙම කේතය මිනිත්තු 15 කින් කල් ඉකුත් වනු ඇත.",
-  "email.signin_email.alternative": "විකල්පයක් ලෙස, ඔබට සෘජුවම පුරනය වීමට පහත සබැඳිය ක්ලික් කළ හැකිය:"
+  "email.signin_email.alternative": "විකල්පයක් ලෙස, ඔබට සෘජුවම පුරනය වීමට පහත සබැඳිය ක්ලික් කළ හැකිය:",
+  "email.delete_account_requested.subject": "ඔබගේ Fider අඩවිය {tenantName} මකා දැමීමට නියමිතයි.",
+  "email.delete_account_requested.text": "ඔබගේ Fider අඩවිය <strong>{tenantName}</strong> සහ එහි ඇති සියල්ල - සියලුම පරිශීලකයින්, සටහන්, අදහස් සහ ඡන්ද - ස්ථිරවම මකා දැමීමට අපට ඉල්ලීමක් ලැබුණි.",
+  "email.delete_account_requested.scheduled": "මකාදැමීම <strong>{scheduledAt}</strong> සඳහා කාලසටහන්ගත කර ඇත. එය ක්‍රියාත්මක වූ පසු, එය අහෝසි කළ නොහැක.",
+  "email.delete_account_requested.cancel": "මෙය ඉල්ලා සිටියේ නැද්ද, නැතහොත් ඔබේ අදහස වෙනස් කළේ නැද්ද? ඊට පෙර මකාදැමීම අවලංගු කිරීමට පහත සබැඳිය භාවිතා කරන්න:",
+  "email.delete_account_completed.subject": "ඔබගේ Fider අඩවිය {tenantName} මකා දමා ඇත.",
+  "email.delete_account_completed.text": "ඔබගේ Fider අඩවිය <strong>{tenantName}</strong> ({subdomain}) සහ එහි සියලු දත්ත දැන් ස්ථිරවම මකා දමා ඇත. මෙය අහෝසි කළ නොහැක."
 }

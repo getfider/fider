@@ -33,7 +33,7 @@ export const ResponseDetails = (props: PostResponseProps): JSX.Element | null =>
       <div className="c-response-details__card">
         <div className="c-response-details__inner">
           <VStack spacing={2}>
-            <HStack spacing={2} align="center">
+            <HStack spacing={0} align="center" className="flex-wrap gap-2">
               <UserName user={props.response.user} />
               <span className="text-xs text-gray-600">•</span>
               <Moment className="text-xs text-gray-600" locale={fider.currentLocale} date={props.response.respondedAt} />
@@ -122,7 +122,7 @@ export const ResponseLozenge = (props: PostResponseProps): JSX.Element | null =>
 
   return (
     <div>
-      <HStack align="start" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
+      <HStack align="center" className={`${color} ${bg} border ${border} rounded-full p-1 px-3`}>
         {!props.size && <Icon sprite={icon} className={`h-5 c-status-col--${status.value}`} />}
         <span className={`c-status-col--${status.value} ${props.size === "small" ? "text-sm" : "text-semibold"}`}>{translatedStatus}</span>
       </HStack>

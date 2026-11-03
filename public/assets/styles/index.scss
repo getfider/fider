@@ -1,7 +1,20 @@
-@use "~@fider/assets/styles/variables.scss" as *;
+@use "inter-ui/default" with (
+  $inter-font-display: swap,
+  $inter-font-path: "~inter-ui/web"
+);
 
-@import "reset.scss";
-@import "utility.scss";
-@import "tooltip.scss";
+@use "inter-ui/variable" with (
+  $inter-font-display: swap,
+  $inter-font-path: "~inter-ui/variable"
+);
+
+@use "variables" as *;
+
+@use "reset";
+@use "utility";
+@use "tooltip";
+
+@include default.all;
+@include variable.all;
 @include theme($light-colors, '[data-theme="light"]');
 @include theme($dark-colors, '[data-theme="dark"]');

@@ -67,6 +67,36 @@ func TestUser_WithCookie(t *testing.T) {
 	Expect(response.Header()["Set-Cookie"]).HasLen(0)
 }
 
+func TestUser_WithCookie_IsNotAuthenticatedByAPIKey(t *testing.T) {
+	RegisterT(t)
+
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	// The cookie takes precedence, so the Bearer header is ignored
+	server := mock.NewServer()
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://example.com/api/v1").
+		AddCookie(web.CookieAuthName, token).
+		AddHeader("Authorization", "Bearer 1234567890").
+		Execute(func(c *web.Context) error {
+			Expect(c.IsAuthenticated()).IsTrue()
+			Expect(c.IsAuthenticatedByAPIKey()).IsFalse()
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+}
+
 func TestUser_Blocked(t *testing.T) {
 	RegisterT(t)
 
@@ -232,6 +262,98 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 }
 
+// TestUser_SignUpCookie_CrossTenant_Denied is the core regression test for the cross-tenant
+// signup-cookie takeover. Jon Snow is an Administrator of the demo tenant. His domain-wide
+// __signup_auth cookie is presented while the avengers tenant is in context. Because the
+// user lookup is now tenant-scoped, no user is installed, the signup token is NOT promoted
+// into a host-only auth cookie, and an authenticated route returns 401.
+func TestUser_SignUpCookie_CrossTenant_Denied(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID, // belongs to the demo tenant
+		UserName: mock.JonSnow.Name,
+	})
+
+	// Tenant-aware handler: only resolves the user when the requested tenant matches.
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.JonSnow.ID && q.TenantID == mock.JonSnow.Tenant.ID {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server.Use(middlewares.User())
+	server.Use(middlewares.IsAuthenticated())
+	status, response := server.
+		OnTenant(mock.AvengersTenant). // victim tenant, different from Jon Snow's
+		AddHeader("Accept", "application/json").
+		AddCookie(web.CookieSignUpAuthName, token).
+		Execute(func(c *web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	// An authenticated (administrator) route must reject the request.
+	Expect(status).Equals(http.StatusUnauthorized)
+
+	// The domain-wide signup token must never become a durable host-only auth cookie on
+	// the victim tenant. Any auth cookie emitted here must be a deletion (empty value).
+	for _, raw := range response.Header()["Set-Cookie"] {
+		c := web.ParseCookie(raw)
+		if c.Name == web.CookieAuthName {
+			Expect(c.Value).Equals("")
+		}
+	}
+}
+
+// TestUser_SignUpCookie_SameTenant_Promotes verifies the positive path: the signup cookie
+// succeeds on the tenant the user actually belongs to and is promoted to a host-only auth
+// cookie for that host.
+func TestUser_SignUpCookie_SameTenant_Promotes(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.JonSnow.ID && q.TenantID == mock.JonSnow.Tenant.ID {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant). // Jon Snow's own tenant
+		AddCookie(web.CookieSignUpAuthName, token).
+		Execute(func(c *web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Jon Snow")
+
+	cookies := response.Header()["Set-Cookie"]
+	Expect(cookies).HasLen(2)
+
+	// The signup cookie is consumed (deleted)...
+	signup := web.ParseCookie(cookies[0])
+	Expect(signup.Name).Equals(web.CookieSignUpAuthName)
+	Expect(signup.Value).Equals("")
+
+	// ...and promoted to a host-only auth cookie (no Domain) carrying the same token.
+	auth := web.ParseCookie(cookies[1])
+	Expect(auth.Name).Equals(web.CookieAuthName)
+	Expect(auth.Value).Equals(token)
+	Expect(auth.Domain).Equals("")
+}
+
 func TestUser_ValidAPIKey(t *testing.T) {
 	RegisterT(t)
 
@@ -251,11 +373,65 @@ func TestUser_ValidAPIKey(t *testing.T) {
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", "Bearer 1234567890").
 		Execute(func(c *web.Context) error {
+			Expect(c.IsAuthenticatedByAPIKey()).IsTrue()
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Body.String()).Equals("Jon Snow")
+}
+
+func TestUser_ValidAPIKey_LenientBearerParsing(t *testing.T) {
+	for _, header := range []string{"bearer 1234567890", "BEARER 1234567890", "Bearer\t1234567890", "Bearer1234567890", "Bearer 1234567890 \r\n"} {
+		t.Run(header, func(t *testing.T) {
+			RegisterT(t)
+
+			bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+				if q.APIKey == "1234567890" {
+					q.Result = mock.JonSnow
+					return nil
+				}
+				return app.ErrNotFound
+			})
+
+			server := mock.NewServer()
+
+			server.Use(middlewares.User())
+			status, response := server.
+				OnTenant(mock.DemoTenant).
+				WithURL("http://example.com/api/v1").
+				AddHeader("Authorization", header).
+				Execute(func(c *web.Context) error {
+					return c.String(http.StatusOK, c.User().Name)
+				})
+
+			Expect(status).Equals(http.StatusOK)
+			Expect(response.Body.String()).Equals("Jon Snow")
+		})
+	}
+}
+
+func TestUser_OtherAuthorizationSchemes_AreIgnored(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	server := mock.NewServer()
+
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://example.com/api/v1").
+		AddHeader("Authorization", "Basic Bearer 1234567890").
+		Execute(func(c *web.Context) error {
+			Expect(c.User()).IsNil()
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestUser_InvalidAPIKey(t *testing.T) {

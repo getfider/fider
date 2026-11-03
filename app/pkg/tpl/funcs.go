@@ -10,7 +10,6 @@ import (
 
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/i18n"
-	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/microcosm-cc/bluemonday"
 )
 
@@ -19,6 +18,11 @@ var strictHtmlPolicy = bluemonday.NewPolicy()
 var templateFunctions = map[string]any{
 	"stripHtml": func(input string) string {
 		return strictHtmlPolicy.Sanitize(input)
+	},
+	// escapeHtml escapes plain text so it can be safely interpolated into a
+	// string that is later marked as HTML (e.g. a translation piped to "html").
+	"escapeHtml": func(input string) string {
+		return template.HTMLEscapeString(input)
 	},
 	"html": func(input string) template.HTML {
 		return template.HTML(input)
@@ -36,7 +40,9 @@ var templateFunctions = map[string]any{
 		return "This is overwritten later on..."
 	},
 	"markdown": func(input string) template.HTML {
-		return markdown.Full(input, true)
+		// Markdown rendering needs the tenant from the context to resolve the
+		// allowed URL schemes, so this is overwritten per render in Render.
+		return ""
 	},
 	"dict": func(values ...any) map[string]any {
 		if len(values)%2 != 0 {

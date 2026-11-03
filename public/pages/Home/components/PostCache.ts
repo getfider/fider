@@ -24,6 +24,10 @@ export const setCachedDescription = (description: string): void => {
   cache.local.set(CACHE_KEYS.DESCRIPTION, description)
 }
 
+export const clearCachedDescription = (): void => {
+  cache.local.remove(CACHE_KEYS.DESCRIPTION)
+}
+
 const getCachedValue = (key: string): string => {
   return cache.local.get(key) || ""
 }

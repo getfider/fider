@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -91,6 +92,24 @@ func TestWebhookURL_BlockedAddresses(t *testing.T) {
 		"http://169.254.169.254/latest/meta-data/",
 		"http://169.254.1.1/hook",
 		"http://0.0.0.0/hook",
+		"http://100.64.0.1/hook",
+		"http://198.18.0.1/hook",
+		"http://224.0.0.1/hook",
+		"http://255.255.255.255/hook",
+		"http://[::ffff:127.0.0.1]/hook",
+		"http://[::ffff:169.254.169.254]/hook",
+		"http://[fd00::1]/hook",
+		"http://[fe80::1]/hook",
+		"http://[ff02::1]/hook",
+		"http://[64:ff9b::a9fe:a9fe]/latest/meta-data/",
+		"http://[64:ff9b::7f00:1]/hook",
+		"http://[64:ff9b:1::1]/hook",
+		"http://[2002:a9fe:a9fe::1]/hook",
+		"http://[2002:7f00:1::1]:8080/hook",
+		"http://[2001:0:4136:e378:8000:63bf:80ff:fffe]/hook",
+		"http://192.0.0.192/opc/v2/instance/",
+		"http://[fec0::1]/hook",
+		"http://[::ffff:0:a9fe:a9fe]/latest/meta-data/",
 		"ftp://example.com/hook",
 		"file:///etc/passwd",
 		"gopher://example.com",
@@ -108,9 +127,51 @@ func TestWebhookURL_AllowedAddresses(t *testing.T) {
 		"https://discord.com/api/webhooks/123/abc",
 		"http://example.com/webhook",
 		"https://203.0.113.1/hook",
+		"https://[2001:4860:4860::8888]/hook",
+		"https://[2002:0808:0808::1]/hook",
+		"https://[64:ff9b::808:808]/hook",
 	} {
 		messages := validate.WebhookURL(rawurl)
 		Expect(messages).HasLen(0)
+	}
+}
+
+func TestWebhookURL_PrivateIPsAllowedWhenOptedIn(t *testing.T) {
+	RegisterT(t)
+
+	original := env.Config.AllowPrivateNetworkTargets
+	env.Config.AllowPrivateNetworkTargets = true
+	t.Cleanup(func() { env.Config.AllowPrivateNetworkTargets = original })
+
+	for _, rawurl := range []string{
+		"http://localhost/hook",
+		"http://127.0.0.1/hook",
+		"http://10.0.0.1/hook",
+		"http://172.16.0.1/hook",
+		"http://192.168.1.1:8080/hook",
+		"http://[::1]/hook",
+		"http://internal.lan/hook",
+	} {
+		messages := validate.WebhookURL(rawurl)
+		Expect(messages).HasLen(0)
+	}
+}
+
+func TestWebhookURL_OptInDoesNotBypassFormatValidation(t *testing.T) {
+	RegisterT(t)
+
+	original := env.Config.AllowPrivateNetworkTargets
+	env.Config.AllowPrivateNetworkTargets = true
+	t.Cleanup(func() { env.Config.AllowPrivateNetworkTargets = original })
+
+	for _, rawurl := range []string{
+		"ftp://example.com/hook",
+		"file:///etc/passwd",
+		"not a url at all",
+		"",
+	} {
+		messages := validate.WebhookURL(rawurl)
+		Expect(len(messages) > 0).IsTrue()
 	}
 }
 

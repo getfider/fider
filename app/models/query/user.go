@@ -26,7 +26,8 @@ type GetCurrentUserSettings struct {
 }
 
 type GetUserByID struct {
-	UserID int
+	UserID   int
+	TenantID int
 
 	Result *entity.User
 }

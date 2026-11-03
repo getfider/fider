@@ -22,6 +22,7 @@ Given("I sign in as {string}", async function (this: FiderWorld, userName: strin
   await this.page.fill("#input-code", code)
   await this.page.getByRole("button", { name: "submit" }).click()
 
-  // Wait for navigation after successful code verification
-  await this.page.waitForLoadState("networkidle")
+  // Verifying the code closes the modal and reloads the page. Wait for the signed-in page itself:
+  // waitForLoadState resolves immediately on the old page, letting the next step click it just before it's replaced
+  await this.page.locator(".c-menu-user").waitFor()
 })

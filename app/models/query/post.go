@@ -1,6 +1,8 @@
 package query
 
 import (
+	"strconv"
+
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
@@ -55,6 +57,36 @@ type FindSimilarPosts struct {
 
 type GetAllPosts struct {
 	Result []*entity.Post
+}
+
+// MaxSearchPostsLimit is the largest number of posts that can be requested over HTTP.
+// There is no offset parameter: the home page and roadmap "show more" links work by
+// increasing the limit, so this is deliberately generous.
+const MaxSearchPostsLimit = 1000
+
+// SetLimitFromString sets Limit from an untrusted value such as a query string parameter.
+// Invalid or non-positive values fall back to the default limit. Unless unlimited is true,
+// larger values are clamped to MaxSearchPostsLimit and "all" means MaxSearchPostsLimit
+// rather than no limit at all.
+func (q *SearchPosts) SetLimitFromString(limit string, unlimited bool) {
+	if limit == "all" {
+		if unlimited {
+			q.Limit = "all"
+		} else {
+			q.Limit = strconv.Itoa(MaxSearchPostsLimit)
+		}
+		return
+	}
+
+	n, err := strconv.Atoi(limit)
+	switch {
+	case err != nil || n <= 0:
+		q.Limit = ""
+	case n > MaxSearchPostsLimit && !unlimited:
+		q.Limit = strconv.Itoa(MaxSearchPostsLimit)
+	default:
+		q.Limit = strconv.Itoa(n)
+	}
 }
 
 func (q *SearchPosts) SetStatusesFromStrings(statuses []string) {

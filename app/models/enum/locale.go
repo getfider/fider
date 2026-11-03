@@ -99,6 +99,16 @@ var (
 		IsRTL:             false,
 	}
 
+	// LocaleKorean represents Korean
+	LocaleKorean = Locale{
+		Code:              "ko",
+		Name:              "Korean",
+		MessageFormatCode: "ko",
+		PostgresConfig:    "simple",
+		LinguaLanguage:    lingua.Korean,
+		IsRTL:             false,
+	}
+
 	// LocaleDutch represents Dutch
 	LocaleDutch = Locale{
 		Code:              "nl",
@@ -209,6 +219,7 @@ var (
 		LocaleSwedishSE,
 		LocaleItalian,
 		LocaleJapanese,
+		LocaleKorean,
 		LocaleDutch,
 		LocalePolish,
 		LocaleRussian,

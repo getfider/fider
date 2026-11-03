@@ -78,7 +78,7 @@ func (action *ChangeUserRole) Validate(ctx context.Context, user *entity.User) *
 		result.AddFieldFailure("userID", "It is not allowed to change your own Role.")
 	}
 
-	userByID := &query.GetUserByID{UserID: action.UserID}
+	userByID := &query.GetUserByID{UserID: action.UserID, TenantID: user.Tenant.ID}
 	err := bus.Dispatch(ctx, userByID)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
@@ -95,8 +95,8 @@ func (action *ChangeUserRole) Validate(ctx context.Context, user *entity.User) *
 //ChangeUserEmail is the action used to change current user's email
 type ChangeUserEmail struct {
 	Email           string `json:"email" format:"lower"`
-	VerificationKey string
-	Requestor       *entity.User
+	VerificationKey string       `json:"-"`
+	Requestor       *entity.User `json:"-"`
 }
 
 func NewChangeUserEmail() *ChangeUserEmail {

@@ -37,7 +37,7 @@ export const SimilarPosts: React.FC<SimilarPostsProps> = (props) => {
 
   useEffect(() => {
     window.clearTimeout(timerRef.current)
-    timerRef.current = window.setTimeout(loadSimilarPosts, 500)
+    timerRef.current = window.setTimeout(loadSimilarPosts, title.length > 0 ? 1000 : 100)
 
     return () => {
       window.clearTimeout(timerRef.current)

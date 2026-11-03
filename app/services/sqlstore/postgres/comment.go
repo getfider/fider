@@ -123,11 +123,12 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 			AND e.tenant_id = c.tenant_id
 			WHERE c.id = $1
 			AND c.tenant_id = $2
-			AND c.deleted_at IS NULL%s`, buildApprovalFilter(user))
+			AND c.deleted_at IS NULL
+			AND ($3 = 0 OR c.post_id = $3)%s`, buildApprovalFilter(user))
 
 		comment := dbEntities.Comment{}
 		err := trx.Get(&comment,
-			query, q.CommentID, tenant.ID)
+			query, q.CommentID, tenant.ID, q.PostID)
 
 		if err != nil {
 			return err

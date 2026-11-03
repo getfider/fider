@@ -225,7 +225,8 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
         <Field label="Trusted Source">
           <Toggle field="isTrusted" active={isTrusted} onToggle={setTrusted} label={isTrusted ? "Yes" : "No"} />
           <p className="text-muted mt-1">
-            This setting only applies to private sites. This site is currently <strong>{fider.session.tenant.isPrivate ? "Private" : "Public"}</strong>.
+            This setting only applies to private sites or when sign-ups are disabled. This site is currently{" "}
+            <strong>{fider.session.tenant.isPrivate ? "Private" : fider.session.tenant.isSignUpDisabled ? "Public, sign-ups disabled" : "Public"}</strong>.
           </p>
           <p className="text-muted">
             If enabled, users authenticated by this provider can get access to this site without being invited. This is recommended for corporate access, such

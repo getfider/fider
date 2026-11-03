@@ -144,6 +144,8 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
               <Input
                 label={i18n._({ id: "label.email", message: "Email" })}
                 field="email"
+                type="email"
+                autoComplete="email"
                 value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
                 maxLength={200}
                 disabled={!this.state.changingEmail}

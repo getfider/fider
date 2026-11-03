@@ -2,9 +2,13 @@ package handlers
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -17,12 +21,139 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
+
+// handoffLifetime is how long the token that carries an OAuth sign in from the callback
+// address over to the tenant address stays valid. It only has to survive one redirect.
+const handoffLifetime = 2 * time.Minute
+
+// tenantOrigins returns every origin a given tenant is served on.
+// A tenant with a custom domain is still reachable on its subdomain, so both are valid.
+func tenantOrigins(ctx context.Context, tenant *entity.Tenant) []string {
+	origins := []string{web.TenantBaseURL(ctx, tenant)}
+
+	if tenant.CNAME != "" && !env.IsSingleHostMode() {
+		origins = append(origins, web.TenantBaseURL(ctx, &entity.Tenant{Subdomain: tenant.Subdomain}))
+	}
+
+	return origins
+}
+
+// oauthAllowedOrigins returns the origins an OAuth flow is allowed to continue on for the
+// current request. These come from the resolved tenant record and from configuration, never
+// from the request's Host/X-Forwarded-Host header, which any caller can set to anything.
+func oauthAllowedOrigins(c *web.Context) []string {
+	if c.Tenant() == nil {
+		// Sign up runs on the host-wide OAuth address, before a tenant exists.
+		return []string{web.OAuthBaseURL(c)}
+	}
+
+	return tenantOrigins(c, c.Tenant())
+}
+
+// isAllowedOAuthRedirect reports whether redirect points at one of the given origins.
+func isAllowedOAuthRedirect(origins []string, redirect string) bool {
+	for _, origin := range origins {
+		if redirect == origin || strings.HasPrefix(redirect, origin+"/") {
+			return true
+		}
+	}
+	return false
+}
+
+// isKnownOAuthOrigin reports whether a URL points at an origin Fider actually serves.
+// OAuth state is signed with a process-wide secret, so a valid signature on its own says
+// nothing about whether the redirect it carries was ever legitimate — it has to be checked
+// against the tenant records again.
+func isKnownOAuthOrigin(c *web.Context, u *url.URL) bool {
+	origin := u.Scheme + "://" + u.Host
+
+	if origin == web.OAuthBaseURL(c) {
+		return true
+	}
+
+	byDomain := &query.GetTenantByDomain{Domain: u.Hostname()}
+	if err := bus.Dispatch(c, byDomain); err != nil || byDomain.Result == nil || byDomain.Result.IsDisabled() {
+		return false
+	}
+
+	return slices.Contains(tenantOrigins(c, byDomain.Result), origin)
+}
+
+// newOAuthHandoff mints the token that carries an OAuth sign in from the callback address
+// over to the tenant address, bound to that origin, provider and browser session.
+func newOAuthHandoff(provider, origin, sessionID string) (string, error) {
+	return jwt.Encode(jwt.OAuthHandoffClaims{
+		Provider:      provider,
+		Origin:        origin,
+		SessionIDHash: hashSessionID(sessionID),
+		Metadata: jwt.Metadata{
+			ExpiresAt: jwt.Time(time.Now().Add(handoffLifetime)),
+		},
+	})
+}
+
+// isValidOAuthHandoff checks that a handoff token belongs to this exact request: same
+// provider, same origin, same browser session, and not yet expired.
+func isValidOAuthHandoff(c *web.Context, provider, handoff string) bool {
+	if handoff == "" || c.SessionID() == "" {
+		return false
+	}
+
+	claims, err := jwt.DecodeOAuthHandoffClaims(handoff)
+	if err != nil {
+		return false
+	}
+
+	if claims.Provider != provider || !isAllowedOAuthRedirect(oauthAllowedOrigins(c), claims.Origin) {
+		return false
+	}
+
+	expected := hashSessionID(c.SessionID())
+	return subtle.ConstantTimeCompare([]byte(claims.SessionIDHash), []byte(expected)) == 1
+}
+
+// hashSessionID hashes a session ID so the handoff token can be bound to a browser session
+// without the session ID itself travelling through URLs, logs and referrers.
+func hashSessionID(sessionID string) string {
+	sum := sha256.Sum256([]byte(sessionID))
+	return hex.EncodeToString(sum[:])
+}
+
+// sanitiseOAuthRedirect reduces a caller supplied redirect to a path on the current tenant.
+// Anything pointing elsewhere falls back to the root, so this endpoint can never be used
+// as an open redirect.
+func sanitiseOAuthRedirect(c *web.Context, redirect string) string {
+	u, err := url.Parse(redirect)
+	if err != nil || redirect == "" {
+		return "/"
+	}
+
+	// Protocol relative URLs ("//evil.com") parse with an empty scheme, so check the host
+	// rather than relying on IsAbs.
+	if u.Host != "" && !isAllowedOAuthRedirect(oauthAllowedOrigins(c), u.Scheme+"://"+u.Host) {
+		return "/"
+	}
+
+	// Go parses "///evil.com" as a path with no host, but browsers skip any run of leading
+	// slashes and treat what follows as the host, so a path must not start with "//".
+	path := u.EscapedPath()
+	if !strings.HasPrefix(path, "/") || strings.HasPrefix(path, "//") {
+		return "/"
+	}
+
+	if u.RawQuery != "" {
+		path += "?" + u.RawQuery
+	}
+
+	return path
+}
 
 // OAuthEcho exchanges OAuth Code for a user profile and return directly to the UI, without storing it
 func OAuthEcho() web.HandlerFunc {
@@ -34,9 +165,8 @@ func OAuthEcho() web.HandlerFunc {
 			return c.Redirect("/")
 		}
 
-		identifier := c.QueryParam("identifier")
-		if identifier == "" || identifier != c.SessionID() {
-			log.Warn(c, "OAuth identifier doesn't match with user session ID. Aborting sign in process.")
+		if !isValidOAuthHandoff(c, provider, c.QueryParam("handoff")) {
+			log.Warn(c, "OAuth handoff token is not valid for this request. Aborting sign in process.")
 			return c.Redirect("/")
 		}
 
@@ -82,18 +212,16 @@ func OAuthEcho() web.HandlerFunc {
 func OAuthToken() web.HandlerFunc {
 	return func(c *web.Context) error {
 		provider := c.Param("provider")
-		redirectURL, _ := url.ParseRequestURI(c.QueryParam("redirect"))
-		redirectURL.ResolveReference(c.Request.URL)
+		redirect := sanitiseOAuthRedirect(c, c.QueryParam("redirect"))
 
 		code := c.QueryParam("code")
 		if code == "" {
-			return c.Redirect(redirectURL.String())
+			return c.Redirect(redirect)
 		}
 
-		identifier := c.QueryParam("identifier")
-		if identifier == "" || identifier != c.SessionID() {
-			log.Warn(c, "OAuth identifier doesn't match with user session ID. Aborting sign in process.")
-			return c.Redirect(redirectURL.String())
+		if !isValidOAuthHandoff(c, provider, c.QueryParam("handoff")) {
+			log.Warn(c, "OAuth handoff token is not valid for this request. Aborting sign in process.")
+			return c.Redirect(redirect)
 		}
 
 		oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
@@ -146,8 +274,7 @@ func OAuthToken() web.HandlerFunc {
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				isTrusted := customConfig != nil && customConfig.IsTrusted
-				if c.Tenant().IsPrivate && !isTrusted {
+				if !c.Tenant().CanCreateAccountByOAuth(customConfig) {
 					return c.Redirect("/not-invited")
 				}
 
@@ -182,7 +309,7 @@ func OAuthToken() web.HandlerFunc {
 
 		webutil.AddAuthUserCookie(c, user)
 
-		return c.Redirect(redirectURL.String())
+		return c.Redirect(redirect)
 	}
 }
 
@@ -228,6 +355,13 @@ func OAuthCallback() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if !isKnownOAuthOrigin(c, redirectURL) {
+			log.Warnf(c, "OAuth callback state for provider @{Provider} points at an unknown origin. Aborting sign in process.", dto.Props{"Provider": provider})
+			return c.Forbidden()
+		}
+
+		origin := redirectURL.Scheme + "://" + redirectURL.Host
+
 		code := c.QueryParam("code")
 		if code == "" {
 			return c.Redirect(redirectURL.String())
@@ -235,9 +369,14 @@ func OAuthCallback() web.HandlerFunc {
 
 		//Test OAuth
 		if redirectURL.Path == fmt.Sprintf("/oauth/%s/echo", provider) {
+			handoff, err := newOAuthHandoff(provider, origin, claims.Identifier)
+			if err != nil {
+				return c.Failure(err)
+			}
+
 			var query = redirectURL.Query()
 			query.Set("code", code)
-			query.Set("identifier", claims.Identifier)
+			query.Set("handoff", handoff)
 			redirectURL.RawQuery = query.Encode()
 			return c.Redirect(redirectURL.String())
 		}
@@ -271,10 +410,15 @@ func OAuthCallback() web.HandlerFunc {
 		}
 
 		//Sign in process
+		handoff, err := newOAuthHandoff(provider, origin, claims.Identifier)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		var query = redirectURL.Query()
 		query.Set("code", code)
 		query.Set("redirect", redirectURL.RequestURI())
-		query.Set("identifier", claims.Identifier)
+		query.Set("handoff", handoff)
 		redirectURL.RawQuery = query.Encode()
 		redirectURL.Path = fmt.Sprintf("/oauth/%s/token", provider)
 		return c.Redirect(redirectURL.String())
@@ -288,16 +432,30 @@ func SignInByOAuth() web.HandlerFunc {
 		c.Response.Header().Add("X-Robots-Tag", "noindex")
 
 		provider := c.Param("provider")
-		redirect := c.QueryParam("redirect")
 
+		// The origin the user is sent back to has to come from the resolved tenant, not from
+		// the request host: Host and X-Forwarded-Host are caller controlled, so deriving it
+		// from them lets anyone have the provider's authorization code delivered to an origin
+		// they own and then replay it against a tenant of their choosing.
+		origins := oauthAllowedOrigins(c)
+
+		redirect := c.QueryParam("redirect")
 		if redirect == "" {
-			redirect = c.BaseURL()
-		} else if redirect != c.BaseURL() && !strings.HasPrefix(redirect, c.BaseURL()+"/") {
+			redirect = origins[0]
+		} else if !isAllowedOAuthRedirect(origins, redirect) {
 			return c.Forbidden()
 		}
 
-		redirectURL, _ := url.ParseRequestURI(redirect)
-		redirectURL.ResolveReference(c.Request.URL)
+		redirectURL, err := url.ParseRequestURI(redirect)
+		if err != nil {
+			return c.Forbidden()
+		}
+
+		// Without a tenant the only flow that can complete is sign up, which runs on the
+		// host-wide OAuth address. Everything else needs a tenant to sign in to.
+		if c.Tenant() == nil && redirectURL.Path != "/signup" {
+			return c.Forbidden()
+		}
 
 		if c.IsAuthenticated() && redirectURL.Path != fmt.Sprintf("/oauth/%s/echo", provider) {
 			return c.Redirect(redirect)
