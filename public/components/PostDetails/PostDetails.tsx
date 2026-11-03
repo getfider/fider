@@ -3,7 +3,7 @@ import "./PostDetails.scss"
 import React, { useState, useEffect, useCallback } from "react"
 
 import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
-import { actions, cache, clearUrlHash, Failure, Fider, notify, timeAgo } from "@fider/services"
+import { actions, cache, clearUrlHash, Failure, Fider, navigator as fiderNavigator, notify, timeAgo } from "@fider/services"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import { i18n } from "@lingui/core"
 import IconRSS from "@fider/assets/images/heroicons-rss.svg"
@@ -285,7 +285,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     const result = await actions.declinePost(post.id)
     if (result.ok) {
       notify.success(<Trans id="showpost.moderation.declined">Post declined successfully</Trans>)
-      setTimeout(() => location.reload(), 1500)
+      setTimeout(() => fiderNavigator.goHome(), 1500)
     } else {
       notify.error(<Trans id="showpost.moderation.declineerror">Failed to decline post</Trans>)
     }
