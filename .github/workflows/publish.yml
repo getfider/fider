@@ -23,11 +23,6 @@ jobs:
     concurrency:
       group: publish-${{ github.event.workflow_run.event }}-${{ github.event.workflow_run.head_branch }}
     steps:
-      - name: Dump GitHub context
-        run: echo "$GITHUB_CONTEXT"
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-
       - name: Checkout
         uses: actions/checkout@v7
         with:
