@@ -10,12 +10,8 @@
     font-weight: 600;
   }
 
-  &:last-child {
-    &:not(.flex-x > &) {
-      margin-bottom: 0;
-    }
-    .flex-x > & {
-      // margin-bottom: spacing(2);
-    }
+  // Rows and grids keep the gap so the next field doesn't butt up against them
+  &:last-child:not(.flex-x > &):not(.grid > &) {
+    margin-bottom: 0;
   }
 }
