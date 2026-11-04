@@ -80,11 +80,24 @@ jobs:
             COMMITHASH=${{ github.event.workflow_run.head_sha }}
             VERSION=${{ github.event.workflow_run.display_title }}
           platforms: linux/amd64,linux/arm64/v8
-          # stable always tracks the latest published release
-          tags: |
-            getfider/fider:${{ github.event.workflow_run.display_title }}
-            getfider/fider:stable
+          tags: getfider/fider:${{ github.event.workflow_run.display_title }}
           cache-from: type=gha
           # Cache export runs after the image is pushed; a failure there (e.g. two publish
           # runs racing for the same cache key) must not mark a successful publish as failed.
           cache-to: type=gha,mode=max,ignore-error=true
+
+      # stable follows GitHub's "latest" release, which excludes pre-releases and releases not set
+      # as latest. Checking after the build means re-runs and slower, older builds can't move it back.
+      - name: point stable at this release if it is the latest
+        if: ${{ github.event.workflow_run.event == 'release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.workflow_run.head_branch }}
+          IMAGE_TAG: ${{ github.event.workflow_run.display_title }}
+        run: |
+          latest=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)
+          if [ "$latest" = "$RELEASE_TAG" ]; then
+            docker buildx imagetools create -t getfider/fider:stable "getfider/fider:$IMAGE_TAG"
+          else
+            echo "::notice::Not moving stable: $RELEASE_TAG is not the latest release ($latest)"
+          fi
