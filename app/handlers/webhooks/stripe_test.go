@@ -217,3 +217,14 @@ func TestStripe_SetupCheckout_TenantAlreadySubscribed_NoNewSubscription(t *testi
 	Expect(fake.created).Equals(0)
 	Expect(*activated).HasLen(0)
 }
+
+func TestStripe_SetupCheckoutRedelivered_IncompleteSubscription_NotRecreatedOrActivated(t *testing.T) {
+	fake, activated := setup(t, "")
+	fake.sub("sub_existing", "incomplete_expired", "cus_new")
+
+	code := post(setupCheckoutCompleted())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(fake.created).Equals(0)
+	Expect(*activated).HasLen(0)
+}

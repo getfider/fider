@@ -202,14 +202,9 @@ func handleSubscriptionUpdated(c *web.Context, event stripe.Event) error {
 		return c.Ok(web.Map{})
 	}
 
-	var payload stripe.Subscription
-	if err := json.Unmarshal(event.Data.Raw, &payload); err != nil {
-		return c.Failure(errors.Wrap(err, "failed to parse subscription"))
-	}
-
 	// Events can arrive late or out of order, so act on the subscription's current state.
 	stripe.Key = env.Config.Stripe.SecretKey
-	sub, err := stripesub.Get(payload.ID, nil)
+	sub, err := stripesub.Get(event.GetObjectValue("id"), nil)
 	if err != nil {
 		return c.Failure(errors.Wrap(err, "failed to fetch subscription"))
 	}
