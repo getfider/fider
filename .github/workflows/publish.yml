@@ -64,7 +64,7 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           tags: |
             getfider/fider:SHA_${{ github.event.workflow_run.head_sha }}
-            getfider/fider:${{ github.event.workflow_run.head_branch == 'main' && 'main' || 'stable' }}
+            getfider/fider:main
           cache-from: type=gha
           # Cache export runs after the image is pushed; a failure there (e.g. two publish
           # runs racing for the same cache key) must not mark a successful publish as failed.
@@ -80,7 +80,10 @@ jobs:
             COMMITHASH=${{ github.event.workflow_run.head_sha }}
             VERSION=${{ github.event.workflow_run.display_title }}
           platforms: linux/amd64,linux/arm64/v8
-          tags: getfider/fider:${{ github.event.workflow_run.display_title }}
+          # stable always tracks the latest published release
+          tags: |
+            getfider/fider:${{ github.event.workflow_run.display_title }}
+            getfider/fider:stable
           cache-from: type=gha
           # Cache export runs after the image is pushed; a failure there (e.g. two publish
           # runs racing for the same cache key) must not mark a successful publish as failed.
