@@ -78,3 +78,13 @@ func TestLogSqlDefaultsToFalse(t *testing.T) {
 	env.Reload()
 	Expect(env.Config.Log.Sql).IsFalse()
 }
+
+func TestCSPAllowedHostsAreNormalized(t *testing.T) {
+	RegisterT(t)
+
+	t.Cleanup(env.Reload)
+	t.Setenv("CSP_ALLOWED_HOSTS", "  https://a.example.com\n  https://b.example.com  ")
+
+	env.Reload()
+	Expect(env.Config.CSPAllowedHosts).Equals("https://a.example.com https://b.example.com")
+}

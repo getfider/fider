@@ -25,11 +25,15 @@ func Secure() web.MiddlewareFunc {
 				}
 				cdnHost = " " + cdnHost
 			}
-			analyticsScript, analyticsConnect := "", ""
+			scriptHosts, connectHosts := "", ""
 			if env.Config.GoogleAnalytics != "" {
-				analyticsScript, analyticsConnect = web.CspGoogleAnalyticsScript, web.CspGoogleAnalyticsConnect
+				scriptHosts, connectHosts = web.CspGoogleAnalyticsScript, web.CspGoogleAnalyticsConnect
 			}
-			csp := fmt.Sprintf(web.CspPolicyTemplate, c.ContextID(), cdnHost, analyticsScript, analyticsConnect)
+			if env.Config.CSPAllowedHosts != "" {
+				scriptHosts += " " + env.Config.CSPAllowedHosts
+				connectHosts += " " + env.Config.CSPAllowedHosts
+			}
+			csp := fmt.Sprintf(web.CspPolicyTemplate, c.ContextID(), cdnHost, scriptHosts, connectHosts)
 
 			c.Response.Header().Set("Content-Security-Policy", strings.TrimSpace(csp))
 			c.Response.Header().Set("X-XSS-Protection", "1; mode=block")
