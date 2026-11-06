@@ -607,6 +607,48 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	RegisterT(t)
 
+	var changedEmail *cmd.ChangeUserEmail
+	user := setupExistingUserWithoutEmail(func(ctx context.Context, q *query.GetUserByEmail) error {
+		Expect(q.Email).Equals("some.guy@facebook.com")
+		return app.ErrNotFound
+	})
+	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserEmail) error {
+		changedEmail = c
+		return nil
+	})
+
+	response := executeExistingUserWithoutEmail()
+
+	Expect(changedEmail.UserID).Equals(user.ID)
+	Expect(changedEmail.Email).Equals("some.guy@facebook.com")
+	ExpectFiderAuthCookie(response, &entity.User{
+		ID:    3,
+		Name:  "Some Facebook Guy",
+		Email: "some.guy@facebook.com",
+	})
+}
+
+func TestOAuthTokenHandler_ExistingUser_WithoutEmail_EmailTaken(t *testing.T) {
+	RegisterT(t)
+
+	setupExistingUserWithoutEmail(func(ctx context.Context, q *query.GetUserByEmail) error {
+		q.Result = &entity.User{ID: 4, Email: q.Email}
+		return nil
+	})
+	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserEmail) error {
+		panic("email must not be changed when another user has it")
+	})
+
+	response := executeExistingUserWithoutEmail()
+
+	ExpectFiderAuthCookie(response, &entity.User{
+		ID:    3,
+		Name:  "Some Facebook Guy",
+		Email: "",
+	})
+}
+
+func setupExistingUserWithoutEmail(getUserByEmail func(ctx context.Context, q *query.GetUserByEmail) error) *entity.User {
 	user := &entity.User{
 		ID:     3,
 		Name:   "Some Facebook Guy",
@@ -629,8 +671,6 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server := mock.NewServer()
-
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
 		if q.Provider == "facebook" && q.UID == "FB456" {
 			q.Result = user
@@ -639,6 +679,12 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		return app.ErrNotFound
 	})
 
+	bus.AddHandler(getUserByEmail)
+	return user
+}
+
+func executeExistingUserWithoutEmail() *httptest.ResponseRecorder {
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&redirect=/&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
 		OnTenant(mock.DemoTenant).
@@ -648,13 +694,8 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		Execute(handlers.OAuthToken())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-
 	Expect(response.Header().Get("Location")).Equals("/")
-	ExpectFiderAuthCookie(response, &entity.User{
-		ID:    3,
-		Name:  "Some Facebook Guy",
-		Email: "",
-	})
+	return response
 }
 
 func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {

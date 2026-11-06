@@ -3,6 +3,7 @@ package oauth
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 
 	"fmt"
 	"net/url"
@@ -20,6 +21,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/netguard"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
@@ -369,7 +371,83 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 	}
 
 	q.Result = string(req.ResponseBody)
+	// guard (from requiresSSRFGuard above) is false only for the built-in system
+	// provider configs, so this never touches a custom provider's profile, even
+	// one stored under a built-in key like "github".
+	if !guard {
+		q.Result = fixSystemProviderEmail(ctx, q.Provider, q.Result, oauthToken.AccessToken)
+	}
 	return nil
+}
+
+// fixSystemProviderEmail adjusts the email in a built-in provider's profile body:
+//   - GitHub only returns the user's public email from /user, so when that is empty
+//     the primary verified address is fetched from /user/emails.
+//   - Google emails that are not verified are dropped, so they can't be used to
+//     match (and sign in as) an existing user with that email.
+func fixSystemProviderEmail(ctx context.Context, provider, body, accessToken string) string {
+	profile := map[string]json.RawMessage{}
+	if err := json.Unmarshal([]byte(body), &profile); err != nil {
+		return body
+	}
+
+	switch provider {
+	case app.GitHubProvider:
+		var email string
+		_ = json.Unmarshal(profile["email"], &email)
+		if email != "" {
+			return body
+		}
+		email, err := getGitHubPrimaryEmail(ctx, accessToken)
+		if err != nil {
+			log.Warnf(ctx, "Failed to get GitHub user emails: @{Error}", dto.Props{"Error": err.Error()})
+			return body
+		}
+		if email == "" {
+			return body
+		}
+		profile["email"], _ = json.Marshal(email)
+	case app.GoogleProvider:
+		var verified bool
+		_ = json.Unmarshal(profile["verified_email"], &verified)
+		if verified {
+			return body
+		}
+		delete(profile, "email")
+	default:
+		return body
+	}
+
+	result, err := json.Marshal(profile)
+	if err != nil {
+		return body
+	}
+	return string(result)
+}
+
+func getGitHubPrimaryEmail(ctx context.Context, accessToken string) (string, error) {
+	req := newProfileRequest(false, "https://api.github.com/user/emails", accessToken)
+	if err := bus.Dispatch(ctx, req); err != nil {
+		return "", err
+	}
+	if req.ResponseStatusCode != 200 {
+		return "", errors.New("Status Code: %d. Body: %s", req.ResponseStatusCode, string(req.ResponseBody))
+	}
+
+	var emails []struct {
+		Email    string `json:"email"`
+		Primary  bool   `json:"primary"`
+		Verified bool   `json:"verified"`
+	}
+	if err := json.Unmarshal(req.ResponseBody, &emails); err != nil {
+		return "", err
+	}
+	for _, e := range emails {
+		if e.Primary && e.Verified {
+			return e.Email, nil
+		}
+	}
+	return "", nil
 }
 
 func listActiveOAuthProviders(ctx context.Context, q *query.ListActiveOAuthProviders) error {
