@@ -178,6 +178,7 @@
   "newpost.modal.title": "Partagez votre idée...",
   "newpost.modal.title.label": "Donnez un titre à votre idée",
   "newpost.modal.title.placeholder": "Quelque chose de court et percutant, résumez-le en quelques mots",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "Ramenez-moi à la page d'accueil de <0>{0}</0>.",
   "page.pendingactivation.didntreceive": "Vous n'avez pas reçu l'e-mail ?",
   "page.pendingactivation.resend": "Renvoyer l'e-mail de vérification",

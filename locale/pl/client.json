@@ -178,6 +178,7 @@
   "newpost.modal.title": "Podziel się swoim pomysłem...",
   "newpost.modal.title.label": "Nadaj swojemu pomysłowi tytuł",
   "newpost.modal.title.placeholder": "Coś krótkiego i zwięzłego, podsumuj to w kilku słowach",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "Zabierz mnie z powrotem na stronę główną <0>{0}</0>.",
   "page.pendingactivation.didntreceive": "Nie otrzymałeś wiadomości e-mail?",
   "page.pendingactivation.resend": "Wyślij ponownie e-mail weryfikacyjny",

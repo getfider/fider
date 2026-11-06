@@ -178,6 +178,7 @@
   "newpost.modal.title": "Deel uw idee...",
   "newpost.modal.title.label": "Geef je idee een titel",
   "newpost.modal.title.placeholder": "Iets kort en krachtigs, vat het samen in een paar woorden",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "Ga terug naar <0>{0}</0> startpagina.",
   "page.pendingactivation.didntreceive": "E-mail niet ontvangen?",
   "page.pendingactivation.resend": "Verificatie-e-mail opnieuw verzenden",

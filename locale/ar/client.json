@@ -178,6 +178,7 @@
   "newpost.modal.title": "شارك بفكرتك...",
   "newpost.modal.title.label": "أعط فكرتك عنوانًا",
   "newpost.modal.title.placeholder": "شيء قصير وموجز، لخصه في بضع كلمات",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "خذني إلى <0>{0}</0> الصفحة الرئيسية.",
   "page.pendingactivation.didntreceive": "لم تستلم البريد الإلكتروني؟",
   "page.pendingactivation.resend": "إعادة إرسال رسالة التحقق",
