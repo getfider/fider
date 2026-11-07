@@ -486,7 +486,7 @@ func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&redirect=/hello&handoff=" + newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&redirect=/hello&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
 		OnTenant(mock.DemoTenant).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
 		AddParam("provider", app.FacebookProvider).
@@ -537,7 +537,7 @@ func TestOAuthTokenHandler_NewUser(t *testing.T) {
 
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&redirect=/hello&handoff=" + newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&redirect=/hello&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
 		OnTenant(mock.DemoTenant).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
 		AddParam("provider", app.FacebookProvider).
@@ -584,7 +584,7 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	})
 
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=798&redirect=/&handoff=" + newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=798&redirect=/&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -607,6 +607,48 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	RegisterT(t)
 
+	var changedEmail *cmd.ChangeUserEmail
+	user := setupExistingUserWithoutEmail(func(ctx context.Context, q *query.GetUserByEmail) error {
+		Expect(q.Email).Equals("some.guy@facebook.com")
+		return app.ErrNotFound
+	})
+	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserEmail) error {
+		changedEmail = c
+		return nil
+	})
+
+	response := executeExistingUserWithoutEmail()
+
+	Expect(changedEmail.UserID).Equals(user.ID)
+	Expect(changedEmail.Email).Equals("some.guy@facebook.com")
+	ExpectFiderAuthCookie(response, &entity.User{
+		ID:    3,
+		Name:  "Some Facebook Guy",
+		Email: "some.guy@facebook.com",
+	})
+}
+
+func TestOAuthTokenHandler_ExistingUser_WithoutEmail_EmailTaken(t *testing.T) {
+	RegisterT(t)
+
+	setupExistingUserWithoutEmail(func(ctx context.Context, q *query.GetUserByEmail) error {
+		q.Result = &entity.User{ID: 4, Email: q.Email}
+		return nil
+	})
+	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserEmail) error {
+		panic("email must not be changed when another user has it")
+	})
+
+	response := executeExistingUserWithoutEmail()
+
+	ExpectFiderAuthCookie(response, &entity.User{
+		ID:    3,
+		Name:  "Some Facebook Guy",
+		Email: "",
+	})
+}
+
+func setupExistingUserWithoutEmail(getUserByEmail func(ctx context.Context, q *query.GetUserByEmail) error) *entity.User {
 	user := &entity.User{
 		ID:     3,
 		Name:   "Some Facebook Guy",
@@ -629,8 +671,6 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server := mock.NewServer()
-
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
 		if q.Provider == "facebook" && q.UID == "FB456" {
 			q.Result = user
@@ -639,8 +679,14 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		return app.ErrNotFound
 	})
 
+	bus.AddHandler(getUserByEmail)
+	return user
+}
+
+func executeExistingUserWithoutEmail() *httptest.ResponseRecorder {
+	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&redirect=/&handoff=" + newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&redirect=/&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -648,13 +694,8 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		Execute(handlers.OAuthToken())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-
 	Expect(response.Header().Get("Location")).Equals("/")
-	ExpectFiderAuthCookie(response, &entity.User{
-		ID:    3,
-		Name:  "Some Facebook Guy",
-		Email: "",
-	})
+	return response
 }
 
 func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
@@ -691,7 +732,7 @@ func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/google/token?code=123&redirect=/&handoff=" + newHandoff(app.GoogleProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/google/token?code=123&redirect=/&handoff="+newHandoff(app.GoogleProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", app.GoogleProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -712,6 +753,49 @@ func TestOAuthTokenHandler_NewUser_PrivateSite(t *testing.T) {
 
 	server := mock.NewServer()
 	mock.AvengersTenant.IsPrivate = true
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		Expect(q.Provider).Equals(app.FacebookProvider)
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetOAuthProfile) error {
+		Expect(q.Provider).Equals(app.FacebookProvider)
+		Expect(q.Code).Equals("456")
+		q.Result = &dto.OAuthUserProfile{
+			ID:    "FB456",
+			Name:  "Some Facebook Guy",
+			Email: "some.guy@facebook.com",
+		}
+		return nil
+	})
+
+	code, response := server.
+		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&redirect=/&handoff="+newHandoff(app.FacebookProvider, "http://feedback.theavengers.com", "MY_SESSION_ID")).
+		OnTenant(mock.AvengersTenant).
+		AddParam("provider", app.FacebookProvider).
+		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
+		Use(middlewares.Session()).
+		Execute(handlers.OAuthToken())
+
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("/not-invited")
+	ExpectFiderAuthCookie(response, nil)
+}
+
+func TestOAuthTokenHandler_NewUser_SignUpDisabled(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	mock.AvengersTenant.IsSignUpDisabled = true
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		return app.ErrNotFound
@@ -899,7 +983,16 @@ func TestOAuthTokenHandler_ExpiredHandoff(t *testing.T) {
 func TestOAuthTokenHandler_OpenRedirect(t *testing.T) {
 	RegisterT(t)
 
-	for _, redirect := range []string{"http://evil.com/x", "//evil.com/x", "https://feedback.theavengers.com.evil.com/x"} {
+	// Browsers read any run of leading slashes, or a backslash, as the start of a host.
+	for redirect, location := range map[string]string{
+		"http://evil.com/x": "/",
+		"//evil.com/x":      "/",
+		"///evil.com/x":     "/",
+		"////evil.com/x":    "/",
+		"https://feedback.theavengers.com.evil.com/x": "/",
+		"/\\evil.com/x":   "/%5Cevil.com/x",
+		"/%2F/evil.com/x": "/%2F/evil.com/x",
+	} {
 		code, response := mock.NewServer().
 			WithURL("http://feedback.theavengers.com/oauth/facebook/token?redirect="+url.QueryEscape(redirect)).
 			OnTenant(mock.AvengersTenant).
@@ -909,7 +1002,7 @@ func TestOAuthTokenHandler_OpenRedirect(t *testing.T) {
 			Execute(handlers.OAuthToken())
 
 		Expect(code).Equals(http.StatusTemporaryRedirect)
-		Expect(response.Header().Get("Location")).Equals("/")
+		Expect(response.Header().Get("Location")).Equals(location)
 	}
 }
 

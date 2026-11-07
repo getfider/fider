@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
@@ -17,12 +18,13 @@ import (
 
 func approvePost(ctx context.Context, c *cmd.ApprovePost) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`
+		rows, err := trx.Execute(`
 			UPDATE posts SET is_approved = true
-			WHERE id = $1 AND tenant_id = $2`, c.PostID, tenant.ID)
+			WHERE id = $1 AND tenant_id = $2 AND is_approved = false`, c.PostID, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to approve post")
 		}
+		c.Result = rows > 0
 		return nil
 	})
 }
@@ -46,9 +48,13 @@ func declinePost(ctx context.Context, c *cmd.DeclinePost) error {
 
 func approveComment(ctx context.Context, c *cmd.ApproveComment) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(`
+		err := trx.Scalar(&c.Result, `
 			UPDATE comments SET is_approved = true
-			WHERE id = $1 AND tenant_id = $2`, c.CommentID, tenant.ID)
+			WHERE id = $1 AND tenant_id = $2 AND is_approved = false
+			RETURNING post_id`, c.CommentID, tenant.ID)
+		if errors.Cause(err) == app.ErrNotFound {
+			return nil // already approved (or missing): nothing to notify
+		}
 		if err != nil {
 			return errors.Wrap(err, "failed to approve comment")
 		}

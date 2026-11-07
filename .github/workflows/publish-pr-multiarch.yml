@@ -1,18 +1,28 @@
 name: Manually Publish PR with ARM64
 
+# PR images are not published automatically. Run this after reviewing a PR (fork PRs included) to
+# publish getfider/fider:PR_<number>, e.g. for a test instance.
 on:
   workflow_dispatch:
     inputs:
       pr_number:
         description: 'PR number'
         required: true
-        type: string
+        type: number
+
+permissions:
+  contents: read
 
 jobs:
   publish-pr-multiarch:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v7
+        with:
+          ref: refs/pull/${{ inputs.pr_number }}/head
+          persist-credentials: false
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -31,8 +41,8 @@ jobs:
         with:
           push: true
           context: .
-          build-args: COMMITHASH=${{ github.sha }}
+          build-args: COMMITHASH=${{ steps.checkout.outputs.commit }}
           platforms: linux/amd64,linux/arm64/v8
           tags: getfider/fider:PR_${{ inputs.pr_number }}
+          # Read the cache but never write it: PR code must not seed layers that main and release builds reuse.
           cache-from: type=gha
-          cache-to: type=gha,mode=max

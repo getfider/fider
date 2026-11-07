@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "Сейчас войти можно только с аккаунта администратора",
   "signin.message.private.text": "Если у вас есть аккаунт или приглашение, вы можете использовать их для входа.",
   "signin.message.private.title": "<0>{0}</0> является приватным пространством, вы должны войти в систему, чтобы принять участие и проголосовать.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Войти с помощью",
   "signin.name.placeholder": "Ваше имя",
   "validation.custom.maxattachments": "Разрешено максимум {number} вложений.",

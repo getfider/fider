@@ -8,6 +8,7 @@ import { DisplayError, ValidationContext } from "@fider/components"
 interface ToggleProps {
   field?: string
   label?: string
+  ariaLabel?: string
   active: boolean
   disabled?: boolean
   onToggle?: (active: boolean) => void
@@ -43,8 +44,8 @@ export const Toggle: React.FC<ToggleProps> = (props) => {
       {(ctx) => (
         <>
           <HStack spacing={2}>
-            <button onClick={toggle} type="button" className={className} role="switch">
-              <span aria-hidden="true" className="shadow"></span>
+            <button onClick={toggle} type="button" className={className} role="switch" aria-checked={active} aria-label={props.ariaLabel || props.label}>
+              <span aria-hidden="true"></span>
             </button>
             {props.label && <span className="text-sm">{props.label}</span>}
           </HStack>

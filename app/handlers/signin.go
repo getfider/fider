@@ -105,7 +105,8 @@ func SignInByEmail() web.HandlerFunc {
 		}
 
 		return c.Ok(web.Map{
-			"userExists": userExists,
+			"userExists":    userExists,
+			"signUpAllowed": c.Tenant().CanCreateAccountByEmail(action.GetKind()),
 		})
 	}
 }
@@ -126,11 +127,6 @@ func SignInByEmailWithName() web.HandlerFunc {
 			return c.BadRequest(web.Map{
 				"email": "An account with this email already exists. Please sign in.",
 			})
-		}
-
-		// Check if tenant is private (new users not allowed)
-		if c.Tenant().IsPrivate {
-			return c.Forbidden()
 		}
 
 		// Invalidate any previous active verification codes for this email
@@ -215,7 +211,7 @@ func VerifySignInCode() web.HandlerFunc {
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				// User doesn't exist
-				if c.Tenant().IsPrivate {
+				if !c.Tenant().CanCreateAccountByEmail(result.Kind) {
 					return c.Forbidden()
 				}
 
@@ -278,6 +274,16 @@ func ResendSignInCode() web.HandlerFunc {
 			return c.Forbidden()
 		}
 
+		// Unknown email addresses only get a code if they are allowed to create an account
+		if !c.Tenant().CanCreateAccountByEmail(action.GetKind()) {
+			if err := bus.Dispatch(c, &query.GetUserByEmail{Email: action.Email}); err != nil {
+				if errors.Cause(err) == app.ErrNotFound {
+					return c.Ok(web.Map{})
+				}
+				return c.Failure(err)
+			}
+		}
+
 		// Invalidate any previous active verification codes for this email
 		_ = bus.Dispatch(c, &cmd.InvalidateVerificationsByEmail{
 			Email: action.Email,
@@ -315,7 +321,7 @@ func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 		err = bus.Dispatch(c, userByEmail)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				if kind == enum.EmailVerificationKindSignIn && c.Tenant().IsPrivate {
+				if !c.Tenant().CanCreateAccountByEmail(kind) {
 					return NotInvitedPage()(c)
 				}
 
@@ -385,6 +391,10 @@ func CompleteSignInProfile() web.HandlerFunc {
 		if errors.Cause(err) != app.ErrNotFound {
 			// Not possible to create user that already exists
 			return c.BadRequest(web.Map{})
+		}
+
+		if !c.Tenant().CanCreateAccountByEmail(action.Kind) {
+			return c.Forbidden()
 		}
 
 		user := &entity.User{

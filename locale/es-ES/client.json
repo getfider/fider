@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "Actualmente sólo se permite iniciar sesión en una cuenta de administrador",
   "signin.message.private.text": "Si tienes una cuenta o una invitación, puedes usar las siguientes opciones para iniciar sesión.",
   "signin.message.private.title": "<0>{0}</0> es un espacio privado, debes iniciar sesión para participar y votar.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Iniciar sesión con",
   "signin.name.placeholder": "Su nombre",
   "validation.custom.maxattachments": "Se permite un máximo de {number} archivos adjuntos.",

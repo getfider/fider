@@ -603,6 +603,41 @@ func TestUser_Impersonation_ValidUser(t *testing.T) {
 	Expect(response.Body.String()).Equals("Arya Stark")
 }
 
+func TestUser_Impersonation_BlockedKeyOwner(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.AryaStark.ID {
+			q.Result = mock.AryaStark
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		if q.APIKey == "1234567890" {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	mock.JonSnow.Status = enum.UserBlocked
+
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://example.com/api/v1").
+		AddHeader("Authorization", "Bearer 1234567890").
+		AddHeader("X-Fider-UserID", strconv.Itoa(mock.AryaStark.ID)).
+		Execute(func(c *web.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusUnauthorized)
+}
+
 // TestUser_SecurityStamp_Match verifies that a token whose security stamp
 // matches the DB value grants access normally.
 func TestUser_SecurityStamp_Match(t *testing.T) {

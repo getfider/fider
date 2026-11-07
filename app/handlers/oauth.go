@@ -141,8 +141,10 @@ func sanitiseOAuthRedirect(c *web.Context, redirect string) string {
 		return "/"
 	}
 
+	// Go parses "///evil.com" as a path with no host, but browsers skip any run of leading
+	// slashes and treat what follows as the host, so a path must not start with "//".
 	path := u.EscapedPath()
-	if !strings.HasPrefix(path, "/") {
+	if !strings.HasPrefix(path, "/") || strings.HasPrefix(path, "//") {
 		return "/"
 	}
 
@@ -272,8 +274,7 @@ func OAuthToken() web.HandlerFunc {
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				isTrusted := customConfig != nil && customConfig.IsTrusted
-				if c.Tenant().IsPrivate && !isTrusted {
+				if !c.Tenant().CanCreateAccountByOAuth(customConfig) {
 					return c.Redirect("/not-invited")
 				}
 
@@ -296,13 +297,18 @@ func OAuthToken() web.HandlerFunc {
 			} else {
 				return c.Failure(err)
 			}
-		} else if !user.HasProvider(provider) {
-			if err = bus.Dispatch(c, &cmd.RegisterUserProvider{
-				UserID:       user.ID,
-				ProviderName: provider,
-				ProviderUID:  oauthUser.Result.ID,
-			}); err != nil {
-				return c.Failure(err)
+		} else {
+			if !user.HasProvider(provider) {
+				if err = bus.Dispatch(c, &cmd.RegisterUserProvider{
+					UserID:       user.ID,
+					ProviderName: provider,
+					ProviderUID:  oauthUser.Result.ID,
+				}); err != nil {
+					return c.Failure(err)
+				}
+			}
+			if user.Email == "" && oauthUser.Result.Email != "" {
+				backfillUserEmail(c, user, oauthUser.Result.Email)
 			}
 		}
 
@@ -310,6 +316,24 @@ func OAuthToken() web.HandlerFunc {
 
 		return c.Redirect(redirect)
 	}
+}
+
+// backfillUserEmail sets the email of an existing user who has none (e.g. a GitHub
+// user created before Fider fetched private GitHub emails), provided no other user
+// already has it. Failures are logged and don't block sign in.
+func backfillUserEmail(c *web.Context, user *entity.User, email string) {
+	err := bus.Dispatch(c, &query.GetUserByEmail{Email: email})
+	if errors.Cause(err) != app.ErrNotFound {
+		if err != nil {
+			log.Warnf(c, "Failed to check email for user @{UserID}: @{Error}", dto.Props{"UserID": user.ID, "Error": err.Error()})
+		}
+		return
+	}
+	if err := bus.Dispatch(c, &cmd.ChangeUserEmail{UserID: user.ID, Email: email}); err != nil {
+		log.Warnf(c, "Failed to set email for user @{UserID}: @{Error}", dto.Props{"UserID": user.ID, "Error": err.Error()})
+		return
+	}
+	user.Email = email
 }
 
 // getCustomOAuthConfig fetches the custom OAuth provider config for the given provider.

@@ -115,14 +115,19 @@ func activateStripeSubscription(ctx context.Context, c *cmd.ActivateStripeSubscr
 
 func cancelStripeSubscription(ctx context.Context, c *cmd.CancelStripeSubscription) error {
 	return using(ctx, func(trx *dbx.Trx, _ *entity.Tenant, _ *entity.User) error {
-		_, err := trx.Execute(`
+		// Only the tenant's current subscription may downgrade it; an older or duplicate one ending must not.
+		rows, err := trx.Execute(`
 			UPDATE tenants_billing
 			SET stripe_subscription_id = NULL
-			WHERE tenant_id = $1
-		`, c.TenantID)
+			WHERE tenant_id = $1 AND stripe_subscription_id = $2
+		`, c.TenantID, c.SubscriptionID)
 		if err != nil {
 			return errors.Wrap(err, "failed to cancel stripe subscription")
 		}
+		if rows == 0 {
+			return nil
+		}
+		c.Result = true
 
 		_, err = trx.Execute(`
 			UPDATE tenants

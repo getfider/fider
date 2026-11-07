@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "Obecnie możliwe jest logowanie tylko na konto administratora",
   "signin.message.private.text": "Jeśli posiadasz konto lub zaproszenie możesz użyć poniższych opcji aby się zalogować.",
   "signin.message.private.title": "<0>{0}</0> to przestrzeń prywatna, musisz się zalogować, aby uczestniczyć i głosować.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Zaloguj się za pomocą",
   "signin.name.placeholder": "Twoje imię",
   "validation.custom.maxattachments": "Maksymalna liczba załączników to {number}.",

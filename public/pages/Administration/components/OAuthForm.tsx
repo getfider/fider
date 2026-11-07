@@ -1,9 +1,9 @@
 import React, { useState } from "react"
 import { OAuthConfig, OAuthConfigStatus, ImageUpload } from "@fider/models"
 import { Failure, actions } from "@fider/services"
-import { Form, Button, Input, SocialSignInButton, Field, ImageUploader, Toggle } from "@fider/components"
+import { Form, Button, Input, SocialSignInButton, Field, ImageUploader, Toggle, hasError } from "@fider/components"
 import { useFider } from "@fider/hooks"
-import { HStack } from "@fider/components/layout"
+import { HStack, VStack } from "@fider/components/layout"
 
 interface OAuthFormProps {
   config?: OAuthConfig
@@ -33,6 +33,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
   const [logoURL, setLogoURL] = useState<string | undefined>()
   const [logoBlobKey, setLogoBlobKey] = useState((props.config && props.config.logoBlobKey) || "")
   const [error, setError] = useState<Failure | undefined>()
+  const [showAdvanced, setShowAdvanced] = useState(!!(jsonUserRolesPath || allowedRoles))
 
   const handleSave = async () => {
     const result = await actions.saveOAuthConfig({
@@ -57,6 +58,10 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
       location.reload()
     } else {
       setError(result.error)
+      // Don't leave an error hidden inside the collapsed section
+      if (hasError("jsonUserRolesPath", result.error) || hasError("allowedRoles", result.error)) {
+        setShowAdvanced(true)
+      }
     }
   }
 
@@ -75,182 +80,134 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
     setClientSecretEnabled(true)
   }
 
+  const isAdmin = fider.session.user.isAdministrator
+  const siteAccess = fider.session.tenant.isPrivate ? "private" : fider.session.tenant.isSignUpDisabled ? "public with sign-ups disabled" : "public"
   const title = props.config ? `OAuth Provider: ${props.config.displayName}` : "New OAuth Provider"
+
   return (
     <>
-      <h2 className="text-title mb-2">{title}</h2>
+      <h2 className="text-display mb-6">{title}</h2>
       <Form error={error}>
-        <div className="grid grid-cols-4 gap-4">
-          <Input
-            className="col-span-3"
-            field="displayName"
-            label="Display Name"
-            maxLength={50}
-            value={displayName}
-            disabled={!fider.session.user.isAdministrator}
-            onChange={setDisplayName}
-          />
-          <Field className="flex flex-y" label="Button Preview">
-            <SocialSignInButton option={{ displayName: displayName || "Button", provider, logoBlobKey, logoURL }} />
-          </Field>
-        </div>
+        <Input field="displayName" label="Display Name" maxLength={50} value={displayName} disabled={!isAdmin} onChange={setDisplayName} />
 
-        <ImageUploader label="Logo" field="logo" bkey={logoBlobKey} disabled={!fider.session.user.isAdministrator} onChange={handleLogoChange}>
-          <p className="text-muted">
-            We accept JPG, GIF and PNG images, smaller than 50KB and with an aspect ratio of 1:1 with minimum dimensions of 24x24 pixels.
-          </p>
+        <ImageUploader label="Logo" field="logo" bkey={logoBlobKey} disabled={!isAdmin} onChange={handleLogoChange}>
+          <p className="text-muted mt-1">Square JPG, GIF or PNG, smaller than 50KB and at least 24x24 pixels.</p>
         </ImageUploader>
 
-        <Input field="clientID" label="Client ID" maxLength={100} value={clientID} disabled={!fider.session.user.isAdministrator} onChange={setClientID} />
+        <Field label="Button Preview">
+          {/* The preview has no URL, so clicking it would reload the page and lose the form */}
+          <div className="grid w-max-4xl" onClickCapture={(e) => e.preventDefault()}>
+            <SocialSignInButton option={{ displayName: displayName || "Button", provider, logoBlobKey, logoURL }} />
+          </div>
+        </Field>
 
-        <Input
-          field="clientSecret"
-          label="Client Secret"
-          maxLength={500}
-          value={clientSecret}
-          disabled={!clientSecretEnabled}
-          onChange={setClientSecret}
-          afterLabel={
-            !clientSecretEnabled ? (
-              <>
-                <span className="text-muted"> omitted for security reasons.</span>
-                <span className="text-link text-normal text-xs ml-1" onClick={enableClientSecret}>
-                  change
-                </span>
-              </>
-            ) : undefined
-          }
-        />
-        <Input
-          field="authorizeURL"
-          label="Authorize URL"
-          maxLength={300}
-          value={authorizeURL}
-          disabled={!fider.session.user.isAdministrator}
-          onChange={setAuthorizeURL}
-        />
-        <Input field="tokenURL" label="Token URL" maxLength={300} value={tokenURL} disabled={!fider.session.user.isAdministrator} onChange={setTokenURL} />
+        <h3 className="text-title mt-8 mb-1">Credentials</h3>
+        <p className="text-muted mb-4">From the OAuth app you registered with your provider.</p>
 
-        <Input field="scope" label="Scope" maxLength={100} value={scope} disabled={!fider.session.user.isAdministrator} onChange={setScope}>
-          <p className="text-muted">
-            It is recommended to only request the minimum scopes we need to fetch the user <strong>id</strong>, <strong>name</strong> and <strong>email</strong>
-            . Multiple scopes must be separated by space.
+        <Input field="clientID" label="Client ID" maxLength={100} value={clientID} disabled={!isAdmin} onChange={setClientID} />
+
+        <Input field="clientSecret" label="Client Secret" maxLength={500} value={clientSecret} disabled={!clientSecretEnabled} onChange={setClientSecret}>
+          {!clientSecretEnabled && (
+            <p className="text-muted mt-1">
+              Hidden for security reasons.{" "}
+              <Button variant="link" size="no-padding" onClick={enableClientSecret}>
+                Change
+              </Button>
+            </p>
+          )}
+        </Input>
+
+        <Input field="authorizeURL" label="Authorize URL" maxLength={300} value={authorizeURL} disabled={!isAdmin} onChange={setAuthorizeURL} />
+
+        <Input field="tokenURL" label="Token URL" maxLength={300} value={tokenURL} disabled={!isAdmin} onChange={setTokenURL} />
+
+        <Input field="scope" label="Scope" maxLength={100} value={scope} disabled={!isAdmin} onChange={setScope}>
+          <p className="text-muted mt-1">
+            Separate scopes with a space. Only request what&apos;s needed to read the user&apos;s <strong>id</strong>, <strong>name</strong> and{" "}
+            <strong>email</strong>.
           </p>
         </Input>
 
-        <h3 className="text-title mt-8 mb-2">User Profile</h3>
-        <p className="text-muted">This section is used to configure how Fider will fetch user after the authentication process.</p>
-
-        <Input
-          field="profileURL"
-          label="Profile API URL"
-          maxLength={300}
-          value={profileURL}
-          disabled={!fider.session.user.isAdministrator}
-          onChange={setProfileURL}
-        >
-          <p className="text-muted">The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the Access Token.</p>
-        </Input>
-
-        <h3 className="text-title mt-8 mb-2">JSON Path</h3>
-        <p>
-          Find out more about{" "}
+        <h3 className="text-title mt-8 mb-1">User Profile</h3>
+        <p className="text-muted mb-4">
+          How Fider reads the user&apos;s details after they sign in.{" "}
           <a rel="noopener" className="text-link" target="_blank" href="https://docs.fider.io/configuring-oauth#configuring-the-json-paths">
-            configuring the JSON Paths
+            Learn about JSON paths
           </a>
           .
         </p>
 
-        <div className="grid grid-cols-4 gap-4">
-          <Input
-            field="jsonUserIDPath"
-            label="ID"
-            maxLength={100}
-            value={jsonUserIDPath}
-            disabled={!fider.session.user.isAdministrator}
-            onChange={setJSONUserIDPath}
-          >
-            <p className="text-muted">Make sure it&apos;s unique. </p>
+        <Input field="profileURL" label="Profile API URL" maxLength={300} value={profileURL} disabled={!isAdmin} onChange={setProfileURL}>
+          <p className="text-muted mt-1">Leave empty to read the user&apos;s details from the access token.</p>
+        </Input>
+
+        <div className="grid grid-cols-3 gap-x-4">
+          <Input field="jsonUserIDPath" label="ID JSON Path" maxLength={100} value={jsonUserIDPath} disabled={!isAdmin} onChange={setJSONUserIDPath}>
+            <p className="text-muted mt-1">Required. Must be unique.</p>
           </Input>
-          <Input
-            field="jsonUserNamePath"
-            label="Name"
-            maxLength={100}
-            value={jsonUserNamePath}
-            disabled={!fider.session.user.isAdministrator}
-            onChange={setJSONUserNamePath}
-          >
-            <p className="text-muted">
-              Optional, but <strong>highly</strong> recommended.
-            </p>
+          <Input field="jsonUserNamePath" label="Name JSON Path" maxLength={100} value={jsonUserNamePath} disabled={!isAdmin} onChange={setJSONUserNamePath}>
+            <p className="text-muted mt-1">Recommended.</p>
           </Input>
           <Input
             field="jsonUserEmailPath"
-            label="Email"
+            label="Email JSON Path"
             maxLength={100}
             value={jsonUserEmailPath}
-            disabled={!fider.session.user.isAdministrator}
+            disabled={!isAdmin}
             onChange={setJSONUserEmailPath}
           >
-            <p className="text-muted">
-              Optional, but <strong>highly</strong> recommended.
-            </p>
-          </Input>
-          <Input
-            field="jsonUserRolesPath"
-            label="Roles"
-            maxLength={100}
-            value={jsonUserRolesPath}
-            disabled={!fider.session.user.isAdministrator}
-            onChange={setJSONUserRolesPath}
-          >
-            <p className="text-muted">Optional. JSON path to extract roles from the provider profile.</p>
+            <p className="text-muted mt-1">Recommended.</p>
           </Input>
         </div>
 
-        <Input
-          field="allowedRoles"
-          label="Allowed Roles"
-          maxLength={500}
-          value={allowedRoles}
-          disabled={!fider.session.user.isAdministrator}
-          onChange={setAllowedRoles}
-        >
-          <p className="text-muted">
-            Optional. Comma-separated list of roles allowed to sign in, e.g. <strong>ROLE_ADMIN,ROLE_TEACHER</strong>. Only enforced when a Roles JSON path is
-            also configured. Leave empty to allow all roles.
-          </p>
-        </Input>
+        <h3 className="text-title mt-8 mb-4">Access</h3>
 
-        <Field label="Trusted Source">
-          <Toggle field="isTrusted" active={isTrusted} onToggle={setTrusted} label={isTrusted ? "Yes" : "No"} />
-          <p className="text-muted mt-1">
-            This setting only applies to private sites. This site is currently <strong>{fider.session.tenant.isPrivate ? "Private" : "Public"}</strong>.
-          </p>
-          <p className="text-muted">
-            If enabled, users authenticated by this provider can get access to this site without being invited. This is recommended for corporate access, such
-            as Okta, Microsoft AD, Google Workspace and others. Do not use this for public identity providers such as Facebook or Twitter.
-          </p>
-        </Field>
+        <VStack spacing={6}>
+          <HStack justify="between" align="start" spacing={4}>
+            <div>
+              <strong>Trusted source</strong>
+              <p className="text-muted mt-1">
+                Users from this provider can join without an invite, even when the site is private or sign-ups are disabled. Use it for company identity
+                providers like Okta or Microsoft Entra, not public ones like Facebook. This site is currently <strong>{siteAccess}</strong>.
+              </p>
+            </div>
+            <Toggle field="isTrusted" ariaLabel="Trusted source" active={isTrusted} onToggle={setTrusted} />
+          </HStack>
 
-        <Field label="Status">
-          <Toggle field="status" disabled={props.cantDisable} active={enabled} onToggle={setEnabled} label={enabled ? "Enabled" : "Disabled"} />
-          <div className="mt-1">
-            {enabled ? (
-              <>
-                {props.cantDisable && <p className="text-muted my-1">You need to enable email authentication if you want to disable all OAuth providers.</p>}
-                <p className="text-muted mt-1">
-                  This provider will be available for everyone to use during the sign in process. It is recommended that you keep it disable and test it before
-                  enabling it. The Test button is available after saving this configuration.
-                </p>
-              </>
-            ) : (
-              <p className="text-muted">Users won&apos;t be able to sign in with this Provider.</p>
-            )}
-          </div>
-        </Field>
+          <HStack justify="between" align="start" spacing={4}>
+            <div>
+              <strong>Enabled</strong>
+              <p className="text-muted mt-1">
+                {enabled
+                  ? "Shown on the sign in page. Test it before enabling: the Test button appears once you've saved."
+                  : "Hidden from the sign in page. Users can't sign in with this provider."}
+              </p>
+              {props.cantDisable && <p className="text-muted mt-1">Enable email authentication before disabling your last OAuth provider.</p>}
+            </div>
+            <Toggle field="status" ariaLabel="Enabled" disabled={props.cantDisable} active={enabled} onToggle={setEnabled} />
+          </HStack>
+        </VStack>
 
-        <HStack className="mt-2">
+        <details className="mt-8" open={showAdvanced} onToggle={(e) => setShowAdvanced(e.currentTarget.open)}>
+          <summary className="text-title clickable mb-4">Advanced</summary>
+          <Input
+            field="jsonUserRolesPath"
+            label="Roles JSON Path"
+            maxLength={100}
+            value={jsonUserRolesPath}
+            disabled={!isAdmin}
+            onChange={setJSONUserRolesPath}
+          >
+            <p className="text-muted mt-1">Where to find the user&apos;s roles in their profile.</p>
+          </Input>
+          <Input field="allowedRoles" label="Allowed Roles" maxLength={500} value={allowedRoles} disabled={!isAdmin} onChange={setAllowedRoles}>
+            <p className="text-muted mt-1">
+              Comma-separated, e.g. <strong>ROLE_ADMIN,ROLE_TEACHER</strong>. Only enforced when a Roles JSON Path is set. Leave empty to allow everyone.
+            </p>
+          </Input>
+        </details>
+
+        <HStack className="mt-8">
           <Button variant="primary" onClick={handleSave}>
             Save
           </Button>

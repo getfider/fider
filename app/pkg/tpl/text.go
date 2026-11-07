@@ -1,6 +1,7 @@
 package tpl
 
 import (
+	"html"
 	"strings"
 	"text/template"
 
@@ -10,7 +11,9 @@ import (
 func GetTextTemplate(name string, rawText string) (*template.Template, error) {
 	tpl, err := template.New(name).Funcs(templateFunctions).Funcs(template.FuncMap{
 		"markdown": func(input string) string {
-			return markdown.PlainText(input)
+			// Kept HTML-escaped: webhook destinations such as Slack read "<...>" as
+			// control sequences, and HTML destinations must not receive raw tags.
+			return html.EscapeString(markdown.PlainText(input))
 		},
 	}).Parse(rawText)
 	if err != nil {

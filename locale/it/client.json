@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "Al momento è consentito accedere solo agli account amministratore",
   "signin.message.private.text": "Se si dispone di un account o di un invito, è possibile utilizzare le seguenti opzioni per accedere.",
   "signin.message.private.title": "<0>{0}</0> è uno spazio privato, è necessario registrarsi per partecipare e votare.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Accedi con",
   "signin.name.placeholder": "Il tuo nome",
   "validation.custom.maxattachments": "Sono consentiti al massimo {number} allegati.",

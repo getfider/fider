@@ -77,8 +77,7 @@ pre:last-child {
 }
 
 .text-muted {
-  font-size: get("font.size.xs");
-  color: var(--colors-gray-600);
+  font-size: get("font.size.sm");
 }
 
 .text-link {

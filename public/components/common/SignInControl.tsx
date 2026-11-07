@@ -61,8 +61,23 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     const result = await actions.signIn(email)
     if (result.ok) {
       setError(undefined)
-      const data = result.data as { userExists?: boolean } | undefined
+      const data = result.data
       if (data && data.userExists === false) {
+        if (!data.signUpAllowed) {
+          // The server decided this email address can't be used to create a new account
+          setError({
+            errors: [
+              {
+                field: "email",
+                message: i18n._({
+                  id: "signin.message.signupdisabled",
+                  message: "We couldn't find an account for this email address. New sign-ups are currently disabled.",
+                }),
+              },
+            ],
+          })
+          return
+        }
         // New user - show name field
         setEmailSignInStep(EmailSigninStep.EnterName)
       } else {

@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "Currently only allowed to sign in to an administrator account",
   "signin.message.private.text": "If you have an account or an invitation, you may use following options to sign in.",
   "signin.message.private.title": "<0>{0}</0> is a private space, you must sign in to participate and vote.",
+  "signin.message.signupdisabled": "We couldn't find an account for this email address. New sign-ups are currently disabled.",
   "signin.message.socialbutton.intro": "Continue with",
   "signin.name.placeholder": "Your name",
   "validation.custom.maxattachments": "A maximum of {number} attachments are allowed.",
