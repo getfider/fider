@@ -242,6 +242,7 @@
   "signin.message.onlyadmins": "De momento, apenas é permitido iniciar sessão com uma conta de administrador",
   "signin.message.private.text": "Se tem uma conta ou um convite, pode utilizar as opções seguintes para iniciar sessão.",
   "signin.message.private.title": "<0>{0}</0> é um espaço privado, tem de iniciar sessão para participar e votar.",
+  "signin.message.signupdisabled": "Não encontrámos nenhuma conta com este endereço de email. De momento, os novos registos estão desativados.",
   "signin.message.socialbutton.intro": "Continuar com",
   "signin.name.placeholder": "O seu nome",
   "validation.custom.maxattachments": "É permitido um máximo de {number} anexos.",
