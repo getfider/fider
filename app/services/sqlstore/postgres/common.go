@@ -16,11 +16,25 @@ import (
 // This allows both Latin and non-Latin scripts to be preserved for full-text search.
 var allowedTextRunes = regexp.MustCompile(`[^\p{L}\p{N} |]+`)
 var replaceOr = strings.NewReplacer("|", " ")
+var cjkRunes = regexp.MustCompile(`[\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}]`)
 
 // ToTSQuery converts input to another string that can be safely used for ts_query
 func ToTSQuery(input string) string {
 	input = replaceOr.Replace(allowedTextRunes.ReplaceAllString(input, " "))
 	return strings.Join(strings.Fields(input), "|")
+}
+
+// cjkLikePatterns returns ILIKE patterns for the CJK words of a ToTSQuery result.
+// Postgres has no CJK parser, so a run of these characters is a single lexeme and
+// a word inside it can't be found through the tsvector.
+func cjkLikePatterns(tsQuery string) []string {
+	var patterns []string
+	for _, word := range strings.Split(tsQuery, "|") {
+		if cjkRunes.MatchString(word) {
+			patterns = append(patterns, "%"+word+"%")
+		}
+	}
+	return patterns
 }
 
 // SanitizeString converts input to another string that only contains utf-8 characters and not-null characters
