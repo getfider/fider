@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/getfider/fider/app/pkg/env"
 )
@@ -17,9 +18,18 @@ func RunPing() int {
 	host := "localhost:" + env.Config.Port
 	protocol := "http://"
 	if env.Config.TLS.Certificate != "" || env.Config.TLS.Automatic {
-		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
+		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true,
 		}
+		// Use the site's hostname for SNI instead of "localhost". With SSL_AUTO the server can
+		// only get certificates for real domain names, so a handshake for "localhost" fails with
+		// "acme/autocert: server name component count invalid".
+		if env.IsSingleHostMode() {
+			if u, err := url.Parse(env.Config.BaseURL); err == nil {
+				tlsConfig.ServerName = u.Hostname()
+			}
+		}
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = tlsConfig
 		protocol = "https://"
 	}
 
