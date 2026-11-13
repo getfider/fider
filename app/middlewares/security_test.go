@@ -112,6 +112,45 @@ func TestSecureWithCDN_SingleHost(t *testing.T) {
 	Expect(response.Header().Get("Referrer-Policy")).Equals("no-referrer-when-downgrade")
 }
 
+func TestSecureWithCSPAllowedHosts(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.CSPAllowedHosts = "https://stats.example.com https://cdn.example.com"
+
+	server := mock.NewServer()
+	server.Use(middlewares.Secure())
+
+	var ctxID string
+	status, response := server.Execute(func(c *web.Context) error {
+		ctxID = c.ContextID()
+		return c.NoContent(http.StatusOK)
+	})
+
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" + ctxID + "' https://stats.example.com https://cdn.example.com; img-src 'self' https: data:; font-src 'self' data:; object-src 'none'; media-src 'none'; connect-src 'self' https://stats.example.com https://cdn.example.com; frame-src 'self'; frame-ancestors 'self'"
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
+}
+
+func TestSecureWithCSPAllowedHostsAndGoogleAnalytics(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.GoogleAnalytics = "G-TEST123"
+	env.Config.CSPAllowedHosts = "https://stats.example.com"
+
+	server := mock.NewServer()
+	server.Use(middlewares.Secure())
+
+	status, response := server.Execute(func(c *web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	csp := response.Header().Get("Content-Security-Policy")
+	Expect(status).Equals(http.StatusOK)
+	Expect(csp).ContainsSubstring(" https://www.googletagmanager.com https://stats.example.com; img-src")
+	Expect(csp).ContainsSubstring(" https://pagead2.googlesyndication.com https://stats.example.com; frame-src")
+}
+
 func TestSecureWithGoogleAnalytics(t *testing.T) {
 	RegisterT(t)
 

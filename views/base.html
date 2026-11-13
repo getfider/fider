@@ -76,5 +76,6 @@
     <link rel="stylesheet" href="{{ .public.settings.assetsURL }}/static/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
     {{ end }}
   {{ end }}
+  {{- template "custom.html" . }}
 </body>
 </html>

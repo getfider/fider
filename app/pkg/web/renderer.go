@@ -251,7 +251,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 		}
 	}
 
-	tmpl := tpl.GetTemplate("/views/base.html", "/views/"+templateName)
+	tmpl := tpl.GetTemplate("/views/base.html", "/views/"+templateName, "/views/custom.html")
 	err = tpl.Render(ctx, tmpl, w, Map{
 		"public":  public,
 		"private": private,
