@@ -178,6 +178,7 @@
   "newpost.modal.title": "Share your idea...",
   "newpost.modal.title.label": "Give your idea a title",
   "newpost.modal.title.placeholder": "Something short and snappy, sum it up in a few words",
+  "newpost.modal.title.tooshort": "Title must be at least {minimum} characters ({remaining} more needed).",
   "page.backhome": "Take me back to <0>{0}</0> home page.",
   "page.pendingactivation.didntreceive": "Didn't receive the email?",
   "page.pendingactivation.resend": "Resend verification email",

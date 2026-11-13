@@ -178,6 +178,7 @@
   "newpost.modal.title": "あなたのアイデアを共有してください...",
   "newpost.modal.title.label": "アイデアにタイトルをつける",
   "newpost.modal.title.placeholder": "短くて簡潔なもの、一言でまとめましょう",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "<0>{0}</0>のホームページに戻ります。",
   "page.pendingactivation.didntreceive": "メールが届きませんか？",
   "page.pendingactivation.resend": "確認メールを再送信",
