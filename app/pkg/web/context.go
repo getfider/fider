@@ -509,6 +509,13 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 
 	_, err := c.Response.Write(b)
 	if err != nil {
+		if isClientGone(err) {
+			log.Debugf(c, "Client went away before response was written: @{URL} (@{Error})", dto.Props{
+				"URL":   c.Request.URL.String(),
+				"Error": err.Error(),
+			})
+			return nil
+		}
 		elapsed := time.Since(c.Request.StartTime)
 		return errors.Wrap(err, "failed to write blob response: url=%s method=%s contentType=%s size=%d bytes status=%d elapsed=%dms",
 			c.Request.URL.String(),
