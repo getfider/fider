@@ -15,5 +15,9 @@ type ActivateStripeSubscription struct {
 }
 
 type CancelStripeSubscription struct {
-	TenantID int
+	TenantID       int
+	SubscriptionID string
+
+	// Result is false when SubscriptionID isn't the tenant's current subscription (nothing changed)
+	Result bool
 }

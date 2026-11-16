@@ -8,6 +8,11 @@
   padding-right: 45px;
   padding-bottom: 40px;
 
+  @include media("sm") {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   &__oauth {
     display: flex;
     flex-direction: column;

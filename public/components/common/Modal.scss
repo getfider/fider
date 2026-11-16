@@ -47,8 +47,10 @@ $c-modal-dimmer-padding: 1em;
 
 .c-modal-scroller {
   min-height: calc(100vh - #{2 * $c-modal-dimmer-padding});
+  width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .c-modal-window {

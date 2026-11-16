@@ -10,21 +10,23 @@
   padding: 0;
   position: relative;
   display: inline-flex;
-  height: sizing(5);
-  width: sizing(9);
+  flex-shrink: 0;
+  height: sizing(6);
+  width: sizing(12);
   border: 2px solid transparent;
-  background-color: var(--colors-gray-200);
+  background-color: var(--colors-gray-600);
   border-radius: 50px;
   cursor: pointer;
   @include transition();
 
   span {
     pointer-events: none;
-    height: sizing(4);
-    width: sizing(4);
+    height: sizing(5);
+    width: sizing(7);
     display: inline-block;
     border-radius: 50px;
     background-color: var(--colors-white);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     transform: matrix(1, 0, 0, 1, 0, 0);
     @include transition();
   }

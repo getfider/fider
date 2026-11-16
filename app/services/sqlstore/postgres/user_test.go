@@ -332,6 +332,7 @@ func TestUserStorage_DefaultUserSettings(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(getSettings.Result).Equals(map[string]string{
 		enum.NotificationEventChangeStatus.UserSettingsKeyName: enum.NotificationEventChangeStatus.DefaultSettingValue,
+		enum.NotificationEventMention.UserSettingsKeyName:      enum.NotificationEventMention.DefaultSettingValue,
 	})
 }
 
@@ -354,6 +355,7 @@ func TestUserStorage_SaveGetUserSettings(t *testing.T) {
 	Expect(firstSettings.Result).Equals(map[string]string{
 		enum.NotificationEventNewPost.UserSettingsKeyName:      "0",
 		enum.NotificationEventChangeStatus.UserSettingsKeyName: "1",
+		enum.NotificationEventMention.UserSettingsKeyName:      enum.NotificationEventMention.DefaultSettingValue,
 	})
 
 	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{Settings: nil})
@@ -440,4 +442,46 @@ func TestUserStorage_BlockUser(t *testing.T) {
 	err = bus.Dispatch(demoTenantCtx, &cmd.UnblockUser{UserID: userID}, getUser)
 	Expect(err).IsNil()
 	Expect(getUser.Result.Status).Equals(enum.UserActive)
+}
+
+func TestUserStorage_SearchUsers_ByLevel(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	search := func(roles ...string) []string {
+		q := &query.SearchUsers{Roles: roles}
+		err := bus.Dispatch(demoTenantCtx, q)
+		Expect(err).IsNil()
+		Expect(q.TotalCount).Equals(len(q.Result))
+		names := make([]string, len(q.Result))
+		for i, u := range q.Result {
+			names[i] = u.Name
+		}
+		return names
+	}
+
+	// Jon is an administrator, Arya and Sansa are visitors
+	err := bus.Dispatch(demoTenantCtx, &cmd.TrustUser{UserID: 2})
+	Expect(err).IsNil()
+
+	Expect(search("administrator")).Equals([]string{"Jon Snow"})
+	Expect(search("visitor")).Equals([]string{"Arya Stark", "Sansa Stark"})
+	Expect(search("trusted")).Equals([]string{"Arya Stark"})
+	Expect(search("member")).Equals([]string{"Sansa Stark"})
+	Expect(search("blocked")).Equals([]string{})
+
+	err = bus.Dispatch(demoTenantCtx, &cmd.BlockUser{UserID: 3})
+	Expect(err).IsNil()
+
+	Expect(search("member")).Equals([]string{})
+	Expect(search("blocked")).Equals([]string{"Sansa Stark"})
+	Expect(search("visitor")).Equals([]string{"Arya Stark", "Sansa Stark"})
+	Expect(search("administrator", "blocked")).Equals([]string{"Jon Snow", "Sansa Stark"})
+
+	// A blocked administrator only shows up as blocked
+	err = bus.Dispatch(demoTenantCtx, &cmd.BlockUser{UserID: 1})
+	Expect(err).IsNil()
+
+	Expect(search("administrator")).Equals([]string{})
+	Expect(search("blocked")).Equals([]string{"Jon Snow", "Sansa Stark"})
 }

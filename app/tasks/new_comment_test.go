@@ -69,8 +69,9 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.JonSnow,
+		IsApproved:  true,
 	}
-	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree"}, post)
+	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree", User: mock.AryaStark, IsApproved: true}, post)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -184,8 +185,9 @@ func TestNotifyAboutNewCommentTask_WithMention(t *testing.T) {
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.JonSnow,
+		IsApproved:  true,
 	}
-	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree with @[Jon Snow]"}, post)
+	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree with @[Jon Snow]", User: mock.AryaStark, IsApproved: true}, post)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -295,13 +297,15 @@ func TestNotifyAboutUpdatedComment(t *testing.T) {
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.JonSnow,
+		IsApproved:  true,
 	}
 
 	comment := &entity.Comment{
-		ID:        1,
-		Content:   "I agree with @[Jon Snow] but not @[Arya Stark]",
-		CreatedAt: time.Now(),
-		User:      mock.AryaStark,
+		ID:         1,
+		Content:    "I agree with @[Jon Snow] but not @[Arya Stark]",
+		CreatedAt:  time.Now(),
+		User:       mock.AryaStark,
+		IsApproved: true,
 	}
 
 	task := tasks.NotifyAboutUpdatedComment(post, comment)
@@ -386,13 +390,15 @@ func TestNotifyAboutUpdatedComment_UserAlreadyMentioned(t *testing.T) {
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
 		User:        mock.JonSnow,
+		IsApproved:  true,
 	}
 
 	comment := &entity.Comment{
-		ID:        1,
-		Content:   "I agree with @[Jon Snow] but not @[Arya Stark]",
-		CreatedAt: time.Now(),
-		User:      mock.AryaStark,
+		ID:         1,
+		Content:    "I agree with @[Jon Snow] but not @[Arya Stark]",
+		CreatedAt:  time.Now(),
+		User:       mock.AryaStark,
+		IsApproved: true,
 	}
 
 	task := tasks.NotifyAboutUpdatedComment(post, comment)
@@ -442,13 +448,14 @@ func TestNotifyAboutNewCommentTask_EscapesAuthorNameAndTitleInEmail(t *testing.T
 
 	worker := mock.NewWorker()
 	post := &entity.Post{
-		ID:     1,
-		Number: 1,
-		Title:  "Tom & Jerry <3 <b>bold</b>",
-		Slug:   "tom-jerry-3-bold",
-		User:   mock.JonSnow,
+		ID:         1,
+		Number:     1,
+		Title:      "Tom & Jerry <3 <b>bold</b>",
+		Slug:       "tom-jerry-3-bold",
+		User:       mock.JonSnow,
+		IsApproved: true,
 	}
-	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree"}, post)
+	task := tasks.NotifyAboutNewComment(&entity.Comment{Content: "I agree", User: &author, IsApproved: true}, post)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).

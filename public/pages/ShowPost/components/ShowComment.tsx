@@ -190,7 +190,7 @@ export const ShowComment = (props: ShowCommentProps) => {
         <div ref={node} className={`c-comment__card ${classList}`}>
           <div className="mb-1">
             <HStack justify="between">
-              <HStack>
+              <HStack spacing={0} className="flex-wrap gap-2">
                 <UserName user={comment.user} /> <span className="text-sm text-gray-400">•</span>
                 <div className="text-xs">
                   <Moment locale={fider.currentLocale} date={comment.createdAt} /> {editedMetadata}

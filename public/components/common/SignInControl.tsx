@@ -12,7 +12,6 @@ interface SignInControlProps {
   useEmail: boolean
   redirectTo?: string
   onSubmit?: () => void
-  onEmailSent?: (email: string) => void
   signInButtonText?: string
   onCodeVerified?: () => void
 }
@@ -62,8 +61,23 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
     const result = await actions.signIn(email)
     if (result.ok) {
       setError(undefined)
-      const data = result.data as { userExists?: boolean } | undefined
+      const data = result.data
       if (data && data.userExists === false) {
+        if (!data.signUpAllowed) {
+          // The server decided this email address can't be used to create a new account
+          setError({
+            errors: [
+              {
+                field: "email",
+                message: i18n._({
+                  id: "signin.message.signupdisabled",
+                  message: "We couldn't find an account for this email address. New sign-ups are currently disabled.",
+                }),
+              },
+            ],
+          })
+          return
+        }
         // New user - show name field
         setEmailSignInStep(EmailSigninStep.EnterName)
       } else {
@@ -198,7 +212,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
       {props.useEmail &&
         (showEmailForm ? (
           <div className="pt-3">
-            <Form error={error} autoComplete={emailSignInStep === EmailSigninStep.EnterCode ? "on" : "off"} onSubmit={handleFormSubmit}>
+            <Form error={error} autoComplete="on" onSubmit={handleFormSubmit}>
               {(emailSignInStep === EmailSigninStep.EnterEmail || emailSignInStep === EmailSigninStep.EnterName) && renderEmailField()}
 
               {emailSignInStep === EmailSigninStep.EnterName && renderNameField()}
@@ -231,6 +245,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         field="name"
         value={userName}
         autoFocus={!device.isTouch()}
+        autoComplete="name"
         onChange={setUserName}
         placeholder={i18n._({ id: "signin.name.placeholder", message: "Your name" })}
         maxLength={100}
@@ -244,6 +259,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
         <Input
           className="text-left"
           field="email"
+          type="email"
           value={email}
           disabled={emailSignInStep === EmailSigninStep.EnterName}
           autoFocus={!device.isTouch()}

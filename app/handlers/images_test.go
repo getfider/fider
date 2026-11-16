@@ -17,6 +17,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/services/blob/fs"
 
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -164,6 +165,21 @@ func TestViewUploadedImage_Resize(t *testing.T) {
 	width, height := responseDimensions(response.Body.Bytes())
 	Expect(width).Equals(500)
 	Expect(height).Equals(250)
+}
+
+func TestViewUploadedImage_InvalidKey_NotFound(t *testing.T) {
+	RegisterT(t)
+	bus.Init(fs.Service{})
+
+	for _, bkey := range []string{"../../../../etc/passwd", "attachments/../../secret.png", "logos/"} {
+		server := mock.NewServer()
+		code, _ := server.
+			OnTenant(mock.DemoTenant).
+			AddParam("bkey", bkey).
+			Execute(handlers.ViewUploadedImage())
+
+		Expect(code).Equals(http.StatusNotFound)
+	}
 }
 
 func TestViewUploadedImage_DecompressionBomb_ServedWithoutDecoding(t *testing.T) {

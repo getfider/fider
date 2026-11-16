@@ -407,8 +407,9 @@ func UpdateComment() web.HandlerFunc {
 		}
 
 		comment := &entity.Comment{
-			ID:      action.ID,
-			Content: action.Content,
+			ID:         action.ID,
+			Content:    action.Content,
+			IsApproved: action.Comment.IsApproved,
 		}
 
 		err := bus.Dispatch(c,

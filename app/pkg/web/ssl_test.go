@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"crypto/tls"
+	"strings"
 	"testing"
 	"time"
 
@@ -53,6 +54,10 @@ func TestUseAutoCert_WhenCNAMEAreRegistered(t *testing.T) {
 	cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
 		ServerName: "ssltest.fider.dev",
 	})
+	// The Let's Encrypt staging API is sometimes offline (e.g. planned maintenance)
+	if err != nil && strings.Contains(err.Error(), "acme-staging-v02.api.letsencrypt.org/directory") {
+		t.Skipf("Let's Encrypt staging is unreachable: %v", err)
+	}
 	Expect(err.Error()).ContainsSubstring(`acme/autocert: unable to satisfy`)
 	Expect(err.Error()).ContainsSubstring(`for domain "ssltest.fider.dev": no viable challenge type found`)
 	Expect(cert).IsNil()

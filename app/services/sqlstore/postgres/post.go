@@ -157,6 +157,13 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 			return errors.Wrap(err, "failed to update post's response")
 		}
 
+		if c.Status == enum.PostDeleted {
+			_, err = trx.Execute("DELETE FROM notifications WHERE tenant_id = $1 AND post_id = $2", tenant.ID, c.Post.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed to delete notifications of deleted post")
+			}
+		}
+
 		c.Post.Status = c.Status
 		c.Post.Response = &entity.PostResponse{
 			Text:        c.Text,

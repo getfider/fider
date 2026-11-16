@@ -198,6 +198,54 @@ func TestUpdatePrivacySettingsHandler(t *testing.T) {
 	Expect(updateCmd.IsFeedEnabled).IsTrue()
 }
 
+func TestUpdatePrivacySettingsHandler_SignUpDisabled(t *testing.T) {
+	RegisterT(t)
+
+	var updateCmd *cmd.UpdateTenantPrivacySettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantPrivacySettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": false, "isFeedEnabled": true, "isSignUpDisabled": true }`,
+		)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(updateCmd.IsPrivate).IsFalse()
+	Expect(updateCmd.IsSignUpDisabled).IsTrue()
+}
+
+func TestUpdatePrivacySettingsHandler_SignUpDisabled_MissingField(t *testing.T) {
+	RegisterT(t)
+
+	var updateCmd *cmd.UpdateTenantPrivacySettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantPrivacySettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	server := mock.NewServer()
+	mock.DemoTenant.IsSignUpDisabled = true
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacySettings(),
+			`{ "isPrivate": false, "isFeedEnabled": true }`,
+		)
+
+	// Requests without the field (e.g. from an outdated frontend) keep the current value
+	Expect(code).Equals(http.StatusOK)
+	Expect(updateCmd.IsSignUpDisabled).IsTrue()
+}
+
 func TestManageMembersHandler(t *testing.T) {
 	RegisterT(t)
 

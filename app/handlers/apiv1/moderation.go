@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 )
 
 // ApprovePost approves a post
@@ -17,7 +18,7 @@ func ApprovePost() web.HandlerFunc {
 			return c.BadRequest(web.Map{"error": "Invalid post ID"})
 		}
 
-		if err := bus.Dispatch(c, &cmd.ApprovePost{PostID: postID}); err != nil {
+		if err := approvePost(c, postID); err != nil {
 			return c.Failure(err)
 		}
 
@@ -49,7 +50,7 @@ func ApproveComment() web.HandlerFunc {
 			return c.BadRequest(web.Map{"error": "Invalid comment ID"})
 		}
 
-		if err := bus.Dispatch(c, &cmd.ApproveComment{CommentID: commentID}); err != nil {
+		if err := approveComment(c, commentID); err != nil {
 			return c.Failure(err)
 		}
 
@@ -140,7 +141,7 @@ func ApprovePostAndVerify() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if err := bus.Dispatch(c, &cmd.ApprovePost{PostID: postID}); err != nil {
+		if err := approvePost(c, postID); err != nil {
 			return c.Failure(err)
 		}
 
@@ -165,7 +166,7 @@ func ApproveCommentAndVerify() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if err := bus.Dispatch(c, &cmd.ApproveComment{CommentID: commentID}); err != nil {
+		if err := approveComment(c, commentID); err != nil {
 			return c.Failure(err)
 		}
 
@@ -175,4 +176,40 @@ func ApproveCommentAndVerify() web.HandlerFunc {
 
 		return c.Ok(web.Map{})
 	}
+}
+
+// approvePost approves a pending post and notifies the subscribers that were held back while it was pending
+func approvePost(c *web.Context, postID int) error {
+	approve := &cmd.ApprovePost{PostID: postID}
+	if err := bus.Dispatch(c, approve); err != nil || !approve.Result {
+		return err
+	}
+
+	getPost := &query.GetPostByID{PostID: postID}
+	if err := bus.Dispatch(c, getPost); err != nil {
+		return err
+	}
+
+	c.Enqueue(tasks.NotifyAboutApprovedPost(getPost.Result))
+	return nil
+}
+
+// approveComment approves a pending comment and notifies the subscribers that were held back while it was pending
+func approveComment(c *web.Context, commentID int) error {
+	approve := &cmd.ApproveComment{CommentID: commentID}
+	if err := bus.Dispatch(c, approve); err != nil || approve.Result == 0 {
+		return err
+	}
+
+	getPost := &query.GetPostByID{PostID: approve.Result}
+	getComment := &query.GetCommentByID{CommentID: commentID}
+	if err := bus.Dispatch(c, getPost, getComment); err != nil {
+		return err
+	}
+
+	// A comment on a still-pending post stays staff-only
+	if getPost.Result.IsApproved {
+		c.Enqueue(tasks.NotifyAboutApprovedComment(getComment.Result, getPost.Result))
+	}
+	return nil
 }

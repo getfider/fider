@@ -25,6 +25,9 @@ func TestNotificationTitles_EscapeMarkdownInNamesAndTitles(t *testing.T) {
 	title := "_Urgent_ www.evil.example ![i](x.png)"
 	escapedTitle := `\_Urgent\_ www\.evil\.example \!\[i\]\(x\.png\)`
 
+	author := *mock.AryaStark
+	author.Name = name
+
 	newPost := func() *entity.Post {
 		return &entity.Post{
 			ID:          1,
@@ -32,7 +35,8 @@ func TestNotificationTitles_EscapeMarkdownInNamesAndTitles(t *testing.T) {
 			Title:       title,
 			Slug:        "urgent",
 			Description: "Hello @[Jon Snow]",
-			User:        mock.AryaStark,
+			User:        &author,
+			IsApproved:  true,
 			Status:      enum.PostDuplicate,
 			Response: &entity.PostResponse{
 				RespondedAt: time.Now(),
@@ -61,7 +65,7 @@ func TestNotificationTitles_EscapeMarkdownInNamesAndTitles(t *testing.T) {
 		},
 		{
 			task: func(post *entity.Post) worker.Task {
-				return tasks.NotifyAboutNewComment(&entity.Comment{Content: "Hello @[Jon Snow]"}, post)
+				return tasks.NotifyAboutNewComment(&entity.Comment{Content: "Hello @[Jon Snow]", User: &author, IsApproved: true}, post)
 			},
 			expected: []string{
 				"**" + escapedName + "** left a comment on **" + escapedTitle + "**",
@@ -70,7 +74,7 @@ func TestNotificationTitles_EscapeMarkdownInNamesAndTitles(t *testing.T) {
 		},
 		{
 			task: func(post *entity.Post) worker.Task {
-				return tasks.NotifyAboutUpdatedComment(post, &entity.Comment{Content: "Hello @[Jon Snow]"})
+				return tasks.NotifyAboutUpdatedComment(post, &entity.Comment{Content: "Hello @[Jon Snow]", User: &author, IsApproved: true})
 			},
 			expected: []string{
 				"**" + escapedName + "** mentioned you in **" + escapedTitle + "**",
@@ -112,9 +116,6 @@ func TestNotificationTitles_EscapeMarkdownInNamesAndTitles(t *testing.T) {
 		bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
 			return nil
 		})
-
-		author := *mock.AryaStark
-		author.Name = name
 
 		err := mock.NewWorker().
 			OnTenant(mock.DemoTenant).

@@ -66,3 +66,15 @@ func TestSubdomain(t *testing.T) {
 	Expect(env.Subdomain("test.fidercdn.com")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
 }
+
+func TestLogSqlDefaultsToFalse(t *testing.T) {
+	RegisterT(t)
+
+	// Cleanups run in reverse order, so the config is reloaded only after
+	// t.Setenv has restored the original value.
+	t.Cleanup(env.Reload)
+	t.Setenv("LOG_SQL", "")
+
+	env.Reload()
+	Expect(env.Config.Log.Sql).IsFalse()
+}

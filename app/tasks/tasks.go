@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html"
+	"slices"
 
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
@@ -39,4 +40,37 @@ func getActiveSubscribers(ctx context.Context, post *entity.Post, channel enum.N
 	}
 	err := bus.Dispatch(ctx, q)
 	return q.Result, err
+}
+
+// audience controls who receives notifications about a post or comment.
+// Pending (unapproved) content must only reach staff, who can see it; everyone
+// else is notified once it is approved.
+type audience int
+
+const (
+	everyone audience = iota
+	staffOnly
+	nonStaffOnly
+)
+
+func audienceFor(approved bool) audience {
+	if approved {
+		return everyone
+	}
+	return staffOnly
+}
+
+func (a audience) includes(u *entity.User) bool {
+	switch a {
+	case staffOnly:
+		return u.IsCollaborator()
+	case nonStaffOnly:
+		return !u.IsCollaborator()
+	}
+	return true
+}
+
+func getSubscribers(ctx context.Context, post *entity.Post, channel enum.NotificationChannel, event enum.NotificationEvent, aud audience) ([]*entity.User, error) {
+	users, err := getActiveSubscribers(ctx, post, channel, event)
+	return slices.DeleteFunc(users, func(u *entity.User) bool { return !aud.includes(u) }), err
 }

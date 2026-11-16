@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/enum"
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
@@ -76,7 +77,7 @@ func TestSignInByEmailWithName_VerificationCodeNotOverwrittenByJSON(t *testing.T
 func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CompleteProfile{}
+	action := actions.CompleteProfile{Kind: enum.EmailVerificationKindSignIn}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "name", "key")
 }
@@ -85,10 +86,21 @@ func TestCompleteProfile_LongName(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.CompleteProfile{
+		Kind: enum.EmailVerificationKindSignIn,
 		Name: "123456789012345678901234567890123456789012345678901", // 51 chars
 	}
 	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "name", "key")
+}
+
+func TestCompleteProfile_InvalidKind(t *testing.T) {
+	RegisterT(t)
+
+	for _, kind := range []enum.EmailVerificationKind{0, enum.EmailVerificationKindSignUp, enum.EmailVerificationKindChangeEmail} {
+		action := actions.CompleteProfile{Kind: kind, Key: "1234567890", Name: "Hot Pie"}
+		result := action.Validate(context.Background(), nil)
+		ExpectFailed(result, "kind")
+	}
 }
 
 func TestVerifySignInCode_EmptyEmail(t *testing.T) {

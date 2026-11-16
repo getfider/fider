@@ -1,8 +1,6 @@
 @use "@fider/assets/styles/variables.scss" as *;
 
 .c-image-upload {
-  margin-bottom: 0;
-
   input[type="file"] {
     display: none;
   }

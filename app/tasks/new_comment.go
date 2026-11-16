@@ -18,9 +18,19 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
-// NotifyAboutNewComment sends a notification (web and email) to subscribers
+// NotifyAboutNewComment sends a notification (web and email) to subscribers.
+// Comments that are pending, or on a pending post, only notify staff.
 func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Task {
-	return describe("Notify about new comment", func(c *worker.Context) error {
+	return notifyAboutNewComment("Notify about new comment", comment, post, audienceFor(comment.IsApproved && post.IsApproved))
+}
+
+// NotifyAboutApprovedComment notifies the non-staff subscribers that were held back while the comment was pending
+func NotifyAboutApprovedComment(comment *entity.Comment, post *entity.Post) worker.Task {
+	return notifyAboutNewComment("Notify about approved comment", comment, post, nonStaffOnly)
+}
+
+func notifyAboutNewComment(name string, comment *entity.Comment, post *entity.Post, aud audience) worker.Task {
+	return describe(name, func(c *worker.Context) error {
 
 		// comment.ParseMentions()
 		contentString := entity.CommentString(comment.Content)
@@ -28,12 +38,12 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 		var mentionNotifications []*entity.MentionNotification
 
 		// Web notification
-		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewComment)
+		users, err := getSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewComment, aud)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		author := c.User()
+		author := comment.User
 		title := fmt.Sprintf("**%s** left a comment on **%s**", markdown.Escape(author.Name), markdown.Escape(post.Title))
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
@@ -55,7 +65,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 
 		if mentions != nil {
 
-			users, err = getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention)
+			users, err = getSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention, aud)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -106,7 +116,7 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 		}
 
 		// Standard email notitifications
-		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewComment)
+		users, err = getSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewComment, aud)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -118,13 +128,13 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 			}
 		}
 
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventNewComment, "new_comment")
+		sendEmailNotifications(c, author, post, to, contentString.SanitizeMentions(), enum.NotificationEventNewComment, "new_comment")
 
 		// Mentions
 		to = make([]dto.Recipient, 0)
 		if mentions != nil {
 
-			users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention)
+			users, err = getSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention, aud)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -152,7 +162,12 @@ func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Ta
 
 		}
 
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
+		sendEmailNotifications(c, author, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
+
+		// Webhook targets aren't moderation-aware, so wait until the comment and its post are approved
+		if !comment.IsApproved || !post.IsApproved {
+			return nil
+		}
 
 		tenant := c.Tenant()
 		baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
@@ -193,7 +208,7 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 		mentionNotificationSent := false
 		if mentions != nil {
 
-			users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention)
+			users, err := getSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention, audienceFor(comment.IsApproved && post.IsApproved))
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -244,7 +259,7 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 		to := make([]dto.Recipient, 0)
 		if mentions != nil {
 
-			users, err := getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention)
+			users, err := getSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention, audienceFor(comment.IsApproved && post.IsApproved))
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -273,19 +288,18 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 			}
 		}
 
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
+		sendEmailNotifications(c, author, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
 
 		return nil
 	})
 }
 
-func sendEmailNotifications(c *worker.Context, post *entity.Post, to []dto.Recipient, comment string, event enum.NotificationEvent, templateName string) {
+func sendEmailNotifications(c *worker.Context, author *entity.User, post *entity.Post, to []dto.Recipient, comment string, event enum.NotificationEvent, templateName string) {
 	// Short circuit if there is no one to notify
 	if len(to) == 0 {
 		return
 	}
 
-	author := c.User()
 	tenant := c.Tenant()
 	baseURL, logoURL := web.BaseURL(c), web.LogoURL(c)
 	messaleLocaleString := "email.new_comment.text"

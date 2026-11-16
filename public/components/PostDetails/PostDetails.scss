@@ -28,6 +28,18 @@
     transition: box-shadow 0.2s ease-in-out;
   }
 
+  &__post-card .c-dropdown__handle {
+    padding: spacing(2);
+    border-radius: 50%;
+  }
+
+  &__post-card .c-dropdown--open .c-dropdown__handle {
+    background-color: var(--colors-gray-200);
+    @include dark-mode {
+      background-color: var(--colors-gray-400);
+    }
+  }
+
   &__title {
     font-size: 20px;
     font-weight: get("font.weight.xbold");

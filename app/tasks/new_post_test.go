@@ -50,6 +50,8 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
+		User:        mock.JonSnow,
+		IsApproved:  true,
 	}
 	task := tasks.NotifyAboutNewPost(post)
 
@@ -155,6 +157,8 @@ func TestNotifyAboutNewPostTask_WithMention(t *testing.T) {
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it @[Jon Snow]",
+		User:        mock.AryaStark,
+		IsApproved:  true,
 	}
 	task := tasks.NotifyAboutNewPost(post)
 

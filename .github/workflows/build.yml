@@ -6,10 +6,10 @@ on:
   push:
     branches:
       - main
-      - stable
   pull_request:
     branches:
       - main
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,7 +24,7 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - run: npm ci
       - run: make lint-ui
@@ -61,7 +61,7 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - run: npm ci # required for esbuild
       # Version comes from go.mod, so Dependabot bumps apply and go.sum verifies the download
@@ -129,13 +129,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        browser: ${{ github.event_name == 'pull_request' && fromJSON('["chromium"]') || fromJSON('["chromium","webkit","firefox"]') }}
+        browser: ${{ (github.event_name == 'pull_request' || github.event_name == 'merge_group') && fromJSON('["chromium"]') || fromJSON('["chromium","webkit","firefox"]') }}
     steps:
       - uses: actions/checkout@v7
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - uses: actions/download-artifact@v8
         with:
@@ -190,7 +190,7 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
       - uses: actions/download-artifact@v8
         with:

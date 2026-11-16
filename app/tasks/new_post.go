@@ -18,21 +18,31 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
-// NotifyAboutNewPost sends a notification (web and email) to subscribers
+// NotifyAboutNewPost sends a notification (web and email) to subscribers.
+// Pending posts only notify staff; everyone else is notified on approval.
 func NotifyAboutNewPost(post *entity.Post) worker.Task {
-	return describe("Notify about new post", func(c *worker.Context) error {
+	return notifyAboutNewPost("Notify about new post", post, audienceFor(post.IsApproved))
+}
+
+// NotifyAboutApprovedPost notifies the non-staff subscribers that were held back while the post was pending
+func NotifyAboutApprovedPost(post *entity.Post) worker.Task {
+	return notifyAboutNewPost("Notify about approved post", post, nonStaffOnly)
+}
+
+func notifyAboutNewPost(name string, post *entity.Post, aud audience) worker.Task {
+	return describe(name, func(c *worker.Context) error {
 		// Parse mentions from post description
 		contentString := entity.CommentString(post.Description)
 		mentions := contentString.ParseMentions()
 		var mentionNotifications []*entity.MentionNotification
 
 		// Web notification
-		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewPost)
+		users, err := getSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewPost, aud)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		author := c.User()
+		author := post.User
 		title := fmt.Sprintf("New post: **%s**", markdown.Escape(post.Title))
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
@@ -53,7 +63,7 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 		if len(mentions) > 0 {
 			title = fmt.Sprintf("**%s** mentioned you in **%s**", markdown.Escape(author.Name), markdown.Escape(post.Title))
 
-			users, err = getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention)
+			users, err = getSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention, aud)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -100,7 +110,7 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 		}
 
 		// Email notification
-		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewPost)
+		users, err = getSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewPost, aud)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -136,7 +146,7 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 		// Email notification - mentions
 		to = make([]dto.Recipient, 0)
 		if len(mentions) > 0 {
-			users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention)
+			users, err = getSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention, aud)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -163,7 +173,12 @@ func NotifyAboutNewPost(post *entity.Post) worker.Task {
 		}
 
 		// Send mention email notifications
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
+		sendEmailNotifications(c, author, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
+
+		// Webhook targets aren't moderation-aware, so wait until the post is approved
+		if !post.IsApproved {
+			return nil
+		}
 
 		webhookProps := webhook.Props{}
 		webhookProps.SetPost(post, "post", baseURL, false, false)
@@ -199,7 +214,7 @@ func NotifyAboutUpdatedPost(post *entity.Post) worker.Task {
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		mentionNotificationSent := false
 		if len(mentions) > 0 {
-			users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention)
+			users, err := getSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventMention, audienceFor(post.IsApproved))
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -248,7 +263,7 @@ func NotifyAboutUpdatedPost(post *entity.Post) worker.Task {
 
 		to := make([]dto.Recipient, 0)
 		if len(mentions) > 0 {
-			users, err := getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention)
+			users, err := getSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventMention, audienceFor(post.IsApproved))
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -278,7 +293,7 @@ func NotifyAboutUpdatedPost(post *entity.Post) worker.Task {
 		}
 
 		// Send email notifications for mentions
-		sendEmailNotifications(c, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
+		sendEmailNotifications(c, author, post, to, contentString.SanitizeMentions(), enum.NotificationEventMention, "new_comment")
 
 		return nil
 	})
