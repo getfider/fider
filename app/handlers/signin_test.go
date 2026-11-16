@@ -38,6 +38,10 @@ func TestSignInByEmailHandler_ExistingUser(t *testing.T) {
 	RegisterT(t)
 
 	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
 		saveKeyCmd = c
 		return nil
@@ -109,6 +113,10 @@ func TestSignInByEmailWithNameHandler_NewUser(t *testing.T) {
 	RegisterT(t)
 
 	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
 		saveKeyCmd = c
 		return nil
@@ -829,6 +837,7 @@ func TestVerifySignInCodeHandler_InvalidCode(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		c.Result = 1
 		return nil
 	})
 
@@ -870,6 +879,12 @@ func TestVerifySignInCodeHandler_MaxAttemptsExceeded(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		Expect(c.MaxAttempts).Equals(5)
+		c.Result = 0
+		return nil
+	})
+
 	server := mock.NewServer()
 	code, response := server.
 		OnTenant(mock.DemoTenant).
@@ -895,6 +910,7 @@ func TestVerifySignInCodeHandler_WrongCode_FinalAttempt_InvalidatesCode(t *testi
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		c.Result = 5
 		return nil
 	})
 
@@ -929,6 +945,7 @@ func TestVerifySignInCodeHandler_CorrectCode_ExistingUser(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		c.Result = 1
 		return nil
 	})
 
@@ -966,6 +983,7 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_WithoutName(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		c.Result = 1
 		return nil
 	})
 
@@ -998,6 +1016,7 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_WithName(t *testing.T) {
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		c.Result = 1
 		return nil
 	})
 
@@ -1048,6 +1067,7 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_PrivateTenant(t *testing.T)
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		c.Result = 1
 		return nil
 	})
 
@@ -1071,6 +1091,10 @@ func TestResendSignInCodeHandler_ValidEmail(t *testing.T) {
 	RegisterT(t)
 
 	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
 		saveKeyCmd = c
 		return nil
@@ -1176,6 +1200,7 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_SignUpDisabled(t *testing.T
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		c.Result = 1
 		return nil
 	})
 
@@ -1338,6 +1363,10 @@ func TestResendSignInCodeHandler_SignUpDisabled_UnknownEmail(t *testing.T) {
 		return app.ErrNotFound
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
 		return nil
 	})
@@ -1366,6 +1395,10 @@ func TestResendSignInCodeHandler_SignUpDisabled_ExistingUser(t *testing.T) {
 	})
 
 	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
 		saveKeyCmd = c
 		return nil
@@ -1458,6 +1491,7 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_EmailAuthNotAllowed(t *test
 	})
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
+		c.Result = 1
 		return nil
 	})
 
@@ -1471,4 +1505,46 @@ func TestVerifySignInCodeHandler_CorrectCode_NewUser_EmailAuthNotAllowed(t *test
 
 	Expect(code).Equals(http.StatusForbidden)
 	ExpectHandler(&cmd.RegisterUser{}).CalledTimes(0)
+}
+
+func TestSignInByEmailHandler_TooManyCodes(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		q.Result = mock.JonSnow
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
+		Expect(q.Email).Equals("jon.snow@got.com")
+		Expect(q.Kind).Equals(enum.EmailVerificationKindSignIn)
+		Expect(q.Since).TemporarilySimilar(time.Now().Add(-time.Hour), time.Second)
+		q.Result = 10
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.SignInByEmail(), `{ "email": "jon.snow@got.com" }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+	Expect(response.Body.String()).ContainsSubstring("Too many sign-in codes")
+}
+
+func TestResendSignInCodeHandler_TooManyCodes(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
+		q.Result = 10
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.ResendSignInCode(), `{ "email": "jon.snow@got.com" }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+	Expect(response.Body.String()).ContainsSubstring("Too many sign-in codes")
 }

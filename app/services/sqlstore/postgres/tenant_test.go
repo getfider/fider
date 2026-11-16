@@ -438,3 +438,55 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(customConfigs.Result[0].JSONUserNamePath).Equals("New user.name")
 	Expect(customConfigs.Result[0].JSONUserEmailPath).Equals("New user.email")
 }
+
+func TestTenantStorage_IncrementVerificationAttempts_StopsAtMax(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	signIn := actions.NewSignInByEmail()
+	signIn.Email = "jon.snow@got.com"
+	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{Key: "k1", Code: "123456", Duration: 15 * time.Minute, Request: signIn})
+	Expect(err).IsNil()
+
+	for i := 1; i <= 5; i++ {
+		increment := &cmd.IncrementVerificationAttempts{Key: "k1", MaxAttempts: 5}
+		Expect(bus.Dispatch(demoTenantCtx, increment)).IsNil()
+		Expect(increment.Result).Equals(i)
+	}
+
+	increment := &cmd.IncrementVerificationAttempts{Key: "k1", MaxAttempts: 5}
+	Expect(bus.Dispatch(demoTenantCtx, increment)).IsNil()
+	Expect(increment.Result).Equals(0)
+
+	// Used codes get no attempts either
+	err = bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{Key: "k2", Code: "123456", Duration: 15 * time.Minute, Request: signIn})
+	Expect(err).IsNil()
+	Expect(bus.Dispatch(demoTenantCtx, &cmd.SetKeyAsVerified{Key: "k2"})).IsNil()
+	increment = &cmd.IncrementVerificationAttempts{Key: "k2", MaxAttempts: 5}
+	Expect(bus.Dispatch(demoTenantCtx, increment)).IsNil()
+	Expect(increment.Result).Equals(0)
+}
+
+func TestTenantStorage_CountRecentVerificationsByEmail(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	signIn := actions.NewSignInByEmail()
+	signIn.Email = "jon.snow@got.com"
+	for _, key := range []string{"k1", "k2"} {
+		err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{Key: key, Code: "123456", Duration: 15 * time.Minute, Request: signIn})
+		Expect(err).IsNil()
+	}
+
+	count := &query.CountRecentVerificationsByEmail{Email: "jon.snow@got.com", Kind: enum.EmailVerificationKindSignIn, Since: time.Now().Add(-time.Hour)}
+	Expect(bus.Dispatch(demoTenantCtx, count)).IsNil()
+	Expect(count.Result).Equals(2)
+
+	count = &query.CountRecentVerificationsByEmail{Email: "jon.snow@got.com", Kind: enum.EmailVerificationKindSignIn, Since: time.Now().Add(time.Minute)}
+	Expect(bus.Dispatch(demoTenantCtx, count)).IsNil()
+	Expect(count.Result).Equals(0)
+
+	count = &query.CountRecentVerificationsByEmail{Email: "jon.snow@got.com", Kind: enum.EmailVerificationKindSignIn, Since: time.Now().Add(-time.Hour)}
+	Expect(bus.Dispatch(avengersTenantCtx, count)).IsNil()
+	Expect(count.Result).Equals(0)
+}

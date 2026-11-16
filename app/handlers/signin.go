@@ -14,6 +14,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/tasks"
@@ -70,6 +71,24 @@ func AccessDeniedPage() web.HandlerFunc {
 	}
 }
 
+// maxSignInCodesPerHour limits how many sign-in codes can be sent to one email address,
+// which bounds code guessing and stops anyone flooding a user's inbox
+const maxSignInCodesPerHour = 10
+
+const tooManySignInCodesMessage = "Too many sign-in codes have been requested for this email. Please try again later."
+
+func tooManySignInCodes(c *web.Context, email string) (bool, error) {
+	q := &query.CountRecentVerificationsByEmail{
+		Email: email,
+		Kind:  enum.EmailVerificationKindSignIn,
+		Since: time.Now().Add(-time.Hour),
+	}
+	if err := bus.Dispatch(c, q); err != nil {
+		return false, err
+	}
+	return q.Result >= maxSignInCodesPerHour, nil
+}
+
 // SignInByEmail checks if user exists and sends code only for existing users
 func SignInByEmail() web.HandlerFunc {
 	return func(c *web.Context) error {
@@ -85,6 +104,12 @@ func SignInByEmail() web.HandlerFunc {
 
 		// Only send code if user exists
 		if userExists {
+			if tooMany, err := tooManySignInCodes(c, action.Email); err != nil {
+				return c.Failure(err)
+			} else if tooMany {
+				return c.HandleValidation(validate.Failed(tooManySignInCodesMessage))
+			}
+
 			// Invalidate any previous active verification codes for this email
 			_ = bus.Dispatch(c, &cmd.InvalidateVerificationsByEmail{
 				Email: action.Email,
@@ -127,6 +152,12 @@ func SignInByEmailWithName() web.HandlerFunc {
 			return c.BadRequest(web.Map{
 				"email": "An account with this email already exists. Please sign in.",
 			})
+		}
+
+		if tooMany, err := tooManySignInCodes(c, action.Email); err != nil {
+			return c.Failure(err)
+		} else if tooMany {
+			return c.HandleValidation(validate.Failed(tooManySignInCodesMessage))
 		}
 
 		// Invalidate any previous active verification codes for this email
@@ -179,21 +210,21 @@ func VerifySignInCode() web.HandlerFunc {
 
 		result := activeVerification.Result
 
-		// Check if max attempts exceeded
-		if result.Attempts >= maxAttempts {
+		// Use up an attempt before comparing. Check and increment are one atomic
+		// statement, so concurrent guesses can't get past maxAttempts.
+		increment := &cmd.IncrementVerificationAttempts{Key: result.Key, MaxAttempts: maxAttempts}
+		if err := bus.Dispatch(c, increment); err != nil {
+			return c.Failure(err)
+		}
+		if increment.Result == 0 {
 			return c.BadRequest(web.Map{
 				"code": "Too many attempts. Please request a new code.",
 			})
 		}
 
-		// Increment attempts before comparing (prevents timing attacks)
-		if err := bus.Dispatch(c, &cmd.IncrementVerificationAttempts{Key: result.Key}); err != nil {
-			return c.Failure(err)
-		}
-
 		// Compare the submitted code with the stored code
 		if result.Code != action.Code {
-			if result.Attempts+1 >= maxAttempts {
+			if increment.Result >= maxAttempts {
 				// Final attempt failed — invalidate the code
 				_ = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
 				return c.BadRequest(web.Map{
@@ -201,7 +232,7 @@ func VerifySignInCode() web.HandlerFunc {
 				})
 			}
 			return c.BadRequest(web.Map{
-				"code": "Invalid or expired verification code" + fmt.Sprintf(" (attempt %d of %d)", result.Attempts+1, maxAttempts),
+				"code": "Invalid or expired verification code" + fmt.Sprintf(" (attempt %d of %d)", increment.Result, maxAttempts),
 			})
 		}
 
@@ -282,6 +313,12 @@ func ResendSignInCode() web.HandlerFunc {
 				}
 				return c.Failure(err)
 			}
+		}
+
+		if tooMany, err := tooManySignInCodes(c, action.Email); err != nil {
+			return c.Failure(err)
+		} else if tooMany {
+			return c.HandleValidation(validate.Failed(tooManySignInCodesMessage))
 		}
 
 		// Invalidate any previous active verification codes for this email
