@@ -209,6 +209,16 @@ var (
 		IsRTL:             false,
 	}
 
+	// LocaleCzech represents Czech
+	LocaleCzech = Locale{
+		Code:              "cs",
+		Name:              "Czech",
+		MessageFormatCode: "cs",
+		PostgresConfig:    "simple",
+		LinguaLanguage:    lingua.Czech,
+		IsRTL:             false,
+	}
+
 	// AllLocales contains all supported locales
 	AllLocales = []Locale{
 		LocaleEnglish,
@@ -230,6 +240,7 @@ var (
 		LocaleChineseCN,
 		LocaleChineseTW,
 		LocalePersian,
+		LocaleCzech,
 	}
 )
 
