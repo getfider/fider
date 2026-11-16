@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Ongelezen meldingen",
   "modal.rss.description": "Om u te abonneren op deze ATOM-feed, kopieert en plakt u deze URL in uw RSS/ATOM-lezer.",
   "modal.rss.title": "Abonneer je op de ATOM-feed",
-  "modal.showvotes.message.zeromatches": "Geen gebruikers gevonden voor <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Geen gebruikers gevonden voor <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Zoek gebruikers op naam...",
   "modal.signin.header": "Geef uw feedback",
   "moderation.comment.delete.block.error": "Het verwijderen van de reactie en het blokkeren van de gebruiker is mislukt.",

@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Непрочитанные уведомления",
   "modal.rss.description": "Чтобы подписаться на этот канал ATOM, скопируйте и вставьте этот URL-адрес в свой RSS/ATOM-ридер.",
   "modal.rss.title": "Подписаться на ленту ATOM",
-  "modal.showvotes.message.zeromatches": "Не удалось найти пользователей с <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Не удалось найти пользователей с <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Найдите пользователей по их имени...",
   "modal.signin.header": "Оставьте свой отзыв",
   "moderation.comment.delete.block.error": "Не удалось удалить комментарий и заблокировать пользователя.",

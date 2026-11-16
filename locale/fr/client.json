@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Notifications non lues",
   "modal.rss.description": "Pour vous abonner à ce flux ATOM, copiez et collez cette URL dans votre lecteur RSS/ATOM.",
   "modal.rss.title": "Abonnez-vous au flux ATOM",
-  "modal.showvotes.message.zeromatches": "Aucun utilisateur correspondant à <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Aucun utilisateur correspondant à <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Rechercher des utilisateurs par nom...",
   "modal.signin.header": "Envoyer vos commentaires",
   "moderation.comment.delete.block.error": "Impossible de supprimer le commentaire et de bloquer l'utilisateur.",

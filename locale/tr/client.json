@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Okunmamış bildirimler",
   "modal.rss.description": "Bu ATOM akışına abone olmak için bu URL'yi kopyalayıp RSS/ATOM okuyucunuza yapıştırın.",
   "modal.rss.title": "ATOM beslemesine abone olun",
-  "modal.showvotes.message.zeromatches": "Eşleşen kullanıcı bulunamadı <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Eşleşen kullanıcı bulunamadı <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Kullanıcıları ismiyle arayın...",
   "modal.signin.header": "Geri bildiriminizi gönderin",
   "moderation.comment.delete.block.error": "Yorum silme ve kullanıcıyı engelleme başarısız oldu.",

@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Olästa aviseringar",
   "modal.rss.description": "För att prenumerera på detta ATOM-flöde, kopiera och klistra in den här URL:en i din RSS/ATOM-läsare.",
   "modal.rss.title": "Prenumerera på ATOM-flödet",
-  "modal.showvotes.message.zeromatches": "Inga användare hittades som matchar <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Inga användare hittades som matchar <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Sök efter användare med namn...",
   "modal.signin.header": "Skicka in din feedback",
   "moderation.comment.delete.block.error": "Misslyckades med att ta bort kommentar och blockera användaren",

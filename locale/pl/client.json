@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Nieprzeczytane powiadomienia",
   "modal.rss.description": "Aby zasubskrybować ten kanał ATOM, skopiuj i wklej ten adres URL do swojego czytnika RSS/ATOM.",
   "modal.rss.title": "Subskrybuj kanał ATOM",
-  "modal.showvotes.message.zeromatches": "Nie znaleziono użytkowników pasujących do <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Nie znaleziono użytkowników pasujących do <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Wyszukaj użytkowników według nazwy...",
   "modal.signin.header": "Prześlij swoją opinię",
   "moderation.comment.delete.block.error": "Nie udało się usunąć komentarza i zablokować użytkownika",

@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Ungelesene Benachrichtigungen",
   "modal.rss.description": "Um diesen ATOM-Feed zu abonnieren, kopiere diese URL und füge sie in deinen RSS/ATOM-Reader ein.",
   "modal.rss.title": "ATOM-Feed abonnieren",
-  "modal.showvotes.message.zeromatches": "Keine Benutzer gefunden, die <0>{0}</0> entsprechen.",
+  "modal.showvotes.message.zeromatches": "Keine Benutzer gefunden, die <0>{query}</0> entsprechen.",
   "modal.showvotes.query.placeholder": "Suche nach Benutzern nach Namen...",
   "modal.signin.header": "Reiche dein Feedback ein",
   "moderation.comment.delete.block.error": "Fehler beim Löschen des Kommentars und Blockieren des Benutzers",

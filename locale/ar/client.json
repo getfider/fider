@@ -121,7 +121,7 @@
   "modal.notifications.unread": "إشعارات غير مقروءة",
   "modal.rss.description": "للاشتراك في موجز ATOM هذا، انسخ ولصق عنوان URL هذا في قارئ RSS/ATOM الخاص بك.",
   "modal.rss.title": "اشترك في موجز ATOM",
-  "modal.showvotes.message.zeromatches": "لم يتم العثور على مستخدمين مطابقين ل <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "لم يتم العثور على مستخدمين مطابقين ل <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "البحث عن المستخدمين بالاسم...",
   "modal.signin.header": "أرسل ملاحظاتك",
   "moderation.comment.delete.block.error": "فشل حذف التعليق وحظر المستخدم",

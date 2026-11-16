@@ -121,7 +121,7 @@
   "modal.notifications.unread": "未读通知",
   "modal.rss.description": "要订阅此 ATOM 源，请将此 URL 复制并粘贴到您的 RSS/ATOM 阅读器中。",
   "modal.rss.title": "订阅 ATOM 源",
-  "modal.showvotes.message.zeromatches": "未找到匹配的用户 <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "未找到匹配的用户 <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "按名称搜索用户...",
   "modal.signin.header": "提交您的反馈",
   "moderation.comment.delete.block.error": "删除评论和屏蔽用户失败",

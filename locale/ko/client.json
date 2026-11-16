@@ -103,7 +103,7 @@
   "modal.notifications.nonew": "새로운 알림이 없습니다",
   "modal.notifications.previous": "이전 알림",
   "modal.notifications.unread": "읽지 않은 알림",
-  "modal.showvotes.message.zeromatches": "<0>{0}</0>와(과) 일치하는 사용자를 찾을 수 없습니다.",
+  "modal.showvotes.message.zeromatches": "<0>{query}</0>와(과) 일치하는 사용자를 찾을 수 없습니다.",
   "modal.showvotes.query.placeholder": "이름으로 사용자를 검색하세요...",
   "modal.signin.header": "피드백을 제출하세요",
   "mynotifications.label.readrecently": "지난 30일 동안 읽어보세요.",

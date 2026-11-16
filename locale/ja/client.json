@@ -121,7 +121,7 @@
   "modal.notifications.unread": "未読通知",
   "modal.rss.description": "この ATOM フィードを購読するには、この URL をコピーして RSS/ATOM リーダーに貼り付けます。",
   "modal.rss.title": "ATOMフィードを購読する",
-  "modal.showvotes.message.zeromatches": "<0>{0}</0>に一致するユーザーは見つかりませんでした。",
+  "modal.showvotes.message.zeromatches": "<0>{query}</0>に一致するユーザーは見つかりませんでした。",
   "modal.showvotes.query.placeholder": "名前でユーザーを検索...",
   "modal.signin.header": "フィードバックを送信",
   "moderation.comment.delete.block.error": "コメントの削除とユーザーのブロックに失敗しました",

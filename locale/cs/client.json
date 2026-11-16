@@ -103,7 +103,7 @@
   "modal.notifications.nonew": "Žádná nová oznámení",
   "modal.notifications.previous": "Předchozí oznámení",
   "modal.notifications.unread": "Nepřečtená oznámení",
-  "modal.showvotes.message.zeromatches": "Nenalezeny žádné uživatelé odpovídající výrazu <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Nenalezeny žádné uživatelé odpovídající výrazu <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Hledat uživatele podle jména...",
   "modal.signin.header": "Odešlete svou zpětnou vazbu",
   "mynotifications.label.readrecently": "Přečtěte si o posledních 30 dnech.",

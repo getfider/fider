@@ -121,7 +121,7 @@
   "modal.notifications.unread": "اعلان‌های خوانده‌نشده",
   "modal.rss.description": "برای مشترک شدن در این فید ATOM، این URL را کپی کرده و در RSS/ATOM reader خود جایگذاری کنید.",
   "modal.rss.title": "مشترک فید ATOM شوید",
-  "modal.showvotes.message.zeromatches": "کاربری با <0>{0}</0> یافت نشد.",
+  "modal.showvotes.message.zeromatches": "کاربری با <0>{query}</0> یافت نشد.",
   "modal.showvotes.query.placeholder": "جستجوی کاربر بر اساس نام...",
   "modal.signin.header": "بازخورد خود را ارسال کنید",
   "moderation.comment.delete.block.error": "حذف نظر و مسدود کردن کاربر ناموفق بود",

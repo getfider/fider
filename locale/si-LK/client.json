@@ -103,7 +103,7 @@
   "modal.notifications.nonew": "නව දැනුම්දීම් නැත",
   "modal.notifications.previous": "පෙර දැනුම්දීම්",
   "modal.notifications.unread": "නොකියවූ දැනුම්දීම්",
-  "modal.showvotes.message.zeromatches": "<0>{0}</0> ට ගැලපෙන පරිශීලකයන් හමු නොවීය.",
+  "modal.showvotes.message.zeromatches": "<0>{query}</0> ට ගැලපෙන පරිශීලකයන් හමු නොවීය.",
   "modal.showvotes.query.placeholder": "නමින් පරිශීලකයින් සොයන්න...",
   "modal.signin.header": "ඔබේ ප්‍රතිපෝෂණය ඉදිරිපත් කරන්න",
   "mynotifications.label.readrecently": "පසුගිය දින 30 කියවන්න.",

@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Μη αναγνωσμένες ειδοποιήσεις",
   "modal.rss.description": "Για να εγγραφείτε σε αυτήν την ροή ATOM, αντιγράψτε και επικολλήστε αυτήν τη διεύθυνση URL στον αναγνώστη RSS/ATOM.",
   "modal.rss.title": "Εγγραφείτε στη ροή ATOM",
-  "modal.showvotes.message.zeromatches": "Δεν βρέθηκαν χρήστες που να ταιριάζουν <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Δεν βρέθηκαν χρήστες που να ταιριάζουν <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Αναζήτηση χρηστών με όνομα...",
   "modal.signin.header": "Υποβάλετε τα σχόλιά σας",
   "moderation.comment.delete.block.error": "Η διαγραφή του σχολίου και ο αποκλεισμός του χρήστη απέτυχαν",

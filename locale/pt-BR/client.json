@@ -121,7 +121,7 @@
   "modal.notifications.unread": "Notificações não lidas",
   "modal.rss.description": "Para assinar este feed ATOM, copie e cole esta URL no seu leitor RSS/ATOM.",
   "modal.rss.title": "Assinar o feed ATOM",
-  "modal.showvotes.message.zeromatches": "Nenhum usuário encontrado para <0>{0}</0>.",
+  "modal.showvotes.message.zeromatches": "Nenhum usuário encontrado para <0>{query}</0>.",
   "modal.showvotes.query.placeholder": "Procurar usuários por nome...",
   "modal.signin.header": "Enviar seu feedback",
   "moderation.comment.delete.block.error": "Falha ao excluir comentário e bloquear usuário",
