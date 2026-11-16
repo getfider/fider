@@ -78,6 +78,21 @@ jobs:
           BLOB_STORAGE_S3_ENDPOINT_URL: http://localhost:9000
           DATABASE_URL: postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable
 
+  # Fails if Fider calls vulnerable code in a dependency or the Go standard library
+  govulncheck:
+    name: govulncheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Use Go 1.27
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.27'
+          check-latest: true # stdlib fixes ship in patch releases
+          cache: true
+      # Version comes from go.mod (tools.go), so Dependabot bumps apply
+      - run: go run golang.org/x/vuln/cmd/govulncheck ./...
+
   # The build job uses the Dockerfile to build an image which is then used by e2e tests
   build:
     name: build
