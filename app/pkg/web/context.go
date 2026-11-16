@@ -273,7 +273,7 @@ func (c *Context) Failure(err error) error {
 		return nil
 	}
 
-	if cause == app.ErrNotFound || cause == blob.ErrNotFound {
+	if cause == app.ErrNotFound || cause == blob.ErrNotFound || cause == blob.ErrInvalidKeyFormat {
 		return c.NotFound()
 	}
 
