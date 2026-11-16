@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/services/sqlstore/dbEntities"
 
@@ -206,12 +208,38 @@ func getActiveVerificationByEmail(ctx context.Context, q *query.GetActiveVerific
 	})
 }
 
+func countRecentVerificationsByEmail(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
+		// Held until the request transaction ends
+		if err := dbx.Lock(trx, fmt.Sprintf("email_verifications:%d:%d:%s", tenant.ID, q.Kind, q.Email)); err != nil {
+			return errors.Wrap(err, "failed to lock email verifications")
+		}
+
+		err := trx.Scalar(&q.Result,
+			"SELECT COUNT(*) FROM email_verifications WHERE tenant_id = $1 AND email = $2 AND kind = $3 AND created_at > $4",
+			tenant.ID, q.Email, q.Kind, q.Since,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to count recent email verifications")
+		}
+		return nil
+	})
+}
+
 func incrementVerificationAttempts(ctx context.Context, c *cmd.IncrementVerificationAttempts) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
-		_, err := trx.Execute(
-			"UPDATE email_verifications SET attempts = attempts + 1 WHERE tenant_id = $1 AND key = $2",
-			tenant.ID, c.Key,
+		// Check and increment in one statement so concurrent requests can't exceed MaxAttempts
+		err := trx.Scalar(&c.Result, `
+			UPDATE email_verifications SET attempts = attempts + 1
+			WHERE tenant_id = $1 AND key = $2 AND attempts < $3
+			  AND verified_at IS NULL AND expires_at > $4
+			RETURNING attempts`,
+			tenant.ID, c.Key, c.MaxAttempts, time.Now(),
 		)
+		if errors.Cause(err) == app.ErrNotFound {
+			c.Result = 0
+			return nil
+		}
 		if err != nil {
 			return errors.Wrap(err, "failed to increment verification attempts")
 		}

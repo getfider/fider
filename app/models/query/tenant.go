@@ -1,6 +1,8 @@
 package query
 
 import (
+	"time"
+
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/enum"
 )
@@ -34,6 +36,18 @@ type GetVerificationByEmailAndCode struct {
 
 	// Output
 	Result *entity.EmailVerification
+}
+
+// CountRecentVerificationsByEmail counts verifications created since a given time.
+// It also locks the email until the request transaction ends, so concurrent requests
+// can't all pass a limit check before any of them saves a new verification.
+type CountRecentVerificationsByEmail struct {
+	Email string
+	Kind  enum.EmailVerificationKind
+	Since time.Time
+
+	// Output
+	Result int
 }
 
 type GetActiveVerificationByEmail struct {

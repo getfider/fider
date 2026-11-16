@@ -14,6 +14,13 @@ func hash(s string) uint32 {
 	return h.Sum32()
 }
 
+// Lock obtains an advisory lock, waiting for it if needed.
+// It is released when the transaction ends.
+func Lock(trx *Trx, key string) error {
+	_, err := trx.Execute("SELECT pg_advisory_xact_lock($1)", hash(key))
+	return err
+}
+
 // Try to obtain an advisory lock
 // returns true and an unlock function if lock was aquired
 func TryLock(ctx context.Context, trx *Trx, key string) (bool, func()) {

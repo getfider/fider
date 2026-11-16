@@ -66,8 +66,13 @@ type SetKeyAsVerified struct {
 	Key string
 }
 
+// IncrementVerificationAttempts atomically uses up one attempt on an active verification
 type IncrementVerificationAttempts struct {
-	Key string
+	Key         string
+	MaxAttempts int
+
+	// Output: attempts used including this one, or 0 if MaxAttempts was already reached
+	Result int
 }
 
 type InvalidateVerificationsByEmail struct {
