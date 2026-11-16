@@ -74,5 +74,7 @@
   "email.delete_account_requested.scheduled": "A exclusão está agendada para <strong>{scheduledAt}</strong>. Uma vez executada, não poderá ser desfeita.",
   "email.delete_account_requested.cancel": "Não solicitou isto ou mudou de ideia? Utilize o link abaixo para cancelar a eliminação antes disso:",
   "email.delete_account_completed.subject": "Seu site Fider {tenantName} foi excluído",
-  "email.delete_account_completed.text": "Seu site Fider <strong>{tenantName}</strong> ({subdomain}) e todos os seus dados foram excluídos permanentemente. Esta ação não pode ser desfeita."
+  "email.delete_account_completed.text": "Seu site Fider <strong>{tenantName}</strong> ({subdomain}) e todos os seus dados foram excluídos permanentemente. Esta ação não pode ser desfeita.",
+  "validation.custom.maximagepixels": "As dimensões da imagem são muito grandes. Por favor, envie uma imagem com resolução menor.",
+  "validation.custom.imageprocessingbusy": "O servidor está ocupado processando outras imagens. Por favor, tente novamente em instantes."
 }

@@ -74,5 +74,7 @@
   "email.delete_account_requested.scheduled": "De verwijdering is gepland voor <strong>{scheduledAt}</strong>. Zodra deze is uitgevoerd, kan deze niet meer ongedaan worden gemaakt.",
   "email.delete_account_requested.cancel": "Heb je dit niet aangevraagd, of ben je van gedachten veranderd? Gebruik de onderstaande link om de verwijdering te annuleren voordat die datum verstrijkt:",
   "email.delete_account_completed.subject": "Uw Fider-site {tenantName} is verwijderd",
-  "email.delete_account_completed.text": "Uw Fider-site <strong>{tenantName}</strong> ({subdomain}) en alle bijbehorende gegevens zijn nu permanent verwijderd. Dit kan niet ongedaan worden gemaakt."
+  "email.delete_account_completed.text": "Uw Fider-site <strong>{tenantName}</strong> ({subdomain}) en alle bijbehorende gegevens zijn nu permanent verwijderd. Dit kan niet ongedaan worden gemaakt.",
+  "validation.custom.maximagepixels": "De afmetingen van de afbeelding zijn te groot. Upload alstublieft een afbeelding met een lagere resolutie.",
+  "validation.custom.imageprocessingbusy": "De server is bezig met het verwerken van andere afbeeldingen. Probeer het over een moment opnieuw."
 }

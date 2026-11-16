@@ -74,5 +74,7 @@
   "email.delete_account_requested.scheduled": "Odstránenie je naplánované na <strong>{scheduledAt}</strong>. Po spustení sa nedá vrátiť späť.",
   "email.delete_account_requested.cancel": "Nežiadali ste o to alebo ste si to rozmysleli? Na zrušenie odstránenia použite odkaz nižšie:",
   "email.delete_account_completed.subject": "Vaša stránka Fider {tenantName} bola odstránená",
-  "email.delete_account_completed.text": "Vaša stránka Fider <strong>{tenantName}</strong> ({subdomain}) a všetky jej údaje boli natrvalo odstránené. Túto akciu nie je možné vrátiť späť."
+  "email.delete_account_completed.text": "Vaša stránka Fider <strong>{tenantName}</strong> ({subdomain}) a všetky jej údaje boli natrvalo odstránené. Túto akciu nie je možné vrátiť späť.",
+  "validation.custom.maximagepixels": "Rozmery obrázka sú príliš veľké. Nahrajte obrázok s nižším rozlíšením.",
+  "validation.custom.imageprocessingbusy": "Server je zaneprázdnený spracovaním iných obrázkov. Skúste to znova o chvíľu."
 }

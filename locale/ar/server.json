@@ -75,5 +75,7 @@
   "email.delete_account_requested.scheduled": "تمت جدولة عملية الحذف لـ <strong>{scheduledAt}</strong>. بمجرد تنفيذها، لا يمكن التراجع عنها.",
   "email.delete_account_requested.cancel": "لم تطلب هذا، أو غيرت رأيك؟ استخدم الرابط أدناه لإلغاء الحذف قبل ذلك:",
   "email.delete_account_completed.subject": "تم حذف موقع Fider الخاص بك {tenantName}",
-  "email.delete_account_completed.text": "تم حذف موقع Fider الخاص بك <strong>{tenantName}</strong> ({subdomain}) وجميع بياناته نهائيًا. لا يمكن التراجع عن هذا الإجراء."
+  "email.delete_account_completed.text": "تم حذف موقع Fider الخاص بك <strong>{tenantName}</strong> ({subdomain}) وجميع بياناته نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+  "validation.custom.maximagepixels": "أبعاد الصورة كبيرة جدًا. يرجى تحميل صورة بدقة أقل.",
+  "validation.custom.imageprocessingbusy": "الخادم مشغول بمعالجة صور أخرى. يرجى المحاولة مرة أخرى بعد قليل."
 }

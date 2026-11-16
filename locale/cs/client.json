@@ -242,7 +242,7 @@
   "signin.message.onlyadmins": "Aktuálně je povoleno přihlášení pouze k účtu správce",
   "signin.message.private.text": "Pokud máte účet nebo pozvánku, můžete se přihlásit pomocí následujících možností.",
   "signin.message.private.title": "<0>{0}</0> je soukromý prostor, pro účast a hlasování se musíte přihlásit.",
-  "signin.message.signupdisabled": "Pro tuto e-mailovou adresu jsme nenašli žádný účet. Registrace nových uživatelů je momentálně vypnutá.",
+  "signin.message.signupdisabled": "Pro tuto e-mailovou adresu se nám nepodařilo najít účet. Nové registrace jsou momentálně zakázány.",
   "signin.message.socialbutton.intro": "Přihlásit se pomocí",
   "signin.name.placeholder": "Vaše jméno",
   "validation.custom.maxattachments": "Maximální povolený počet příloh je {number}.",

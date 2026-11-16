@@ -74,5 +74,7 @@
   "email.delete_account_requested.scheduled": "Silme işlemi <strong>{scheduledAt}</strong> için planlanmıştır. İşlem başladıktan sonra geri alınamaz.",
   "email.delete_account_requested.cancel": "Bunu talep etmediniz mi veya fikrinizi mi değiştirdiniz? Silme işlemini iptal etmek için aşağıdaki bağlantıyı kullanın:",
   "email.delete_account_completed.subject": "Fider siteniz {tenantName} silindi.",
-  "email.delete_account_completed.text": "Fider siteniz <strong>{tenantName}</strong> ({subdomain}) ve tüm verileri kalıcı olarak silindi. Bu işlem geri alınamaz."
+  "email.delete_account_completed.text": "Fider siteniz <strong>{tenantName}</strong> ({subdomain}) ve tüm verileri kalıcı olarak silindi. Bu işlem geri alınamaz.",
+  "validation.custom.maximagepixels": "Görüntü boyutları çok büyük. Lütfen daha düşük çözünürlükte bir görüntü yükleyin.",
+  "validation.custom.imageprocessingbusy": "Sunucu diğer görselleri işlemekle meşgul. Lütfen biraz sonra tekrar deneyin."
 }

@@ -76,5 +76,7 @@
   "email.delete_account_requested.scheduled": "刪除操作已排程在<strong>{scheduledAt}</strong>執行。一旦執行，將無法撤銷。",
   "email.delete_account_requested.cancel": "如果您沒有提出刪除請求，或改變了主意，請使用以下連結在此之前取消刪除：",
   "email.delete_account_completed.subject": "您的 Fider 網站 {tenantName} 已刪除",
-  "email.delete_account_completed.text": "您的 Fider 網站 <strong>{tenantName}</strong> ({subdomain}) 及其所有資料已永久刪除。此操作無法撤銷。"
+  "email.delete_account_completed.text": "您的 Fider 網站 <strong>{tenantName}</strong> ({subdomain}) 及其所有資料已永久刪除。此操作無法撤銷。",
+  "validation.custom.maximagepixels": "圖片尺寸過大，請上傳解析度較低的圖片。",
+  "validation.custom.imageprocessingbusy": "伺服器正忙於處理其他圖片，請稍後再試。"
 }

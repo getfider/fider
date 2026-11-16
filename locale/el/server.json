@@ -74,5 +74,7 @@
   "email.delete_account_requested.scheduled": "Η διαγραφή έχει προγραμματιστεί για <strong>{scheduledAt}</strong>. Μόλις εκτελεστεί, δεν μπορεί να αναιρεθεί.",
   "email.delete_account_requested.cancel": "Δεν το ζητήσατε αυτό ή αλλάξατε γνώμη; Χρησιμοποιήστε τον παρακάτω σύνδεσμο για να ακυρώσετε τη διαγραφή πριν από τότε:",
   "email.delete_account_completed.subject": "Ο ιστότοπός σας στο Fider {tenantName} έχει διαγραφεί",
-  "email.delete_account_completed.text": "Ο ιστότοπός σας Fider <strong>{tenantName}</strong> ({subdomain}) και όλα τα δεδομένα του έχουν πλέον διαγραφεί οριστικά. Δεν είναι δυνατή η αναίρεση αυτής της ενέργειας."
+  "email.delete_account_completed.text": "Ο ιστότοπός σας Fider <strong>{tenantName}</strong> ({subdomain}) και όλα τα δεδομένα του έχουν πλέον διαγραφεί οριστικά. Δεν είναι δυνατή η αναίρεση αυτής της ενέργειας.",
+  "validation.custom.maximagepixels": "Οι διαστάσεις της εικόνας είναι πολύ μεγάλες. Παρακαλώ ανεβάστε μια εικόνα με χαμηλότερη ανάλυση.",
+  "validation.custom.imageprocessingbusy": "Ο διακομιστής επεξεργάζεται άλλες εικόνες. Δοκιμάστε ξανά σε λίγο."
 }
