@@ -76,5 +76,7 @@
   "email.delete_account_requested.scheduled": "عملیات حذف برای <strong>{scheduledAt}</strong> برنامه‌ریزی شده است. پس از اجرا، دیگر قابل بازگشت نیست.",
   "email.delete_account_requested.cancel": "آیا این را درخواست نکرده‌اید یا نظرتان عوض شده است؟ قبل از آن، از لینک زیر برای لغو حذف استفاده کنید:",
   "email.delete_account_completed.subject": "سایت فیدر شما {tenantName} حذف شده است",
-  "email.delete_account_completed.text": "سایت Fider شما <strong>{tenantName}</strong> ({subdomain}) و تمام داده‌های آن اکنون به طور دائم حذف شده‌اند. این حذف قابل بازگشت نیست."
+  "email.delete_account_completed.text": "سایت Fider شما <strong>{tenantName}</strong> ({subdomain}) و تمام داده‌های آن اکنون به طور دائم حذف شده‌اند. این حذف قابل بازگشت نیست.",
+  "validation.custom.maximagepixels": "ابعاد تصویر خیلی بزرگ است، لطفاً تصویری با وضوح پایین‌تر بارگذاری کنید.",
+  "validation.custom.imageprocessingbusy": "سرور مشغول پردازش تصاویر دیگر است. لطفاً چند لحظه دیگر دوباره امتحان کنید."
 }

@@ -74,5 +74,7 @@
   "email.delete_account_requested.scheduled": "Die Löschung ist für <strong>{scheduledAt}</strong> geplant. Sobald sie ausgeführt wurde, kann sie nicht mehr rückgängig gemacht werden.",
   "email.delete_account_requested.cancel": "Sie haben dies nicht beantragt oder Ihre Meinung geändert? Nutzen Sie den unten stehenden Link, um die Löschung vorher zu stornieren:",
   "email.delete_account_completed.subject": "Ihre Fider-Site {tenantName} wurde gelöscht",
-  "email.delete_account_completed.text": "Ihre Fider-Site <strong>{tenantName}</strong> ({subdomain}) und alle zugehörigen Daten wurden nun endgültig gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden."
+  "email.delete_account_completed.text": "Ihre Fider-Site <strong>{tenantName}</strong> ({subdomain}) und alle zugehörigen Daten wurden nun endgültig gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden.",
+  "validation.custom.maximagepixels": "Die Bildabmessungen sind zu groß. Bitte laden Sie ein Bild mit einer niedrigeren Auflösung hoch.",
+  "validation.custom.imageprocessingbusy": "Der Server verarbeitet gerade andere Bilder. Bitte versuchen Sie es in einem Moment erneut."
 }

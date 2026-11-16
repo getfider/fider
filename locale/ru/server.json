@@ -74,5 +74,7 @@
   "email.delete_account_requested.scheduled": "Удаление запланировано на <strong>{scheduledAt}</strong>. После его выполнения отменить его будет невозможно.",
   "email.delete_account_requested.cancel": "Вы не запрашивали это или передумали? Воспользуйтесь ссылкой ниже, чтобы отменить удаление до указанного срока:",
   "email.delete_account_completed.subject": "Ваш сайт Fider {tenantName} был удален",
-  "email.delete_account_completed.text": "Ваш сайт Fider <strong>{tenantName}</strong> ({subdomain}) и все его данные были безвозвратно удалены. Это невозможно отменить."
+  "email.delete_account_completed.text": "Ваш сайт Fider <strong>{tenantName}</strong> ({subdomain}) и все его данные были безвозвратно удалены. Это невозможно отменить.",
+  "validation.custom.maximagepixels": "Размеры изображения слишком велики. Пожалуйста, загрузите изображение с более низким разрешением.",
+  "validation.custom.imageprocessingbusy": "Сервер занят обработкой других изображений. Пожалуйста, попробуйте еще раз через некоторое время."
 }

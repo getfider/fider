@@ -75,5 +75,7 @@
   "email.delete_account_requested.scheduled": "削除処理は<strong>{scheduledAt}</strong>に予定されています。一度実行されると、元に戻すことはできません。",
   "email.delete_account_requested.cancel": "削除を依頼していない、または気が変わった場合は、以下のリンクを使用して削除をキャンセルしてください。",
   "email.delete_account_completed.subject": "あなたのFiderサイト{tenantName}は削除されました",
-  "email.delete_account_completed.text": "あなたのFiderサイト<strong>{tenantName}</strong>（{subdomain}）とそのすべてのデータは完全に削除されました。この操作は元に戻せません。"
+  "email.delete_account_completed.text": "あなたのFiderサイト<strong>{tenantName}</strong>（{subdomain}）とそのすべてのデータは完全に削除されました。この操作は元に戻せません。",
+  "validation.custom.maximagepixels": "画像サイズが大きすぎます。解像度の低い画像をアップロードしてください。",
+  "validation.custom.imageprocessingbusy": "サーバーは現在、他の画像処理を行っています。しばらくしてからもう一度お試しください。"
 }

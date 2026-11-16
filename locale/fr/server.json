@@ -74,5 +74,7 @@
   "email.delete_account_requested.scheduled": "La suppression est programmée pour le <strong>{scheduledAt}</strong>. Une fois exécutée, elle ne peut être annulée.",
   "email.delete_account_requested.cancel": "Vous n'avez pas demandé cela ou vous avez changé d'avis ? Utilisez le lien ci-dessous pour annuler la suppression avant cette date :",
   "email.delete_account_completed.subject": "Votre site Fider {tenantName} a été supprimé",
-  "email.delete_account_completed.text": "Votre site Fider <strong>{tenantName}</strong> ({subdomain}) et toutes ses données ont été définitivement supprimés. Cette action est irréversible."
+  "email.delete_account_completed.text": "Votre site Fider <strong>{tenantName}</strong> ({subdomain}) et toutes ses données ont été définitivement supprimés. Cette action est irréversible.",
+  "validation.custom.maximagepixels": "Les dimensions de l'image sont trop élevées. Veuillez télécharger une image de résolution inférieure.",
+  "validation.custom.imageprocessingbusy": "Le serveur est occupé à traiter d'autres images. Veuillez réessayer dans quelques instants."
 }

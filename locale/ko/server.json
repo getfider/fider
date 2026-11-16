@@ -76,5 +76,7 @@
   "email.delete_account_completed.subject": "귀하의 Fider 사이트 {tenantName}이 삭제되었습니다.",
   "email.delete_account_completed.text": "귀하의 Fider 사이트 <strong>{tenantName}</strong> ({subdomain}) 및 모든 데이터가 영구적으로 삭제되었습니다. 이 작업은 복구할 수 없습니다.",
   "feed.global.title": "{count, plural, other {(투표 {count}) {title}}}",
-  "feed.post.title": "# {title}\n{votes, plural, other {투표 #}}, {comments, plural, other {댓글 #}}"
+  "feed.post.title": "# {title}\n{votes, plural, other {투표 #}}, {comments, plural, other {댓글 #}}\n\n---\n",
+  "validation.custom.maximagepixels": "이미지 크기가 너무 큽니다. 해상도를 낮춘 이미지를 업로드해 주세요.",
+  "validation.custom.imageprocessingbusy": "서버가 다른 이미지를 처리 ​​중입니다. 잠시 후 다시 시도해 주세요."
 }
