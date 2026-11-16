@@ -211,8 +211,7 @@ func getActiveVerificationByEmail(ctx context.Context, q *query.GetActiveVerific
 func countRecentVerificationsByEmail(ctx context.Context, q *query.CountRecentVerificationsByEmail) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		// Held until the request transaction ends
-		if _, err := trx.Execute("SELECT pg_advisory_xact_lock(hashtext($1))",
-			fmt.Sprintf("email_verifications:%d:%d:%s", tenant.ID, q.Kind, q.Email)); err != nil {
+		if err := dbx.Lock(trx, fmt.Sprintf("email_verifications:%d:%d:%s", tenant.ID, q.Kind, q.Email)); err != nil {
 			return errors.Wrap(err, "failed to lock email verifications")
 		}
 
