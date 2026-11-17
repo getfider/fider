@@ -61,6 +61,29 @@ func WrapRequest(request *http.Request) Request {
 }
 
 // GetHeader returns the value of HTTP header from given key
+// logRedactedParams are query string parameters that carry credentials: OAuth codes and
+// handoffs, sign up tokens and verification keys.
+var logRedactedParams = []string{"code", "handoff", "k", "token"}
+
+// LogURL returns the request URL for logging, with credentials in the query string masked.
+func (r *Request) LogURL() string {
+	query := r.URL.Query()
+	redacted := false
+	for _, key := range logRedactedParams {
+		if query.Has(key) {
+			query.Set(key, "redacted")
+			redacted = true
+		}
+	}
+	if !redacted {
+		return r.URL.String()
+	}
+
+	u := *r.URL
+	u.RawQuery = query.Encode()
+	return u.String()
+}
+
 func (r *Request) GetHeader(key string) string {
 	return r.instance.Header.Get(key)
 }

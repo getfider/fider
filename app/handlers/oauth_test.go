@@ -4,6 +4,8 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -57,21 +59,47 @@ func mockTenantByDomain() {
 		}
 		return app.ErrNotFound
 	})
+
+	// feedback.theavengers.com is the Avengers' custom domain, and its DNS points at them.
+	web.LookupCNAME = func(ctx context.Context, host string) (string, error) {
+		if host == "feedback.theavengers.com" {
+			return "avengers.test.fider.io.", nil
+		}
+		return "", errors.New("no such host")
+	}
 }
 
 // newHandoff mints the token OAuthCallback would hand over to the tenant address.
-func newHandoff(provider, origin, sessionID string) string {
-	sum := sha256.Sum256([]byte(sessionID))
-	token, err := jwt.Encode(jwt.OAuthHandoffClaims{
-		Provider:      provider,
-		Origin:        origin,
-		SessionIDHash: hex.EncodeToString(sum[:]),
-		Metadata: jwt.Metadata{
-			ExpiresAt: jwt.Time(time.Now().Add(2 * time.Minute)),
-		},
-	})
+func newHandoff(provider string, tenant *entity.Tenant, sessionID string) string {
+	return encodeHandoff(jwt.OAuthHandoffClaims{Provider: provider, TenantID: tenant.ID}, sessionID)
+}
+
+// newHandoffFor mints a handoff carrying the profile the (mocked) provider returns for code,
+// as OAuthCallback would after exchanging it.
+func newHandoffFor(provider string, tenant *entity.Tenant, sessionID, code string) string {
+	q := &query.GetOAuthProfile{Provider: provider, Code: code}
+	Expect(bus.Dispatch(context.Background(), q)).IsNil()
+	return encodeHandoff(jwt.OAuthHandoffClaims{
+		Provider:   provider,
+		TenantID:   tenant.ID,
+		OAuthID:    q.Result.ID,
+		OAuthName:  q.Result.Name,
+		OAuthEmail: q.Result.Email,
+		OAuthRoles: q.Result.Roles,
+	}, sessionID)
+}
+
+func encodeHandoff(claims jwt.OAuthHandoffClaims, sessionID string) string {
+	claims.SessionIDHash = hashSession(sessionID)
+	claims.ExpiresAt = jwt.Time(time.Now().Add(2 * time.Minute))
+	token, err := jwt.Encode(claims)
 	Expect(err).IsNil()
 	return token
+}
+
+func hashSession(sessionID string) string {
+	sum := sha256.Sum256([]byte(sessionID))
+	return hex.EncodeToString(sum[:])
 }
 
 func TestSignOutHandler(t *testing.T) {
@@ -332,8 +360,8 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 
 	server := mock.NewServer()
 	state, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://avengers.test.fider.io",
-		Identifier: "",
+		Redirect:      "http://avengers.test.fider.io",
+		SessionIDHash: "",
 	})
 
 	code, response := server.
@@ -352,8 +380,8 @@ func TestCallbackHandler_UnknownOrigin(t *testing.T) {
 	mockTenantByDomain()
 
 	state, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://evil.com",
-		Identifier: "888",
+		Redirect:      "http://evil.com",
+		SessionIDHash: "888",
 	})
 
 	server := mock.NewServer()
@@ -365,68 +393,13 @@ func TestCallbackHandler_UnknownOrigin(t *testing.T) {
 	Expect(code).Equals(http.StatusForbidden)
 }
 
-func TestCallbackHandler_SignIn(t *testing.T) {
-	RegisterT(t)
-	mockTenantByDomain()
-
-	state, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://avengers.test.fider.io",
-		Identifier: "888",
-	})
-
-	server := mock.NewServer()
-	code, response := server.
-		WithURL("http://login.test.fider.io/oauth/callback?state="+state+"&code=123").
-		AddParam("provider", app.FacebookProvider).
-		Execute(handlers.OAuthCallback())
-
-	Expect(code).Equals(http.StatusTemporaryRedirect)
-
-	location, _ := url.Parse(response.Header().Get("Location"))
-	Expect(location.Host).Equals("avengers.test.fider.io")
-	Expect(location.Path).Equals("/oauth/facebook/token")
-	Expect(location.Query().Get("code")).Equals("123")
-	Expect(location.Query().Get("redirect")).Equals("/")
-	// The session ID itself must not travel through the URL any more.
-	Expect(location.Query().Get("identifier")).IsEmpty()
-	ExpectOAuthHandoff(location.Query().Get("handoff"), "facebook", "http://avengers.test.fider.io", "888")
-}
-
-func TestCallbackHandler_SignIn_WithPath(t *testing.T) {
-	RegisterT(t)
-	mockTenantByDomain()
-	server := mock.NewServer()
-
-	state, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://avengers.test.fider.io/some-page",
-		Identifier: "888",
-	})
-
-	code, response := server.
-		WithURL("http://login.test.fider.io/oauth/callback?state="+state+"&code=123").
-		AddParam("provider", app.FacebookProvider).
-		Execute(handlers.OAuthCallback())
-
-	Expect(code).Equals(http.StatusTemporaryRedirect)
-
-	location, _ := url.Parse(response.Header().Get("Location"))
-	Expect(location.Host).Equals("avengers.test.fider.io")
-	Expect(location.Path).Equals("/oauth/facebook/token")
-	Expect(location.Query().Get("code")).Equals("123")
-	Expect(location.Query().Get("redirect")).Equals("/some-page")
-	ExpectOAuthHandoff(location.Query().Get("handoff"), "facebook", "http://avengers.test.fider.io", "888")
-}
-
-func TestCallbackHandler_SignUp(t *testing.T) {
-	RegisterT(t)
-	mockTenantByDomain()
-
+// mockFacebookProfile makes the provider return a profile for code "123".
+func mockFacebookProfile() *dto.OAuthUserProfile {
 	oauthUser := &dto.OAuthUserProfile{
 		ID:    "FB123",
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
 	}
-
 	bus.AddHandler(func(ctx context.Context, q *query.GetOAuthProfile) error {
 		if q.Provider == app.FacebookProvider && q.Code == "123" {
 			q.Result = oauthUser
@@ -434,21 +407,205 @@ func TestCallbackHandler_SignUp(t *testing.T) {
 		}
 		return app.ErrNotFound
 	})
+	return oauthUser
+}
 
+func executeCallback(redirect string) (int, *httptest.ResponseRecorder) {
 	state, _ := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   "http://demo.test.fider.io/signup",
-		Identifier: "",
+		Redirect:      redirect,
+		SessionIDHash: hashSession("888"),
 	})
 
-	server := mock.NewServer()
-	code, response := server.
+	return mock.NewServer().
 		WithURL("http://login.test.fider.io/oauth/callback?state="+state+"&code=123").
 		AddParam("provider", app.FacebookProvider).
 		Execute(handlers.OAuthCallback())
+}
+
+func TestCallbackHandler_SignIn(t *testing.T) {
+	RegisterT(t)
+	mockTenantByDomain()
+	oauthUser := mockFacebookProfile()
+
+	code, response := executeCallback("http://avengers.test.fider.io")
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 
 	location, _ := url.Parse(response.Header().Get("Location"))
-	Expect(location.Host).Equals("demo.test.fider.io")
+	Expect(location.Host).Equals("avengers.test.fider.io")
+	Expect(location.Path).Equals("/oauth/facebook/token")
+	Expect(location.Query().Get("redirect")).Equals("/")
+	// The authorization code is exchanged by the callback and must never be forwarded.
+	Expect(location.Query().Has("code")).IsFalse()
+	Expect(location.Query().Get("identifier")).IsEmpty()
+
+	claims := ExpectOAuthHandoff(location.Query().Get("handoff"), "facebook", mock.AvengersTenant, hashSession("888"))
+	Expect(claims.OAuthID).Equals(oauthUser.ID)
+	Expect(claims.OAuthName).Equals(oauthUser.Name)
+	Expect(claims.OAuthEmail).Equals(oauthUser.Email)
+}
+
+func TestCallbackHandler_SignIn_WithPath(t *testing.T) {
+	RegisterT(t)
+	mockTenantByDomain()
+	mockFacebookProfile()
+
+	code, response := executeCallback("http://avengers.test.fider.io/some-page")
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("avengers.test.fider.io")
+	Expect(location.Path).Equals("/oauth/facebook/token")
+	Expect(location.Query().Has("code")).IsFalse()
+	Expect(location.Query().Get("redirect")).Equals("/some-page")
+	ExpectOAuthHandoff(location.Query().Get("handoff"), "facebook", mock.AvengersTenant, hashSession("888"))
+}
+
+// A tenant's custom domain is set by its admin without proof of ownership, so whatever is
+// sent there must only be usable on that tenant.
+func TestCallbackHandler_SignIn_CustomDomain(t *testing.T) {
+	RegisterT(t)
+	mockTenantByDomain()
+	mockFacebookProfile()
+
+	code, response := executeCallback("http://feedback.theavengers.com")
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("feedback.theavengers.com")
+	Expect(location.Query().Has("code")).IsFalse()
+	handoff := location.Query().Get("handoff")
+	ExpectOAuthHandoff(handoff, "facebook", mock.AvengersTenant, hashSession("888"))
+
+	// Replaying it on another tenant, even from the same browser session, does nothing.
+	code, response = mock.NewServer().
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?redirect=/&handoff="+handoff).
+		OnTenant(mock.DemoTenant).
+		AddParam("provider", app.FacebookProvider).
+		AddCookie(web.CookieSessionName, "888").
+		Use(middlewares.Session()).
+		Execute(handlers.OAuthToken())
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	ExpectFiderAuthCookie(response, nil)
+}
+
+// A custom domain whose DNS doesn't point at its tenant was never proven to belong to it.
+func TestCallbackHandler_SignIn_UnverifiedCustomDomain(t *testing.T) {
+	RegisterT(t)
+	mockTenantByDomain()
+	mockFacebookProfile()
+
+	web.LookupCNAME = func(ctx context.Context, host string) (string, error) {
+		return "attacker.example.", nil
+	}
+
+	code, _ := executeCallback("http://feedback.theavengers.com")
+	Expect(code).Equals(http.StatusForbidden)
+}
+
+func TestCallbackHandler_Echo(t *testing.T) {
+	RegisterT(t)
+	mockTenantByDomain()
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetOAuthRawProfile) error {
+		Expect(q.Code).Equals("123")
+		q.Result = `{"id":"FB123"}`
+		return nil
+	})
+
+	code, response := executeCallback("http://avengers.test.fider.io/oauth/facebook/echo")
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("avengers.test.fider.io")
+	Expect(location.Path).Equals("/oauth/facebook/echo")
+	Expect(location.Query().Has("code")).IsFalse()
+	claims := ExpectOAuthHandoff(location.Query().Get("handoff"), "facebook", mock.AvengersTenant, hashSession("888"))
+	Expect(claims.RawProfile).Equals(`{"id":"FB123"}`)
+}
+
+func TestCallbackHandler_Echo_LargeProfileIsTruncated(t *testing.T) {
+	RegisterT(t)
+	mockTenantByDomain()
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetOAuthRawProfile) error {
+		q.Result = strings.Repeat("x", 10000)
+		return nil
+	})
+
+	_, response := executeCallback("http://avengers.test.fider.io/oauth/facebook/echo")
+	location, _ := url.Parse(response.Header().Get("Location"))
+	claims := ExpectOAuthHandoff(location.Query().Get("handoff"), "facebook", mock.AvengersTenant, hashSession("888"))
+	Expect(len(claims.RawProfile) < 4200).IsTrue()
+	Expect(strings.HasSuffix(claims.RawProfile, "(truncated)")).IsTrue()
+}
+
+func executeEcho(handoff string) (int, *httptest.ResponseRecorder) {
+	return mock.NewServer().
+		WithURL("http://avengers.test.fider.io/oauth/facebook/echo?handoff="+handoff).
+		OnTenant(mock.AvengersTenant).
+		AddParam("provider", app.FacebookProvider).
+		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
+		Use(middlewares.Session()).
+		Execute(handlers.OAuthEcho())
+}
+
+func TestOAuthEchoHandler_ShowsProfile(t *testing.T) {
+	RegisterT(t)
+	initOAuthWithMocks()
+
+	handoff := encodeHandoff(jwt.OAuthHandoffClaims{
+		Provider:   app.FacebookProvider,
+		TenantID:   mock.AvengersTenant.ID,
+		RawProfile: `{"id":"FB123","name":"Jon Snow"}`,
+	}, "MY_SESSION_ID")
+
+	code, response := executeEcho(handoff)
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.String()).ContainsSubstring("FB123")
+}
+
+func TestOAuthEchoHandler_ShowsError(t *testing.T) {
+	RegisterT(t)
+	initOAuthWithMocks()
+
+	handoff := encodeHandoff(jwt.OAuthHandoffClaims{
+		Provider: app.FacebookProvider,
+		TenantID: mock.AvengersTenant.ID,
+		Error:    "invalid_grant",
+	}, "MY_SESSION_ID")
+
+	code, response := executeEcho(handoff)
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Body.String()).ContainsSubstring("invalid_grant")
+}
+
+// The test page is reachable by anyone, so it must only show a profile to the browser
+// that started the flow.
+func TestOAuthEchoHandler_HandoffForAnotherSession(t *testing.T) {
+	RegisterT(t)
+	initOAuthWithMocks()
+
+	handoff := encodeHandoff(jwt.OAuthHandoffClaims{
+		Provider:   app.FacebookProvider,
+		TenantID:   mock.AvengersTenant.ID,
+		RawProfile: `{"id":"FB123"}`,
+	}, "SOME_OTHER_ID")
+
+	code, response := executeEcho(handoff)
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("/")
+}
+
+func TestCallbackHandler_SignUp(t *testing.T) {
+	RegisterT(t)
+	mockTenantByDomain()
+	oauthUser := mockFacebookProfile()
+
+	code, response := executeCallback("http://login.test.fider.io/signup")
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("login.test.fider.io")
 	Expect(location.Scheme).Equals("http")
 	Expect(location.Path).Equals("/signup")
 	ExpectOAuthToken(location.Query().Get("token"), &jwt.OAuthClaims{
@@ -457,6 +614,17 @@ func TestCallbackHandler_SignUp(t *testing.T) {
 		OAuthName:     oauthUser.Name,
 		OAuthEmail:    oauthUser.Email,
 	})
+}
+
+// Sign up only runs on the host-wide address; a tenant origin (possibly a custom domain
+// its admin controls) must not receive the visitor's profile.
+func TestCallbackHandler_SignUp_OnTenantOrigin(t *testing.T) {
+	RegisterT(t)
+	mockTenantByDomain()
+	mockFacebookProfile()
+
+	code, _ := executeCallback("http://feedback.theavengers.com/signup")
+	Expect(code).Equals(http.StatusForbidden)
 }
 
 func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
@@ -486,7 +654,7 @@ func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&redirect=/hello&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?redirect=/hello&handoff="+newHandoffFor(app.FacebookProvider, mock.DemoTenant, "MY_SESSION_ID", "123")).
 		OnTenant(mock.DemoTenant).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
 		AddParam("provider", app.FacebookProvider).
@@ -537,7 +705,7 @@ func TestOAuthTokenHandler_NewUser(t *testing.T) {
 
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&redirect=/hello&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?redirect=/hello&handoff="+newHandoffFor(app.FacebookProvider, mock.DemoTenant, "MY_SESSION_ID", "456")).
 		OnTenant(mock.DemoTenant).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
 		AddParam("provider", app.FacebookProvider).
@@ -584,7 +752,7 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	})
 
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=798&redirect=/&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?redirect=/&handoff="+newHandoffFor(app.FacebookProvider, mock.DemoTenant, "MY_SESSION_ID", "798")).
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -686,7 +854,7 @@ func setupExistingUserWithoutEmail(getUserByEmail func(ctx context.Context, q *q
 func executeExistingUserWithoutEmail() *httptest.ResponseRecorder {
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&redirect=/&handoff="+newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?redirect=/&handoff="+newHandoffFor(app.FacebookProvider, mock.DemoTenant, "MY_SESSION_ID", "456")).
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -732,7 +900,7 @@ func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 
 	server := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/google/token?code=123&redirect=/&handoff="+newHandoff(app.GoogleProvider, "http://demo.test.fider.io", "MY_SESSION_ID")).
+		WithURL("http://demo.test.fider.io/oauth/google/token?redirect=/&handoff="+newHandoffFor(app.GoogleProvider, mock.DemoTenant, "MY_SESSION_ID", "123")).
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", app.GoogleProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -779,7 +947,7 @@ func TestOAuthTokenHandler_NewUser_PrivateSite(t *testing.T) {
 	})
 
 	code, response := server.
-		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&redirect=/&handoff="+newHandoff(app.FacebookProvider, "http://feedback.theavengers.com", "MY_SESSION_ID")).
+		WithURL("http://feedback.theavengers.com/oauth/facebook/token?redirect=/&handoff="+newHandoffFor(app.FacebookProvider, mock.AvengersTenant, "MY_SESSION_ID", "456")).
 		OnTenant(mock.AvengersTenant).
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -822,7 +990,7 @@ func TestOAuthTokenHandler_NewUser_SignUpDisabled(t *testing.T) {
 	})
 
 	code, response := server.
-		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&redirect=/&handoff="+newHandoff(app.FacebookProvider, "http://feedback.theavengers.com", "MY_SESSION_ID")).
+		WithURL("http://feedback.theavengers.com/oauth/facebook/token?redirect=/&handoff="+newHandoffFor(app.FacebookProvider, mock.AvengersTenant, "MY_SESSION_ID", "456")).
 		OnTenant(mock.AvengersTenant).
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -884,7 +1052,7 @@ func TestOAuthTokenHandler_NewUser_PrivateSite_UsingTrustedProvider(t *testing.T
 	})
 
 	code, response := server.
-		WithURL("http://feedback.theavengers.com/oauth/"+providerCode+"/token?code=000111&redirect=/&handoff="+newHandoff(providerCode, "http://feedback.theavengers.com", "MY_SESSION_ID")).
+		WithURL("http://feedback.theavengers.com/oauth/"+providerCode+"/token?redirect=/&handoff="+newHandoffFor(providerCode, mock.AvengersTenant, "MY_SESSION_ID", "000111")).
 		OnTenant(mock.AvengersTenant).
 		AddParam("provider", providerCode).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -905,7 +1073,7 @@ func TestOAuthTokenHandler_NewUser_PrivateSite_UsingTrustedProvider(t *testing.T
 // handoff token and returns the response, so the rejection cases can share a setup.
 func executeOAuthTokenWithHandoff(handoff string) (int, *httptest.ResponseRecorder) {
 	return mock.NewServer().
-		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&redirect=/&handoff="+handoff).
+		WithURL("http://feedback.theavengers.com/oauth/facebook/token?redirect=/&handoff="+handoff).
 		OnTenant(mock.AvengersTenant).
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -928,7 +1096,7 @@ func TestOAuthTokenHandler_MissingHandoff(t *testing.T) {
 func TestOAuthTokenHandler_HandoffForAnotherSession(t *testing.T) {
 	RegisterT(t)
 
-	handoff := newHandoff(app.FacebookProvider, "http://feedback.theavengers.com", "SOME_OTHER_ID")
+	handoff := newHandoff(app.FacebookProvider, mock.AvengersTenant, "SOME_OTHER_ID")
 	code, response := executeOAuthTokenWithHandoff(handoff)
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
@@ -940,7 +1108,7 @@ func TestOAuthTokenHandler_HandoffForAnotherSession(t *testing.T) {
 func TestOAuthTokenHandler_HandoffForAnotherTenant(t *testing.T) {
 	RegisterT(t)
 
-	handoff := newHandoff(app.FacebookProvider, "http://demo.test.fider.io", "MY_SESSION_ID")
+	handoff := newHandoff(app.FacebookProvider, mock.DemoTenant, "MY_SESSION_ID")
 	code, response := executeOAuthTokenWithHandoff(handoff)
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
@@ -951,7 +1119,7 @@ func TestOAuthTokenHandler_HandoffForAnotherTenant(t *testing.T) {
 func TestOAuthTokenHandler_HandoffForAnotherProvider(t *testing.T) {
 	RegisterT(t)
 
-	handoff := newHandoff(app.GoogleProvider, "http://feedback.theavengers.com", "MY_SESSION_ID")
+	handoff := newHandoff(app.GoogleProvider, mock.AvengersTenant, "MY_SESSION_ID")
 	code, response := executeOAuthTokenWithHandoff(handoff)
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
@@ -962,11 +1130,10 @@ func TestOAuthTokenHandler_HandoffForAnotherProvider(t *testing.T) {
 func TestOAuthTokenHandler_ExpiredHandoff(t *testing.T) {
 	RegisterT(t)
 
-	sum := sha256.Sum256([]byte("MY_SESSION_ID"))
 	handoff, _ := jwt.Encode(jwt.OAuthHandoffClaims{
 		Provider:      app.FacebookProvider,
-		Origin:        "http://feedback.theavengers.com",
-		SessionIDHash: hex.EncodeToString(sum[:]),
+		TenantID:      mock.AvengersTenant.ID,
+		SessionIDHash: hashSession("MY_SESSION_ID"),
 		Metadata: jwt.Metadata{
 			ExpiresAt: jwt.Time(time.Now().Add(-1 * time.Minute)),
 		},
@@ -1032,7 +1199,7 @@ func ExpectOAuthToken(token string, expected *jwt.OAuthClaims) {
 }
 
 // ExpectOAuthState checks the provider authorization URL and the claims signed into its state.
-func ExpectOAuthState(response *httptest.ResponseRecorder, expectedRedirect, expectedIdentifier string) {
+func ExpectOAuthState(response *httptest.ResponseRecorder, expectedRedirect, expectedSessionID string) {
 	location, err := url.Parse(response.Header().Get("Location"))
 	Expect(err).IsNil()
 	Expect(location.Host).Equals("www.facebook.com")
@@ -1041,18 +1208,19 @@ func ExpectOAuthState(response *httptest.ResponseRecorder, expectedRedirect, exp
 	claims, err := jwt.DecodeOAuthStateClaims(location.Query().Get("state"))
 	Expect(err).IsNil()
 	Expect(claims.Redirect).Equals(expectedRedirect)
-	Expect(claims.Identifier).Equals(expectedIdentifier)
+	// The state travels through the provider, so it carries a hash of the session ID only.
+	Expect(claims.SessionIDHash).Equals(hashSession(expectedSessionID))
 	Expect(claims.ExpiresAt).IsNotNil()
 }
 
-// ExpectOAuthHandoff checks a handoff token is bound to the expected provider, origin and session.
-func ExpectOAuthHandoff(handoff, expectedProvider, expectedOrigin, expectedSessionID string) {
+// ExpectOAuthHandoff checks a handoff token is bound to the expected provider, tenant and
+// session, and returns its claims.
+func ExpectOAuthHandoff(handoff, expectedProvider string, expectedTenant *entity.Tenant, expectedSessionIDHash string) *jwt.OAuthHandoffClaims {
 	claims, err := jwt.DecodeOAuthHandoffClaims(handoff)
 	Expect(err).IsNil()
 	Expect(claims.Provider).Equals(expectedProvider)
-	Expect(claims.Origin).Equals(expectedOrigin)
+	Expect(claims.TenantID).Equals(expectedTenant.ID)
+	Expect(claims.SessionIDHash).Equals(expectedSessionIDHash)
 	Expect(claims.ExpiresAt).IsNotNil()
-
-	sum := sha256.Sum256([]byte(expectedSessionID))
-	Expect(claims.SessionIDHash).Equals(hex.EncodeToString(sum[:]))
+	return claims
 }

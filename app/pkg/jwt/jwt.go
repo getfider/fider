@@ -46,19 +46,32 @@ type OAuthClaims struct {
 
 // OAuthStateClaims represents what goes into JWT tokens used for OAuth state parameter
 type OAuthStateClaims struct {
-	Redirect   string `json:"oauthstate/redirect"`
-	Identifier string `json:"oauthstate/identifier"`
-	Code       string `json:"oauthstate/code"`
+	Redirect      string `json:"oauthstate/redirect"`
+	SessionIDHash string `json:"oauthstate/session_id_hash"` // hash of the browser session ID that started the flow
+	Code          string `json:"oauthstate/code"`
 	Metadata
 }
 
 // OAuthHandoffClaims represents the short lived token that hands an OAuth sign in over
-// from the host-wide callback address to the tenant address. It binds the handoff to a
-// single provider, origin and browser session so it cannot be replayed elsewhere.
+// from the host-wide callback address to the tenant address. The callback has already
+// exchanged the provider's authorization code, so the token carries the resulting profile
+// rather than the code, and is bound to a single provider, tenant and browser session so
+// it cannot be redeemed anywhere else.
 type OAuthHandoffClaims struct {
 	Provider      string `json:"oauthhandoff/provider"`
-	Origin        string `json:"oauthhandoff/origin"`
+	TenantID      int    `json:"oauthhandoff/tenant_id"`
 	SessionIDHash string `json:"oauthhandoff/session_id_hash"`
+
+	// Sign in: the parsed profile.
+	OAuthID    string   `json:"oauthhandoff/oauth_id,omitempty"`
+	OAuthName  string   `json:"oauthhandoff/oauth_name,omitempty"`
+	OAuthEmail string   `json:"oauthhandoff/oauth_email,omitempty"`
+	OAuthRoles []string `json:"oauthhandoff/oauth_roles,omitempty"`
+
+	// Test page (echo): the raw profile body, or the exchange error.
+	RawProfile string `json:"oauthhandoff/raw_profile,omitempty"`
+	Error      string `json:"oauthhandoff/error,omitempty"`
+
 	Metadata
 }
 

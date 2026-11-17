@@ -14,6 +14,7 @@ import (
 	"golang.org/x/net/idna"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -126,7 +127,16 @@ func isValidHostName(ctx context.Context, host string) error {
 		return errors.Wrap(err, "failed to get tenant by cname")
 	}
 
-	cname, err := net.DefaultResolver.LookupCNAME(ctx, host)
+	return CNAMEPointsAtTenant(ctx, host, getTenant.Result)
+}
+
+// LookupCNAME resolves a host's CNAME record. It is a variable so tests can stub DNS.
+var LookupCNAME = net.DefaultResolver.LookupCNAME
+
+// CNAMEPointsAtTenant checks that host's CNAME DNS record points at the tenant's Fider
+// subdomain, which is the only proof that the tenant controls that custom domain.
+func CNAMEPointsAtTenant(ctx context.Context, host string, tenant *entity.Tenant) error {
+	cname, err := LookupCNAME(ctx, host)
 	if err != nil {
 		return errors.Wrap(errInvalidHostName, "failed to lookup CNAME")
 	}
@@ -135,8 +145,8 @@ func isValidHostName(ctx context.Context, host string) error {
 		return errors.Wrap(errInvalidHostName, "no CNAME DNS record found for %s", host)
 	}
 
-	if strings.TrimSuffix(cname, ".") != getTenant.Result.Subdomain+env.MultiTenantDomain() {
-		return errors.Wrap(errInvalidHostName, "cname %s (from %s) doesn't match configured host %s", cname, host, getTenant.Result.Subdomain+env.MultiTenantDomain())
+	if strings.TrimSuffix(cname, ".") != tenant.Subdomain+env.MultiTenantDomain() {
+		return errors.Wrap(errInvalidHostName, "cname %s (from %s) doesn't match configured host %s", cname, host, tenant.Subdomain+env.MultiTenantDomain())
 	}
 
 	return nil

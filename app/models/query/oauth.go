@@ -16,9 +16,9 @@ type ListCustomOAuthConfig struct {
 }
 
 type GetOAuthAuthorizationURL struct {
-	Provider   string
-	Redirect   string
-	Identifier string
+	Provider      string
+	Redirect      string
+	SessionIDHash string // hash of the browser session ID; the state travels via the provider
 	// Code is optional, used to store code of the draft post in the state that is passed through the OAuth flow
 	Code string
 
