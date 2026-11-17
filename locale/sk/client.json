@@ -178,6 +178,7 @@
   "newpost.modal.title": "Podeľte sa o svoj nápad...",
   "newpost.modal.title.label": "Dajte svojmu nápadu názov",
   "newpost.modal.title.placeholder": "Niečo krátke a výstižné, zhrňte to pár slovami",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "Vezmi ma späť do <0>{0}</0> domovskú stránku.",
   "page.pendingactivation.didntreceive": "Nedostali ste e-mail?",
   "page.pendingactivation.resend": "Znova odoslať overovací e-mail",

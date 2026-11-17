@@ -70,6 +70,7 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   })
   const [tags, setTags] = useState(getTagsCachedValue())
   const [error, setError] = useState<Failure | undefined>(undefined)
+  const [justVerified, setJustVerified] = useState(false)
   const titleRef = useRef<HTMLInputElement>()
   const editorRef = useRef<HTMLDivElement>(null)
   const [titleManuallyEdited, setTitleManuallyEdited] = useState(prefillTemplate ? true : getTitleManuallyEditedValue())
@@ -213,7 +214,9 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
   }
 
   const onCodeVerified = (): void => {
-    // User is authenticated - finalize the feedback submission
+    // The user is signed in from here on, even if createPost fails (e.g. title too short).
+    // Switch to the authenticated view so the consumed code can't be resubmitted (#1672).
+    setJustVerified(true)
     finaliseFeedback()
   }
 
@@ -222,7 +225,10 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
     // We don't need to do anything special here
   }
 
-  const showSubmitButton = title.replace(/\s+/g, " ").trim().length > 9
+  const isAuthenticated = fider.session.isAuthenticated || justVerified
+  // The server checks the title length in UTF-8 bytes (Go's len), so count the same way,
+  // otherwise CJK titles the server accepts can't be submitted (#1738).
+  const isTitleLongEnough = new TextEncoder().encode(title.replace(/\s+/g, " ").trim()).length >= 10
 
   return (
     <Modal.Window className="c-share-feedback" isOpen={isOpen} onClose={handleClose} size="fullscreen" center={false}>
@@ -266,7 +272,13 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
                 onChange={handleTitleChange}
                 onKeyDown={handleKeyDown}
                 placeholder={i18n._({ id: "newpost.modal.title.placeholder", message: "Something short and snappy, sum it up in a few words" })}
-              />
+              >
+                {!isTitleLongEnough && (
+                  <p className="c-share-feedback__title-hint text-sm text-blue-600 mt-1 pl-1">
+                    <Trans id="newpost.modal.title.tooshort">Keep going - add a few more words!</Trans>
+                  </p>
+                )}
+              </Input>
               {canEditTags && (
                 <div className="c-form-field">
                   <label>
@@ -280,10 +292,13 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
             </Form>
           </div>
         </div>
-        {/* For unauthenticated users, always show the sign-in control */}
-        {!fider.session.isAuthenticated ? (
+        {/* For unauthenticated users, always show the sign-in control, locked until the title is long enough */}
+        {!isAuthenticated ? (
           <div className="c-share-feedback__content">
-            <div className="c-share-feedback-signin">
+            <div
+              className={classSet({ "c-share-feedback-signin": true, "c-share-feedback-signin--locked": !isTitleLongEnough })}
+              {...(!isTitleLongEnough && { inert: "true" })}
+            >
               <h2 className="text-title text-center mb-4">
                 <Trans id="newpost.modal.submit">Submit your idea</Trans>
               </h2>
@@ -297,20 +312,17 @@ export const ShareFeedback: React.FC<ShareFeedbackProps> = (props) => {
             </div>
           </div>
         ) : (
-          /* For authenticated users, only show the submit button container when title is long enough */
-          showSubmitButton && (
-            <div className="c-share-feedback__content animate-fade-in">
-              <div className="c-share-feedback-signin">
-                <div className="flex justify-center">
-                  <Button variant="primary" onClick={finaliseFeedback}>
-                    <Trans id="newpost.modal.submit">Submit your idea</Trans>
-                  </Button>
-                </div>
+          <div className="c-share-feedback__content">
+            <div className="c-share-feedback-signin">
+              <div className="flex justify-center">
+                <Button variant="primary" onClick={finaliseFeedback} disabled={!isTitleLongEnough}>
+                  <Trans id="newpost.modal.submit">Submit your idea</Trans>
+                </Button>
               </div>
             </div>
-          )
+          </div>
         )}
-        {!fider.session.isAuthenticated ? <LegalFooter /> : null}
+        {!isAuthenticated ? <LegalFooter /> : null}
       </Modal.Content>
     </Modal.Window>
   )

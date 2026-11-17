@@ -178,6 +178,7 @@
   "newpost.modal.title": "Μοιραστείτε την ιδέα σας...",
   "newpost.modal.title.label": "Δώστε έναν τίτλο στην ιδέα σας",
   "newpost.modal.title.placeholder": "Κάτι σύντομο και περιεκτικό, συνοψίστε το σε λίγες λέξεις",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "Επιστρέψτε με στην αρχική σελίδα <0>{0}</0>.",
   "page.pendingactivation.didntreceive": "Δεν λάβατε το email;",
   "page.pendingactivation.resend": "Επανάληψη αποστολής email επαλήθευσης",
