@@ -3,7 +3,7 @@ import "./PostDetails.scss"
 import React, { useState, useEffect, useCallback } from "react"
 
 import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
-import { actions, cache, clearUrlHash, Failure, Fider, navigator as fiderNavigator, notify, timeAgo } from "@fider/services"
+import { actions, cache, clearUrlHash, Failure, Fider, navigator as fiderNavigator, notify, timeAgo, navigator } from "@fider/services"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import { i18n } from "@lingui/core"
 import IconRSS from "@fider/assets/images/heroicons-rss.svg"
@@ -274,7 +274,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     const result = await actions.approvePost(post.id)
     if (result.ok) {
       notify.success(<Trans id="showpost.moderation.approved">Post approved successfully</Trans>)
-      setTimeout(() => location.reload(), 1500)
+      setTimeout(() => navigator.reload(), 1500)
     } else {
       notify.error(<Trans id="showpost.moderation.approveerror">Failed to approve post</Trans>)
     }
@@ -293,7 +293,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
   const onActionSelected = (action: "copy" | "delete" | "status" | "feed" | "edit") => () => {
     if (action === "copy") {
-      navigator.clipboard.writeText(window.location.href)
+      window.navigator.clipboard.writeText(window.location.href)
       notify.success(<Trans id="showpost.copylink.success">Link copied to clipboard</Trans>)
     } else if (action === "delete") {
       setShowDeleteModal(true)

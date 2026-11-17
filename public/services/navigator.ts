@@ -29,6 +29,11 @@ const navigator = {
       navigator.navigate(url)
     }
   },
+  // Re-fetch the current page payload and remount the page; the shell (header) stays put.
+  // Drop-in replacement for location.reload() after a mutation.
+  reload: (): Promise<void> => {
+    return navigator.navigate(window.location.href, { replace: true })
+  },
   replaceState: (path: string): void => {
     if (history.replaceState !== undefined) {
       const newURL = Fider.settings.baseURL + path

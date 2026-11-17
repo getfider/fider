@@ -1,7 +1,7 @@
 import React from "react"
 
 import { TextArea, Form, Button } from "@fider/components"
-import { Failure, actions, Fider } from "@fider/services"
+import { Failure, actions, Fider, navigator } from "@fider/services"
 import { AdminBasePage } from "../components/AdminBasePage"
 
 interface AdvancedSettingsPageProps {
@@ -41,7 +41,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
   private handleSave = async (): Promise<void> => {
     const result = await actions.updateTenantAdvancedSettings(this.state.customCSS, this.state.allowedSchemes)
     if (result.ok) {
-      location.reload()
+      navigator.reload()
     } else {
       this.setState({ error: result.error })
     }

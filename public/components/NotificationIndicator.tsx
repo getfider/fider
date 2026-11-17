@@ -52,7 +52,8 @@ export const NotificationIndicator = () => {
         }
       })
     }
-  }, [fider.session.isAuthenticated])
+    // contextID changes with every page payload, so the count refreshes on each client-side navigation
+  }, [fider.session.isAuthenticated, fider.session.contextID])
 
   useEffect(() => {
     if (showingNotifications) {
@@ -77,7 +78,9 @@ export const NotificationIndicator = () => {
     e.preventDefault()
     const response = await actions.markAllAsRead()
     if (response.ok) {
-      location.reload()
+      setRecent([...(unread || []), ...(recent || [])])
+      setUnread([])
+      setUnreadNotifications(0)
     }
   }
 
