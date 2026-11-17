@@ -27,7 +27,6 @@ import {
   Icon,
   Checkbox,
   ImageUploader,
-  Header,
 } from "@fider/components"
 import { User, UserRole, Tag } from "@fider/models"
 import { notify, Failure } from "@fider/services"
@@ -113,7 +112,6 @@ const DesignSystemPage = () => {
 
   return (
     <>
-      <Header />
       <div id="p-ui-toolkit" className="page container">
         <h2 className="text-display2 mb-2">1. Colors</h2>
 

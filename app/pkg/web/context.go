@@ -216,9 +216,15 @@ func (c *Context) IsAjax() bool {
 	return strings.Contains(accept, JSONContentType) || strings.Contains(contentType, JSONContentType)
 }
 
+// IsPageNavigation returns true when the request is a client-side page navigation
+// (the frontend asks for the page payload as JSON instead of HTML)
+func (c *Context) IsPageNavigation() bool {
+	return c.Request.GetHeader("X-Fider-Navigation") != ""
+}
+
 // Unauthorized returns a 401 error response
 func (c *Context) Unauthorized() error {
-	if c.IsAjax() {
+	if c.IsAjax() && !c.IsPageNavigation() {
 		return c.JSON(http.StatusUnauthorized, Map{})
 	}
 
@@ -231,7 +237,7 @@ func (c *Context) Unauthorized() error {
 
 // Forbidden returns a 403 error response
 func (c *Context) Forbidden() error {
-	if c.IsAjax() {
+	if c.IsAjax() && !c.IsPageNavigation() {
 		return c.JSON(http.StatusForbidden, Map{})
 	}
 
@@ -244,7 +250,7 @@ func (c *Context) Forbidden() error {
 
 // NotFound returns a 404 error page
 func (c *Context) NotFound() error {
-	if c.IsAjax() {
+	if c.IsAjax() && !c.IsPageNavigation() {
 		return c.JSON(http.StatusNotFound, Map{})
 	}
 
@@ -322,7 +328,9 @@ func (c *Context) BadRequest(dict Map) error {
 // Page returns a page with given variables
 func (c *Context) Page(code int, props Props) error {
 	if c.IsAjax() {
-		return c.JSON(code, Map{})
+		// Client-side navigation: same payload as #server-data, as JSON
+		c.Response.Header().Add("Vary", "Accept, X-Fider-Navigation")
+		return c.JSON(code, c.engine.renderer.PageData(code, props, c))
 	}
 
 	buf := new(bytes.Buffer)

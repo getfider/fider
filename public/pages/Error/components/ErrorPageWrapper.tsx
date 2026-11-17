@@ -1,5 +1,5 @@
 import React from "react"
-import { Header, TenantLogo } from "@fider/components"
+import { TenantLogo } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { Trans } from "@lingui/react/macro"
 
@@ -14,7 +14,6 @@ export const ErrorPageWrapper = (props: ErrorPageWrapperProps) => {
 
   return (
     <>
-      {fider.session.tenant && <Header />}
       <div id={props.id} className="container page">
         <div className="w-max-7xl mx-auto text-center mt-8">
           <div className="h-20 mb-4">

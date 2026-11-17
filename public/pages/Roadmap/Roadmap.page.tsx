@@ -4,7 +4,7 @@ import IconCheckCircle from "@fider/assets/images/heroicons-check-circle.svg"
 
 import React, { useState, useCallback } from "react"
 import { Post, Tag } from "@fider/models"
-import { Header, Button, Icon, ResponseLozenge, ShowTag, Moment } from "@fider/components"
+import { Button, Icon, ResponseLozenge, ShowTag, Moment } from "@fider/components"
 import { VStack, HStack } from "@fider/components/layout"
 import { useFider, usePostOverlay } from "@fider/hooks"
 import { actions } from "@fider/services"
@@ -294,12 +294,7 @@ const RoadmapPage = (props: RoadmapPageProps) => {
   const fider = useFider()
   const hasRoadmap = fider.isSingleHostMode() || fider.session.tenant.isPro
 
-  return (
-    <>
-      <Header />
-      {hasRoadmap ? <RoadmapBoard {...props} /> : <RoadmapUpsell />}
-    </>
-  )
+  return hasRoadmap ? <RoadmapBoard {...props} /> : <RoadmapUpsell />
 }
 
 export default RoadmapPage

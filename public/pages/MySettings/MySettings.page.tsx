@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Modal, Form, Button, PageTitle, Input, Select, SelectOption, ImageUploader, Header } from "@fider/components"
+import { Modal, Form, Button, PageTitle, Input, Select, SelectOption, ImageUploader } from "@fider/components"
 
 import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models"
 import { Failure, actions, Fider } from "@fider/services"
@@ -112,7 +112,6 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
 
     return (
       <>
-        <Header />
         <div id="p-my-settings" className="page container">
           <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal}>
             <Modal.Header>

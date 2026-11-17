@@ -2,7 +2,7 @@
 import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { Fider, FiderContext } from "./services/fider"
-import { DevBanner, ReadOnlyNotice } from "./components"
+import { AppShell, DevBanner, ReadOnlyNotice } from "./components"
 
 import { activateI18NSync } from "./services"
 import { I18nProvider } from "@lingui/react"
@@ -68,7 +68,7 @@ function ssrRender(url: string, args: any) {
       <FiderContext.Provider value={fider}>
         <DevBanner />
         <ReadOnlyNotice />
-        {React.createElement(component, args.props)}
+        <AppShell page={fider.session.page}>{React.createElement(component, args.props)}</AppShell>
       </FiderContext.Provider>
     </I18nProvider>
   )

@@ -5,7 +5,7 @@ import IconArrowLeft from "@fider/assets/images/heroicons-arrowleft.svg"
 
 import React, { useEffect, useState, useRef } from "react"
 import { Post, Tag, PostStatus } from "@fider/models"
-import { Markdown, Hint, PoweredByFider, Icon, Header, Button } from "@fider/components"
+import { Markdown, Hint, PoweredByFider, Icon, Button } from "@fider/components"
 import { PostsContainer } from "./components/PostsContainer"
 import { useFider, usePostOverlay } from "@fider/hooks"
 import { HStack, VStack } from "@fider/components/layout"
@@ -56,6 +56,11 @@ const HomePage = (props: HomePageProps) => {
     basePath: "/",
     onPostClosed: (postNumber) => postsContainerRef.current?.updateSinglePost(postNumber),
   })
+
+  useEffect(() => {
+    // The header lives outside this page (AppShell); make it inert while the modal is open
+    document.getElementById("c-header")?.toggleAttribute("inert", isShareFeedbackOpen && !fider.isReadOnly)
+  }, [isShareFeedbackOpen])
 
   useEffect(() => {
     // If we're showing the share feedback, make sure we clear the show pending flag (for draft posts)
@@ -129,7 +134,6 @@ What can we do better? This is the place for you to vote, discuss and share idea
         onClose={() => setIsShareFeedbackOpen(false)}
       />
       <div>
-        <Header hasInert={isShareFeedbackOpen && !fider.isReadOnly} />
         <div
           id="p-home"
           className="page container"

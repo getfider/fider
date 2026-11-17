@@ -3,7 +3,7 @@ import "./ShowPost.page.scss"
 import React from "react"
 
 import { Comment, Post, Tag, Vote } from "@fider/models"
-import { Header, PoweredByFider } from "@fider/components"
+import { PoweredByFider } from "@fider/components"
 import { PostDetails } from "@fider/components/PostDetails"
 
 interface ShowPostPageProps {
@@ -18,7 +18,6 @@ interface ShowPostPageProps {
 export default function ShowPostPage(props: ShowPostPageProps) {
   return (
     <>
-      <Header />
       <div id="p-show-post" className="page container">
         <PostDetails
           postNumber={props.post.number}
