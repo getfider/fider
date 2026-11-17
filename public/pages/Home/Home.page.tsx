@@ -58,8 +58,11 @@ const HomePage = (props: HomePageProps) => {
   })
 
   useEffect(() => {
-    // The header lives outside this page (AppShell); make it inert while the modal is open
-    document.getElementById("c-header")?.toggleAttribute("inert", isShareFeedbackOpen && !fider.isReadOnly)
+    // The header lives outside this page (AppShell) and survives navigation; make it inert while
+    // the modal is open and always clear it on unmount (creating a post navigates away mid-modal)
+    const header = document.getElementById("c-header")
+    header?.toggleAttribute("inert", isShareFeedbackOpen && !fider.isReadOnly)
+    return () => header?.removeAttribute("inert")
   }, [isShareFeedbackOpen])
 
   useEffect(() => {
