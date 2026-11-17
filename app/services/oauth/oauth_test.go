@@ -40,13 +40,13 @@ func newGetContext(rawurl string) *web.Context {
 
 // ExpectAuthURL checks an authorization URL and the claims signed into its state parameter.
 // The state can't be compared as a string because it carries a freshly generated expiry.
-func ExpectAuthURL(actual, expectedPrefix, expectedRedirect, expectedIdentifier string) {
+func ExpectAuthURL(actual, expectedPrefix, expectedRedirect, expectedSessionIDHash string) {
 	Expect(strings.HasPrefix(actual, expectedPrefix)).IsTrue()
 
 	claims, err := jwt.DecodeOAuthStateClaims(strings.TrimPrefix(actual, expectedPrefix))
 	Expect(err).IsNil()
 	Expect(claims.Redirect).Equals(expectedRedirect)
-	Expect(claims.Identifier).Equals(expectedIdentifier)
+	Expect(claims.SessionIDHash).Equals(expectedSessionIDHash)
 	Expect(claims.ExpiresAt).IsNotNil()
 }
 func TestGetAuthURL_Facebook(t *testing.T) {
@@ -64,9 +64,9 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 
 	ctx := newGetContext("http://login.test.fider.io:3000")
 	authURL := &query.GetOAuthAuthorizationURL{
-		Provider:   app.FacebookProvider,
-		Redirect:   "http://example.org",
-		Identifier: "456",
+		Provider:      app.FacebookProvider,
+		Redirect:      "http://example.org",
+		SessionIDHash: "456",
 	}
 
 	err := bus.Dispatch(ctx, authURL)
@@ -90,9 +90,9 @@ func TestGetAuthURL_Google(t *testing.T) {
 	ctx := newGetContext("http://login.test.fider.io:3000")
 
 	authURL := &query.GetOAuthAuthorizationURL{
-		Provider:   app.GoogleProvider,
-		Redirect:   "http://example.org",
-		Identifier: "123",
+		Provider:      app.GoogleProvider,
+		Redirect:      "http://example.org",
+		SessionIDHash: "123",
 	}
 
 	err := bus.Dispatch(ctx, authURL)
@@ -116,9 +116,9 @@ func TestGetAuthURL_GitHub(t *testing.T) {
 	ctx := newGetContext("http://login.test.fider.io:3000")
 
 	authURL := &query.GetOAuthAuthorizationURL{
-		Provider:   app.GitHubProvider,
-		Redirect:   "http://example.org",
-		Identifier: "456",
+		Provider:      app.GitHubProvider,
+		Redirect:      "http://example.org",
+		SessionIDHash: "456",
 	}
 
 	err := bus.Dispatch(ctx, authURL)
@@ -144,9 +144,9 @@ func TestGetAuthURL_Custom(t *testing.T) {
 
 	ctx := newGetContext("http://login.test.fider.io:3000")
 	authURL := &query.GetOAuthAuthorizationURL{
-		Provider:   "_custom",
-		Redirect:   "http://example.org",
-		Identifier: "456",
+		Provider:      "_custom",
+		Redirect:      "http://example.org",
+		SessionIDHash: "456",
 	}
 
 	err := bus.Dispatch(ctx, authURL)
@@ -172,9 +172,9 @@ func TestGetAuthURL_Twitch(t *testing.T) {
 
 	ctx := newGetContext("http://login.test.fider.io:3000")
 	authURL := &query.GetOAuthAuthorizationURL{
-		Provider:   "_custom",
-		Redirect:   "http://example.org",
-		Identifier: "456",
+		Provider:      "_custom",
+		Redirect:      "http://example.org",
+		SessionIDHash: "456",
 	}
 
 	err := bus.Dispatch(ctx, authURL)

@@ -271,9 +271,9 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 	parameters.Add("response_type", "code")
 
 	state, err := jwt.Encode(jwt.OAuthStateClaims{
-		Redirect:   q.Redirect,
-		Identifier: q.Identifier,
-		Code:       q.Code,
+		Redirect:      q.Redirect,
+		SessionIDHash: q.SessionIDHash,
+		Code:          q.Code,
 		Metadata: jwt.Metadata{
 			ExpiresAt: jwt.Time(time.Now().Add(10 * time.Minute)),
 		},

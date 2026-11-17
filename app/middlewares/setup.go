@@ -90,7 +90,7 @@ func WebSetup() web.MiddlewareFunc {
 		return func(c *web.Context) error {
 			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} started", dto.Props{
 				"HttpMethod": c.Request.Method,
-				"URL":        c.Request.URL.String(),
+				"URL":        c.Request.LogURL(),
 			})
 
 			logFinish := func(state string, err error) {
@@ -99,7 +99,7 @@ func WebSetup() web.MiddlewareFunc {
 				if errors.Cause(err) == context.Canceled {
 					log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} was canceled after @{ElapsedMs:magenta}ms", dto.Props{
 						"HttpMethod": c.Request.Method,
-						"URL":        c.Request.URL.String(),
+						"URL":        c.Request.LogURL(),
 						"ElapsedMs":  elapsedMs,
 					})
 					return
@@ -113,7 +113,7 @@ func WebSetup() web.MiddlewareFunc {
 					"State":      state,
 					"HttpMethod": c.Request.Method,
 					"StatusCode": c.Response.StatusCode,
-					"URL":        c.Request.URL.String(),
+					"URL":        c.Request.LogURL(),
 					"ElapsedMs":  elapsedMs,
 				})
 			}

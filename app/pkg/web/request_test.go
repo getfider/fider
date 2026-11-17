@@ -3,6 +3,7 @@ package web_test
 import (
 	"crypto/tls"
 	"net/http"
+	"net/url"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -166,5 +167,20 @@ func TestRequest_IsCrawler(t *testing.T) {
 			},
 		)
 		Expect(req.IsCrawler()).Equals(tt.isCrawler)
+	}
+}
+
+func TestRequest_LogURL(t *testing.T) {
+	RegisterT(t)
+
+	for raw, expected := range map[string]string{
+		"https://demo.fider.io/posts?view=trending":                         "https://demo.fider.io/posts?view=trending",
+		"https://demo.fider.io/oauth/google/token?handoff=abc&redirect=%2F": "https://demo.fider.io/oauth/google/token?handoff=redacted&redirect=%2F",
+		"https://login.fider.io/oauth/google/callback?code=abc&state=xyz":   "https://login.fider.io/oauth/google/callback?code=redacted&state=xyz",
+		"https://demo.fider.io/signin/verify?k=abc":                         "https://demo.fider.io/signin/verify?k=redacted",
+	} {
+		u, _ := url.Parse(raw)
+		req := web.Request{URL: u}
+		Expect(req.LogURL()).Equals(expected)
 	}
 }

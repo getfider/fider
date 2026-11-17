@@ -33,6 +33,9 @@ import (
 // address over to the tenant address stays valid. It only has to survive one redirect.
 const handoffLifetime = 2 * time.Minute
 
+// maxEchoRawProfile caps the raw profile sent to the provider test page, in bytes.
+const maxEchoRawProfile = 4096
+
 // tenantOrigins returns every origin a given tenant is served on.
 // A tenant with a custom domain is still reachable on its subdomain, so both are valid.
 func tenantOrigins(ctx context.Context, tenant *entity.Tenant) []string {
@@ -67,56 +70,68 @@ func isAllowedOAuthRedirect(origins []string, redirect string) bool {
 	return false
 }
 
-// isKnownOAuthOrigin reports whether a URL points at an origin Fider actually serves.
-// OAuth state is signed with a process-wide secret, so a valid signature on its own says
-// nothing about whether the redirect it carries was ever legitimate — it has to be checked
-// against the tenant records again.
-func isKnownOAuthOrigin(c *web.Context, u *url.URL) bool {
+// resolveOAuthTenant returns the tenant served on the URL's origin, and false if Fider
+// doesn't serve that origin at all. OAuth state is signed with a process-wide secret, so a
+// valid signature on its own says nothing about whether the redirect it carries was ever
+// legitimate — it has to be checked against the tenant records again. The host-wide OAuth
+// address resolves to the current tenant, which is nil in multi tenant mode (sign up).
+func resolveOAuthTenant(c *web.Context, u *url.URL) (*entity.Tenant, bool) {
 	origin := u.Scheme + "://" + u.Host
 
 	if origin == web.OAuthBaseURL(c) {
-		return true
+		return c.Tenant(), true
 	}
 
 	byDomain := &query.GetTenantByDomain{Domain: u.Hostname()}
 	if err := bus.Dispatch(c, byDomain); err != nil || byDomain.Result == nil || byDomain.Result.IsDisabled() {
-		return false
+		return nil, false
 	}
 
-	return slices.Contains(tenantOrigins(c, byDomain.Result), origin)
+	if !slices.Contains(tenantOrigins(c, byDomain.Result), origin) {
+		return nil, false
+	}
+
+	// A custom domain is saved without proof of ownership. Only hand a sign in to it once
+	// its DNS shows it really is served by this tenant.
+	if strings.EqualFold(u.Hostname(), byDomain.Result.CNAME) {
+		if err := web.CNAMEPointsAtTenant(c, u.Hostname(), byDomain.Result); err != nil {
+			log.Warnf(c, "OAuth redirect to custom domain @{Host} rejected: @{Error}", dto.Props{"Host": u.Hostname(), "Error": err.Error()})
+			return nil, false
+		}
+	}
+
+	return byDomain.Result, true
 }
 
-// newOAuthHandoff mints the token that carries an OAuth sign in from the callback address
-// over to the tenant address, bound to that origin, provider and browser session.
-func newOAuthHandoff(provider, origin, sessionID string) (string, error) {
-	return jwt.Encode(jwt.OAuthHandoffClaims{
-		Provider:      provider,
-		Origin:        origin,
-		SessionIDHash: hashSessionID(sessionID),
-		Metadata: jwt.Metadata{
-			ExpiresAt: jwt.Time(time.Now().Add(handoffLifetime)),
-		},
-	})
+// encodeOAuthHandoff signs the token that carries an OAuth sign in from the callback
+// address over to the tenant address.
+func encodeOAuthHandoff(claims jwt.OAuthHandoffClaims) (string, error) {
+	claims.ExpiresAt = jwt.Time(time.Now().Add(handoffLifetime))
+	return jwt.Encode(claims)
 }
 
-// isValidOAuthHandoff checks that a handoff token belongs to this exact request: same
-// provider, same origin, same browser session, and not yet expired.
-func isValidOAuthHandoff(c *web.Context, provider, handoff string) bool {
-	if handoff == "" || c.SessionID() == "" {
-		return false
+// decodeOAuthHandoff returns the handoff claims if the token belongs to this exact request:
+// same provider, same tenant, same browser session, and not yet expired.
+func decodeOAuthHandoff(c *web.Context, provider, handoff string) (*jwt.OAuthHandoffClaims, bool) {
+	if handoff == "" || c.SessionID() == "" || c.Tenant() == nil {
+		return nil, false
 	}
 
 	claims, err := jwt.DecodeOAuthHandoffClaims(handoff)
 	if err != nil {
-		return false
+		return nil, false
 	}
 
-	if claims.Provider != provider || !isAllowedOAuthRedirect(oauthAllowedOrigins(c), claims.Origin) {
-		return false
+	if claims.Provider != provider || claims.TenantID != c.Tenant().ID {
+		return nil, false
 	}
 
 	expected := hashSessionID(c.SessionID())
-	return subtle.ConstantTimeCompare([]byte(claims.SessionIDHash), []byte(expected)) == 1
+	if subtle.ConstantTimeCompare([]byte(claims.SessionIDHash), []byte(expected)) != 1 {
+		return nil, false
+	}
+
+	return claims, true
 }
 
 // hashSessionID hashes a session ID so the handoff token can be bound to a browser session
@@ -155,34 +170,30 @@ func sanitiseOAuthRedirect(c *web.Context, redirect string) string {
 	return path
 }
 
-// OAuthEcho exchanges OAuth Code for a user profile and return directly to the UI, without storing it
+// OAuthEcho shows the profile the callback fetched with the OAuth code, without storing it
 func OAuthEcho() web.HandlerFunc {
 	return func(c *web.Context) error {
 		provider := c.Param("provider")
 
-		code := c.QueryParam("code")
-		if code == "" {
+		handoff, ok := decodeOAuthHandoff(c, provider, c.QueryParam("handoff"))
+		if !ok {
+			if c.QueryParam("handoff") != "" {
+				log.Warn(c, "OAuth handoff token is not valid for this request. Aborting sign in process.")
+			}
 			return c.Redirect("/")
 		}
 
-		if !isValidOAuthHandoff(c, provider, c.QueryParam("handoff")) {
-			log.Warn(c, "OAuth handoff token is not valid for this request. Aborting sign in process.")
-			return c.Redirect("/")
-		}
-
-		rawProfile := &query.GetOAuthRawProfile{Provider: provider, Code: code}
-		err := bus.Dispatch(c, rawProfile)
-		if err != nil {
+		if handoff.Error != "" {
 			return c.Page(http.StatusOK, web.Props{
 				Page:  "OAuthEcho/OAuthEcho.page",
 				Title: "OAuth Test Page",
 				Data: web.Map{
-					"err": errors.Cause(err).Error(),
+					"err": handoff.Error,
 				},
 			})
 		}
 
-		parseRawProfile := &cmd.ParseOAuthRawProfile{Provider: provider, Body: rawProfile.Result}
+		parseRawProfile := &cmd.ParseOAuthRawProfile{Provider: provider, Body: handoff.RawProfile}
 		_ = bus.Dispatch(c, parseRawProfile)
 
 		// Fetch provider config to show configured allowedRoles on the test page.
@@ -197,16 +208,16 @@ func OAuthEcho() web.HandlerFunc {
 			Page:  "OAuthEcho/OAuthEcho.page",
 			Title: "OAuth Test Page",
 			Data: web.Map{
-				"body":                 rawProfile.Result,
-				"profile":              parseRawProfile.Result,
-				"configuredRolesPath":  configuredRolesPath,
+				"body":                   handoff.RawProfile,
+				"profile":                parseRawProfile.Result,
+				"configuredRolesPath":    configuredRolesPath,
 				"configuredAllowedRoles": configuredAllowedRoles,
 			},
 		})
 	}
 }
 
-// OAuthToken exchanges OAuth Code for a user profile
+// OAuthToken signs in with the user profile OAuthCallback fetched with the OAuth code
 // The user profile is then used to either get an existing user on Fider or creating a new one
 // Once Fider user is retrieved/created, an authentication cookie is store in user's browser
 func OAuthToken() web.HandlerFunc {
@@ -214,19 +225,19 @@ func OAuthToken() web.HandlerFunc {
 		provider := c.Param("provider")
 		redirect := sanitiseOAuthRedirect(c, c.QueryParam("redirect"))
 
-		code := c.QueryParam("code")
-		if code == "" {
+		handoff, ok := decodeOAuthHandoff(c, provider, c.QueryParam("handoff"))
+		if !ok {
+			if c.QueryParam("handoff") != "" {
+				log.Warn(c, "OAuth handoff token is not valid for this request. Aborting sign in process.")
+			}
 			return c.Redirect(redirect)
 		}
 
-		if !isValidOAuthHandoff(c, provider, c.QueryParam("handoff")) {
-			log.Warn(c, "OAuth handoff token is not valid for this request. Aborting sign in process.")
-			return c.Redirect(redirect)
-		}
-
-		oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
-		if err := bus.Dispatch(c, oauthUser); err != nil {
-			return c.Failure(err)
+		oauthUser := &dto.OAuthUserProfile{
+			ID:    handoff.OAuthID,
+			Name:  handoff.OAuthName,
+			Email: handoff.OAuthEmail,
+			Roles: handoff.OAuthRoles,
 		}
 
 		// Fetch custom provider config once — used for role checking and trust check below.
@@ -243,12 +254,12 @@ func OAuthToken() web.HandlerFunc {
 		// can always sign in regardless of OAuth role changes.
 		var user *entity.User
 
-		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.Result.ID}
+		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.ID}
 		err = bus.Dispatch(c, userByProvider)
 		user = userByProvider.Result
 
-		if errors.Cause(err) == app.ErrNotFound && oauthUser.Result.Email != "" {
-			userByEmail := &query.GetUserByEmail{Email: oauthUser.Result.Email}
+		if errors.Cause(err) == app.ErrNotFound && oauthUser.Email != "" {
+			userByEmail := &query.GetUserByEmail{Email: oauthUser.Email}
 			err = bus.Dispatch(c, userByEmail)
 			user = userByEmail.Result
 		}
@@ -263,11 +274,11 @@ func OAuthToken() web.HandlerFunc {
 			providerAllowedRoles = customConfig.AllowedRoles
 		}
 		isFiderPrivileged := user != nil && (user.Role == enum.RoleAdministrator || user.Role == enum.RoleCollaborator)
-		if !isFiderPrivileged && !hasAllowedRole(oauthUser.Result.Roles, providerRolesPath, providerAllowedRoles) {
+		if !isFiderPrivileged && !hasAllowedRole(oauthUser.Roles, providerRolesPath, providerAllowedRoles) {
 			log.Warnf(c, "User @{UserID} attempted OAuth login but does not have required role. User roles: @{UserRoles}, Allowed roles: @{AllowedRoles}",
 				dto.Props{
-					"UserID":       oauthUser.Result.ID,
-					"UserRoles":    oauthUser.Result.Roles,
+					"UserID":       oauthUser.ID,
+					"UserRoles":    oauthUser.Roles,
 					"AllowedRoles": providerAllowedRoles,
 				})
 			return c.Redirect("/access-denied")
@@ -279,13 +290,13 @@ func OAuthToken() web.HandlerFunc {
 				}
 
 				user = &entity.User{
-					Name:   oauthUser.Result.Name,
+					Name:   oauthUser.Name,
 					Tenant: c.Tenant(),
-					Email:  oauthUser.Result.Email,
+					Email:  oauthUser.Email,
 					Role:   enum.RoleVisitor,
 					Providers: []*entity.UserProvider{
 						{
-							UID:  oauthUser.Result.ID,
+							UID:  oauthUser.ID,
 							Name: provider,
 						},
 					},
@@ -302,13 +313,13 @@ func OAuthToken() web.HandlerFunc {
 				if err = bus.Dispatch(c, &cmd.RegisterUserProvider{
 					UserID:       user.ID,
 					ProviderName: provider,
-					ProviderUID:  oauthUser.Result.ID,
+					ProviderUID:  oauthUser.ID,
 				}); err != nil {
 					return c.Failure(err)
 				}
 			}
-			if user.Email == "" && oauthUser.Result.Email != "" {
-				backfillUserEmail(c, user, oauthUser.Result.Email)
+			if user.Email == "" && oauthUser.Email != "" {
+				backfillUserEmail(c, user, oauthUser.Email)
 			}
 		}
 
@@ -355,8 +366,8 @@ func getCustomOAuthConfig(ctx context.Context, provider string) (*entity.OAuthCo
 
 // OAuthCallback handles the redirect back from the OAuth provider
 // This callback can run on either Tenant or Login address
-// If the request is for a sign in, we redirect the user to the tenant address
-// If the request is for a sign up, we exchange the OAuth code and get the user profile
+// It always exchanges the OAuth code for the user profile itself, then hands the profile
+// over to the tenant address (sign in) or the sign up page
 func OAuthCallback() web.HandlerFunc {
 	return func(c *web.Context) error {
 		c.Response.Header().Add("X-Robots-Tag", "noindex")
@@ -378,34 +389,29 @@ func OAuthCallback() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if !isKnownOAuthOrigin(c, redirectURL) {
+		tenant, ok := resolveOAuthTenant(c, redirectURL)
+		if !ok {
 			log.Warnf(c, "OAuth callback state for provider @{Provider} points at an unknown origin. Aborting sign in process.", dto.Props{"Provider": provider})
 			return c.Forbidden()
 		}
-
-		origin := redirectURL.Scheme + "://" + redirectURL.Host
 
 		code := c.QueryParam("code")
 		if code == "" {
 			return c.Redirect(redirectURL.String())
 		}
 
-		//Test OAuth
-		if redirectURL.Path == fmt.Sprintf("/oauth/%s/echo", provider) {
-			handoff, err := newOAuthHandoff(provider, origin, claims.Identifier)
-			if err != nil {
-				return c.Failure(err)
-			}
-
-			var query = redirectURL.Query()
-			query.Set("code", code)
-			query.Set("handoff", handoff)
-			redirectURL.RawQuery = query.Encode()
-			return c.Redirect(redirectURL.String())
-		}
+		// The authorization code is exchanged here and never forwarded. Every tenant shares
+		// the same client ID and redirect URI, so a code that left this handler could be
+		// redeemed on any tenant by whoever received it.
 
 		//Sign up process
 		if redirectURL.Path == "/signup" {
+			// Sign up only runs on the host-wide OAuth address. Anywhere else, the profile
+			// below would be handed to an origin a tenant admin controls.
+			if redirectURL.Scheme+"://"+redirectURL.Host != web.OAuthBaseURL(c) {
+				return c.Forbidden()
+			}
+
 			oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
 			if err := bus.Dispatch(c, oauthUser); err != nil {
 				return c.Failure(err)
@@ -432,16 +438,64 @@ func OAuthCallback() web.HandlerFunc {
 			return c.Redirect(redirectURL.String())
 		}
 
+		if tenant == nil {
+			return c.Forbidden()
+		}
+
+		// Provider configuration (custom providers, per tenant on/off switches) belongs to
+		// the tenant being signed in to, not to the host-wide address this runs on.
+		c.SetTenant(tenant)
+
+		handoff := jwt.OAuthHandoffClaims{
+			Provider:      provider,
+			TenantID:      tenant.ID,
+			SessionIDHash: claims.SessionIDHash,
+		}
+
+		//Test OAuth
+		if redirectURL.Path == fmt.Sprintf("/oauth/%s/echo", provider) {
+			rawProfile := &query.GetOAuthRawProfile{Provider: provider, Code: code}
+			if err := bus.Dispatch(c, rawProfile); err != nil {
+				handoff.Error = errors.Cause(err).Error()
+			}
+			handoff.RawProfile = rawProfile.Result
+
+			// The raw profile rides in the redirect URL, and a large one (e.g. with group
+			// claims) would exceed proxy header limits. The test page only displays it.
+			if len(handoff.RawProfile) > maxEchoRawProfile {
+				handoff.RawProfile = handoff.RawProfile[:maxEchoRawProfile] + "\n…(truncated)"
+			}
+
+			token, err := encodeOAuthHandoff(handoff)
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			var query = redirectURL.Query()
+			query.Set("handoff", token)
+			redirectURL.RawQuery = query.Encode()
+			return c.Redirect(redirectURL.String())
+		}
+
 		//Sign in process
-		handoff, err := newOAuthHandoff(provider, origin, claims.Identifier)
+		oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
+		if err := bus.Dispatch(c, oauthUser); err != nil {
+			return c.Failure(err)
+		}
+
+		handoff.OAuthID = oauthUser.Result.ID
+		handoff.OAuthName = oauthUser.Result.Name
+		handoff.OAuthEmail = oauthUser.Result.Email
+		handoff.OAuthRoles = oauthUser.Result.Roles
+
+		token, err := encodeOAuthHandoff(handoff)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		var query = redirectURL.Query()
-		query.Set("code", code)
 		query.Set("redirect", redirectURL.RequestURI())
-		query.Set("handoff", handoff)
+		query.Set("handoff", token)
 		redirectURL.RawQuery = query.Encode()
 		redirectURL.Path = fmt.Sprintf("/oauth/%s/token", provider)
 		return c.Redirect(redirectURL.String())
@@ -458,8 +512,7 @@ func SignInByOAuth() web.HandlerFunc {
 
 		// The origin the user is sent back to has to come from the resolved tenant, not from
 		// the request host: Host and X-Forwarded-Host are caller controlled, so deriving it
-		// from them lets anyone have the provider's authorization code delivered to an origin
-		// they own and then replay it against a tenant of their choosing.
+		// from them lets anyone have the sign in delivered to an origin they own.
 		origins := oauthAllowedOrigins(c)
 
 		redirect := c.QueryParam("redirect")
@@ -485,9 +538,9 @@ func SignInByOAuth() web.HandlerFunc {
 		}
 
 		authURL := &query.GetOAuthAuthorizationURL{
-			Provider:   provider,
-			Redirect:   redirect,
-			Identifier: c.SessionID(),
+			Provider:      provider,
+			Redirect:      redirect,
+			SessionIDHash: hashSessionID(c.SessionID()),
 		}
 		if err := bus.Dispatch(c, authURL); err != nil {
 			return c.Failure(err)
@@ -539,4 +592,3 @@ func hasAllowedRole(userRoles []string, jsonUserRolesPath string, allowedRoles s
 	// User doesn't have any of the required roles
 	return false
 }
-
