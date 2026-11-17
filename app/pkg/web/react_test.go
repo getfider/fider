@@ -179,3 +179,28 @@ func TestReactRenderer_RenderHomeWithPosts_Plurals_Polish(t *testing.T) {
 	Expect(html).ContainsSubstring(`<span class="text-gray-700">Głosy</span>`)
 	Expect(html).ContainsSubstring(`<span class="text-gray-700">Głosów</span>`)
 }
+
+func TestReactRenderer_UnknownLocaleFallsBackToEnglish(t *testing.T) {
+	RegisterT(t)
+
+	r, err := web.NewReactRenderer("ssr.js")
+	Expect(err).IsNil()
+
+	u, _ := url.Parse("https://demo.test.fider.io")
+	html, err := r.Render(u, web.Map{
+		"page": "Home/Home.page",
+		"tenant": &entity.Tenant{
+			Locale: "xx-NOPE",
+		},
+		"settings": web.Map{
+			"locale": "xx-NOPE",
+		},
+		"props": web.Map{
+			"posts":          make([]web.Map, 0),
+			"tags":           make([]web.Map, 0),
+			"countPerStatus": web.Map{},
+		},
+	})
+	Expect(err).IsNil()
+	Expect(html).ContainsSubstring(`No posts have been created yet.`)
+}

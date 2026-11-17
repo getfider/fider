@@ -55,7 +55,8 @@ const pages: { [key: string]: any } = {
 
 function ssrRender(url: string, args: any) {
   const fider = Fider.initialize({ ...args })
-  const i18n = activateI18NSync(fider.currentLocale, messages[fider.currentLocale].messages)
+  // Fall back to English rather than crashing SSR when a locale is registered elsewhere but missing from the map above
+  const i18n = activateI18NSync(fider.currentLocale, (messages[fider.currentLocale] ?? messages.en).messages)
   const component = pages[fider.session.page]?.default
   if (!component) {
     throw new Error(`Page not found: ${fider.session.page}`)

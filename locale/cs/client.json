@@ -113,7 +113,7 @@
   "modal.completeprofile.name.placeholder": "Jméno",
   "modal.completeprofile.text": "Protože se přihlašujete poprvé, zadejte prosím své jméno.",
   "modal.deleteaccount.header": "Smazat účet",
-  "modal.deleteaccount.text": "<0>Když se rozhodnete smazat svůj účet, navždy smažeme všechny vaše osobní údaje. Obsah, který jste publikovali, zůstane zachován, ale bude anonymizován.</0><1>Tento proces je nevratný. <2>Jste si jisti?</2><1>",
+  "modal.deleteaccount.text": "<0>Když se rozhodnete smazat svůj účet, navždy smažeme všechny vaše osobní údaje. Obsah, který jste publikovali, zůstane zachován, ale bude anonymizován.</0><1>Tento proces je nevratný. <2>Jste si jisti?</2></1>",
   "modal.deletecomment.header": "Smazat komentář",
   "modal.deletecomment.text": "Tento proces je nevratný. <0>Jste si jistý?</0>",
   "modal.notifications.nonew": "Žádná nová oznámení",
