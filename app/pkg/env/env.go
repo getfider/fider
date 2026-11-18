@@ -152,6 +152,7 @@ type config struct {
 		DisableOnFailure bool `env:"WEBHOOK_DISABLE_ON_FAILURE,default=true"`
 	}
 	GoogleAnalytics  string `env:"GOOGLE_ANALYTICS"`
+	CSPAllowedHosts  string `env:"CSP_ALLOWED_HOSTS"`
 	SearchNoiseWords string `env:"SEARCH_NOISE_WORDS,default=add|support|for|implement|create|make|allow|enable|provide|some|also|include|very|make|and|for|to|a|able|function|feature|app"`
 }
 
@@ -171,6 +172,7 @@ func Reload() {
 	}
 
 	Config.GoogleAnalytics = strings.TrimSpace(Config.GoogleAnalytics)
+	Config.CSPAllowedHosts = strings.Join(strings.Fields(Config.CSPAllowedHosts), " ")
 
 	if IsSingleHostMode() {
 		if Config.HostDomain != "" {

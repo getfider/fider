@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"path"
+	"strings"
 
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -14,20 +15,27 @@ import (
 
 var cache = make(map[string]*template.Template)
 
-func GetTemplate(baseFileName, templateFileName string) *template.Template {
-	tmpl, ok := cache[templateFileName]
+// GetTemplate returns the parsed template. Each of the extra files becomes a template named after
+// its file name, which the others can include with {{template "file.html" .}}.
+func GetTemplate(baseFileName, templateFileName string, extraFileNames ...string) *template.Template {
+	cacheKey := strings.Join(append([]string{templateFileName}, extraFileNames...), "|")
+	tmpl, ok := cache[cacheKey]
 	if ok && !env.IsDevelopment() {
 		return tmpl
 	}
 
 	baseFile := env.Path(baseFileName)
-	templateFile := env.Path(templateFileName)
-	tpl, err := template.New(path.Base(baseFile)).Funcs(templateFunctions).ParseFiles(baseFile, templateFile)
+	files := []string{baseFile, env.Path(templateFileName)}
+	for _, extraFileName := range extraFileNames {
+		files = append(files, env.Path(extraFileName))
+	}
+
+	tpl, err := template.New(path.Base(baseFile)).Funcs(templateFunctions).ParseFiles(files...)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse template %s", templateFileName))
 	}
 
-	cache[templateFileName] = tpl
+	cache[cacheKey] = tpl
 	return tpl
 }
 
