@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "ایمیل",
   "mysettings.notification.channelweb": "وب",
   "mysettings.notification.event.discussion": "بحث",
-  "mysettings.notification.event.mention": "منشن‌ها",
+  "mysettings.notification.event.mention": "منشن‌ها و پاسخ‌ها",
   "mysettings.notification.event.newpost": "پست جدید",
   "mysettings.notification.event.newpostcreated": "ایده شما اضافه شد 👍",
   "mysettings.notification.event.statuschanged": "تغییر وضعیت",

@@ -78,7 +78,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
             <div>
               <HStack spacing={6} justify="between">
                 <div className="mb-1">
-                  <Trans id="mysettings.notification.event.mention">Mentions</Trans>
+                  <Trans id="mysettings.notification.event.mention">Mentions and Replies</Trans>
                 </div>
                 <HStack spacing={6}>
                   {icon("event_notification_mention", WebChannel)}

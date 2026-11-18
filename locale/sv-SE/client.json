@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "E-post",
   "mysettings.notification.channelweb": "Webb",
   "mysettings.notification.event.discussion": "Diskussion",
-  "mysettings.notification.event.mention": "Omnämnanden",
+  "mysettings.notification.event.mention": "Omnämnanden och svar",
   "mysettings.notification.event.newpost": "Nytt inlägg",
   "mysettings.notification.event.newpostcreated": "Din idé har lagts till 👍",
   "mysettings.notification.event.statuschanged": "Status ändrad",

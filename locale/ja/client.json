@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "メールアドレス",
   "mysettings.notification.channelweb": "ウェブサイト",
   "mysettings.notification.event.discussion": "ディスカッション",
-  "mysettings.notification.event.mention": "リアクション",
+  "mysettings.notification.event.mention": "メンションと返信",
   "mysettings.notification.event.newpost": "新規投稿",
   "mysettings.notification.event.newpostcreated": "あなたのアイデアが追加されました👍",
   "mysettings.notification.event.statuschanged": "ステータスが変更されました",

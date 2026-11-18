@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "E-Mail",
   "mysettings.notification.channelweb": "Web",
   "mysettings.notification.event.discussion": "Diskussion",
-  "mysettings.notification.event.mention": "Erwähnungen",
+  "mysettings.notification.event.mention": "Erwähnungen und Antworten",
   "mysettings.notification.event.newpost": "Neuer Beitrag",
   "mysettings.notification.event.newpostcreated": "Deine Idee wurde hinzugefügt 👍",
   "mysettings.notification.event.statuschanged": "Status geändert",

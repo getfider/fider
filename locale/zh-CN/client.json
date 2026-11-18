@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "电子邮件",
   "mysettings.notification.channelweb": "网站",
   "mysettings.notification.event.discussion": "讨论",
-  "mysettings.notification.event.mention": "提及",
+  "mysettings.notification.event.mention": "提及和回复",
   "mysettings.notification.event.newpost": "新帖子",
   "mysettings.notification.event.newpostcreated": "您的想法已添加👍",
   "mysettings.notification.event.statuschanged": "状态已更改",

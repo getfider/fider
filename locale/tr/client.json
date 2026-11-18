@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "E-Posta",
   "mysettings.notification.channelweb": "Web",
   "mysettings.notification.event.discussion": "Tartışma",
-  "mysettings.notification.event.mention": "Bahsedilenler",
+  "mysettings.notification.event.mention": "Bahsedilenler ve yanıtlar",
   "mysettings.notification.event.newpost": "Yeni Öneri",
   "mysettings.notification.event.newpostcreated": "Fikriniz eklendi 👍",
   "mysettings.notification.event.statuschanged": "Durum Değişti",

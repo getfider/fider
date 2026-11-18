@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "البريد الإلكتروني",
   "mysettings.notification.channelweb": "موقع",
   "mysettings.notification.event.discussion": "المناقشة",
-  "mysettings.notification.event.mention": "الإشارات",
+  "mysettings.notification.event.mention": "الإشارات والردود",
   "mysettings.notification.event.newpost": "منشور جديد",
   "mysettings.notification.event.newpostcreated": "تمت إضافة فكرتك 👍",
   "mysettings.notification.event.statuschanged": "تم تغيير الحالة",

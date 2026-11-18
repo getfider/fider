@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "이메일",
   "mysettings.notification.channelweb": "웹",
   "mysettings.notification.event.discussion": "토론",
-  "mysettings.notification.event.mention": "언급",
+  "mysettings.notification.event.mention": "언급 및 답글",
   "mysettings.notification.event.newpost": "새 게시물",
   "mysettings.notification.event.newpostcreated": "귀하의 아이디어가 추가되었습니다 👍",
   "mysettings.notification.event.statuschanged": "상태가 변경되었습니다",

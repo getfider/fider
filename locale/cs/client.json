@@ -167,7 +167,7 @@
   "mysettings.notification.channelemail": "E-mail",
   "mysettings.notification.channelweb": "Web",
   "mysettings.notification.event.discussion": "Diskuse",
-  "mysettings.notification.event.mention": "Zmínky",
+  "mysettings.notification.event.mention": "Zmínky a odpovědi",
   "mysettings.notification.event.newpost": "Nový příspěvek",
   "mysettings.notification.event.newpostcreated": "Váš nápad byl přidán 👍",
   "mysettings.notification.event.statuschanged": "Stav změněn",
