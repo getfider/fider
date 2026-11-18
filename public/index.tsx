@@ -1,9 +1,9 @@
 import "@fider/assets/styles/index.scss"
 
-import React, { Suspense } from "react"
+import React, { Suspense, startTransition, useEffect, useState } from "react"
 import { createRoot } from "react-dom/client"
-import { ErrorBoundary, Loader, ReadOnlyNotice, DevBanner } from "@fider/components"
-import { classSet, Fider, FiderContext, actions, activateI18N } from "@fider/services"
+import { AppShell, ErrorBoundary, Loader, ReadOnlyNotice, DevBanner } from "@fider/components"
+import { classSet, Fider, FiderContext, actions, activateI18N, navigator } from "@fider/services"
 
 import { I18n } from "@lingui/core"
 import { I18nProvider } from "@lingui/react"
@@ -36,8 +36,68 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   }
 })
 
+interface AppState {
+  page: string
+  props: { [key: string]: any }
+  nav: number
+  pop: boolean
+}
+
+const App = () => {
+  const [state, setState] = useState<AppState>({ page: fider.session.page, props: fider.session.props, nav: 0, pop: false })
+
+  useEffect(() => {
+    navigator.onPageChange((data, pop) => {
+      // transition: keep the current page on screen until the next page's chunk is loaded
+      startTransition(() => setState((s) => ({ page: data.page, props: data.props, nav: s.nav + 1, pop })))
+    })
+  }, [])
+
+  useEffect(() => {
+    if (state.nav > 0 && !state.pop) {
+      window.scrollTo(0, 0)
+    }
+  }, [state.nav])
+
+  const Component = AsyncPage(state.page)
+  return (
+    <AppShell page={state.page}>
+      <Suspense fallback={<Loading />}>
+        <Component key={`${state.page}:${state.nav}`} {...state.props} />
+      </Suspense>
+    </AppShell>
+  )
+}
+
+// Same-origin links navigate client-side; anything that isn't a page falls back to a full load
+document.addEventListener("click", (e) => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+    return
+  }
+  const anchor = (e.target as Element).closest?.("a[href]") as HTMLAnchorElement | null
+  if (!anchor || anchor.target || anchor.hasAttribute("download")) {
+    return
+  }
+  const url = new URL(anchor.href)
+  if (!navigator.isClientNavigable(url)) {
+    return
+  }
+  if (url.hash && url.pathname === window.location.pathname && url.search === window.location.search) {
+    return
+  }
+  e.preventDefault()
+  navigator.navigate(anchor.href)
+})
+
+window.addEventListener("popstate", (e) => {
+  // History entries owned by the post overlay of the page currently on screen are handled by usePostOverlay
+  if (e.state?.overlayPage && e.state.overlayPage === fider.session.page) {
+    return
+  }
+  navigator.navigate(window.location.href, { replace: true, pop: true })
+})
+
 const bootstrapApp = (i18n: I18n) => {
-  const component = AsyncPage(fider.session.page)
   document.body.className = classSet({
     "is-authenticated": fider.session.isAuthenticated,
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
@@ -53,7 +113,7 @@ const bootstrapApp = (i18n: I18n) => {
             <FiderContext.Provider value={fider}>
               <DevBanner />
               <ReadOnlyNotice />
-              <Suspense fallback={<Loading />}>{React.createElement(component, fider.session.props)}</Suspense>
+              <App />
             </FiderContext.Provider>
           </I18nProvider>
         </ErrorBoundary>

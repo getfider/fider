@@ -2,7 +2,6 @@ import "./ContentModeration.page.scss"
 
 import React, { useState, useEffect } from "react"
 import { Button, Avatar, Loader, Icon, Markdown } from "@fider/components/common"
-import { Header } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
 import { actions, chopString, http, notify } from "@fider/services"
 import { User, UserStatus } from "@fider/models"
@@ -246,7 +245,6 @@ const ContentModerationPage = () => {
 
   return (
     <>
-      <Header />
       <div id="p-admin-moderation" className="page container">
         <VStack spacing={2}>
           <h1 className="text-display">

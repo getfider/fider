@@ -4,7 +4,7 @@ import { Post } from "@fider/models"
 import { Avatar, Button, Form } from "@fider/components"
 import { SignInModal } from "@fider/components"
 
-import { cache, actions, Failure, Fider } from "@fider/services"
+import { cache, actions, Failure, Fider, navigator } from "@fider/services"
 import { HStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
@@ -61,7 +61,7 @@ export const CommentInput = (props: CommentInputProps) => {
       if (fider.session.isModerationRequiredForNewPost) {
         cache.session.set("COMMENT_CREATED_MODERATION", "true")
       }
-      location.reload()
+      navigator.reload()
     } else {
       setError(result.error)
     }

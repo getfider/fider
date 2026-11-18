@@ -3,7 +3,7 @@ import React from "react"
 import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components"
 import { Post, PostStatus } from "@fider/models"
 
-import { actions, Failure } from "@fider/services"
+import { actions, Failure, navigator } from "@fider/services"
 import { PostSearch } from "./PostSearch"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
@@ -39,7 +39,7 @@ export class ResponseModal extends React.Component<ResponseModalProps, ResponseM
       if (this.props.onResponded) {
         this.props.onResponded()
       } else {
-        location.reload()
+        navigator.reload()
       }
     } else {
       this.setState({

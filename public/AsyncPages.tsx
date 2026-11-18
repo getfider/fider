@@ -23,12 +23,18 @@ const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES, waitMs = INTERVAL): Pr
 
 const load = (fn: LazyImport) => lazy(() => retry(() => fn()))
 
-export const AsyncPage = (pageName: string) =>
-  load(
-    () =>
-      import(
-        /* webpackInclude: /\.page.tsx$/ */
-        /* webpackChunkName: "[request]" */
-        `@fider/pages/${pageName}`
-      )
-  )
+const cache: { [page: string]: ReturnType<typeof load> } = {}
+
+export const AsyncPage = (pageName: string) => {
+  if (!cache[pageName]) {
+    cache[pageName] = load(
+      () =>
+        import(
+          /* webpackInclude: /\.page.tsx$/ */
+          /* webpackChunkName: "[request]" */
+          `@fider/pages/${pageName}`
+        )
+    )
+  }
+  return cache[pageName]
+}

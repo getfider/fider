@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useState, useRef, useCallback } from "react"
+import { Fider } from "@fider/services"
 
 interface UsePostOverlayOptions {
   basePath: string
@@ -21,13 +22,14 @@ export function usePostOverlay({ basePath, onPostClosed }: UsePostOverlayOptions
     listScrollY.current = window.scrollY
     listSearch.current = window.location.search
     // Keep the scroll position on the list's history entry too, for the browser back button
-    window.history.replaceState({ ...window.history.state, scrollY: window.scrollY }, "")
-    window.history.pushState({ selectedPostId: postNumber }, "", `/posts/${postNumber}/${slug}`)
+    const overlayPage = Fider.session.page
+    window.history.replaceState({ ...window.history.state, scrollY: window.scrollY, overlayPage }, "")
+    window.history.pushState({ selectedPostId: postNumber, overlayPage }, "", `/posts/${postNumber}/${slug}`)
     setSelectedPostId(postNumber)
   }, [])
 
   const handleCloseOverlay = useCallback(() => {
-    window.history.pushState({ scrollY: listScrollY.current }, "", `${basePath}${listSearch.current}`)
+    window.history.pushState({ scrollY: listScrollY.current, overlayPage: Fider.session.page }, "", `${basePath}${listSearch.current}`)
     setSelectedPostId(null)
   }, [basePath])
 
@@ -53,6 +55,10 @@ export function usePostOverlay({ basePath, onPostClosed }: UsePostOverlayOptions
 
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
+      // Entries not created by this page's overlay are handled by the app-level navigation
+      if (e.state?.overlayPage !== Fider.session.page) {
+        return
+      }
       const path = window.location.pathname
       if (path === basePath || path === basePath.replace(/\/$/, "")) {
         if (typeof e.state?.scrollY === "number") {

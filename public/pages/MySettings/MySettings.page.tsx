@@ -1,9 +1,9 @@
 import React from "react"
 
-import { Modal, Form, Button, PageTitle, Input, Select, SelectOption, ImageUploader, Header } from "@fider/components"
+import { Modal, Form, Button, PageTitle, Input, Select, SelectOption, ImageUploader } from "@fider/components"
 
 import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models"
-import { Failure, actions, Fider } from "@fider/services"
+import { Failure, actions, Fider, navigator } from "@fider/services"
 import { NotificationSettings } from "./components/NotificationSettings"
 import { APIKeyForm } from "./components/APIKeyForm"
 import { DangerZone } from "./components/DangerZone"
@@ -46,7 +46,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
       settings: this.state.userSettings,
     })
     if (result.ok) {
-      location.reload()
+      navigator.reload()
     } else if (result.error) {
       this.setState({ error: result.error })
     }
@@ -112,7 +112,6 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
 
     return (
       <>
-        <Header />
         <div id="p-my-settings" className="page container">
           <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal}>
             <Modal.Header>

@@ -1,8 +1,8 @@
 import React from "react"
 
 import { Notification } from "@fider/models"
-import { Header, Markdown, Moment, PageTitle } from "@fider/components"
-import { actions, Fider } from "@fider/services"
+import { Markdown, Moment, PageTitle } from "@fider/components"
+import { actions, Fider, navigator } from "@fider/services"
 import { HStack, VStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
@@ -54,14 +54,13 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
 
     const response = await actions.markAllAsRead()
     if (response.ok) {
-      location.reload()
+      navigator.reload()
     }
   }
 
   public render() {
     return (
       <>
-        <Header />
         <div id="p-my-notifications" className="page container">
           <PageTitle
             title={i18n._({ id: "mynotifications.page.title", message: "Notifications" })}

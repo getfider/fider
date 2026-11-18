@@ -1,10 +1,12 @@
 import { renderHook, act } from "@testing-library/react"
 import { usePostOverlay } from "./use-post-overlay"
+import { Fider } from "@fider/services"
 
 describe("usePostOverlay", () => {
   let scrollTo: jest.SpyInstance
 
   beforeEach(() => {
+    Fider.initialize({ page: "Home/Home.page", props: {}, settings: {} })
     window.history.replaceState(null, "", "/?view=trending")
     Object.defineProperty(window, "scrollY", { value: 1200, configurable: true })
     scrollTo = jest.spyOn(window, "scrollTo").mockImplementation(() => undefined)
@@ -35,10 +37,21 @@ describe("usePostOverlay", () => {
 
     act(() => {
       window.history.replaceState(null, "", "/")
-      window.dispatchEvent(new PopStateEvent("popstate", { state: { scrollY: 800 } }))
+      window.dispatchEvent(new PopStateEvent("popstate", { state: { scrollY: 800, overlayPage: "Home/Home.page" } }))
     })
     expect(result.current.selectedPostId).toBeNull()
     expect(scrollTo).toHaveBeenLastCalledWith(0, 800)
+  })
+
+  test("history entries owned by another page are ignored", () => {
+    const { result } = renderHook(() => usePostOverlay({ basePath: "/" }))
+
+    act(() => result.current.handlePostClick(5, "my-post"))
+    act(() => {
+      window.history.replaceState(null, "", "/")
+      window.dispatchEvent(new PopStateEvent("popstate", { state: { spa: true } }))
+    })
+    expect(result.current.selectedPostId).toBe(5)
   })
 
   test("onPostClosed is only called when the post changed", () => {

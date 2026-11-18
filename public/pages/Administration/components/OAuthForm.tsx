@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { OAuthConfig, OAuthConfigStatus, ImageUpload } from "@fider/models"
-import { Failure, actions } from "@fider/services"
+import { Failure, actions, navigator } from "@fider/services"
 import { Form, Button, Input, SocialSignInButton, Field, ImageUploader, Toggle, hasError } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { HStack, VStack } from "@fider/components/layout"
@@ -55,7 +55,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
       logo,
     })
     if (result.ok) {
-      location.reload()
+      navigator.reload()
     } else {
       setError(result.error)
       // Don't leave an error hidden inside the collapsed section

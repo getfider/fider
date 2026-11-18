@@ -1,7 +1,7 @@
 import "./AdminBasePage.scss"
 
 import React from "react"
-import { Header, PageTitle } from "@fider/components"
+import { PageTitle } from "@fider/components"
 import { SideMenu, SideMenuToggler } from "./SideMenu"
 import { HStack } from "@fider/components/layout"
 
@@ -16,7 +16,6 @@ interface AdminPageContainerProps {
 export const AdminPageContainer = (props: AdminPageContainerProps) => {
   return (
     <>
-      <Header />
       <div id={props.id} className="page container">
         <HStack justify="between">
           <PageTitle title={props.title} subtitle={props.subtitle} />

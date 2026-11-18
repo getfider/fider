@@ -129,18 +129,10 @@ func getClientAssets(assets []distAsset) *clientAssets {
 	return clientAssets
 }
 
-// Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context) {
-	var err error
-
-	if r.assets == nil || env.IsDevelopment() {
-		if err := r.loadAssets(); err != nil {
-			panic(err)
-		}
-	}
-
+// PageData builds the public page payload: the same data embedded in the HTML
+// as #server-data, also returned as JSON for client-side navigation.
+func (r *Renderer) PageData(statusCode int, props Props, ctx *Context) Map {
 	public := make(Map)
-	private := make(Map)
 	if props.Data == nil {
 		props.Data = make(Map)
 	}
@@ -163,37 +155,14 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 		public["description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	private["assets"] = r.assets
-	private["logo"] = LogoURL(ctx)
-
 	locale := i18n.GetLocale(ctx)
 	localeDirection := i18n.GetLocaleDirection(ctx)
-	localeChunkName := fmt.Sprintf("locale-%s-client-json", locale)
-
-	// webpack replaces "/" and "." with "-", so we do the same here
-	pageChunkName := strings.ReplaceAll(strings.ReplaceAll(props.Page, ".", "-"), "/", "-")
-	private["preloadAssets"] = []*clientAssets{
-		r.chunkedAssets[localeChunkName],
-		r.chunkedAssets[pageChunkName],
-	}
-
-	if tenant == nil || tenant.LogoBlobKey == "" {
-		private["favicon"] = AssetsURL(ctx, "/static/favicon")
-	} else {
-		private["favicon"] = AssetsURL(ctx, "/static/favicon/%s", tenant.LogoBlobKey)
-	}
-
-	private["currentURL"] = ctx.Request.URL.String()
-	if canonicalURL := ctx.Value("Canonical-URL"); canonicalURL != nil {
-		private["canonicalURL"] = canonicalURL
-	}
 
 	oauthProviders := &query.ListActiveOAuthProviders{
 		Result: make([]*dto.OAuthProviderOption, 0),
 	}
 	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 500 {
-		err = bus.Dispatch(ctx, oauthProviders)
-		if err != nil {
+		if err := bus.Dispatch(ctx, oauthProviders); err != nil {
 			panic(errors.Wrap(err, "failed to get list of providers"))
 		}
 	}
@@ -234,6 +203,51 @@ func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context
 			"isCollaborator":  u.IsCollaborator(),
 			"isTrusted":       u.IsTrusted,
 		}
+	}
+
+	return public
+}
+
+// Render a template based on parameters
+func (r *Renderer) Render(w io.Writer, statusCode int, props Props, ctx *Context) {
+	var err error
+
+	if r.assets == nil || env.IsDevelopment() {
+		if err := r.loadAssets(); err != nil {
+			panic(err)
+		}
+	}
+
+	if props.Data == nil {
+		props.Data = make(Map)
+	}
+	public := r.PageData(statusCode, props, ctx)
+	private := make(Map)
+
+	tenant := ctx.Tenant()
+
+	private["assets"] = r.assets
+	private["logo"] = LogoURL(ctx)
+
+	locale := i18n.GetLocale(ctx)
+	localeChunkName := fmt.Sprintf("locale-%s-client-json", locale)
+
+	// webpack replaces "/" and "." with "-", so we do the same here
+	pageChunkName := strings.ReplaceAll(strings.ReplaceAll(props.Page, ".", "-"), "/", "-")
+	private["preloadAssets"] = []*clientAssets{
+		r.chunkedAssets[localeChunkName],
+		r.chunkedAssets[pageChunkName],
+	}
+
+	if tenant == nil || tenant.LogoBlobKey == "" {
+		private["favicon"] = AssetsURL(ctx, "/static/favicon")
+	} else {
+		private["favicon"] = AssetsURL(ctx, "/static/favicon/%s", tenant.LogoBlobKey)
+	}
+
+	private["currentURL"] = ctx.Request.URL.String()
+	if canonicalURL := ctx.Value("Canonical-URL"); canonicalURL != nil {
+		private["canonicalURL"] = canonicalURL
 	}
 
 	templateName := "index.html"
