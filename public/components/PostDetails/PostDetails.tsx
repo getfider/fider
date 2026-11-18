@@ -3,7 +3,7 @@ import "./PostDetails.scss"
 import React, { useState, useEffect, useCallback } from "react"
 
 import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
-import { actions, cache, clearUrlHash, Failure, Fider, navigator as fiderNavigator, notify, timeAgo, navigator } from "@fider/services"
+import { actions, cache, clearUrlHash, Failure, Fider, navigator as fiderNavigator, notify, timeAgo } from "@fider/services"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import { i18n } from "@lingui/core"
 import IconRSS from "@fider/assets/images/heroicons-rss.svg"
@@ -193,7 +193,6 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
   useEffect(() => {
     const showSuccess = cache.session.get("POST_CREATED_SUCCESS")
     const showModeration = cache.session.get("POST_CREATED_MODERATION")
-    const showCommentModeration = cache.session.get("COMMENT_CREATED_MODERATION")
 
     if (showSuccess) {
       cache.session.remove("POST_CREATED_SUCCESS")
@@ -203,11 +202,6 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     if (showModeration) {
       cache.session.remove("POST_CREATED_MODERATION")
       notify.success(t({ id: "showpost.moderation.postsuccess", message: "Your idea is awaiting moderation 📝" }))
-    }
-
-    if (showCommentModeration) {
-      cache.session.remove("COMMENT_CREATED_MODERATION")
-      notify.success(t({ id: "showpost.moderation.commentsuccess", message: "Your comment is awaiting moderation 📝" }))
     }
   }, [])
 
@@ -221,6 +215,15 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     if (commentsResult.ok) {
       setComments(commentsResult.data)
     }
+  }
+
+  // Comment mutations update in place: navigator.reload() would remount the page and drop the post overlay
+  const refreshComments = async () => {
+    const result = await actions.getComments(props.postNumber)
+    if (result.ok) {
+      setComments(result.data)
+    }
+    props.onDataChanged?.()
   }
 
   const handleResponded = async () => {
@@ -274,7 +277,8 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     const result = await actions.approvePost(post.id)
     if (result.ok) {
       notify.success(<Trans id="showpost.moderation.approved">Post approved successfully</Trans>)
-      setTimeout(() => navigator.reload(), 1500)
+      await refreshPost()
+      props.onDataChanged?.()
     } else {
       notify.error(<Trans id="showpost.moderation.approveerror">Failed to approve post</Trans>)
     }
@@ -525,7 +529,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
           </HStack>
 
           {/* Comment Input at top */}
-          <CommentInput post={post} />
+          <CommentInput post={post} onCommentAdded={refreshComments} />
 
           {/* Response Details - First discussion item */}
           {post.response && <ResponseDetails status={post.status} response={post.response} />}
@@ -534,7 +538,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
           {comments.length > 0 && (
             <VStack spacing={4}>
               {comments.map((c) => (
-                <ShowComment key={c.id} post={post} comment={c} highlighted={highlightedComment === c.id} />
+                <ShowComment key={c.id} post={post} comment={c} highlighted={highlightedComment === c.id} onChanged={refreshComments} />
               ))}
             </VStack>
           )}

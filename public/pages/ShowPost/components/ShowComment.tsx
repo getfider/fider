@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { Comment, Post } from "@fider/models"
 import { Reactions, Avatar, UserName, Moment, Form, Button, Markdown, Modal, Dropdown, Icon } from "@fider/components"
 import { HStack } from "@fider/components/layout"
-import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash, navigator } from "@fider/services"
+import { formatDate, Failure, actions, notify, copyToClipboard, classSet, clearUrlHash } from "@fider/services"
 import { useFider } from "@fider/hooks"
 import IconDotsHorizontal from "@fider/assets/images/heroicons-dots-horizontal.svg"
 import { t } from "@lingui/core/macro"
@@ -17,6 +17,7 @@ interface ShowCommentProps {
   comment: Comment
   highlighted?: boolean
   onToggleReaction?: () => void
+  onChanged: () => void
 }
 
 export const ShowComment = (props: ShowCommentProps) => {
@@ -66,7 +67,8 @@ export const ShowComment = (props: ShowCommentProps) => {
   const saveEdit = async () => {
     const response = await actions.updateComment(props.post.number, props.comment.id, newContent, attachments)
     if (response.ok) {
-      navigator.reload()
+      setIsEditing(false)
+      props.onChanged()
     } else {
       setError(response.error)
     }
@@ -79,7 +81,8 @@ export const ShowComment = (props: ShowCommentProps) => {
   const deleteComment = async () => {
     const response = await actions.deleteComment(props.post.number, props.comment.id)
     if (response.ok) {
-      navigator.reload()
+      setIsDeleteConfirmationModalOpen(false)
+      props.onChanged()
     }
   }
 
@@ -87,7 +90,7 @@ export const ShowComment = (props: ShowCommentProps) => {
     const result = await actions.approveComment(props.comment.id)
     if (result.ok) {
       notify.success(<Trans id="showpost.moderation.comment.approved">Comment approved successfully</Trans>)
-      setTimeout(() => navigator.reload(), 1500)
+      props.onChanged()
     } else {
       notify.error(<Trans id="showpost.moderation.comment.approveerror">Failed to approve comment</Trans>)
     }
@@ -97,7 +100,7 @@ export const ShowComment = (props: ShowCommentProps) => {
     const result = await actions.declineComment(props.comment.id)
     if (result.ok) {
       notify.success(<Trans id="showpost.moderation.comment.declined">Comment declined successfully</Trans>)
-      setTimeout(() => navigator.reload(), 1500)
+      props.onChanged()
     } else {
       notify.error(<Trans id="showpost.moderation.comment.declineerror">Failed to decline comment</Trans>)
     }

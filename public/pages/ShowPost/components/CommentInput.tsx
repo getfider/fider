@@ -4,7 +4,7 @@ import { Post } from "@fider/models"
 import { Avatar, Button, Form } from "@fider/components"
 import { SignInModal } from "@fider/components"
 
-import { cache, actions, Failure, Fider, navigator } from "@fider/services"
+import { cache, actions, Failure, Fider, notify } from "@fider/services"
 import { HStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
@@ -15,6 +15,7 @@ import CommentEditor from "@fider/components/common/form/CommentEditor"
 
 interface CommentInputProps {
   post: Post
+  onCommentAdded: () => void
 }
 
 const CACHE_TITLE_KEY = "CommentInput-Comment-Title-"
@@ -33,6 +34,8 @@ export const CommentInput = (props: CommentInputProps) => {
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false)
   const [error, setError] = useState<Failure | undefined>(undefined)
   const [isClient, setIsClient] = useState(false)
+  // Bumped after posting to remount the editor empty
+  const [editorKey, setEditorKey] = useState(0)
   const [contentLength, setContentLength] = useState((cache.session.get(`${CACHE_TITLE_KEY}${props.post.id}`) ?? "").length)
 
   // Use the attachments hook
@@ -58,10 +61,12 @@ export const CommentInput = (props: CommentInputProps) => {
     if (result.ok) {
       clearAttachments()
       cache.session.remove(getCacheKey(CACHE_TITLE_KEY))
+      setContentLength(0)
+      setEditorKey((k) => k + 1)
       if (fider.session.isModerationRequiredForNewPost) {
-        cache.session.set("COMMENT_CREATED_MODERATION", "true")
+        notify.success(i18n._({ id: "showpost.moderation.commentsuccess", message: "Your comment is awaiting moderation 📝" }))
       }
-      navigator.reload()
+      props.onCommentAdded()
     } else {
       setError(result.error)
     }
@@ -92,6 +97,7 @@ export const CommentInput = (props: CommentInputProps) => {
             {isClient ? (
               <>
                 <CommentEditor
+                  key={editorKey}
                   field="content"
                   disabled={!Fider.session.isAuthenticated}
                   onChange={commentChanged}
