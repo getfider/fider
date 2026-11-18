@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { PostStatus, Post } from "@fider/models"
-import { actions, navigator, Failure } from "@fider/services"
+import { actions, Failure } from "@fider/services"
 import { Form, Modal, Button, TextArea } from "@fider/components"
 import { useFider } from "@fider/hooks"
 import { i18n } from "@lingui/core"
@@ -10,6 +10,7 @@ interface DeletePostModalProps {
   post: Post
   showModal: boolean
   onModalClose: () => void
+  onDeleted: () => void
 }
 
 export const DeletePostModal = (props: DeletePostModalProps) => {
@@ -21,7 +22,7 @@ export const DeletePostModal = (props: DeletePostModalProps) => {
     const response = await actions.deletePost(props.post.number, text)
     if (response.ok) {
       props.onModalClose()
-      navigator.goHome()
+      props.onDeleted()
     } else if (response.error) {
       setError(response.error)
     }

@@ -50,6 +50,8 @@ import { useAttachments } from "@fider/hooks/useAttachments"
 interface PostDetailsProps {
   postNumber: number
   onDataChanged?: () => void
+  // Called after the post is deleted or declined; without it, go home
+  onPostRemoved?: () => void
   // Optional initial data for SSR
   initialPost?: Post
   initialSubscribed?: boolean
@@ -226,6 +228,8 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     props.onDataChanged?.()
   }
 
+  const postRemoved = () => (props.onPostRemoved ? props.onPostRemoved() : fiderNavigator.goHome())
+
   const handleResponded = async () => {
     setShowResponseModal(false)
     await refreshPost()
@@ -289,7 +293,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
     const result = await actions.declinePost(post.id)
     if (result.ok) {
       notify.success(<Trans id="showpost.moderation.declined">Post declined successfully</Trans>)
-      setTimeout(() => fiderNavigator.goHome(), 1500)
+      postRemoved()
     } else {
       notify.error(<Trans id="showpost.moderation.declineerror">Failed to decline post</Trans>)
     }
@@ -552,7 +556,7 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
       {/* Modals */}
       <RSSModal isOpen={isRSSModalOpen} onClose={hideRSSModal} url={`${fider.settings.baseURL}/feed/posts/${post.number}.atom`} />
-      <DeletePostModal onModalClose={() => setShowDeleteModal(false)} showModal={showDeleteModal} post={post} />
+      <DeletePostModal onModalClose={() => setShowDeleteModal(false)} onDeleted={postRemoved} showModal={showDeleteModal} post={post} />
       {Fider.session.isAuthenticated && Fider.session.user.isCollaborator && (
         <ResponseModal onCloseModal={() => setShowResponseModal(false)} showModal={showResponseModal} post={post} onResponded={handleResponded} />
       )}

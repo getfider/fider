@@ -185,7 +185,14 @@ What can we do better? This is the place for you to vote, discuss and share idea
                 </span>
               </HStack>
             </Button>
-            <PostDetails postNumber={selectedPostId} onDataChanged={() => setIsPostDirty(true)} />
+            <PostDetails
+              postNumber={selectedPostId}
+              onDataChanged={() => setIsPostDirty(true)}
+              onPostRemoved={() => {
+                postsContainerRef.current?.removePost(selectedPostId)
+                handleCloseOverlay()
+              }}
+            />
           </div>
         )}
       </div>
