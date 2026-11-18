@@ -60,7 +60,11 @@ type config struct {
 	PostCreationWithTagsEnabled bool   `env:"POST_CREATION_WITH_TAGS_ENABLED,default=false"`
 	AllowAllowedSchemes         bool   `env:"ALLOW_ALLOWED_SCHEMES,default=true"`
 	AllowPrivateNetworkTargets  bool   `env:"ALLOW_PRIVATE_NETWORK_TARGETS,default=false"`
-	Stripe                      struct {
+	Legal                       struct {
+		PrivacyURL string `env:"LEGAL_PRIVACY_URL"`
+		TermsURL   string `env:"LEGAL_TERMS_URL"`
+	}
+	Stripe struct {
 		SecretKey      string `env:"STRIPE_SECRET_KEY"`
 		WebhookSecret  string `env:"STRIPE_WEBHOOK_SECRET"`
 		PriceID        string `env:"STRIPE_PRICE_ID"`
@@ -231,12 +235,29 @@ func IsSingleHostMode() bool {
 
 var hasLegal *bool
 
-// HasLegal returns true if current instance contains legal documents: privacy.md and terms.md
+// LegalURL returns the external URL configured for a legal document (privacy.md or terms.md), or "" if none
+func LegalURL(file string) string {
+	switch file {
+	case "privacy.md":
+		return Config.Legal.PrivacyURL
+	case "terms.md":
+		return Config.Legal.TermsURL
+	}
+	return ""
+}
+
+func hasLegalDoc(file string) bool {
+	if LegalURL(file) != "" {
+		return true
+	}
+	_, err := os.Stat(Etc(file))
+	return err == nil
+}
+
+// HasLegal returns true if current instance has both legal documents, either as an external URL or as privacy.md and terms.md
 func HasLegal() bool {
 	if hasLegal == nil {
-		_, err1 := os.Stat(Etc("privacy.md"))
-		_, err2 := os.Stat(Etc("terms.md"))
-		exists := err1 == nil && err2 == nil
+		exists := hasLegalDoc("privacy.md") && hasLegalDoc("terms.md")
 		hasLegal = &exists
 	}
 	return *hasLegal

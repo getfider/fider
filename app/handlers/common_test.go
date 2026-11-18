@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app/models/entity"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -43,6 +44,20 @@ func TestLegalPageHandler(t *testing.T) {
 		Execute(handlers.LegalPage("Terms of Service", "terms.md"))
 
 	Expect(code).Equals(http.StatusOK)
+}
+
+func TestLegalPageHandler_ExternalURL(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.Legal.TermsURL = "https://example.com/legal/terms"
+	defer func() { env.Config.Legal.TermsURL = "" }()
+
+	server := mock.NewServer()
+	code, response := server.
+		Execute(handlers.LegalPage("Terms of Service", "terms.md"))
+
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("https://example.com/legal/terms")
 }
 
 func TestLegalPageHandler_Invalid(t *testing.T) {
