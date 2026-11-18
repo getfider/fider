@@ -132,6 +132,10 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     }
   }
 
+  public removePost = (postNumber: number) => {
+    this.setState({ posts: this.state.posts?.filter((post) => post.number !== postNumber) })
+  }
+
   private handleFilterChanged = (filterState: FilterState) => {
     this.changeFilterCriteria({ filterState }, true)
   }

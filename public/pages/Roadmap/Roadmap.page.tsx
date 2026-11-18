@@ -211,7 +211,14 @@ const RoadmapBoard = (props: RoadmapPageProps) => {
               </span>
             </HStack>
           </Button>
-          <PostDetails postNumber={selectedPostId} onDataChanged={() => setIsPostDirty(true)} />
+          <PostDetails
+            postNumber={selectedPostId}
+            onDataChanged={() => setIsPostDirty(true)}
+            onPostRemoved={() => {
+              setIsPostDirty(true)
+              handleCloseOverlay()
+            }}
+          />
         </div>
       )}
     </div>
