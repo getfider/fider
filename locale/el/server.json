@@ -44,6 +44,7 @@
   "email.subscription.unsubscribe": "κατάργηση συνδρομής",
   "email.greetings": "Γεια σας!",
   "email.new_mention.text": "Ο χρήστης <strong>{userName}</strong> σας ανέφερε στο <strong>{title} ({postLink})</strong>.",
+  "email.new_reply.text": "Ο χρήστης <strong>{userName}</strong> απάντησε στο σχόλιό σας στο <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Γεια σας, {name}!",
   "email.operation_confirmation": "Κάντε κλικ στον παρακάτω σύνδεσμο για να επιβεβαιώσετε αυτή τη λειτουργία.",
   "email.footer.noreply": "Αυτό το email στάλθηκε από μια διεύθυνση που δεν λαμβάνει email. Παρακαλώ μην απαντήσετε σε αυτό το μήνυμα.",

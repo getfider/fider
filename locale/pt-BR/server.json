@@ -44,6 +44,7 @@
   "email.subscription.unsubscribe": "desinscrever-se desta postagem",
   "email.greetings": "Olá!",
   "email.new_mention.text": "<strong>{userName}</strong> mencionou você em <strong>{title} ({postLink})</strong>.",
+  "email.new_reply.text": "<strong>{userName}</strong> respondeu ao seu comentário em <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Olá, {name}!",
   "email.operation_confirmation": "Clique no link abaixo para confirmar esta operação.",
   "email.footer.noreply": "Este email foi enviado de uma caixa postal que não pode receber e-mails. Favor não responder este e-mail.",

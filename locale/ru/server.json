@@ -44,6 +44,7 @@
   "email.subscription.unsubscribe": "отписаться",
   "email.greetings": "Привет!",
   "email.new_mention.text": "<strong>{userName}</strong> упомянул вас в <strong>{title} ({postLink})</strong>.",
+  "email.new_reply.text": "<strong>{userName}</strong> ответил на ваш комментарий в <strong>{title} ({postLink})</strong>.",
   "email.greetings_name": "Привет, {name}!",
   "email.operation_confirmation": "Перейдите по ссылке ниже, чтобы подтвердить это действие.",
   "email.footer.noreply": "Это письмо было отправлено с адреса, через который мы не принимаем входящие сообщения. Пожалуйста, не отвечайте на это сообщение.",

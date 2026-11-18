@@ -44,6 +44,7 @@
   "email.subscription.unsubscribe": "takip etmeyi bırak",
   "email.greetings": "Merhaba!",
   "email.new_mention.text": "<strong>{userName}</strong> sizden <strong>{title} ({postLink})</strong> adresinde bahsetti.",
+  "email.new_reply.text": "<strong>{userName}</strong>, <strong>{title} ({postLink})</strong> gönderisindeki yorumunuza yanıt verdi.",
   "email.greetings_name": "Merhaba, {name}!",
   "email.operation_confirmation": "Bu işlemi onaylamak için aşağıdaki bağlantıyı tıklayın.",
   "email.footer.noreply": "Bu e-posta yalnızca bildirim amaçlı tanımlanmış bir adresten gelmiştir. Lütfen bu mesaja cevap vermeyin.",

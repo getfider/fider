@@ -73,11 +73,11 @@ func TestNotifyAboutApprovedPost_NotifiesNonStaff(t *testing.T) {
 	post.IsApproved = true
 	notified, emailed, webhook := moderationRun(tasks.NotifyAboutApprovedPost(post))
 
-	// new post + mention for Arya, nothing for the admin who already had it
-	Expect(notified).Equals([]*entity.User{mock.AryaStark, mock.AryaStark})
-	Expect(emailed).HasLen(2)
+	// one notification for Arya (the mention wins over the new post), nothing for the admin who already had it
+	Expect(notified).Equals([]*entity.User{mock.AryaStark})
+	Expect(emailed).HasLen(1)
 	Expect(emailed[0].Address).Equals(mock.AryaStark.Email)
-	Expect(emailed[1].Address).Equals(mock.AryaStark.Email)
+	Expect(emailmock.MessageHistory[0].Props["messageLocaleString"]).Equals("email.new_mention.text")
 	Expect(emailmock.MessageHistory[0].From.Name).Equals(pendingAuthor.Name)
 	Expect(webhook).IsTrue()
 }

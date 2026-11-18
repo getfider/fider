@@ -44,6 +44,7 @@
   "email.subscription.unsubscribe": "購読解除",
   "email.greetings": "こんにちは！",
   "email.new_mention.text": "<strong>{userName}</strong> さんが <strong>{title} ({postLink})</strong> であなたに言及しました。",
+  "email.new_reply.text": "<strong>{userName}</strong> さんが <strong>{title} ({postLink})</strong> のあなたのコメントに返信しました。",
   "email.greetings_name": " {name}さん、こんにちは!",
   "email.operation_confirmation": "この操作を確認するには、以下のリンクをクリックしてください。",
   "email.footer.noreply": "このメールは、メールを受信できない通知専用メールアドレスから送信されました。このメッセージには返信しないでください。",
