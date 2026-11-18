@@ -49,10 +49,11 @@ var (
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
+			RoleVisitor,
 		},
 		Validate: notificationEventValidation,
 	}
-	//NotificationEventMention is triggered when a new comment is posted with the user @-mentioned
+	//NotificationEventMention is triggered when the user is @-mentioned or replied to
 	NotificationEventMention = NotificationEvent{
 		UserSettingsKeyName:           "event_notification_mention",
 		DefaultSettingValue:           strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),

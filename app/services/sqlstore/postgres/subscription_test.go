@@ -29,8 +29,10 @@ func TestSubscription_NoSettings(t *testing.T) {
 	Expect(newPostSubscribers.Result).HasLen(1)
 	Expect(newPostSubscribers.Result[0].ID).Equals(jonSnow.ID)
 
-	Expect(newCommentSubscribers.Result).HasLen(1)
+	// Visitors get new comments by default on posts they follow, and authors follow their own posts
+	Expect(newCommentSubscribers.Result).HasLen(2)
 	Expect(newCommentSubscribers.Result[0].ID).Equals(jonSnow.ID)
+	Expect(newCommentSubscribers.Result[1].ID).Equals(aryaStark.ID)
 
 	Expect(changeStatusSubscribers.Result).HasLen(2)
 	Expect(changeStatusSubscribers.Result[0].ID).Equals(jonSnow.ID)
@@ -351,4 +353,70 @@ func TestSubscription_EmailSupressed(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(q.Result).HasLen(1)
 	Expect(q.Result[0].ID).Equals(jonSnow.ID)
+}
+
+func TestSubscription_CommentingFollowsPost(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	subscribed := &query.UserSubscribedTo{PostID: newPost.Result.ID}
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsFalse()
+
+	err = bus.Dispatch(aryaStarkCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Me too"})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsTrue()
+
+	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventNewComment}
+	err = bus.Dispatch(aryaStarkCtx, newCommentSubscribers)
+	Expect(err).IsNil()
+	Expect(newCommentSubscribers.Result).HasLen(2)
+	Expect(newCommentSubscribers.Result[1].ID).Equals(aryaStark.ID)
+}
+
+func TestSubscription_CommentingKeepsUnfollow(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(aryaStarkCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "First"})
+	Expect(err).IsNil()
+	err = bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: newPost.Result, User: aryaStark})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(aryaStarkCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Second"})
+	Expect(err).IsNil()
+
+	subscribed := &query.UserSubscribedTo{PostID: newPost.Result.ID}
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsFalse()
+}
+
+func TestSubscription_VotingDoesNotFollowPost(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(aryaStarkCtx, &cmd.AddVote{Post: newPost.Result, User: aryaStark})
+	Expect(err).IsNil()
+
+	subscribed := &query.UserSubscribedTo{PostID: newPost.Result.ID}
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsFalse()
 }
