@@ -37,6 +37,10 @@ func Health() web.HandlerFunc {
 // LegalPage returns a legal page with content from a file
 func LegalPage(title, file string) web.HandlerFunc {
 	return func(c *web.Context) error {
+		if url := env.LegalURL(file); url != "" {
+			return c.Redirect(url)
+		}
+
 		bytes, err := os.ReadFile(env.Etc(file))
 		if err != nil {
 			return c.NotFound()
