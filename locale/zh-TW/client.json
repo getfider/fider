@@ -178,6 +178,7 @@
   "newpost.modal.title": "分享您的想法...",
   "newpost.modal.title.label": "為您的想法加上標題",
   "newpost.modal.title.placeholder": "簡短有力，用幾個字概括",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "帶我回到<0>{0}</0>首頁。",
   "page.pendingactivation.didntreceive": "沒有收到電子郵件？",
   "page.pendingactivation.resend": "重新傳送驗證信",

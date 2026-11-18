@@ -178,6 +178,7 @@
   "newpost.modal.title": "여러분의 아이디어를 공유해 보세요...",
   "newpost.modal.title.label": "아이디어 제목",
   "newpost.modal.title.placeholder": "몇 마디로 짧게 요약해 주세요.",
+  "newpost.modal.title.tooshort": "",
   "page.backhome": "<0>{0}</0> 홈으로 돌아가기",
   "page.pendingactivation.didntreceive": "이메일을 받지 못하셨나요?",
   "page.pendingactivation.resend": "인증 이메일 재전송",
