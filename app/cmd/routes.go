@@ -181,6 +181,8 @@ func routes(r *web.Engine) *web.Engine {
 		{
 			proUi.Use(middlewares.RequirePro())
 			proUi.Get("/admin/moderation", handlers.ModerationPage())
+			proUi.Get("/_api/admin/moderation/items", handlers.GetModerationItems())
+			proUi.Get("/_api/admin/moderation/count", handlers.GetModerationCount())
 		}
 
 		// From this step, only Administrators are allowed
@@ -217,14 +219,6 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
 		ui.Put("/_api/admin/users/:userID/trust", handlers.TrustUser())
 		ui.Delete("/_api/admin/users/:userID/trust", handlers.UntrustUser())
-
-		// Pro features (available to self-hosters and pro hosted customers)
-		proAdmin := ui.Group()
-		{
-			proAdmin.Use(middlewares.RequirePro())
-			proAdmin.Get("/_api/admin/moderation/items", handlers.GetModerationItems())
-			proAdmin.Get("/_api/admin/moderation/count", handlers.GetModerationCount())
-		}
 
 		if env.IsBillingEnabled() {
 			ui.Get("/admin/billing", handlers.ManageBilling())
@@ -283,6 +277,16 @@ func routes(r *web.Engine) *web.Engine {
 		staffApi.Post("/api/v1/invitations/send", apiv1.SendInvites())
 		staffApi.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 
+		// Pro features (available to self-hosters and pro hosted customers)
+		proStaffApi := staffApi.Group()
+		{
+			proStaffApi.Use(middlewares.RequirePro())
+			proStaffApi.Post("/api/v1/admin/moderation/posts/:id/approve", apiv1.ApprovePost())
+			proStaffApi.Post("/api/v1/admin/moderation/posts/:id/decline", apiv1.DeclinePost())
+			proStaffApi.Post("/api/v1/admin/moderation/comments/:id/approve", apiv1.ApproveComment())
+			proStaffApi.Post("/api/v1/admin/moderation/comments/:id/decline", apiv1.DeclineComment())
+		}
+
 		staffApi.Use(middlewares.BlockLockedTenants())
 		staffApi.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
 		staffApi.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
@@ -301,18 +305,15 @@ func routes(r *web.Engine) *web.Engine {
 		adminApi.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		adminApi.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
 
-		// Pro features (available to self-hosters and pro hosted customers)
+		// Pro features (available to self-hosters and pro hosted customers).
+		// Trusting and blocking users stays admin-only; plain approve/decline is in staffApi.
 		proAdminApi := adminApi.Group()
 		{
 			proAdminApi.Use(middlewares.RequirePro())
 			proAdminApi.Post("/api/v1/admin/moderation/posts/:id/approve-and-verify", apiv1.ApprovePostAndVerify())
 			proAdminApi.Post("/api/v1/admin/moderation/posts/:id/decline-and-block", apiv1.DeclinePostAndBlock())
-			proAdminApi.Post("/api/v1/admin/moderation/posts/:id/approve", apiv1.ApprovePost())
-			proAdminApi.Post("/api/v1/admin/moderation/posts/:id/decline", apiv1.DeclinePost())
 			proAdminApi.Post("/api/v1/admin/moderation/comments/:id/approve-and-verify", apiv1.ApproveCommentAndVerify())
 			proAdminApi.Post("/api/v1/admin/moderation/comments/:id/decline-and-block", apiv1.DeclineCommentAndBlock())
-			proAdminApi.Post("/api/v1/admin/moderation/comments/:id/approve", apiv1.ApproveComment())
-			proAdminApi.Post("/api/v1/admin/moderation/comments/:id/decline", apiv1.DeclineComment())
 		}
 
 		adminApi.Use(middlewares.BlockLockedTenants())
