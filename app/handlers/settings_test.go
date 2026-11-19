@@ -327,8 +327,8 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 func TestDeleteUserHandler(t *testing.T) {
 	RegisterT(t)
 
-	var deleteCmd *cmd.DeleteCurrentUser
-	bus.AddHandler(func(ctx context.Context, c *cmd.DeleteCurrentUser) error {
+	var deleteCmd *cmd.DeleteUser
+	bus.AddHandler(func(ctx context.Context, c *cmd.DeleteUser) error {
 		deleteCmd = c
 		return nil
 	})

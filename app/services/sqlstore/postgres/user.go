@@ -72,13 +72,13 @@ func untrustUser(ctx context.Context, c *cmd.UntrustUser) error {
 	})
 }
 
-func deleteCurrentUser(ctx context.Context, c *cmd.DeleteCurrentUser) error {
+func deleteUser(ctx context.Context, c *cmd.DeleteUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *entity.Tenant, user *entity.User) error {
 		if _, err := trx.Execute(
 			"UPDATE users SET role = $3, status = $4, name = '', email = '', api_key = null, api_key_date = null WHERE id = $1 AND tenant_id = $2",
-			user.ID, tenant.ID, enum.RoleVisitor, enum.UserDeleted,
+			c.UserID, tenant.ID, enum.RoleVisitor, enum.UserDeleted,
 		); err != nil {
-			return errors.Wrap(err, "failed to delete current user")
+			return errors.Wrap(err, "failed to delete user")
 		}
 
 		var tables = []struct {
@@ -97,9 +97,9 @@ func deleteCurrentUser(ctx context.Context, c *cmd.DeleteCurrentUser) error {
 		for _, table := range tables {
 			if _, err := trx.Execute(
 				fmt.Sprintf("DELETE FROM %s WHERE %s = $1 AND tenant_id = $2", table.name, table.userColumn),
-				user.ID, tenant.ID,
+				c.UserID, tenant.ID,
 			); err != nil {
-				return errors.Wrap(err, "failed to delete current user's %s records", table)
+				return errors.Wrap(err, "failed to delete user's %s records", table)
 			}
 		}
 
