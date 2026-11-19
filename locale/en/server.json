@@ -12,6 +12,7 @@
   "validation.invalid": "{name} is invalid.",
   "validation.invalidvalue": "{name} has an invalid value '{value}'.",
   "validation.maxstringlen": "{name} must have less than {len} characters.",
+  "validation.custom.invalidreplyparent": "You can't reply to this comment.",
   "validation.custom.maxattachments": "A maximum of {number} attachments are allowed per post.",
   "validation.custom.differentemail": "Choose a different email.",
   "validation.custom.emailtaken": "This email is already in use by someone else",

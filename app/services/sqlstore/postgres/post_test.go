@@ -369,6 +369,70 @@ func TestPostStorage_AddDeleteComment(t *testing.T) {
 	Expect(commentByID.Result).IsNil()
 }
 
+func TestPostStorage_AddReplyComment(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
+
+	parent := &cmd.AddNewComment{Post: newPost.Result, Content: "Parent"}
+	err = bus.Dispatch(jonSnowCtx, parent)
+	Expect(err).IsNil()
+	Expect(parent.Result.ParentID).IsNil()
+
+	reply := &cmd.AddNewComment{Post: newPost.Result, ParentID: &parent.Result.ID, Content: "Reply"}
+	err = bus.Dispatch(aryaStarkCtx, reply)
+	Expect(err).IsNil()
+	Expect(*reply.Result.ParentID).Equals(parent.Result.ID)
+
+	commentByID := &query.GetCommentByID{CommentID: reply.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, commentByID)
+	Expect(err).IsNil()
+	Expect(*commentByID.Result.ParentID).Equals(parent.Result.ID)
+
+	commentsByPost := &query.GetCommentsByPost{Post: newPost.Result}
+	err = bus.Dispatch(jonSnowCtx, commentsByPost)
+	Expect(err).IsNil()
+	Expect(commentsByPost.Result).HasLen(2)
+	Expect(*commentsByPost.Result[0].ParentID).Equals(parent.Result.ID)
+	Expect(commentsByPost.Result[1].ParentID).IsNil()
+
+	// Deleting the parent keeps the reply, which the UI shows under a "deleted" placeholder
+	err = bus.Dispatch(jonSnowCtx, &cmd.DeleteComment{CommentID: parent.Result.ID})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(jonSnowCtx, commentsByPost)
+	Expect(err).IsNil()
+	Expect(commentsByPost.Result).HasLen(1)
+	Expect(commentsByPost.Result[0].ID).Equals(reply.Result.ID)
+	Expect(*commentsByPost.Result[0].ParentID).Equals(parent.Result.ID)
+}
+
+func TestPostStorage_AddReplyComment_ParentFromOtherTenant(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	demoPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, demoPost)
+	Expect(err).IsNil()
+
+	demoComment := &cmd.AddNewComment{Post: demoPost.Result, Content: "Demo comment"}
+	err = bus.Dispatch(jonSnowCtx, demoComment)
+	Expect(err).IsNil()
+
+	avengersPost := &cmd.AddNewPost{Title: "Avengers post", Description: "with this description"}
+	err = bus.Dispatch(tonyStarkCtx, avengersPost)
+	Expect(err).IsNil()
+
+	// The composite (parent_id, tenant_id) foreign key rejects a parent from another tenant
+	reply := &cmd.AddNewComment{Post: avengersPost.Result, ParentID: &demoComment.Result.ID, Content: "Sneaky reply"}
+	err = bus.Dispatch(tonyStarkCtx, reply)
+	Expect(err).IsNotNil()
+	Expect(err.Error()).ContainsSubstring("comments_parent_id_fkey")
+}
+
 func TestPostStorage_GetCommentByID_WithPostID(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

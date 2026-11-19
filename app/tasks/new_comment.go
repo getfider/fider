@@ -174,6 +174,9 @@ func notifyAboutNewComment(name string, comment *entity.Comment, post *entity.Po
 
 		webhookProps := webhook.Props{"comment": contentString.SanitizeMentions()}
 		webhookProps["comment_id"] = comment.ID
+		if comment.ParentID != nil {
+			webhookProps["comment_parent_id"] = *comment.ParentID
+		}
 		webhookProps.SetPost(post, "post", baseURL, true, true)
 		webhookProps.SetUser(author, "author")
 		webhookProps.SetTenant(tenant, "tenant", baseURL, logoURL)
