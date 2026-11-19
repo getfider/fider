@@ -5,6 +5,7 @@ import { Toggle, Field } from "@fider/components"
 import { HStack, VStack } from "@fider/components/layout"
 import { i18n } from "@lingui/core"
 import { Trans } from "@lingui/react/macro"
+import { useFider } from "@fider/hooks"
 
 interface NotificationSettingsProps {
   userSettings: UserSettings
@@ -16,6 +17,7 @@ const WebChannel: Channel = 1
 const EmailChannel: Channel = 2
 
 export const NotificationSettings = (props: NotificationSettingsProps) => {
+  const fider = useFider()
   const [userSettings, setUserSettings] = useState(props.userSettings)
 
   const isEnabled = (settingsKey: string, channel: Channel): boolean => {
@@ -78,7 +80,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
             <div>
               <HStack spacing={6} justify="between">
                 <div className="mb-1">
-                  <Trans id="mysettings.notification.event.mention">Mentions</Trans>
+                  <Trans id="mysettings.notification.event.mention">Mentions and Replies</Trans>
                 </div>
                 <HStack spacing={6}>
                   {icon("event_notification_mention", WebChannel)}
@@ -97,6 +99,20 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
                 </HStack>
               </HStack>
             </div>
+            {/* Only staff can moderate, and only on Pro sites with content moderation switched on */}
+            {fider.session.showModerationControls && (
+              <div className="c-notification-settings__awaiting-approval">
+                <HStack spacing={6} justify="between">
+                  <span className="mb-1">
+                    <Trans id="mysettings.notification.event.awaitingapproval">Awaiting Approval</Trans>
+                  </span>
+                  <HStack spacing={6}>
+                    {icon("event_notification_awaiting_approval", WebChannel)}
+                    {icon("event_notification_awaiting_approval", EmailChannel)}
+                  </HStack>
+                </HStack>
+              </div>
+            )}
           </VStack>
         </div>
       </Field>

@@ -49,10 +49,11 @@ var (
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
+			RoleVisitor,
 		},
 		Validate: notificationEventValidation,
 	}
-	//NotificationEventMention is triggered when a new comment is posted with the user @-mentioned
+	//NotificationEventMention is triggered when the user is @-mentioned or replied to
 	NotificationEventMention = NotificationEvent{
 		UserSettingsKeyName:           "event_notification_mention",
 		DefaultSettingValue:           strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
@@ -78,11 +79,24 @@ var (
 		},
 		Validate: notificationEventValidation,
 	}
+	//NotificationEventAwaitingApproval is triggered when a new post or comment is waiting for moderation.
+	//Only staff, who can moderate, ever receive it.
+	NotificationEventAwaitingApproval = NotificationEvent{
+		UserSettingsKeyName:           "event_notification_awaiting_approval",
+		DefaultSettingValue:           strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
+		RequiresSubscriptionUserRoles: []Role{},
+		DefaultEnabledUserRoles: []Role{
+			RoleAdministrator,
+			RoleCollaborator,
+		},
+		Validate: notificationEventValidation,
+	}
 	//AllNotificationEvents contains all possible notification events
 	AllNotificationEvents = []NotificationEvent{
 		NotificationEventNewPost,
 		NotificationEventNewComment,
 		NotificationEventMention,
 		NotificationEventChangeStatus,
+		NotificationEventAwaitingApproval,
 	}
 )

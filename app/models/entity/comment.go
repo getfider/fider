@@ -13,6 +13,7 @@ type ReactionCounts struct {
 // Comment represents an user comment on an post
 type Comment struct {
 	ID             int              `json:"id"`
+	ParentID       *int             `json:"parentId,omitempty"`
 	Content        string           `json:"content"`
 	CreatedAt      time.Time        `json:"createdAt"`
 	User           *User            `json:"user"`

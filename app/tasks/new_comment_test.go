@@ -252,12 +252,10 @@ func TestNotifyAboutNewCommentTask_WithMention(t *testing.T) {
 		"tenant_url":        "http://domain.com",
 	})
 
-	Expect(addNotificationLogs).HasLen(2)
+	// logged once, even though Jon was notified on both channels
+	Expect(addNotificationLogs).HasLen(1)
 	Expect(addNotificationLogs[0].UserID).Equals(mock.JonSnow.ID)
 	Expect(addNotificationLogs[0].CommentID).Equals(0)
-
-	Expect(addNotificationLogs[1].UserID).Equals(mock.JonSnow.ID)
-	Expect(addNotificationLogs[1].CommentID).Equals(0)
 
 }
 

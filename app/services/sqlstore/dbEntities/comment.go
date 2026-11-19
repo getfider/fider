@@ -11,6 +11,7 @@ import (
 
 type Comment struct {
 	ID             int            `db:"id"`
+	ParentID       dbx.NullInt    `db:"parent_id"`
 	Content        string         `db:"content"`
 	CreatedAt      time.Time      `db:"created_at"`
 	User           *User          `db:"user"`
@@ -29,6 +30,10 @@ func (c *Comment) ToModel(ctx context.Context) *entity.Comment {
 		User:        c.User.ToModel(ctx),
 		Attachments: c.Attachments,
 		IsApproved:  c.IsApproved,
+	}
+	if c.ParentID.Valid {
+		parentID := int(c.ParentID.Int64)
+		comment.ParentID = &parentID
 	}
 	if c.EditedAt.Valid {
 		comment.EditedBy = c.EditedBy.ToModel(ctx)

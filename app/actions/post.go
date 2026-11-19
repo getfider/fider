@@ -208,6 +208,7 @@ func (action *ToggleCommentReaction) Validate(ctx context.Context, user *entity.
 // AddNewComment represents a new comment to be added
 type AddNewComment struct {
 	Number      int                `route:"number"`
+	ParentID    *int               `json:"parentId"`
 	Content     string             `json:"content"`
 	Attachments []*dto.ImageUpload `json:"attachments"`
 }
@@ -238,7 +239,40 @@ func (action *AddNewComment) Validate(ctx context.Context, user *entity.User) *v
 	}
 	result.AddFieldFailure("attachments", messages...)
 
+	if action.ParentID != nil {
+		ok, err := isValidReplyParent(ctx, action.Number, *action.ParentID)
+		if err != nil {
+			return validate.Error(err)
+		}
+		if !ok {
+			result.AddFieldFailure("parentId", i18n.T(ctx, "validation.custom.invalidreplyparent"))
+		}
+	}
+
 	return result
+}
+
+// isValidReplyParent checks the parent is a visible, approved, top-level comment on the same post.
+// GetCommentByID is scoped to the current tenant, so parents from other tenants are never found.
+func isValidReplyParent(ctx context.Context, postNumber, parentID int) (bool, error) {
+	getPost := &query.GetPostByNumber{Number: postNumber}
+	if err := bus.Dispatch(ctx, getPost); err != nil {
+		if errors.Cause(err) == app.ErrNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+
+	getParent := &query.GetCommentByID{CommentID: parentID, PostID: getPost.Result.ID}
+	if err := bus.Dispatch(ctx, getParent); err != nil {
+		if errors.Cause(err) == app.ErrNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+
+	parent := getParent.Result
+	return parent.ParentID == nil && parent.IsApproved, nil
 }
 
 // SetResponse represents the action to update an post response

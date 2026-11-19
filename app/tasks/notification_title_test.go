@@ -53,8 +53,16 @@ func TestNotificationTitles_EscapeMarkdownInNamesAndTitles(t *testing.T) {
 		{
 			task: func(post *entity.Post) worker.Task { return tasks.NotifyAboutNewPost(post) },
 			expected: []string{
-				"New post: **" + escapedTitle + "**",
 				"**" + escapedName + "** mentioned you in **" + escapedTitle + "**",
+			},
+		},
+		{
+			task: func(post *entity.Post) worker.Task {
+				post.Description = "No mentions"
+				return tasks.NotifyAboutNewPost(post)
+			},
+			expected: []string{
+				"New post: **" + escapedTitle + "**",
 			},
 		},
 		{
@@ -68,8 +76,24 @@ func TestNotificationTitles_EscapeMarkdownInNamesAndTitles(t *testing.T) {
 				return tasks.NotifyAboutNewComment(&entity.Comment{Content: "Hello @[Jon Snow]", User: &author, IsApproved: true}, post)
 			},
 			expected: []string{
-				"**" + escapedName + "** left a comment on **" + escapedTitle + "**",
 				"**" + escapedName + "** mentioned you in **" + escapedTitle + "**",
+			},
+		},
+		{
+			task: func(post *entity.Post) worker.Task {
+				return tasks.NotifyAboutNewComment(&entity.Comment{Content: "Hello", User: &author, IsApproved: true}, post)
+			},
+			expected: []string{
+				"**" + escapedName + "** left a comment on **" + escapedTitle + "**",
+			},
+		},
+		{
+			task: func(post *entity.Post) worker.Task {
+				parentID := 7
+				return tasks.NotifyAboutNewComment(&entity.Comment{Content: "Hello", ParentID: &parentID, User: &author, IsApproved: true}, post)
+			},
+			expected: []string{
+				"**" + escapedName + "** replied to your comment on **" + escapedTitle + "**",
 			},
 		},
 		{
@@ -114,6 +138,10 @@ func TestNotificationTitles_EscapeMarkdownInNamesAndTitles(t *testing.T) {
 			return nil
 		})
 		bus.AddHandler(func(ctx context.Context, c *cmd.TriggerWebhooks) error {
+			return nil
+		})
+		bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+			q.Result = &entity.Comment{ID: q.CommentID, User: mock.JonSnow}
 			return nil
 		})
 

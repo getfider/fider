@@ -213,26 +213,31 @@ const ContentModerationPage = () => {
                   <Trans id="action.delete">Delete</Trans>
                 </span>
               </Button>
-              <Button
-                size="small"
-                variant="secondary"
-                onClick={() => (item.type === "post" ? handleApprovePostAndVerify(item.id) : handleApproveCommentAndVerify(item.id))}
-              >
-                <Icon sprite={IconShieldCheck} />
-                <span>
-                  <Trans id="action.publish.verify">Publish & Trust</Trans>
-                </span>
-              </Button>
-              <Button
-                size="small"
-                variant="secondary"
-                onClick={() => (item.type === "post" ? handleDeclinePostAndBlock(item.id) : handleDeclineCommentAndBlock(item.id))}
-              >
-                <Icon sprite={IconBan} />
-                <span>
-                  <Trans id="action.delete.block">Delete & Block</Trans>
-                </span>
-              </Button>
+              {/* Trusting and blocking users is admin-only */}
+              {fider.session.user.isAdministrator && (
+                <>
+                  <Button
+                    size="small"
+                    variant="secondary"
+                    onClick={() => (item.type === "post" ? handleApprovePostAndVerify(item.id) : handleApproveCommentAndVerify(item.id))}
+                  >
+                    <Icon sprite={IconShieldCheck} />
+                    <span>
+                      <Trans id="action.publish.verify">Publish & Trust</Trans>
+                    </span>
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="secondary"
+                    onClick={() => (item.type === "post" ? handleDeclinePostAndBlock(item.id) : handleDeclineCommentAndBlock(item.id))}
+                  >
+                    <Icon sprite={IconBan} />
+                    <span>
+                      <Trans id="action.delete.block">Delete & Block</Trans>
+                    </span>
+                  </Button>
+                </>
+              )}
             </div>
           </VStack>
         </div>

@@ -3,7 +3,7 @@ import "./PostDetails.scss"
 import React, { useState, useEffect, useCallback } from "react"
 
 import { Comment, Post, Tag, Vote, CurrentUser, PostStatus } from "@fider/models"
-import { actions, cache, clearUrlHash, Failure, Fider, navigator as fiderNavigator, notify, timeAgo } from "@fider/services"
+import { actions, cache, classSet, clearUrlHash, Failure, Fider, navigator as fiderNavigator, notify, timeAgo } from "@fider/services"
 import IconDuplicate from "@fider/assets/images/heroicons-duplicate.svg"
 import { i18n } from "@lingui/core"
 import IconRSS from "@fider/assets/images/heroicons-rss.svg"
@@ -30,6 +30,7 @@ import {
 } from "@fider/components"
 import { CommentInput } from "@fider/pages/ShowPost/components/CommentInput"
 import { ShowComment } from "@fider/pages/ShowPost/components/ShowComment"
+import { groupThreads } from "@fider/pages/ShowPost/components/groupThreads"
 import { VoteSection } from "@fider/pages/ShowPost/components/VoteSection"
 import CommentEditor from "@fider/components/common/form/CommentEditor"
 
@@ -90,6 +91,8 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
   const [post, setPost] = useState<Post | null>(props.initialPost || null)
   const [subscribed, setSubscribed] = useState(props.initialSubscribed || false)
   const [comments, setComments] = useState<Comment[]>(props.initialComments || [])
+  // The thread with an open reply box. `key` remounts the box so a new @mention prefill applies.
+  const [replyingTo, setReplyingTo] = useState<{ threadId: number; mention?: string; key: number } | undefined>(undefined)
   const [tags, setTags] = useState<Tag[]>(props.initialTags || [])
   const [votes, setVotes] = useState<Vote[]>(props.initialVotes || [])
   const [loading, setLoading] = useState(!props.initialPost)
@@ -156,6 +159,12 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
 
     fetchData()
   }, [props.postNumber, props.initialPost])
+
+  // Replies always go to the top-level comment; replying to a reply prefills an @mention of its author
+  const startReply = (threadId: number, replyTo?: Comment) => {
+    const mentionsSomeoneElse = replyTo && !(Fider.session.isAuthenticated && replyTo.user.id === Fider.session.user.id)
+    setReplyingTo({ threadId, mention: mentionsSomeoneElse ? `@[${replyTo.user.name}] ` : undefined, key: Date.now() })
+  }
 
   const handleHashChange = useCallback(
     (e?: Event) => {
@@ -541,8 +550,56 @@ export const PostDetails: React.FC<PostDetailsProps> = (props) => {
           {/* Comments List */}
           {comments.length > 0 && (
             <VStack spacing={4}>
-              {comments.map((c) => (
-                <ShowComment key={c.id} post={post} comment={c} highlighted={highlightedComment === c.id} onChanged={refreshComments} />
+              {groupThreads(comments).map((thread) => (
+                <div
+                  key={thread.id}
+                  className={classSet({
+                    "c-comment-thread": true,
+                    "c-comment-thread--threaded": !!thread.root && (thread.replies.length > 0 || replyingTo?.threadId === thread.id),
+                  })}
+                >
+                  {thread.root ? (
+                    <ShowComment
+                      post={post}
+                      comment={thread.root}
+                      highlighted={highlightedComment === thread.root.id}
+                      onChanged={refreshComments}
+                      onReply={() => startReply(thread.id)}
+                    />
+                  ) : (
+                    <div className="c-comment-deleted text-sm text-muted">
+                      <Trans id="showpost.comment.deleted">This comment was deleted</Trans>
+                    </div>
+                  )}
+                  {(thread.replies.length > 0 || replyingTo?.threadId === thread.id) && (
+                    <VStack spacing={4} className="c-comment-replies">
+                      {thread.replies.map((c) => (
+                        <ShowComment
+                          key={c.id}
+                          post={post}
+                          comment={c}
+                          highlighted={highlightedComment === c.id}
+                          onChanged={refreshComments}
+                          // A thread whose top-level comment was deleted is closed
+                          onReply={thread.root ? () => startReply(thread.id, c) : undefined}
+                        />
+                      ))}
+                      {replyingTo?.threadId === thread.id && (
+                        <CommentInput
+                          key={replyingTo.key}
+                          post={post}
+                          parentId={thread.id}
+                          initialValue={replyingTo.mention}
+                          onCancel={() => setReplyingTo(undefined)}
+                          onCommentAdded={() => {
+                            setReplyingTo(undefined)
+                            refreshComments()
+                          }}
+                        />
+                      )}
+                    </VStack>
+                  )}
+                </div>
               ))}
             </VStack>
           )}

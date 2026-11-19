@@ -66,14 +66,15 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("new_post")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
-		"title":    "Add support for TypeScript",
-		"postLink": "<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>",
-		"siteName": "Demonstration",
-		"userName": "Jon Snow",
-		"content":  template.HTML("<p>TypeScript is great, please add support for it</p>"),
-		"view":     "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
-		"change":   "<a href='http://domain.com/settings'>change your notification preferences</a>",
-		"logo":     "https://login.fider.io/static/assets/logo.png",
+		"title":               "Add support for TypeScript",
+		"messageLocaleString": "email.new_post.text",
+		"postLink":            "<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>",
+		"siteName":            "Demonstration",
+		"userName":            "Jon Snow",
+		"content":             template.HTML("<p>TypeScript is great, please add support for it</p>"),
+		"view":                "<a href='http://domain.com/posts/1/add-support-for-typescript'>view it on your browser</a>",
+		"change":              "<a href='http://domain.com/settings'>change your notification preferences</a>",
+		"logo":                "https://login.fider.io/static/assets/logo.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals(dto.Recipient{
 		Name: "Jon Snow",
@@ -169,29 +170,23 @@ func TestNotifyAboutNewPostTask_WithMention(t *testing.T) {
 		Execute(task)
 
 	Expect(err).IsNil()
-	Expect(emailmock.MessageHistory).HasLen(2)
-
-	// Check standard notification email
-	Expect(emailmock.MessageHistory[0].TemplateName).Equals("new_post")
+	// Only the mention email: nobody is subscribed to new posts
+	Expect(emailmock.MessageHistory).HasLen(1)
+	Expect(emailmock.MessageHistory[0].TemplateName).Equals("new_comment")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailmock.MessageHistory[0].Props["messageLocaleString"]).Equals("email.new_mention.text")
 	Expect(emailmock.MessageHistory[0].Props["content"]).Equals(template.HTML("<p>TypeScript is great, please add support for it @Jon Snow</p>"))
-
-	// Check mention notification email
-	Expect(emailmock.MessageHistory[1].TemplateName).Equals("new_comment")
-	Expect(emailmock.MessageHistory[1].Props["messageLocaleString"]).Equals("email.new_mention.text")
-	Expect(emailmock.MessageHistory[1].To).HasLen(1)
-	Expect(emailmock.MessageHistory[1].To[0].Name).Equals("Jon Snow")
+	Expect(emailmock.MessageHistory[0].To).HasLen(1)
+	Expect(emailmock.MessageHistory[0].To[0].Name).Equals("Jon Snow")
 
 	Expect(addNewNotification).IsNotNil()
 	Expect(addNewNotification.PostID).Equals(post.ID)
 	Expect(addNewNotification.Title).Equals("**Arya Stark** mentioned you in **Add support for TypeScript**")
 	Expect(addNewNotification.User).Equals(mock.JonSnow)
 
-	Expect(addNotificationLogs).HasLen(2)
+	Expect(addNotificationLogs).HasLen(1)
 	Expect(addNotificationLogs[0].UserID).Equals(mock.JonSnow.ID)
 	Expect(addNotificationLogs[0].PostID).Equals(post.ID)
-	Expect(addNotificationLogs[1].UserID).Equals(mock.JonSnow.ID)
-	Expect(addNotificationLogs[1].PostID).Equals(post.ID)
 
 	Expect(triggerWebhooks).IsNotNil()
 	Expect(triggerWebhooks.Type).Equals(enum.WebhookNewPost)

@@ -18,11 +18,16 @@ func addNewComment(ctx context.Context, c *cmd.AddNewComment) error {
 		isApproved := !tenant.IsModerationEnabled || !user.RequiresModeration()
 		var id int
 		if err := trx.Get(&id, `
-			INSERT INTO comments (tenant_id, post_id, content, user_id, created_at, is_approved) 
-			VALUES ($1, $2, $3, $4, $5, $6) 
+			INSERT INTO comments (tenant_id, post_id, parent_id, content, user_id, created_at, is_approved) 
+			VALUES ($1, $2, $3, $4, $5, $6, $7) 
 			RETURNING id
-		`, tenant.ID, c.Post.ID, c.Content, user.ID, time.Now(), isApproved); err != nil {
+		`, tenant.ID, c.Post.ID, c.ParentID, c.Content, user.ID, time.Now(), isApproved); err != nil {
 			return errors.Wrap(err, "failed add new comment")
+		}
+
+		// Commenting follows the post, unless the user has unfollowed it before
+		if err := internalAddSubscriber(trx, c.Post, tenant, user, false); err != nil {
+			return err
 		}
 
 		q := &query.GetCommentByID{CommentID: id}
@@ -96,6 +101,7 @@ func getCommentByID(ctx context.Context, q *query.GetCommentByID) error {
 		q.Result = nil
 
 		query := fmt.Sprintf(`SELECT c.id, 
+							c.parent_id, 
 							c.content, 
 							c.created_at, 
 							c.edited_at, 
@@ -201,6 +207,7 @@ func getCommentsByPost(ctx context.Context, q *query.GetCommentsByPost) error {
 				GROUP BY comment_id
 			)
 			SELECT c.id, 
+					c.parent_id, 
 					c.content, 
 					c.created_at, 
 					c.edited_at, 
