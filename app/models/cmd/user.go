@@ -22,7 +22,8 @@ type RegenerateAPIKey struct {
 	Result string
 }
 
-type DeleteCurrentUser struct {
+type DeleteUser struct {
+	UserID int
 }
 
 type ChangeUserRole struct {
