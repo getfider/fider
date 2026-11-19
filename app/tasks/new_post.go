@@ -18,26 +18,31 @@ import (
 )
 
 // NotifyAboutNewPost sends a notification (web and email) to subscribers.
-// Pending posts only notify staff; everyone else is notified on approval.
+// A pending post only tells moderators it needs approval; everyone is notified once it's approved.
 func NotifyAboutNewPost(post *entity.Post) worker.Task {
-	return notifyAboutNewPost("Notify about new post", post, audienceFor(post.IsApproved))
+	if !post.IsApproved {
+		return notifyAwaitingApproval("Notify about post awaiting approval", func() awaitingApproval { return postAwaitingApproval(post) })
+	}
+	return notifyAboutNewPost("Notify about new post", post, 0)
 }
 
-// NotifyAboutApprovedPost notifies the non-staff subscribers that were held back while the post was pending
-func NotifyAboutApprovedPost(post *entity.Post) worker.Task {
-	return notifyAboutNewPost("Notify about approved post", post, nonStaffOnly)
+// NotifyAboutApprovedPost sends the notifications that were held back while the post was pending,
+// to everyone but the moderator who approved it
+func NotifyAboutApprovedPost(post *entity.Post, approverID int) worker.Task {
+	return notifyAboutNewPost("Notify about approved post", post, approverID)
 }
 
-func notifyAboutNewPost(name string, post *entity.Post, aud audience) worker.Task {
+func notifyAboutNewPost(name string, post *entity.Post, skipUserID int) worker.Task {
 	return describe(name, func(c *worker.Context) error {
 		contentString := entity.CommentString(post.Description)
 		author := post.User
 
 		rules := recipientRules{
-			authorID: author.ID,
-			mentions: contentString.ParseMentions(),
-			general:  &enum.NotificationEventNewPost,
-			aud:      aud,
+			authorID:   author.ID,
+			mentions:   contentString.ParseMentions(),
+			general:    &enum.NotificationEventNewPost,
+			aud:        everyone,
+			skipUserID: skipUserID,
 		}
 		if len(rules.mentions) > 0 {
 			mN := &query.GetMentionNotifications{PostID: post.ID}
@@ -79,14 +84,15 @@ func notifyAboutNewPost(name string, post *entity.Post, aud audience) worker.Tas
 				To:           toRecipients(byEmail.general),
 				TemplateName: "new_post",
 				Props: dto.Props{
-					"title":    post.Title,
-					"siteName": tenant.Name,
-					"userName": author.Name,
-					"content":  markdown.Full(c, content, false),
-					"postLink": linkWithText(fmt.Sprintf("#%d", post.Number), baseURL, "/posts/%d/%s", post.Number, post.Slug),
-					"view":     linkWithText(i18n.T(c, "email.subscription.view"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
-					"change":   linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
-					"logo":     logoURL,
+					"title":               post.Title,
+					"messageLocaleString": "email.new_post.text",
+					"siteName":            tenant.Name,
+					"userName":            author.Name,
+					"content":             markdown.Full(c, content, false),
+					"postLink":            linkWithText(fmt.Sprintf("#%d", post.Number), baseURL, "/posts/%d/%s", post.Number, post.Slug),
+					"view":                linkWithText(i18n.T(c, "email.subscription.view"), baseURL, "/posts/%d/%s", post.Number, post.Slug),
+					"change":              linkWithText(i18n.T(c, "email.subscription.change"), baseURL, "/settings"),
+					"logo":                logoURL,
 				},
 			})
 		}
@@ -123,7 +129,8 @@ func NotifyAboutUpdatedPost(post *entity.Post) worker.Task {
 			"Post":          post.Title,
 			"MentionsCount": len(mentions),
 		})
-		if len(mentions) == 0 {
+		// Nothing is sent about a pending post until it's approved
+		if len(mentions) == 0 || !post.IsApproved {
 			return nil
 		}
 
@@ -137,7 +144,7 @@ func NotifyAboutUpdatedPost(post *entity.Post) worker.Task {
 			authorID:        author.ID,
 			mentions:        mentions,
 			alreadyNotified: mN.Result,
-			aud:             audienceFor(post.IsApproved),
+			aud:             everyone,
 		}
 		onWeb, err := pickRecipients(c, post, enum.NotificationChannelWeb, rules)
 		if err != nil {

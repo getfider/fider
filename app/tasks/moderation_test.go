@@ -66,14 +66,14 @@ func TestNotifyAboutNewPost_PendingOnlyNotifiesStaff(t *testing.T) {
 	Expect(webhook).IsFalse()
 }
 
-func TestNotifyAboutApprovedPost_NotifiesNonStaff(t *testing.T) {
+func TestNotifyAboutApprovedPost_SkipsApprover(t *testing.T) {
 	RegisterT(t)
 
 	post := pendingPost()
 	post.IsApproved = true
-	notified, emailed, webhook := moderationRun(tasks.NotifyAboutApprovedPost(post))
+	notified, emailed, webhook := moderationRun(tasks.NotifyAboutApprovedPost(post, mock.JonSnow.ID))
 
-	// one notification for Arya (the mention wins over the new post), nothing for the admin who already had it
+	// one notification for Arya (the mention wins over the new post), nothing for Jon who approved it
 	Expect(notified).Equals([]*entity.User{mock.AryaStark})
 	Expect(emailed).HasLen(1)
 	Expect(emailed[0].Address).Equals(mock.AryaStark.Email)
@@ -94,4 +94,16 @@ func TestNotifyAboutNewComment_PendingOnlyNotifiesStaff(t *testing.T) {
 	Expect(emailed).HasLen(1)
 	Expect(emailed[0].Address).Equals(mock.JonSnow.Email)
 	Expect(webhook).IsFalse()
+}
+
+func TestNotifyAboutApprovedPost_NotifiesOtherStaff(t *testing.T) {
+	RegisterT(t)
+
+	post := pendingPost()
+	post.IsApproved = true
+	notified, emailed, _ := moderationRun(tasks.NotifyAboutApprovedPost(post, 999))
+
+	// Jon only had "needs approval" while it was pending, so now gets the new post as well
+	Expect(notified).Equals([]*entity.User{mock.AryaStark, mock.JonSnow})
+	Expect(emailed).HasLen(2)
 }

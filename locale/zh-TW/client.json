@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "您的電子郵件為私人資訊，不會公開顯示。",
   "mysettings.notification.channelemail": "電子郵件",
   "mysettings.notification.channelweb": "網站",
+  "mysettings.notification.event.awaitingapproval": "待審核",
   "mysettings.notification.event.discussion": "新留言",
   "mysettings.notification.event.mention": "提及和回覆",
   "mysettings.notification.event.newpost": "新文章",

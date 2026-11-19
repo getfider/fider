@@ -15,6 +15,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/getfider/fider/app/services/email"
 	"github.com/getfider/fider/app/services/email/emailmock"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -108,6 +109,7 @@ const (
 	mentionKey    = "event_notification_mention"
 	newCommentKey = "event_notification_new_comment"
 	newPostKey    = "event_notification_new_post"
+	awaitingKey   = "event_notification_awaiting_approval"
 )
 
 func TestNotificationRules_SelfMentionDoesNotNotify(t *testing.T) {
@@ -241,34 +243,124 @@ func TestNotificationRules_NewPostMentionBeatsNewPost(t *testing.T) {
 	})
 	Expect(result.emails).Equals([]sentEmail{
 		{"email.new_mention.text", []string{"Jon Snow"}},
-		{"new_post", []string{"Sansa Stark"}},
+		{"email.new_post.text", []string{"Sansa Stark"}},
 	})
 }
 
-// Arya (a visitor) is replied to by a comment that needs moderation; Jon (staff) gets new comments
+// Arya (a visitor) is replied to by a comment that needs moderation; Jon (staff) gets new comments.
+// Both have "awaiting approval" switched on, but only staff can receive it.
 var pendingReplySubs = subscribers{
 	mentionKey:    everywhere(mock.AryaStark),
 	newCommentKey: everywhere(mock.JonSnow),
+	awaitingKey:   everywhere(mock.JonSnow, mock.AryaStark),
 }
 
-func TestNotificationRules_PendingReplyOnlyNotifiesStaff(t *testing.T) {
+func TestNotificationRules_PendingReplyOnlyTellsStaffItNeedsApproval(t *testing.T) {
 	RegisterT(t)
 
 	pending := reply("Hmm", sansaStark)
 	pending.IsApproved = false
 	result := rulesRun(tasks.NotifyAboutNewComment(pending, rulesPost()), pendingReplySubs, mock.AryaStark)
 
-	Expect(result.web).Equals([]webNotification{{"Jon Snow", "**Sansa Stark** left a comment on **Dark mode**"}})
-	Expect(result.emails).Equals([]sentEmail{{"email.new_comment.text", []string{"Jon Snow"}}})
+	Expect(result.web).Equals([]webNotification{{"Jon Snow", "**Sansa Stark** left a comment that needs approval on **Dark mode**"}})
+	Expect(result.emails).Equals([]sentEmail{{"email.new_comment_approval.text", []string{"Jon Snow"}}})
+	Expect(result.logs).HasLen(0)
+}
+
+func TestNotificationRules_PendingCommentLinksToComment(t *testing.T) {
+	RegisterT(t)
+
+	bus.Init(emailmock.Service{})
+	var link string
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		link = c.Link
+		return nil
+	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetActiveSubscribers) error {
+		q.Result = []*entity.User{mock.JonSnow}
+		return nil
+	})
+
+	pending := &entity.Comment{ID: 42, Content: "Hmm", User: sansaStark}
+	err := mock.NewWorker().OnTenant(mock.DemoTenant).AsUser(sansaStark).WithBaseURL("http://domain.com").
+		Execute(tasks.NotifyAboutNewComment(pending, rulesPost()))
+
+	Expect(err).IsNil()
+	Expect(link).Equals("/posts/1/dark-mode#comment-42")
 }
 
 func TestNotificationRules_ApprovedReplyNotifiesParentAuthor(t *testing.T) {
 	RegisterT(t)
 
-	result := rulesRun(tasks.NotifyAboutApprovedComment(reply("Hmm", sansaStark), rulesPost()), pendingReplySubs, mock.AryaStark)
+	// Jon approved it, so he isn't notified about it again
+	result := rulesRun(tasks.NotifyAboutApprovedComment(reply("Hmm", sansaStark), rulesPost(), mock.JonSnow.ID), pendingReplySubs, mock.AryaStark)
 
 	Expect(result.web).Equals([]webNotification{{"Arya Stark", "**Sansa Stark** replied to your comment on **Dark mode**"}})
 	Expect(result.emails).Equals([]sentEmail{{"email.new_reply.text", []string{"Arya Stark"}}})
+}
+
+func TestNotificationRules_ApprovedCommentNotifiesOtherStaff(t *testing.T) {
+	RegisterT(t)
+
+	result := rulesRun(tasks.NotifyAboutApprovedComment(reply("Hmm", sansaStark), rulesPost(), 999), pendingReplySubs, mock.AryaStark)
+
+	Expect(result.web).Equals([]webNotification{
+		{"Arya Stark", "**Sansa Stark** replied to your comment on **Dark mode**"},
+		{"Jon Snow", "**Sansa Stark** left a comment on **Dark mode**"},
+	})
+}
+
+func TestNotificationRules_PendingPostOnlyTellsStaffItNeedsApproval(t *testing.T) {
+	RegisterT(t)
+
+	post := rulesPost()
+	post.User = sansaStark
+	post.IsApproved = false
+	post.Description = "cc @[Jon Snow] @[Arya Stark]"
+	subs := subscribers{
+		mentionKey:  everywhere(mock.JonSnow, mock.AryaStark),
+		newPostKey:  everywhere(mock.JonSnow, mock.AryaStark),
+		awaitingKey: everywhere(mock.JonSnow, mock.AryaStark),
+	}
+	result := rulesRun(tasks.NotifyAboutNewPost(post), subs, nil)
+
+	Expect(result.web).Equals([]webNotification{{"Jon Snow", "**Sansa Stark** created a new post for approval: **Dark mode**"}})
+	Expect(result.emails).Equals([]sentEmail{{"email.new_post_approval.text", []string{"Jon Snow"}}})
+	Expect(result.logs).HasLen(0)
+}
+
+func TestNotificationRules_AwaitingApprovalRespectsSetting(t *testing.T) {
+	RegisterT(t)
+
+	// Jon has switched "awaiting approval" off for email
+	post := rulesPost()
+	post.User = sansaStark
+	post.IsApproved = false
+	subs := subscribers{awaitingKey: {chWeb: {mock.JonSnow}}}
+	result := rulesRun(tasks.NotifyAboutNewPost(post), subs, nil)
+
+	Expect(result.web).HasLen(1)
+	Expect(result.emails).HasLen(0)
+}
+
+func TestNotificationRules_EditingPendingContentSendsNothing(t *testing.T) {
+	RegisterT(t)
+
+	pending := &entity.Comment{ID: 1, Content: "Now with @[Jon Snow]", User: sansaStark}
+	result := rulesRun(tasks.NotifyAboutUpdatedComment(rulesPost(), pending), subscribers{mentionKey: everywhere(mock.JonSnow)}, nil)
+	Expect(result.web).HasLen(0)
+	Expect(result.emails).HasLen(0)
+}
+
+func TestNotificationRules_EditingPendingPostSendsNothing(t *testing.T) {
+	RegisterT(t)
+
+	post := rulesPost()
+	post.IsApproved = false
+	post.Description = "Now with @[Jon Snow]"
+	result := rulesRun(tasks.NotifyAboutUpdatedPost(post), subscribers{mentionKey: everywhere(mock.JonSnow)}, nil)
+	Expect(result.web).HasLen(0)
+	Expect(result.emails).HasLen(0)
 }
 
 func TestNotificationRules_DeletedParentSkipsReply(t *testing.T) {
@@ -297,4 +389,36 @@ func TestNotificationRules_DeletedParentSkipsReply(t *testing.T) {
 	// Falls back to the new comment notification
 	Expect(err).IsNil()
 	Expect(notified).Equals(1)
+}
+
+// renderedAwaitingApproval runs task with Jon set up for "awaiting approval" and renders the one email it sends
+func renderedAwaitingApproval(task worker.Task) *email.Message {
+	rulesRun(task, subscribers{awaitingKey: everywhere(mock.JonSnow)}, nil)
+	Expect(emailmock.MessageHistory).HasLen(1)
+	m := emailmock.MessageHistory[0]
+	return email.RenderMessage(context.Background(), m.TemplateName, email.NoReply, m.Props)
+}
+
+func TestNotificationRules_PostAwaitingApprovalEmailRenders(t *testing.T) {
+	RegisterT(t)
+
+	post := rulesPost()
+	post.User = sansaStark
+	post.IsApproved = false
+	post.Description = "Please add it"
+	message := renderedAwaitingApproval(tasks.NotifyAboutNewPost(post))
+
+	Expect(message.Subject).Equals("[Demonstration] Dark mode")
+	Expect(message.Body).ContainsSubstring("<strong>Sansa Stark</strong> created a new post for approval: <strong>Dark mode (<a href='http://domain.com/posts/1/dark-mode'>#1</a>)</strong>.")
+	Expect(message.Body).ContainsSubstring("Please add it")
+}
+
+func TestNotificationRules_CommentAwaitingApprovalEmailRenders(t *testing.T) {
+	RegisterT(t)
+
+	message := renderedAwaitingApproval(tasks.NotifyAboutNewComment(&entity.Comment{ID: 5, Content: "Me too", User: sansaStark}, rulesPost()))
+
+	Expect(message.Subject).Equals("[Demonstration] Dark mode")
+	Expect(message.Body).ContainsSubstring("<strong>Sansa Stark</strong> left a comment that needs approval on <strong>Dark mode (<a href='http://domain.com/posts/1/dark-mode'>#1</a>)</strong>.")
+	Expect(message.Body).ContainsSubstring("Me too")
 }

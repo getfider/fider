@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "E-posta adresiniz mahremdir ve başkasıyla paylaşılmayacaktır.",
   "mysettings.notification.channelemail": "E-Posta",
   "mysettings.notification.channelweb": "Web",
+  "mysettings.notification.event.awaitingapproval": "Onay bekliyor",
   "mysettings.notification.event.discussion": "Tartışma",
   "mysettings.notification.event.mention": "Bahsedilenler ve yanıtlar",
   "mysettings.notification.event.newpost": "Yeni Öneri",

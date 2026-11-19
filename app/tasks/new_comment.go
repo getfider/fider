@@ -22,17 +22,21 @@ import (
 )
 
 // NotifyAboutNewComment sends a notification (web and email) to subscribers.
-// Comments that are pending, or on a pending post, only notify staff.
+// A pending comment only tells moderators it needs approval. A comment on a pending post only notifies staff.
 func NotifyAboutNewComment(comment *entity.Comment, post *entity.Post) worker.Task {
-	return notifyAboutNewComment("Notify about new comment", comment, post, audienceFor(comment.IsApproved && post.IsApproved))
+	if !comment.IsApproved {
+		return notifyAwaitingApproval("Notify about comment awaiting approval", func() awaitingApproval { return commentAwaitingApproval(comment, post) })
+	}
+	return notifyAboutNewComment("Notify about new comment", comment, post, audienceFor(post.IsApproved), 0)
 }
 
-// NotifyAboutApprovedComment notifies the non-staff subscribers that were held back while the comment was pending
-func NotifyAboutApprovedComment(comment *entity.Comment, post *entity.Post) worker.Task {
-	return notifyAboutNewComment("Notify about approved comment", comment, post, nonStaffOnly)
+// NotifyAboutApprovedComment sends the notifications that were held back while the comment was pending,
+// to everyone but the moderator who approved it
+func NotifyAboutApprovedComment(comment *entity.Comment, post *entity.Post, approverID int) worker.Task {
+	return notifyAboutNewComment("Notify about approved comment", comment, post, everyone, approverID)
 }
 
-func notifyAboutNewComment(name string, comment *entity.Comment, post *entity.Post, aud audience) worker.Task {
+func notifyAboutNewComment(name string, comment *entity.Comment, post *entity.Post, aud audience, skipUserID int) worker.Task {
 	return describe(name, func(c *worker.Context) error {
 		contentString := entity.CommentString(comment.Content)
 		author := comment.User
@@ -43,11 +47,12 @@ func notifyAboutNewComment(name string, comment *entity.Comment, post *entity.Po
 		}
 
 		rules := recipientRules{
-			authorID: author.ID,
-			replyTo:  replyTo,
-			mentions: contentString.ParseMentions(),
-			general:  &enum.NotificationEventNewComment,
-			aud:      aud,
+			authorID:   author.ID,
+			replyTo:    replyTo,
+			mentions:   contentString.ParseMentions(),
+			general:    &enum.NotificationEventNewComment,
+			aud:        aud,
+			skipUserID: skipUserID,
 		}
 		if replyTo != nil || len(rules.mentions) > 0 {
 			mN := &query.GetMentionNotifications{CommentID: comment.ID}
@@ -142,7 +147,8 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 			"Comment":       contentString,
 			"MentionsCount": len(mentions),
 		})
-		if len(mentions) == 0 {
+		// Nothing is sent about a pending comment until it's approved
+		if len(mentions) == 0 || !comment.IsApproved {
 			return nil
 		}
 
@@ -156,7 +162,7 @@ func NotifyAboutUpdatedComment(post *entity.Post, comment *entity.Comment) worke
 			authorID:        author.ID,
 			mentions:        mentions,
 			alreadyNotified: mN.Result,
-			aud:             audienceFor(comment.IsApproved && post.IsApproved),
+			aud:             audienceFor(post.IsApproved),
 		}
 		onWeb, err := pickRecipients(c, post, enum.NotificationChannelWeb, rules)
 		if err != nil {

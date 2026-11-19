@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "Din e-post är privat och kommer aldrig att visas offentligt.",
   "mysettings.notification.channelemail": "E-post",
   "mysettings.notification.channelweb": "Webb",
+  "mysettings.notification.event.awaitingapproval": "Väntar på godkännande",
   "mysettings.notification.event.discussion": "Diskussion",
   "mysettings.notification.event.mention": "Omnämnanden och svar",
   "mysettings.notification.event.newpost": "Nytt inlägg",

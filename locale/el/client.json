@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "Το email σας είναι ιδιωτικό και δεν θα εμφανιστεί ποτέ δημόσια.",
   "mysettings.notification.channelemail": "E-mail",
   "mysettings.notification.channelweb": "Ιστοσελίδα",
+  "mysettings.notification.event.awaitingapproval": "Σε αναμονή έγκρισης",
   "mysettings.notification.event.discussion": "Συζήτηση",
   "mysettings.notification.event.mention": "Αναφορές και απαντήσεις",
   "mysettings.notification.event.newpost": "Νέα Δημοσίευση",

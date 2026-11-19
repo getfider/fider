@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "ایمیل شما خصوصی است و نمایش عمومی نخواهد داشت.",
   "mysettings.notification.channelemail": "ایمیل",
   "mysettings.notification.channelweb": "وب",
+  "mysettings.notification.event.awaitingapproval": "در انتظار تأیید",
   "mysettings.notification.event.discussion": "بحث",
   "mysettings.notification.event.mention": "منشن‌ها و پاسخ‌ها",
   "mysettings.notification.event.newpost": "پست جدید",

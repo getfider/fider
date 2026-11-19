@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "您的电子邮件是私人的，永远不会公开显示.",
   "mysettings.notification.channelemail": "电子邮件",
   "mysettings.notification.channelweb": "网站",
+  "mysettings.notification.event.awaitingapproval": "待审核",
   "mysettings.notification.event.discussion": "讨论",
   "mysettings.notification.event.mention": "提及和回复",
   "mysettings.notification.event.newpost": "新帖子",

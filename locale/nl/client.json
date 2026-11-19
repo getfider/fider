@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "Jouw e-mailadres is privé en zal nooit publiekelijk worden weergegeven.",
   "mysettings.notification.channelemail": "E-mailadres",
   "mysettings.notification.channelweb": "Web",
+  "mysettings.notification.event.awaitingapproval": "Wacht op goedkeuring",
   "mysettings.notification.event.discussion": "Discussie",
   "mysettings.notification.event.mention": "Vermeldingen en reacties",
   "mysettings.notification.event.newpost": "Nieuw Bericht",

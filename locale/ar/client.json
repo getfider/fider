@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "بريدك الإلكتروني خاص بك ولن يتم عرضه للعامة أبدًا.",
   "mysettings.notification.channelemail": "البريد الإلكتروني",
   "mysettings.notification.channelweb": "موقع",
+  "mysettings.notification.event.awaitingapproval": "بانتظار الموافقة",
   "mysettings.notification.event.discussion": "المناقشة",
   "mysettings.notification.event.mention": "الإشارات والردود",
   "mysettings.notification.event.newpost": "منشور جديد",

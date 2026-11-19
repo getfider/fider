@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "귀하의 이메일은 비공개이며 절대로 공개되지 않습니다.",
   "mysettings.notification.channelemail": "이메일",
   "mysettings.notification.channelweb": "웹",
+  "mysettings.notification.event.awaitingapproval": "승인 대기",
   "mysettings.notification.event.discussion": "토론",
   "mysettings.notification.event.mention": "언급 및 답글",
   "mysettings.notification.event.newpost": "새 게시물",

@@ -30,6 +30,8 @@ type recipientRules struct {
 	// general is the new comment/new post event, or nil when only mentions apply (edits)
 	general *enum.NotificationEvent
 	aud     audience
+	// skipUserID is never notified, e.g. the moderator who just approved the content
+	skipUserID int
 }
 
 // pickRecipients gives each user at most one notification on a channel.
@@ -37,7 +39,7 @@ type recipientRules struct {
 func pickRecipients(ctx context.Context, post *entity.Post, channel enum.NotificationChannel, r recipientRules) (recipients, error) {
 	var result recipients
 
-	done := map[int]bool{r.authorID: true}
+	done := map[int]bool{r.authorID: true, r.skipUserID: true}
 	for _, n := range r.alreadyNotified {
 		done[n.UserID] = true
 	}

@@ -50,7 +50,6 @@ type audience int
 const (
 	everyone audience = iota
 	staffOnly
-	nonStaffOnly
 )
 
 func audienceFor(approved bool) audience {
@@ -64,8 +63,6 @@ func (a audience) includes(u *entity.User) bool {
 	switch a {
 	case staffOnly:
 		return u.IsCollaborator()
-	case nonStaffOnly:
-		return !u.IsCollaborator()
 	}
 	return true
 }

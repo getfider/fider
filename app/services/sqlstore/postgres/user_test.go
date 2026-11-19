@@ -322,10 +322,11 @@ func TestUserStorage_DefaultUserSettings(t *testing.T) {
 	Expect(err).IsNil()
 
 	Expect(getSettings.Result).Equals(map[string]string{
-		enum.NotificationEventNewPost.UserSettingsKeyName:      enum.NotificationEventNewPost.DefaultSettingValue,
-		enum.NotificationEventMention.UserSettingsKeyName:      enum.NotificationEventMention.DefaultSettingValue,
-		enum.NotificationEventNewComment.UserSettingsKeyName:   enum.NotificationEventNewComment.DefaultSettingValue,
-		enum.NotificationEventChangeStatus.UserSettingsKeyName: enum.NotificationEventChangeStatus.DefaultSettingValue,
+		enum.NotificationEventNewPost.UserSettingsKeyName:          enum.NotificationEventNewPost.DefaultSettingValue,
+		enum.NotificationEventMention.UserSettingsKeyName:          enum.NotificationEventMention.DefaultSettingValue,
+		enum.NotificationEventNewComment.UserSettingsKeyName:       enum.NotificationEventNewComment.DefaultSettingValue,
+		enum.NotificationEventChangeStatus.UserSettingsKeyName:     enum.NotificationEventChangeStatus.DefaultSettingValue,
+		enum.NotificationEventAwaitingApproval.UserSettingsKeyName: enum.NotificationEventAwaitingApproval.DefaultSettingValue,
 	})
 
 	err = bus.Dispatch(aryaStarkCtx, getSettings)

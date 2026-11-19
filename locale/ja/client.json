@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "あなたのメールアドレスは公開されることはありません。",
   "mysettings.notification.channelemail": "メールアドレス",
   "mysettings.notification.channelweb": "ウェブサイト",
+  "mysettings.notification.event.awaitingapproval": "承認待ち",
   "mysettings.notification.event.discussion": "ディスカッション",
   "mysettings.notification.event.mention": "メンションと返信",
   "mysettings.notification.event.newpost": "新規投稿",

@@ -166,6 +166,7 @@
   "mysettings.message.privateemail": "Your email is private and will never be publicly displayed.",
   "mysettings.notification.channelemail": "Email",
   "mysettings.notification.channelweb": "Web",
+  "mysettings.notification.event.awaitingapproval": "Awaiting Approval",
   "mysettings.notification.event.discussion": "New Comments",
   "mysettings.notification.event.mention": "Mentions and Replies",
   "mysettings.notification.event.newpost": "New Post",
