@@ -51,6 +51,7 @@ func TestContextID(t *testing.T) {
 
 func TestBaseURL(t *testing.T) {
 	RegisterT(t)
+	env.Config.HostMode = "multi"
 
 	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
 
@@ -59,6 +60,7 @@ func TestBaseURL(t *testing.T) {
 
 func TestBaseURL_HTTPS(t *testing.T) {
 	RegisterT(t)
+	env.Config.HostMode = "multi"
 
 	ctx := newGetContext("https://demo.test.fider.io:3000", nil)
 
@@ -67,12 +69,33 @@ func TestBaseURL_HTTPS(t *testing.T) {
 
 func TestBaseURL_HTTPS_Proxy(t *testing.T) {
 	RegisterT(t)
+	env.Config.HostMode = "multi"
 
 	ctx := newGetContext("http://demo.test.fider.io:3000", map[string]string{
 		"X-Forwarded-Proto": "https",
 	})
 
 	Expect(ctx.BaseURL()).Equals("https://demo.test.fider.io:3000")
+}
+
+func TestBaseURL_SingleHostMode(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "single"
+	env.Config.BaseURL = "https://example.com"
+
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
+
+	Expect(ctx.BaseURL()).Equals("https://example.com")
+}
+
+func TestBaseURL_SingleHostMode_WithPath(t *testing.T) {
+	RegisterT(t)
+	env.Config.HostMode = "single"
+	env.Config.BaseURL = "https://example.com/feedback"
+
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
+
+	Expect(ctx.BaseURL()).Equals("https://example.com/feedback")
 }
 
 func TestCurrentURL(t *testing.T) {
