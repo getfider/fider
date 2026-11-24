@@ -5,8 +5,9 @@ import (
 )
 
 type AddNewComment struct {
-	Post    *entity.Post
-	Content string
+	Post     *entity.Post
+	ParentID *int
+	Content  string
 
 	Result *entity.Comment
 }

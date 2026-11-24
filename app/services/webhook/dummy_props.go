@@ -57,6 +57,7 @@ func dummyTriggerProps(c context.Context, webhookType enum.WebhookType) webhook.
 		props.SetPost(dummyPost, "post", baseURL, true, true)
 		props["comment"] = "An example **comment** on a post."
 		props["comment_id"] = 12
+		props["comment_parent_id"] = 10
 	case enum.WebhookChangeStatus:
 		props.SetPost(dummyPost, "post", baseURL, true, true)
 		props["post_old_status"] = enum.PostOpen.Name()

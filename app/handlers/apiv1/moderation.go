@@ -190,7 +190,7 @@ func approvePost(c *web.Context, postID int) error {
 		return err
 	}
 
-	c.Enqueue(tasks.NotifyAboutApprovedPost(getPost.Result))
+	c.Enqueue(tasks.NotifyAboutApprovedPost(getPost.Result, c.User().ID))
 	return nil
 }
 
@@ -209,7 +209,7 @@ func approveComment(c *web.Context, commentID int) error {
 
 	// A comment on a still-pending post stays staff-only
 	if getPost.Result.IsApproved {
-		c.Enqueue(tasks.NotifyAboutApprovedComment(getComment.Result, getPost.Result))
+		c.Enqueue(tasks.NotifyAboutApprovedComment(getComment.Result, getPost.Result, c.User().ID))
 	}
 	return nil
 }

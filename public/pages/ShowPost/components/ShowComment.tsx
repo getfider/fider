@@ -18,6 +18,7 @@ interface ShowCommentProps {
   highlighted?: boolean
   onToggleReaction?: () => void
   onChanged: () => void
+  onReply?: () => void
 }
 
 export const ShowComment = (props: ShowCommentProps) => {
@@ -278,7 +279,14 @@ export const ShowComment = (props: ShowCommentProps) => {
                   </div>
                 )}
 
-                <Reactions reactions={localReactionCounts} emojiSelectorRef={emojiSelectorRef} toggleReaction={toggleReaction} />
+                <HStack spacing={2} align="center">
+                  <Reactions reactions={localReactionCounts} emojiSelectorRef={emojiSelectorRef} toggleReaction={toggleReaction} />
+                  {props.onReply && (
+                    <Button variant="link" size="small" onClick={props.onReply} className="mt-2 c-comment__reply">
+                      <Trans id="action.reply">Reply</Trans>
+                    </Button>
+                  )}
+                </HStack>
               </>
             )}
           </div>

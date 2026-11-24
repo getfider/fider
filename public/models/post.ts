@@ -66,6 +66,7 @@ export interface ReactionCount {
 
 export interface Comment {
   id: number
+  parentId?: number
   content: string
   createdAt: string
   user: User

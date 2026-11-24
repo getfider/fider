@@ -878,6 +878,68 @@ func TestPostCommentHandler(t *testing.T) {
 	Expect(newComment.Content).Equals("This is a comment!")
 }
 
+func TestPostCommentHandler_Reply(t *testing.T) {
+	topLevelID := 7
+	testCases := []struct {
+		name         string
+		parent       *entity.Comment
+		expectedCode int
+	}{
+		{"approved top-level parent", &entity.Comment{ID: 5, IsApproved: true}, http.StatusOK},
+		// Not found covers deleted parents and parents on another post or tenant (the query is scoped to both)
+		{"parent not found", nil, http.StatusBadRequest},
+		{"parent is a reply", &entity.Comment{ID: 5, ParentID: &topLevelID, IsApproved: true}, http.StatusBadRequest},
+		{"parent awaiting moderation", &entity.Comment{ID: 5, IsApproved: false}, http.StatusBadRequest},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			RegisterT(t)
+
+			post := &entity.Post{ID: 1, Number: 1, Title: "The Post #1", Description: "The Description #1"}
+			bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+				q.Result = post
+				return nil
+			})
+
+			var parentQuery *query.GetCommentByID
+			bus.AddHandler(func(ctx context.Context, q *query.GetCommentByID) error {
+				parentQuery = q
+				if tc.parent == nil {
+					return app.ErrNotFound
+				}
+				q.Result = tc.parent
+				return nil
+			})
+
+			var newComment *cmd.AddNewComment
+			bus.AddHandler(func(ctx context.Context, c *cmd.AddNewComment) error {
+				newComment = c
+				c.Result = &entity.Comment{ID: 6, ParentID: c.ParentID, Content: c.Content}
+				return nil
+			})
+
+			bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+			bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
+
+			code, _ := mock.NewServer().
+				OnTenant(mock.DemoTenant).
+				AsUser(mock.JonSnow).
+				AddParam("number", post.Number).
+				ExecutePost(apiv1.PostComment(), `{ "content": "This is a reply!", "parentId": 5 }`)
+
+			Expect(code).Equals(tc.expectedCode)
+			Expect(parentQuery.CommentID).Equals(5)
+			Expect(parentQuery.PostID).Equals(post.ID)
+			if tc.expectedCode == http.StatusOK {
+				Expect(*newComment.ParentID).Equals(5)
+			} else {
+				Expect(newComment).IsNil()
+			}
+		})
+	}
+}
+
 func TestPostCommentHandlerMentions(t *testing.T) {
 	RegisterT(t)
 

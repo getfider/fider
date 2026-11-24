@@ -29,3 +29,55 @@
     }
   }
 }
+
+// A top-level comment with replies: the thread line runs from just under the parent's avatar
+// down to the last reply, and there's extra space before the next top-level comment
+.c-comment-thread--threaded {
+  position: relative;
+  padding-bottom: spacing(4); // doubles the gap before the next top-level comment
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 21px; // centre of the 44px (h-11) avatar, less half the line
+    top: calc(44px + #{spacing(1)});
+    bottom: spacing(4);
+    border-left: 2px solid var(--colors-gray-200);
+  }
+
+  > .c-comment-replies {
+    border-left-color: transparent;
+  }
+
+  // Avatars are hidden on mobile, so fall back to the line beside the replies only
+  @include media("sm") {
+    &::before {
+      display: none;
+    }
+
+    > .c-comment-replies {
+      border-left-color: var(--colors-gray-200);
+    }
+  }
+}
+
+// One level of replies, grouped by a line down the left. Reply avatars start in line with the
+// parent's card (44px avatar + spacing(4) gap), so everything shares one left edge.
+.c-comment-replies {
+  margin-top: spacing(4);
+  margin-left: 21px; // centre of the 44px (h-11) avatar, less half the border
+  padding-left: calc(44px + #{spacing(4)} - 23px); // less the margin and border above
+  border-left: 2px solid var(--colors-gray-200);
+
+  @include media("sm") {
+    margin-left: spacing(2);
+    padding-left: spacing(3);
+  }
+}
+
+.c-comment-deleted {
+  padding: spacing(4) spacing(6);
+  font-style: italic;
+  border: 1px dashed var(--colors-gray-300);
+  border-radius: get("border.radius.xlarge");
+}

@@ -366,8 +366,9 @@ func PostComment() web.HandlerFunc {
 		}
 
 		addNewComment := &cmd.AddNewComment{
-			Post:    getPost.Result,
-			Content: action.Content,
+			Post:     getPost.Result,
+			ParentID: action.ParentID,
+			Content:  action.Content,
 		}
 		if err := bus.Dispatch(c, addNewComment); err != nil {
 			return c.Failure(err)
