@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react"
 import { Icon } from "./common"
 import "./ThemeSwitcher.scss"
 import { cache } from "@fider/services/cache"
+import { i18n } from "@lingui/core"
 
 type themeType = "light" | "dark"
 
@@ -24,7 +25,7 @@ export const ThemeSwitcher = () => {
   const icon = currentTheme === "light" ? <Icon sprite={IconMoon} className="h-6 text-gray-500" /> : <Icon sprite={IconSun} className="h-6 text-gray-500" />
 
   return (
-    <button onClick={toggleTheme} aria-label="Toggle theme" className="c-themeswitcher">
+    <button onClick={toggleTheme} aria-label={i18n._({ id: "action.toggletheme", message: "Toggle theme" })} className="c-themeswitcher">
       {icon}
     </button>
   )
