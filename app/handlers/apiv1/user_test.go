@@ -207,3 +207,48 @@ func TestCreateUser_NewUser(t *testing.T) {
 	theOtherUserID := query.Int32("id")
 	Expect(theOtherUserID).Equals(userID)
 }
+
+func TestDeleteUserHandler(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		q.Result = mock.AryaStark
+		return nil
+	})
+
+	var deleteCmd *cmd.DeleteUser
+	bus.AddHandler(func(ctx context.Context, c *cmd.DeleteUser) error {
+		deleteCmd = c
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		AsUser(mock.JonSnow).
+		AddParam("userID", mock.AryaStark.ID).
+		Execute(apiv1.DeleteUser())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(deleteCmd.UserID).Equals(mock.AryaStark.ID)
+}
+
+func TestDeleteUserHandler_NotFound(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		return app.ErrNotFound
+	})
+
+	var deleteCmd *cmd.DeleteUser
+	bus.AddHandler(func(ctx context.Context, c *cmd.DeleteUser) error {
+		deleteCmd = c
+		return nil
+	})
+
+	code, _ := mock.NewServer().
+		AsUser(mock.JonSnow).
+		AddParam("userID", 999).
+		Execute(apiv1.DeleteUser())
+
+	Expect(code).Equals(http.StatusNotFound)
+	Expect(deleteCmd).IsNil()
+}

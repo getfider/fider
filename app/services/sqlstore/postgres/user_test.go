@@ -375,7 +375,7 @@ func TestUserStorage_Delete(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	err := bus.Dispatch(jonSnowCtx, &cmd.DeleteCurrentUser{})
+	err := bus.Dispatch(jonSnowCtx, &cmd.DeleteUser{UserID: jonSnow.ID})
 	Expect(err).IsNil()
 
 	getByEmail := &query.GetUserByEmail{Email: "jon.snow@got.com"}
