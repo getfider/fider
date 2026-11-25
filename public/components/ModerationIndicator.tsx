@@ -4,6 +4,7 @@ import { useFider } from "@fider/hooks"
 import ThumbsUp from "@fider/assets/images/heroicons-thumbsup.svg"
 import ThumbsDown from "@fider/assets/images/heroicons-thumbsdown.svg"
 import { HStack } from "@fider/components/layout"
+import { Trans } from "@lingui/react/macro"
 
 export const ModerationIndicator = () => {
   const fider = useFider()
@@ -52,7 +53,9 @@ export const ModerationIndicator = () => {
         <HStack className="bg-green-200 rounded-full px-4">
           <Icon width="18" height="18" sprite={ThumbsUp} />
           <Icon width="18" height="18" sprite={ThumbsDown} />
-          <span className="py-2">New ideas and comments waiting</span>
+          <span className="py-2">
+            <Trans id="moderation.indicator.waiting">New ideas and comments waiting</Trans>
+          </span>
         </HStack>
       </a>
     )

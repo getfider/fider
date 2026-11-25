@@ -3,6 +3,7 @@ import React from "react"
 import { Button, Modal, ButtonClickEvent } from "@fider/components"
 import { actions, notify, navigator } from "@fider/services"
 import { Trans } from "@lingui/react/macro"
+import { i18n } from "@lingui/core"
 
 interface DangerZoneState {
   clicked: boolean
@@ -30,7 +31,7 @@ export class DangerZone extends React.Component<any, DangerZoneState> {
       e.preventEnable()
       navigator.goHome()
     } else {
-      notify.error("Failed to delete your account. Try again later")
+      notify.error(i18n._({ id: "mysettings.deleteaccount.failed", message: "Failed to delete your account. Try again later" }))
     }
   }
 

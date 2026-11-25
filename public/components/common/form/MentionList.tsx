@@ -2,6 +2,7 @@ import { MentionNodeAttrs } from "@tiptap/extension-mention"
 import "./MentionList.scss"
 
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react"
+import { Trans } from "@lingui/react/macro"
 
 interface Props {
   items: MentionNodeAttrs[]
@@ -66,7 +67,9 @@ const MentionList = forwardRef<MentionListHandle, Props>((props, ref) => {
           </button>
         ))
       ) : (
-        <div className="item">No result</div>
+        <div className="item">
+          <Trans id="editor.mention.noresults">No result</Trans>
+        </div>
       )}
     </div>
   )

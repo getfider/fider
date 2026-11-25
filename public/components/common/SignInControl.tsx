@@ -188,8 +188,14 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = (props
   if (!isCookieEnabled()) {
     return (
       <Message type="error">
-        <h3 className="text-display">Cookies Required</h3>
-        <p>Cookies are not enabled on your browser. Please enable cookies in your browser preferences to continue.</p>
+        <h3 className="text-display">
+          <Trans id="signin.cookiesrequired.title">Cookies Required</Trans>
+        </h3>
+        <p>
+          <Trans id="signin.cookiesrequired.text">
+            Cookies are not enabled on your browser. Please enable cookies in your browser preferences to continue.
+          </Trans>
+        </p>
       </Message>
     )
   }

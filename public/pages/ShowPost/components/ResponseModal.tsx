@@ -75,7 +75,13 @@ export class ResponseModal extends React.Component<ResponseModalProps, ResponseM
       <Modal.Window isOpen={this.props.showModal} onClose={this.props.onCloseModal} center={false} size="large">
         <Modal.Content>
           <Form error={this.state.error} className="c-response-form">
-            <Select field="status" label="Status" defaultValue={this.state.status} options={options} onChange={this.setStatus} />
+            <Select
+              field="status"
+              label={i18n._({ id: "label.status", message: "Status" })}
+              defaultValue={this.state.status}
+              options={options}
+              onChange={this.setStatus}
+            />
             {this.state.status === PostStatus.Duplicate.value ? (
               <>
                 <Field>

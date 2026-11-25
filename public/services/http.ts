@@ -1,4 +1,5 @@
 import { analytics, notify, truncate, Fider } from "@fider/services"
+import { i18n } from "@lingui/core"
 
 export interface ErrorItem {
   field?: string
@@ -26,7 +27,7 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
   }
 
   if (response.status === 500) {
-    notify.error("An unexpected error occurred while processing your request.")
+    notify.error(i18n._({ id: "error.http.unexpected", message: "An unexpected error occurred while processing your request." }))
   } else if (response.status === 401) {
     // If the user was authenticated but received a 401 it means their session was
     // invalidated (e.g. security stamp rotated after an OAuth allowed-roles change).
@@ -38,9 +39,9 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       return new Promise<Result<T>>(() => {})
     }
-    notify.error("You need to be authenticated to perform this operation.")
+    notify.error(i18n._({ id: "error.http.unauthenticated", message: "You need to be authenticated to perform this operation." }))
   } else if (response.status === 403) {
-    notify.error("You are not authorized to perform this operation.")
+    notify.error(i18n._({ id: "error.http.forbidden", message: "You are not authorized to perform this operation." }))
   }
 
   return {

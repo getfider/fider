@@ -102,7 +102,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Heading 2"
+              title={i18n._({ id: "editor.toolbar.heading2", message: "Heading 2" })}
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
               className={`c-editor-button ${active.h2 ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -111,7 +111,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Heading 3"
+              title={i18n._({ id: "editor.toolbar.heading3", message: "Heading 3" })}
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
               className={`c-editor-button ${active.h3 ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -120,7 +120,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Bold"
+              title={i18n._({ id: "editor.toolbar.bold", message: "Bold" })}
               onClick={() => editor.chain().focus().toggleBold().run()}
               className={`c-editor-button ${active.bold ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -129,7 +129,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Italic"
+              title={i18n._({ id: "editor.toolbar.italic", message: "Italic" })}
               onClick={() => editor.chain().focus().toggleItalic().run()}
               className={`c-editor-button ${active.italic ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -138,7 +138,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Strikethrough"
+              title={i18n._({ id: "editor.toolbar.strikethrough", message: "Strikethrough" })}
               onClick={() => editor.chain().focus().toggleStrike().run()}
               className={`c-editor-button ${active.strike ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -147,7 +147,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="BulletList"
+              title={i18n._({ id: "editor.toolbar.bulletlist", message: "Bulleted list" })}
               onClick={() => editor.chain().focus().toggleBulletList().run()}
               className={`c-editor-button ${active.bulletList ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -156,7 +156,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="OrderedList"
+              title={i18n._({ id: "editor.toolbar.orderedlist", message: "Numbered list" })}
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               className={`c-editor-button ${active.orderedList ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -165,7 +165,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Code"
+              title={i18n._({ id: "editor.toolbar.code", message: "Code block" })}
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
               className={`c-editor-button ${active.codeBlock ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -174,7 +174,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Quote"
+              title={i18n._({ id: "editor.toolbar.quote", message: "Quote" })}
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
               className={`c-editor-button ${active.blockquote ? "is-active" : ""} ${disabled ? "is-disabled" : ""}`}
             >
@@ -183,7 +183,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Mention"
+              title={i18n._({ id: "editor.toolbar.mention", message: "Mention" })}
               onClick={() => {
                 // Get the current cursor position
                 const { from } = editor.state.selection
@@ -203,7 +203,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Insert Image"
+              title={i18n._({ id: "editor.toolbar.image", message: "Insert Image" })}
               onClick={handleImageClick}
               className={`c-editor-button ${disabled ? "is-disabled" : ""}`}
             >
@@ -212,7 +212,7 @@ const MenuBar = ({
             <button
               disabled={disabled}
               type="button"
-              title="Insert Link"
+              title={i18n._({ id: "editor.toolbar.link", message: "Insert Link" })}
               onClick={() => {
                 // Get the text that was highlighted when the user clicked the link button
                 const { from, to } = editor.state.selection
@@ -229,7 +229,11 @@ const MenuBar = ({
         <button
           disabled={disabled}
           type="button"
-          title={isMarkdownMode ? "Rich Text Mode" : "Markdown Mode"}
+          title={
+            isMarkdownMode
+              ? i18n._({ id: "editor.toolbar.richtextmode", message: "Rich Text Mode" })
+              : i18n._({ id: "editor.toolbar.markdownmode", message: "Markdown Mode" })
+          }
           onClick={toggleMarkdownMode}
           className={`no-focus c-markdown-toggle ${isMarkdownMode ? "is-active" : ""} ${disabled ? "is-disabled" : ""} ml-auto text-xs`}
         >
