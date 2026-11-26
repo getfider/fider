@@ -11,7 +11,7 @@ describe("<ShowTag />", () => {
       </div>
     )
 
-    expect(fireEvent.click(screen.getByRole("link", { name: "Bug" }))).toBe(false)
+    expect(fireEvent.click(screen.getByTitle("Bug"))).toBe(false)
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 })
