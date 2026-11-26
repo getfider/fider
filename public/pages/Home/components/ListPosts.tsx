@@ -58,7 +58,7 @@ const ListPostItem = (props: {
         {props.tags.length >= 1 && (
           <HStack spacing={0} className="gap-x-4 flex-wrap">
             {props.tags.map((tag) => (
-              <ShowTag key={tag.id} tag={tag} />
+              <ShowTag key={tag.id} tag={tag} link />
             ))}
           </HStack>
         )}

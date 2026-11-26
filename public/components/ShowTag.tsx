@@ -25,7 +25,9 @@ export const ShowTag = (props: TagProps) => {
   })
 
   const clickHandler = (event: MouseEvent) => {
-    if (!props.link) {
+    if (props.link) {
+      event.stopPropagation()
+    } else {
       event.preventDefault()
     }
   }
