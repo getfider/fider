@@ -3,6 +3,7 @@ import "./Dropdown.scss"
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 import { classSet } from "@fider/services"
 import { Icon } from "@fider/components/common/Icon"
+import { useFider } from "@fider/hooks"
 
 interface DropdownListItemProps {
   href?: string
@@ -97,6 +98,12 @@ export const Dropdown = (props: DropdownProps) => {
       document.removeEventListener("mousedown", handleClick)
     }
   }, [])
+
+  // The header stays mounted across client-side navigation; close when a new page payload arrives
+  const contextID = useFider().session.contextID
+  useEffect(() => {
+    if (isOpen) close()
+  }, [contextID])
 
   const listClassName = classSet({
     "c-dropdown__list--wide": props.wide,
