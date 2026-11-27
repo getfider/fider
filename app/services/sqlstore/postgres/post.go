@@ -459,7 +459,14 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 
 			searchPredicate := fmt.Sprintf(`q.search @@ %s OR q.search @@ %s`, tsQueryExpr, tsQuerySimple)
 
-			condition, statuses, _ := getViewData(*q, 4)
+			nextParam := 4
+			patterns := cjkLikePatterns(tsQuery)
+			if len(patterns) > 0 {
+				searchPredicate += " OR q.title ILIKE ANY($4) OR q.description ILIKE ANY($4)"
+				nextParam = 5
+			}
+
+			condition, statuses, _ := getViewData(*q, nextParam)
 
 			if q.MyPostsOnly && user != nil {
 				condition += " AND user_id = " + strconv.Itoa(user.ID)
@@ -473,6 +480,9 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 			`, innerQuery, searchPredicate, condition, score, q.Limit)
 
 			params := []interface{}{tenant.ID, pq.Array(statuses), tsQuery}
+			if len(patterns) > 0 {
+				params = append(params, pq.Array(patterns))
+			}
 			if len(q.Tags) > 0 && !q.NoTagsOnly {
 				params = append(params, pq.Array(q.Tags))
 			}

@@ -187,6 +187,20 @@ func TestPostStorage_SearchEnglishPosts_PartialMatch(t *testing.T) {
 	Expect(slugs["authorization-rules"]).IsTrue()
 }
 
+func TestPostStorage_SearchChinesePosts_WordInsideTitle(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status, is_approved, language) VALUES ('有中文路径下无法使用', 'cjk-post', 1, '说明', $1, 1, 1, 0, true, 'simple')", time.Now())
+	Expect(err).IsNil()
+
+	search := &query.SearchPosts{Query: "中文"}
+	err = bus.Dispatch(demoTenantCtx, search)
+	Expect(err).IsNil()
+	Expect(search.Result).HasLen(1)
+	Expect(search.Result[0].Slug).Equals("cjk-post")
+}
+
 func TestPostStorage_SearchEnglishPosts_CaseInsensitive(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
